@@ -11,13 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Loads active app bindings from the database in prod; returns empty in dev, where apps are loaded
- * from the filesystem by YamlBindingSpecificationLoader.
- *
  * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
  * hand-edited): a row whose schema fails to decode or validate is skipped and logged at warning
- * level rather than aborting the whole load, unlike YamlBindingSpecificationLoader, which fails hard
- * on an authored file.
+ * level rather than aborting the whole load, unlike {@see YamlBindingSpecificationLoader}, which
+ * fails hard on an authored file.
  *
  * @internal
  *
@@ -40,7 +37,6 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
      */
     public function load(): array
     {
-        // In dev, app bindings are loaded from filesystem by YamlBindingSpecificationLoader via the compiler pass
         if ($this->environment === 'dev') {
             return [];
         }

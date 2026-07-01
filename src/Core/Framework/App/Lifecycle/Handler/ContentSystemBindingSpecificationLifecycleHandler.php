@@ -33,8 +33,7 @@ class ContentSystemBindingSpecificationLifecycleHandler extends AbstractLifecycl
 
     public function activate(AppActivationContext $context): void
     {
-        // The activating app's persisted bindings become live now that the app is active; refresh the
-        // cache so they appear immediately.
+        // Refresh the cache so the newly active app's bindings appear immediately.
         $this->registry->invalidate();
     }
 

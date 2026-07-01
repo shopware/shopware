@@ -43,7 +43,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
         $properties = $element->getProperties();
         $dataRequirements = $element->getDataRequirements();
 
-        // Build map: property key → DataRequirement for config-based deduplication
+        // Index requirements by property key for config-based dedup below
         $requirementMap = [];
         foreach ($dataRequirements as $requirement) {
             $requirementMap[$requirement->key] = $requirement;
@@ -62,7 +62,6 @@ class PropertiesExtractionVisitor implements ElementVisitor
 
     public function leave(ContentElement $element): void
     {
-        // Cleanup: Remove empty assignments to keep response clean
         if ($this->assignments[$element->getId()] === []) {
             unset($this->assignments[$element->getId()]);
         }

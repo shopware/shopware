@@ -87,7 +87,7 @@ class ContentSystemExceptionTest extends TestCase
     {
         // A code in the catalogue is reachable from the layout decode path (dataRequirements / acceptsContext),
         // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
-        // catalogue membership is pinned separately by testClientDefectCodes.
+        // catalogue membership is pinned by a separate test.
         yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
         // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];

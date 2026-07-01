@@ -172,7 +172,7 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
         // Validate against the explicit structural constraint only, NOT via attribute mapping: the DTO also
         // carries the dep-injected TypeConsistentBindingSpecification, whose validator the default (no-arg)
         // constraint-validator factory here cannot construct. This isolates the structural rule under test;
-        // the semantic §6 constraint is covered by its own container-based integration test.
+        // the semantic constraint is covered by its own container-based integration test.
         return Validation::createValidatorBuilder()
             ->getValidator()
             ->validate($dto, new WellFormedBindingSpecification());

@@ -9,10 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Canonicalizes an encoded data-loader config array into a stable shape for structural comparison: key-sorts
  * every map level and value-sorts every list level (e.g. an `associations` list), so two configs that differ
- * only in key or list order compare equal. Shared by
- * {@see PropertiesExtractionVisitor}'s dedup
- * hash and {@see AttributionReconciler}'s honesty check, so
- * the one normalization rule lives once, next to the config-serializer machinery it normalizes the output of.
+ * only in key or list order compare equal.
+ *
+ * Shared by {@see PropertiesExtractionVisitor} (dedup hash) and {@see AttributionReconciler} (honesty check).
  *
  * @internal
  *

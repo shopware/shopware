@@ -11,10 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Loads active app element types from the database. Only operates in prod — in dev,
- * app types are loaded from the filesystem by YamlTypeLoader instead. Core, bundle,
- * and plugin types always go through YamlTypeLoader regardless of environment.
- *
  * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
  * hand-edited): a row whose schema fails to decode or validate is skipped and logged at warning
  * level rather than aborting the whole load, unlike YamlTypeLoader, which fails hard on an authored
@@ -41,7 +37,6 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
      */
     public function load(): array
     {
-        // In dev, app types are loaded from filesystem by YamlTypeLoader via the compiler pass
         if ($this->environment === 'dev') {
             return [];
         }

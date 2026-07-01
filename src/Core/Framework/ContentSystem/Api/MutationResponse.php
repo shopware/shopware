@@ -7,15 +7,13 @@ use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The wire response shared by the draft and persisted layout mutation routes, and the single definition of their
- * response shape and of which fields encode as JSON maps versus lists.
+ * The wire response shared by all draft and persisted mutation routes.
  *
- * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
- * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
- * jsonSerialize() casts the response-level resolutions/droppedProperties/applicableBindings maps to {} when empty;
- * the element tree carries empty element maps as [] (the same shape every other read path emits), and each
- * applicableBindings entry is a list<string>, [] when empty. It is safe only on that path; a future requirement
- * that caches or reconstructs this object must revisit it.
+ * Output-only: serialized to JSON and discarded — never cached, stored in a DAL SerializedField, or passed to
+ * StructNormalizer::denormalize(). jsonSerialize() casts the map-typed fields (resolutions/droppedProperties/
+ * applicableBindings) to {} when empty; the element tree's own maps stay [] (the shape every other read path
+ * emits), and each applicableBindings entry is a list<string>, [] when empty. Safe only on this path; a future
+ * requirement that caches or reconstructs this object must revisit it.
  *
  * @final
  */

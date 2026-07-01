@@ -11,11 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Shared structural machinery for the layout mutations: immutable path-copying tree surgery (every transform
- * reconstructs nodes through the ContentElement constructor), the affected/orphaned/droppedWiring stash the
- * pipeline reads after {@see apply()}, fresh-element scaffolding, and the uniform 400 for structural
- * impossibilities.
- *
  * @internal
  */
 #[Package('framework')]

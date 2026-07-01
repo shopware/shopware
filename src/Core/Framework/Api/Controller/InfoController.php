@@ -315,9 +315,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return array<string, BindingSpecificationSchema> the registered binding specifications keyed by their
-     *                                                   qualified id ("source:id") — the same id a client receives from applicableBindings and passes back as
-     *                                                   bindingSpecificationId to the bind-element actions
+     * @return array<string, BindingSpecificationSchema> keyed by qualified id ("source:id")
      */
     private function bindingSpecificationSchemas(): array
     {

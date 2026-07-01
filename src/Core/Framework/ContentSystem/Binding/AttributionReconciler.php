@@ -10,34 +10,20 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
-use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Reconciles each element's `attributedSpecifications` against its current wiring at the DAL write boundary, so
- * a persisted attribution is honest by construction: `attributedSpecifications[$key] => $specId` survives a write
- * only while the element's current `source`/`config` for `$key` still equals what `$specId`'s binding for `$key`
- * produces. A key whose wiring has since diverged (or whose specification/binding no longer exists) is dropped,
- * never flagged as an error — a user who edits a key's wiring away from the specification simply loses that
- * key's attribution; every other key keeps its own independently. This per-key drop is the only silent
- * outcome: it is reached by looking up a resolved specification (via {@see
- * AbstractContentSystemBindingSpecificationRegistry::get()}) and finding its wiring for `$key` diverged or
- * gone. If the registry's own build fails instead — a broken authored binding specification makes `get()`/
- * `all()` throw — that exception is NOT absorbed here: only a {@see ContentSystemException} whose code is a
- * client defect ({@see ContentSystemException::isClientDefect()}) is caught and treated as "not honest";
- * every other exception, including a registry-build failure, propagates out of the reconciler.
+ * Re-derives each element's {@see ContentElement::getAttributedSpecifications()} at the DAL write boundary.
+ * A dropped attribution (diverged wiring, missing specification, or missing binding) is never an error.
  *
- * Mirrors {@see LayoutDefaultSeeder}: it walks the same write-time
- * element forest, handles both a hydrated {@see ContentElement} and a raw element array (Admin / Sync JSON), and
- * recurses every slot's children.
+ * Honesty comparison correctness depends on every config serializer honoring its round-trip contract
+ * ({@see AbstractContentDataLoaderConfigSerializer}): `encode(decode($x))` must be stable and equal to
+ * `decode($x)->jsonSerialize()`. A serializer that normalizes or coerces values on decode, or whose
+ * `encode` diverges from `jsonSerialize`, would silently drop an attribution that is in fact still honest.
  *
- * The honesty comparison encodes both the element's wiring and the specification's binding through the
- * loader's config serializer and compares the canonicalized results, so it is only correct while every
- * config serializer honors its round-trip contract
- * ({@see AbstractContentDataLoaderConfigSerializer}):
- * `encode(decode($x))` must be stable and equal to `decode($x)->jsonSerialize()`. A serializer that
- * normalizes or coerces values on decode, or whose encode diverges from jsonSerialize, would drop an
- * attribution that is in fact still honest.
+ * Only a {@see ContentSystemException} whose code is a client defect
+ * ({@see ContentSystemException::isClientDefect()}) is caught and treated as "not honest"; every other
+ * exception, including a registry-build failure, propagates.
  *
  * @internal
  *

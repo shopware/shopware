@@ -11,9 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Loads active app style options from the database in prod; returns empty in dev, where apps are
- * loaded from the filesystem by YamlStyleOptionLoader.
- *
  * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
  * hand-edited): a row whose schema fails to decode or validate is skipped and logged at warning
  * level rather than aborting the whole load, unlike YamlStyleOptionLoader, which fails hard on an
@@ -40,7 +37,6 @@ class DatabaseStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
      */
     public function load(): array
     {
-        // In dev, app options are loaded from filesystem by YamlStyleOptionLoader via the compiler pass
         if ($this->environment === 'dev') {
             return [];
         }

@@ -10,8 +10,8 @@ use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSp
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Deserialization + load-time validation shape for one binding specification declaration. The id is
- * not carried here — it comes from the YAML body and is supplied to toBindingSpecification().
+ * The id is not carried here — it comes from the YAML body's "id" key and is supplied to
+ * {@see self::toBindingSpecification()} by the loader.
  *
  * @internal
  */

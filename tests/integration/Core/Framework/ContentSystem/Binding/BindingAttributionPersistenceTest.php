@@ -21,12 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 
 /**
- * Covers the §19 integration acceptance for the write-boundary attribution round trip: an empty
- * `attributedSpecifications` never fails the `Type('array')` write validation and round-trips as
- * absent/`[]`, a populated one round-trips as an array when its wiring still matches the specification,
- * and {@see AttributionReconciler} drops a stale entry on
- * a real DAL write once the wiring has been edited away from the specification — across a direct DAL
- * write, the Sync API, and a nested element inside a slot.
+ * The attribution round-trip at the content_layout write boundary: absent, populated, and stale
+ * `attributedSpecifications` across a direct DAL write, the Sync API, and a nested slot element.
+ * {@see AttributionReconciler} drops a stale entry once the wiring is edited away from the specification.
  *
  * @internal
  */
@@ -158,7 +155,7 @@ class BindingAttributionPersistenceTest extends TestCase
         // AttributionReconciler's "specification no longer resolves from the registry" drop branch (specWiring()
         // returns null once registry->get() returns null) end-to-end through a real DAL write -- the
         // integration-level proxy for "the app/plugin that shipped the specification was uninstalled". The full
-        // install/uninstall lifecycle is a separate lifecycle concern (see spec §13); the reconciler's drop is
+        // install/uninstall lifecycle is a separate lifecycle concern; the reconciler's drop is
         // what this feature owns and what this test proves.
         $this->repository()->create([[
             'id' => $layoutId,

@@ -8,11 +8,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * For every element in a tree, the binding specifications applicable to its type: a specification declared for a
- * type is always applicable at any position of that type (a self-persisted loader offer is config-complete
- * regardless of position), so this is a per-element lookup keyed by the element's `component`, not a resolution
- * against its actual wiring or ancestry. A response-assembly-layer concern only — never consulted by
- * `Diagnostics/LayoutDiagnostics::analyze()` or the write gate.
+ * For every element in a tree, the binding specifications applicable to its `component` — a per-type
+ * registry lookup, not a resolution against the element's wiring or ancestry, since a self-persisted
+ * loader offer is config-complete at any position.
  *
  * @internal
  *

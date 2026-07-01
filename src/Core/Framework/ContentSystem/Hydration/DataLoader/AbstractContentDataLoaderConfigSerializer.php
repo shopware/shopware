@@ -6,11 +6,6 @@ use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Abstract base for serializing data loader configurations.
- *
- * Serializers encode/decode config objects to/from arrays for storage
- * and transmission. Each loader type has a corresponding serializer.
- *
  * Round-trip contract: for any wire form $x this serializer accepts, `encode(decode($x))` must be
  * stable (idempotent on the wire form) and equal to `decode($x)->jsonSerialize()` — `decode()` must
  * not normalize or coerce values, and `encode()` must not diverge from the config's `jsonSerialize()`.
@@ -24,9 +19,6 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractContentDataLoaderConfigSerializer
 {
     /**
-     * Returns the source identifier for DI service location.
-     * This method is used by the ServiceLocator for indexing.
-     *
      * @return non-empty-string
      */
     abstract public static function getSource(): string;

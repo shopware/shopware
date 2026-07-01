@@ -10,11 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The shared mutation pipeline: apply one structural transform to an already-decoded layout tree, run the
- * diagnostics pass on the whole new tree, and assemble a {@see MutationResult}. Decoding the raw request layout
- * into the tree is the caller's concern (the admin actions decode through the shared request decoder); the
- * pipeline is agnostic to whether the tree came from a request draft or a loaded content_layout.
- *
  * @internal
  *
  * @final

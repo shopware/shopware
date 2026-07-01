@@ -70,9 +70,6 @@ class Framework extends Bundle
         return new FrameworkExtension();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function build(ContainerBuilder $container): void
     {
         $container->setParameter('locale', 'en-GB');

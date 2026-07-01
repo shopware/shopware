@@ -105,8 +105,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     #[TestDox('loads an id at exactly the maximum length of 255 characters')]
     public function testLoadsIdAtExactlyMaxLength(): void
     {
-        // Mirrors YamlBindingSpecificationLoader::MAX_ID_LENGTH (255): the boundary value itself must load,
-        // only strlen($id) > MAX_ID_LENGTH is rejected (testThrowsWhenIdExceedsMaxLength covers 256).
+        // The boundary value at MAX_ID_LENGTH (255) must load; only a length greater than 255 is rejected.
         $id = str_repeat('a', 255);
         file_put_contents($this->tempDir . '/binding.yaml', "id: {$id}\ntype: media-gallery\nlabel: \"From media library\"\n");
 
@@ -233,7 +232,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
 
         // Stub the validator to report one violation: this tests the loader's throw-on-violations wiring
         // (it surfaces the violation path via bindingSpecificationsInvalid). The real constraint that would
-        // produce such a violation is covered by the validator's own tests and unit 4's integration test.
+        // produce such a violation is covered by the validator's own tests.
         $failing = static::createStub(ValidatorInterface::class);
         $failing->method('validate')->willReturn(new ConstraintViolationList([
             new ConstraintViolation('resolves entry "image" must declare a non-blank "loader"', null, [], null, 'bindings[broken].resolves[image].loader', null),
@@ -256,7 +255,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         // loading MECHANICS (id-from-body, dedup, file handling), not the constraints themselves, so a stub
         // validator is injected: it sidesteps the DTO's dep-injected TypeConsistentBindingSpecification (whose
         // validator the default no-arg factory cannot build) and the fixtures' unregistered types. The real
-        // structural and §6 semantic validation is covered by their own dedicated tests.
+        // structural and semantic validation is covered by their own dedicated tests.
         return new YamlBindingSpecificationLoader(
             $directories,
             new BindingSpecificationSerializer(),

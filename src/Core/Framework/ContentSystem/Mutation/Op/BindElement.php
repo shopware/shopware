@@ -12,12 +12,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Applies $bindingSpecificationId's wiring onto $elementId: each `resolves` entry becomes a concrete
- * {@see DataRequirement}, merged into the element's existing data requirements and overwriting the same keys
- * (re-applying a binding over an already-bound key replaces its wiring); each `inputs` entry with a default
- * seeds that primitive property, but only when the element does not already carry the key ({@see
- * ContentElement::hasProperty()}, not a null check, so an authored explicit null is never overwritten); and
- * every wired key's attribution is recorded, also merged and overwriting. Keeps the same id.
+ * Keeps the same element id. {@see ContentElement::hasProperty()} is the presence gate for `inputs`
+ * defaults — an authored value, including an explicit null, is never overwritten.
  *
  * @internal
  */
@@ -85,10 +81,6 @@ final class BindElement extends AbstractLayoutMutation
     }
 
     /**
-     * Seeds an input's default for every key the target does not already carry. Returned as the base of a
-     * property merge (existing properties spread on top), so an authored value — including an explicit null —
-     * always wins over a default; {@see ContentElement::hasProperty()} is the presence gate, not a null check.
-     *
      * @return array<string, mixed>
      */
     private function seedInputDefaults(ContentElement $node, BindingSpecification $specification): array

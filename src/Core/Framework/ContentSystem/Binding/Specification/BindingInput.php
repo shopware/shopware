@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Specification;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * One `inputs` entry of a {@see BindingSpecification}: a residual primitive property key with an optional
- * typed default. Presence is modeled explicitly so "no default" is distinct from "default is null".
+ * One `inputs` entry of a {@see BindingSpecification}. Presence is modeled explicitly (`hasDefault`)
+ * so "no default" is distinct from "default is null".
  *
  * @internal
  */

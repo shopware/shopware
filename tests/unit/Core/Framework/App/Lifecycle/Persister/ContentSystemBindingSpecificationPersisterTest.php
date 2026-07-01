@@ -51,7 +51,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $this->ids = new IdsCollection();
         $this->serializer = new BindingSpecificationSerializer();
         // Stub the validator: these tests exercise the persister's upsert/hash/delete logic, not binding
-        // validation, and the fixture uses an unregistered type the dep-injected §6 constraint would reject
+        // validation, and the fixture uses an unregistered type the dep-injected constraint would reject
         // (and whose validator the default no-arg factory cannot build). Validation has its own tests.
         $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());

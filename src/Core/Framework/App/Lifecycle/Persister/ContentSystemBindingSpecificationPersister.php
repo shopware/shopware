@@ -7,6 +7,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\ResolvedBindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
@@ -21,13 +22,8 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Sole write path for app bindings into the database. Called during app install and update.
- * DatabaseBindingSpecificationLoader is the read-side counterpart.
- *
- * Bindings are unique only within their app (DB unique key on app_id+name), unlike style options
- * which are globally unique — so, unlike ContentSystemStyleOptionPersister, this persister does not
- * run a cross-source collision check: within-app duplicate ids are already caught by
- * loadDtosFromDirectory(), and the same id from a different app is legitimate.
+ * Sole write path for app bindings into the database.
+ * {@see DatabaseBindingSpecificationLoader}
  *
  * @internal
  */

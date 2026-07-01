@@ -18,17 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
- * Applies one structural mutation to a stored content_layout and commits it; the persisted counterpart to
- * {@see MutationPipeline}, which transforms a stateless draft tree without touching storage.
- *
- * Known interim limitations, owned by and deferred to the planned layout draft/versioning system that will
- * supersede this `expectedVersion`/lock concurrency mechanism:
- * - The per-layout lock has a fixed 5.0s TTL (see {@see mutate()}); a critical section that runs longer could let
- *   the lock expire mid-write, reopening the lost-update window the lock closes. The optimistic `updatedAt` token
- *   still narrows that window but does not eliminate it.
- * - If {@see diagnose()} throws after the `update()` has already committed, the caller sees an error even though
- *   the write landed. The committed tree is the source of truth, so a retry re-reads the bumped `updatedAt` and
- *   gets a 409 `layoutVersionConflict`.
+ * Applies one structural mutation to a stored content_layout and commits it; the persisted counterpart
+ * to {@see MutationPipeline}.
  *
  * @internal
  *
@@ -130,8 +121,8 @@ class PersistedLayoutMutator
      * resolve() is never handed an unregistered id here even when the stored source was de-registered: mutate()
      * commits the tree via update() first, and that write runs ContentLayoutWriteValidator, which re-checks
      * membership of the committed root source and rejects a de-registered source as a clean unknownRootSource 400
-     * before any commit. A membership gate in this method would instead fire after the commit (the post-commit
-     * diagnose() limitation noted on the class), so the preceding write gate is the correct and only check needed.
+     * before any commit. A membership gate in this method would instead fire after the commit (this diagnose()
+     * runs after update() has already committed), so the preceding write gate is the correct and only check needed.
      *
      * @param list<ContentElement> $tree
      */

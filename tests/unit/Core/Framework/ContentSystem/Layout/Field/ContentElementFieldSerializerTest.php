@@ -423,7 +423,7 @@ class ContentElementFieldSerializerTest extends TestCase
 
         static::assertSame('elem-minimal', $result['id']);
         static::assertSame('hero', $result['component']);
-        // The storage/write form keeps the empty property map as an array; the API response boundary re-types it to {}
+        // properties is a nested map: [] on every path (storage and API response) — unlike a top-level customFields field, it is never re-typed to {}
         static::assertSame([], $result['properties']);
         static::assertArrayNotHasKey('dataRequirements', $result);
         static::assertArrayNotHasKey('slots', $result);

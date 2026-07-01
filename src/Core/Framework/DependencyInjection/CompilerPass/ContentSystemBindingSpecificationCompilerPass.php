@@ -13,8 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
- * Discovers binding specification YAML directories from core, bundles, plugins, and (in dev) active
- * apps, and injects them into the YamlBindingSpecificationLoader.
+ * Injects discovered YAML directories into {@see YamlBindingSpecificationLoader}.
  *
  * @internal
  */

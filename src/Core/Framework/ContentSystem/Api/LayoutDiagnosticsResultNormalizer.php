@@ -10,9 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Normalizes the diagnostics half of an admin content response — the per-element resolutions map and the
- * diagnostics report — into the wire shape shared by the resolve-and-diagnose and mutation actions.
- *
  * @internal
  */
 #[Package('framework')]

@@ -30,8 +30,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * Exposes the layout mutation actions. Each binds its request DTO, builds one {@see LayoutMutation}, and
- * runs it through {@see MutationPipeline}, returning the re-resolved layout plus diagnostics without persisting.
+ * The stateless draft-tree counterpart to {@see ContentLayoutMutationController}.
  *
  * @final
  */

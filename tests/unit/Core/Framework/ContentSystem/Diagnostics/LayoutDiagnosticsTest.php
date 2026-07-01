@@ -179,7 +179,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports an undecodable applied config on a declared reference as invalid_config, never mismatched_reference_type')]
     public function testUndecodableConfigOnDeclaredReferenceIsInvalidConfigNotMismatch(): void
     {
-        // The reference property IS declared here (unlike testInvalidConfigForUnknownEntity), so the
+        // The reference property IS declared here (unlike the unknown-entity case), so the
         // mismatch check would run if the config resolved. It does not: resolveType throws a client-defect,
         // so the single intrinsic error must be InvalidConfig and never MismatchedReferenceType.
         $element = ContentElementBuilder::create('Sw:Block', 'el-1')
@@ -457,8 +457,8 @@ class LayoutDiagnosticsTest extends TestCase
         $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderTypeMap([]));
 
-        // Share one loader provider between the resolver (§9a stored-candidate) and the RootContextMapper
-        // (§9b mismatch check) so both resolve a stored requirement's produced type consistently.
+        // Share one loader provider between the resolver (stored-candidate) and the RootContextMapper
+        // (mismatch check) so both resolve a stored requirement's produced type consistently.
         $loaderProvider ??= static::createStub(DataLoaderProvider::class);
 
         $elementResolver = new ElementResolver(

@@ -6,9 +6,8 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpeci
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Converts the declarative binding specification representation (YAML file body, or the JSON schema
- * column of a persisted app binding) to and from the validation DTO. The id is not part of this shape:
- * it comes from the YAML body's "id" key and is supplied to the DTO separately by the loader.
+ * The id is not part of the serialized shape — it comes from the YAML body's "id" key and is supplied
+ * to the DTO separately by the loader.
  *
  * @internal
  *

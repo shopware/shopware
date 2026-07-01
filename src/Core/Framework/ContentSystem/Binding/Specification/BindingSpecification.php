@@ -5,10 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Specification;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Immutable artifact authored in YAML, sibling to an element type: the `id`, the `type` it applies to, a
- * human `label`, the loader-backed `resolves` map (reference property key => {@see LoaderBinding}), and
- * the `inputs` map (primitive property key => {@see BindingInput}). toSchema() serializes it for
- * introspection.
+ * Immutable artifact authored in YAML, representing one element type's pre-validated data wiring.
  *
  * @internal
  *

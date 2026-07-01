@@ -5,8 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Specification;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * One `resolves` entry of a {@see BindingSpecification}: the loader source and its config for a single
- * reference property key. Becomes a `DataRequirement` downstream.
+ * One `resolves` entry of a {@see BindingSpecification}. Becomes a `DataRequirement` downstream.
  *
  * @internal
  */

@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Envelope DTO for the bind-element mutation action.
- *
  * @internal
  */
 #[Package('framework')]

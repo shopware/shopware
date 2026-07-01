@@ -7,9 +7,6 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpeci
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Bridges loading and specification creation: a deserialized binding specification DTO together with
- * the id (from the YAML body) and source label it was loaded under.
- *
  * @internal
  */
 #[Package('framework')]

@@ -28,9 +28,6 @@ class ContentPage extends Struct
     ) {
     }
 
-    /**
-     * Lazily creates decomposed version with extracted properties.
-     */
     public function getContentDecomposedPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider
     ): ContentDecomposedPage {
@@ -51,9 +48,6 @@ class ContentPage extends Struct
         );
     }
 
-    /**
-     * Creates skeleton version without hydrated data.
-     */
     public function getContentSkeletonPage(): ContentSkeletonPage
     {
         return new ContentSkeletonPage(
@@ -64,9 +58,6 @@ class ContentPage extends Struct
         );
     }
 
-    /**
-     * Creates data version with hydrated data and assignments to the skeleton but without the skeleton.
-     */
     public function getContentDataPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider
     ): ContentDataPage {

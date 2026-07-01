@@ -18,11 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * The resolve-and-diagnose action: returns per-element resolutions plus a diagnostics report for a draft layout
- * tree from the request, without persisting and without reading or writing the stored content_layout entity.
- *
- * The admin Context is passed straight through; no SalesChannelContext is built, because the binding computation
- * needs only Context.
+ * The admin Context is passed straight through; no SalesChannelContext is built — the binding
+ * computation needs only Context.
  *
  * @final
  */

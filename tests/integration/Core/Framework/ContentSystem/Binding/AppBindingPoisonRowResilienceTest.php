@@ -23,14 +23,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Covers the poison-pill acceptance for the database binding specification loader: one persisted,
- * active-app binding whose declared type is not a registered element type -- or whose resolves entry
- * uses a domain loader with a config the domain serializer rejects -- must not take down the whole
- * registry. {@see DatabaseBindingSpecificationLoader} skips such a row (it fails
- * {@see TypeConsistentBindingSpecification} at the "type" path, or at the "resolves[key].config" path
- * for a domain decode failure) and logs a warning instead of throwing, so the registry still builds
- * around it, the introspection endpoint still serves the valid catalog, and a content_layout write
- * attributed to a valid binding still succeeds while the poison row sits in the database.
+ * A persisted, active-app binding row that fails {@see TypeConsistentBindingSpecification} must not take
+ * down the registry: {@see DatabaseBindingSpecificationLoader} skips and logs it, so the registry still
+ * builds, introspection still serves the valid catalog, and a write attributed to a valid binding still
+ * succeeds.
  *
  * @internal
  */

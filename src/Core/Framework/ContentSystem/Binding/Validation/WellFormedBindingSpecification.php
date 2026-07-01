@@ -6,10 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Class-level constraint asserting a binding specification declaration is structurally well-formed.
- * One cohesive constraint rather than one per facet, because every rule shares the same raw-shape
- * premise. Checks structure only — no element-type-registry or data-loader lookups; a later
- * constraint enforces those against live registries.
+ * Class-level structural-shape constraint, no registry lookups. One cohesive constraint rather than
+ * one per facet, because every rule shares the same raw-shape premise.
  *
  * @internal
  */

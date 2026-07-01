@@ -6,11 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Class-level constraint asserting a binding specification declaration is consistent with its declared
- * element type: the type is registered, every `resolves` key names a reference property the type actually
- * has, every configured loader produces a type assignable to that property's declared FQCN, and every
- * `inputs` key names a primitive property with a type-matching default. Runs against live registries
- * (element types, data loaders), unlike {@see WellFormedBindingSpecification} which checks shape only.
+ * Class-level semantic constraint: validates a binding specification against the live element-type
+ * registry and data-loader config serializers.
  *
  * @internal
  */

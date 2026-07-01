@@ -13,10 +13,6 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Primary binding specification loader: handles core, bundle, and plugin bindings in all environments,
- * plus app bindings in dev (where the compiler pass injects app filesystem directories).
- * In prod, app bindings are loaded from the database by DatabaseBindingSpecificationLoader instead.
- *
  * @internal
  *
  * @final
@@ -71,8 +67,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     }
 
     /**
-     * Validated and deduplicated within a single directory (by bare id). Cross-directory deduplication
-     * (by source-qualified id) is the caller's responsibility (load() handles it for the standard path).
+     * Validated and deduplicated within a single directory (by bare id).
      *
      * @return list<ResolvedBindingSpecificationDto>
      */

@@ -19,13 +19,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The layout-wide diagnostics model. Runs the resolution kernel for every element against its position and
- * adds cross-element checks, producing a {@see LayoutAnalysis} that carries both the per-element resolutions
- * and a diagnostics report addressed by element id plus property/context key.
- *
- * The binding-scope checks (required-property satisfaction, broken chains) run only when a bound source's
- * root context is supplied; with a null root context only the well-formedness subset runs. The analysis
- * never reads sales-channel state — a plain {@see Context} suffices.
+ * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
+ * root context. The analysis never reads sales-channel state — a plain {@see Context} suffices.
  *
  * @final
  */

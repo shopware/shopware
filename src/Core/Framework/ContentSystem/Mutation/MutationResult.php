@@ -8,9 +8,6 @@ use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The outcome of one mutation: the re-resolved layout, the per-affected-element resolutions, the
- * diagnostics report, the affected element ids, and any subtrees the op detached.
- *
  * @internal
  */
 #[Package('framework')]

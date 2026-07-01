@@ -133,10 +133,7 @@
         {% endblock %}
 
         {% block sw_settings_user_list_column_status %}
-        <template
-            v-if="isSso"
-            #column-status="{item}"
-        >
+        <template #column-status="{ item }">
             <sw-user-sso-status-label :user="item" />
         </template>
         {% endblock %}

@@ -91,21 +91,33 @@ tools:
     min-integrity: none        # must read issues from any contributor, not just 'approved'
   # Read-only shell: derive the plan from the issue + fix PR + DAL schema. No writes.
   bash:
-    - "rg"
-    - "find"
-    - "ls"
-    - "cat"
-    - "jq"
-    - "git log"
-    - "git show"
-    - "git diff"
-    - "git blame"
-    - "gh issue view"
-    - "gh pr view"
-    - "gh pr diff"
-    - "gh pr list"
-    - "gh search"
-    - "node .github/actions/repro/bin/probe-ui.mjs"   # inspect the LIVE admin/storefront DOM before authoring selectors
+    # gh-aw matches a bash allow-entry EXACTLY unless it ends in ':*' (= allow any arguments).
+    # Without ':*', the agent's calls-WITH-args — especially `probe-ui.mjs '<route>'` — hit an
+    # interactive approval prompt that CI can't answer and are DENIED (this is what blocked
+    # probe-ui). So every entry gets ':*', and pipe helpers (sed/head/tail/grep/…) are listed
+    # so the agent can pipe probe-ui output. (Matches #17724's proven allowlist.)
+    - "node .github/actions/repro/bin/probe-ui.mjs:*"   # inspect the LIVE admin/storefront DOM before authoring selectors
+    - "rg:*"
+    - "find:*"
+    - "ls:*"
+    - "cat:*"
+    - "jq:*"
+    - "sed:*"
+    - "head:*"
+    - "tail:*"
+    - "grep:*"
+    - "sort:*"
+    - "wc:*"
+    - "pwd"
+    - "git log:*"
+    - "git show:*"
+    - "git diff:*"
+    - "git blame:*"
+    - "gh issue view:*"
+    - "gh pr view:*"
+    - "gh pr diff:*"
+    - "gh pr list:*"
+    - "gh search:*"
 
 safe-outputs:
   messages:
@@ -144,6 +156,14 @@ pre-agent-steps:
       ISSUE: ${{ github.event.issue.number || github.event.inputs.issue_number }}
       GH_TOKEN: ${{ github.token }}
     run: bash .github/actions/repro/bin/prefetch.sh
+  # probe-ui.mjs + login-state.mjs import '@playwright/test' + drive chromium — the analyze job
+  # has no browser otherwise, so install it here (as #17724 does). Installed at the workspace
+  # root so ESM resolves it for the scripts under .github/actions/repro/bin.
+  - name: Install Playwright (for probe-ui live DOM inspection)
+    run: |
+      npm init -y >/dev/null 2>&1
+      npm i -D @playwright/test
+      npx playwright install --with-deps chromium
   # Parse the REPORTED version from the issue so the probe shop matches the version the execute
   # reported-leg runs (v-prefixed, as leg-plan.sh does). Probing trunk while execute runs the
   # reported version drifts selectors (live miss #31: trunk's Settings button differs from 6.7.9.1).

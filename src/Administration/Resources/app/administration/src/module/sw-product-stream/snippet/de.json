@@ -133,6 +133,8 @@
       "placeholderName": "Gib einen Namen ein ...",
       "labelDescription": "Beschreibung",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
+      "labelDisplayAsGroup": "Passende Varianten gruppiert anzeigen",
+      "helpTextDisplayAsGroup": "Wenn aktiviert, werden passende Varianten gemäß der Produktdarstellung gruppiert. Zum Einzelanzeigen deaktivieren.",
       "textHeadline": "Neue Produktgruppe",
       "titleFilter": "Bedingungen",
       "titleResult": "Produkte",

@@ -13,10 +13,10 @@
 import fs from 'node:fs';
 
 const LOCK = '.github/workflows/reproduce-analyze.lock.yml';
-// USD PER TOKEN as decimal strings (models.json unit) — $3/$15 per MTok = Sonnet rate. The
-// error message's {"input":3.0} example is per-MTok NUMBERS, but the firewall drops that as a
-// type mismatch ("no pricing configured" even when present); per-token strings is the real format.
-const INJECT = '"defaultAiCreditsPricing":{"input":"0.000003","output":"0.000015"},';
+// Schema requires NUMBERS (strings → "must be a number", invalid config). Per-token unit
+// (0.000003 = $3/MTok input, 0.000015 = $15/MTok output — the Sonnet rate); per-MTok numbers
+// (3.0) load but the api-proxy rejects them as an implausible per-token price ("not configured").
+const INJECT = '"defaultAiCreditsPricing":{"input":0.000003,"output":0.000015},';
 const ANCHOR = '"apiProxy":{"enabled":true';
 
 let s = fs.readFileSync(LOCK, 'utf8');

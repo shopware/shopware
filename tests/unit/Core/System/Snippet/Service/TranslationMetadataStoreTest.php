@@ -209,6 +209,23 @@ class TranslationMetadataStoreTest extends TestCase
         $this->assertDatetime('2025-08-12T11:26:28.974+00:00', $es->updatedAt);
     }
 
+    public function testGetUpdatedLocalMetadataSkipsLocaleMissingInRemote(): void
+    {
+        // the remote metadata does not contain the requested locale
+        $this->initClient([
+            [
+                'locale' => 'es-ES',
+                'updatedAt' => '2025-08-07T11:26:28.974+00:00',
+                'progress' => 100,
+            ],
+        ]);
+
+        $updated = $this->getTranslationMetadataStore()->getUpdatedLocalMetadata(['fr-FR']);
+
+        static::assertNull($updated->get('fr-FR'));
+        static::assertSame([], $updated->getKeys());
+    }
+
     public function testRemoveDeletesEntryFromLocalMetadata(): void
     {
         $this->initClient([]);

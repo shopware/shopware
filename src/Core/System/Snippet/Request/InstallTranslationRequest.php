@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Snippet\Request;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 final class InstallTranslationRequest
 {

@@ -21,7 +21,7 @@ class ScriptLoaderTest extends TestCase
 {
     public function testCachesLoadedScriptsInMemory(): void
     {
-        $cache = new CountingTagAwareAdapter();
+        $cache = $this->createCache();
         $loader = new ScriptLoader(
             $this->createConnection(),
             $this->createMock(ScriptLifecycleHandler::class),
@@ -34,6 +34,28 @@ class ScriptLoaderTest extends TestCase
         static::assertCount(1, $loader->get('second-hook'));
 
         static::assertSame(1, $cache->getItemCalls);
+    }
+
+    /**
+     * @return TagAwareAdapter&object{getItemCalls: int}
+     */
+    private function createCache(): TagAwareAdapter
+    {
+        return new class extends TagAwareAdapter {
+            public int $getItemCalls = 0;
+
+            public function __construct()
+            {
+                parent::__construct(new ArrayAdapter());
+            }
+
+            public function getItem(mixed $key): CacheItem
+            {
+                ++$this->getItemCalls;
+
+                return parent::getItem($key);
+            }
+        };
     }
 
     private function createConnection(): Connection
@@ -66,25 +88,5 @@ class ScriptLoaderTest extends TestCase
             'lastModified' => '2024-01-01 00:00:00.000',
             'active' => '1',
         ];
-    }
-}
-
-/**
- * @internal
- */
-class CountingTagAwareAdapter extends TagAwareAdapter
-{
-    public int $getItemCalls = 0;
-
-    public function __construct()
-    {
-        parent::__construct(new ArrayAdapter());
-    }
-
-    public function getItem(mixed $key): CacheItem
-    {
-        ++$this->getItemCalls;
-
-        return parent::getItem($key);
     }
 }

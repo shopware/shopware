@@ -19,8 +19,8 @@ class CachedDomainLoaderTest extends TestCase
 {
     public function testCachesDomainCollectionInMemory(): void
     {
-        $decorated = new CountingDomainLoader();
-        $cache = new CountingArrayAdapter();
+        $decorated = $this->createDomainLoader();
+        $cache = $this->createCache();
         $loader = new CachedDomainLoader($decorated, $cache);
 
         static::assertCount(1, $loader->loadDomains());
@@ -29,60 +29,64 @@ class CachedDomainLoaderTest extends TestCase
         static::assertSame(1, $cache->getCalls);
         static::assertSame(1, $decorated->loadDomainsCalls);
     }
-}
 
-/**
- * @internal
- */
-class CountingArrayAdapter extends ArrayAdapter
-{
-    public int $getCalls = 0;
-
-    public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
+    /**
+     * @return ArrayAdapter&object{getCalls: int}
+     */
+    private function createCache(): ArrayAdapter
     {
-        ++$this->getCalls;
+        return new class extends ArrayAdapter {
+            public int $getCalls = 0;
 
-        return parent::get($key, $callback, $beta, $metadata);
-    }
-}
+            public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
+            {
+                ++$this->getCalls;
 
-/**
- * @internal
- */
-class CountingDomainLoader extends AbstractDomainLoader
-{
-    public int $loadDomainsCalls = 0;
-
-    public function getDecorated(): AbstractDomainLoader
-    {
-        throw new \BadMethodCallException('This test loader does not decorate another loader.');
+                return parent::get($key, $callback, $beta, $metadata);
+            }
+        };
     }
 
-    public function load(): array
+    /**
+     * @return AbstractDomainLoader&object{loadDomainsCalls: int}
+     */
+    private function createDomainLoader(): AbstractDomainLoader
     {
-        throw new \BadMethodCallException('This test uses loadDomains().');
-    }
+        return new class extends AbstractDomainLoader {
+            public int $loadDomainsCalls = 0;
 
-    public function loadDomains(): DomainCollection
-    {
-        ++$this->loadDomainsCalls;
+            public function getDecorated(): AbstractDomainLoader
+            {
+                return $this;
+            }
 
-        return DomainCollection::fromArray([
-            'https://example.com/' => [
-                'url' => 'https://example.com',
-                'id' => 'domain-id',
-                'salesChannelId' => 'sales-channel-id',
-                'typeId' => 'type-id',
-                'snippetSetId' => 'snippet-set-id',
-                'currencyId' => 'currency-id',
-                'languageId' => 'language-id',
-                'themeId' => 'theme-id',
-                'maintenance' => '0',
-                'maintenanceIpAllowlist' => null,
-                'locale' => 'en-GB',
-                'themeName' => 'Storefront',
-                'parentThemeName' => null,
-            ],
-        ]);
+            public function load(): array
+            {
+                return [];
+            }
+
+            public function loadDomains(): DomainCollection
+            {
+                ++$this->loadDomainsCalls;
+
+                return DomainCollection::fromArray([
+                    'https://example.com/' => [
+                        'url' => 'https://example.com',
+                        'id' => 'domain-id',
+                        'salesChannelId' => 'sales-channel-id',
+                        'typeId' => 'type-id',
+                        'snippetSetId' => 'snippet-set-id',
+                        'currencyId' => 'currency-id',
+                        'languageId' => 'language-id',
+                        'themeId' => 'theme-id',
+                        'maintenance' => '0',
+                        'maintenanceIpAllowlist' => null,
+                        'locale' => 'en-GB',
+                        'themeName' => 'Storefront',
+                        'parentThemeName' => null,
+                    ],
+                ]);
+            }
+        };
     }
 }

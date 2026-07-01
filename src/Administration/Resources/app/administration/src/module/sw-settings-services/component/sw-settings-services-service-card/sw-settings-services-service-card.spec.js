@@ -201,7 +201,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 
-    it('hides the deactivate action for services that require Shopware Account', async () => {
+    it('shows a disabled deactivate hint for services that require Shopware Account', async () => {
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
                 service: createService({
@@ -232,7 +232,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         });
 
         expect(card.vm.serviceHasShopwareAccountRequirement).toBe(true);
-        expect(card.text()).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
+        expect(card.text()).not.toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
 
         await card.findComponent(MtPopover).findComponent(MtButton).trigger('click');
         // Wait 32ms for debounce
@@ -240,10 +240,16 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             setTimeout(resolve, 32);
         });
 
-        const popoverItems = card.findAllComponents(MtPopoverItem).map((popoverItem) => popoverItem.text());
+        const popoverItems = card.findAllComponents(MtPopoverItem);
+        const popoverItemLabels = popoverItems.map((popoverItem) => popoverItem.text());
+        const disabledDeactivateHint = popoverItems.find((popoverItem) => {
+            return popoverItem.text() === 'sw-settings-services.service-card.cannot-remove-or-deactivate';
+        });
 
-        expect(popoverItems).not.toContain('sw-settings-services.general.deactivate');
-        expect(popoverItems).toContain('sw-settings-services.service-card.permissions');
+        expect(popoverItemLabels).not.toContain('sw-settings-services.general.deactivate');
+        expect(popoverItemLabels).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
+        expect(popoverItemLabels).toContain('sw-settings-services.service-card.permissions');
+        expect(disabledDeactivateHint.props('disabled')).toBe(true);
     });
 
     it('activates a service', async () => {

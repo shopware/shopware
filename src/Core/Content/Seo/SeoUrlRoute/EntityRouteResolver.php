@@ -55,12 +55,24 @@ class EntityRouteResolver
 
     private function getRouteConfig(string $entityName, bool $isHeadless = false): SeoUrlRouteConfig
     {
-        $route = !$isHeadless ? array_first($this->registry->findByDefinition($entityName)) : null;
+        if ($isHeadless) {
+            try {
+                return $this->getEntitySeoUrlRouteConfig($entityName);
+            } catch (SeoUrlRouteConfigException) {
+            }
+        }
+
+        $route = array_first($this->registry->findByDefinition($entityName));
 
         if ($route instanceof EntitySeoUrlRouteInterface) {
             return $route->getConfig();
         }
 
+        return $this->getEntitySeoUrlRouteConfig($entityName);
+    }
+
+    private function getEntitySeoUrlRouteConfig(string $entityName): SeoUrlRouteConfig
+    {
         foreach ($this->storeApiSeoUrlRoutes as $storeApiSeoUrlRoute) {
             $config = $storeApiSeoUrlRoute->getConfig();
 

@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Twig;
+namespace Shopware\Core\Checkout\DocumentV2\Template;
 
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
@@ -24,7 +25,8 @@ use Shopware\Core\Framework\Log\Package;
  * @implements \ArrayAccess<string, mixed>
  *
  * @mixin DocumentConfig
- * @mixin CompanyInfo
+ * @mixin DocumentCompanyInfo
+ * @mixin DocumentDisplayOptions
  * @mixin InvoiceRenderData
  *
  * @property mixed $fileType
@@ -97,7 +99,7 @@ final readonly class TemplateContext implements \ArrayAccess
     /**
      * @return array<string, mixed>
      */
-    private static function companyProperties(CompanyInfo $company): array
+    private static function companyProperties(DocumentCompanyInfo $company): array
     {
         return [
             'companyName' => $company->companyName,
@@ -132,12 +134,6 @@ final readonly class TemplateContext implements \ArrayAccess
             'filenamePrefix' => $config->filenamePrefix,
             'filenameSuffix' => $config->filenameSuffix,
             'logo' => $config->logo,
-            'displayHeader' => $config->displayHeader,
-            'displayFooter' => $config->displayFooter,
-            'displayPageCount' => $config->displayPageCount,
-            'displayCompanyAddress' => $config->displayCompanyAddress,
-            'displayReturnAddress' => $config->displayReturnAddress,
-            'displayCustomerVatId' => $config->displayCustomerVatId,
         ];
     }
 
@@ -150,6 +146,18 @@ final readonly class TemplateContext implements \ArrayAccess
             'documentDate' => $data->documentDate,
             'documentNumber' => $data->documentNumber,
             'documentComment' => $data->documentComment,
+            'displayHeader' => $data->display->displayHeader,
+            'displayFooter' => $data->display->displayFooter,
+            'displayPageCount' => $data->display->displayPageCount,
+            'displayCompanyAddress' => $data->display->displayCompanyAddress,
+            'displayReturnAddress' => $data->display->displayReturnAddress,
+            'displayCustomerVatId' => $data->display->displayCustomerVatId,
+            'displayLineItems' => $data->display->displayLineItems,
+            'displayLineItemPosition' => $data->display->displayLineItemPosition,
+            'displayPrices' => $data->display->displayPrices,
+            'displayDivergentDeliveryAddress' => $data->display->displayDivergentDeliveryAddress,
+            'deliveryCountries' => $data->display->deliveryCountries,
+            'custom' => $data->custom,
         ];
 
         if (!$data instanceof InvoiceRenderData) {
@@ -159,12 +167,6 @@ final readonly class TemplateContext implements \ArrayAccess
         return [
             ...$properties,
             'intraCommunityDelivery' => $data->intraCommunityDelivery,
-            'displayDivergentDeliveryAddress' => $data->displayDivergentDeliveryAddress,
-            'displayLineItems' => $data->displayLineItems,
-            'displayLineItemPosition' => $data->displayLineItemPosition,
-            'displayPrices' => $data->displayPrices,
-            'deliveryCountries' => $data->deliveryCountries,
-            'custom' => $data->custom,
         ];
     }
 }

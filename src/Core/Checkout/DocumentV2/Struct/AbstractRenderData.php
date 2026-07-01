@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer\DocumentRendererSnapshotTest;
 
 /**
  * Base class for provider-specific DTOs stored in RenderInput.
@@ -22,7 +23,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  *
- * @see \Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer\DocumentRendererSnapshotTest
+ * @see DocumentRendererSnapshotTest
  */
 #[Package('after-sales')]
 abstract readonly class AbstractRenderData

@@ -72,6 +72,10 @@ class TaxProviderLifecycleHandler extends AbstractLifecycleHandler
 
             if ($existing) {
                 $payload['id'] = $existing->getId();
+
+                // The priority can be changed by the merchant in the administration (tax provider sorting).
+                // Only seed it from the manifest on initial create, never overwrite the merchant's ordering on update.
+                unset($payload['priority']);
             }
 
             $payload['appId'] = $appId;

@@ -44,7 +44,10 @@ concurrency:
 
 engine:
   id: claude
-  model: claude-sonnet-5
+  # Newest Sonnet gh-aw v0.81.6 actually prices. claude-sonnet-5 is NOT in gh-aw's firewall
+  # pricing table yet, so the api-proxy 400s it ("no AI credits pricing") — revisit the switch
+  # once a gh-aw release ships Sonnet 5 pricing.
+  model: claude-sonnet-4-6
   max-turns: 60              # ceiling, not a quota. Headroom for the richer storefront-ui
                              # decision + authoring a `direct` render/service test (more to
                              # write than an http request). Hitting the cap fails the agent
@@ -58,21 +61,6 @@ permissions: read-all          # read-only analyze; the ONLY outputs are an arti
 network: defaults              # gh-aw egress firewall (we have none today)
 timeout-minutes: 20
 max-ai-credits: 500            # hard cost cap + usage telemetry (we reason about cost by hand today)
-
-# claude-sonnet-5 is newer than this gh-aw compiler's built-in pricing table, so the api-proxy
-# rejects it ("no AI credits pricing"). Supply its price so the proxy can account for it — same
-# rate as Sonnet 4.6 ($3/$15 per MTok, i.e. the "same price" this switch relies on). USD PER
-# TOKEN as decimal strings (models.json structure); merged with the built-in table at runtime.
-models:
-  providers:
-    anthropic:
-      models:
-        claude-sonnet-5:
-          cost:
-            input: "0.000003"
-            output: "0.000015"
-            cache_read: "0.0000003"
-            cache_write: "0.00000375"
 
 tools:
   github:

@@ -28,6 +28,12 @@ class WebhookEventMessage implements AsyncMessageInterface
         private readonly string $languageId,
         private readonly string $userLocale,
         private readonly array $webhookHeaders = [],
+        /**
+         * The app's name. Lets delivery look up the signing secret from deleted_apps after an app is
+         * uninstalled (for example the app.deleted webhook). Null for non-app webhooks, and for
+         * messages that were already queued before this field was added.
+         */
+        private readonly ?string $appName = null,
     ) {
     }
 
@@ -42,6 +48,13 @@ class WebhookEventMessage implements AsyncMessageInterface
     public function getAppId(): ?string
     {
         return $this->appId;
+    }
+
+    public function getAppName(): ?string
+    {
+        // Coalesce to null for messages serialized before this field existed: the promoted property
+        // is then uninitialized and a bare read would throw.
+        return $this->appName ?? null;
     }
 
     public function getWebhookId(): string

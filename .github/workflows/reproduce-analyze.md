@@ -44,7 +44,7 @@ concurrency:
 
 engine:
   id: claude
-  model: claude-sonnet-4-6
+  model: claude-sonnet-5
   max-turns: 60              # ceiling, not a quota. Headroom for the richer storefront-ui
                              # decision + authoring a `direct` render/service test (more to
                              # write than an http request). Hitting the cap fails the agent

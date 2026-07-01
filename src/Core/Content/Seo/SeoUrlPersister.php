@@ -8,6 +8,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -90,7 +91,14 @@ class SeoUrlPersister
                 $obsoleted[] = $existing['id'];
             }
 
-            $seoPathInfos[] = $seoUrl['seoPathInfo'];
+            // Generated SEO URLs bypass the DAL write validator, so filter
+            // sequences that are not URL-allowed here (stray `%`, `#`, `\`,
+            // control chars) rather than rejecting the batch. Valid
+            // percent-escapes emitted by rawurlencode for non-ASCII slug
+            // configs are preserved. See #13796.
+            $seoPathInfo = ValidSeoPathInfo::sanitize(ltrim((string) $seoUrl['seoPathInfo'], '/'));
+
+            $seoPathInfos[] = $seoPathInfo;
 
             $insert = [];
             $insert['id'] = Uuid::randomBytes();
@@ -102,7 +110,7 @@ class SeoUrlPersister
             $insert['foreign_key'] = Uuid::fromHexToBytes($fk);
 
             $insert['path_info'] = $seoUrl['pathInfo'];
-            $insert['seo_path_info'] = ltrim((string) $seoUrl['seoPathInfo'], '/');
+            $insert['seo_path_info'] = $seoPathInfo;
 
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;

@@ -50,6 +50,12 @@ class DataAbstractionLayerValidateCommand extends Command
             InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
             'Only output errors for these PHP namespaces (comma-separated or repeatable)'
         );
+        $this->addOption(
+            'tolerate-foreign-key',
+            null,
+            InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+            'Foreign key constraint name that is tolerated to reference a non-standard key (repeatable)'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -75,7 +81,7 @@ class DataAbstractionLayerValidateCommand extends Command
             $io->title('Data Abstraction Layer Validation');
         }
 
-        $errors = $this->validator->validate();
+        $errors = $this->validator->validate($input->getOption('tolerate-foreign-key'));
 
         // Filter errors by namespaces if provided
         if ($namespaces !== []) {

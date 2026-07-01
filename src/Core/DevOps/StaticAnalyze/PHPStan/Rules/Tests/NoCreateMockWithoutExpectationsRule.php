@@ -53,6 +53,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Administration\\',
         'Shopware\\Tests\\Unit\\Storefront\\',
         'Shopware\\Tests\\Unit\\Core\\Checkout\\Cart\\',
+        'Shopware\\Tests\\Unit\\Core\\Checkout\\DependencyInjection\\',
     ];
 
     public function getNodeType(): string

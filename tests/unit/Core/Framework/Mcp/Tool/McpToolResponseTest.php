@@ -77,7 +77,7 @@ class McpToolResponseTest extends TestCase
 
     public function testOversizedPayloadIncludesQueryWhenJsonRpcBodyIsPresent(): void
     {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('cached-uuid');
 
         $request = new Request();

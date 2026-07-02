@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\CreateFromTrait;
 
 /**
  * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult.
@@ -16,28 +15,15 @@ use Shopware\Core\Framework\Struct\CreateFromTrait;
 #[Package('inventory')]
 class ProductListingResult extends EntitySearchResult
 {
-    use CreateFromTrait;
-
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
     protected ?string $sorting = null;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     *
      * @var array<string, int|float|string|bool|array<mixed>|null>
      */
     protected array $currentFilters = [];
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
     protected ProductSortingCollection $availableSortings;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
     protected ?string $streamId = null;
 
     /**
@@ -63,6 +49,16 @@ class ProductListingResult extends EntitySearchResult
         $instance->streamId = $streamId;
 
         return $instance;
+    }
+
+    public function setPage(int $page): void
+    {
+        $this->page = $page;
+    }
+
+    public function setLimit(int $limit): void
+    {
+        $this->limit = $limit;
     }
 
     /**

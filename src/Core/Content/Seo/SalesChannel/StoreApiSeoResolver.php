@@ -102,9 +102,9 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             }
         }
 
-        if ($struct instanceof Collection) {
-            $iterable = $struct instanceof EntitySearchResult ? $struct->getEntities() : $struct;
-            foreach ($iterable as $item) {
+        // TODO(v6.8.0): Remove the EntitySearchResult exclusion once it no longer extends Collection.
+        if ($struct instanceof Collection && !$struct instanceof EntitySearchResult) {
+            foreach ($struct as $item) {
                 $this->findStruct($data, $item);
             }
         }

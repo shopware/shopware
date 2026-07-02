@@ -27,23 +27,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     use StateAwareTrait;
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
-     */
-    protected string $entity;
-
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
-    protected int $total;
-
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     *
-     * @var TEntityCollection
-     */
-    protected EntityCollection $entities;
-
-    /**
      * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
      */
     protected AggregationResultCollection $aggregations;
@@ -59,41 +42,40 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     protected ?int $limit = null;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
-    protected Criteria $criteria;
-
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
-    protected Context $context;
-
-    /**
      * @deprecated tag:v6.8.0 - The constructor signature will change in v6.8.0: the $entity parameter will be removed and the remaining parameters will reorder. See UPGRADE-6.8.md.
      *
      * @param TEntityCollection $entities
      */
     final public function __construct(
-        string $entity,
-        int $total,
-        EntityCollection $entities,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
+         */
+        protected string $entity,
+        /**
+         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+         */
+        protected int $total,
+        /**
+         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+         *
+         * @var TEntityCollection
+         */
+        protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
-        Criteria $criteria,
-        Context $context
+        /**
+         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+         */
+        protected Criteria $criteria,
+        /**
+         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+         */
+        protected Context $context,
     ) {
-        $this->entity = $entity;
-        $this->total = $total;
-        $this->entities = $entities;
-        $this->criteria = $criteria;
-        $this->context = $context;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
 
-        // Inline parent::__construct($entities) so we don't dispatch through our deprecated $this->set(). parent::set() bypasses dispatch and writes to $this->elements directly.
-        foreach ($entities as $element) {
-            parent::set($element->getUniqueIdentifier(), $element);
-        }
+        Feature::silent('v6.8.0.0', fn () => parent::__construct($entities));
     }
 
     /**
@@ -101,9 +83,9 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function filter(\Closure $closure): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->filter()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->filter()'));
 
-        return $this->createNew($this->entities->filter($closure));
+        return Feature::silent('v6.8.0.0', fn () => $this->createNew($this->entities->filter($closure)));
     }
 
     /**
@@ -111,9 +93,9 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function slice(int $offset, ?int $length = null): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->slice()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->slice()'));
 
-        return $this->createNew($this->entities->slice($offset, $length));
+        return Feature::silent('v6.8.0.0', fn () => $this->createNew($this->entities->slice($offset, $length)));
     }
 
     public function getTotal(): int
@@ -149,7 +131,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function clear(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
         parent::clear();
 
@@ -161,7 +143,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function add($entity): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
         parent::set($entity->getUniqueIdentifier(), $entity);
 
@@ -196,7 +178,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function setPage(int $page): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
         $this->page = $page;
     }
@@ -211,7 +193,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function setLimit(int $limit): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
         $this->limit = $limit;
     }
@@ -221,7 +203,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getEntity(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
         return $this->entity;
     }
@@ -231,7 +213,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function setEntity(string $entity): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
         $this->entity = $entity;
     }
@@ -241,7 +223,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getAt(int $position)
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getAt()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getAt()'));
 
         return $this->entities->getAt($position);
     }
@@ -251,13 +233,9 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function fill(array $entities): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->fill()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->fill()'));
 
-        // Inline parent::fill() so we don't dispatch through our deprecated $this->add(). Sync both $this->elements and $this->entities, like the original cascade did.
-        foreach ($entities as $element) {
-            parent::set($element->getUniqueIdentifier(), $element);
-            $this->entities->add($element);
-        }
+        Feature::silent('v6.8.0.0', fn () => parent::fill($entities));
     }
 
     /**
@@ -265,7 +243,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function set($key, $element): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->set()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->set()'));
 
         parent::set($key, $element);
     }
@@ -275,7 +253,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function get($key)
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->get()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->get()'));
 
         return parent::get($key);
     }
@@ -285,7 +263,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function count(): int
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->count() or getTotal()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->count() or getTotal()'));
 
         return parent::count();
     }
@@ -295,7 +273,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function isEmpty(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->isEmpty()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->isEmpty()'));
 
         return parent::isEmpty();
     }
@@ -305,7 +283,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getKeys(): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getKeys()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getKeys()'));
 
         return parent::getKeys();
     }
@@ -315,7 +293,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function has($key): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->has()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->has()'));
 
         return parent::has($key);
     }
@@ -325,7 +303,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function map(\Closure $closure): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->map()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->map()'));
 
         return parent::map($closure);
     }
@@ -335,7 +313,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function reduce(\Closure $closure, $initial = null)
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->reduce()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->reduce()'));
 
         return parent::reduce($closure, $initial);
     }
@@ -345,7 +323,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function fmap(\Closure $closure): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->fmap()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->fmap()'));
 
         return parent::fmap($closure);
     }
@@ -355,7 +333,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function flatMap(\Closure $closure): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->flatMap()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->flatMap()'));
 
         return parent::flatMap($closure);
     }
@@ -365,7 +343,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function sort(\Closure $closure): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->sort()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->sort()'));
 
         parent::sort($closure);
     }
@@ -375,7 +353,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function filterInstance(string $class): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->filterInstance()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->filterInstance()'));
 
         return parent::filterInstance($class);
     }
@@ -385,7 +363,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getElements(): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getElements()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getElements()'));
 
         return parent::getElements();
     }
@@ -395,7 +373,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function first()
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->first()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->first()'));
 
         return parent::first();
     }
@@ -405,7 +383,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function firstWhere(\Closure $closure)
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->firstWhere()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->firstWhere()'));
 
         return parent::firstWhere($closure);
     }
@@ -415,7 +393,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function last()
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->last()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->last()'));
 
         return parent::last();
     }
@@ -425,7 +403,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function remove($key): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->remove()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->remove()'));
 
         parent::remove($key);
     }
@@ -435,7 +413,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getIterator(): \Traversable
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()'));
 
         return parent::getIterator();
     }
@@ -445,7 +423,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function assignRecursive(array $options): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->assignRecursive()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->assignRecursive()'));
 
         return parent::assignRecursive($options);
     }
@@ -455,7 +433,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getIds(): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getIds()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getIds()'));
 
         return parent::getIds();
     }
@@ -465,7 +443,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function filterByProperty(string $property, $value): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->filterByProperty()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->filterByProperty()'));
 
         return parent::filterByProperty($property, $value);
     }
@@ -475,7 +453,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function filterAndReduceByProperty(string $property, $value): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->filterAndReduceByProperty()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->filterAndReduceByProperty()'));
 
         return parent::filterAndReduceByProperty($property, $value);
     }
@@ -485,16 +463,9 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function merge(EntityCollection $collection): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->merge()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->merge()'));
 
-        foreach ($collection as $entity) {
-            if (parent::has($entity->getUniqueIdentifier())) {
-                continue;
-            }
-
-            parent::set($entity->getUniqueIdentifier(), $entity);
-            $this->entities->add($entity);
-        }
+        Feature::silent('v6.8.0.0', fn () => parent::merge($collection));
     }
 
     /**
@@ -502,7 +473,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function insert(int $position, Entity $entity): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->insert()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->insert()'));
 
         parent::insert($position, $entity);
     }
@@ -512,7 +483,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getList(array $ids): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getList()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getList()'));
 
         return parent::getList($ids);
     }
@@ -522,7 +493,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function sortByIdArray(array $ids): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->sortByIdArray()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->sortByIdArray()'));
 
         parent::sortByIdArray($ids);
     }
@@ -532,7 +503,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getCustomFieldsValues(string ...$fields): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getCustomFieldsValues()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getCustomFieldsValues()'));
 
         return parent::getCustomFieldsValues(...$fields);
     }
@@ -542,7 +513,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function getCustomFieldsValue(string $field): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->getCustomFieldsValue()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->getCustomFieldsValue()'));
 
         return parent::getCustomFieldsValue($field);
     }
@@ -552,13 +523,13 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     public function setCustomFields(array $values): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getEntities()->setCustomFields()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->setCustomFields()'));
 
         parent::setCustomFields($values);
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed alongside filter() and slice().
+     * @deprecated tag:v6.8.0 - Will be removed.
      *
      * @param iterable<TElement> $elements
      *
@@ -566,6 +537,8 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      */
     protected function createNew(iterable $elements = []): static
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
+
         if (!$elements instanceof EntityCollection) {
             $elements = new EntityCollection($elements);
         }

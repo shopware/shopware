@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\CreateFromTrait;
 
 /**
  * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult.
@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Struct\CreateFromTrait;
 #[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
-    use CreateFromTrait;
-
     /**
      * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
      */
@@ -71,8 +69,13 @@ class ProductReviewResult extends EntitySearchResult
         return $this->productId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     */
     public function setProductId(string $productId): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'fromSearchResult()'));
+
         $this->productId = $productId;
     }
 
@@ -81,8 +84,13 @@ class ProductReviewResult extends EntitySearchResult
         return $this->matrix;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     */
     public function setMatrix(RatingMatrix $matrix): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'fromSearchResult()'));
+
         $this->matrix = $matrix;
     }
 
@@ -91,8 +99,13 @@ class ProductReviewResult extends EntitySearchResult
         return $this->customerReview;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     */
     public function setCustomerReview(?ProductReviewEntity $customerReview): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'fromSearchResult()'));
+
         $this->customerReview = $customerReview;
     }
 
@@ -101,8 +114,13 @@ class ProductReviewResult extends EntitySearchResult
         return $this->totalReviewsInCurrentLanguage;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     */
     public function setTotalReviewsInCurrentLanguage(int $totalReviewsInCurrentLanguage): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'fromSearchResult()'));
+
         $this->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;
     }
 
@@ -111,8 +129,13 @@ class ProductReviewResult extends EntitySearchResult
         return $this->parentId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly. Pass the value via fromSearchResult() instead.
+     */
     public function setParentId(?string $parentId): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'fromSearchResult()'));
+
         $this->parentId = $parentId;
     }
 }

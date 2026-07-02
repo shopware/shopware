@@ -84,7 +84,8 @@ class PagingProcessorTest extends TestCase
     public function testProcess(): void
     {
         $request = new Request(['p' => 2]);
-        $criteria = (new Criteria())->setLimit(24)->setOffset(24);
+        $criteria = new Criteria();
+        $criteria->setLimit(24);
 
         $result = new ProductListingResult('foo', 100, new ProductCollection(), null, $criteria, Context::createDefaultContext());
         $context = $this->createMock(SalesChannelContext::class);

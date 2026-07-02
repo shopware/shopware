@@ -134,17 +134,29 @@ Without a value, document rendering keeps its previous behaviour, which depends 
 ### `EntitySearchResult` and result subclasses deprecated
 
 `EntitySearchResult`, `ProductListingResult`, and `ProductReviewResult` are deprecated for v6.8.0.
-In v6.8.0 `EntitySearchResult` will no longer extend `EntityCollection`, and the two subclasses will no longer extend `EntitySearchResult`. The constructor signature changes, the result properties become `readonly`, and the `$entity` field is removed entirely.
+In v6.8.0 `EntitySearchResult` will no longer extend `EntityCollection`, and the two subclasses will no longer extend `EntitySearchResult`. The classes remain `Struct`, so extensions, states, and JSON serialization keep working.
 
-To prepare:
+To prepare, for all three classes:
 
 - Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, …) on `$result->getEntities()` instead of directly on the result.
 - In Twig, use `{% for x in searchResult.entities %}` instead of `{% for x in searchResult %}`, and `searchResult.entities` instead of `searchResult.elements`.
-- Stop writing to result properties (`$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, `$aggregations`, and the subclass-specific fields like `$sorting`, `$currentFilters`, `$matrix`, …). They become `readonly` in v6.8.0. The wrapper setters (`setPage`, `setLimit`, `setEntity`, `setCustomFields`) are deprecated and will be removed.
-- Stop using `getEntity()` / `setEntity()` and the `$entity` field. The entity name is no longer exposed by the result wrapper in v6.8.0; ask `$result->getEntities()` if you need to know the type.
 - Stop relying on `instanceof EntityCollection` for any result, or on `instanceof EntitySearchResult` for a `ProductListingResult` / `ProductReviewResult`. Parameter and return types declared as those will reject results in v6.8.0.
-- Code that constructs a result directly (`new EntitySearchResult(...)`, `new ProductListingResult(...)`, `new ProductReviewResult(...)`) must be updated for the v6.8.0 constructor: the `$entity` parameter is removed and the remaining parameters reorder.
-- For `ProductListingResult` and `ProductReviewResult`, use the new `fromSearchResult()` factory instead of `createFrom` + setters. The factory signature is stable across the v6.8.0 cut.
+
+For `EntitySearchResult`:
+
+- The wrapper becomes immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` become `readonly`, and the setters (`setPage()`, `setLimit()`, `setEntity()`, `setCustomFields()`) will be removed.
+- Stop using `getEntity()` / `setEntity()` and the `$entity` field. The entity name is no longer exposed by the result wrapper in v6.8.0.
+- Code that constructs a result directly (`new EntitySearchResult(...)`) must be updated for the v6.8.0 constructor: the `$entity` parameter is removed and the remaining parameters reorder.
+
+For `ProductListingResult`:
+
+- Build it with the new `ProductListingResult::fromSearchResult(...)` factory instead of `createFrom` + setters. The factory signature is stable across the v6.8.0 cut.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain supported. Only the surface inherited from `EntitySearchResult` goes away.
+
+For `ProductReviewResult`:
+
+- Build it with the new `ProductReviewResult::fromSearchResult(...)` factory instead of `createFrom` + setters.
+- The class becomes fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` become `readonly`, and the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) will be removed — pass the values to `fromSearchResult()` instead.
 ### Faster category creation and editing
 
 Creating or editing a single category no longer re-indexes unrelated categories. Previously, adding a sub-category or changing a single field (such as the name) of one category re-indexed the whole branch — every sibling and the parent's entire subtree — which produced a large number of SQL queries and noticeably slow saves in shops with many categories. A category write now only re-indexes the affected category and its own descendants (plus the parent's child count when a category is created, deleted, or moved to a different parent). Merchants with large category trees will see significantly faster saving in the Categories module and lower database load.

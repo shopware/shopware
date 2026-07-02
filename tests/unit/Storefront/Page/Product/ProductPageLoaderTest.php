@@ -329,17 +329,19 @@ class ProductPageLoaderTest extends TestCase
         $review->setTitle('myReviewTitle');
         $review->setComment('this product changed my life');
 
-        $productReviewResult = new ProductReviewResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        return ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                ProductReviewDefinition::ENTITY_NAME,
+                1,
+                new ProductReviewCollection([$review]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
+            Uuid::randomHex(),
             1,
-            new ProductReviewCollection([$review]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
         );
-        $productReviewResult->setMatrix(new RatingMatrix([]));
-
-        return $productReviewResult;
     }
 
     private function getReviewBlock(SalesChannelProductEntity $productEntity): CmsBlockEntity

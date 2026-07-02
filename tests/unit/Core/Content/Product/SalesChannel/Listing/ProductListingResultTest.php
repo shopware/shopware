@@ -9,8 +9,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
@@ -55,6 +57,32 @@ class ProductListingResultTest extends TestCase
         static::assertNull($listing->getSorting());
         static::assertSame([], $listing->getCurrentFilters());
         static::assertNull($listing->getStreamId());
+    }
+
+    public function testFromSearchResultKeepsPaginationAggregationsExtensionsAndStates(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(10);
+        $criteria->setOffset(20);
+
+        $source = new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
+            42,
+            new ProductCollection(),
+            new AggregationResultCollection(),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+        $source->addExtension('custom', new ArrayStruct(['foo' => 'bar']));
+        $source->addState('custom-state');
+
+        $listing = ProductListingResult::fromSearchResult($source);
+
+        static::assertSame(10, $listing->getLimit());
+        static::assertSame(3, $listing->getPage());
+        static::assertSame($source->getAggregations(), $listing->getAggregations());
+        static::assertSame($source->getExtension('custom'), $listing->getExtension('custom'));
+        static::assertTrue($listing->hasState('custom-state'));
     }
 
     /**

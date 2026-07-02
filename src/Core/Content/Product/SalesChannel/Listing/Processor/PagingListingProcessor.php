@@ -51,7 +51,12 @@ class PagingListingProcessor extends AbstractListingProcessor
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
         $page = $this->getPage($request);
-        $limit = $result->getLimit() ?? 0;
+        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
+
+        if ($page !== null) {
+            $result->setPage($page);
+        }
+        $result->setLimit($limit);
 
         if ($page === null || $page <= 1 || $limit <= 0) {
             return;

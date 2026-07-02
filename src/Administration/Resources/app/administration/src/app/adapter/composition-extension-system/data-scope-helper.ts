@@ -1,11 +1,6 @@
 import type { ComponentInternalInstance } from '@vue/runtime-core';
 import type { Reactive, Ref, ShallowUnwrapRef, ToRefs } from 'vue';
-import {
-    proxyRefs,
-    reactive,
-    toRef,
-    toRefs,
-} from 'vue';
+import { proxyRefs, reactive, toRef, toRefs } from 'vue';
 
 /**
  * @sw-package framework
@@ -205,9 +200,7 @@ export const createDataScope = <TState extends object>(
     const state = toRefs(reactiveSetupState) as ExtendableSetupState<TState>;
 
     Object.defineProperty(state, OVERRIDE_LOCAL_STATE_KEY, {
-        value: createOverrideLocalStateRef(
-            reactiveSetupState as ReactiveSetupStateWithOverrideLocalState<TState>,
-        ),
+        value: createOverrideLocalStateRef(reactiveSetupState as ReactiveSetupStateWithOverrideLocalState<TState>),
         enumerable: false,
         configurable: true,
     });

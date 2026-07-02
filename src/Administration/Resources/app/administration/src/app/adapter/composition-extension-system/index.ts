@@ -1,13 +1,5 @@
 import type { ComputedRef, Ref } from 'vue';
-import {
-    computed,
-    getCurrentInstance as vueGetCurrentInstance,
-    isReactive,
-    isReadonly,
-    isRef,
-    reactive,
-    watch,
-} from 'vue';
+import { computed, getCurrentInstance as vueGetCurrentInstance, isReactive, isReadonly, isRef, reactive, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
@@ -21,10 +13,7 @@ import {
     mergeOverrideState,
     setDataScopeForInstance,
 } from './data-scope-helper';
-import type {
-    ExtendableSetupState,
-    OverrideLocalState,
-} from './data-scope-helper';
+import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
 
 /** @private */
 export { getScriptSetupDataScope } from './data-scope-helper';
@@ -224,9 +213,7 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
     const setupStateAsRecord = setupState as Record<string, unknown>;
     const publicStateKeys = Object.keys(publicState);
 
-    return getOverrideVisibleStateKeys(setupState).reduce<
-        PreviousStateForOverride<TPublicState, TPrivateState>
-    >(
+    return getOverrideVisibleStateKeys(setupState).reduce<PreviousStateForOverride<TPublicState, TPrivateState>>(
         (previousState, key) => {
             if (publicStateKeys.includes(key)) {
                 (previousState as Record<string, unknown>)[key] = setupStateAsRecord[key];
@@ -380,10 +367,7 @@ export function createExtendableSetup<
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
                 if (isOverrideLocalStateKey(key)) {
-                    mergeOverrideState(
-                        getOverrideLocalState(reactiveSetupState),
-                        overrideResult[key] as OverrideLocalState,
-                    );
+                    mergeOverrideState(getOverrideLocalState(reactiveSetupState), overrideResult[key] as OverrideLocalState);
                     return;
                 }
 
@@ -458,9 +442,9 @@ export function createExtendableSetup<
     // Watch for changes in the overrides array and reapply overrides when changed
     watch(registeredOverrides, applyOverrides, { deep: true, immediate: true });
 
-    const state = createDataScope<
-        Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
-    >(reactiveSetupState);
+    const state = createDataScope<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>(
+        reactiveSetupState,
+    );
 
     const instance = getCurrentInstance();
 

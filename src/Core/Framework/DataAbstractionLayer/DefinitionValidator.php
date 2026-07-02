@@ -100,6 +100,8 @@ class DefinitionValidator
     ];
 
     private const TABLES_WITHOUT_DEFINITION = [
+        'admin_auth_mfa_challenge',
+        'admin_auth_role_assignment',
         'admin_elasticsearch_index_task',
         'app_config',
         'cart',

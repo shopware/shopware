@@ -102,6 +102,7 @@ class Framework extends Bundle
         $loader->load('health.xml');
         $loader->load('telemetry.xml');
         $loader->load('notification.xml');
+        $loader->load('admin_auth.xml');
 
         // @codeCoverageIgnoreStart
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));

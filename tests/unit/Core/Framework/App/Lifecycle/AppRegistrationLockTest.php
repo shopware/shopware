@@ -21,7 +21,7 @@ use Symfony\Component\Lock\SharedLockInterface;
 #[CoversClass(AppRegistrationLock::class)]
 class AppRegistrationLockTest extends TestCase
 {
-    public function testAcquireReturnsTheLockKeyedByAppId(): void
+    public function testLockedUsesTheLockKeyedByAppId(): void
     {
         $appId = Uuid::randomHex();
 
@@ -36,10 +36,10 @@ class AppRegistrationLockTest extends TestCase
             ->with('app-secret-rotation-' . $appId, 30)
             ->willReturn($lock);
 
-        static::assertSame($lock, (new AppRegistrationLock($factory, new NullLogger()))->acquire($appId));
+        (new AppRegistrationLock($factory, new NullLogger()))->locked($appId, fn () => null);
     }
 
-    public function testAcquireThrowsWhenTheLockIsAlreadyHeld(): void
+    public function testLockedThrowsWhenTheLockIsAlreadyHeld(): void
     {
         $appId = Uuid::randomHex();
 
@@ -51,10 +51,10 @@ class AppRegistrationLockTest extends TestCase
 
         $this->expectExceptionObject(AppException::appSecretRotationInProgress($appId));
 
-        (new AppRegistrationLock($factory, new NullLogger()))->acquire($appId);
+        (new AppRegistrationLock($factory, new NullLogger()))->locked($appId, fn () => static::fail('the operation must not run without the lock'));
     }
 
-    public function testAcquireThrowsWhenTheStoreReportsAConflict(): void
+    public function testLockedThrowsWhenTheStoreReportsAConflict(): void
     {
         $appId = Uuid::randomHex();
 
@@ -66,10 +66,10 @@ class AppRegistrationLockTest extends TestCase
 
         $this->expectExceptionObject(AppException::appSecretRotationInProgress($appId));
 
-        (new AppRegistrationLock($factory, new NullLogger()))->acquire($appId);
+        (new AppRegistrationLock($factory, new NullLogger()))->locked($appId, fn () => static::fail('the operation must not run without the lock'));
     }
 
-    public function testAcquireFailsGracefullyWhenTheLockStoreIsUnavailable(): void
+    public function testLockedFailsGracefullyWhenTheLockStoreIsUnavailable(): void
     {
         // A LockAcquiringException means the lock store itself is unreachable (Redis/DB down, bad LOCK_DSN),
         // not that the lock is held. It must surface as the typed, retryable domain exception instead of
@@ -84,7 +84,7 @@ class AppRegistrationLockTest extends TestCase
 
         $this->expectExceptionObject(AppException::appSecretLockUnavailable($appId));
 
-        (new AppRegistrationLock($factory, new NullLogger()))->acquire($appId);
+        (new AppRegistrationLock($factory, new NullLogger()))->locked($appId, fn () => static::fail('the operation must not run without the lock'));
     }
 
     public function testLockedRunsTheOperationUnderTheLockAndReleasesIt(): void
@@ -154,17 +154,23 @@ class AppRegistrationLockTest extends TestCase
         $registrationLock->refresh($lock, $appId);
     }
 
-    public function testReleaseSwallowsLockStoreFailures(): void
+    public function testLockedSwallowsAReleaseFailureAndStillReturnsTheOperationResult(): void
     {
+        // A store failure while releasing must not mask the operation's real outcome (the lock self-expires
+        // anyway) — it is logged, and the operation's result still reaches the caller.
         $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
         $lock->method('release')->willThrowException(new LockReleasingException('lock store is down'));
+
+        $factory = $this->createMock(LockFactory::class);
+        $factory->method('createLock')->willReturn($lock);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('warning');
 
-        $registrationLock = new AppRegistrationLock($this->createMock(LockFactory::class), $logger);
-        $registrationLock->release($lock, Uuid::randomHex());
+        $result = (new AppRegistrationLock($factory, $logger))
+            ->locked(Uuid::randomHex(), fn () => 'operation-result');
 
-        $this->addToAssertionCount(1);
+        static::assertSame('operation-result', $result);
     }
 }

@@ -276,9 +276,7 @@ class AppManager
         // reads the manifest and metadata this method rewrites, and a registration below must not interleave
         // with one. Cheap (one per-app lock round trip on an operator path), and unconditional is simpler than
         // locking only the paths that end up registering.
-        $lock = $this->registrationLock->acquire($id);
-
-        try {
+        $this->registrationLock->locked($id, function () use ($manifest, $metadata, $id, $install, $parameters, $secretAccessKey, $context): void {
             $this->updateMetadata($metadata, $context);
 
             $app = $this->loadApp($id, $context);
@@ -296,7 +294,7 @@ class AppManager
             // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
             // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
             // in that case we still need to run the registration to rotate that secret
-            if ($manifest->getSetup() !== null && (!$app->getAppSecret() || $install)) {
+            if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
                 try {
                     $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
                 } catch (AppRegistrationException $e) {
@@ -310,9 +308,7 @@ class AppManager
                     throw $e;
                 }
             }
-        } finally {
-            $this->registrationLock->release($lock, $id);
-        }
+        });
 
         // Refetch app to get secret after registration
         $app = $this->loadApp($id, $context);

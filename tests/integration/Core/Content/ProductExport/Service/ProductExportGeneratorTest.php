@@ -386,8 +386,8 @@ class ProductExportGeneratorTest extends TestCase
     public function testExportWithHeadlessSalesChannel(): void
     {
         $headlessSalesChannelId = Uuid::randomHex();
-        $composableFrontendsDomainId = Uuid::randomHex();
-        $composableFrontendsUrl = 'https://composable-frontends.test';
+        $headlessSalesChannelDomainId = Uuid::randomHex();
+        $domainUrl = 'https://composable-frontends.test';
 
         $this->createSalesChannel([
             'id' => $headlessSalesChannelId,
@@ -395,25 +395,18 @@ class ProductExportGeneratorTest extends TestCase
             'name' => 'Headless sales channel',
             'domains' => [
                 [
-                    'id' => Uuid::randomHex(),
+                    'id' => $headlessSalesChannelDomainId,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'url' => 'https://headless-server.test',
-                ],
-                [
-                    'id' => $composableFrontendsDomainId,
-                    'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'currencyId' => Defaults::CURRENCY,
-                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => $composableFrontendsUrl,
                 ],
             ],
         ]);
 
         $productIds = $this->createHeadlessProducts($headlessSalesChannelId);
 
-        $expectedUrls = $this->createStoreApiProductSeoUrls($headlessSalesChannelId, $productIds, $composableFrontendsUrl);
+        $expectedUrls = $this->createStoreApiProductSeoUrls($headlessSalesChannelId, $productIds, $domainUrl);
         static::assertCount(3, $expectedUrls);
 
         $productExportId = Uuid::randomHex();
@@ -430,7 +423,7 @@ class ProductExportGeneratorTest extends TestCase
                 'productStreamId' => $this->getProductStreamId($productIds),
                 'storefrontSalesChannelId' => $headlessSalesChannelId,
                 'salesChannelId' => $headlessSalesChannelId,
-                'salesChannelDomainId' => $composableFrontendsDomainId,
+                'salesChannelDomainId' => $headlessSalesChannelDomainId,
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -692,7 +685,7 @@ class ProductExportGeneratorTest extends TestCase
         $expectedUrls = [];
 
         foreach ($productIds as $index => $productId) {
-            $seoPathInfo = 'composable-frontends/product/' . $index;
+            $seoPathInfo = $domainUrl . '/composable-frontends/product/' . $index;
 
             $seoUrls[] = [
                 'id' => Uuid::randomHex(),
@@ -707,7 +700,7 @@ class ProductExportGeneratorTest extends TestCase
                 'isDeleted' => false,
             ];
 
-            $expectedUrls[] = rtrim($domainUrl, '/') . '/' . $seoPathInfo;
+            $expectedUrls[] = $seoPathInfo;
         }
 
         $seoUrlRepository->create($seoUrls, $this->context);

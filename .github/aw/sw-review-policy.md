@@ -22,13 +22,14 @@ push, approve-by-hand, or run `gh`.
 You are the **orchestrator**. Gather the review packet once, gate personas, and
 fan out one **persona-worker per gated persona** via the `Task` tool. The
 workflow source defines a matching inline sub-agent per persona (the `## agent:`
-blocks) — invoke it by name when available (for example "Use the `security`
-sub-agent to review this slice"); otherwise hand the Task worker the persona's
-lens directly by telling it to read
-`.agents/skills/sw-review/personas/<slug>.md`. Either way each worker reads its
-lens plus the references, reviews only the slice you hand it, and returns one
-per-persona JSON object. Collect the worker JSON, then merge per the shared
-policy and emit via safe outputs.
+blocks); you MUST invoke it by name (for example "Use the `security` sub-agent
+to review this slice"). NEVER review a persona's slice yourself inline — not
+even for a small diff: `security` and `architecture` are pinned to a stronger
+model inside their sub-agents, so an inline review silently downgrades them.
+Do not read `.agents/skills/sw-review/personas/*.md` yourself; each worker
+loads its own lens plus the references, reviews only the slice you hand it,
+and returns one per-persona JSON object. Collect the worker JSON, then merge
+per the shared policy and emit via safe outputs.
 
 **Gathering the diff.** Use the GitHub MCP `pull_requests` toolset for PR
 metadata, changed-file list, and commits. For the diff itself, use

@@ -137,12 +137,15 @@ You are the orchestrator. Follow the policy above:
    checked-out head).
 2. Discover cheaply, gate personas off the changed file classes, and slice the
    diff per persona.
-3. For each gated persona, dispatch a persona-worker via the `Task` tool,
-   handing it only its slice (by path when the diff is large). A matching inline
-   sub-agent is defined in the `## agent:` blocks below — invoke it by name when
-   available; otherwise give the Task worker the persona's lens directly by
-   telling it to read `.agents/skills/sw-review/personas/<slug>.md`. Either way
-   each worker returns exactly one per-persona JSON object.
+3. For each gated persona, you MUST dispatch one persona-worker via the `Task`
+   tool, selecting the matching sub-agent by name (`security`, `architecture`,
+   `code-style`, `ux`, `open-source` — defined in the `## agent:` blocks below)
+   and handing it only its slice (by path when the diff is large). NEVER review
+   a persona's slice yourself inline — not even for a small diff: the per-persona
+   model escalation (`security`/`architecture` run on Opus) only happens inside
+   the sub-agent, so an inline review silently downgrades those personas. Do not
+   read `.agents/skills/sw-review/personas/*.md` yourself; each worker loads its
+   own lens. Each worker returns exactly one per-persona JSON object.
 4. Merge the per-persona JSON per `references/CLASSIFICATION.md` (dedupe,
    confidence floors, review-level decision and risk).
 5. Publish via the safe-output contract in the policy: one

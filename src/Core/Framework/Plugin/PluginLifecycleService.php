@@ -411,7 +411,21 @@ class PluginLifecycleService
 
         $this->signalWorkerStopInOldCacheDir();
 
-        $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
+        try {
+            $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
+        } catch (\Throwable $exception) {
+            $plugin->setActive(false);
+
+            $this->updatePluginData(
+                [
+                    'id' => $plugin->getId(),
+                    'active' => false,
+                ],
+                $shopwareContext
+            );
+
+            throw $exception;
+        }
 
         return $activateContext;
     }

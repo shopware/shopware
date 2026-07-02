@@ -75,14 +75,14 @@ class TaxProviderLifecycleHandlerTest extends TestCase
         $handler->install($this->buildContext($manifest, 'foo'));
     }
 
-    public function testCreateNewTaxProviderExisting(): void
+    public function testExistingTaxProviderKeepsItsPriorityOnUpdate(): void
     {
         $provider = $this->createTaxProviders([
             [
                 'identifier' => 'test',
                 'name' => 'lol',
                 'processUrl' => 'https://example.com',
-                'priority' => 1,
+                'priority' => 5,
             ],
         ]);
 
@@ -104,7 +104,6 @@ class TaxProviderLifecycleHandlerTest extends TestCase
                     'processUrl' => 'https://example.com',
                     'id' => $this->ids->get('tax-provider-test'),
                     'appId' => 'foo',
-                    'priority' => 1,
                 ]],
                 static::isInstanceOf(Context::class),
             );

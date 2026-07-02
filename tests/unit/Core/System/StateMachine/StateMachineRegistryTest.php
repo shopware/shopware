@@ -325,9 +325,9 @@ class StateMachineRegistryTest extends TestCase
         ?StateMachineStateEntity $forcedToPlace = null
     ): StateMachineRegistryFixture {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository<StateMachineCollection>&MockObject $stateMachineRepository */
+        /** @var EntityRepository<StateMachineCollection>&Stub $stateMachineRepository */
         $stateMachineRepository = static::createStub(EntityRepository::class);
-        /** @var EntityRepository<StateMachineStateCollection>&MockObject $stateMachineStateRepository */
+        /** @var EntityRepository<StateMachineStateCollection>&Stub $stateMachineStateRepository */
         $stateMachineStateRepository = static::createStub(EntityRepository::class);
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definition = new StateMachineRegistryTestEntityDefinition();

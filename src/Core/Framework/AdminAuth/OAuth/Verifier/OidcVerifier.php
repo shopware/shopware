@@ -7,6 +7,7 @@ use Shopware\Core\Framework\AdminAuth\Oidc\IdTokenValidator;
 use Shopware\Core\Framework\AdminAuth\Oidc\OAuthIdentityMatcher;
 use Shopware\Core\Framework\AdminAuth\Oidc\OidcClient;
 use Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry;
+use Shopware\Core\Framework\AdminAuth\RoleMapping\SsoRoleSynchronizer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -32,6 +33,7 @@ class OidcVerifier implements PrimaryVerifierInterface
         private readonly OidcClient $oidcClient,
         private readonly IdTokenValidator $idTokenValidator,
         private readonly OAuthIdentityMatcher $identityMatcher,
+        private readonly SsoRoleSynchronizer $roleSynchronizer,
         private readonly RouterInterface $router,
     ) {
     }
@@ -67,7 +69,13 @@ class OidcVerifier implements PrimaryVerifierInterface
             $idToken = $this->oidcClient->exchangeCode($provider, $code, $redirectUri);
             $claims = $this->idTokenValidator->validate($provider, $idToken, $nonce);
 
-            return $this->identityMatcher->resolve($provider, $claims, Context::createDefaultContext());
+            $userId = $this->identityMatcher->resolve($provider, $claims, Context::createDefaultContext());
+
+            // No ADMIN_AUTH flag check needed: this verifier is only reachable through the
+            // admin_primary grant, which is registered only while the flag is active.
+            $this->roleSynchronizer->sync($userId, $provider, $claims);
+
+            return $userId;
         } catch (\Throwable $exception) {
             throw OAuthServerException::accessDenied($exception->getMessage(), null, $exception);
         }

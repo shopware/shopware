@@ -64,7 +64,7 @@ class OAuthIdentityMatcher
                 throw AdminAuthException::oidcLoginFailed('no admin user matches the OIDC email and auto-provisioning is disabled');
             }
 
-            $userId = $this->provisionUser($claims);
+            $userId = $this->provisionUser($provider, $claims);
         }
 
         $this->touchIdentity($provider->id, $claims, $userId, $context);
@@ -92,7 +92,7 @@ class OAuthIdentityMatcher
         return $userId === false ? null : (string) $userId;
     }
 
-    private function provisionUser(OidcClaims $claims): string
+    private function provisionUser(AdminAuthProvider $provider, OidcClaims $claims): string
     {
         $userId = Uuid::randomBytes();
         $localeId = $this->defaultLocaleId();
@@ -100,7 +100,13 @@ class OAuthIdentityMatcher
         [$firstName, $lastName] = $this->splitName($claims);
         $username = $claims->preferredUsername ?? $claims->email ?? Uuid::fromBytesToHex($userId);
 
-        RetryableQuery::retryable($this->connection, function () use ($userId, $localeId, $username, $firstName, $lastName, $claims): void {
+        // `user.admin = 1` bypasses ACL entirely. When the provider manages roles (roleMapping /
+        // defaultRoles), provision with admin=0 — the SsoRoleSynchronizer assigns the mapped roles
+        // right after resolution. Without role management the user gets the legacy-compatible
+        // admin flag so they are usable right away.
+        $admin = $provider->roleMapping === [] && $provider->defaultRoles === [] ? 1 : 0;
+
+        RetryableQuery::retryable($this->connection, function () use ($userId, $localeId, $username, $firstName, $lastName, $claims, $admin): void {
             $this->connection->insert('user', [
                 'id' => $userId,
                 'locale_id' => $localeId,
@@ -111,10 +117,7 @@ class OAuthIdentityMatcher
                 'last_name' => $lastName,
                 'email' => $claims->email,
                 'active' => 1,
-                // Provisioned users currently get the admin flag so they are usable right away.
-                // The group -> role synchronization (follow-up) will provision with admin=0 when
-                // the provider defines a role mapping.
-                'admin' => 1,
+                'admin' => $admin,
                 'time_zone' => 'UTC',
                 'created_at' => $this->clock->now()->format('Y-m-d H:i:s.v'),
             ]);

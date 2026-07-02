@@ -107,7 +107,7 @@ class OAuthIdentityMatcherTest extends TestCase
         );
     }
 
-    public function testProvisionsAnAdminUserFromTheClaims(): void
+    public function testProvisionsAnAdminUserFromTheClaimsWhenTheProviderDoesNotManageRoles(): void
     {
         $provider = $this->provider(autoProvision: true);
 
@@ -137,7 +137,47 @@ class OAuthIdentityMatcherTest extends TestCase
         static::assertSame($resolved, $linkedUserId);
     }
 
-    private function provider(bool $autoProvision = false): AdminAuthProvider
+    public function testProvisionsWithoutTheAdminFlagWhenTheProviderManagesRoles(): void
+    {
+        // user.admin = 1 bypasses ACL entirely; a role-managing provider expects the
+        // SsoRoleSynchronizer to assign the mapped roles right after resolution instead.
+        $provider = $this->provider(autoProvision: true, roleMapping: ['idp-catalog' => ['catalog-editor']]);
+
+        $resolved = $this->matcher->resolve(
+            $provider,
+            $this->claims(sub: 'idp-sub-5', email: 'john.doe@example.com', name: 'John Doe'),
+            $this->context
+        );
+
+        $admin = $this->connection->fetchOne(
+            'SELECT admin FROM `user` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($resolved)]
+        );
+        static::assertSame(0, (int) $admin);
+    }
+
+    public function testProvisionsWithoutTheAdminFlagWhenTheProviderGrantsDefaultRoles(): void
+    {
+        $provider = $this->provider(autoProvision: true, defaultRoles: ['catalog-editor']);
+
+        $resolved = $this->matcher->resolve(
+            $provider,
+            $this->claims(sub: 'idp-sub-6', email: 'jim.doe@example.com', name: 'Jim Doe'),
+            $this->context
+        );
+
+        $admin = $this->connection->fetchOne(
+            'SELECT admin FROM `user` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($resolved)]
+        );
+        static::assertSame(0, (int) $admin);
+    }
+
+    /**
+     * @param array<string, list<string>> $roleMapping
+     * @param list<string> $defaultRoles
+     */
+    private function provider(bool $autoProvision = false, array $roleMapping = [], array $defaultRoles = []): AdminAuthProvider
     {
         $id = Uuid::randomHex();
 
@@ -148,6 +188,8 @@ class OAuthIdentityMatcherTest extends TestCase
             clientId: 'client',
             clientSecret: 'secret',
             autoProvision: $autoProvision,
+            roleMapping: $roleMapping,
+            defaultRoles: $defaultRoles,
         );
     }
 

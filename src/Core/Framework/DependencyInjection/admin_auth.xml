@@ -81,6 +81,18 @@
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
+        <!-- Authoritative OIDC group -> ACL role sync, runs on every OIDC login -->
+        <service id="Shopware\Core\Framework\AdminAuth\RoleMapping\SsoRoleSynchronizer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Read access to SSO-managed assignments for the admin UI -->
+        <service id="Shopware\Core\Framework\AdminAuth\RoleMapping\SsoRoleAssignmentReader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\AdminAuth\Oidc\StateService">
             <argument>%kernel.secret%</argument>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
@@ -124,6 +136,7 @@
             <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcClient"/>
             <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\IdTokenValidator"/>
             <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OAuthIdentityMatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\RoleMapping\SsoRoleSynchronizer"/>
             <argument type="service" id="router"/>
             <tag name="shopware.admin_auth.primary_verifier"/>
         </service>

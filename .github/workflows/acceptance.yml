@@ -92,7 +92,7 @@ jobs:
         run: npm install -g npm@11.8.0
 
       - name: Install dependencies
-        uses: ./.github/actions/npm-ci-retry
+        uses: shopware/github-actions/npm-ci-retry@main
         with:
           working-directory: tests/acceptance
 

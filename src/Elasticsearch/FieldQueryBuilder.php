@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch;
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
+use OpenSearchDSL\Query\FullText\MatchPhraseQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
@@ -30,6 +31,14 @@ use Shopware\Elasticsearch\Query\MatchBoolPrefixQuery;
 #[Package('inventory')]
 class FieldQueryBuilder extends AbstractFieldQueryBuilder
 {
+    /**
+     * Boost for a contiguous, in-order match of the whole multi-word search term
+     * (`match_phrase`). Set above the exact single-word boost (2) so a product
+     * whose name contains the full phrase outranks one that merely contains the
+     * individual words scattered around.
+     */
+    private const PHRASE_MATCH_BOOST = 4;
+
     /**
      * @internal
      */
@@ -107,6 +116,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
 
         $clauses = [
             'exact' => $this->buildExactMatchQuery($config, $tokens, $normalizedToken, $tokenCount),
+            'phrase' => $this->buildPhraseMatchQuery($searchField, $normalizedToken, $tokenCount),
             'fuzzy' => $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $maxExpansions),
             'prefix' => $this->buildPrefixMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
             'ngram' => $this->buildNgramQuery($normalizedToken, $config, $tokenCount),
@@ -167,6 +177,23 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         return new TermsQuery($config->getField(), $tokens, ['boost' => 2]);
+    }
+
+    private function buildPhraseMatchQuery(string $searchField, string $token, int $tokenCount): ?MatchPhraseQuery
+    {
+        // Only a multi-word search can match as a phrase; a single word is already
+        // covered by the (higher-boosted) exact clause.
+        if ($tokenCount < 2) {
+            return null;
+        }
+
+        $matchPhraseParams = ['boost' => self::PHRASE_MATCH_BOOST];
+
+        if (!$this->useLanguageAnalyzer) {
+            $matchPhraseParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
+        }
+
+        return new MatchPhraseQuery($searchField, $token, $matchPhraseParams);
     }
 
     private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery

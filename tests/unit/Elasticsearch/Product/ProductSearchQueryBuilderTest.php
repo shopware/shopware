@@ -251,21 +251,25 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::bool([
                     self::disMax([
                         self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 2),
+                        self::matchPhrase('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 4),
                         self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                     ], 1000),
                     self::disMax([
                         self::must('ean', ['foo', '2023'], 2),
+                        self::matchPhrase('ean.search', 'foo 2023', 4),
                         self::match('ean.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
                     ], 2000),
                     self::nested('tags', self::disMax([
                         self::must('tags.name', ['foo', '2023'], 2),
+                        self::matchPhrase('tags.name.search', 'foo 2023', 4),
                         self::match('tags.name.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                     ], 500)),
                     self::nested('parent', self::disMax([
                         self::must('parent.name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 2),
+                        self::matchPhrase('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 4),
                         self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                     ], 800)),
@@ -319,6 +323,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ], BoolQuery::MUST),
                 self::disMax([
                     self::must($prefix . 'evolvesText', ['foo', '2023'], 2),
+                    self::matchPhrase($prefix . 'evolvesText.search', 'foo 2023', 4),
                     self::match($prefix . 'evolvesText.search', 'foo 2023', 0.4, 0, 'and', 10),
                     self::matchPhrasePrefix($prefix . 'evolvesText.search', 'foo 2023', 0.6, 3, 10),
                 ], 500),
@@ -432,21 +437,25 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::bool([
                     self::disMax([
                         self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 2),
+                        self::matchPhrase('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 4),
                         self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                     ], 1000),
                     self::disMax([
                         self::must('ean', ['foo', '2023'], 2),
+                        self::matchPhrase('ean.search', 'foo 2023', 4),
                         self::match('ean.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
                     ], 2000),
                     self::nested('tags', self::disMax([
                         self::must('tags.name', ['foo', '2023'], 2),
+                        self::matchPhrase('tags.name.search', 'foo 2023', 4),
                         self::match('tags.name.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                     ], 500)),
                     self::nested('parent', self::disMax([
                         self::must('parent.name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 2),
+                        self::matchPhrase('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 4),
                         self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                     ], 800)),
@@ -503,11 +512,13 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::disMax([
                     self::disMax([
                         self::must($prefixCfLang1 . 'evolvesText', ['foo', '2023'], 2),
+                        self::matchPhrase($prefixCfLang1 . 'evolvesText.search', 'foo 2023', 4),
                         self::match($prefixCfLang1 . 'evolvesText.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix($prefixCfLang1 . 'evolvesText.search', 'foo 2023', 0.6, 3, 10),
                     ], 500),
                     self::disMax([
                         self::must($prefixCfLang2 . 'evolvesText', ['foo', '2023'], 2),
+                        self::matchPhrase($prefixCfLang2 . 'evolvesText.search', 'foo 2023', 4),
                         self::match($prefixCfLang2 . 'evolvesText.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix($prefixCfLang2 . 'evolvesText.search', 'foo 2023', 0.6, 3, 10),
                     ], 400),
@@ -843,6 +854,21 @@ class ProductSearchQueryBuilderTest extends TestCase
                     'boost' => $boost,
                     'slop' => $slop,
                     'max_expansions' => $maxExpansions,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function matchPhrase(string $field, string|int|float $query, float $boost): array
+    {
+        return [
+            'match_phrase' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
                 ],
             ],
         ];

@@ -3,7 +3,7 @@
  */
 
 import { parse } from '@vue/compiler-sfc';
-import { toScriptBlock } from './sfc-script-block';
+import { removeSetupAttributeFromScriptBlock, toScriptBlock } from './sfc-script-block';
 
 describe('build/vue-setup-transform/utils/sfc-script-block', () => {
     it('finds the real script tag when an earlier attribute contains a script-like string', () => {
@@ -28,6 +28,27 @@ describe('build/vue-setup-transform/utils/sfc-script-block', () => {
 
         expect(block.start).toBe(expectedScriptStart);
         expect(block.content).toBe('\nconst count = 1;\n');
-        expect(block.generatedPassthroughAttributesSource).toBe(' setup lang="ts" generic="T"');
+        expect(block.openingTagSource).toBe('<script setup lang="ts" generic="T">');
+    });
+
+    it.each([
+        [
+            '<script setup>',
+            '<script>',
+        ],
+        [
+            '<script lang="ts" setup>',
+            '<script lang="ts">',
+        ],
+        [
+            '<script setup="" lang="ts">',
+            '<script lang="ts">',
+        ],
+        [
+            '<script setup="true" src="./setup-helper.ts" data-name="setup">',
+            '<script src="./setup-helper.ts" data-name="setup">',
+        ],
+    ])('removes only the setup attribute from %s', (source, expected) => {
+        expect(removeSetupAttributeFromScriptBlock(source)).toBe(expected);
     });
 });

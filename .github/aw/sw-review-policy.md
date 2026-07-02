@@ -49,8 +49,11 @@ prefer `needs_human_review` over speculative findings.
 Do **not** emit prose as your final message. Publish the merged review through
 exactly these safe outputs:
 
-1. **One inline comment per kept finding** via `create_pull_request_review_comment`,
-   anchored to the finding's `file` and post-change `line`. Body format:
+1. **One inline comment per kept `blocking` or `major` finding** via
+   `create_pull_request_review_comment`, anchored to the finding's `file` and
+   post-change `line`. Kept `minor` and `nit` findings are **never** posted
+   inline — they go into the summary review body (step 2) so the diff stays
+   readable. Inline body format:
 
    > **`<severity>` · `<persona>`** (`<category>`, confidence `<0.00>`)
    > `<claim>`
@@ -58,15 +61,21 @@ exactly these safe outputs:
    > _Fix:_ `<specific minimal fix>`
 
    Order findings most-severe first and respect the configured `max`. If there
-   are more kept findings than `max`, keep the highest-severity/confidence ones
-   and note the count of omitted findings in the review summary.
+   are more inline-eligible findings than `max`, keep the
+   highest-severity/confidence ones and note the count of omitted findings in
+   the review summary.
 
 2. **One summary review** via `submit_pull_request_review`, which bundles the
    inline comments into a single review. The body is the review-level summary:
    one sentence naming the dominant risk and main changed file/symbol, then
    `risk: <risk_level>`, personas run, personas skipped (with reasons), and — if
-   applicable — the count of omitted findings. Map the merged `decision` to the
-   review event:
+   applicable — the count of omitted inline findings. When kept `minor`/`nit`
+   findings exist, append a `**Further notes**` section listing each as one
+   line — `` `severity · persona` `file:line` — claim `` — capped at 10 lines;
+   past the cap, close with a single count of the remaining findings. The
+   merged `decision` and `risk_level` are always computed from **all** kept
+   findings (including `minor`/`nit`), never just the inline-posted ones. Map
+   the merged `decision` to the review event:
 
    | merged `decision`    | review `event`      | note in body                    |
    | -------------------- | ------------------- | ------------------------------- |

@@ -39,9 +39,9 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
-            $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CmsSlotsDataResolver::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $result = $loader->load(new Request(), new Criteria(), Generator::generateSalesChannelContext());
@@ -65,9 +65,9 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
-            $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CmsSlotsDataResolver::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $config = [

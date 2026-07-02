@@ -49,8 +49,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $messageBusMock = new CollectingMessageBus();
 
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $connection,
             $messageBusMock,
             new NativeClock(),

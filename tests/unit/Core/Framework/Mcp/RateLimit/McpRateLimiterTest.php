@@ -60,7 +60,7 @@ class McpRateLimiterTest extends TestCase
 
     public function testEnforceForStoreApiUsesSalesChannelContextKey(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
         $salesChannelContext->method('getToken')->willReturn('context-token');
 
@@ -102,7 +102,7 @@ class McpRateLimiterTest extends TestCase
     {
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
-        $this->rateLimiter->method('ensureAccepted')->willThrowException($rateLimitException);
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')->willThrowException($rateLimitException);
 
         $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
@@ -113,7 +113,7 @@ class McpRateLimiterTest extends TestCase
     {
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
-        $this->rateLimiter->method('ensureAccepted')->willThrowException($rateLimitException);
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')->willThrowException($rateLimitException);
 
         $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 

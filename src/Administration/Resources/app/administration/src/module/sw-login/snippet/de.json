@@ -25,7 +25,26 @@
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
       "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warten Sie {seconds} Sekunden, bevor Sie erneut versuchen, sich anzumelden.",
       "forgottenPasswordLink": "Passwort vergessen?",
-      "orContinueWith": "Oder fortfahren mit"
+      "orContinueWith": "Oder fortfahren mit",
+      "buttonPasskeyLogin": "Mit Passkey anmelden",
+      "passkeyError": "Die Passkey-Anmeldung ist fehlgeschlagen. Bitte versuche es erneut.",
+      "ssoErrorGeneric": "Single Sign-on ist fehlgeschlagen. Bitte versuche es erneut oder nutze eine andere Anmeldemethode.",
+      "ssoErrorInvalidState": "Die Single-Sign-on-Anfrage konnte nicht validiert werden. Bitte versuche es erneut.",
+      "ssoErrorMfaRequired": "Dein Konto erfordert einen zweiten Faktor. Bitte melde Dich mit Benutzername und Passwort an, um die Zwei-Faktor-Authentifizierung abzuschließen."
+    },
+    "mfa": {
+      "headline": "Zwei-Faktor-Authentifizierung",
+      "hint": "Gib den 6-stelligen Code aus Deiner Authenticator-App ein, um die Anmeldung abzuschließen.",
+      "codeLabel": "Authentifizierungscode",
+      "codePlaceholder": "123456",
+      "recoveryCodeLabel": "Wiederherstellungscode",
+      "recoveryCodePlaceholder": "XXXX-XXXX",
+      "verifyButton": "Bestätigen",
+      "cancelButton": "Zurück zur Anmeldung",
+      "useRecoveryCode": "Stattdessen Wiederherstellungscode verwenden",
+      "useAuthenticatorApp": "Stattdessen Authenticator-App verwenden",
+      "usePasskeyButton": "Passkey verwenden",
+      "invalidCode": "Der Code ist ungültig oder abgelaufen. Bitte versuche es erneut."
     },
     "recovery": {
       "info": {

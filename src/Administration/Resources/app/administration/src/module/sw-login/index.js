@@ -13,6 +13,8 @@ Component.register('sw-login-recovery-info', () => import('./view/sw-login-recov
 /** @private */
 Component.register('sw-login-login', () => import('./view/sw-login-login'));
 /** @private */
+Component.register('sw-login-mfa', () => import('./view/sw-login-mfa'));
+/** @private */
 Component.register('sw-login', () => import('./page/index'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

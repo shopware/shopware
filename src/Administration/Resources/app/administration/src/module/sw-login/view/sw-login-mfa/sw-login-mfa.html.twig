@@ -1,0 +1,103 @@
+{% block sw_login_mfa %}
+<div class="sw-login-mfa">
+    {% block sw_login_mfa_headline %}
+    <h2 class="sw-login__content-headline">
+        {{ $t('sw-login.mfa.headline') }}
+    </h2>
+    {% endblock %}
+
+    {% block sw_login_mfa_hint %}
+    <p class="sw-login-mfa__hint">
+        {{ $t('sw-login.mfa.hint') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_login_mfa_code_field %}
+    <mt-text-field
+        v-if="showCodeField && !useRecoveryCode"
+        v-model="code"
+        v-autofocus
+        name="sw-field--mfa-code"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        :label="$t('sw-login.mfa.codeLabel')"
+        :placeholder="$t('sw-login.mfa.codePlaceholder')"
+        @keypress.enter.prevent="verifyCode"
+    />
+
+    <mt-text-field
+        v-else-if="showCodeField"
+        v-model="code"
+        v-autofocus
+        name="sw-field--mfa-recovery-code"
+        autocomplete="off"
+        :label="$t('sw-login.mfa.recoveryCodeLabel')"
+        :placeholder="$t('sw-login.mfa.recoveryCodePlaceholder')"
+        @keypress.enter.prevent="verifyCode"
+    />
+    {% endblock %}
+
+    {% block sw_login_mfa_recovery_toggle %}
+    <button
+        v-if="recoveryAvailable && totpAvailable"
+        type="button"
+        class="sw-login-mfa__recovery-toggle"
+        @click.prevent="toggleRecoveryCode"
+    >
+        <template v-if="!useRecoveryCode">
+            {{ $t('sw-login.mfa.useRecoveryCode') }}
+        </template>
+        <template v-else>
+            {{ $t('sw-login.mfa.useAuthenticatorApp') }}
+        </template>
+    </button>
+    {% endblock %}
+
+    {% block sw_login_mfa_actions %}
+    <div class="sw-login__submit">
+        {% block sw_login_mfa_verify_button %}
+        <mt-button
+            v-if="showCodeField"
+            class="sw-login-mfa__verify-action"
+            variant="primary"
+            size="default"
+            :block="true"
+            :disabled="!codeValid || isLoading"
+            :is-loading="isLoading"
+            @click.prevent="verifyCode"
+        >
+            {{ $t('sw-login.mfa.verifyButton') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_login_mfa_passkey_button %}
+        <mt-button
+            v-if="webauthnAvailable"
+            class="sw-login-mfa__passkey-action"
+            variant="secondary"
+            size="default"
+            :block="true"
+            :disabled="isLoading"
+            @click.prevent="verifyWithPasskey"
+        >
+            {{ $t('sw-login.mfa.usePasskeyButton') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_login_mfa_cancel_button %}
+        <mt-button
+            class="sw-login-mfa__cancel-action"
+            variant="secondary"
+            size="default"
+            :block="true"
+            :disabled="isLoading"
+            @click.prevent="cancel"
+        >
+            {{ $t('sw-login.mfa.cancelButton') }}
+        </mt-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

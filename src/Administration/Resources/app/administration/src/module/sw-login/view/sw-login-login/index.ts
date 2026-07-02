@@ -3,6 +3,8 @@
  */
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
+import { isWebAuthnSupported } from 'src/core/helper/webauthn.helper';
+import type { AdminAuthMethod } from 'src/core/service/login.service';
 import template from './sw-login-login.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -12,7 +14,16 @@ interface LoginData {
     password: string;
     rememberMe: boolean;
     loginAlertMessage: string;
+    authMethods: AdminAuthMethod[];
+    authMethodsLoaded: boolean;
+    mfaRequired: boolean;
+    mfaMethods: string[];
 }
+
+const SSO_ERROR_SNIPPETS: Record<string, string> = {
+    'mfa-required': 'sw-login.index.ssoErrorMfaRequired',
+    'invalid-state': 'sw-login.index.ssoErrorInvalidState',
+};
 
 /**
  * @private
@@ -43,12 +54,32 @@ export default Component.wrapComponentConfig({
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
+            authMethods: [],
+            authMethodsLoaded: false,
+            mfaRequired: false,
+            mfaMethods: [],
         };
     },
 
     computed: {
         showLoginAlert() {
             return this.loginAlertMessage?.length >= 1;
+        },
+
+        adminAuthEnabled() {
+            return Shopware.Feature.isActive('ADMIN_AUTH');
+        },
+
+        oidcMethods(): AdminAuthMethod[] {
+            return this.authMethods.filter((method) => method.type === 'oidc' && !!method.startUrl);
+        },
+
+        showPasskeyLogin(): boolean {
+            return this.authMethods.some((method) => method.type === 'webauthn') && isWebAuthnSupported();
+        },
+
+        showAlternativeLogins(): boolean {
+            return this.adminAuthEnabled && (this.oidcMethods.length > 0 || this.showPasskeyLogin);
         },
     },
 
@@ -62,22 +93,95 @@ export default Component.wrapComponentConfig({
             window.location.reload();
         },
 
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _navigateTo(url: string) {
+            window.location.href = url;
+        },
+
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
                 const localeFactory = Shopware.Application.getContainer('factory').locale;
 
                 await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
             }
+
+            if (this.adminAuthEnabled) {
+                this.checkSsoError();
+                await this.loadAuthMethods();
+            }
+        },
+
+        /**
+         * Load the available primary login methods. Failures are swallowed so the plain password
+         * form keeps working even when the discovery endpoint is unreachable.
+         */
+        async loadAuthMethods() {
+            try {
+                this.authMethods = await this.loginService.getAvailableAuthMethods();
+            } catch {
+                this.authMethods = [];
+            } finally {
+                this.authMethodsLoaded = true;
+            }
+        },
+
+        /**
+         * Surface a failed server-side SSO round-trip (`?ssoError=<code>` set by the OIDC callback
+         * redirect) as a notification, once, on entering the login screen.
+         */
+        checkSsoError() {
+            const ssoError = this.$route?.query?.ssoError;
+
+            if (typeof ssoError !== 'string' || ssoError.length === 0) {
+                return;
+            }
+
+            const snippetKey = SSO_ERROR_SNIPPETS[ssoError] ?? 'sw-login.index.ssoErrorGeneric';
+
+            this.createNotificationError({
+                message: this.$t(snippetKey),
+            });
+        },
+
+        startOidcLogin(method: AdminAuthMethod) {
+            if (method.startUrl) {
+                this._navigateTo(method.startUrl);
+            }
         },
 
         loginUserWithPassword() {
+            if (this.mfaRequired) {
+                return Promise.resolve();
+            }
+
             this.$emit('is-loading');
 
             this.loginService.setRememberMe(this.rememberMe);
 
+            if (!this.adminAuthEnabled) {
+                return this.loginService
+                    .loginByUsername(this.username, this.password)
+                    .then(() => {
+                        void this.handleLoginSuccess();
+                        this.$emit('is-not-loading');
+                    })
+                    .catch((response) => {
+                        this.password = '';
+
+                        this.handleLoginError(response);
+                        this.$emit('is-not-loading');
+                    });
+            }
+
             return this.loginService
-                .loginByUsername(this.username, this.password)
-                .then(() => {
+                .loginPrimary(this.username, this.password)
+                .then((result) => {
+                    if (result.mfaRequired) {
+                        this.enterMfaStep(result.methods);
+                        this.$emit('is-not-loading');
+                        return;
+                    }
+
                     void this.handleLoginSuccess();
                     this.$emit('is-not-loading');
                 })
@@ -87,6 +191,78 @@ export default Component.wrapComponentConfig({
                     this.handleLoginError(response);
                     this.$emit('is-not-loading');
                 });
+        },
+
+        /**
+         * Passwordless login with a passkey. Mirrors the success/MFA branching of the password
+         * submit so it can never get stuck on a half-authenticated state.
+         */
+        loginWithPasskey() {
+            this.$emit('is-loading');
+
+            this.loginService.setRememberMe(this.rememberMe);
+
+            return this.loginService
+                .loginWithPasskey()
+                .then((result) => {
+                    if (result.mfaRequired) {
+                        this.enterMfaStep(result.methods);
+                        this.$emit('is-not-loading');
+                        return;
+                    }
+
+                    void this.handleLoginSuccess();
+                    this.$emit('is-not-loading');
+                })
+                .catch((error: unknown) => {
+                    this.createNotificationError({
+                        message: this.extractPasskeyErrorMessage(error),
+                    });
+                    this.$emit('is-not-loading');
+                });
+        },
+
+        extractPasskeyErrorMessage(error: unknown): string {
+            // Server-side OAuth errors are wrapped in a response; surface their detail when present.
+            /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+            const errors = (error as { response?: { data?: { errors?: unknown } } })?.response?.data?.errors;
+
+            if (Array.isArray(errors) && errors.length > 0) {
+                const first = errors[0] as { detail?: string; title?: string };
+
+                if (first.detail || first.title) {
+                    return first.detail ?? first.title!;
+                }
+            }
+            /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
+            // Ceremony / client-side errors carry a user-facing message (e.g. "cancelled").
+            if (!(error as { response?: unknown })?.response && error instanceof Error && error.message) {
+                return error.message;
+            }
+
+            return this.$t('sw-login.index.passkeyError');
+        },
+
+        enterMfaStep(methods: string[]) {
+            this.mfaRequired = true;
+            this.mfaMethods = methods;
+            // Keep the password out of memory while we are on the second-factor step.
+            this.password = '';
+        },
+
+        onMfaSuccess() {
+            this.mfaRequired = false;
+            this.mfaMethods = [];
+
+            void this.handleLoginSuccess();
+        },
+
+        onMfaCancel() {
+            this.loginService.clearPendingMfa();
+
+            this.mfaRequired = false;
+            this.mfaMethods = [];
         },
 
         handleLoginSuccess() {

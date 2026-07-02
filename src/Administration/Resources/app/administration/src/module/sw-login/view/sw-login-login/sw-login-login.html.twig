@@ -4,14 +4,17 @@
     @submit.prevent="loginUserWithPassword"
 >
     {% block sw_login_login_form_headline %}
-    <h2 class="sw-login__content-headline">
+    <h2
+        v-if="!mfaRequired"
+        class="sw-login__content-headline"
+    >
         {{ $t('sw-login.index.headlineForm') }}
     </h2>
     {% endblock %}
 
     {% block sw_login_login_alert %}
     <mt-banner
-        v-if="showLoginAlert"
+        v-if="!mfaRequired && showLoginAlert"
         variant="info"
         :show-icon="true"
         :closable="false"
@@ -22,6 +25,7 @@
 
     {% block sw_login_login_user_field %}
     <mt-text-field
+        v-if="!mfaRequired"
         v-model="username"
         v-autofocus
         name="sw-field--username"
@@ -34,6 +38,7 @@
 
     {% block sw_login_login_password_field %}
     <mt-password-field
+        v-if="!mfaRequired"
         v-model="password"
         name="sw-field--password"
         :label="$t('sw-login.index.labelPassword')"
@@ -44,7 +49,10 @@
     {% endblock %}
 
     {% block sw_login_login_submit %}
-    <div class="sw-login__submit">
+    <div
+        v-if="!mfaRequired"
+        class="sw-login__submit"
+    >
         {% block sw_login_login_submit_button %}
         <mt-button
             :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
@@ -74,6 +82,59 @@
             {% endblock %}
         </div>
     </div>
+    {% endblock %}
+
+    {% block sw_login_login_alternative_methods %}
+    <div
+        v-if="!mfaRequired && showAlternativeLogins"
+        class="sw-login__alternative-methods"
+    >
+        {% block sw_login_login_alternative_methods_divider %}
+        <div class="sw-login__sso-divider">
+            <span class="sw-login__sso-divider-text">
+                {{ $t('sw-login.index.orContinueWith') }}
+            </span>
+        </div>
+        {% endblock %}
+
+        {% block sw_login_login_oidc_buttons %}
+        <mt-button
+            v-for="method in oidcMethods"
+            :key="method.id"
+            class="sw-login__sso-provider-action"
+            variant="secondary"
+            size="default"
+            :block="true"
+            @click.prevent="startOidcLogin(method)"
+        >
+            {{ method.label || method.id }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_login_login_passkey_button %}
+        <mt-button
+            v-if="showPasskeyLogin"
+            class="sw-login__passkey-action"
+            variant="secondary"
+            size="default"
+            :block="true"
+            @click.prevent="loginWithPasskey"
+        >
+            {{ $t('sw-login.index.buttonPasskeyLogin') }}
+        </mt-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_login_login_mfa %}
+    <sw-login-mfa
+        v-if="mfaRequired"
+        :methods="mfaMethods"
+        @mfa-success="onMfaSuccess"
+        @mfa-cancel="onMfaCancel"
+        @is-loading="$emit('is-loading')"
+        @is-not-loading="$emit('is-not-loading')"
+    />
     {% endblock %}
 </form>
 {% endblock %}

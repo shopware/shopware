@@ -88,6 +88,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
         await ShopCustomer.fillsIn(StorefrontProductDetail.reviewTitleInput, reviewContent.title);
         await ShopCustomer.fillsIn(StorefrontProductDetail.reviewReviewTextInput, reviewContent.content);
         await ShopCustomer.presses(StorefrontProductDetail.reviewSubmitButton);
+        await StorefrontProductDetail.page.waitForURL(`**/${product.productNumber}`, { waitUntil: 'commit' });
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewSubmitMessage).toBeVisible()
         await ShopCustomer.expects(StorefrontProductDetail.reviewCounter).toContainText('1 review');
@@ -158,6 +159,7 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
 
     await test.step('Validate the functionality of the filters.', async () => {
         const reviewFilterAcceptable = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Acceptable');
+        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.presses(reviewFilterAcceptable.reviewFilterOptionCheckbox);
         await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
@@ -170,6 +172,7 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
 
         const reviewFilterUnsatisfactory = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
+        await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.presses(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox);
         await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
@@ -213,6 +216,7 @@ test('As a shop customer, I want to filter reviews by rating, log in and come ba
         const reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent (2)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeEnabled();
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
+        await StorefrontProductDetail.page.waitForURL(`**/${product.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
     });

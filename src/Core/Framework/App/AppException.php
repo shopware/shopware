@@ -34,8 +34,6 @@ class AppException extends HttpException
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
     public const SECRET_ROTATION_ALREADY_PENDING = 'FRAMEWORK__APP_SECRET_ROTATION_ALREADY_PENDING';
-    public const APP_SECRET_ROTATION_NOTHING_TO_RECOVER = 'FRAMEWORK__APP_SECRET_ROTATION_NOTHING_TO_RECOVER';
-    public const APP_SECRET_ROTATION_CLAIMED = 'FRAMEWORK__APP_SECRET_ROTATION_CLAIMED';
     public const APP_SECRET_ROTATION_IN_PROGRESS = 'FRAMEWORK__APP_SECRET_ROTATION_IN_PROGRESS';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
@@ -191,27 +189,6 @@ class AppException extends HttpException
             self::APP_SECRET_LOCK_UNAVAILABLE,
             'Could not acquire the lock to safely rotate or recover the secret for app "{{ appId }}"; the locking backend is unavailable, try again shortly.',
             ['appId' => $appId],
-            $previous
-        );
-    }
-
-    public static function appSecretRotationNothingToRecover(string $appName): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::APP_SECRET_ROTATION_NOTHING_TO_RECOVER,
-            'App "{{ appName }}" has no unconfirmed secret to recover.',
-            ['appName' => $appName]
-        );
-    }
-
-    public static function appSecretRotationClaimed(string $appName, ?\Throwable $previous = null): self
-    {
-        return new self(
-            Response::HTTP_CONFLICT,
-            self::APP_SECRET_ROTATION_CLAIMED,
-            'App "{{ appName }}" could not be re-registered with either the current or the unconfirmed secret. If the app server was briefly unreachable, retry bin/console app:secret:recover {{ appName }}. If the registration is genuinely lost, run bin/console app:secret:recover {{ appName }} --discard then bin/console app:shop-id:change.',
-            ['appName' => $appName],
             $previous
         );
     }

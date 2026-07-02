@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -106,20 +107,8 @@ final readonly class RecoverAppSecretCommand
         }
 
         try {
-            $this->rotationService->recoverNow($app->getId(), $context);
+            $result = $this->rotationService->recoverNow($app->getId(), $context);
         } catch (AppException $e) {
-            if ($e->getErrorCode() === AppException::APP_SECRET_ROTATION_NOTHING_TO_RECOVER) {
-                $io->note($e->getMessage());
-
-                return Command::SUCCESS;
-            }
-
-            if ($e->getErrorCode() === AppException::APP_SECRET_ROTATION_CLAIMED) {
-                $io->error($e->getMessage());
-
-                return Command::FAILURE;
-            }
-
             if ($e->getErrorCode() === AppException::REGISTRATION_FAILED) {
                 // The app never confirmed (timeout/5xx), so the outcome is unknown; the operator retries.
                 $io->warning(\sprintf('Recovery outcome for "%s" is unknown (the app did not confirm); retry later. %s', $app->getName(), $e->getMessage()));
@@ -134,9 +123,37 @@ final readonly class RecoverAppSecretCommand
             return Command::FAILURE;
         }
 
+        return match ($result) {
+            AppSecretRecoveryResult::Recovered => $this->reportRecovered($io, $app),
+            AppSecretRecoveryResult::NothingToRecover => $this->reportNothingToRecover($io, $app),
+            AppSecretRecoveryResult::Claimed => $this->reportClaimed($io, $app),
+        };
+    }
+
+    private function reportRecovered(SymfonyStyle $io, AppEntity $app): int
+    {
         $io->success(\sprintf('Re-registered app "%s" with a fresh secret.', $app->getName()));
 
         return Command::SUCCESS;
+    }
+
+    private function reportNothingToRecover(SymfonyStyle $io, AppEntity $app): int
+    {
+        $io->note(\sprintf('App "%s" has no unconfirmed secret to recover.', $app->getName()));
+
+        return Command::SUCCESS;
+    }
+
+    private function reportClaimed(SymfonyStyle $io, AppEntity $app): int
+    {
+        $io->error(\sprintf(
+            'App "%s" could not be re-registered with either the current or the unconfirmed secret. If the app server was briefly unreachable, retry "app:secret:recover %s". If the registration is genuinely lost, run "app:secret:recover %s --discard" then "app:shop-id:change".',
+            $app->getName(),
+            $app->getName(),
+            $app->getName(),
+        ));
+
+        return Command::FAILURE;
     }
 
     private function findAppByName(string $name, Context $context): ?AppEntity

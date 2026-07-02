@@ -272,9 +272,11 @@ class AppManager
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
         $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();
 
-        $hasSetup = $manifest->getSetup() !== null;
-        $installWillRegister = $install && $hasSetup;
-        $lock = $installWillRegister ? $this->registrationLock->acquire($id) : null;
+        // Serialise the whole persist against a concurrent rotation or recovery of the same app: a rotation
+        // reads the manifest and metadata this method rewrites, and a registration below must not interleave
+        // with one. Cheap (one per-app lock round trip on an operator path), and unconditional is simpler than
+        // locking only the paths that end up registering.
+        $lock = $this->registrationLock->acquire($id);
 
         try {
             $this->updateMetadata($metadata, $context);
@@ -294,19 +296,7 @@ class AppManager
             // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
             // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
             // in that case we still need to run the registration to rotate that secret
-            $willRegister = $hasSetup && (!$app->getAppSecret() || $install);
-
-            if ($willRegister) {
-                // The install already holds the lock — refresh it, since the metadata/custom-entity work above
-                // may have consumed much of the TTL. An update that turns out to need registration takes a
-                // fresh lock here. Either way the registration is serialised against a concurrent rotation
-                // or recovery and starts on a full TTL.
-                if ($lock === null) {
-                    $lock = $this->registrationLock->acquire($id);
-                } else {
-                    $this->registrationLock->refresh($lock, $id);
-                }
-
+            if ($manifest->getSetup() !== null && (!$app->getAppSecret() || $install)) {
                 try {
                     $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
                 } catch (AppRegistrationException $e) {
@@ -321,9 +311,7 @@ class AppManager
                 }
             }
         } finally {
-            if ($lock !== null) {
-                $this->registrationLock->release($lock, $id);
-            }
+            $this->registrationLock->release($lock, $id);
         }
 
         // Refetch app to get secret after registration

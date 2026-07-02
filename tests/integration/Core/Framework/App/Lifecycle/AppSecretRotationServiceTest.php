@@ -6,7 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -89,7 +89,7 @@ class AppSecretRotationServiceTest extends TestCase
         static::assertNull($rolledBack->getUnconfirmedAppSecrets());
     }
 
-    public function testRecoverNowThrowsWhenThereIsNoPendingSecret(): void
+    public function testRecoverNowReportsNothingToRecoverWithoutAnyHttpCall(): void
     {
         $appDir = __DIR__ . '/../Manifest/_fixtures/test';
         $this->loadAppsFromDir($appDir);
@@ -98,14 +98,13 @@ class AppSecretRotationServiceTest extends TestCase
         $this->seedSecrets($app->getId(), 'current-secret', null);
         $requestsAfterInstall = $this->getRequestCount();
 
-        $this->expectException(AppException::class);
+        static::assertSame(
+            AppSecretRecoveryResult::NothingToRecover,
+            $this->service->recoverNow($app->getId(), $this->context)
+        );
 
-        try {
-            $this->service->recoverNow($app->getId(), $this->context);
-        } finally {
-            // recovery refuses before any HTTP call when there is nothing pending
-            static::assertSame($requestsAfterInstall, $this->getRequestCount());
-        }
+        // recovery concludes before any HTTP call when there is nothing pending
+        static::assertSame($requestsAfterInstall, $this->getRequestCount());
     }
 
     private function seedSecrets(string $appId, string $appSecret, ?string $pendingSecret): void

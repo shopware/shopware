@@ -172,13 +172,13 @@ class AppSecretRotationService
      * or returned a 5xx). An unconfirmed secret was left behind, and we cannot tell whether the app switched to
      * the new credentials. We re-register the app with a fresh integration, signing the handshake first with
      * the unconfirmed secret (the one the app most likely holds) and, if that is refused, with the current one.
-     * The first secret the app accepts wins. If the app refuses both, core no longer holds a secret the app
-     * trusts and the registration cannot be recovered (the operator must generate a new shop id). No database
+     * The first secret the app accepts wins. The expected verdicts are returned as a result; an attempt whose
+     * outcome stays unknown (the app never confirmed) throws instead, so the operator retries. No database
      * transaction is held open across the registration HTTP call.
      */
-    public function recoverNow(string $appId, Context $context): void
+    public function recoverNow(string $appId, Context $context): AppSecretRecoveryResult
     {
-        $this->registrationLock->locked(
+        return $this->registrationLock->locked(
             $appId,
             fn (LockInterface $lock) => $this->doRecover($appId, $context, $lock)
         );
@@ -202,13 +202,13 @@ class AppSecretRotationService
         });
     }
 
-    private function doRecover(string $appId, Context $context, LockInterface $lock): void
+    private function doRecover(string $appId, Context $context, LockInterface $lock): AppSecretRecoveryResult
     {
         $app = $this->loadApp($appId, $context);
 
         $unconfirmed = $app->getUnconfirmedAppSecrets() ?? [];
         if ($unconfirmed === []) {
-            throw AppException::appSecretRotationNothingToRecover($app->getName());
+            return AppSecretRecoveryResult::NothingToRecover;
         }
 
         // Try every secret the app might still hold, most-recent first: the unconfirmed list, then the
@@ -259,9 +259,9 @@ class AppSecretRotationService
                         'appId' => $appId,
                         'appName' => $app->getName(),
                     ]);
-                    $this->recordRecoveryOutcome('recovered');
+                    $this->recordRecoveryOutcome(AppSecretRecoveryResult::Recovered->value);
 
-                    return;
+                    return AppSecretRecoveryResult::Recovered;
                 } catch (AppException $e) {
                     if ($e->getErrorCode() !== AppException::APP_REGISTRATION_REJECTED) {
                         // No clear answer (5xx/timeout) or an unexpected failure — let the outer handler deal
@@ -298,9 +298,9 @@ class AppSecretRotationService
             newIntegrationId: $newIntegrationId,
             context: $context,
         );
-        $this->recordRecoveryOutcome('claimed');
+        $this->recordRecoveryOutcome(AppSecretRecoveryResult::Claimed->value);
 
-        throw AppException::appSecretRotationClaimed($app->getName());
+        return AppSecretRecoveryResult::Claimed;
     }
 
     private function recordRecoveryOutcome(string $outcome): void

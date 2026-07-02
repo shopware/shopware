@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -272,12 +273,11 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->enqueueReRegistrationAttempt(minting: 'transient-recovery-secret', confirmResponse: new Response(403));
         $this->enqueueReRegistrationAttempt(minting: 'transient-recovery-secret', confirmResponse: new Response(403));
 
-        try {
-            $this->rotationService->recoverNow($app->getId(), $this->context);
-            static::fail('Recovery must report claimed when every candidate receives a 4xx.');
-        } catch (AppException $e) {
-            static::assertSame(AppException::APP_SECRET_ROTATION_CLAIMED, $e->getErrorCode());
-        }
+        static::assertSame(
+            AppSecretRecoveryResult::Claimed,
+            $this->rotationService->recoverNow($app->getId(), $this->context),
+            'Recovery must report claimed when every candidate receives a 4xx.'
+        );
 
         $afterTransientFailure = $this->getInstalledApp();
         static::assertSame($committedSecret, $afterTransientFailure->getAppSecret());
@@ -380,12 +380,11 @@ class AppSecretRotationEndToEndTest extends TestCase
         // rather than silently failing or losing state.
         $this->enqueueReRegistrationAttempt(minting: 'rejected', confirmResponse: new Response(403));
 
-        try {
-            $this->rotationService->recoverNow($app->getId(), $this->context);
-            static::fail('Recovery must report the registration as claimed when the only candidate is rejected.');
-        } catch (AppException $e) {
-            static::assertSame(AppException::APP_SECRET_ROTATION_CLAIMED, $e->getErrorCode());
-        }
+        static::assertSame(
+            AppSecretRecoveryResult::Claimed,
+            $this->rotationService->recoverNow($app->getId(), $this->context),
+            'Recovery must report the registration as claimed when the only candidate is rejected.'
+        );
 
         $reverted = $this->getInstalledApp();
         // No committed secret to restore, and the pending record is retained for a retry or explicit discard.
@@ -406,13 +405,11 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->enqueueReRegistrationAttempt(minting: 'recovery-rejected', confirmResponse: new Response(403));
         $this->enqueueReRegistrationAttempt(minting: 'recovery-rejected', confirmResponse: new Response(403));
 
-        try {
-            $this->rotationService->recoverNow($app->getId(), $this->context);
-            static::fail('Recovery must report the registration as claimed when both secrets are rejected.');
-        } catch (AppException $e) {
-            static::assertSame(AppException::APP_SECRET_ROTATION_CLAIMED, $e->getErrorCode());
-            static::assertStringContainsString('app:shop-id:change', $e->getMessage());
-        }
+        static::assertSame(
+            AppSecretRecoveryResult::Claimed,
+            $this->rotationService->recoverNow($app->getId(), $this->context),
+            'Recovery must report the registration as claimed when both secrets are rejected.'
+        );
 
         // The active secret is left on the last known-good value and the pending record is retained for a
         // retry or explicit discard.

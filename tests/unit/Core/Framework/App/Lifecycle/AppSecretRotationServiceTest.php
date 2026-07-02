@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -345,9 +346,7 @@ class AppSecretRotationServiceTest extends TestCase
                 return $this->createMock(EntityWrittenContainerEvent::class);
             });
 
-        $this->expectExceptionObject(AppException::appSecretRotationClaimed('TestApp'));
-
-        $this->service->recoverNow($appId, $context);
+        static::assertSame(AppSecretRecoveryResult::Claimed, $this->service->recoverNow($appId, $context));
     }
 
     public function testDiscardNowClearsUnconfirmedSecretsUnderTheLock(): void

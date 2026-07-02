@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Command\RecoverAppSecretCommand;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -79,7 +80,8 @@ class RecoverAppSecretCommandTest extends TestCase
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->once())
             ->method('recoverNow')
-            ->with($app->getId(), static::isInstanceOf(Context::class));
+            ->with($app->getId(), static::isInstanceOf(Context::class))
+            ->willReturn(AppSecretRecoveryResult::Recovered);
 
         [$io, $output] = $this->io();
         $exitCode = (new RecoverAppSecretCommand($appRepository, $rotationService))($io, 'Recoverable');
@@ -110,18 +112,20 @@ class RecoverAppSecretCommandTest extends TestCase
 
     public function testRecoverReportsSuccessWhenThereIsNothingToRecover(): void
     {
-        [$exitCode, $output] = $this->runRecoverWithFailure('Clean', AppException::appSecretRotationNothingToRecover('Clean'));
+        [$exitCode, $output] = $this->runRecoverWithResult('Clean', AppSecretRecoveryResult::NothingToRecover);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Clean', $output->fetch());
+        static::assertStringContainsString('no unconfirmed secret to recover', $output->fetch());
     }
 
     public function testRecoverFailsWhenThePendingSecretWasAlreadyClaimed(): void
     {
-        [$exitCode, $output] = $this->runRecoverWithFailure('Taken', AppException::appSecretRotationClaimed('Taken'));
+        [$exitCode, $output] = $this->runRecoverWithResult('Taken', AppSecretRecoveryResult::Claimed);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Taken', $output->fetch());
+        $content = $output->fetch();
+        static::assertStringContainsString('--discard', $content);
+        static::assertStringContainsString('app:shop-id:change', $content);
     }
 
     public function testRecoverReportsUnknownOutcomeWhenTheAppDidNotConfirm(): void
@@ -130,6 +134,25 @@ class RecoverAppSecretCommandTest extends TestCase
 
         static::assertSame(Command::FAILURE, $exitCode);
         static::assertStringContainsString('unknown', $output->fetch());
+    }
+
+    /**
+     * Runs the recover path for an app named $name whose recoverNow() returns $result.
+     *
+     * @return array{int, BufferedOutput}
+     */
+    private function runRecoverWithResult(string $name, AppSecretRecoveryResult $result): array
+    {
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository->method('search')->willReturn($this->searchResult([$this->app($name)]));
+
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->method('recoverNow')->willReturn($result);
+
+        [$io, $output] = $this->io();
+        $exitCode = (new RecoverAppSecretCommand($appRepository, $rotationService))($io, $name);
+
+        return [$exitCode, $output];
     }
 
     /**

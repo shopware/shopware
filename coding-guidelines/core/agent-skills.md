@@ -103,12 +103,12 @@ skills — never per-skill.
   the skill auto-loads.
 - **References load on demand.** Keep SKILL.md scannable; push lookups,
   taxonomies, and tool catalogues into `references/`.
-- **Default to Sonnet; escalate with a reason.** gh aw workflows pin
-  `engine.model` to `claude-sonnet-4-6` by default (e.g. `sw-triage`,
-  `sw-review`). Escalate only with a concrete reason, documented in the workflow
-  source comment — currently `sw-bugfixer` (code-fixing runs) and the
-  `security`/`architecture` personas of `sw-review` are pinned to
-  `claude-opus-4-8`.
+- **Default to Sonnet; escalate with a reason.** gh aw workflows pin the
+  concrete model version in their own `engine.model` frontmatter (the single
+  source of truth) — the Sonnet tier by default (e.g. `sw-triage`, `sw-review`).
+  Escalate only with a concrete reason, documented in the workflow source
+  comment — currently `sw-bugfixer` (code-fixing runs) and the
+  `security`/`architecture` personas of `sw-review` escalate to the Opus tier.
 - **Inline sub-agents (`## agent:` blocks in a gh aw source) have three
   hard-won requirements** (see `sw-review.md` for the working pattern):
   - The frontmatter **must include `name:`** — Claude Code registers a

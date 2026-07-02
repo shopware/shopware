@@ -258,7 +258,7 @@
     "ws": "8.21.0",
     "lighthouse": {
       "ws": "7.5.11"
-    },  
+    },
     "test-exclude": "7.0.1",
     "@sentry/node": "10.54.0",
     "@vue/vue3-jest": {

@@ -94,13 +94,14 @@ function collectTrailingConditionChain(children: ElementNode[]): string[] | null
 }
 
 /**
- * Rewrites `v-else` / `v-else-if` branches whose adjacency was broken by a
- * converted Shopware block. Use it after Twig blocks were converted to
- * `<sw-block>` markup and before wrapping the result in a Vue SFC template.
+ * Inserts guard branches before `v-else` / `v-else-if` chains whose adjacency
+ * was broken by a converted Shopware block. Use it after Twig blocks were
+ * converted to `<sw-block>` markup and before wrapping the result in a Vue SFC
+ * template.
  *
  * @example
  * normalizeCrossBlockConditionals('<sw-block><div v-if="a" /></sw-block><div v-else />');
- * // '<sw-block><div v-if="a" /></sw-block><div v-if="!(a)" />'
+ * // '<sw-block><div v-if="a" /></sw-block><template v-if="(a)">...</template><div v-else />'
  */
 export function normalizeCrossBlockConditionals(body: string): string {
     const ast = parse(body, {
@@ -143,47 +144,48 @@ export function normalizeCrossBlockConditionals(body: string): string {
     };
 
     /**
-     * Stores a source rewrite that replaces one condition directive with a
-     * generated `v-if`. Use it whenever a branch continuation crosses a
-     * converted block boundary.
+     * Builds the no-op guard condition for a broken chain. Use it when a
+     * continuation needs a local `v-if` branch before its original `v-else-if`
+     * or `v-else` can stay unchanged.
      *
      * @example
-     * rewriteCondition(vElseCondition, '!(isLoading)');
+     * buildGuardExpression(['a', 'b']); // '(a) || (b)'
      */
-    const rewriteCondition = (condition: ConditionDirective, expression: string): void => {
+    const buildGuardExpression = (conditions: string[]): string => {
+        return conditions.map((condition) => `(${condition})`).join(' || ');
+    };
+
+    /**
+     * Inserts an empty template branch before the continuation element. Use it
+     * where generated `<sw-block>` markup broke Vue's direct sibling chain but
+     * the following `v-else-if` / `v-else` should remain readable.
+     *
+     * @example
+     * insertGuardBefore(vElseNode, ['isLoading']);
+     */
+    const insertGuardBefore = (node: ElementNode, conditions: string[]): void => {
+        const offset = node.loc.start.offset;
+        const lineStart = body.lastIndexOf('\n', offset - 1) + 1;
+        const linePrefix = body.slice(lineStart, offset);
+        const indentation = /^\s*$/.test(linePrefix) ? linePrefix : '';
+
         rewrites.push({
-            start: condition.prop.loc.start.offset,
-            end: condition.prop.loc.end.offset,
-            replacement: `v-if="${expression.replace(/"/g, '&quot;')}"`,
+            start: offset,
+            end: offset,
+            replacement: `<template v-if="${buildGuardExpression(conditions).replace(/"/g, '&quot;')}"><!-- Keeps the conditional chain connected across sw-block. --></template>\n${indentation}`,
         });
     };
 
     /**
-     * Builds the explicit condition for a branch continuation. Use it for
-     * `v-else-if` / `v-else` branches after one or more previous branch
-     * conditions were separated by a converted block.
-     *
-     * @example
-     * buildContinuationExpression(['a'], elseIfConditionForB); // '!(a) && (b)'
-     */
-    const buildContinuationExpression = (conditions: string[], condition: ConditionDirective): string => {
-        const missedPreviousConditions = conditions.map((previousCondition) => `!(${previousCondition})`).join(' && ');
-
-        return condition.name === 'else-if'
-            ? `${missedPreviousConditions} && (${condition.expression})`
-            : missedPreviousConditions;
-    };
-
-    /**
-     * Rewrites a leading `v-else-if` / `v-else` chain inside a following
+     * Reads a leading `v-else-if` / `v-else` chain inside a following
      * `<sw-block>`. Use it when a block starts with the continuation of a chain
      * that began in an earlier sibling.
      *
      * @example
-     * rewriteLeadingContinuation([elseIfNode, elseNode], ['a']);
-     * // rewrites to !(a) && (b), then !(a) && !(b)
+     * collectLeadingContinuationChain([elseIfNode, elseNode], ['a']);
+     * // { conditions: ['a', 'b'], endedWithElse: true, lastIndex: 1 }
      */
-    const rewriteLeadingContinuation = (
+    const collectLeadingContinuationChain = (
         children: ElementNode[],
         previousConditions: string[],
     ): { conditions: string[]; endedWithElse: boolean; lastIndex: number } => {
@@ -198,7 +200,6 @@ export function normalizeCrossBlockConditionals(body: string): string {
                 break;
             }
 
-            rewriteCondition(condition, buildContinuationExpression(conditions, condition));
             lastIndex = index;
 
             if (condition.name === 'else') {
@@ -246,7 +247,7 @@ export function normalizeCrossBlockConditionals(body: string): string {
 
                 if (condition && conditionChain) {
                     if (conditionChain.crossedBlock) {
-                        rewriteCondition(condition, buildContinuationExpression(conditionChain.conditions, condition));
+                        insertGuardBefore(child, conditionChain.conditions);
                     }
 
                     walk(child.children);
@@ -277,7 +278,8 @@ export function normalizeCrossBlockConditionals(body: string): string {
                     throw new CrossBlockConditionTransformError();
                 }
 
-                const continuation = rewriteLeadingContinuation(convertedBlockChildren, conditionChain.conditions);
+                insertGuardBefore(firstChild, conditionChain.conditions);
+                const continuation = collectLeadingContinuationChain(convertedBlockChildren, conditionChain.conditions);
                 const nextConditions =
                     continuation.lastIndex === convertedBlockChildren.length - 1 && !continuation.endedWithElse
                         ? continuation.conditions

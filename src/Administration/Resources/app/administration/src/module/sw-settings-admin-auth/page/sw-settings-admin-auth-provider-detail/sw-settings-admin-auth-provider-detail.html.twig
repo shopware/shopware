@@ -1,0 +1,274 @@
+{% block sw_settings_admin_auth_provider_detail %}
+<sw-page class="sw-settings-admin-auth-provider-detail">
+    {% block sw_settings_admin_auth_provider_detail_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ isCreateMode
+            ? $tc('sw-settings-admin-auth.detail.newTitle')
+            : (provider && provider.name) || $tc('sw-settings-admin-auth.detail.title') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_provider_detail_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <mt-button
+            class="sw-settings-admin-auth-provider-detail__cancel-action"
+            variant="secondary"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        <mt-button
+            class="sw-settings-admin-auth-provider-detail__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="!isEditable"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_provider_detail_content %}
+    <template #content>
+        <sw-card-view v-if="provider">
+            {% block sw_settings_admin_auth_provider_detail_managed_banner %}
+            <mt-banner
+                v-if="managedByConfig"
+                class="sw-settings-admin-auth-provider-detail__managed-banner"
+                variant="info"
+                :title="$t('sw-settings-admin-auth.managed.bannerTitle')"
+            >
+                {{ $tc('sw-settings-admin-auth.managed.bannerText') }}
+            </mt-banner>
+            {% endblock %}
+
+            {% block sw_settings_admin_auth_provider_detail_card_general %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-provider-detail-general"
+                :title="$t('sw-settings-admin-auth.detail.generalCard')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_provider_detail_field_name %}
+                <mt-text-field
+                    v-model="provider.name"
+                    name="sw-settings-admin-auth-provider-name"
+                    :label="$t('sw-settings-admin-auth.detail.nameLabel')"
+                    :placeholder="$t('sw-settings-admin-auth.detail.namePlaceholder')"
+                    :disabled="!isEditable"
+                    required
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_active %}
+                <mt-switch
+                    v-model="provider.active"
+                    name="sw-settings-admin-auth-provider-active"
+                    :label="$t('sw-settings-admin-auth.detail.activeLabel')"
+                    :help-text="$t('sw-settings-admin-auth.detail.activeHelp')"
+                    :disabled="!isEditable"
+                    bordered
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_priority %}
+                <mt-number-field
+                    v-model="provider.priority"
+                    name="sw-settings-admin-auth-provider-priority"
+                    number-type="int"
+                    :min="0"
+                    :label="$t('sw-settings-admin-auth.detail.priorityLabel')"
+                    :help-text="$t('sw-settings-admin-auth.detail.priorityHelp')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_admin_auth_provider_detail_card_client %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-provider-detail-client"
+                :title="$t('sw-settings-admin-auth.detail.clientCard')"
+                :subtitle="$t('sw-settings-admin-auth.detail.clientCardSubtitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_provider_detail_field_client_id %}
+                <mt-text-field
+                    v-model="providerConfig.clientId"
+                    name="sw-settings-admin-auth-provider-client-id"
+                    :label="$t('sw-settings-admin-auth.detail.clientIdLabel')"
+                    :placeholder="$t('sw-settings-admin-auth.detail.clientIdPlaceholder')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_client_secret %}
+                <mt-password-field
+                    v-model="clientSecret"
+                    name="sw-settings-admin-auth-provider-client-secret"
+                    :label="$t('sw-settings-admin-auth.detail.clientSecretLabel')"
+                    :placeholder="isCreateMode
+                        ? $t('sw-settings-admin-auth.detail.clientSecretPlaceholder')
+                        : $t('sw-settings-admin-auth.detail.clientSecretKeepPlaceholder')"
+                    :help-text="$t('sw-settings-admin-auth.detail.clientSecretHelpText')"
+                    :disabled="!isEditable"
+                    autocomplete="new-password"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_admin_auth_provider_detail_card_endpoints %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-provider-detail-endpoints"
+                :title="$t('sw-settings-admin-auth.detail.endpointsCard')"
+                :subtitle="$t('sw-settings-admin-auth.detail.endpointsCardSubtitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_provider_detail_discover %}
+                <div class="sw-settings-admin-auth-provider-detail__discover">
+                    <mt-text-field
+                        v-model="providerConfig.discoveryUrl"
+                        name="sw-settings-admin-auth-provider-discovery-url"
+                        class="sw-settings-admin-auth-provider-detail__discover-input"
+                        :label="$t('sw-settings-admin-auth.detail.discoveryUrlLabel')"
+                        :placeholder="$t('sw-settings-admin-auth.detail.discoveryUrlPlaceholder')"
+                        :help-text="$t('sw-settings-admin-auth.detail.discoverHint')"
+                        :disabled="!isEditable"
+                    />
+                    <mt-button
+                        class="sw-settings-admin-auth-provider-detail__discover-action"
+                        variant="secondary"
+                        :is-loading="isDiscovering"
+                        :disabled="!isEditable"
+                        @click="onDiscover"
+                    >
+                        {{ $tc('sw-settings-admin-auth.detail.discoverButton') }}
+                    </mt-button>
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_issuer %}
+                <mt-text-field
+                    v-model="providerConfig.issuer"
+                    name="sw-settings-admin-auth-provider-issuer"
+                    :label="$t('sw-settings-admin-auth.detail.issuerLabel')"
+                    :help-text="$t('sw-settings-admin-auth.detail.issuerHelp')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_authorization_endpoint %}
+                <mt-text-field
+                    v-model="providerConfig.authorizationEndpoint"
+                    name="sw-settings-admin-auth-provider-authorization-endpoint"
+                    :label="$t('sw-settings-admin-auth.detail.authorizationEndpointLabel')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_token_endpoint %}
+                <mt-text-field
+                    v-model="providerConfig.tokenEndpoint"
+                    name="sw-settings-admin-auth-provider-token-endpoint"
+                    :label="$t('sw-settings-admin-auth.detail.tokenEndpointLabel')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_jwks_uri %}
+                <mt-text-field
+                    v-model="providerConfig.jwksUri"
+                    name="sw-settings-admin-auth-provider-jwks-uri"
+                    :label="$t('sw-settings-admin-auth.detail.jwksUriLabel')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_scopes %}
+                <sw-multi-tag-select
+                    v-model:value="providerConfig.scopes"
+                    class="sw-settings-admin-auth-provider-detail__scopes"
+                    :label="$t('sw-settings-admin-auth.detail.scopesLabel')"
+                    :help-text="$t('sw-settings-admin-auth.detail.scopesHelp')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_admin_auth_provider_detail_card_provisioning %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-provider-detail-provisioning"
+                :title="$t('sw-settings-admin-auth.detail.provisioningCard')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_provider_detail_field_auto_provision %}
+                <mt-switch
+                    v-model="providerConfig.autoProvision"
+                    name="sw-settings-admin-auth-provider-auto-provision"
+                    :label="$t('sw-settings-admin-auth.detail.autoProvisionLabel')"
+                    :help-text="$t('sw-settings-admin-auth.detail.autoProvisionHelp')"
+                    :disabled="!isEditable"
+                    bordered
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_auto_provision_warning %}
+                <mt-banner
+                    v-if="providerConfig.autoProvision"
+                    class="sw-settings-admin-auth-provider-detail__auto-provision-warning"
+                    variant="attention"
+                >
+                    {{ $tc('sw-settings-admin-auth.detail.autoProvisionWarning') }}
+                </mt-banner>
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_groups_claim %}
+                <mt-text-field
+                    v-model="providerConfig.groupsClaim"
+                    name="sw-settings-admin-auth-provider-groups-claim"
+                    :label="$t('sw-settings-admin-auth.detail.groupsClaimLabel')"
+                    :placeholder="$t('sw-settings-admin-auth.detail.groupsClaimPlaceholder')"
+                    :help-text="$t('sw-settings-admin-auth.detail.groupsClaimHelp')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_detail_field_default_roles %}
+                <sw-multi-select
+                    v-model:value="providerConfig.defaultRoles"
+                    class="sw-settings-admin-auth-provider-detail__default-roles"
+                    :options="roleOptions"
+                    :label="$t('sw-settings-admin-auth.detail.defaultRolesLabel')"
+                    :help-text="$t('sw-settings-admin-auth.detail.defaultRolesHelp')"
+                    :disabled="!isEditable"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_admin_auth_provider_detail_card_role_mapping %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-provider-detail-role-mapping"
+                :title="$t('sw-settings-admin-auth.roleMapping.cardTitle')"
+                :subtitle="$t('sw-settings-admin-auth.roleMapping.cardSubtitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_provider_detail_role_mapping %}
+                <sw-settings-admin-auth-role-mapping
+                    :mapping="providerConfig.roleMapping || {}"
+                    :role-options="roleOptions"
+                    :disabled="!isEditable"
+                    @update:mapping="onRoleMappingChange"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% block sw_settings_admin_auth_index %}
+<sw-page class="sw-settings-admin-auth-index">
+    {% block sw_settings_admin_auth_index_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings-admin-auth.general.mainMenuItemGeneral') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_index_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <mt-button
+            class="sw-settings-admin-auth-index__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="!isEditable"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_index_content %}
+    <template #content>
+        {% block sw_settings_admin_auth_index_tabs %}
+        <sw-tabs
+            class="sw-settings-admin-auth-index__tabs"
+            position-identifier="sw-settings-admin-auth"
+        >
+            <sw-tabs-item :route="{ name: 'sw.settings.admin.auth.index' }">
+                {{ $tc('sw-settings-admin-auth.tabs.methods') }}
+            </sw-tabs-item>
+            <sw-tabs-item :route="{ name: 'sw.settings.admin.auth.providers' }">
+                {{ $tc('sw-settings-admin-auth.tabs.providers') }}
+            </sw-tabs-item>
+        </sw-tabs>
+        {% endblock %}
+
+        <sw-card-view>
+            {% block sw_settings_admin_auth_index_methods_card %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-methods"
+                :title="$t('sw-settings-admin-auth.methods.cardTitle')"
+                :subtitle="$t('sw-settings-admin-auth.methods.cardSubtitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_index_methods_yaml_hint %}
+                <mt-banner
+                    class="sw-settings-admin-auth-index__yaml-hint"
+                    variant="info"
+                >
+                    {{ $tc('sw-settings-admin-auth.methods.yamlGateHint') }}
+                </mt-banner>
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_index_methods_list %}
+                <ul class="sw-settings-admin-auth-index__method-list">
+                    <li
+                        v-for="row in methods"
+                        :key="row.type"
+                        class="sw-settings-admin-auth-index__method-row"
+                    >
+                        {% block sw_settings_admin_auth_index_method_row_icon %}
+                        <div class="sw-settings-admin-auth-index__method-icon">
+                            <mt-icon
+                                :name="methodIcon(row.type)"
+                                size="22px"
+                            />
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_settings_admin_auth_index_method_row_info %}
+                        <div class="sw-settings-admin-auth-index__method-info">
+                            <span class="sw-settings-admin-auth-index__method-name">
+                                {{ methodName(row.type) }}
+                            </span>
+                            <span class="sw-settings-admin-auth-index__method-description">
+                                {{ methodDescription(row.type) }}
+                            </span>
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_settings_admin_auth_index_method_row_switches %}
+                        <div class="sw-settings-admin-auth-index__method-switches">
+                            <mt-switch
+                                v-model="row.enabled"
+                                class="sw-settings-admin-auth-index__method-enabled"
+                                :disabled="!isEditable"
+                                :label="$t('sw-settings-admin-auth.methods.enabled')"
+                            />
+                            <mt-switch
+                                v-model="row.isPrimary"
+                                :disabled="!isEditable || !row.canBePrimary"
+                                :label="$t('sw-settings-admin-auth.methods.primary')"
+                            />
+                            <div class="sw-settings-admin-auth-index__method-second-factor">
+                                <mt-switch
+                                    v-model="row.isSecondFactor"
+                                    :disabled="!isEditable || !row.canBeSecondFactor"
+                                    :label="$t('sw-settings-admin-auth.methods.secondFactor')"
+                                />
+                                <span
+                                    v-if="row.fallback"
+                                    class="sw-settings-admin-auth-index__fallback-badge"
+                                >
+                                    {{ $tc('sw-settings-admin-auth.methods.fallback') }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endblock %}
+                    </li>
+                </ul>
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_admin_auth_index_policy_card %}
+            <mt-card
+                position-identifier="sw-settings-admin-auth-policy"
+                :title="$t('sw-settings-admin-auth.policy.cardTitle')"
+                :subtitle="$t('sw-settings-admin-auth.policy.cardSubtitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_settings_admin_auth_index_policy_enforcement_hint %}
+                <mt-banner
+                    class="sw-settings-admin-auth-index__policy-hint"
+                    variant="info"
+                >
+                    {{ $tc('sw-settings-admin-auth.policy.enforcementYamlHint') }}
+                </mt-banner>
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_index_policy_ttl %}
+                <mt-number-field
+                    v-model="mfaChallengeTtlSeconds"
+                    class="sw-settings-admin-auth-index__challenge-ttl"
+                    number-type="int"
+                    :min="1"
+                    :disabled="!isEditable"
+                    :label="$t('sw-settings-admin-auth.policy.ttlLabel')"
+                    :help-text="$t('sw-settings-admin-auth.policy.ttlHelp')"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

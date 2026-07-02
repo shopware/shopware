@@ -1,0 +1,19 @@
+.sw-settings-admin-auth-provider-detail {
+    &__discover {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+
+        .sw-settings-admin-auth-provider-detail__discover-input {
+            flex-grow: 1;
+        }
+
+        .sw-settings-admin-auth-provider-detail__discover-action {
+            margin-top: 24px;
+        }
+    }
+
+    &__auto-provision-warning {
+        margin-bottom: 16px;
+    }
+}

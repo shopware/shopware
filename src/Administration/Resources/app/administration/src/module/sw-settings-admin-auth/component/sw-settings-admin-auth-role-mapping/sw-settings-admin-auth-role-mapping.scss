@@ -1,0 +1,20 @@
+.sw-settings-admin-auth-role-mapping {
+    &__row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    &__group {
+        flex: 1 1 40%;
+    }
+
+    &__roles {
+        flex: 1 1 60%;
+    }
+
+    &__remove-action {
+        margin-top: 24px;
+    }
+}

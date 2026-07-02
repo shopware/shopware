@@ -23,7 +23,7 @@ class PagingProcessorTest extends TestCase
     #[DataProvider('prepareProvider')]
     public function testPrepare(Request $request, Criteria $criteria, int $expectedOffset, int $expectedLimit): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([
             'core.listing.productsPerPage' => 24,
@@ -88,7 +88,7 @@ class PagingProcessorTest extends TestCase
         $criteria->setLimit(24);
 
         $result = new ProductListingResult('foo', 100, new ProductCollection(), null, $criteria, Context::createDefaultContext());
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([
             'core.listing.productsPerPage' => 24,

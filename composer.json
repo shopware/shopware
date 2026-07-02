@@ -433,6 +433,7 @@
         "init:js": [
             "@npm:admin clean-install --no-audit --prefer-offline",
             "@npm:storefront clean-install --no-audit --prefer-offline",
+            "@npm:acceptance clean-install --no-audit --prefer-offline",
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [

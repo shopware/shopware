@@ -6,14 +6,13 @@ use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Framework\Telemetry\Doctrine\QueryCountMiddlewareTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see QueryCountMiddlewareTest
+ * @see \Shopware\Tests\Unit\Core\Framework\Telemetry\Doctrine\QueryCountMiddlewareTest
  *
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */

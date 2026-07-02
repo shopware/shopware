@@ -42,8 +42,8 @@ class SeoUrlWriteValidatorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [SeoUrlDefinition::class, SalesChannelDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $seoUrlDefinition = $registry->get(SeoUrlDefinition::class);
@@ -69,7 +69,7 @@ class SeoUrlWriteValidatorTest extends TestCase
             $this->salesChannelDefinition,
             ['name' => 'channel'],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 
@@ -85,7 +85,7 @@ class SeoUrlWriteValidatorTest extends TestCase
             $this->seoUrlDefinition,
             ['is_canonical' => 1],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 
@@ -159,7 +159,7 @@ class SeoUrlWriteValidatorTest extends TestCase
                 'language_id' => Uuid::randomBytes(),
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 

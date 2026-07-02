@@ -23,7 +23,7 @@ class ShippingFreeFilterHandlerTest extends TestCase
     {
         $result = (new ShippingFreeListingFilterHandler())->create(
             new Request([], ['shipping-free-filter' => false]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertNull($result);
@@ -34,7 +34,7 @@ class ShippingFreeFilterHandlerTest extends TestCase
     {
         $result = (new ShippingFreeListingFilterHandler())->create(
             new Request(['shipping-free' => $input]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $expected = new Filter(

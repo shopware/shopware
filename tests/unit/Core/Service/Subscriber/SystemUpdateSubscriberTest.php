@@ -25,7 +25,7 @@ class SystemUpdateSubscriberTest extends TestCase
             ->method('sync')
             ->with($context);
 
-        $subscriber = new SystemUpdateSubscriber($lifecycleManager, $this->createMock(LoggerInterface::class));
+        $subscriber = new SystemUpdateSubscriber($lifecycleManager, static::createStub(LoggerInterface::class));
         $subscriber->sync(new UpdatePostFinishEvent($context, '6.7.0.0', '6.7.1.0'));
     }
 }

@@ -187,8 +187,7 @@ export default {
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
-            // Media entities created via `sync` for which the file upload has not finished yet. Used to
-            // clean up empty media entities that would otherwise be orphaned if the upload is abandoned.
+            // Ids of media entities created via `sync` whose upload has not finished yet.
             pendingUploadMediaIds: new Set(),
         };
     },
@@ -314,7 +313,7 @@ export default {
         },
 
         beforeDestroyComponent() {
-            this.cleanupPendingUploads();
+            this.cleanupOrphanedMedia();
 
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
@@ -540,7 +539,10 @@ export default {
             return mediaItem;
         },
 
-        cleanupPendingUploads() {
+        /**
+         * @internal
+         */
+        cleanupOrphanedMedia() {
             if (this.pendingUploadMediaIds.size === 0) {
                 return;
             }
@@ -558,7 +560,9 @@ export default {
 
                         return null;
                     })
-                    .catch(() => null);
+                    .catch((error) => {
+                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                    });
             });
         },
 
@@ -567,7 +571,8 @@ export default {
         },
 
         handleMediaServiceUploadEvent({ action, payload }) {
-            if (action === 'media-upload-finish' || action === 'media-upload-fail') {
+            // Keep the id on failure so the orphaned entity is still cleaned up on teardown.
+            if (action === 'media-upload-finish') {
                 this.pendingUploadMediaIds.delete(payload.targetId);
             }
 

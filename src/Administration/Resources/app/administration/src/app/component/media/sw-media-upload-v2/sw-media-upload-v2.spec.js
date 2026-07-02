@@ -737,6 +737,12 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     describe('pending upload cleanup', () => {
+        beforeEach(() => {
+            // Defaults so the teardown cleanup has a repository to call; deletion tests override these.
+            wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue({ hasFile: true });
+            wrapper.vm.mediaRepository.delete = jest.fn().mockResolvedValue({});
+        });
+
         it('tracks synced media entities as pending until the upload finishes', async () => {
             wrapper.vm.mediaRepository.create = jest
                 .fn()
@@ -755,7 +761,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             ]);
         });
 
-        it('removes a media id from the pending set on finish and fail events', async () => {
+        it('clears a media id from the pending set on finish but keeps it on fail', async () => {
             wrapper.vm.createNotificationError = jest.fn();
             wrapper.vm.onRemoveMediaItem = jest.fn();
 
@@ -772,7 +778,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                 action: 'media-upload-fail',
                 payload: { targetId: 'media-2' },
             });
-            expect(wrapper.vm.pendingUploadMediaIds.has('media-2')).toBe(false);
+            expect(wrapper.vm.pendingUploadMediaIds.has('media-2')).toBe(true);
         });
 
         it('deletes empty pending media but keeps media that already has a file', async () => {
@@ -787,7 +793,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             wrapper.vm.pendingUploadMediaIds.add('media-1');
             wrapper.vm.pendingUploadMediaIds.add('media-2');
 
-            wrapper.vm.cleanupPendingUploads();
+            wrapper.vm.cleanupOrphanedMedia();
             await flushPromises();
 
             expect(deleteMock).toHaveBeenCalledWith('media-1', expect.anything());

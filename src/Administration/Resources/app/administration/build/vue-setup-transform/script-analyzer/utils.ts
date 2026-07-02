@@ -2,19 +2,13 @@
  * @sw-package framework
  */
 
-import {
-    parse,
-    type ParserPlugin,
-} from '@babel/parser';
-import type {
-    File as BabelFile,
-    Node as BabelNode,
-} from '@babel/types';
+import { parse, type ParserPlugin } from '@babel/parser';
+import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 
 type SourceRange = {
-    start: number,
-    end: number,
+    start: number;
+    end: number;
 };
 
 type AstVisitor = (node: BabelNode, ancestors: BabelNode[]) => void;
@@ -65,7 +59,7 @@ function parseScript(script: string, lang: string, scriptOffset: number): BabelF
             ranges: true,
         });
     } catch (error: unknown) {
-        const parserError = error as { pos?: unknown, message?: unknown };
+        const parserError = error as { pos?: unknown; message?: unknown };
         const offset = typeof parserError.pos === 'number' ? scriptOffset + parserError.pos : scriptOffset;
         const message = typeof parserError.message === 'string' ? parserError.message : String(error);
         throw new ShopwareSetupTransformError(`Unable to parse Shopware setup script: ${message}`, offset);

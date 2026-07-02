@@ -2,17 +2,12 @@
  * @sw-package framework
  */
 
-import {
-    expectVueCompilerScriptToCompile,
-    stripIndent,
-    transformOrFail,
-    transformShopwareSetupSfc,
-} from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform base slots, options, and props access', () => {
     it('keeps base defineSlots() outside the extendable setup callback and replaces it with context.slots', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const slots = defineSlots<{
                 default(props: { count: number }): unknown;
             }>();
@@ -42,7 +37,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('keeps local slot type declarations available for hoisted defineSlots()', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             type Slots = {
                 default(props: { count: number }): unknown;
             };
@@ -59,15 +54,13 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         const result = transformOrFail(source, 'base-slots-local-type.vue').code;
 
         expect(result.indexOf('type Slots')).toBeLessThan(result.indexOf('const slots = defineSlots<Slots>()'));
-        expect(result.indexOf('type Slots')).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
+        expect(result.indexOf('type Slots')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expectVueCompilerScriptToCompile(result, 'base-slots-local-type.vue');
     });
 
     it('replaces defineSlots() destructuring inside the extendable setup callback', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const { default: defaultSlot } = defineSlots();
             const count = defaultSlot ? 1 : 0;
 
@@ -85,7 +78,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('keeps bare defineSlots() outside the callback when the generated slots binding name is taken', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineSlots();
 
             function slots() {
@@ -110,7 +103,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('keeps base defineOptions() outside the extendable setup callback', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineOptions({
                 inheritAttrs: false,
             });
@@ -128,9 +121,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         expect(result).toContain(`defineOptions({
     inheritAttrs: false,
 });`);
-        expect(result.indexOf('defineOptions({')).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
+        expect(result.indexOf('defineOptions({')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expect(result).not.toContain(`(__shopwareSetupBindings) => {
     const useSwContext = () => __shopwareContext;
 
@@ -140,7 +131,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('preserves defineOptions() component name and custom options at the generated script root', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineOptions({
                 name: 'sw-custom-name',
                 inheritAttrs: false,
@@ -178,7 +169,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('rejects local setup bindings in hoisted defineOptions() arguments', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const inheritAttrs = false;
             defineOptions({
                 inheritAttrs,
@@ -199,7 +190,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('supports defineOptions() wrapped in a TypeScript as expression', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             defineOptions({
                 inheritAttrs: false,
             }) as void;
@@ -218,15 +209,13 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
     inheritAttrs: false,
 });`);
         expect(result).not.toContain('as void');
-        expect(result.indexOf('defineOptions({')).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
+        expect(result.indexOf('defineOptions({')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expect(result.match(/defineOptions/g)).toHaveLength(1);
     });
 
     it('rejects duplicate base defineSlots() declarations', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const slots = defineSlots();
             const otherSlots = defineSlots();
             const count = 1;
@@ -241,7 +230,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('rejects duplicate base defineOptions() declarations', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineOptions({ inheritAttrs: false });
             defineOptions({ name: 'sw-my-component' });
             const count = 1;
@@ -256,7 +245,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('ignores nested defineSlots() like Vue compiler-sfc does', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             function render() {
                 return defineSlots<{ default(): unknown }>();
             }
@@ -277,7 +266,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
     it('rewrites props access by source ranges instead of placeholder string replacement', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const props = defineProps();
             const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__';
             const count = props.initialCount ?? literal.length;

@@ -3,20 +3,65 @@
  */
 
 import type { SFCScriptBlock } from '@vue/compiler-sfc';
-import { AttributeParser } from './attribute-parser';
-import type { Attributes } from './attributes';
 import { ShopwareSetupTransformError } from './transform-error';
 
 type ScriptBlock = {
-    type: 'script' | 'scriptSetup',
-    start: number,
-    end: number,
-    contentStart: number,
-    content: string,
-    attributes: Attributes,
-    passthroughAttributesSource: string,
-    generatedPassthroughAttributesSource: string,
+    type: 'script' | 'scriptSetup';
+    start: number;
+    end: number;
+    contentStart: number;
+    content: string;
+    generatedPassthroughAttributesSource: string;
+    lang: string | null;
 };
+
+type SfcAttributeValue = string | true;
+
+function escapeAttributeValue(value: string): string {
+    return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function buildGeneratedAttributesSource(
+    attributes: Record<string, SfcAttributeValue>,
+    {
+        setup,
+        fallbackLanguage,
+    }: {
+        setup: boolean;
+        fallbackLanguage: string;
+    },
+): string {
+    const generatedAttributes = new Map<string, SfcAttributeValue>(Object.entries(attributes));
+
+    if (setup) {
+        generatedAttributes.set('setup', true);
+    } else {
+        generatedAttributes.delete('setup');
+    }
+
+    if (!generatedAttributes.has('lang')) {
+        generatedAttributes.set('lang', fallbackLanguage);
+    }
+
+    if (generatedAttributes.size === 0) {
+        return '';
+    }
+
+    const source = Array.from(generatedAttributes.entries()).map(
+        ([
+            name,
+            value,
+        ]) => {
+            if (value === true) {
+                return name;
+            }
+
+            return `${name}="${escapeAttributeValue(value)}"`;
+        },
+    );
+
+    return ` ${source.join(' ')}`;
+}
 
 /**
  * Verifies that a possible `<script` token is the tag Vue parsed, not text inside an attribute.
@@ -73,10 +118,6 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
     const contentStart = descriptorBlock.loc.start.offset;
     const start = findScriptStart(source, contentStart);
     const end = source.indexOf('>', descriptorBlock.loc.end.offset) + 1;
-    const attributes = AttributeParser.parse(
-        source.slice(start + '<script'.length, contentStart - 1),
-        start + '<script'.length,
-    );
 
     return {
         type,
@@ -84,18 +125,11 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
         end,
         contentStart,
         content: descriptorBlock.content,
-        attributes,
-        passthroughAttributesSource: attributes.toSourceWithout([
-            'sw-component',
-            'sw-override',
-        ]),
-        generatedPassthroughAttributesSource: attributes.toSourceWithoutEnsuringLanguage(
-            [
-                'sw-component',
-                'sw-override',
-            ],
-            'ts',
-        ),
+        generatedPassthroughAttributesSource: buildGeneratedAttributesSource(descriptorBlock.attrs, {
+            setup: type === 'scriptSetup',
+            fallbackLanguage: 'ts',
+        }),
+        lang: descriptorBlock.lang ?? null,
     };
 }
 
@@ -103,7 +137,4 @@ module.exports = {
     toScriptBlock,
 };
 
-export {
-    type ScriptBlock,
-    toScriptBlock,
-};
+export { type ScriptBlock, toScriptBlock };

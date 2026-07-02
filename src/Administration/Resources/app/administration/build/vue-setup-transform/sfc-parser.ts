@@ -3,11 +3,7 @@
  */
 
 import { parse as parseWithVue } from '@vue/compiler-sfc';
-import {
-    SUPPORTED_LANGUAGES,
-    normalizeShopwareSetupBlock,
-    type ShopwareSetupBlock,
-} from './utils/shopware-setup-block';
+import { normalizeShopwareSetupBlock, type ShopwareSetupBlock } from './utils/shopware-setup-block';
 import { toScriptBlock } from './utils/sfc-script-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 
@@ -27,11 +23,7 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
     }
 
     const scriptSetupBlock = toScriptBlock(source, parsed.descriptor.scriptSetup, 'scriptSetup');
-    const shopwareSetupBlock = normalizeShopwareSetupBlock(scriptSetupBlock);
-
-    if (!shopwareSetupBlock) {
-        return null;
-    }
+    const shopwareSetupBlock = normalizeShopwareSetupBlock(scriptSetupBlock, filename);
 
     if (parsed.descriptor.script) {
         throw new ShopwareSetupTransformError(
@@ -53,11 +45,7 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
 }
 
 module.exports = {
-    SUPPORTED_LANGUAGES,
     parseShopwareSetupSfc,
 };
 
-export {
-    SUPPORTED_LANGUAGES,
-    parseShopwareSetupSfc,
-};
+export { parseShopwareSetupSfc };

@@ -4,23 +4,17 @@
 
 import { lowerShopwareSetupBlock } from './lower';
 import { analyzeShopwareSetupScript, type ShopwareSetupScriptAnalysis } from './script-analyzer';
-import {
-    applySourceEdits,
-    type AppliedSourceEdits,
-} from './source-edits/apply-source-edits';
-import {
-    analyzeBaseTemplate,
-    type TemplateAnalysis,
-} from './template-analyzer';
+import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';
+import { analyzeBaseTemplate, type TemplateAnalysis } from './template-analyzer';
 import { parseShopwareSetupSfc } from './sfc-parser';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 
 type ShopwareSetupTransformResult = {
-    code: string,
-    map: AppliedSourceEdits['map'],
-    mode: 'base' | 'override',
-    filename: string,
+    code: string;
+    map: AppliedSourceEdits['map'];
+    mode: 'base' | 'override';
+    filename: string;
 };
 
 /**
@@ -45,7 +39,10 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
     }
 
     if (block.mode === 'override') {
-        throw new ShopwareSetupTransformError('Shopware setup override mode is added by the override transform PR.', block.start);
+        throw new ShopwareSetupTransformError(
+            'Shopware setup override mode is added by the override transform PR.',
+            block.start,
+        );
     }
 
     let analysis: ShopwareSetupScriptAnalysis;

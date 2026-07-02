@@ -9,8 +9,8 @@ import { render } from './source-edits/render-chunks';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 
 type LoweredShopwareSetupBlock = {
-    chunks: SourceChunk[],
-    code: string,
+    chunks: SourceChunk[];
+    code: string;
 };
 
 /**
@@ -32,7 +32,4 @@ module.exports = {
     lowerShopwareSetupBlock,
 };
 
-export {
-    type LoweredShopwareSetupBlock,
-    lowerShopwareSetupBlock,
-};
+export { type LoweredShopwareSetupBlock, lowerShopwareSetupBlock };

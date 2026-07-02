@@ -5,41 +5,37 @@
 import type { CallExpression } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import {
-    type SourceRange,
-    containsRange,
-    getNodeRange,
-} from './utils';
+import { type SourceRange, containsRange, getNodeRange } from './utils';
 import { isWithDefaultsCall } from './macros';
 
 type SetupInputKind = 'props' | 'emits' | 'expose' | 'slots';
 
 type SetupInputReplacement = SourceRange & {
-    kind: SetupInputKind,
+    kind: SetupInputKind;
 };
 
 type MacroName = 'defineProps' | 'withDefaults' | 'defineEmits' | 'defineSlots' | 'defineOptions';
 
 type SetupMacroSummary = {
-    code: string,
-    macroName: MacroName,
-    ranges: SourceRange[],
+    code: string;
+    macroName: MacroName;
+    ranges: SourceRange[];
 };
 
 type DefineExposeStatement = {
-    call: CallExpression,
+    call: CallExpression;
 };
 
 type DefineOptionsStatement = {
-    call: CallExpression,
+    call: CallExpression;
 };
 
 type AnalyzeSetupInputsResult = {
-    setupInputReplacements: SetupInputReplacement[],
-    propsMacro: SetupMacroSummary | null,
-    emitsMacro: SetupMacroSummary | null,
-    slotsMacro: SetupMacroSummary | null,
-    optionsMacro: SetupMacroSummary | null,
+    setupInputReplacements: SetupInputReplacement[];
+    propsMacro: SetupMacroSummary | null;
+    emitsMacro: SetupMacroSummary | null;
+    slotsMacro: SetupMacroSummary | null;
+    optionsMacro: SetupMacroSummary | null;
 };
 
 /**
@@ -50,9 +46,9 @@ function getPropsMacroCalls({
     withDefaultsCalls,
     scriptOffset,
 }: {
-    definePropsCalls: CallExpression[],
-    withDefaultsCalls: CallExpression[],
-    scriptOffset: number,
+    definePropsCalls: CallExpression[];
+    withDefaultsCalls: CallExpression[];
+    scriptOffset: number;
 }): CallExpression[] {
     const withDefaultsRanges = withDefaultsCalls.map((call) => getNodeRange(call, scriptOffset));
     const standaloneDefinePropsCalls = definePropsCalls.filter((call) => {
@@ -81,16 +77,16 @@ function validateBaseSetupMacros({
     defineOptionsStatements,
     defineOptionsCalls,
 }: {
-    mode: ShopwareSetupMode,
-    scriptOffset: number,
-    propsMacroCalls: CallExpression[],
-    defineEmitsCalls: CallExpression[],
-    defineExposeStatements: DefineExposeStatement[],
-    defineExposeCalls: CallExpression[],
-    defineSlotsCalls: CallExpression[],
-    defineOptionsStatements: DefineOptionsStatement[],
-    defineOptionsCalls: CallExpression[],
-}): { emitsMacroCalls: CallExpression[], slotsMacroCalls: CallExpression[] } {
+    mode: ShopwareSetupMode;
+    scriptOffset: number;
+    propsMacroCalls: CallExpression[];
+    defineEmitsCalls: CallExpression[];
+    defineExposeStatements: DefineExposeStatement[];
+    defineExposeCalls: CallExpression[];
+    defineSlotsCalls: CallExpression[];
+    defineOptionsStatements: DefineOptionsStatement[];
+    defineOptionsCalls: CallExpression[];
+}): { emitsMacroCalls: CallExpression[]; slotsMacroCalls: CallExpression[] } {
     if (mode === 'override' && propsMacroCalls.length > 0) {
         const firstPropsMacro = propsMacroCalls[0];
         const macroName = isWithDefaultsCall(firstPropsMacro) ? 'withDefaults' : 'defineProps';
@@ -207,17 +203,21 @@ function validateBaseSetupMacros({
 /**
  * Creates the macro summary consumed by the lowering step.
  */
-function createMacroSummaries(script: string, scriptOffset: number, {
-    propsMacroCalls,
-    emitsMacroCalls,
-    slotsMacroCalls,
-    defineOptionsStatements,
-}: {
-    propsMacroCalls: CallExpression[],
-    emitsMacroCalls: CallExpression[],
-    slotsMacroCalls: CallExpression[],
-    defineOptionsStatements: DefineOptionsStatement[],
-}): Omit<AnalyzeSetupInputsResult, 'setupInputReplacements'> {
+function createMacroSummaries(
+    script: string,
+    scriptOffset: number,
+    {
+        propsMacroCalls,
+        emitsMacroCalls,
+        slotsMacroCalls,
+        defineOptionsStatements,
+    }: {
+        propsMacroCalls: CallExpression[];
+        emitsMacroCalls: CallExpression[];
+        slotsMacroCalls: CallExpression[];
+        defineOptionsStatements: DefineOptionsStatement[];
+    },
+): Omit<AnalyzeSetupInputsResult, 'setupInputReplacements'> {
     const propsMacroCall = propsMacroCalls[0];
     const emitsMacroCall = emitsMacroCalls[0];
     const slotsMacroCall = slotsMacroCalls[0];
@@ -270,29 +270,32 @@ function createMacroSummaries(script: string, scriptOffset: number, {
 /**
  * Collects, validates, and summarizes setup input macros.
  */
-function analyzeSetupInputs(script: string, {
-    mode,
-    scriptOffset,
-    definePropsCalls,
-    withDefaultsCalls,
-    defineEmitsCalls,
-    defineExposeStatements,
-    defineExposeCalls,
-    defineSlotsCalls,
-    defineOptionsStatements,
-    defineOptionsCalls,
-}: {
-    mode: ShopwareSetupMode,
-    scriptOffset: number,
-    definePropsCalls: CallExpression[],
-    withDefaultsCalls: CallExpression[],
-    defineEmitsCalls: CallExpression[],
-    defineExposeStatements: DefineExposeStatement[],
-    defineExposeCalls: CallExpression[],
-    defineSlotsCalls: CallExpression[],
-    defineOptionsStatements: DefineOptionsStatement[],
-    defineOptionsCalls: CallExpression[],
-}): AnalyzeSetupInputsResult {
+function analyzeSetupInputs(
+    script: string,
+    {
+        mode,
+        scriptOffset,
+        definePropsCalls,
+        withDefaultsCalls,
+        defineEmitsCalls,
+        defineExposeStatements,
+        defineExposeCalls,
+        defineSlotsCalls,
+        defineOptionsStatements,
+        defineOptionsCalls,
+    }: {
+        mode: ShopwareSetupMode;
+        scriptOffset: number;
+        definePropsCalls: CallExpression[];
+        withDefaultsCalls: CallExpression[];
+        defineEmitsCalls: CallExpression[];
+        defineExposeStatements: DefineExposeStatement[];
+        defineExposeCalls: CallExpression[];
+        defineSlotsCalls: CallExpression[];
+        defineOptionsStatements: DefineOptionsStatement[];
+        defineOptionsCalls: CallExpression[];
+    },
+): AnalyzeSetupInputsResult {
     const propsMacroCalls = getPropsMacroCalls({
         definePropsCalls,
         withDefaultsCalls,

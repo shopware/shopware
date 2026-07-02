@@ -2,26 +2,15 @@
  * @sw-package framework
  */
 
-import type {
-    CallExpression,
-    File as BabelFile,
-    Node as BabelNode,
-} from '@babel/types';
+import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import {
-    getNodeRange,
-    isFunctionNode,
-    walk,
-} from './utils';
-import {
-    RESERVED_OVERRIDE_STATE_NAME,
-    type ShopwareSetupMacroName,
-} from './macros';
+import { getNodeRange, isFunctionNode, walk } from './utils';
+import { RESERVED_OVERRIDE_STATE_NAME, type ShopwareSetupMacroName } from './macros';
 
 type NamedBinding = {
-    name: string,
-    node: BabelNode,
+    name: string;
+    node: BabelNode;
 };
 
 const BASE_HELPERS = new Set([
@@ -64,11 +53,7 @@ function assertNoUnsupportedSyntax(
         // Reject unsupported Vue macros:
         //  Vue only treats these calls as compiler macros in supported top-level setup positions.
         //  Nested calls are left untouched like compiler-sfc does.
-        if (
-            node.type === 'CallExpression' &&
-            node.callee.type === 'Identifier' &&
-            topLevelUnsupportedMacroCalls.has(node)
-        ) {
+        if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && topLevelUnsupportedMacroCalls.has(node)) {
             throw new ShopwareSetupTransformError(
                 `Vue macro ${node.callee.name}() is not supported inside Shopware setup blocks.`,
                 scriptOffset + getNodeRange(node, scriptOffset).start,
@@ -82,7 +67,7 @@ function assertNoUnsupportedSyntax(
             node.callee.name === 'useSwProps'
         ) {
             throw new ShopwareSetupTransformError(
-                'useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue\'s defineProps() macro instead.',
+                "useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue's defineProps() macro instead.",
                 scriptOffset + getNodeRange(node, scriptOffset).start,
             );
         }
@@ -223,9 +208,4 @@ module.exports = {
     assertStaticObjectEntries,
 };
 
-export {
-    type NamedBinding,
-    assertNoUnsupportedSyntax,
-    assertReservedMacroNames,
-    assertStaticObjectEntries,
-};
+export { type NamedBinding, assertNoUnsupportedSyntax, assertReservedMacroNames, assertStaticObjectEntries };

@@ -13,6 +13,4 @@ module.exports = {
     isWhitespace,
 };
 
-export {
-    isWhitespace,
-};
+export { isWhitespace };

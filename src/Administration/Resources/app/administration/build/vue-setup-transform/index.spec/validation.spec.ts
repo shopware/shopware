@@ -5,40 +5,48 @@
 import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform validation', () => {
-    it('ignores plain native script setup blocks', () => {
+    it('transforms plain native script setup blocks using filename metadata', () => {
         const source = stripIndent`
             <script setup>
             const count = 1;
+            swDefinePublic({ count });
             </script>
         `;
 
-        expect(transformShopwareSetupSfc(source, 'native.vue')).toBeNull();
+        const result = transformOrFail(source, 'sw-native.vue');
+
+        expect(result.code).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result.code).toContain("name: 'sw-native'");
     });
 
-    it('ignores Shopware attributes outside script setup blocks', () => {
+    it('transforms independently from template attributes', () => {
         const source = stripIndent`
             <template>
-                <div sw-component="sw-my-component"></div>
+                <div></div>
             </template>
             <script setup>
             const count = 1;
+            swDefinePublic({ count });
             </script>
         `;
 
-        expect(transformShopwareSetupSfc(source, 'template-attribute.vue')).toBeNull();
+        const result = transformOrFail(source, 'template-attribute.vue');
+
+        expect(result.code).toContain("name: 'template-attribute'");
     });
 
     it('keeps the Vue script setup range when an attribute value contains a script-like string', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component" data-example="<script">
+            <script setup data-example="<script">
             const count = 1;
+            swDefinePublic({ count });
             </script>
         `;
 
         const result = transformOrFail(source, 'script-attribute.vue').code;
 
         expect(result).toContain('Shopware.Component.createExtendableSetup(');
-        expect(result).toContain("name: 'sw-my-component'");
+        expect(result).toContain("name: 'script-attribute'");
     });
 
     it.each([
@@ -48,7 +56,7 @@ describe('build/vue-setup-transform validation', () => {
         ],
     ])('rejects unsupported Vue macro %s', (macro, expectedMessage) => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             ${macro};
             const count = 1;
             </script>
@@ -59,7 +67,7 @@ describe('build/vue-setup-transform validation', () => {
 
     it('ignores nested unsupported Vue macros like compiler-sfc does', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             function createModel() {
                 return defineModel();
             }
@@ -79,7 +87,7 @@ describe('build/vue-setup-transform validation', () => {
 
     it('rejects nested defineOptions()', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             if (true) {
                 defineOptions({ inheritAttrs: false });
             }
@@ -95,7 +103,7 @@ describe('build/vue-setup-transform validation', () => {
 
     it('rejects nested defineExpose()', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             if (true) {
                 defineExpose({});
             }
@@ -111,25 +119,13 @@ describe('build/vue-setup-transform validation', () => {
 
     it('rejects top-level await', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const value = await loadValue();
             </script>
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'await.vue')).toThrow(
             'Top-level await is not supported inside Shopware setup blocks.',
-        );
-    });
-
-    it('rejects unsupported script languages', () => {
-        const source = stripIndent`
-            <script setup lang="coffee" sw-component="sw-my-component">
-            const count = 1;
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'lang.vue')).toThrow(
-            'Unsupported Shopware setup script language "coffee". Supported languages are js, jsx, ts, and tsx.',
         );
     });
 
@@ -141,7 +137,7 @@ describe('build/vue-setup-transform validation', () => {
         'declare namespace count { const value: number }',
     ])('rejects TypeScript declare declarations because they are not runtime state: %s', (declaration) => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             ${declaration}
             </script>
         `;
@@ -153,7 +149,7 @@ describe('build/vue-setup-transform validation', () => {
 
     it('rejects ES module exports like native script setup', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             export const count = 1;
             </script>
         `;
@@ -163,33 +159,9 @@ describe('build/vue-setup-transform validation', () => {
         );
     });
 
-    it('rejects bound mode attributes', () => {
+    it('ignores non-setup script blocks', () => {
         const source = stripIndent`
-            <script setup :sw-component="componentName">
-            const count = 1;
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'bound.vue')).toThrow(
-            'Shopware setup mode attributes must be static strings, not bound expressions.',
-        );
-    });
-
-    it('rejects backslashes in setup script attributes', () => {
-        const source = stripIndent`
-            <script setup sw-component="sw\\my-component">
-            const count = 1;
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'backslash.vue')).toThrow(
-            'Backslashes are not supported in Shopware setup script attributes.',
-        );
-    });
-
-    it('ignores Shopware mode attributes on non-setup script blocks', () => {
-        const source = stripIndent`
-            <script sw-component="sw-my-component">
+            <script>
             const count = 1;
             </script>
         `;
@@ -202,7 +174,7 @@ describe('build/vue-setup-transform validation', () => {
             <script>
             export const moduleValue = 1;
             </script>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const count = 1;
             </script>
         `;
@@ -243,7 +215,7 @@ describe('build/vue-setup-transform validation', () => {
         ],
     ])('rejects invalid swDefinePublic usage: %s', (publicMarker, expectedMessage) => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const count = 1;
             ${publicMarker}
             </script>
@@ -254,16 +226,16 @@ describe('build/vue-setup-transform validation', () => {
 
     it('rejects swDefineOverride() in base mode', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const count = 1;
             swDefineOverride({ count });
             </script>
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'base-override.vue')).toThrow(
-            'swDefineOverride() is a Shopware setup compile-time macro for override components. '
-            + 'It declares which base component bindings this override replaces. '
-            + 'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
+            'swDefineOverride() is a Shopware setup compile-time macro for override components. ' +
+                'It declares which base component bindings this override replaces. ' +
+                'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
         );
     });
 
@@ -276,20 +248,21 @@ describe('build/vue-setup-transform validation', () => {
             <style>
             .example::before { content: "<script setup sw-component='from-style'>"; }
             </style>
-            <script setup sw-component="real-component">
+            <script setup>
             // <script setup sw-component='from-line-comment'>
             /* <script setup sw-component='from-block-comment'> */
             const single = '<script setup sw-component="from-single-string">';
             const fake = "<script setup sw-component='from-string'>";
             const template = \`<script setup sw-component="from-template-literal">\${'<script setup sw-component="from-template-expression">'}\`;
             const count = 1;
+            swDefinePublic({ count });
             </script>
         `;
 
         const result = transformOrFail(source, 'scanner.vue').code;
 
         expect(result).toContain('Shopware.Component.createExtendableSetup(');
-        expect(result).toContain("name: 'real-component'");
+        expect(result).toContain("name: 'scanner'");
         expect(result).not.toContain("name: 'from-comment'");
         expect(result).not.toContain("name: 'from-template'");
         expect(result).not.toContain("name: 'from-style'");
@@ -306,7 +279,7 @@ describe('build/vue-setup-transform validation', () => {
             <template>
                 <div>
             </template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const count = 1;
         `;
 

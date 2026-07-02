@@ -3,132 +3,94 @@
  */
 
 import type { ScriptBlock } from './sfc-script-block';
-import { ShopwareSetupTransformError } from './transform-error';
 
 type ShopwareSetupMode = 'base' | 'override';
 
 type ShopwareSetupTemplate = {
-    content: string,
-    contentStart: number,
+    content: string;
+    contentStart: number;
 };
 
 type ShopwareSetupBlock = ScriptBlock & {
-    mode: ShopwareSetupMode,
-    componentName: string,
-    lang: string | null,
-    template: ShopwareSetupTemplate | null,
-    filename: string,
+    mode: ShopwareSetupMode;
+    componentName: string;
+    lang: string | null;
+    template: ShopwareSetupTemplate | null;
+    filename: string;
 };
 
-const SUPPORTED_LANGUAGES = new Set([
-    'js',
-    'jsx',
-    'ts',
-    'tsx',
-]);
+type InferredShopwareSetup = {
+    mode: ShopwareSetupMode;
+    componentName: string;
+};
 
-/**
- * Validates and returns `sw-component` / `sw-override` string literals.
- */
-function assertStaticModeAttribute(block: ScriptBlock, attributeName: 'sw-component' | 'sw-override'): string | null {
-    const attribute = block.attributes.get(attributeName);
+function stripFilenameQuery(filename: string): string {
+    return filename.split(/[?#]/, 1)[0] ?? filename;
+}
 
-    if (!attribute) {
-        return null;
+function basename(filename: string): string {
+    const parts = stripFilenameQuery(filename).replace(/\\/g, '/').split('/').filter(Boolean);
+
+    return parts[parts.length - 1] ?? filename;
+}
+
+function parentDirectoryName(filename: string): string {
+    const parts = stripFilenameQuery(filename).replace(/\\/g, '/').split('/').filter(Boolean);
+
+    if (parts.length < 2) {
+        return basename(filename);
     }
 
-    if (!attribute.hasValue || attribute.value === true || !attribute.quoted) {
-        throw new ShopwareSetupTransformError(
-            `The ${attributeName} attribute must use a static quoted string value.`,
-            attribute.index,
-        );
-    }
-
-    if (attribute.value.length === 0) {
-        throw new ShopwareSetupTransformError(`The ${attributeName} attribute must not be empty.`, attribute.index);
-    }
-
-    return attribute.value;
+    return parts[parts.length - 2] ?? basename(filename);
 }
 
 /**
- * Normalizes missing `lang` to `null` while rejecting languages the analyzer cannot parse.
+ * Infers Shopware setup mode and component name from the SFC filename.
  */
-function resolveScriptLanguage(block: ScriptBlock): string | null {
-    const langAttribute = block.attributes.get('lang');
+function inferShopwareSetupFromFilename(filename: string): InferredShopwareSetup {
+    const file = basename(filename);
+    const mode: ShopwareSetupMode = file.endsWith('.override.vue') ? 'override' : 'base';
+    const componentName = (() => {
+        if (file === 'index.vue' || file === 'index.override.vue') {
+            return parentDirectoryName(filename);
+        }
 
-    if (!langAttribute) {
-        return null;
-    }
+        if (file.endsWith('.override.vue')) {
+            return file.slice(0, -'.override.vue'.length);
+        }
 
-    if (!langAttribute.hasValue || langAttribute.value === true || !langAttribute.quoted) {
-        throw new ShopwareSetupTransformError(
-            'The lang attribute on a Shopware setup block must be a static quoted value.',
-            langAttribute.index,
-        );
-    }
+        if (file.endsWith('.vue')) {
+            return file.slice(0, -'.vue'.length);
+        }
 
-    if (!SUPPORTED_LANGUAGES.has(langAttribute.value)) {
-        throw new ShopwareSetupTransformError(
-            `Unsupported Shopware setup script language "${langAttribute.value}". Supported languages are js, jsx, ts, and tsx.`,
-            langAttribute.index,
-        );
-    }
+        return file;
+    })();
 
-    return langAttribute.value;
+    return {
+        mode,
+        componentName,
+    };
 }
 
 /**
- * Turns a generic script setup block into the explicit base/override Shopware mode.
+ * Turns a generic script setup block into the filename-inferred base/override Shopware mode.
  */
-function normalizeShopwareSetupBlock(block: ScriptBlock): Omit<ShopwareSetupBlock, 'template' | 'filename'> | null {
-    if (block.attributes.hasBoundAttributes()) {
-        throw new ShopwareSetupTransformError(
-            'Shopware setup mode attributes must be static strings, not bound expressions.',
-            block.start,
-        );
-    }
-
-    if (!block.attributes.hasShopwareSetupModeAttribute()) {
-        return null;
-    }
-
-    const componentNameAttribute = assertStaticModeAttribute(block, 'sw-component');
-    const overrideName = assertStaticModeAttribute(block, 'sw-override');
-
-    if (componentNameAttribute && overrideName) {
-        throw new ShopwareSetupTransformError(
-            'Use either sw-component or sw-override on a Shopware setup block, not both.',
-            block.start,
-        );
-    }
-
-    if (!componentNameAttribute && !overrideName) {
-        throw new ShopwareSetupTransformError(
-            'A Shopware setup block requires either sw-component or sw-override.',
-            block.start,
-        );
-    }
-
-    const componentName = componentNameAttribute ?? overrideName;
-
-    if (!componentName) {
-        throw new ShopwareSetupTransformError(
-            'A Shopware setup block requires either sw-component or sw-override.',
-            block.start,
-        );
-    }
+function normalizeShopwareSetupBlock(
+    block: ScriptBlock,
+    filename: string,
+): Omit<ShopwareSetupBlock, 'template' | 'filename'> {
+    const inferred = inferShopwareSetupFromFilename(filename);
 
     return {
         ...block,
-        mode: componentNameAttribute ? 'base' : 'override',
-        componentName,
-        lang: resolveScriptLanguage(block),
+        mode: inferred.mode,
+        componentName: inferred.componentName,
+        lang: block.lang,
     };
 }
 
 module.exports = {
-    SUPPORTED_LANGUAGES,
+    inferShopwareSetupFromFilename,
     normalizeShopwareSetupBlock,
 };
 
@@ -136,6 +98,6 @@ export {
     type ShopwareSetupBlock,
     type ShopwareSetupMode,
     type ShopwareSetupTemplate,
-    SUPPORTED_LANGUAGES,
+    inferShopwareSetupFromFilename,
     normalizeShopwareSetupBlock,
 };

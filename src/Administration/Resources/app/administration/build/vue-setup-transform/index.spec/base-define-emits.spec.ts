@@ -2,17 +2,12 @@
  * @sw-package framework
  */
 
-import {
-    expectVueCompilerScriptToCompile,
-    stripIndent,
-    transformOrFail,
-    transformShopwareSetupSfc,
-} from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform base defineEmits macro', () => {
     it('keeps defineEmits() outside the extendable setup callback and replaces it with context.emit', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const emit = defineEmits<{
                 save: [id: string];
             }>();
@@ -41,7 +36,7 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
     it('keeps local emit type declarations available for hoisted defineEmits()', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             type Emits = {
                 save: [id: string];
             };
@@ -58,15 +53,13 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         const result = transformOrFail(source, 'base-emits-local-type.vue').code;
 
         expect(result.indexOf('type Emits')).toBeLessThan(result.indexOf('const emit = defineEmits<Emits>()'));
-        expect(result.indexOf('type Emits')).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
+        expect(result.indexOf('type Emits')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expectVueCompilerScriptToCompile(result, 'base-emits-local-type.vue');
     });
 
     it('rejects local setup bindings in hoisted defineEmits() arguments', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const events = ['save'];
             const emit = defineEmits(events);
             const count = 1;
@@ -84,7 +77,7 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
     it('keeps bare defineEmits() outside the callback when the generated emit binding name is taken', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineEmits(['save']);
 
             function emit() {
@@ -109,14 +102,14 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
     it('supports runtime array and object declarations', () => {
         const arraySource = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const emit = defineEmits(['save']);
             const count = 1;
             swDefinePublic({ count });
             </script>
         `;
         const objectSource = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const emit = defineEmits({
                 save: (id) => Boolean(id),
             });
@@ -139,7 +132,7 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
     it('supports defineEmits() wrapped in a TypeScript as expression', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const emit = defineEmits<{ save: [] }>() as ((event: 'save') => void);
             const count = 1;
 
@@ -158,7 +151,7 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
     it('rejects duplicate declarations', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const emit = defineEmits(['save']);
             const otherEmit = defineEmits(['cancel']);
             const count = 1;
@@ -173,7 +166,7 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
     it('ignores nested defineEmits() like Vue compiler-sfc does', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             function save() {
                 const emit = defineEmits<{ save: [] }>();
                 emit('save');

@@ -2,31 +2,30 @@
  * @sw-package framework
  */
 
-import {
-    NodeTypes,
-    parse as parseTemplate,
-} from '@vue/compiler-dom';
+import { NodeTypes, parse as parseTemplate } from '@vue/compiler-dom';
 import type { ElementNode as CoreElementNode } from '@vue/compiler-core';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 
 type TemplateEdit = {
-    start: number,
-    end: number,
-    replacement: string,
+    start: number;
+    end: number;
+    replacement: string;
 };
 
 type ElementNode = CoreElementNode & {
-    props: Array<CoreElementNode['props'][number] & {
-        name?: string,
-        arg?: { content: string, isStatic?: boolean },
-    }>,
-    children: CoreElementNode['children'],
+    props: Array<
+        CoreElementNode['props'][number] & {
+            name?: string;
+            arg?: { content: string; isStatic?: boolean };
+        }
+    >;
+    children: CoreElementNode['children'];
 };
 
 type TemplateAnalysis = {
-    edits: TemplateEdit[],
-    privateBindings: Set<string>,
-    privateNamespace: string | null,
+    edits: TemplateEdit[];
+    privateBindings: Set<string>;
+    privateNamespace: string | null;
 };
 
 function isSwBlockNode(node: ElementNode): boolean {
@@ -46,7 +45,7 @@ function hasNameBinding(node: ElementNode): boolean {
 function getStaticAttribute(node: ElementNode, name: string): string | null {
     const attribute = node.props.find((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === name);
 
-    return attribute?.type === NodeTypes.ATTRIBUTE ? attribute.value?.content ?? '' : null;
+    return attribute?.type === NodeTypes.ATTRIBUTE ? (attribute.value?.content ?? '') : null;
 }
 
 function hasDataBinding(node: ElementNode): boolean {
@@ -64,7 +63,11 @@ function findInsertOffset(node: ElementNode): number {
 }
 
 function collectBaseTemplateEdits(node: ElementNode, edits: TemplateEdit[]): void {
-    if (isSwBlockNode(node) && (getStaticAttribute(node, 'name') !== null || hasNameBinding(node)) && !hasDataBinding(node)) {
+    if (
+        isSwBlockNode(node) &&
+        (getStaticAttribute(node, 'name') !== null || hasNameBinding(node)) &&
+        !hasDataBinding(node)
+    ) {
         const offset = findInsertOffset(node);
 
         edits.push({
@@ -117,7 +120,4 @@ module.exports = {
     analyzeBaseTemplate,
 };
 
-export {
-    type TemplateAnalysis,
-    analyzeBaseTemplate,
-};
+export { type TemplateAnalysis, analyzeBaseTemplate };

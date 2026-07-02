@@ -8,7 +8,7 @@ describe('build/vue-setup-transform base transforms', () => {
     it('transforms base Shopware setup blocks with auto-private state and explicit public state', () => {
         const source = stripIndent`
             <template><div>{{ count }}{{ foo2 }}</div></template>
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             import { ref, computed } from 'vue';
 
             const props = defineProps<{
@@ -71,7 +71,7 @@ describe('build/vue-setup-transform base transforms', () => {
             </script>
         `;
 
-        expect(transformOrFail(source, 'base.vue').code).toBe(expected);
+        expect(transformOrFail(source, 'sw-my-component.vue').code).toBe(expected);
     });
 
     it('adds the generated data scope to base sw-block declarations', () => {
@@ -87,7 +87,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 </sw-block>
             </article>
             </template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const dynamicBlockName = 'sw_example_component_dynamic';
             const headline = 'Headline';
 
@@ -108,7 +108,7 @@ describe('build/vue-setup-transform base transforms', () => {
             <template>
             <p>{{ publicTitle }}{{ localLabel }}{{ firstItem }}{{ rest.enabled }}</p>
             </template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const source = {
                 title: 'Title',
                 nested: {
@@ -137,7 +137,9 @@ describe('build/vue-setup-transform base transforms', () => {
         const result = transformOrFail(source, 'base-destructured-runtime.vue').code;
 
         expect(result).toContain('publicTitle,');
-        expect(result).toContain('private: {\n                source,\n                items,\n                fallbackLabel,\n                localLabel,\n                rest,\n                firstItem,\n            }');
+        expect(result).toContain(
+            'private: {\n                source,\n                items,\n                fallbackLabel,\n                localLabel,\n                rest,\n                firstItem,\n            }',
+        );
     });
 
     it('adds the generated data scope before object v-bind so the user can override it', () => {
@@ -150,7 +152,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 <span>{{ headline }}</span>
             </sw-block>
             </template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const headline = 'Headline';
             const blockProps = {};
 
@@ -184,7 +186,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 </sw-block>
             </article>
             </template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const headline = 'Headline';
             const customData = {};
 
@@ -211,7 +213,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 <sw-block name="inner" />
             </sw-block>
             </template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const count = 1;
 
             swDefinePublic({

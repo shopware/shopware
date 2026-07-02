@@ -2,11 +2,7 @@
  * @sw-package framework
  */
 
-import {
-    generated,
-    type FlatSourceChunk,
-    type SourceChunk,
-} from './chunks';
+import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
 
 /**
  * Reads the text represented by a flat source chunk.
@@ -156,7 +152,4 @@ module.exports = {
     toFlatChunks,
 };
 
-export {
-    render,
-    toFlatChunks,
-};
+export { render, toFlatChunks };

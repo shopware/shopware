@@ -3,12 +3,7 @@
  */
 
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import {
-    fromSource,
-    generated,
-    indent,
-    type SourceChunk,
-} from '../source-edits/chunks';
+import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
@@ -112,16 +107,18 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
     }
 
     chunks.push(
-        generated([
-            'const {',
-            ...destructureEntries.map((entry) => `    ${entry},`),
-            '} = Shopware.Component.createExtendableSetup(',
-            '    {',
-            `        name: '${escapeSingleQuoted(block.componentName)}',`,
-            `        props: ${propsName ?? '{}'},`,
-            '    },',
-            `    (${setupPropsName}, ${setupContextName}) => {`,
-        ].join('\n')),
+        generated(
+            [
+                'const {',
+                ...destructureEntries.map((entry) => `    ${entry},`),
+                '} = Shopware.Component.createExtendableSetup(',
+                '    {',
+                `        name: '${escapeSingleQuoted(block.componentName)}',`,
+                `        props: ${propsName ?? '{}'},`,
+                '    },',
+                `    (${setupPropsName}, ${setupContextName}) => {`,
+            ].join('\n'),
+        ),
         generated('\n'),
         indent(body, 8),
         generated('\n    },\n);\n</script>'),
@@ -134,6 +131,4 @@ module.exports = {
     buildBaseScript,
 };
 
-export {
-    buildBaseScript,
-};
+export { buildBaseScript };

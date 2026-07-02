@@ -35,4 +35,4 @@ jobs:
           fi
 
       - name: Verify release content
-        run: bash .github/bin/verify_release_content.bash "${{ steps.version.outputs.prefix }}"
+        run: php .github/bin/verify-release-content.php "${{ steps.version.outputs.prefix }}"

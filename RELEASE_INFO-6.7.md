@@ -52,7 +52,6 @@ Four admin action endpoints that previously only required authentication now enf
 
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
 
-## Core
 ## Features
 
 ### System configuration tabs
@@ -112,7 +111,11 @@ To enable this feature, set the `SYSTEM_CONFIG_TABS` feature flag to `true`.
 </config>
 ```
 
-## Storefront
+## Core
+
+### Deprecation of `ConfigurationService` methods
+
+Due to structural data changes coming along with the new system configuration tabs feature, the methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class are deprecated and will be removed in Shopware 6.8. Please use the new methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
 
 ### Deprecated XML configuration
 
@@ -474,10 +477,6 @@ Webhook deliveries now resolve the app's HMAC signing secret at delivery time in
 ### SVG validator accepts more passive extension assets
 
 SVG media validation now accepts additional passive SVG elements, attributes, metadata, inline fonts, safe animation attributes, known editor namespaces, public SVG doctypes without internal subsets, and embedded raster image data URIs. This allows more SVG assets shipped by extensions and themes to pass validation while still rejecting active content such as external references, processing instructions outside scoped metadata, `foreignObject`, and entity definitions.
-
-### Deprecation of `ConfigurationService` methods
-
-Due to structural data changes coming along with the new system configuration tabs feature, the methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class are deprecated and will be removed in Shopware 6.8. Please use the new methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
 
 ### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
 

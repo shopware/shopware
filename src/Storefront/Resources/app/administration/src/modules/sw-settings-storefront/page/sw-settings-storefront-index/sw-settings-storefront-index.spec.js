@@ -194,18 +194,22 @@ describe('sw-settings-storefront-index', () => {
 
         const switches = wrapper.findAllComponents({ name: 'mt-switch' });
 
-        expect(switches.at(0).props()).toEqual(expect.objectContaining({
-            disabled: true,
-            inheritedValue: true,
-            isInherited: true,
-            modelValue: true,
-        }));
-        expect(switches.at(1).props()).toEqual(expect.objectContaining({
-            disabled: true,
-            inheritedValue: true,
-            isInherited: true,
-            modelValue: true,
-        }));
+        expect(switches.at(0).props()).toEqual(
+            expect.objectContaining({
+                disabled: true,
+                inheritedValue: true,
+                isInherited: true,
+                modelValue: true,
+            }),
+        );
+        expect(switches.at(1).props()).toEqual(
+            expect.objectContaining({
+                disabled: true,
+                inheritedValue: true,
+                isInherited: true,
+                modelValue: true,
+            }),
+        );
     });
 
     it('normalizes empty values before saving default scoped and global settings', async () => {

@@ -103,9 +103,12 @@ skills — never per-skill.
   the skill auto-loads.
 - **References load on demand.** Keep SKILL.md scannable; push lookups,
   taxonomies, and tool catalogues into `references/`.
-- **One model across workflows.** All gh aw workflows in this repo pin the
-  same `engine.model` (currently `claude-sonnet-4-6`). Deviate only with a
-  concrete reason and document it in the workflow source comment.
+- **Default to Sonnet; escalate with a reason.** gh aw workflows pin
+  `engine.model` to `claude-sonnet-4-6` by default (e.g. `sw-triage`,
+  `sw-review`). Escalate only with a concrete reason, documented in the workflow
+  source comment — currently `sw-bugfixer` (code-fixing runs) and the
+  `security`/`architecture` personas of `sw-review` are pinned to
+  `claude-opus-4-8`.
 
 ## Reference docs
 

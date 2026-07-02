@@ -45,7 +45,7 @@ concurrency:                 # explicit — workflow_dispatch default group canc
 
 engine:
   id: claude
-  model: claude-sonnet-4-6   # explicit pin (Sonnet was already the default, just no drift)
+  model: claude-sonnet-4-6   # explicit pin (Sonnet family is the repo default)
   max-turns: 50              # claude-only hard cap; headroom for hard-to-locate issues while still bounding runaway loops.
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in

@@ -28,8 +28,7 @@ lens directly by telling it to read
 `.agents/skills/sw-review/personas/<slug>.md`. Either way each worker reads its
 lens plus the references, reviews only the slice you hand it, and returns one
 per-persona JSON object. Collect the worker JSON, then merge per the shared
-policy and emit via safe outputs. Collect the
-worker JSON, then merge per the shared policy and emit via safe outputs.
+policy and emit via safe outputs.
 
 **Gathering the diff.** Use the GitHub MCP `pull_requests` toolset for PR
 metadata, changed-file list, and commits. For the diff itself, use

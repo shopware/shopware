@@ -52,6 +52,13 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Core\\Profiling\\',
         'Shopware\\Tests\\Unit\\Administration\\',
         'Shopware\\Tests\\Unit\\Storefront\\',
+        'Shopware\\Tests\\Unit\\Core\\Service\\',
+        'Shopware\\Tests\\Unit\\Core\\Installer\\',
+        'Shopware\\Tests\\Unit\\Core\\Maintenance\\',
+        'Shopware\\Tests\\Unit\\Core\\SsoUser\\',
+        'Shopware\\Tests\\Unit\\Core\\Saas\\',
+        'Shopware\\Tests\\Unit\\Core\\Test\\',
+        'Shopware\\Tests\\Unit\\Core\\System\\',
         'Shopware\\Tests\\Unit\\Core\\Content\\',
     ];
 

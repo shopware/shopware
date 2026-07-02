@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Uri;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
@@ -31,7 +31,7 @@ class TranslationMetadataLoaderTest extends TestCase
 {
     private TranslationConfig $config;
 
-    private ClientInterface&MockObject $client;
+    private ClientInterface&Stub $client;
 
     private Filesystem $filesystem;
 
@@ -92,7 +92,7 @@ class TranslationMetadataLoaderTest extends TestCase
 
     public function testThrowExceptionIfDownloadFailed(): void
     {
-        $client = $this->createMock(ClientInterface::class);
+        $client = static::createStub(ClientInterface::class);
         $client->method('request')
             ->willThrowException(
                 new ClientException(
@@ -221,7 +221,7 @@ class TranslationMetadataLoaderTest extends TestCase
     {
         $response = new Response(body: json_encode($items, \JSON_THROW_ON_ERROR));
 
-        $client = $this->createMock(ClientInterface::class);
+        $client = static::createStub(ClientInterface::class);
         $client->method('request')->willReturn($response);
 
         $this->client = $client;

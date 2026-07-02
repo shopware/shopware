@@ -36,7 +36,7 @@ class EnvironmentRequirementsValidatorTest extends TestCase
         $corePackage = new RootPackage($coreComposerName ?? 'shopware/platform', '1.0.0', '1.0.0');
         $corePackage->setRequires($requires);
 
-        $repoManagerMock = $this->createMock(RepositoryManager::class);
+        $repoManagerMock = static::createStub(RepositoryManager::class);
 
         if ($coreComposerName) {
             $repoManagerMock->method('getLocalRepository')->willReturn(

@@ -128,5 +128,8 @@ return [
         // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
+
+        // Storefront ThemeCompiler no longer supports public URL fetch workaround for build-meta.
+        preg_quote('REMOVED: Method Shopware\Storefront\Theme\ThemeCompiler#fetchPublicFile() was removed', '/'),
     ],
 ];

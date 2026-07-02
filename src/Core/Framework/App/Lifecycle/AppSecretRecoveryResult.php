@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * never answered the confirm, the manifest could not be loaded — is exceptional and throws instead.
  *
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 enum AppSecretRecoveryResult: string

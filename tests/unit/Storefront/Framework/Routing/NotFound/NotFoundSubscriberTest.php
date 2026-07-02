@@ -38,17 +38,17 @@ class NotFoundSubscriberTest extends TestCase
     public function testDebugIsOnDoesNothing(): void
     {
         $subscriber = new NotFoundSubscriber(
-            $this->createMock(HttpKernelInterface::class),
-            $this->createMock(SalesChannelContextRequestRestorer::class),
+            static::createStub(HttpKernelInterface::class),
+            static::createStub(SalesChannelContextRequestRestorer::class),
             true,
-            $this->createMock(CacheInterface::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(CacheInterface::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
             new EventDispatcher()
         );
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             new Request(),
             0,
             new \Exception()
@@ -66,7 +66,7 @@ class NotFoundSubscriberTest extends TestCase
             ->method('handle')
             ->willReturn(new Response());
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $subscriber = new NotFoundSubscriber(
@@ -74,15 +74,15 @@ class NotFoundSubscriberTest extends TestCase
             $this->createContextRestorer(),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
             new EventDispatcher()
         );
 
         $request = new Request();
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $request,
             0,
             new HttpException(Response::HTTP_NOT_FOUND)
@@ -105,7 +105,7 @@ class NotFoundSubscriberTest extends TestCase
             ->method('handle')
             ->willReturn($response);
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $arrayAdapter = new ArrayAdapter();
@@ -114,8 +114,8 @@ class NotFoundSubscriberTest extends TestCase
             $this->createContextRestorer(),
             false,
             new TagAwareAdapter($arrayAdapter, $arrayAdapter),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
             new EventDispatcher(),
             []
         );
@@ -123,7 +123,7 @@ class NotFoundSubscriberTest extends TestCase
         $request = new Request();
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $request,
             0,
             new HttpException(Response::HTTP_NOT_FOUND)
@@ -151,7 +151,7 @@ class NotFoundSubscriberTest extends TestCase
             ->method('handle')
             ->willReturn(new Response());
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $subscriber = new NotFoundSubscriber(
@@ -159,15 +159,15 @@ class NotFoundSubscriberTest extends TestCase
             $this->createContextRestorer(),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
             new EventDispatcher()
         );
 
         $request = new Request();
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $request,
             0,
             new \Exception()
@@ -190,7 +190,7 @@ class NotFoundSubscriberTest extends TestCase
             }))
             ->willReturn(new Response());
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
@@ -204,8 +204,8 @@ class NotFoundSubscriberTest extends TestCase
             $this->createContextRestorer(),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
             $eventDispatcher,
         );
 
@@ -213,7 +213,7 @@ class NotFoundSubscriberTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CAPTCHA, true);
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $request,
             0,
             new \Exception()
@@ -231,11 +231,11 @@ class NotFoundSubscriberTest extends TestCase
             ->method('invalidate');
 
         $subscriber = new NotFoundSubscriber(
-            $this->createMock(HttpKernelInterface::class),
-            $this->createMock(SalesChannelContextRequestRestorer::class),
+            static::createStub(HttpKernelInterface::class),
+            static::createStub(SalesChannelContextRequestRestorer::class),
             true,
-            $this->createMock(CacheInterface::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInterface::class),
+            static::createStub(EntityCacheKeyGenerator::class),
             $cacheInvalidator,
             new EventDispatcher()
         );
@@ -268,12 +268,12 @@ class NotFoundSubscriberTest extends TestCase
 
     private function createContextRestorer(): SalesChannelContextRequestRestorer
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
-        $contextRestorer = $this->createMock(SalesChannelContextRequestRestorer::class);
+        $contextRestorer = static::createStub(SalesChannelContextRequestRestorer::class);
         $contextRestorer
             ->method('restore')
             ->willReturnCallback(static function (Request $request) use ($context): SalesChannelContext {

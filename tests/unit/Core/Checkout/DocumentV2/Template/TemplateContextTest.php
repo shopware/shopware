@@ -1,14 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Twig;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Template;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Template\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
@@ -19,7 +23,7 @@ use Shopware\Core\System\Country\CountryEntity;
 #[CoversClass(TemplateContext::class)]
 class TemplateContextTest extends TestCase
 {
-    public function testExposesCompanyInfoFields(): void
+    public function testExposesDocumentCompanyInfoFields(): void
     {
         $context = $this->createContext();
 
@@ -144,18 +148,57 @@ class TemplateContextTest extends TestCase
         array $legacyConfig = [],
     ): TemplateContext {
         $renderData = new InvoiceRenderData(
-            new DocumentConfig('a4', 'landscape', 10),
-            new CompanyInfo('company', 'example street 10', '12345', 'example city', new CountryEntity()),
-            'date',
-            'number',
-            'comment',
-            false,
-            false,
-            false,
-            false,
-            false,
-            [],
-            $legacyConfig,
+            new DocumentConfig(
+                'a4',
+                'landscape',
+                10
+            ),
+            new DocumentCompanyInfo(
+                'company',
+                'example street 10',
+                '12345',
+                'example city',
+                new CountryEntity()
+            ),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: 'number',
+            documentComment: 'comment',
+            templatePaths: [],
+            typeCode: TypeCode::INVOICE,
+            buyerReference: '',
+            buyer: new TradePartyView(
+                id: null,
+                name: '',
+                street: null,
+                additionalAddressLine1: null,
+                additionalAddressLine2: null,
+                zipcode: null,
+                city: null,
+                countrySubdivision: null,
+                countryIso: null,
+                email: null,
+            ),
+            deliveryDate: null,
+            lineItems: [],
+            allowanceCharges: [],
+            taxBreakdown: [],
+            monetarySummation: new MonetarySummationView(
+                0,
+                0,
+                0,
+                0,
+                0,
+                'EUR',
+                0,
+                0,
+                0,
+                0
+            ),
+            paymentMeans: null,
+            paymentDueDate: null,
+            intraCommunityDelivery: false,
+            legacyConfig: $legacyConfig,
         );
 
         return new TemplateContext(

@@ -4,6 +4,7 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
+    <import resource="../../AdminAuth/Controller/*Controller.php" type="attribute" />
     <import resource="../../Api/Controller/**/*Controller.php" type="attribute" />
     <import resource="../../Plugin/**/*Controller.php" type="attribute" />
     <import resource="../../Store/**/*Controller.php" type="attribute" />

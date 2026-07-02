@@ -1,0 +1,220 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_action\/admin-auth\/methods": {
+            "get": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "List available admin login methods",
+                "description": "Returns the primary login methods available on the administration login screen: the password login (when enabled) and the configured OIDC providers with their login start URLs. Does not require authentication. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMethods",
+                "responses": {
+                    "200": {
+                        "description": "The available login methods and the provider-management state.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "methods": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "description": "\"password\" for the built-in password login, the provider UUID for OIDC providers."
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "enum": ["password", "oidc"]
+                                                    },
+                                                    "label": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Display label for OIDC providers, null for built-in methods."
+                                                    },
+                                                    "startUrl": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Absolute URL starting the OIDC login, null for built-in methods."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "managedByConfig": {
+                                            "type": "boolean",
+                                            "description": "True when providers are declared in the YAML configuration (database providers are ignored)."
+                                        },
+                                        "adminUiEnabled": {
+                                            "type": "boolean",
+                                            "description": "True when providers may be managed through the administration."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/oidc\/{providerId}\/start": {
+            "get": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Start an OIDC admin login",
+                "description": "Stores the per-login CSRF state and nonce in a signed cookie and redirects the browser to the identity provider's authorization endpoint. Does not require authentication. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthOidcStart",
+                "parameters": [
+                    {
+                        "name": "providerId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The provider UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to the identity provider's authorization endpoint."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active or the provider is unknown or inactive."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/oidc\/{providerId}\/callback": {
+            "get": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Complete an OIDC admin login",
+                "description": "Handles the redirect back from the identity provider: validates the CSRF state, exchanges the authorization code server-side and redirects to the administration with a bearerAuth cookie carrying the issued token set. On failure (or when the MFA policy requires a second factor) it redirects back to the login screen with an ssoError code. Does not require authentication. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthOidcCallback",
+                "parameters": [
+                    {
+                        "name": "providerId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The provider UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": true,
+                        "description": "The CSRF state issued by the start endpoint.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "required": true,
+                        "description": "The authorization code issued by the identity provider.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to the administration (with a bearerAuth cookie on success, or to the login screen with an ssoError code on failure)."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/oidc\/discover": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Discover OIDC provider endpoints",
+                "description": "Fetches the OpenID Connect discovery document for the given issuer or discovery URL and returns the provider endpoints for the provider form. Requires the admin_auth_provider:update privilege. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthOidcDiscover",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "issuer": {
+                                        "type": "string",
+                                        "description": "The issuer base URL, e.g. https:\/\/idp.example.com"
+                                    },
+                                    "discoveryUrl": {
+                                        "type": "string",
+                                        "description": "A full discovery document URL; takes precedence over issuer."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The discovered endpoints.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "issuer": {
+                                            "type": "string"
+                                        },
+                                        "authorizationEndpoint": {
+                                            "type": "string"
+                                        },
+                                        "tokenEndpoint": {
+                                            "type": "string"
+                                        },
+                                        "jwksUri": {
+                                            "type": "string"
+                                        },
+                                        "scopes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The discovery document could not be fetched or is incomplete."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        }
+    }
+}

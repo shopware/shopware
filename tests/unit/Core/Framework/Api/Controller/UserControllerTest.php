@@ -9,10 +9,15 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Api\Controller\UserController;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
+use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -59,8 +64,60 @@ class UserControllerTest extends TestCase
         $controller->logout($context);
     }
 
-    private function createController(?RefreshTokenRepository $refreshTokenRepository = null): UserController
+    public function testAdministrationClientWithoutUserVerifiedScopeIsRejected(): void
     {
+        static::expectExceptionObject(ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER));
+
+        $this->createController()->deleteUserAccessKey(
+            'key-id',
+            $this->createAdministrationRequest(scopes: []),
+            Context::createDefaultContext(new AdminApiSource('test-user-id')),
+            $this->createMock(ResponseFactoryInterface::class)
+        );
+    }
+
+    public function testAdministrationClientWithUserVerifiedScopeIsAllowed(): void
+    {
+        $response = $this->createController()->deleteUserAccessKey(
+            'key-id',
+            $this->createAdministrationRequest(scopes: [UserVerifiedScope::IDENTIFIER]),
+            Context::createDefaultContext(new AdminApiSource('test-user-id')),
+            $this->createResponseFactory()
+        );
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testUserVerifiedScopeIsNotRequiredWhenPasswordLoginIsDisabled(): void
+    {
+        // Without password login users cannot re-verify via password, so the scope is unobtainable.
+        $response = $this->createController(passwordLoginEnabled: false)->deleteUserAccessKey(
+            'key-id',
+            $this->createAdministrationRequest(scopes: []),
+            Context::createDefaultContext(new AdminApiSource('test-user-id')),
+            $this->createResponseFactory()
+        );
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    #[DisabledFeatures(['ADMIN_AUTH'])]
+    public function testUserVerifiedScopeIsStillRequiredWhenTheFeatureIsInactive(): void
+    {
+        static::expectExceptionObject(ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER));
+
+        $this->createController(passwordLoginEnabled: false)->deleteUserAccessKey(
+            'key-id',
+            $this->createAdministrationRequest(scopes: []),
+            Context::createDefaultContext(new AdminApiSource('test-user-id')),
+            $this->createMock(ResponseFactoryInterface::class)
+        );
+    }
+
+    private function createController(
+        ?RefreshTokenRepository $refreshTokenRepository = null,
+        bool $passwordLoginEnabled = true,
+    ): UserController {
         return new UserController(
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
@@ -68,6 +125,27 @@ class UserControllerTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(UserDefinition::class),
             $refreshTokenRepository ?? $this->createMock(RefreshTokenRepository::class),
+            $passwordLoginEnabled,
         );
+    }
+
+    /**
+     * @param list<string> $scopes
+     */
+    private function createAdministrationRequest(array $scopes): Request
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'administration');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES, $scopes);
+
+        return $request;
+    }
+
+    private function createResponseFactory(): ResponseFactoryInterface
+    {
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+        $factory->method('createRedirectResponse')->willReturn(new Response(null, Response::HTTP_NO_CONTENT));
+
+        return $factory;
     }
 }

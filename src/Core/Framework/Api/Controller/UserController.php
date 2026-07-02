@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -46,6 +47,7 @@ class UserController extends AbstractController
         private readonly EntityRepository $keyRepository,
         private readonly UserDefinition $userDefinition,
         private readonly RefreshTokenRepository $refreshTokenRepository,
+        private readonly bool $passwordLoginEnabled = true,
     ) {
     }
 
@@ -342,6 +344,13 @@ class UserController extends AbstractController
     {
         // only validate scope for administration clients
         if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) !== 'administration') {
+            return;
+        }
+
+        // With password login disabled (shopware.admin_auth.password_login: false) users have no
+        // password to re-verify with, so the user-verified scope is unobtainable and must not be
+        // required.
+        if (Feature::isActive('ADMIN_AUTH') && !$this->passwordLoginEnabled) {
             return;
         }
 

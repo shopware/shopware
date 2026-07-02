@@ -211,6 +211,14 @@ class InfoController extends AbstractController
             'inAppPurchases' => $this->inAppPurchase->all(),
         ];
 
+        if (Feature::isActive('ADMIN_AUTH')) {
+            $managedByConfig = $this->params->get('shopware.admin_auth.providers') !== [];
+            $config['settings']['adminAuth'] = [
+                'managedByConfig' => $managedByConfig,
+                'adminUiDisabled' => $managedByConfig || !$this->params->get('shopware.admin_auth.admin_ui'),
+            ];
+        }
+
         $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();
 
         return new JsonResponse($config);

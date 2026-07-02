@@ -141,6 +141,13 @@ class InfoControllerTest extends TestCase
             unset($expected['adminWorker']['enableQueueStatsWorker']);
         }
 
+        if (Feature::isActive('ADMIN_AUTH')) {
+            $expected['settings']['adminAuth'] = [
+                'managedByConfig' => false,
+                'adminUiDisabled' => false,
+            ];
+        }
+
         $url = '/api/_info/config';
         $client = $this->getBrowser();
         $client->request(Request::METHOD_GET, $url);

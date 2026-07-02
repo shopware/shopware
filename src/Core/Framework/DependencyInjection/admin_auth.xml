@@ -28,6 +28,79 @@
             <argument>%kernel.secret%</argument>
         </service>
 
+        <!-- Provider configuration: YAML providers take precedence over admin-UI-managed DB providers -->
+        <service id="Shopware\Core\Framework\AdminAuth\Provider\ConfigProviderLoader">
+            <argument>%shopware.admin_auth.providers%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Provider\DalProviderLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\SecretEncryptor"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry">
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Provider\ConfigProviderLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Provider\DalProviderLoader"/>
+            <argument>%shopware.admin_auth.admin_ui%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Provider\ProviderWriteValidator">
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- Encrypts provider client secrets at rest and strips them from Admin API reads -->
+        <service id="Shopware\Core\Framework\AdminAuth\Subscriber\ProviderSecretSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\SecretEncryptor"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- OIDC authorization code flow -->
+        <service id="Shopware\Core\Framework\AdminAuth\Oidc\OidcDiscoveryService">
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Oidc\OidcClient">
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcDiscoveryService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Oidc\IdTokenValidator">
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcClient"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcDiscoveryService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Oidc\OAuthIdentityMatcher">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="admin_auth_oauth_identity.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Oidc\StateService">
+            <argument>%kernel.secret%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Controller\AdminAuthController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\MethodSettingsService"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcClient"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcDiscoveryService"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\StateService"/>
+            <argument type="service" id="shopware.api.authorization_server"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <!-- MFA policy + challenge store + rate limiter -->
         <service id="Shopware\Core\Framework\AdminAuth\Mfa\MfaPolicyService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -46,6 +119,15 @@
         </service>
 
         <!-- Primary factor verifiers -->
+        <service id="Shopware\Core\Framework\AdminAuth\OAuth\Verifier\OidcVerifier">
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OidcClient"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\IdTokenValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Oidc\OAuthIdentityMatcher"/>
+            <argument type="service" id="router"/>
+            <tag name="shopware.admin_auth.primary_verifier"/>
+        </service>
+
         <service id="Shopware\Core\Framework\AdminAuth\OAuth\Verifier\PasswordVerifier">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\AdminAuth\MethodSettingsService"/>

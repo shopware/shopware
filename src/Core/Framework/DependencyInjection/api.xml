@@ -313,6 +313,7 @@
             <argument type="service" id="user_access_key.repository"/>
             <argument type="service" id="Shopware\Core\System\User\UserDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+            <argument>%shopware.admin_auth.password_login%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

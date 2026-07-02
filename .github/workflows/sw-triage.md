@@ -26,11 +26,7 @@ if: >-
   (
     github.event_name == 'issue_comment' &&
     github.event.issue.pull_request == null &&
-    (
-      startsWith(github.event.comment.body, '/sw-triage ') ||
-      startsWith(github.event.comment.body, '/sw-triage\n') ||
-      github.event.comment.body == '/sw-triage'
-    )
+    startsWith(github.event.comment.body, '/sw-triage')
   ) ||
   (
     github.event_name == 'issues' &&

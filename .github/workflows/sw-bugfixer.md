@@ -47,27 +47,15 @@ if: >
   (
     github.event_name == 'issue_comment' &&
     github.event.issue.pull_request != null &&
-    (
-      startsWith(github.event.comment.body, '/sw-bugfixer ') ||
-      startsWith(github.event.comment.body, '/sw-bugfixer\n') ||
-      github.event.comment.body == '/sw-bugfixer'
-    )
+    startsWith(github.event.comment.body, '/sw-bugfixer')
   ) ||
   (
     github.event_name == 'pull_request_review_comment' &&
-    (
-      startsWith(github.event.comment.body, '/sw-bugfixer ') ||
-      startsWith(github.event.comment.body, '/sw-bugfixer\n') ||
-      github.event.comment.body == '/sw-bugfixer'
-    )
+    startsWith(github.event.comment.body, '/sw-bugfixer')
   ) ||
   (
     github.event_name == 'pull_request' &&
-    (
-      startsWith(github.event.pull_request.body, '/sw-bugfixer ') ||
-      startsWith(github.event.pull_request.body, '/sw-bugfixer\n') ||
-      github.event.pull_request.body == '/sw-bugfixer'
-    )
+    startsWith(github.event.pull_request.body, '/sw-bugfixer')
   )
 
 run-name: "Shopware Bugfixer #${{ github.event.issue.number || github.event.pull_request.number || github.event.inputs.issue_number || github.event.inputs.pr_number }}"

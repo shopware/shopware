@@ -34,19 +34,11 @@ if: >-
   (
     github.event_name == 'issue_comment' &&
     github.event.issue.pull_request != null &&
-    (
-      startsWith(github.event.comment.body, '/sw-review ') ||
-      startsWith(github.event.comment.body, '/sw-review\n') ||
-      github.event.comment.body == '/sw-review'
-    )
+    startsWith(github.event.comment.body, '/sw-review')
   ) ||
   (
     github.event_name == 'pull_request_review_comment' &&
-    (
-      startsWith(github.event.comment.body, '/sw-review ') ||
-      startsWith(github.event.comment.body, '/sw-review\n') ||
-      github.event.comment.body == '/sw-review'
-    )
+    startsWith(github.event.comment.body, '/sw-review')
   )
 
 run-name: "Shopware PR Review #${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}"

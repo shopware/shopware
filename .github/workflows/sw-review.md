@@ -11,7 +11,10 @@ on:
         type: number
   slash_command:
     name: sw-review
-    events: [pull_request, pull_request_comment, pull_request_review_comment]
+    # No `pull_request` event: /sw-review in a PR body is intentionally unsupported —
+    # the `if:` below never matched it, and listening on it fired a skipped run for
+    # every PR open/edit in the repo. Use the label or a PR comment instead.
+    events: [pull_request_comment, pull_request_review_comment]
   label_command:
     name: qi/sw-review
     events: [pull_request]

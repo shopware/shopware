@@ -14,6 +14,7 @@
     {% block sw_category_detail_seo_list %}
     <sw-seo-url
         v-if="category.seoUrls"
+        entity="category"
         :is-loading="isLoading"
         :has-default-template="false"
         :disabled="!acl.can('category.editor')"

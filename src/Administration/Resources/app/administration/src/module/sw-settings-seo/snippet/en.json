@@ -30,7 +30,10 @@
     "routeNames": {
       "frontend-detail-page": "Product detail page",
       "frontend-navigation-page": "Category page",
-      "frontend-landing-page": "Landing page"
+      "frontend-landing-page": "Landing page",
+      "store-api-product-detail": "Product detail page",
+      "store-api-category-detail": "Category page",
+      "store-api-landing-page-detail": "Landing page"
     }
   },
   "sw-seo-url": {
@@ -38,7 +41,7 @@
     "labelSalesChannelSelect": "Sales Channel",
     "labelSeoPathInfo": "SEO path",
     "textEmptySeoUrls": "There are no SEO URLs yet.",
-    "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to a headless Sales Channel.",
+    "textSeoUrlsNotSupported": "SEO URLs cannot be assigned to this type of Sales Channel.",
     "errorInvalidCharacters": "The SEO path contains characters that are not allowed in URLs (for example #, \\ or a stray %).",
     "labelMainCategory": "Main category",
     "placeholderMainCategory": "Choose a main category..."

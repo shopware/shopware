@@ -22,7 +22,7 @@
     {% endblock %}
 
     {% block sw_seo_url_template_card_entries %}
-    <template v-if="!isLoading">
+    <template v-if="!isLoading && salesChannelSupportsSeoUrlTemplates">
         <div
             v-for="(seoUrlTemplate, index) in getTemplatesForSalesChannel(salesChannelId)"
             :key="index"
@@ -136,6 +136,9 @@
             {% endblock %}
         </div>
     </template>
+    <div v-if="!isLoading && !salesChannelSupportsSeoUrlTemplates">
+        {{ $t('sw-seo-url.textSeoUrlsNotSupported') }}
+    </div>
     {% endblock %}
 </mt-card>
 {% endblock %}

@@ -5,24 +5,17 @@
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
 
-/**
- * Maps the storefront SEO URL routes to their store-api counterparts used for headless sales channels.
- * Headless sales channels generate SEO URLs via the store-api routes instead of the storefront routes,
- * so they get their own template entities (without inherited default values).
- */
-const HEADLESS_SEO_URL_ROUTES = [
-    { storefrontRouteName: 'frontend.detail.page', routeName: 'store-api.product.detail', entityName: 'product' },
-    { storefrontRouteName: 'frontend.navigation.page', routeName: 'store-api.category.detail', entityName: 'category' },
-    { storefrontRouteName: 'frontend.landing.page', routeName: 'store-api.landing-page.detail', entityName: 'landing_page' },
-];
-
 const INVALID_HEADLESS_TEMPLATE_ERROR_CODE = 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE';
+
+// Store-api SEO URL routes are identified by their route name prefix. Headless sales channels generate
+// SEO URLs via these routes instead of the storefront routes, so they get their own template entities.
+const STORE_API_ROUTE_PREFIX = 'store-api.';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -30,6 +23,7 @@ export default {
 
     inject: [
         'seoUrlTemplateService',
+        'seoUrlService',
         'repositoryFactory',
     ],
 
@@ -53,6 +47,7 @@ export default {
             salesChannelId: null,
             salesChannels: [],
             selectedProperty: null,
+            headlessSeoUrlRoutes: [],
         };
     },
 
@@ -75,6 +70,23 @@ export default {
             // from Defaults.php
             return currentSalesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
         },
+
+        salesChannelSupportsSeoUrlTemplates() {
+            const currentSalesChannel = this.salesChannels.find((entity) => {
+                return entity.id === this.salesChannelId;
+            });
+
+            if (!currentSalesChannel) {
+                return true;
+            }
+
+            // Product comparison and agentic commerce sales channels do not serve SEO URLs, so maintaining
+            // templates for them has no effect and is not offered.
+            return ![
+                Defaults.productComparisonTypeId,
+                Defaults.agenticCommerceTypeId,
+            ].includes(currentSalesChannel.typeId);
+        },
     },
 
     created() {
@@ -84,13 +96,6 @@ export default {
     methods: {
         createdComponent() {
             this.seoUrlTemplateRepository = this.repositoryFactory.create('seo_url_template');
-            this.seoUrlTemplates = new EntityCollection(
-                this.seoUrlTemplateRepository.route,
-                this.seoUrlTemplateRepository.schema.entity,
-                Shopware.Context.api,
-                new Criteria(1, 25),
-            );
-
             this.defaultSeoUrlTemplates = new EntityCollection(
                 this.seoUrlTemplateRepository.route,
                 this.seoUrlTemplateRepository.schema.entity,
@@ -103,10 +108,23 @@ export default {
             );
 
             this.fetchSalesChannels();
+            this.fetchHeadlessSeoUrlRoutes();
             this.fetchSeoUrlTemplates();
+        },
+        fetchHeadlessSeoUrlRoutes() {
+            return this.seoUrlService.getStoreApiConfigs().then((configs) => {
+                this.headlessSeoUrlRoutes = configs;
+            });
         },
         fetchSeoUrlTemplates(salesChannelId = null) {
             const criteria = new Criteria(1, 25);
+
+            this.seoUrlTemplates = new EntityCollection(
+                this.seoUrlTemplateRepository.route,
+                this.seoUrlTemplateRepository.schema.entity,
+                Shopware.Context.api,
+                criteria,
+            );
 
             if (!salesChannelId) {
                 salesChannelId = null;
@@ -129,8 +147,6 @@ export default {
                             this.defaultSeoUrlTemplates.add(entity);
                         }
                     });
-                } else if (this.salesChannelIsHeadless) {
-                    this.createHeadlessSeoUrlTemplates(salesChannelId);
                 } else {
                     this.createSeoUrlTemplatesFromDefaultRoutes(salesChannelId);
                 }
@@ -153,42 +169,58 @@ export default {
             // Iterate over the default seo url templates and create new entities for the actual sales channel
             // if they do not exist
             this.defaultSeoUrlTemplates.forEach((defaultEntity) => {
+                let routeName = defaultEntity.routeName;
+                if (this.salesChannelIsHeadless) {
+                    routeName =
+                        this.headlessSeoUrlRoutes.find((config) => defaultEntity.entityName === config.entityName)
+                            ?.routeName ?? defaultEntity.routeName;
+                }
+
                 const entityAlreadyExists = this.seoUrlTemplates.some((entity) => {
-                    return entity.routeName === defaultEntity.routeName && entity.salesChannelId === salesChannelId;
+                    return entity.routeName === routeName && entity.salesChannelId === salesChannelId;
                 });
 
                 if (!entityAlreadyExists) {
                     const entity = this.seoUrlTemplateRepository.create();
-                    entity.routeName = defaultEntity.routeName;
+                    entity.routeName = routeName;
                     entity.salesChannelId = salesChannelId;
                     entity.entityName = defaultEntity.entityName;
                     entity.template = null;
                     this.seoUrlTemplates.add(entity);
                 }
             });
+
+            // Keep the field order aligned with the default templates, matched by entity name.
+            const entityNameOrder = this.defaultSeoUrlTemplates.map((defaultEntity) => defaultEntity.entityName);
+            this.seoUrlTemplates.sort(
+                (a, b) => entityNameOrder.indexOf(a.entityName) - entityNameOrder.indexOf(b.entityName),
+            );
+
+            if (!this.salesChannelIsHeadless) {
+                return;
+            }
+
+            this.headlessSeoUrlRoutes
+                .filter(
+                    (config) =>
+                        !this.seoUrlTemplates.some(
+                            (entity) => entity.routeName === config.routeName && entity.salesChannelId === salesChannelId,
+                        ),
+                )
+                .map((config) => this.getHeadlessSeoUrlTemplate(config.entityName, config.routeName, salesChannelId))
+                .forEach((template) => this.seoUrlTemplates.add(template));
         },
-        createHeadlessSeoUrlTemplates(salesChannelId) {
-            // Headless sales channels do not inherit the storefront defaults. Create an empty template entity
-            // per store-api route so the user can configure them without any default value.
-            HEADLESS_SEO_URL_ROUTES.forEach((route) => {
-                const entityAlreadyExists = this.seoUrlTemplates.some((entity) => {
-                    return entity.routeName === route.routeName && entity.salesChannelId === salesChannelId;
-                });
+        getHeadlessSeoUrlTemplate(entityName, routeName, salesChannelId) {
+            const entity = this.seoUrlTemplateRepository.create();
+            entity.routeName = routeName;
+            entity.salesChannelId = salesChannelId;
+            entity.entityName = entityName;
+            entity.template = null;
 
-                if (entityAlreadyExists) {
-                    return;
-                }
-
-                const entity = this.seoUrlTemplateRepository.create();
-                entity.routeName = route.routeName;
-                entity.salesChannelId = salesChannelId;
-                entity.entityName = route.entityName;
-                entity.template = null;
-                this.seoUrlTemplates.add(entity);
-            });
+            return entity;
         },
         isHeadlessRoute(routeName) {
-            return HEADLESS_SEO_URL_ROUTES.some((route) => route.routeName === routeName);
+            return typeof routeName === 'string' && routeName.startsWith(STORE_API_ROUTE_PREFIX);
         },
         createVariableOptions(id, data) {
             const storeOptions = [];
@@ -219,11 +251,7 @@ export default {
             return false;
         },
         getLabel(seoUrlTemplate) {
-            // Headless store-api routes reuse the existing storefront route labels (they describe the same entity).
-            const headlessRoute = HEADLESS_SEO_URL_ROUTES.find((route) => route.routeName === seoUrlTemplate.routeName);
-            const labelRouteName = headlessRoute ? headlessRoute.storefrontRouteName : seoUrlTemplate.routeName;
-
-            const routeName = labelRouteName.replace(/\./g, '-');
+            const routeName = seoUrlTemplate.routeName.replace(/\./g, '-');
             if (this.$t(`sw-seo-url-template-card.routeNames.${routeName}`)) {
                 return this.$t(`sw-seo-url-template-card.routeNames.${routeName}`);
             }
@@ -252,9 +280,6 @@ export default {
                 return;
             }
 
-            // Only persist templates that have a value; the empty blueprint entries are not stored.
-            // Filter into a new collection instead of removing while iterating (removing during forEach
-            // shifts the indices and would skip entries, persisting blank rows).
             const templatesToSync = this.seoUrlTemplates.filter((entry) => entry.template !== null);
 
             this.seoUrlTemplateRepository
@@ -367,23 +392,8 @@ export default {
             this.fetchSeoUrlTemplates(salesChannelId);
         },
         getTemplatesForSalesChannel(salesChannelId) {
-            const templates = [];
-            this.seoUrlTemplates.forEach((templateEntity) => {
-                if (templateEntity.salesChannelId === salesChannelId) {
-                    templates.push(templateEntity);
-                }
-            });
-
-            // Keep a stable field order regardless of the order entities are loaded from / created after saving.
-            const orderedRouteNames = [];
-            if (this.salesChannelIsHeadless) {
-                HEADLESS_SEO_URL_ROUTES.forEach((route) => orderedRouteNames.push(route.routeName));
-            } else {
-                this.defaultSeoUrlTemplates.forEach((entity) => orderedRouteNames.push(entity.routeName));
-            }
-
-            return templates.sort((a, b) => {
-                return orderedRouteNames.indexOf(a.routeName) - orderedRouteNames.indexOf(b.routeName);
+            return this.seoUrlTemplates.filter((templateEntity) => {
+                return templateEntity.salesChannelId === salesChannelId;
             });
         },
     },

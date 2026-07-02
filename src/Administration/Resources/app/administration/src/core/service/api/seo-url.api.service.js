@@ -30,6 +30,23 @@ class SeoUrlApiService extends ApiService {
             });
     }
 
+    /**
+     * Loads the store-api SEO URL route configs used by headless sales channels. When a foreign key `id`
+     * is provided, each config also contains its generated base `pathInfo`.
+     */
+    getStoreApiConfigs(id = null, additionalParams = {}, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/store-api-configs`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                params: { ...(id ? { id } : {}), ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     createCustomUrl(routeName, urls, additionalParams = {}, additionalHeaders = {}) {
         const apiRoute = `/_action/${this.getApiBasePath()}/create-custom-url`;
 

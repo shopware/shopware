@@ -22,6 +22,7 @@
     {% block sw_product_detail_seo_urls %}
     <sw-seo-url
         v-if="product.seoUrls"
+        entity="product"
         :has-default-template="false"
         :disabled="!acl.can('product.editor')"
         :urls="product.seoUrls"

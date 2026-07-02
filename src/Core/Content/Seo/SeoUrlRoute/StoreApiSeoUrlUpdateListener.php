@@ -14,15 +14,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Updates the store-api SEO URLs (used by headless sales channels) when the product, category and landing page
- * entities are indexed. It mirrors the storefront SeoUrlUpdateListener but for the store-api routes and lives in
- * the Core, so it also runs in installations without the Storefront bundle.
+ * entities are indexed.
  *
  * @internal
  */
 #[Package('inventory')]
 class StoreApiSeoUrlUpdateListener implements EventSubscriberInterface
 {
-    // Mirror the skip flags of the storefront SeoUrlUpdateListener so `dal:refresh:index --skip` covers both listeners.
     private const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
     private const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
     private const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';

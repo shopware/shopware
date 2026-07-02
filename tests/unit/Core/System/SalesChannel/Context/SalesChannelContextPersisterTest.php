@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Defaults;
@@ -28,21 +28,21 @@ class SalesChannelContextPersisterTest extends TestCase
 {
     private SalesChannelContextPersister $contextPersister;
 
-    private MockObject&Result $statement;
+    private Stub&Result $statement;
 
     protected function setUp(): void
     {
-        $this->statement = $this->createMock(Result::class);
+        $this->statement = static::createStub(Result::class);
 
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('executeQuery')->willReturn($this->statement);
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
         $this->contextPersister = new SalesChannelContextPersister(
             $connection,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(CartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(CartPersister::class),
             new NativeClock(),
             'P1D', // 1 day expiration is the default value
         );

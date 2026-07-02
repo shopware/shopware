@@ -2,18 +2,13 @@
  * @sw-package framework
  */
 
-import {
-    expectVueCompilerScriptToCompile,
-    stripIndent,
-    transformOrFail,
-    transformShopwareSetupSfc,
-} from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform base props macros', () => {
     it('keeps base defineProps() outside the extendable setup callback and passes props into the bridge', () => {
         const source = stripIndent`
             <template><div>{{ count }}</div></template>
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             import { ref } from 'vue';
 
             const props = defineProps<{
@@ -27,7 +22,7 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-props.vue').code;
+        const result = transformOrFail(source, 'sw-my-component.vue').code;
 
         expect(result).toContain(`const props = defineProps<{
     initialCount?: number;
@@ -45,7 +40,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('keeps local prop type declarations available for hoisted defineProps()', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             interface Props {
                 initialCount?: number;
             }
@@ -62,15 +57,13 @@ describe('build/vue-setup-transform base props macros', () => {
         const result = transformOrFail(source, 'base-props-local-type.vue').code;
 
         expect(result.indexOf('interface Props')).toBeLessThan(result.indexOf('const props = defineProps<Props>()'));
-        expect(result.indexOf('interface Props')).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
+        expect(result.indexOf('interface Props')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expectVueCompilerScriptToCompile(result, 'base-props-local-type.vue');
     });
 
     it('rejects local setup bindings in hoisted defineProps() arguments', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const defaultCount = 1;
             const props = defineProps({
                 initialCount: {
@@ -92,7 +85,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('allows macro-local function parameters to shadow setup bindings', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const defaultCount = 1;
             const props = defineProps({
                 initialCount: {
@@ -115,7 +108,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('replaces defineProps() destructuring inside the extendable setup callback', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const { initialCount = 0 } = defineProps();
             const count = initialCount;
 
@@ -135,7 +128,7 @@ describe('build/vue-setup-transform base props macros', () => {
     it('returns destructured defineProps() bindings for template access', () => {
         const source = stripIndent`
             <template><p>{{ initialCount }}</p></template>
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const { initialCount = 0 } = defineProps();
             const count = 1;
 
@@ -153,7 +146,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('keeps bare defineProps() outside the callback when the generated props binding name is taken', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineProps();
 
             function props() {
@@ -168,7 +161,7 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-bare-props-collision.vue').code;
+        const result = transformOrFail(source, 'sw-my-component.vue').code;
 
         expect(result).toContain('const props2 = defineProps();');
         expect(result).toContain('Shopware.Component.createExtendableSetup(');
@@ -181,7 +174,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('keeps base withDefaults(defineProps()) outside the extendable setup callback', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const props = withDefaults(defineProps<{
                 initialCount?: number;
                 labels?: string[];
@@ -197,7 +190,7 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-props-with-defaults.vue').code;
+        const result = transformOrFail(source, 'sw-my-component.vue').code;
 
         expect(result).toContain(`const props = withDefaults(defineProps<{
     initialCount?: number;
@@ -217,7 +210,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('rejects local setup bindings in hoisted withDefaults() arguments', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const defaultLabel = 'fallback';
             const props = withDefaults(defineProps<{
                 label?: string;
@@ -239,7 +232,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('replaces withDefaults() destructuring inside the extendable setup callback', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const { initialCount } = withDefaults(defineProps<{
                 initialCount?: number;
             }>(), {
@@ -269,7 +262,7 @@ describe('build/vue-setup-transform base props macros', () => {
     it('returns destructured withDefaults() bindings for template access', () => {
         const source = stripIndent`
             <template><p>{{ initialCount }}</p></template>
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const { initialCount } = withDefaults(defineProps<{
                 initialCount?: number;
             }>(), {
@@ -291,7 +284,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('supports defineProps() wrapped in a TypeScript as expression', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const props = defineProps<{ initialCount?: number }>() as { initialCount?: number };
             const count = props.initialCount ?? 0;
 
@@ -301,21 +294,19 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-props-as.vue').code;
+        const result = transformOrFail(source, 'sw-my-component.vue').code;
 
         expect(result).toContain('const props = defineProps<{ initialCount?: number }>();');
         expect(result).toContain('Shopware.Component.createExtendableSetup(');
         expect(result).toContain("name: 'sw-my-component'");
         expect(result).toContain('props: props,');
-        expect(result).toContain(
-            'const props = (__shopwareProps) as { initialCount?: number };',
-        );
+        expect(result).toContain('const props = (__shopwareProps) as { initialCount?: number };');
         expect(result.match(/defineProps/g)).toHaveLength(1);
     });
 
     it('supports withDefaults() wrapped in a TypeScript satisfies expression', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const props = withDefaults(defineProps<{
                 initialCount?: number;
             }>(), {
@@ -336,16 +327,14 @@ describe('build/vue-setup-transform base props macros', () => {
 }>(), {
     initialCount: 3,
 });`);
-        expect(result).toContain(
-            'const props = (__shopwareProps) satisfies { initialCount: number };',
-        );
+        expect(result).toContain('const props = (__shopwareProps) satisfies { initialCount: number };');
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
 
     it('rejects multiple base props macro declarations', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             const props = defineProps<{ count?: number }>();
             const propsWithDefaults = withDefaults(defineProps<{ label?: string }>(), {
                 label: 'fallback',
@@ -365,7 +354,7 @@ describe('build/vue-setup-transform base props macros', () => {
 
     it('ignores nested props macros like Vue compiler-sfc does', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             function readProps() {
                 return defineProps<{ initialCount?: number }>();
             }

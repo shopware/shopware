@@ -2,28 +2,23 @@
  * @sw-package framework
  */
 
-import {
-    fromSource,
-    generated,
-    trim,
-    type SourceChunk,
-} from './chunks';
+import { fromSource, generated, trim, type SourceChunk } from './chunks';
 
 type SourceBlock = {
-    contentStart: number,
+    contentStart: number;
 };
 
 type SourceAnalysis = {
-    source: string,
+    source: string;
 };
 
 type SourceRange = {
-    start: number,
-    end: number,
+    start: number;
+    end: number;
 };
 
 type SourceReplacement = SourceRange & {
-    replacement: string,
+    replacement: string;
 };
 
 /**
@@ -79,6 +74,4 @@ module.exports = {
     transformRanges,
 };
 
-export {
-    transformRanges,
-};
+export { transformRanges };

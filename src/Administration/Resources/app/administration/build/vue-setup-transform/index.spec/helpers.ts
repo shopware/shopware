@@ -32,7 +32,9 @@ function stripIndent(strings: TemplateStringsArray, ...values: string[]): string
         lines.pop();
     }
 
-    const indentation = lines.filter((line: string) => line.trim() !== '').map((line: string) => line.match(/^\s*/)?.[0].length ?? 0);
+    const indentation = lines
+        .filter((line: string) => line.trim() !== '')
+        .map((line: string) => line.match(/^\s*/)?.[0].length ?? 0);
     const minIndentation = Math.min(...indentation);
 
     return lines.map((line: string) => line.slice(minIndentation)).join('\n');
@@ -44,11 +46,6 @@ function expectVueCompilerScriptToCompile(code: string, filename: string): void 
     expect(() => compileScript(descriptor, { id: filename })).not.toThrow();
 }
 
-export {
-    expectVueCompilerScriptToCompile,
-    stripIndent,
-    transformOrFail,
-    transformShopwareSetupSfc,
-};
+export { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc };
 
 export {};

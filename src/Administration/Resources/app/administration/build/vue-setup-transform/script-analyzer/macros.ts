@@ -2,28 +2,19 @@
  * @sw-package framework
  */
 
-import type {
-    CallExpression,
-    ExpressionStatement,
-    Node as BabelNode,
-    ObjectExpression,
-    Statement,
-} from '@babel/types';
+import type { CallExpression, ExpressionStatement, Node as BabelNode, ObjectExpression, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import {
-    getNodeRange,
-    unwrapTransparentMacroExpression,
-} from './utils';
+import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 
 type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
 type ShopwareSetupEntryType = 'public' | 'override';
 type StatementMacroCall = ExpressionStatement & { expression: CallExpression };
 type SetupMacroBuckets = {
-    definePropsCalls: CallExpression[],
-    defineEmitsCalls: CallExpression[],
-    defineSlotsCalls: CallExpression[],
-    withDefaultsCalls: CallExpression[],
-    topLevelUnsupportedMacroCalls: Set<CallExpression>,
+    definePropsCalls: CallExpression[];
+    defineEmitsCalls: CallExpression[];
+    defineSlotsCalls: CallExpression[];
+    withDefaultsCalls: CallExpression[];
+    topLevelUnsupportedMacroCalls: Set<CallExpression>;
 };
 
 const UNSUPPORTED_VUE_MACROS = new Set([
@@ -143,11 +134,7 @@ function getStatementCompilerMacroCall(statement: Statement, macroName: string):
 
     const call = unwrapTransparentMacroExpression(statement.expression);
 
-    if (
-        call?.type === 'CallExpression' &&
-        call.callee.type === 'Identifier' &&
-        call.callee.name === macroName
-    ) {
+    if (call?.type === 'CallExpression' && call.callee.type === 'Identifier' && call.callee.name === macroName) {
         return call;
     }
 

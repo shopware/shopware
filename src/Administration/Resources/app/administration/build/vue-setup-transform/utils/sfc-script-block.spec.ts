@@ -11,7 +11,7 @@ describe('build/vue-setup-transform/utils/sfc-script-block', () => {
             '<template>',
             '    <div data-example="<script setup>"></div>',
             '</template>',
-            '<script setup lang="ts" sw-component="sw-example" generic="T">',
+            '<script setup lang="ts" generic="T">',
             'const count = 1;',
             '</script>',
         ].join('\n');
@@ -28,6 +28,6 @@ describe('build/vue-setup-transform/utils/sfc-script-block', () => {
 
         expect(block.start).toBe(expectedScriptStart);
         expect(block.content).toBe('\nconst count = 1;\n');
-        expect(block.passthroughAttributesSource).toBe(' setup lang="ts" generic="T"');
+        expect(block.generatedPassthroughAttributesSource).toBe(' setup lang="ts" generic="T"');
     });
 });

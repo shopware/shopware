@@ -19,6 +19,4 @@ module.exports = {
     ShopwareSetupTransformError,
 };
 
-export {
-    ShopwareSetupTransformError,
-};
+export { ShopwareSetupTransformError };

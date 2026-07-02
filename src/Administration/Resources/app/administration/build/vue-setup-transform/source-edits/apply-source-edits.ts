@@ -2,25 +2,18 @@
  * @sw-package framework
  */
 
-import {
-    generated,
-    type FlatSourceChunk,
-    type SourceChunk,
-} from './chunks';
-import {
-    render,
-    toFlatChunks,
-} from './render-chunks';
+import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
+import { render, toFlatChunks } from './render-chunks';
 
 type SourceEdit = {
-    start: number,
-    end: number,
-    replacement: string | SourceChunk[],
+    start: number;
+    end: number;
+    replacement: string | SourceChunk[];
 };
 
 type AppliedSourceEdits = {
-    code: string,
-    map: null,
+    code: string;
+    map: null;
 };
 
 /**
@@ -36,11 +29,7 @@ function normalizeReplacement(replacement: string | SourceChunk[]): SourceChunk[
  * Sourcemap support is intentionally added by the dedicated sourcemap PR. Until
  * then the transform has the same behavior as a normal string replacement step.
  */
-function applySourceEdits(
-    source: string,
-    _filename: string,
-    edits: SourceEdit[],
-): AppliedSourceEdits {
+function applySourceEdits(source: string, _filename: string, edits: SourceEdit[]): AppliedSourceEdits {
     let cursor = 0;
     const chunks: FlatSourceChunk[] = [];
 
@@ -77,8 +66,4 @@ module.exports = {
     applySourceEdits,
 };
 
-export {
-    type AppliedSourceEdits,
-    type SourceEdit,
-    applySourceEdits,
-};
+export { type AppliedSourceEdits, type SourceEdit, applySourceEdits };

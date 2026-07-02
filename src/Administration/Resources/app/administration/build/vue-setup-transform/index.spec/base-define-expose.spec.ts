@@ -7,7 +7,7 @@ import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpe
 describe('build/vue-setup-transform base defineExpose macro', () => {
     it('replaces defineExpose() with setup context expose inside the extendable setup callback', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             function focus() {
                 return 'focused';
             }
@@ -35,7 +35,7 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
     it('supports bare defineExpose() calls', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             defineExpose();
 
             const count = 1;
@@ -54,7 +54,7 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
     it('supports defineExpose() wrapped in a TypeScript as expression', () => {
         const source = stripIndent`
-            <script setup lang="ts" sw-component="sw-my-component">
+            <script setup lang="ts">
             function focus() {
                 return 'focused';
             }
@@ -81,7 +81,7 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
     it('rejects duplicate declarations', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const count = 1;
             defineExpose({ count });
             defineExpose({});

@@ -2,24 +2,41 @@
  * @sw-package framework
  */
 
-import { AttributeParser } from './attribute-parser';
-import { normalizeShopwareSetupBlock } from './shopware-setup-block';
+import { inferShopwareSetupFromFilename, normalizeShopwareSetupBlock } from './shopware-setup-block';
 import type { ScriptBlock } from './sfc-script-block';
 
 describe('build/vue-setup-transform/utils/shopware-setup-block', () => {
-    it('returns null for plain script setup blocks without Shopware mode attributes', () => {
-        const block = createScriptBlock(' setup lang="ts"');
-        const result = normalizeShopwareSetupBlock(block);
-
-        expect(result).toBeNull();
+    it.each([
+        [
+            'src/module/sw-example.vue',
+            { mode: 'base', componentName: 'sw-example' },
+        ],
+        [
+            'src/module/sw-example.override.vue',
+            { mode: 'override', componentName: 'sw-example' },
+        ],
+        [
+            'src/module/sw-example/index.vue',
+            { mode: 'base', componentName: 'sw-example' },
+        ],
+        [
+            'src\\module\\sw-example\\index.override.vue',
+            { mode: 'override', componentName: 'sw-example' },
+        ],
+        [
+            'src/module/sw-example.vue?vue&type=script&setup=true',
+            { mode: 'base', componentName: 'sw-example' },
+        ],
+    ])('infers Shopware setup mode and component name from %s', (filename, expected) => {
+        expect(inferShopwareSetupFromFilename(filename)).toEqual(expected);
     });
 
-    it('normalizes base and override mode blocks with supported script languages', () => {
-        const baseBlock = createScriptBlock(' setup lang="tsx" sw-component="sw-example"');
-        const overrideBlock = createScriptBlock(' setup sw-override="sw-example"');
+    it('normalizes script setup blocks with filename-inferred metadata', () => {
+        const baseBlock = createScriptBlock('tsx');
+        const overrideBlock = createScriptBlock(null);
 
-        const base = normalizeShopwareSetupBlock(baseBlock);
-        const override = normalizeShopwareSetupBlock(overrideBlock);
+        const base = normalizeShopwareSetupBlock(baseBlock, 'sw-example.vue');
+        const override = normalizeShopwareSetupBlock(overrideBlock, 'sw-example.override.vue');
 
         expect(base).toMatchObject({
             mode: 'base',
@@ -32,54 +49,16 @@ describe('build/vue-setup-transform/utils/shopware-setup-block', () => {
             lang: null,
         });
     });
-
-    it('rejects bound, empty, unquoted, and conflicting mode attributes', () => {
-        const normalizeBoundMode = () =>
-            normalizeShopwareSetupBlock(createScriptBlock(' setup :sw-component="componentName"'));
-        const normalizeEmptyMode = () => normalizeShopwareSetupBlock(createScriptBlock(' setup sw-component=""'));
-        const normalizeUnquotedMode = () =>
-            normalizeShopwareSetupBlock(createScriptBlock(' setup sw-component=sw-example'));
-        const normalizeConflictingMode = () =>
-            normalizeShopwareSetupBlock(
-                createScriptBlock(' setup sw-component="sw-example" sw-override="sw-example"'),
-            );
-
-        expect(normalizeBoundMode).toThrow(
-            'Shopware setup mode attributes must be static strings, not bound expressions.',
-        );
-        expect(normalizeEmptyMode).toThrow(
-            'The sw-component attribute must not be empty.',
-        );
-        expect(normalizeUnquotedMode).toThrow(
-            'The sw-component attribute must use a static quoted string value.',
-        );
-        expect(normalizeConflictingMode).toThrow('Use either sw-component or sw-override on a Shopware setup block, not both.');
-    });
-
-    it('rejects unsupported or non-static lang attributes', () => {
-        const normalizeUnsupportedLanguage = () =>
-            normalizeShopwareSetupBlock(createScriptBlock(' setup lang="coffee" sw-component="sw-example"'));
-        const normalizeUnquotedLanguage = () =>
-            normalizeShopwareSetupBlock(createScriptBlock(' setup lang=ts sw-component="sw-example"'));
-
-        expect(normalizeUnsupportedLanguage).toThrow(
-            'Unsupported Shopware setup script language "coffee". Supported languages are js, jsx, ts, and tsx.',
-        );
-        expect(normalizeUnquotedLanguage).toThrow(
-            'The lang attribute on a Shopware setup block must be a static quoted value.',
-        );
-    });
 });
 
-function createScriptBlock(attrsSource: string): ScriptBlock {
+function createScriptBlock(lang: string | null): ScriptBlock {
     return {
         type: 'scriptSetup',
         start: 0,
-        end: attrsSource.length + '<script></script>'.length,
-        contentStart: attrsSource.length + '<script'.length + 1,
+        end: '<script setup></script>'.length,
+        contentStart: '<script setup>'.length,
         content: '',
-        attributes: AttributeParser.parse(attrsSource, '<script'.length),
-        passthroughAttributesSource: '',
         generatedPassthroughAttributesSource: '',
+        lang,
     };
 }

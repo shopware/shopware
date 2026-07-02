@@ -2,13 +2,7 @@
  * @sw-package framework
  */
 
-import type {
-    CallExpression,
-    Identifier,
-    ImportDeclaration,
-    Node as BabelNode,
-    Statement,
-} from '@babel/types';
+import type { CallExpression, Identifier, ImportDeclaration, Node as BabelNode, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
 import {
@@ -23,17 +17,8 @@ import {
     WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
     WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
 } from './script-analyzer/macros';
-import {
-    type SourceRange,
-    getNodeRange,
-    parseScript,
-    walk,
-} from './script-analyzer/utils';
-import {
-    type RuntimeBinding,
-    collectImportBindings,
-    collectRuntimeBinding,
-} from './script-analyzer/runtime-bindings';
+import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
+import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
 import {
     assertNoUnsupportedSyntax,
     assertReservedMacroNames,
@@ -50,33 +35,33 @@ import {
 type ImportBlock = SourceRange & { code: string };
 type TypeDeclarationBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
-    mode: ShopwareSetupMode,
-    lang: string | null,
-    scriptOffset: number,
+    mode: ShopwareSetupMode;
+    lang: string | null;
+    scriptOffset: number;
 };
 
 type StatementWithCall = {
-    statement: Statement,
-    call: CallExpression,
+    statement: Statement;
+    call: CallExpression;
 };
 
 type ShopwareSetupScriptAnalysis = {
-    source: string,
-    imports: ImportBlock[],
-    typeDeclarations: TypeDeclarationBlock[],
-    bodyRemovals: SourceRange[],
-    setupInputReplacements: SetupInputReplacement[],
-    runtimeBindings: RuntimeBinding[],
-    runtimeBindingNames: Set<string>,
-    importedBindings: Set<string>,
-    publicEntries: string[],
-    overrideEntries: string[],
-    propsMacro: SetupMacroSummary | null,
-    emitsMacro: SetupMacroSummary | null,
-    slotsMacro: SetupMacroSummary | null,
-    optionsMacro: SetupMacroSummary | null,
-    overridePrivateBindings: Set<string>,
-    overridePrivateNamespace: string | null,
+    source: string;
+    imports: ImportBlock[];
+    typeDeclarations: TypeDeclarationBlock[];
+    bodyRemovals: SourceRange[];
+    setupInputReplacements: SetupInputReplacement[];
+    runtimeBindings: RuntimeBinding[];
+    runtimeBindingNames: Set<string>;
+    importedBindings: Set<string>;
+    publicEntries: string[];
+    overrideEntries: string[];
+    propsMacro: SetupMacroSummary | null;
+    emitsMacro: SetupMacroSummary | null;
+    slotsMacro: SetupMacroSummary | null;
+    optionsMacro: SetupMacroSummary | null;
+    overridePrivateBindings: Set<string>;
+    overridePrivateNamespace: string | null;
 };
 
 /**
@@ -247,7 +232,10 @@ function findLocalSetupReference(
         node.params.forEach((param) => collectBindingPatternNames(param, childShadowedBindings));
     }
 
-    for (const [key, value] of Object.entries(node as unknown as Record<string, unknown>)) {
+    for (const [
+        key,
+        value,
+    ] of Object.entries(node as unknown as Record<string, unknown>)) {
         if (shouldSkipReferenceChild(key)) {
             continue;
         }
@@ -289,9 +277,9 @@ function assertHoistedMacroArgumentsDoNotUseLocalSetup({
     runtimeBindingNames,
     macroCalls,
 }: {
-    scriptOffset: number,
-    runtimeBindingNames: Set<string>,
-    macroCalls: { name: string, call: CallExpression }[],
+    scriptOffset: number;
+    runtimeBindingNames: Set<string>;
+    macroCalls: { name: string; call: CallExpression }[];
 }): void {
     macroCalls.forEach(({ name, call }) => {
         call.arguments.forEach((argument) => {
@@ -318,10 +306,10 @@ function validateShopwareMarkers({
     publicMarkerStatements,
     overrideMarkerStatements,
 }: {
-    mode: ShopwareSetupMode,
-    scriptOffset: number,
-    publicMarkerStatements: StatementMacroCall[],
-    overrideMarkerStatements: StatementMacroCall[],
+    mode: ShopwareSetupMode;
+    scriptOffset: number;
+    publicMarkerStatements: StatementMacroCall[];
+    overrideMarkerStatements: StatementMacroCall[];
 }): void {
     if (mode === 'override' && publicMarkerStatements.length > 0) {
         throw new ShopwareSetupTransformError(
@@ -483,13 +471,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         ],
     });
 
-    const {
-        setupInputReplacements,
-        propsMacro,
-        emitsMacro,
-        slotsMacro,
-        optionsMacro,
-    } = analyzeSetupInputs(script, {
+    const { setupInputReplacements, propsMacro, emitsMacro, slotsMacro, optionsMacro } = analyzeSetupInputs(script, {
         mode,
         scriptOffset,
         definePropsCalls,
@@ -575,9 +557,4 @@ module.exports = {
     analyzeShopwareSetupScript,
 };
 
-export {
-    type ImportBlock,
-    type ShopwareSetupScriptAnalysis,
-    UNSUPPORTED_VUE_MACROS,
-    analyzeShopwareSetupScript,
-};
+export { type ImportBlock, type ShopwareSetupScriptAnalysis, UNSUPPORTED_VUE_MACROS, analyzeShopwareSetupScript };

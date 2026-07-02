@@ -2,22 +2,14 @@
  * @sw-package framework
  */
 
-import type {
-    ImportDeclaration,
-    Node as BabelNode,
-    Statement,
-    VariableDeclarator,
-} from '@babel/types';
+import type { ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import {
-    getNodeRange,
-    unwrapTransparentMacroExpression,
-} from './utils';
+import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 
 type RuntimeBinding = {
-    name: string,
-    node: BabelNode,
+    name: string;
+    node: BabelNode;
 };
 
 /**
@@ -222,8 +214,4 @@ module.exports = {
     collectRuntimeBinding,
 };
 
-export {
-    type RuntimeBinding,
-    collectImportBindings,
-    collectRuntimeBinding,
-};
+export { type RuntimeBinding, collectImportBindings, collectRuntimeBinding };

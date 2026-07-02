@@ -8,8 +8,8 @@ import type { SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 
 type SetupInputNames = {
-    props: string,
-    context: string,
+    props: string;
+    context: string;
 };
 
 /**

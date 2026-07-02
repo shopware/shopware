@@ -10,12 +10,12 @@ export type FlatSourceChunk = GeneratedChunk | OriginalChunk;
 export type SourceChunk = FlatSourceChunk | IndentChunk | TrimChunk;
 
 type SourceBlock = {
-    contentStart: number,
+    contentStart: number;
 };
 
 type SourceRange = {
-    start: number,
-    end: number,
+    start: number;
+    end: number;
 };
 
 /**
@@ -67,9 +67,4 @@ module.exports = {
     trim,
 };
 
-export {
-    fromSource,
-    generated,
-    indent,
-    trim,
-};
+export { fromSource, generated, indent, trim };

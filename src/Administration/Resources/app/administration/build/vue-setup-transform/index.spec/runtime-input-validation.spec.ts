@@ -7,7 +7,7 @@ import { stripIndent, transformShopwareSetupSfc } from './helpers';
 describe('build/vue-setup-transform runtime input validation', () => {
     it('rejects useSwProps() in base mode', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const props = useSwProps();
             const count = props.initialCount ?? 0;
 
@@ -18,13 +18,13 @@ describe('build/vue-setup-transform runtime input validation', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'base-use-sw-props.vue')).toThrow(
-            'useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue\'s defineProps() macro instead.',
+            "useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue's defineProps() macro instead.",
         );
     });
 
     it('rejects useSwPreviousState() in base mode', () => {
         const source = stripIndent`
-            <script setup sw-component="sw-my-component">
+            <script setup>
             const previousState = useSwPreviousState();
             const count = 1;
 

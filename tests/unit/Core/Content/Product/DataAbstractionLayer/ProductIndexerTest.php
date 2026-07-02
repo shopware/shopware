@@ -40,22 +40,22 @@ class ProductIndexerTest extends TestCase
     public function testUpdateSkipChildCountUpdater(): void
     {
         $indexer = new ProductIndexer(
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(VariantListingUpdater::class),
-            $this->createMock(ProductCategoryDenormalizer::class),
-            $this->createMock(InheritanceUpdater::class),
-            $this->createMock(RatingAverageUpdater::class),
-            $this->createMock(SearchKeywordUpdater::class),
-            $this->createMock(ChildCountUpdater::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
-            $this->createMock(StockStorage::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(CheapestPriceUpdater::class),
-            $this->createMock(ProductStreamUpdater::class),
-            $this->createMock(MessageBusInterface::class),
-            Feature::isActive('v6.8.0.0') ? null : $this->createMock(StatesUpdater::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(VariantListingUpdater::class),
+            static::createStub(ProductCategoryDenormalizer::class),
+            static::createStub(InheritanceUpdater::class),
+            static::createStub(RatingAverageUpdater::class),
+            static::createStub(SearchKeywordUpdater::class),
+            static::createStub(ChildCountUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            static::createStub(StockStorage::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(CheapestPriceUpdater::class),
+            static::createStub(ProductStreamUpdater::class),
+            static::createStub(MessageBusInterface::class),
+            Feature::isActive('v6.8.0.0') ? null : static::createStub(StatesUpdater::class),
             new NativeClock()
         );
 

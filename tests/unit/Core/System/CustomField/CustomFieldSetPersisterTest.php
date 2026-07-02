@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomField;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,7 +22,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(CustomFieldSetPersister::class)]
 class CustomFieldSetPersisterTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     /**
      * @var StaticEntityRepository<CustomFieldSetCollection>
@@ -43,7 +43,7 @@ class CustomFieldSetPersisterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->setRepository = new StaticEntityRepository([]);
         $this->relationRepository = new StaticEntityRepository([]);
         $this->fieldRepository = new StaticEntityRepository([]);
@@ -120,7 +120,8 @@ class CustomFieldSetPersisterTest extends TestCase
     {
         $existingSetId = Uuid::randomHex();
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->willReturnCallback(function (string $sql, array $params) use ($existingSetId): array {
                 static::assertStringContainsString('WHERE extension_name = :extensionName', $sql);
@@ -129,7 +130,14 @@ class CustomFieldSetPersisterTest extends TestCase
                 return [Uuid::fromHexToBytes($existingSetId) => 'obsolete_set'];
             });
 
-        $this->persister->sync(CustomFields::fromArray([]), null, 'TestPlugin', Context::createDefaultContext());
+        $persister = new CustomFieldSetPersister(
+            $this->setRepository,
+            $connection,
+            $this->relationRepository,
+            $this->fieldRepository,
+        );
+
+        $persister->sync(CustomFields::fromArray([]), null, 'TestPlugin', Context::createDefaultContext());
 
         static::assertSame([], $this->setRepository->getPayloads(StaticEntityRepository::UPSERT));
         static::assertSame(

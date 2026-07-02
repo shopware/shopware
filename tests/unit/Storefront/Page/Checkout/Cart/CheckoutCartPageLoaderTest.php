@@ -44,7 +44,7 @@ class CheckoutCartPageLoaderTest extends TestCase
         $page = new CheckoutCartPage();
         $page->setMetaInformation(new MetaInformation());
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
@@ -62,7 +62,7 @@ class CheckoutCartPageLoaderTest extends TestCase
     {
         $page = new CheckoutCartPage();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
@@ -109,21 +109,19 @@ class CheckoutCartPageLoaderTest extends TestCase
             )
         );
 
-        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService = static::createStub(StorefrontCartFacade::class);
         $cartService
             ->method('getWithCheckoutGateway')
-            ->withAnyParameters()
             ->willReturn(new StorefrontCartGatewayResult(new Cart('test'), $response));
 
-        $countryRoute = $this->createMock(CountryRoute::class);
+        $countryRoute = static::createStub(CountryRoute::class);
         $countryRoute
             ->method('load')
-            ->withAnyParameters()
             ->willReturn($countryResponse);
 
         $page = $this->createLoader(cartService: $cartService, countryRoute: $countryRoute)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($paymentMethods, $page->getPaymentMethods());
@@ -149,10 +147,9 @@ class CheckoutCartPageLoaderTest extends TestCase
             )
         );
 
-        $countryRoute = $this->createMock(CountryRoute::class);
+        $countryRoute = static::createStub(CountryRoute::class);
         $countryRoute
             ->method('load')
-            ->withAnyParameters()
             ->willReturn($countryResponse);
 
         $page = $this->createLoader(countryRoute: $countryRoute)->load(
@@ -169,17 +166,17 @@ class CheckoutCartPageLoaderTest extends TestCase
         ?CountryRoute $countryRoute = null,
     ): CheckoutCartPageLoader {
         return new CheckoutCartPageLoader(
-            $pageLoader ?? $this->createMock(GenericPageLoader::class),
-            $this->createMock(EventDispatcher::class),
+            $pageLoader ?? static::createStub(GenericPageLoader::class),
+            static::createStub(EventDispatcher::class),
             $cartService ?? $this->createCartService(),
-            $countryRoute ?? $this->createMock(CountryRoute::class),
-            $this->createMock(AbstractTranslator::class),
+            $countryRoute ?? static::createStub(CountryRoute::class),
+            static::createStub(AbstractTranslator::class),
         );
     }
 
     private function createCartService(): StorefrontCartFacade
     {
-        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService = static::createStub(StorefrontCartFacade::class);
         $cartService
             ->method('getWithCheckoutGateway')
             ->willReturn(new StorefrontCartGatewayResult(
@@ -204,7 +201,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             'activeShippingAddress' => $address,
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getCustomer')
             ->willReturn($customer);

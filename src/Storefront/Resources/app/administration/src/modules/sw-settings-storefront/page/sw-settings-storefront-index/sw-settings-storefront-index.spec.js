@@ -18,6 +18,7 @@ describe('sw-settings-storefront-index', () => {
                         template: `
                             <div>
                                 <slot name="smart-bar-actions"></slot>
+                                <slot name="content"></slot>
                             </div>
                         `,
                     },
@@ -28,11 +29,66 @@ describe('sw-settings-storefront-index', () => {
                             <button class="sw-button-process" @click="$emit('click')"><slot></slot></button>
                         `,
                     },
-                    'sw-card-view': true,
+                    'sw-card-view': {
+                        template: '<div><slot></slot></div>',
+                    },
                     'sw-skeleton': true,
-                    'mt-card': true,
-                    'mt-switch': true,
-                    'sw-inherit-wrapper': true,
+                    'mt-card': {
+                        template: '<div><slot></slot><slot name="toolbar"></slot></div>',
+                    },
+                    'mt-switch': {
+                        name: 'mt-switch',
+                        props: [
+                            'modelValue',
+                            'inheritedValue',
+                            'disabled',
+                            'isInheritanceField',
+                            'isInherited',
+                        ],
+                        template: '<div class="mt-switch"></div>',
+                    },
+                    'sw-inherit-wrapper': {
+                        props: [
+                            'value',
+                            'inheritedValue',
+                            'hasParent',
+                        ],
+                        emits: ['update:value'],
+                        computed: {
+                            isInherited() {
+                                return this.hasParent && (this.value === null || this.value === undefined);
+                            },
+                            currentValue() {
+                                return this.isInherited ? this.inheritedValue : this.value;
+                            },
+                        },
+                        methods: {
+                            updateCurrentValue(value) {
+                                this.$emit('update:value', value);
+                            },
+                            restoreInheritance() {
+                                this.$emit('update:value', null);
+                            },
+                            removeInheritance() {
+                                this.$emit('update:value', this.currentValue);
+                            },
+                        },
+                        template: `
+                            <div class="sw-inherit-wrapper">
+                                <slot
+                                    name="content"
+                                    v-bind="{
+                                        currentValue,
+                                        updateCurrentValue,
+                                        isInherited,
+                                        isInheritField: hasParent,
+                                        restoreInheritance,
+                                        removeInheritance
+                                    }"
+                                ></slot>
+                            </div>
+                        `,
+                    },
                     'sw-sales-channel-switch': true,
                     'mt-icon': true,
                 },
@@ -115,6 +171,38 @@ describe('sw-settings-storefront-index', () => {
             'core.storefrontSettings.iconCache': false,
             'core.storefrontSettings.speculationRules': null,
         });
+    });
+
+    it('passes inherited global toggle values to sales channel switches', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            selectedSalesChannelId: 'sales-channel-id',
+            storefrontSettings: {
+                'core.storefrontSettings.iconCache': true,
+                'core.storefrontSettings.asyncThemeCompilation': false,
+                'core.storefrontSettings.speculationRules': true,
+            },
+            salesChannelStorefrontSettings: {
+                'core.storefrontSettings.iconCache': null,
+                'core.storefrontSettings.speculationRules': null,
+            },
+        });
+
+        const switches = wrapper.findAllComponents({ name: 'mt-switch' });
+
+        expect(switches.at(0).props()).toEqual(expect.objectContaining({
+            disabled: true,
+            inheritedValue: true,
+            isInherited: true,
+            modelValue: true,
+        }));
+        expect(switches.at(1).props()).toEqual(expect.objectContaining({
+            disabled: true,
+            inheritedValue: true,
+            isInherited: true,
+            modelValue: true,
+        }));
     });
 
     it('normalizes empty values before saving default scoped and global settings', async () => {

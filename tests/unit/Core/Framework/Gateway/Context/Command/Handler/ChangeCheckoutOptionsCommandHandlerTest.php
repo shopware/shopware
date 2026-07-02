@@ -45,7 +45,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($shippingMethodResult);
 
-        $handler = new ChangeCheckoutOptionsCommandHandler($this->createMock(EntityRepository::class), $shippingMethodRepo);
+        $handler = new ChangeCheckoutOptionsCommandHandler(static::createStub(EntityRepository::class), $shippingMethodRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['shippingMethodId' => 'shippingMethodId'], $parameters);
@@ -76,7 +76,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
 
         $this->expectExceptionObject(GatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_shipping']));
 
-        $handler = new ChangeCheckoutOptionsCommandHandler($this->createMock(EntityRepository::class), $shippingMethodRepo);
+        $handler = new ChangeCheckoutOptionsCommandHandler(static::createStub(EntityRepository::class), $shippingMethodRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);
@@ -105,7 +105,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($paymentMethodResult);
 
-        $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, $this->createMock(EntityRepository::class));
+        $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, static::createStub(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['paymentMethodId' => 'paymentMethodId'], $parameters);
@@ -136,7 +136,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
 
         $this->expectExceptionObject(GatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_payment']));
 
-        $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, $this->createMock(EntityRepository::class));
+        $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, static::createStub(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);

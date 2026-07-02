@@ -8,14 +8,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
-use Shopware\Tests\Integration\Core\System\Consent\ConsentRepositoryTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see ConsentRepositoryTest
+ * @see \Shopware\Tests\Integration\Core\System\Consent\ConsentRepositoryTest
  */
 #[Package('data-services')]
 class ConsentRepository

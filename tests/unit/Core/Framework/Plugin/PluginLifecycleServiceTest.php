@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin;
@@ -54,6 +55,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -580,6 +582,65 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(PluginPreActivateEvent::class, $returnedEvents[0]);
         static::assertInstanceOf(PluginPostActivateEvent::class, $returnedEvents[1]);
         static::assertTrue($pluginEntityMock->getActive());
+    }
+
+    public function testActivatePluginRollsBackActiveStateWhenPostActivateEventFails(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+
+        $context = Context::createDefaultContext();
+        $exception = new \RuntimeException('Post activate failed');
+
+        $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatchMatcher = $this->exactly(2);
+        $eventDispatcher->expects($eventDispatchMatcher)
+            ->method('dispatch')
+            ->willReturnCallback(static function (object $event, ?string $eventName = null) use ($eventDispatchMatcher, $exception): object {
+                static::assertNull($eventName);
+
+                if ($eventDispatchMatcher->numberOfInvocations() === 1) {
+                    static::assertInstanceOf(PluginPreActivateEvent::class, $event);
+
+                    return $event;
+                }
+
+                static::assertInstanceOf(PluginPostActivateEvent::class, $event);
+
+                throw $exception;
+            });
+
+        (new \ReflectionProperty(PluginLifecycleService::class, 'eventDispatcher'))->setValue($this->pluginLifecycleService, $eventDispatcher);
+
+        $repoUpdateMatcher = $this->exactly(2);
+        $this->pluginRepoMock->expects($repoUpdateMatcher)
+            ->method('update')
+            ->willReturnCallback(static function (array $data, Context $actualContext) use ($repoUpdateMatcher, $pluginEntityMock, $context): EntityWrittenContainerEvent {
+                static::assertSame($context, $actualContext);
+                static::assertSame(
+                    [
+                        [
+                            'id' => $pluginEntityMock->getId(),
+                            'active' => $repoUpdateMatcher->numberOfInvocations() === 1,
+                        ],
+                    ],
+                    $data
+                );
+
+                return EntityWrittenContainerEvent::createWithWrittenEvents([], $actualContext, []);
+            });
+
+        try {
+            $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
+            static::fail('Expected post activate failure to be rethrown.');
+        } catch (\RuntimeException $actualException) {
+            static::assertSame($exception, $actualException);
+        }
+
+        static::assertFalse($pluginEntityMock->getActive());
     }
 
     public function testActivatePluginNotInstalled(): void

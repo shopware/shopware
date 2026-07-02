@@ -1,18 +1,14 @@
 # 6.7.13.0 (upcoming)
 
-## Storefront
-
-### robots.txt allows crawling product feed tracking URLs
-
-The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.
-
-### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
-
-`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
-
-`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
-
 ## Core
+
+### Webhooks are signed with the current app secret after a secret rotation
+
+Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.
+
+### SVG validator accepts more passive extension assets
+
+SVG media validation now accepts additional passive SVG elements, attributes, metadata, inline fonts, safe animation attributes, known editor namespaces, public SVG doctypes without internal subsets, and embedded raster image data URIs. This allows more SVG assets shipped by extensions and themes to pass validation while still rejecting active content such as external references, processing instructions outside scoped metadata, `foreignObject`, and entity definitions.
 
 ### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
 
@@ -21,6 +17,10 @@ MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which brea
 
 **Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
 If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
+
+### Plugin activation rolls back when post-activation fails
+
+Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
@@ -132,6 +132,7 @@ Without a value, document rendering keeps its previous behaviour, which depends 
 Creating or editing a single category no longer re-indexes unrelated categories. Previously, adding a sub-category or changing a single field (such as the name) of one category re-indexed the whole branch — every sibling and the parent's entire subtree — which produced a large number of SQL queries and noticeably slow saves in shops with many categories. A category write now only re-indexes the affected category and its own descendants (plus the parent's child count when a category is created, deleted, or moved to a different parent). Merchants with large category trees will see significantly faster saving in the Categories module and lower database load.
 
 For extension developers: as a consequence, the `CategoryIndexerEvent` is now dispatched with a smaller id set for these writes. If you subscribe to it and previously relied on receiving sibling categories that were not actually affected by the write, adjust your listener to resolve the categories it needs explicitly.
+
 ### Rule Builder: "all / at least one" toggle is now config-driven
 
 Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.
@@ -157,6 +158,26 @@ The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that 
 ```bash
 bin/console plugin:create MyPlugin MyNamespace --no-scaffold
 ```
+
+### Dynamic product groups can keep matching variants ungrouped
+
+Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
+When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
+
+The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
+Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
+
+## Storefront
+
+### robots.txt allows crawling product feed tracking URLs
+
+The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.
+
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
 ## API
 
@@ -422,14 +443,6 @@ Authenticated Administration users now receive the default privileges required b
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
 ## Core
-
-### Dynamic product groups can keep matching variants ungrouped
-
-Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
-When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
-
-The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
-Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
 ### Rule Builder: new "Quantity per item" condition
 
@@ -768,6 +781,10 @@ With the flag enabled:
 Enabling the flag requires configuration changes — the worker consume command must list the new `webhook` transport, and `shopware.admin_worker.transports` may need updating if it was overridden. Rolling the flag back off also has its own steps. See `UPGRADE-6.7.md` for the full procedure.
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
+
+### Tax provider priority is preserved across app updates
+
+An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
 ## Hosting & Configuration
 
@@ -1139,6 +1156,19 @@ Shopware now supports building product breadcrumbs based on the referring catego
 To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and activate the "Build breadcrumb based on referrer category" setting in Settings > Products.
 
 ## API
+
+### SEO URL paths reject characters that are not URL-allowed on write
+
+Writes to `seo_url.seoPathInfo` now reject strings containing sequences that are not allowed in URLs: a stray `%` that does not form a valid percent-escape (`%XX`), the fragment marker `#`, backslashes, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).
+Query strings (`path?foo=bar`) and valid percent-escapes (`caf%C3%A9`) remain allowed — they are URL-valid and resolvable by the SEO resolver.
+The validation runs in three places backed by a single rule (`ValidSeoPathInfo::containsDisallowedCharacters`):
+
+* the admin `POST /api/_action/seo-url/create-custom-url` and `PATCH /api/_action/seo-url/canonical` endpoints (via `SeoUrlValidationFactory`),
+* raw `POST /api/seo-url` DAL writes (via a new `PreWriteValidationEvent` subscriber, `SeoUrlWriteValidator`),
+* and the inline admin UI form (`sw-seo-url`).
+
+API consumers that currently persist any of these sequences in `seoPathInfo` will receive a `CONTENT__SEO_URL_INVALID_CHARACTERS` violation where the write previously succeeded.
+Percent-encode the value (`%25` for a literal `%`) or sanitise it on the client side before sending.
 
 ### Per-user and per-IP rate limiters for login and OAuth
 

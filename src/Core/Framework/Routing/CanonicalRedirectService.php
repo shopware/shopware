@@ -55,7 +55,11 @@ class CanonicalRedirectService
         $queryString = $request->getQueryString();
 
         if ($queryString) {
-            $canonical = \sprintf('%s?%s', $canonical, $queryString);
+            $canonicalQueryString = parse_url($canonical, \PHP_URL_QUERY);
+
+            if (!\is_string($canonicalQueryString) || $canonicalQueryString === '') {
+                $canonical = \sprintf('%s?%s', $canonical, $queryString);
+            }
         }
 
         return new RedirectResponse($canonical, Response::HTTP_MOVED_PERMANENTLY);

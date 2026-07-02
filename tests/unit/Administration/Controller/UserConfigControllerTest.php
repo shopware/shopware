@@ -42,7 +42,7 @@ class UserConfigControllerTest extends TestCase
         $this->userConfigRepository = new StaticEntityRepository([], new UserConfigDefinition());
         $this->userConfigController = new UserConfigController(
             $this->userConfigRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new NativeClock()
         );
         $this->context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));

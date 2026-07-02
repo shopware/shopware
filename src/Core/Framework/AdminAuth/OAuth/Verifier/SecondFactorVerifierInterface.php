@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Implementations are registered with the DI tag `shopware.admin_auth.second_factor_verifier`.
  *
- * @experimental stableVersion:v6.9.0 feature:ADMIN_AUTH
+ * @internal intended as a public extension point once the ADMIN_AUTH feature is stable
  */
 #[Package('framework')]
 interface SecondFactorVerifierInterface

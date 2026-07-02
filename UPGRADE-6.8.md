@@ -237,7 +237,7 @@ shopware:
 - As soon as at least one provider is declared in YAML, database providers are ignored, the settings UI becomes read-only and API writes to `admin_auth_provider` are rejected. `admin_ui: false` additionally removes the module from the settings overview.
 - `password_login: false` disables the username/password login — set up a working SSO provider or passkeys first.
 
-Extension points: custom first and second factors can be registered by implementing `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\PrimaryVerifierInterface` or `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\SecondFactorVerifierInterface` and tagging the service with `shopware.admin_auth.primary_verifier` or `shopware.admin_auth.second_factor_verifier`. Both interfaces are `@experimental stableVersion:v6.9.0 feature:ADMIN_AUTH` and may still change; everything else in the namespace is `@internal`.
+Extension points: custom first and second factors will be supported by implementing `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\PrimaryVerifierInterface` or `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\SecondFactorVerifierInterface` and tagging the service with `shopware.admin_auth.primary_verifier` or `shopware.admin_auth.second_factor_verifier`. While the feature is experimental the whole namespace, including these interfaces, is `@internal`; the verifier interfaces are planned to become the public extension surface when the feature stabilizes.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 

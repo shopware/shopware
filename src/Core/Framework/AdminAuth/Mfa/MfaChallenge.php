@@ -6,11 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * In-memory representation of a pending second-factor challenge row.
- * Part of the public second-factor verifier contract.
+ * Part of the second-factor verifier contract.
  *
- * @experimental stableVersion:v6.9.0 feature:ADMIN_AUTH
- *
- * @final
+ * @internal intended to become public together with SecondFactorVerifierInterface
  */
 #[Package('framework')]
 class MfaChallenge

@@ -50,6 +50,22 @@ describe('AdminAuthApiService', () => {
         });
     });
 
+    it('reads the SSO provisioning state of a user', async () => {
+        const { adminAuthService, clientMock } = createAdminAuthService();
+
+        const state = {
+            provisioned: true,
+            providerLabels: ['Corporate SSO'],
+            managedRoleIds: ['role-id'],
+            ssoManagedAdmin: false,
+        };
+
+        clientMock.onGet('/_action/admin-auth/users/user-id/sso-state').reply(200, state);
+
+        await expect(adminAuthService.getUserSsoState('user-id')).resolves.toEqual(state);
+        expect(clientMock.history.get[0].url).toBe('/_action/admin-auth/users/user-id/sso-state');
+    });
+
     it('lists the enrolled MFA methods of the current user', async () => {
         const { adminAuthService, clientMock } = createAdminAuthService();
 

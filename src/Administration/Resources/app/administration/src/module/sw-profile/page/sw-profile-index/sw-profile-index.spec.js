@@ -127,6 +127,18 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         });
     });
 
+    it('should only offer the security tab when the ADMIN_AUTH feature is active', async () => {
+        let wrapper = await createWrapper();
+        await flushPromises();
+        expect(wrapper.vm.showSecurityTab).toBe(false);
+
+        global.activeFeatureFlags = ['ADMIN_AUTH'];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+        expect(wrapper.vm.showSecurityTab).toBe(true);
+    });
+
     it('should not be able to save own user', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

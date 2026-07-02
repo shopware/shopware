@@ -56,6 +56,16 @@ Shopware.Component.register('sw-user-sso-status-label', () => import('./componen
 
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
+if (Shopware.Feature.isActive('ADMIN_AUTH')) {
+    /**
+     * @private
+     */
+    Shopware.Component.register(
+        'sw-users-permissions-user-sso-managed-roles',
+        () => import('./components/sw-users-permissions-user-sso-managed-roles'),
+    );
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-users-permissions', {
     type: 'core',

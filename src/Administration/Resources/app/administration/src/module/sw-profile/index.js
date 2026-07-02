@@ -23,6 +23,13 @@ Shopware.Component.register(
     () => import('./view/sw-profile-index-privacy-preferences'),
 );
 
+if (Shopware.Feature.isActive('ADMIN_AUTH')) {
+    /**
+     * @private
+     */
+    Shopware.Component.register('sw-profile-index-security', () => import('./view/sw-profile-index-security'));
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-profile', {
     type: 'core',
@@ -68,6 +75,18 @@ Module.register('sw-profile', {
                         privilege: 'user.update_profile',
                     },
                 },
+                ...(Shopware.Feature.isActive('ADMIN_AUTH')
+                    ? {
+                          security: {
+                              component: 'sw-profile-index-security',
+                              path: 'security',
+                              meta: {
+                                  parentPath: 'sw.profile.index',
+                                  privilege: 'user.update_profile',
+                              },
+                          },
+                      }
+                    : {}),
             },
         },
     },

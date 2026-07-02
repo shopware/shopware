@@ -28,6 +28,7 @@ class AdminAuthException extends HttpException
     public const INVALID_OAUTH_STATE = 'FRAMEWORK__ADMIN_AUTH_INVALID_OAUTH_STATE';
     public const METHOD_DISABLED = 'FRAMEWORK__ADMIN_AUTH_METHOD_DISABLED';
     public const MISSING_USER_CONTEXT = 'FRAMEWORK__ADMIN_AUTH_MISSING_USER_CONTEXT';
+    public const INVALID_USER_ID = 'FRAMEWORK__ADMIN_AUTH_INVALID_USER_ID';
     public const USER_NOT_VERIFIED = 'FRAMEWORK__ADMIN_AUTH_USER_NOT_VERIFIED';
     public const MFA_ENROLLMENT_NOT_FOUND = 'FRAMEWORK__ADMIN_AUTH_MFA_ENROLLMENT_NOT_FOUND';
     public const INVALID_MFA_CODE = 'FRAMEWORK__ADMIN_AUTH_INVALID_MFA_CODE';
@@ -170,6 +171,16 @@ class AdminAuthException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::MISSING_USER_CONTEXT,
             'This action requires an authenticated admin user context.'
+        );
+    }
+
+    public static function invalidUserId(string $userId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_USER_ID,
+            'The value "{{ userId }}" is not a valid user id.',
+            ['userId' => $userId]
         );
     }
 

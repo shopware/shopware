@@ -202,6 +202,12 @@
                     "duplicateEmailErrorMessage": "This email address has been registered already."
                 }
             }
+        },
+        "ssoManaged": {
+            "banner": "This user is provisioned by {providers}. Roles managed by the identity provider are re-applied on every login and cannot be edited here.",
+            "fallbackProvider": "an external identity provider",
+            "rolesLabel": "Managed by SSO",
+            "adminBadge": "Administrator"
         }
     },
     "sw-privileges": {

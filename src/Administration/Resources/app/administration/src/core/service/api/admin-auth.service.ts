@@ -31,6 +31,18 @@ export type MfaMethod = {
 };
 
 /**
+ * SSO provisioning state of a user (`/_action/admin-auth/users/{userId}/sso-state`).
+ *
+ * @private
+ */
+export type UserSsoState = {
+    provisioned: boolean;
+    providerLabels: string[];
+    managedRoleIds: string[];
+    ssoManagedAdmin: boolean;
+};
+
+/**
  * @private
  */
 export type TotpRegistrationOptions = {
@@ -72,6 +84,20 @@ class AdminAuthApiService extends ApiService {
                 headers: this.getBasicHeaders(),
             })
             .then((response: AxiosResponse<OidcDiscoveryResult>) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * Reads the SSO provisioning state of a user for the user management: linked providers and
+     * which role assignments are managed (re-applied on every login) by the SSO role sync.
+     */
+    async getUserSsoState(userId: string): Promise<UserSsoState> {
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/users/${userId}/sso-state`, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response: AxiosResponse<UserSsoState>) => {
                 return ApiService.handleResponse(response);
             });
     }

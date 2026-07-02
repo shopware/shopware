@@ -1,0 +1,39 @@
+{% block sw_users_permissions_user_sso_managed_roles %}
+<div class="sw-users-permissions-user-sso-managed-roles">
+    {% block sw_users_permissions_user_sso_managed_roles_banner %}
+    <mt-banner
+        class="sw-users-permissions-user-sso-managed-roles__banner"
+        variant="info"
+        :closable="false"
+    >
+        {{ $t('sw-users-permissions.ssoManaged.banner', { providers: providerList }) }}
+    </mt-banner>
+    {% endblock %}
+
+    {% block sw_users_permissions_user_sso_managed_roles_list %}
+    <div
+        v-if="hasManagedEntries"
+        class="sw-users-permissions-user-sso-managed-roles__list"
+    >
+        <span class="sw-users-permissions-user-sso-managed-roles__label">
+            {{ $t('sw-users-permissions.ssoManaged.rolesLabel') }}:
+        </span>
+
+        <span
+            v-if="ssoManagedAdmin"
+            class="sw-users-permissions-user-sso-managed-roles__badge sw-users-permissions-user-sso-managed-roles__badge--admin"
+        >
+            {{ $t('sw-users-permissions.ssoManaged.adminBadge') }}
+        </span>
+
+        <span
+            v-for="role in roles"
+            :key="role.id"
+            class="sw-users-permissions-user-sso-managed-roles__badge"
+        >
+            {{ role.name }}
+        </span>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

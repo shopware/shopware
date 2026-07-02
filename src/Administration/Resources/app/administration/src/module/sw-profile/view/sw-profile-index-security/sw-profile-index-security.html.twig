@@ -1,0 +1,329 @@
+{% block sw_profile_index_security %}
+<div class="sw-profile-index-security">
+    {% block sw_profile_index_security_methods_card %}
+    <mt-card
+        position-identifier="sw-profile-index-security-methods"
+        class="sw-profile-index-security__methods-card"
+        :title="$t('sw-profile.tabSecurity.cardTitle')"
+        :is-loading="isLoading"
+    >
+        {% block sw_profile_index_security_methods_list %}
+        <template v-if="methods.length > 0">
+            <div
+                v-for="method in methods"
+                :key="method.id"
+                class="sw-profile-index-security__method"
+            >
+                <div class="sw-profile-index-security__method-info">
+                    <span class="sw-profile-index-security__method-label">
+                        {{ method.label || typeLabelFor(method.type) }}
+                    </span>
+                    <span class="sw-profile-index-security__method-meta">
+                        {{ typeLabelFor(method.type) }}
+                        &middot;
+                        <template v-if="method.active">
+                            {{ $t('sw-profile.tabSecurity.statusActive') }}
+                        </template>
+                        <template v-else>
+                            {{ $t('sw-profile.tabSecurity.statusInactive') }}
+                        </template>
+                        &middot;
+                        {{ $t('sw-profile.tabSecurity.lastUsed') }}: {{ formatDate(method.lastUsedAt) }}
+                        <template v-if="method.type === 'recovery_codes'">
+                            &middot;
+                            {{ $t('sw-profile.tabSecurity.recoveryRemaining', { remaining: method.remaining }) }}
+                        </template>
+                    </span>
+                </div>
+
+                {% block sw_profile_index_security_methods_list_delete %}
+                <mt-button
+                    class="sw-profile-index-security__method-delete"
+                    variant="critical"
+                    size="small"
+                    :disabled="isLoading"
+                    @click="onDelete(method)"
+                >
+                    {{ $t('sw-profile.tabSecurity.deleteButton') }}
+                </mt-button>
+                {% endblock %}
+            </div>
+        </template>
+
+        <mt-banner
+            v-else
+            class="sw-profile-index-security__empty-state"
+            variant="info"
+            :closable="false"
+        >
+            {{ $t('sw-profile.tabSecurity.emptyState') }}
+        </mt-banner>
+        {% endblock %}
+
+        {% block sw_profile_index_security_add_actions %}
+        <div
+            v-if="!showEnroll"
+            class="sw-profile-index-security__actions"
+        >
+            <mt-button
+                class="sw-profile-index-security__add-totp"
+                variant="primary"
+                size="small"
+                @click="onStartEnroll"
+            >
+                {{ $t('sw-profile.tabSecurity.addButton') }}
+            </mt-button>
+
+            {% block sw_profile_index_security_add_passkey %}
+            <mt-button
+                v-if="passkeySupported"
+                class="sw-profile-index-security__add-passkey"
+                variant="secondary"
+                size="small"
+                :disabled="isEnrollingPasskey || isLoading"
+                :is-loading="isEnrollingPasskey"
+                @click="onAddPasskey"
+            >
+                {{ $t('sw-profile.tabSecurity.addPasskeyButton') }}
+            </mt-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_profile_index_security_enroll_card %}
+    <mt-card
+        v-if="showEnroll"
+        position-identifier="sw-profile-index-security-enroll"
+        class="sw-profile-index-security__enroll-card"
+        :title="$t('sw-profile.tabSecurity.enrollCardTitle')"
+        :is-loading="isLoading"
+    >
+        {% block sw_profile_index_security_enroll_start %}
+        <template v-if="!enrollment">
+            <mt-text-field
+                v-model="enrollLabel"
+                class="sw-profile-index-security__enroll-label"
+                :label="$t('sw-profile.tabSecurity.labelLabel')"
+                :placeholder="$t('sw-profile.tabSecurity.labelPlaceholder')"
+            />
+
+            <div class="sw-profile-index-security__actions">
+                <mt-button
+                    class="sw-profile-index-security__enroll-generate"
+                    variant="primary"
+                    size="small"
+                    :disabled="isLoading"
+                    @click="onSubmitEnroll"
+                >
+                    {{ $t('sw-profile.tabSecurity.generateButton') }}
+                </mt-button>
+                <mt-button
+                    variant="secondary"
+                    size="small"
+                    @click="onCancelEnroll"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+            </div>
+        </template>
+        {% endblock %}
+
+        {% block sw_profile_index_security_enroll_confirm %}
+        <template v-else>
+            <p class="sw-profile-index-security__enroll-hint">
+                {{ $t('sw-profile.tabSecurity.enrollHint') }}
+            </p>
+
+            {% block sw_profile_index_security_enroll_qr %}
+            <div
+                v-if="qrCodeDataUri"
+                class="sw-profile-index-security__qr"
+            >
+                <img
+                    class="sw-profile-index-security__qr-image"
+                    :src="qrCodeDataUri"
+                    :alt="$t('sw-profile.tabSecurity.qrAlt')"
+                >
+            </div>
+            {% endblock %}
+
+            {% block sw_profile_index_security_enroll_secret %}
+            <div class="sw-profile-index-security__secret">
+                <span class="sw-profile-index-security__secret-label">
+                    {{ $t('sw-profile.tabSecurity.secretLabel') }}
+                </span>
+                <code class="sw-profile-index-security__secret-value">{{ enrollment.secret }}</code>
+            </div>
+            {% endblock %}
+
+            <mt-text-field
+                v-model="confirmCode"
+                class="sw-profile-index-security__confirm-code"
+                inputmode="numeric"
+                maxlength="6"
+                :label="$t('sw-profile.tabSecurity.confirmCodeLabel')"
+                :placeholder="$t('sw-profile.tabSecurity.confirmCodePlaceholder')"
+                @keypress.enter.prevent="onSubmitConfirm"
+            />
+
+            <div class="sw-profile-index-security__actions">
+                <mt-button
+                    class="sw-profile-index-security__confirm-button"
+                    variant="primary"
+                    size="small"
+                    :disabled="!confirmCodeValid || isConfirming"
+                    :is-loading="isConfirming"
+                    @click="onSubmitConfirm"
+                >
+                    {{ $t('sw-profile.tabSecurity.confirmButton') }}
+                </mt-button>
+                <mt-button
+                    variant="secondary"
+                    size="small"
+                    :disabled="isConfirming"
+                    @click="onCancelEnroll"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+            </div>
+        </template>
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_profile_index_security_recovery_card %}
+    <mt-card
+        position-identifier="sw-profile-index-security-recovery"
+        class="sw-profile-index-security__recovery-card"
+        :title="$t('sw-profile.tabSecurity.recoveryCardTitle')"
+        :is-loading="isGeneratingRecovery"
+    >
+        <p class="sw-profile-index-security__recovery-description">
+            {{ $t('sw-profile.tabSecurity.recoveryCardDescription') }}
+        </p>
+
+        {% block sw_profile_index_security_recovery_generate %}
+        <template v-if="!recoveryCodes">
+            <p
+                v-if="recoveryMethod"
+                class="sw-profile-index-security__method-meta"
+            >
+                {{ $t('sw-profile.tabSecurity.recoveryRemaining', { remaining: recoveryMethod.remaining }) }}
+            </p>
+
+            <div class="sw-profile-index-security__actions">
+                <mt-button
+                    class="sw-profile-index-security__generate-recovery"
+                    :variant="recoveryMethod ? 'secondary' : 'primary'"
+                    size="small"
+                    :disabled="isGeneratingRecovery"
+                    :is-loading="isGeneratingRecovery"
+                    @click="onGenerateRecovery"
+                >
+                    <template v-if="recoveryMethod">
+                        {{ $t('sw-profile.tabSecurity.regenerateRecoveryButton') }}
+                    </template>
+                    <template v-else>
+                        {{ $t('sw-profile.tabSecurity.generateRecoveryButton') }}
+                    </template>
+                </mt-button>
+            </div>
+        </template>
+        {% endblock %}
+
+        {% block sw_profile_index_security_recovery_codes %}
+        <template v-else>
+            <mt-banner
+                variant="attention"
+                :closable="false"
+            >
+                {{ $t('sw-profile.tabSecurity.recoveryWarning') }}
+            </mt-banner>
+
+            <ul class="sw-profile-index-security__recovery-codes">
+                <li
+                    v-for="code in recoveryCodes"
+                    :key="code"
+                    class="sw-profile-index-security__recovery-code"
+                >
+                    <code>{{ code }}</code>
+                </li>
+            </ul>
+
+            <div class="sw-profile-index-security__actions">
+                <mt-button
+                    class="sw-profile-index-security__copy-recovery"
+                    variant="secondary"
+                    size="small"
+                    @click="onCopyRecoveryCodes"
+                >
+                    {{ $t('sw-profile.tabSecurity.copyButton') }}
+                </mt-button>
+            </div>
+
+            <mt-checkbox
+                v-model:checked="recoverySaved"
+                class="sw-profile-index-security__recovery-saved"
+                :label="$t('sw-profile.tabSecurity.recoverySavedLabel')"
+            />
+
+            <div class="sw-profile-index-security__actions">
+                <mt-button
+                    class="sw-profile-index-security__recovery-done"
+                    variant="primary"
+                    size="small"
+                    :disabled="!recoverySaved"
+                    @click="onConfirmRecoverySaved"
+                >
+                    {{ $t('sw-profile.tabSecurity.recoverySavedConfirm') }}
+                </mt-button>
+            </div>
+        </template>
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_profile_index_security_delete_modal %}
+    <sw-modal
+        v-if="deleteCandidate"
+        class="sw-profile-index-security__delete-modal"
+        :title="$t('global.default.warning')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+        <p>
+            {{ $t('sw-profile.tabSecurity.deleteModalText', { label: deleteCandidate.label || typeLabelFor(deleteCandidate.type) }) }}
+        </p>
+
+        <template #modal-footer>
+            <mt-button
+                size="small"
+                variant="secondary"
+                @click="onCloseDeleteModal"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+
+            <mt-button
+                class="sw-profile-index-security__delete-confirm"
+                size="small"
+                variant="critical"
+                @click="onConfirmDelete"
+            >
+                {{ $t('sw-profile.tabSecurity.deleteButton') }}
+            </mt-button>
+        </template>
+    </sw-modal>
+    {% endblock %}
+
+    {% block sw_profile_index_security_verify_modal %}
+    <sw-verify-user-modal
+        v-if="showVerifyModal"
+        @verified="onVerified"
+        @close="onVerifyClose"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

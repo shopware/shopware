@@ -608,6 +608,77 @@
                 }
             }
         },
+        "\/_action\/admin-auth\/users\/{userId}\/sso-state": {
+            "get": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Read the SSO provisioning state of a user",
+                "description": "Returns whether the given user is linked to an OIDC provider, the labels of those providers, and which role assignments and admin flag are managed by the SSO role sync (and therefore re-applied on every login). Requires the user:read privilege. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthUserSsoState",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The SSO provisioning state of the user.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "provisioned": {
+                                            "type": "boolean",
+                                            "description": "True when the user is linked to at least one OIDC provider."
+                                        },
+                                        "providerLabels": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "description": "Labels of the linked providers that still resolve to an active configuration."
+                                        },
+                                        "managedRoleIds": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "pattern": "^[0-9a-f]{32}$"
+                                            },
+                                            "description": "acl_role ids currently managed by the SSO role sync."
+                                        },
+                                        "ssoManagedAdmin": {
+                                            "type": "boolean",
+                                            "description": "True when the user's admin flag was granted by the SSO role sync."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The userId is not a valid UUID."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
         "\/_action\/admin-auth\/mfa\/recovery-codes": {
             "post": {
                 "tags": [

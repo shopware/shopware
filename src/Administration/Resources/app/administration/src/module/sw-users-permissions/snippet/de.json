@@ -202,6 +202,12 @@
                     "duplicateEmailErrorMessage": "Diese E-Mail-Adresse wird bereits verwendet."
                 }
             }
+        },
+        "ssoManaged": {
+            "banner": "Dieser Benutzer wird durch {providers} bereitgestellt. Vom Identity-Provider verwaltete Rollen werden bei jeder Anmeldung neu angewendet und können hier nicht bearbeitet werden.",
+            "fallbackProvider": "einen externen Identity-Provider",
+            "rolesLabel": "Über SSO verwaltet",
+            "adminBadge": "Administrator"
         }
     },
     "sw-privileges": {

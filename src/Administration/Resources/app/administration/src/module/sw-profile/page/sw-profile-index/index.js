@@ -83,6 +83,10 @@ export default {
             return true;
         },
 
+        showSecurityTab() {
+            return Shopware.Feature.isActive('ADMIN_AUTH');
+        },
+
         userRepository() {
             return this.repositoryFactory.create('user');
         },

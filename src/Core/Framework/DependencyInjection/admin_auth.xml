@@ -142,6 +142,16 @@
             </call>
         </service>
 
+        <!-- SSO provisioning state for the user management UI -->
+        <service id="Shopware\Core\Framework\AdminAuth\Controller\AdminAuthSsoStateController" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\RoleMapping\SsoRoleAssignmentReader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <!-- MFA policy + challenge store + rate limiter -->
         <service id="Shopware\Core\Framework\AdminAuth\Mfa\MfaPolicyService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

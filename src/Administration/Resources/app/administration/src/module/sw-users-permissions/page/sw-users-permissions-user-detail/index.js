@@ -5,7 +5,7 @@ import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 const { ShopwareError } = Shopware.Classes;
@@ -59,6 +59,7 @@ export default {
             timezoneOptions: [],
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            ssoState: null,
         };
     },
 
@@ -202,6 +203,61 @@ export default {
 
             return [...new Set(this.user.aclRoles.flatMap((role) => role.privileges ?? []))];
         },
+
+        ssoProvisioned() {
+            return this.ssoState?.provisioned === true;
+        },
+
+        ssoManagedRoleIds() {
+            return this.ssoState?.managedRoleIds ?? [];
+        },
+
+        ssoManagedRoles() {
+            if (!this.user?.aclRoles) {
+                return [];
+            }
+
+            return this.user.aclRoles.filter((role) => this.ssoManagedRoleIds.includes(role.id));
+        },
+
+        /**
+         * The role select operates on this proxy so SSO-managed roles are neither listed nor
+         * removable there; the setter merges them back before the collection is written to the
+         * user, so saving never drops an SSO-managed assignment.
+         */
+        editableAclRoles: {
+            get() {
+                if (!this.user?.aclRoles || this.ssoManagedRoleIds.length === 0) {
+                    return this.user ? this.user.aclRoles : null;
+                }
+
+                const collection = new EntityCollection(
+                    this.user.aclRoles.source,
+                    this.user.aclRoles.entity,
+                    Shopware.Context.api,
+                    this.user.aclRoles.criteria,
+                );
+
+                this.user.aclRoles.forEach((role) => {
+                    if (!this.ssoManagedRoleIds.includes(role.id)) {
+                        collection.add(role);
+                    }
+                });
+
+                return collection;
+            },
+            set(collection) {
+                if (collection && this.ssoManagedRoleIds.length > 0) {
+                    this.ssoManagedRoles.forEach((role) => {
+                        if (!collection.has(role.id)) {
+                            collection.add(role);
+                        }
+                    });
+                }
+
+                this.user.aclRoles = collection;
+            },
+        },
     },
 
     watch: {
@@ -254,6 +310,7 @@ export default {
                 this.loadLanguages(),
                 this.loadUser(),
                 this.loadCurrentUser(),
+                this.loadSsoState(),
             ];
 
             Promise.all(promises).then(() => {
@@ -292,6 +349,28 @@ export default {
             return this.userService.getUser().then((response) => {
                 this.currentUser = response.data;
             });
+        },
+
+        /**
+         * Loads the SSO provisioning state (feature flag ADMIN_AUTH). Fail-silent: the user detail
+         * page must stay fully usable when the state cannot be read.
+         */
+        loadSsoState() {
+            this.ssoState = null;
+
+            const userId = this.$route.params.id?.toLowerCase();
+            if (!this.feature.isActive('ADMIN_AUTH') || !userId) {
+                return Promise.resolve();
+            }
+
+            return Shopware.Service('adminAuthService')
+                .getUserSsoState(userId)
+                .then((ssoState) => {
+                    this.ssoState = ssoState;
+                })
+                .catch(() => {
+                    this.ssoState = null;
+                });
         },
 
         loadKeys() {

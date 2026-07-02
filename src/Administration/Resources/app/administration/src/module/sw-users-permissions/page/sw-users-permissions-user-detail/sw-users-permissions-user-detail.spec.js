@@ -15,6 +15,17 @@ const mockedLoginService = {
     setBearerAuthentication: jest.fn(),
 };
 
+const mockedAdminAuthService = {
+    getUserSsoState: jest.fn(() =>
+        Promise.resolve({
+            provisioned: false,
+            providerLabels: [],
+            managedRoleIds: [],
+            ssoManagedAdmin: false,
+        }),
+    ),
+};
+
 async function createWrapper(
     privileges = [],
     options = {
@@ -178,6 +189,7 @@ async function createWrapper(
                     'sw-inheritance-switch': true,
                     'sw-field-copyable': true,
                     'sw-ai-copilot-badge': true,
+                    'sw-users-permissions-user-sso-managed-roles': true,
                     ...options.global.stubs,
                 },
             },
@@ -194,6 +206,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     beforeAll(() => {
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
+        });
+        Shopware.Service().register('adminAuthService', () => {
+            return mockedAdminAuthService;
         });
     });
 
@@ -662,5 +677,127 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         expect(wrapper.vm.isLoading).toBe(false);
         expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    describe('SSO provisioning state (ADMIN_AUTH)', () => {
+        function buildAclRoles(roles) {
+            return new EntityCollection('/acl-role', 'acl_role', Shopware.Context.api, null, roles, roles.length);
+        }
+
+        it('should not load the SSO state when the ADMIN_AUTH feature is off', async () => {
+            wrapper = await createWrapper('users_and_permissions.editor');
+            await flushPromises();
+
+            expect(mockedAdminAuthService.getUserSsoState).not.toHaveBeenCalled();
+            expect(wrapper.vm.ssoProvisioned).toBe(false);
+            expect(wrapper.find('sw-users-permissions-user-sso-managed-roles-stub').exists()).toBe(false);
+        });
+
+        it('should stay unchanged when the SSO state cannot be loaded', async () => {
+            global.activeFeatureFlags = ['ADMIN_AUTH'];
+            mockedAdminAuthService.getUserSsoState.mockRejectedValueOnce(new Error('unavailable'));
+
+            wrapper = await createWrapper('users_and_permissions.editor');
+            await flushPromises();
+
+            expect(mockedAdminAuthService.getUserSsoState).toHaveBeenCalledWith('1a2b3c4d');
+            expect(wrapper.vm.ssoProvisioned).toBe(false);
+            expect(wrapper.find('sw-users-permissions-user-sso-managed-roles-stub').exists()).toBe(false);
+
+            await wrapper.setData({ isLoading: false });
+            const fieldPassword = wrapper.find('.sw-settings-user-detail__grid-password');
+            expect(fieldPassword.attributes().disabled).toBeUndefined();
+        });
+
+        it('should stay unchanged when the user is not provisioned', async () => {
+            global.activeFeatureFlags = ['ADMIN_AUTH'];
+
+            wrapper = await createWrapper('users_and_permissions.editor');
+            await flushPromises();
+
+            expect(mockedAdminAuthService.getUserSsoState).toHaveBeenCalledWith('1a2b3c4d');
+            expect(wrapper.vm.ssoProvisioned).toBe(false);
+            expect(wrapper.find('sw-users-permissions-user-sso-managed-roles-stub').exists()).toBe(false);
+        });
+
+        it('should show the SSO banner and disable the password field for a provisioned user', async () => {
+            global.activeFeatureFlags = ['ADMIN_AUTH'];
+            mockedAdminAuthService.getUserSsoState.mockResolvedValueOnce({
+                provisioned: true,
+                providerLabels: ['Corporate SSO'],
+                managedRoleIds: [],
+                ssoManagedAdmin: false,
+            });
+
+            wrapper = await createWrapper('users_and_permissions.editor');
+            await flushPromises();
+            await wrapper.setData({ isLoading: false });
+
+            expect(wrapper.vm.ssoProvisioned).toBe(true);
+            expect(wrapper.find('sw-users-permissions-user-sso-managed-roles-stub').exists()).toBe(true);
+
+            const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
+            expect(fieldPassword.attributes('disabled')).toBeDefined();
+        });
+
+        it('should keep SSO-managed roles out of the select but merge them back on change', async () => {
+            global.activeFeatureFlags = ['ADMIN_AUTH'];
+            mockedAdminAuthService.getUserSsoState.mockResolvedValueOnce({
+                provisioned: true,
+                providerLabels: ['Corporate SSO'],
+                managedRoleIds: ['managed-role-id'],
+                ssoManagedAdmin: false,
+            });
+
+            wrapper = await createWrapper('users_and_permissions.editor');
+            await flushPromises();
+
+            await wrapper.setData({
+                isLoading: false,
+                user: {
+                    admin: false,
+                    localeId: '12345',
+                    username: 'sso-user',
+                    firstName: 'Single',
+                    lastName: 'Sign-on',
+                    email: 'sso@example.com',
+                    aclRoles: buildAclRoles([
+                        { id: 'managed-role-id', name: 'Managed role' },
+                        { id: 'free-role-id', name: 'Free role' },
+                    ]),
+                },
+            });
+
+            // The select only operates on the manually assigned roles.
+            expect(Array.from(wrapper.vm.editableAclRoles.getIds())).toEqual(['free-role-id']);
+            expect(Array.from(wrapper.vm.ssoManagedRoles, (role) => role.id)).toEqual(['managed-role-id']);
+
+            // Deselecting everything must never drop the SSO-managed assignment.
+            wrapper.vm.editableAclRoles = buildAclRoles([]);
+            expect(Array.from(wrapper.vm.user.aclRoles.getIds())).toEqual(['managed-role-id']);
+        });
+
+        it('should pass the roles through unchanged when nothing is SSO-managed', async () => {
+            global.activeFeatureFlags = ['ADMIN_AUTH'];
+
+            wrapper = await createWrapper('users_and_permissions.editor');
+            await flushPromises();
+
+            const aclRoles = buildAclRoles([{ id: 'free-role-id', name: 'Free role' }]);
+            await wrapper.setData({
+                isLoading: false,
+                user: {
+                    admin: false,
+                    localeId: '12345',
+                    username: 'plain-user',
+                    firstName: 'Plain',
+                    lastName: 'User',
+                    email: 'plain@example.com',
+                    aclRoles,
+                },
+            });
+
+            expect(wrapper.vm.editableAclRoles).toBe(wrapper.vm.user.aclRoles);
+        });
     });
 });

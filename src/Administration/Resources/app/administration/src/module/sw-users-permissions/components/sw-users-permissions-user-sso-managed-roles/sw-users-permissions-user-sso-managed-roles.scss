@@ -1,0 +1,28 @@
+.sw-users-permissions-user-sso-managed-roles {
+    margin-bottom: 24px;
+
+    &__list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    &__label {
+        color: var(--color-text-tertiary-default);
+        font-size: 12px;
+    }
+
+    &__badge {
+        background: var(--color-background-secondary-default);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 4px;
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+
+    &__badge--admin {
+        font-weight: 600;
+    }
+}

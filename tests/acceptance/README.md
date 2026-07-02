@@ -91,6 +91,20 @@ Running tests in UI Mode
 npx playwright test --ui --project="Platform" product.spec.ts
 ```
 
+### Feature-flagged tests
+
+Some tests cover functionality that is gated behind a feature flag in the system under test. Those tests probe the flag state via `InstanceMeta.features` and skip themselves when the flag is inactive.
+
+| Tests | Required feature flag |
+|---|---|
+| `tests/AdminAuth` | `ADMIN_AUTH=1` |
+
+For example, to run the admin authentication tests (TOTP / recovery code login, OIDC provider settings), start the shop under test with `ADMIN_AUTH=1` in its environment and run:
+
+```
+npx playwright test --project="Platform" tests/AdminAuth
+```
+
 ### Running with admin watcher
 
 You can point playwright to a different admin url by setting `ADMIN_URL`. The default is `${APP_URL}admin/`.

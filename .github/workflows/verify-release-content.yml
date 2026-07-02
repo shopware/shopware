@@ -21,9 +21,6 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - name: Fetch trunk
-        run: git fetch origin trunk
-
       - name: Derive version prefix
         id: version
         run: |
@@ -33,6 +30,10 @@ jobs:
             # 6.7.11.x → 6.7.11
             echo "prefix=${GITHUB_REF_NAME%.x}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Fetch trunk and release branch
+        # The script compares origin/trunk against origin/<prefix>.x, so both refs must be present.
+        run: git fetch origin trunk "${{ steps.version.outputs.prefix }}.x"
 
       - name: Verify release content
         run: php .github/bin/verify-release-content.php "${{ steps.version.outputs.prefix }}"

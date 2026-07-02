@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 // Verifies that every feature heading documented in trunk's RELEASE_INFO for the given
-// version prefix is also present in the release branch, and that the commit which
-// introduced it on trunk is reachable from HEAD.
+// version prefix is also present on the release branch, and that the commit which
+// introduced it on trunk is reachable from that branch.
 //
-// Usage: php verify-release-content.php <version-prefix>
+// The release branch defaults to "<version-prefix>.x" and is always compared via its remote
+// ref (origin/<branch>), so the result does not depend on which branch is currently checked out.
+//
+// Usage: php verify-release-content.php <version-prefix> [release-branch]
 // Example: php verify-release-content.php 6.7.11
+// Example: php verify-release-content.php 6.7.11 6.7.11.x
 //
 // Exit codes:
 //   0 — all entries verified (warnings may still be printed)
@@ -25,8 +29,17 @@ if ($versionPrefix === '') {
 $majorMinor = implode('.', \array_slice(explode('.', $versionPrefix), 0, 2));
 $releaseInfoFile = "RELEASE_INFO-{$majorMinor}.md";
 
-if (!is_file($releaseInfoFile)) {
-    fwrite(\STDERR, "ERROR: {$releaseInfoFile} not found in working directory.\n");
+// The release branch to verify. Defaults to "<prefix>.x" (e.g. 6.7.12 → 6.7.12.x); an optional
+// second argument overrides it. We compare against the remote ref, independent of the checkout.
+$targetBranch = $_SERVER['argv'][2] ?? ($versionPrefix . '.x');
+$branchRef = 'origin/' . $targetBranch;
+
+if (!refExists(TRUNK_REF)) {
+    fwrite(\STDERR, 'ERROR: ' . TRUNK_REF . " not found — fetch it first (git fetch origin trunk).\n");
+    exit(1);
+}
+if (!refExists($branchRef)) {
+    fwrite(\STDERR, "ERROR: release branch {$branchRef} not found — fetch it first (git fetch origin {$targetBranch}).\n");
     exit(1);
 }
 
@@ -38,18 +51,17 @@ if (\is_string($server) && $server !== '' && \is_string($repo) && $repo !== '') 
     $commitUrlBase = rtrim($server, '/') . '/' . $repo . '/commit';
 }
 
-$branchName = trim((string) shell_exec('git rev-parse --abbrev-ref HEAD'));
-
 echo "Verifying RELEASE_INFO for {$versionPrefix}.*\n";
 echo '  trunk  : ' . TRUNK_REF . "\n";
-echo "  branch : {$branchName}\n";
+echo "  branch : {$branchRef}\n";
 echo "  file   : {$releaseInfoFile}\n\n";
 
 // Trunk is the authoritative source for what is supposed to be in the release.
 // The release branch is what actually shipped (or will ship).
 $trunkContent = (string) shell_exec(sprintf('git show %s', escapeshellarg(TRUNK_REF . ':' . $releaseInfoFile)));
 $trunkHeadings = extractHeadings($trunkContent, $versionPrefix);
-$branchHeadings = extractHeadings((string) file_get_contents($releaseInfoFile), $versionPrefix);
+$branchContent = (string) shell_exec(sprintf('git show %s', escapeshellarg($branchRef . ':' . $releaseInfoFile)));
+$branchHeadings = extractHeadings($branchContent, $versionPrefix);
 
 if (!$trunkHeadings) {
     echo "No entries found for {$versionPrefix}.* in trunk's {$releaseInfoFile} — nothing to verify.\n";
@@ -68,14 +80,14 @@ foreach ($trunkHeadings as $heading) {
     $textPresent = \in_array($heading, $branchHeadings, true);
 
     // Check 2 — commit: find the trunk commit that introduced this heading via pickaxe search (-S),
-    // then verify it is a direct ancestor of the release branch HEAD.
+    // then verify it is a direct ancestor of the release branch.
     // This confirms the full PR (docs + code) landed in the branch, not just the text.
     $introducingCommit = findIntroducingCommit($heading, $releaseInfoFile);
     $commitReachable = false;
     $docsOnly = false;
 
     if ($introducingCommit !== '') {
-        $commitReachable = isAncestor($introducingCommit);
+        $commitReachable = isAncestor($introducingCommit, $branchRef);
 
         // Check 3 — docs-only: if the introducing commit only touched RELEASE_INFO and nothing else,
         // it was a standalone documentation update decoupled from the feature code. In that case the
@@ -122,7 +134,7 @@ $summaryFile = getenv('GITHUB_STEP_SUMMARY');
 if (\is_string($summaryFile) && $summaryFile !== '') {
     file_put_contents(
         $summaryFile,
-        renderSummary($versionPrefix, $branchName, $releaseInfoFile, $total, $confirmed, $missing, $warnings, $commitUrlBase),
+        renderSummary($versionPrefix, $branchRef, $releaseInfoFile, $total, $confirmed, $missing, $warnings, $commitUrlBase),
         \FILE_APPEND
     );
 }
@@ -178,10 +190,18 @@ function findIntroducingCommit(string $heading, string $file): string
     )));
 }
 
-// True when $commit is a direct ancestor of HEAD.
-function isAncestor(string $commit): bool
+// True when $commit is a direct ancestor of the given ref.
+function isAncestor(string $commit, string $ref): bool
 {
-    exec(sprintf('git merge-base --is-ancestor %s HEAD 2>/dev/null', escapeshellarg($commit)), $output, $code);
+    exec(sprintf('git merge-base --is-ancestor %s %s 2>/dev/null', escapeshellarg($commit), escapeshellarg($ref)), $output, $code);
+
+    return $code === 0;
+}
+
+// True when the given git ref resolves to a commit (e.g. it has been fetched).
+function refExists(string $ref): bool
+{
+    exec(sprintf('git rev-parse --verify --quiet %s 2>/dev/null', escapeshellarg($ref)), $output, $code);
 
     return $code === 0;
 }

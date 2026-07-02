@@ -101,7 +101,7 @@ class SalesChannelFileTemplateResolverTest extends TestCase
     ): SalesChannelFileTemplateResolver {
         $loader = new ArrayLoader($templates);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         return new SalesChannelFileTemplateResolver(

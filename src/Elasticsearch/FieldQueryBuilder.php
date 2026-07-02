@@ -51,13 +51,13 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         SearchFieldConfig $config,
         Context $context,
     ): ?BuilderInterface {
-        return $this->matchQuery($field->getResolvedField(), $token, $config);
+        return $this->matchQuery($field->getResolvedField(), $token, $config, $context);
     }
 
-    private function matchQuery(Field $field, string $token, SearchFieldConfig $config): ?BuilderInterface
+    private function matchQuery(Field $field, string $token, SearchFieldConfig $config, Context $context): ?BuilderInterface
     {
         if ($this->isTextField($field)) {
-            return $this->buildTextMatchQuery($token, $config);
+            return $this->buildTextMatchQuery($token, $config, $context);
         }
 
         $normalizedToken = $this->normalizeToken($token, $field);
@@ -95,7 +95,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         return $field instanceof StringField || $field instanceof LongTextField || $field instanceof ListField;
     }
 
-    private function buildTextMatchQuery(string $token, SearchFieldConfig $config): BuilderInterface
+    private function buildTextMatchQuery(string $token, SearchFieldConfig $config, Context $context): BuilderInterface
     {
         $searchField = $config->getField() . '.search';
         $tokens = preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token];
@@ -105,14 +105,30 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         $lastWord = array_last($tokens);
         $maxExpansions = $this->getMaxExpansions($lastWord);
 
-        $queries = array_values(array_filter([
-            $this->buildExactMatchQuery($config, $tokens, $normalizedToken, $tokenCount),
-            $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $maxExpansions),
-            $this->buildPrefixMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
-            $this->buildNgramQuery($normalizedToken, $config, $tokenCount),
-        ]));
+        $clauses = [
+            'exact' => $this->buildExactMatchQuery($config, $tokens, $normalizedToken, $tokenCount),
+            'fuzzy' => $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $maxExpansions),
+            'prefix' => $this->buildPrefixMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
+            'ngram' => $this->buildNgramQuery($normalizedToken, $config, $tokenCount),
+        ];
 
-        return $this->buildDisMaxQuery($queries, $config->getRanking());
+        // In explain mode, name each clause with its match type so the live
+        // search preview can report *how* a field matched (exact / fuzzy /
+        // prefix / ngram). Gated on the state, so normal search is untouched.
+        if ($context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE)) {
+            foreach ($clauses as $type => $clause) {
+                if ($clause !== null && method_exists($clause, 'addParameter')) {
+                    $clause->addParameter('_name', (string) json_encode([
+                        'field' => $config->getField(),
+                        'term' => $normalizedToken,
+                        'ranking' => $config->getRanking(),
+                        'type' => $type,
+                    ]));
+                }
+            }
+        }
+
+        return $this->buildDisMaxQuery(array_values(array_filter($clauses)), $config->getRanking());
     }
 
     /**

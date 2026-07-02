@@ -111,7 +111,32 @@
       "labelName": "Search result",
       "labelScore": "Ranking score",
       "textNoResult": "No results found.",
-      "textNoResultDescription": "Please try again with another search term."
+      "textNoResultDescription": "Please try again with another search term.",
+      "relevance": "Relevance",
+      "field": "Field",
+      "term": "Term",
+      "score": "Score",
+      "explainTitle": "Why this ranking?",
+      "totalScore": "Total score",
+      "weight": "weight",
+      "partialContext": "· “{fragment}” in “{word}”",
+      "partialContextWhole": "· in “{word}”",
+      "scoreHelpText": "Elasticsearch's combined relevance for this result. Within each field it keeps the strongest matching clause and adds a small fraction of the others, then multiplies by the field's weight. The per-clause numbers shown here are BEFORE that weight — so a field like \"name\" (weight 700) contributes roughly its top clause × 700, and the fields are then combined into this total. That is why the total is far larger than the individual bars, which show relative strength and do not sum to it. The same word can also score differently in two fields — each field's score reflects how rare the word is there and how short that field's text is.",
+      "uniformScoresHint": "All results share the same score, so their order here is not meaningful.",
+      "matchType": {
+        "exact": "exact",
+        "fuzzy": "fuzzy",
+        "prefix": "prefix",
+        "ngram": "partial",
+        "phrase": "phrase"
+      },
+      "matchTypeTooltip": {
+        "exact": "The whole search word matches a word in this field exactly.",
+        "fuzzy": "Matched with typo tolerance — the word differs by one or two letters.",
+        "prefix": "A word in this field starts with the search word.",
+        "ngram": "Matched a shared letter fragment rather than the whole word. The fragment length is set by the SHOPWARE_ES_NGRAM_MIN_GRAM and SHOPWARE_ES_NGRAM_MAX_GRAM environment variables.",
+        "phrase": "The full search phrase appears in this field, in order — the strongest signal, weighted above the individual word matches."
+      }
     },
     "textLeaveConfirm": "You have made changes on this page. If you leave without saving, your changes will be lost."
   },

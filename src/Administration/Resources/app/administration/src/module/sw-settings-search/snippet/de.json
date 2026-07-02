@@ -111,7 +111,32 @@
       "labelName": "Suchergebnis",
       "labelScore": "Rangpunktzahl",
       "textNoResult": "Keine Ergebnisse gefunden.",
-      "textNoResultDescription": "Versuche es noch einmal mit einem anderen Suchbegriff."
+      "textNoResultDescription": "Versuche es noch einmal mit einem anderen Suchbegriff.",
+      "relevance": "Relevanz",
+      "field": "Feld",
+      "term": "Suchbegriff",
+      "score": "Punktzahl",
+      "explainTitle": "Warum dieses Ranking?",
+      "totalScore": "Gesamtpunktzahl",
+      "weight": "Gewichtung",
+      "partialContext": "· „{fragment}“ in „{word}“",
+      "partialContextWhole": "· in „{word}“",
+      "scoreHelpText": "Die von Elasticsearch kombinierte Relevanz für dieses Ergebnis. Innerhalb jedes Felds wird der stärkste Treffer behalten und ein kleiner Bruchteil der übrigen addiert, dann mit der Gewichtung des Felds multipliziert. Die hier gezeigten Werte pro Klausel sind VOR dieser Gewichtung – ein Feld wie \"name\" (Gewichtung 700) trägt also etwa seinen stärksten Treffer × 700 bei, und die Felder werden dann zu dieser Gesamtpunktzahl kombiniert. Deshalb ist die Gesamtpunktzahl weit größer als die einzelnen Balken, die die relative Stärke zeigen und sich nicht dazu aufsummieren. Dasselbe Wort kann in zwei Feldern auch unterschiedlich punkten – die Punktzahl jedes Felds hängt davon ab, wie selten das Wort dort ist und wie kurz der Feldtext ist.",
+      "uniformScoresHint": "Alle Ergebnisse haben dieselbe Punktzahl, daher ist ihre Reihenfolge hier nicht aussagekräftig.",
+      "matchType": {
+        "exact": "exakt",
+        "fuzzy": "unscharf",
+        "prefix": "Präfix",
+        "ngram": "teilweise",
+        "phrase": "Wortgruppe"
+      },
+      "matchTypeTooltip": {
+        "exact": "Das gesamte Suchwort stimmt exakt mit einem Wort in diesem Feld überein.",
+        "fuzzy": "Treffer mit Tippfehler-Toleranz – das Wort unterscheidet sich um ein oder zwei Buchstaben.",
+        "prefix": "Ein Wort in diesem Feld beginnt mit dem Suchwort.",
+        "ngram": "Treffer über ein gemeinsames Buchstabenfragment statt des ganzen Wortes. Die Fragmentlänge wird über die Umgebungsvariablen SHOPWARE_ES_NGRAM_MIN_GRAM und SHOPWARE_ES_NGRAM_MAX_GRAM festgelegt.",
+        "phrase": "Die vollständige Suchphrase kommt in dieser Reihenfolge in diesem Feld vor – das stärkste Signal, höher gewichtet als die einzelnen Wort-Treffer."
+      }
     },
     "textLeaveConfirm": "Du hast Änderungen an dieser Seite vorgenommen. Falls Du die Seite verlässt, ohne zu speichern, gehen Deine Änderungen verloren."
   },

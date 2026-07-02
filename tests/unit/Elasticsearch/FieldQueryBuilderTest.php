@@ -216,6 +216,42 @@ class FieldQueryBuilderTest extends TestCase
         }
     }
 
+    public function testExplainModeNamesEachClauseWithItsMatchType(): void
+    {
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false, true, true);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foo', $config, $context);
+
+        static::assertNotNull($query);
+        $json = json_encode($query->toArray(), \JSON_THROW_ON_ERROR);
+
+        // each clause carries a `_name` payload describing how the field matched
+        static::assertStringContainsString('"type":"exact"', $json);
+        static::assertStringContainsString('"type":"fuzzy"', $json);
+        static::assertStringContainsString('"type":"prefix"', $json);
+        static::assertStringContainsString('"field":"name"', $json);
+        static::assertStringContainsString('"term":"foo"', $json);
+        static::assertStringContainsString('"ranking":500', $json);
+    }
+
+    public function testDefaultModeDoesNotNameClauses(): void
+    {
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false, true, true);
+
+        $query = $builder->build($field, 'foo', $config, Context::createDefaultContext());
+
+        static::assertNotNull($query);
+        // naming is gated on explain mode — normal search must stay untouched
+        static::assertStringNotContainsString('_name', json_encode($query->toArray(), \JSON_THROW_ON_ERROR));
+    }
+
     public function testLanguageAnalyzerDisabledUsesWhitespaceAnalyzer(): void
     {
         $builder = new FieldQueryBuilder(4, false);

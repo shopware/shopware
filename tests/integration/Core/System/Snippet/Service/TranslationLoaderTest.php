@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\Snippet\Service;
 
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -62,10 +61,7 @@ class TranslationLoaderTest extends TestCase
             ->getTotal();
         static::assertSame(0, $countBeforeFirstLoad);
 
-        // One response per downloaded snippet file (platform bundles + configured plugin bundles).
-        for ($i = 0; $i < 50; ++$i) {
-            $this->appendTranslationResponse(new Response(200, [], '{}'));
-        }
+        $this->appendTranslationFileResponses();
 
         $loader = static::getContainer()->get(TranslationLoader::class);
         static::assertInstanceOf(TranslationLoader::class, $loader);
@@ -79,10 +75,7 @@ class TranslationLoaderTest extends TestCase
 
         static::assertSame(1, $countAfterFirstLoad);
 
-        // One response per downloaded snippet file (platform bundles + configured plugin bundles).
-        for ($i = 0; $i < 50; ++$i) {
-            $this->appendTranslationResponse(new Response(200, [], '{}'));
-        }
+        $this->appendTranslationFileResponses();
 
         $loader->load($locale, $context);
 

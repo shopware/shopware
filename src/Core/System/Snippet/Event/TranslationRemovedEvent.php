@@ -3,13 +3,12 @@
 namespace Shopware\Core\System\Snippet\Event;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Dispatched after the downloaded translation files and metadata entry for a locale have been removed.
  */
 #[Package('discovery')]
-class TranslationRemovedEvent extends Event
+class TranslationRemovedEvent
 {
     public function __construct(
         private readonly string $locale,

@@ -172,16 +172,13 @@ class TranslationControllerTest extends TestCase
     }
 
     /**
-     * Queues the remote responses for a full install: the metadata lookup followed by enough empty
-     * snippet-file responses to cover all configured bundles and plugins.
+     * Queues the remote responses for a full install: the metadata lookup followed by one empty
+     * snippet-file response per configured bundle and plugin.
      */
     private function mockTranslationDownload(): void
     {
         $this->appendTranslationResponse($this->metadataResponse());
-
-        for ($i = 0; $i < 50; ++$i) {
-            $this->appendTranslationResponse(new Response(200, [], '{}'));
-        }
+        $this->appendTranslationFileResponses();
     }
 
     private function metadataResponse(): Response

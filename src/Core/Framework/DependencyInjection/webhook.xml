@@ -65,7 +65,15 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service_closure" id="messenger.transport.async"/>
             <argument type="service_closure" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\WebhookHealthTick"/>
             <tag name="messenger.transport_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Health\WebhookHealthTick">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand">
@@ -207,16 +215,6 @@
             <argument>%shopware.webhook.health.degraded_threshold%</argument>
             <argument>%shopware.webhook.health.non_transient_threshold%</argument>
             <argument>%shopware.webhook.health.max_suspended_days%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTask">
-            <tag name="shopware.scheduled.task"/>
-        </service>
-        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle" on-invalid="null"/>
-            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

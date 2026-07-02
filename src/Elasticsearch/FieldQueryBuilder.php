@@ -32,20 +32,21 @@ use Shopware\Elasticsearch\Query\MatchBoolPrefixQuery;
 class FieldQueryBuilder extends AbstractFieldQueryBuilder
 {
     /**
-     * Boost for a contiguous, in-order match of the whole multi-word search term
-     * (`match_phrase`). Set above the exact single-word boost (2) so a product
-     * whose name contains the full phrase outranks one that merely contains the
-     * individual words scattered around.
-     */
-    private const PHRASE_MATCH_BOOST = 4;
-
-    /**
      * @internal
+     *
+     * Per-match-type boosts are injected from `elasticsearch.search.boost.*` so they
+     * can be tuned via configuration. `phrase` sits above `exact` so a whole-phrase
+     * match wins; the weaker prefix/fuzzy/partial default lower.
      */
     public function __construct(
         private readonly int $minGram = 4,
         private readonly bool $useLanguageAnalyzer = true,
         private readonly float $dismaxTieBreaker = 0.2,
+        private readonly float $exactBoost = 2,
+        private readonly float $phraseBoost = 4,
+        private readonly float $fuzzyBoost = 0.4,
+        private readonly float $prefixBoost = 0.4,
+        private readonly float $partialBoost = 0.4,
     ) {
     }
 
@@ -148,11 +149,11 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     {
         if ($tokenCount === 1) {
             if ($config->useExactSubfield()) {
-                return new TermQuery($config->getField() . '.exact', $token, ['boost' => 2]);
+                return new TermQuery($config->getField() . '.exact', $token, ['boost' => $this->exactBoost]);
             }
 
             $matchQueryParams = [
-                'boost' => 2,
+                'boost' => $this->exactBoost,
                 'fuzziness' => 0,
                 'operator' => 'and',
             ];
@@ -171,12 +172,12 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
                 $exactMatchQuery->add(new TermQuery($config->getField(), $tokenPart), BoolQuery::MUST);
             }
 
-            $exactMatchQuery->addParameter('boost', 2);
+            $exactMatchQuery->addParameter('boost', $this->exactBoost);
 
             return $exactMatchQuery;
         }
 
-        return new TermsQuery($config->getField(), $tokens, ['boost' => 2]);
+        return new TermsQuery($config->getField(), $tokens, ['boost' => $this->exactBoost]);
     }
 
     private function buildPhraseMatchQuery(string $searchField, string $token, int $tokenCount): ?MatchPhraseQuery
@@ -187,7 +188,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return null;
         }
 
-        $matchPhraseParams = ['boost' => self::PHRASE_MATCH_BOOST];
+        $matchPhraseParams = ['boost' => $this->phraseBoost];
 
         if (!$this->useLanguageAnalyzer) {
             $matchPhraseParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
@@ -199,7 +200,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
     {
         $matchQueryParams = [
-            'boost' => 0.4,
+            'boost' => $this->fuzzyBoost,
             'fuzziness' => $config->getFuzziness($token),
             'operator' => $config->isAndLogic() ? 'and' : 'or',
             'fuzzy_transpositions' => true,
@@ -227,7 +228,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
 
         if ($tokenCount > 1) {
             $matchPhrasePrefixParams = [
-                'boost' => 0.6,
+                'boost' => $this->prefixBoost,
                 'slop' => 3,
                 'max_expansions' => $maxExpansions,
             ];
@@ -239,7 +240,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
         }
 
-        $matchBoolPrefixParams = ['boost' => 0.4];
+        $matchBoolPrefixParams = ['boost' => $this->prefixBoost];
 
         if (!$this->useLanguageAnalyzer) {
             $matchBoolPrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
@@ -254,7 +255,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return null;
         }
 
-        return new MatchQuery($config->getField() . '.ngram', $token, ['boost' => 0.4]);
+        return new MatchQuery($config->getField() . '.ngram', $token, ['boost' => $this->partialBoost]);
     }
 
     /**

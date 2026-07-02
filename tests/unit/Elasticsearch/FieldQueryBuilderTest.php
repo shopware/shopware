@@ -273,7 +273,7 @@ class FieldQueryBuilderTest extends TestCase
         static::assertNotNull($phrase, 'multi-word search must include a match_phrase clause');
         static::assertSame('foo bar', $phrase['query']);
         // stronger than the exact single-word boost (2) so a contiguous phrase wins
-        static::assertSame(4, $phrase['boost']);
+        static::assertSame(4.0, $phrase['boost']);
     }
 
     public function testSingleTokenHasNoPhraseMatchQuery(): void

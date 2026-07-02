@@ -271,6 +271,11 @@
             <argument>%elasticsearch.analysis.filter.sw_ngram_filter.min_gram%</argument>
             <argument>%elasticsearch.use_language_analyzer%</argument>
             <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
+            <argument>%elasticsearch.search.boost.exact%</argument>
+            <argument>%elasticsearch.search.boost.phrase%</argument>
+            <argument>%elasticsearch.search.boost.fuzzy%</argument>
+            <argument>%elasticsearch.search.boost.prefix%</argument>
+            <argument>%elasticsearch.search.boost.partial%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\TranslatedFieldQueryBuilder"

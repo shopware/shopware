@@ -1,0 +1,88 @@
+name: Reproduce Issue Artifact Cleanup
+
+# Delete reproduction artifacts once their issue has been closed for more than 7 days — repro bundles
+# (screenshots, videos, DB-adjacent logs) are large and only useful while the issue is open.
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List deletions without deleting artifacts'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  actions: write
+  contents: read
+  issues: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Delete closed-issue reproduction artifacts
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { owner, repo } = context.repo;
+            const dryRun = String(process.env.DRY_RUN) === 'true';
+            const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const reproduceLock = '.github/workflows/reproduce.lock.yml';
+
+            const runCache = new Map();
+            const issueCache = new Map();
+            const deletions = [];
+            const skipped = { expired: 0, missingRun: 0, otherWorkflow: 0, noIssue: 0, openOrRecent: 0 };
+
+            const parseIssueNumber = (run) => {
+              const text = [run.display_title, run.name, run.head_branch].filter(Boolean).join('\n');
+              const match = text.match(/\breproduce\s+#(\d+)\b/i) || text.match(/(?:^|[^\d])#(\d+)(?:[^\d]|$)/);
+              return match ? Number(match[1]) : 0;
+            };
+            const getRun = async (id) => {
+              if (runCache.has(id)) return runCache.get(id);
+              try { const { data } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: id }); runCache.set(id, data); return data; }
+              catch (e) { core.warning(`run ${id}: ${e.message}`); runCache.set(id, null); return null; }
+            };
+            const getIssue = async (n) => {
+              if (issueCache.has(n)) return issueCache.get(n);
+              try { const { data } = await github.rest.issues.get({ owner, repo, issue_number: n }); issueCache.set(n, data); return data; }
+              catch (e) { core.warning(`issue #${n}: ${e.message}`); issueCache.set(n, null); return null; }
+            };
+
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, { owner, repo, per_page: 100 });
+            for (const artifact of artifacts) {
+              if (artifact.expired) { skipped.expired += 1; continue; }
+              const runId = artifact.workflow_run?.id;
+              if (!runId) { skipped.missingRun += 1; continue; }
+              const run = await getRun(runId);
+              if (!run) { skipped.missingRun += 1; continue; }
+              if (run.path !== reproduceLock) { skipped.otherWorkflow += 1; continue; }
+              const issueNumber = parseIssueNumber(run);
+              if (!issueNumber) { skipped.noIssue += 1; continue; }
+              const issue = await getIssue(issueNumber);
+              const closedAt = issue?.closed_at ? new Date(issue.closed_at) : null;
+              if (!issue || issue.pull_request || issue.state !== 'closed' || !closedAt || closedAt > cutoff) { skipped.openOrRecent += 1; continue; }
+              deletions.push({ artifactId: artifact.id, artifactName: artifact.name, runId, issueNumber, closedAt: issue.closed_at });
+            }
+
+            for (const item of deletions) {
+              core.info(`${dryRun ? 'would delete' : 'deleting'} ${item.artifactName} (${item.artifactId}) from run ${item.runId}, issue #${item.issueNumber}`);
+              if (!dryRun) await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: item.artifactId });
+            }
+
+            const rows = deletions.slice(0, 50).map((i) => `| #${i.issueNumber} | ${i.runId} | ${i.artifactName} | ${i.closedAt} |`);
+            await core.summary.addRaw([
+              `## Reproduce artifact cleanup${dryRun ? ' (dry run)' : ''}`, '',
+              `Cutoff: issues closed on or before ${cutoff.toISOString()}.`, '',
+              `Artifacts ${dryRun ? 'matched' : 'deleted'}: ${deletions.length}`, '',
+              '| Issue | Run | Artifact | Closed at |', '|---|---:|---|---|',
+              ...(rows.length ? rows : ['| - | - | - | - |']), '',
+              `Skipped: expired ${skipped.expired}, missing run ${skipped.missingRun}, other workflow ${skipped.otherWorkflow}, no issue ${skipped.noIssue}, open/recent ${skipped.openOrRecent}.`,
+            ].join('\n')).write();

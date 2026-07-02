@@ -1,0 +1,122 @@
+name: Reproduce Issue Preflight
+
+# Infra self-test for the reproduce pipeline — exercises provision → proxy → CLI (validate/seed/check)
+# → MCP bridge, WITHOUT the agent, so a broken step is caught before a real reproduction run.
+on:
+  workflow_dispatch:
+    inputs:
+      shopware_version:
+        description: "Version to provision (tag like v6.7.0.0, or trunk)"
+        required: false
+        default: trunk
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reproduce-preflight
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Provision Shopware
+        uses: shopware/setup-shopware@e12701e21d8a6003103426969ba544cdc91bf41c # v2.0.12
+        with:
+          shopware-version: ${{ inputs.shopware_version || 'trunk' }}
+          shopware-repository: shopware/shopware
+          path: shop
+          php-version: "8.4"
+          composer-root-version: ".auto"
+          mysql-version: "builtin"
+          install: "true"
+          install-admin: "true"
+          install-storefront: "true"
+          skip-js-build: "false"
+          allow-insecure-versions: "true"
+          env: prod
+
+      - name: Finish provision
+        id: provision
+        env:
+          SHOP_DIR: shop
+          DEMODATA: "false"
+        run: bash .github/actions/reproduce/steps/finish-provision.sh
+
+      - name: Snapshot clean DB
+        run: bash .github/actions/reproduce/steps/snapshot-db.sh
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null
+          npm i -D @playwright/test
+          npx playwright install --with-deps chromium
+
+      - name: Start Shopware MCP bridge and assert its tools
+        if: steps.provision.outputs.mcp_available == 'true'
+        env:
+          SHOPWARE_MCP_AVAILABLE: ${{ steps.provision.outputs.mcp_available }}
+          SHOPWARE_MCP_URL: "http://127.0.0.1:8000/api/_mcp"
+          SHOPWARE_MCP_ACCESS_KEY: ${{ steps.provision.outputs.mcp_access_key }}
+          SHOPWARE_MCP_SECRET_ACCESS_KEY: ${{ steps.provision.outputs.mcp_secret_access_key }}
+          SHOPWARE_MCP_BRIDGE_PORT: "18765"
+        run: |
+          set -euo pipefail
+          nohup node .github/actions/reproduce/mcp-bridge.mjs --http >/tmp/mcp.log 2>&1 &
+          for i in $(seq 1 20); do
+            curl -s -o /dev/null -w '%{http_code}' --max-time 1 http://127.0.0.1:18765/mcp | grep -q '^405$' && break
+            sleep 0.5
+          done
+          tools=$(curl -s -X POST http://127.0.0.1:18765/mcp -H 'content-type: application/json' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq -r '[.result.tools[].name] | join(",")')
+          echo "MCP tools: $tools"
+          echo "$tools" | grep -q 'shopware-entity-schema' || { echo "::error::MCP bridge did not expose the entity tools"; cat /tmp/mcp.log; exit 1; }
+
+      - name: Author a trivial bundle
+        run: |
+          cat > reproduction-plan.json <<'JSON'
+          { "schema_version":"1","issue":0,"executor":"playwright","layer":"storefront-ui","version":"preflight",
+            "fixtures":{"demodata":false},
+            "seeded_readiness":[{"kind":"browser","path":"/","selector":"body","min_width":100,"min_height":100}],
+            "scenario":["Given the storefront","When I open the home page","Then the page renders"],
+            "confidence":1 }
+          JSON
+          cat > fixtures.json <<'JSON'
+          { "product":[{ "id":"0af1e2c3d4e5f60718293a4b5c6d7e8f","productNumber":"PREFLIGHT-1","name":"Preflight Product",
+            "stock":10,"taxId":"{{TAX}}","price":[{"currencyId":"{{CURRENCY}}","gross":9.99,"net":8.4,"linked":true}],
+            "visibilities":[{"salesChannelId":"{{SC}}","visibility":30}] }] }
+          JSON
+
+      - name: repro validate / seed / check
+        env:
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+        run: |
+          set -euo pipefail
+          node .github/actions/reproduce/cli/repro.mjs validate
+          node .github/actions/reproduce/cli/repro.mjs seed
+          node .github/actions/reproduce/cli/repro.mjs check
+          echo "preflight OK — provision, proxy, seed, and readiness all work"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: preflight-diagnostics
+          path: |
+            seeded-readiness.json
+            seed-error.txt
+            test-results/
+            /tmp/mcp.log
+            /tmp/repro-shop-proxy.log
+          if-no-files-found: ignore
+          retention-days: 3

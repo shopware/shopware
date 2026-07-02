@@ -135,9 +135,9 @@ class ContactFormRoute extends AbstractContactFormRoute
         $criteria = new Criteria([$navigationId]);
 
         $entity = match ($entityName) {
-            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->first(),
-            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->first(),
-            default => $this->categoryRepository->search($criteria, $context->getContext())->first(),
+            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->getEntities()->first(),
+            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->getEntities()->first(),
+            default => $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first(),
         };
 
         if (!$entity) {

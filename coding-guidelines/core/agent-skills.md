@@ -109,6 +109,21 @@ skills — never per-skill.
   source comment — currently `sw-bugfixer` (code-fixing runs) and the
   `security`/`architecture` personas of `sw-review` are pinned to
   `claude-opus-4-8`.
+- **Inline sub-agents (`## agent:` blocks in a gh aw source) have three
+  hard-won requirements** (see `sw-review.md` for the working pattern):
+  - The frontmatter **must include `name:`** — Claude Code registers a
+    sub-agent only via that field, not via the file name. Without it the
+    orchestrator silently reviews inline and any per-agent `model:` pin
+    (e.g. an Opus escalation) never applies.
+  - **Restrict `tools:`** to what the worker needs (typically
+    `Read, Grep, Glob, Bash`). Sub-agents otherwise inherit every tool,
+    including safe-output MCP tools — a worker that publishes on its own can
+    consume capped safe-output quotas meant for the orchestrator.
+  - Workers **return their result as the final message**; only the
+    orchestrator publishes. State this in both the worker prompt and the
+    orchestrator prompt, and make dispatch mandatory ("you MUST dispatch via
+    the `Task` tool; never review inline") — a soft "otherwise do it
+    yourself" fallback reliably degrades into inline handling.
 
 ## Reference docs
 

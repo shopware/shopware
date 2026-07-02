@@ -46,7 +46,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
         /** @var array<string> $ids */
         $ids = $request->query->all('ids');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             throw ProductException::missingRequestParameter('ids');
         }
 

@@ -84,7 +84,16 @@
             {% endblock %}
 
             {% block cms_form_revocation_privacy %}
-                {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+                <div class="form-text privacy-notice data-protection-information">
+                    {% block cms_form_revocation_privacy_notice %}
+                        {% set cmsPath = 'frontend.cms.page' %}
+
+                        {{ 'revocationRequest.privacyNoticeTextModal'|trans({
+                            '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                            '%privacyModalTagClose%': '</button>',
+                        })|raw }}
+                    {% endblock %}
+                </div>
             {% endblock %}
 
             {% block cms_form_revocation_required_fields_info %}

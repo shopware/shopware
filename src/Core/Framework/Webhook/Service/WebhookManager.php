@@ -291,6 +291,7 @@ class WebhookManager implements ResetInterface
             $userLocale,
             $webhookHeaders,
             $partitionKey,
+            $webhook->appName,
         );
     }
 

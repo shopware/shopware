@@ -36,8 +36,8 @@ class SalesChannelValidatorTest extends TestCase
     {
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [SalesChannelDefinition::class, SalesChannelLanguageDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -66,7 +66,7 @@ class SalesChannelValidatorTest extends TestCase
                         'language_id' => Uuid::fromHexToBytes($languageId),
                     ],
                     ['id' => Uuid::fromHexToBytes($salesChannelId)],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0'
                 ),
             ]
@@ -97,7 +97,7 @@ class SalesChannelValidatorTest extends TestCase
                         'language_id' => Uuid::randomBytes(),
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0'
                 ),
             ]
@@ -127,7 +127,7 @@ class SalesChannelValidatorTest extends TestCase
                         'language_id' => Uuid::fromHexToBytes($languageId),
                     ],
                     ['id' => Uuid::fromHexToBytes($salesChannelId)],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0'
                 ),
                 new InsertCommand(
@@ -137,7 +137,7 @@ class SalesChannelValidatorTest extends TestCase
                         'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                         'language_id' => Uuid::fromHexToBytes($languageId),
                     ],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/languages/0'
                 ),
             ]

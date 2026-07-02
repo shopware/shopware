@@ -100,6 +100,42 @@ class AppContextGatewayPayloadServiceTest extends TestCase
         $service->request('https://example.com', $payload, $app);
     }
 
+    public function testRequestWithMalformedJsonThrows(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $cart = Generator::createCart();
+        $customData = new RequestDataBag(['foo' => 'bar']);
+
+        $app = new AppEntity();
+        $app->setName('TestApp');
+        $app->setVersion('1.0.0');
+        $app->setAppSecret('devsecret');
+
+        $payload = new ContextGatewayPayloadStruct($cart, $context, $customData);
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn($this->buildTestPayload($context->getContext(), '[]'));
+
+        $handler = new MockHandler();
+        $handler->append(new Response(200, [], '{'));
+
+        $service = new AppContextGatewayPayloadService(
+            $helper,
+            new Client(['handler' => $handler]),
+        );
+
+        try {
+            $service->request('https://example.com', $payload, $app);
+            static::fail('Expected malformed context gateway JSON to be wrapped.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
+            static::assertNull($e->getPrevious());
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */

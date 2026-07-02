@@ -49,8 +49,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         $this->connection->expects($this->never())
             ->method('createQueryBuilder');
-        $this->connection->expects($this->any())
-            ->method('createExpressionBuilder')
+        $this->connection->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($this->connection));
 
         $this->queryHelper = new DispatchEntitiesQueryBuilder($this->connection);
@@ -171,8 +170,8 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $definition = new TestEntityDefinition();
         new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         static::assertSame($this->queryHelper, $this->queryHelper->checkLiveVersion($definition));

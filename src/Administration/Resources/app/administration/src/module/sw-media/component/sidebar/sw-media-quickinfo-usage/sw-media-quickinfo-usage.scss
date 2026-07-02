@@ -1,6 +1,3 @@
-$sw-media-quickinfo-usage-hover-color: var(--color-text-brand-default);
-$sw-media-quickinfo-usage-hover-background: var(--color-background-brand-default);
-
 .sw-media-quickinfo-usage {
     .sw-media-quickinfo-usage__loading-indicator {
         position: relative;
@@ -34,10 +31,10 @@ $sw-media-quickinfo-usage-hover-background: var(--color-background-brand-default
 
         &:hover {
             cursor: pointer;
-            background-color: $sw-media-quickinfo-usage-hover-background;
+            background-color: var(--color-background-brand-default);
 
             .sw-media-quickinfo-usage__label {
-                color: $sw-media-quickinfo-usage-hover-color;
+                color: var(--color-text-brand-default);
             }
         }
 

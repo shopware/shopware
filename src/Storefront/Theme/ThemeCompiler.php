@@ -54,6 +54,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly FilesystemOperator $tempFilesystem,
+        private readonly FilesystemOperator $assetFilesystem,
         private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly bool $debug,
@@ -224,6 +225,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $result;
     }
 
+    /**
+     * Fallback for SaaS global CDN assets that are not available on the local asset filesystem.
+     */
     protected function fetchPublicFile(string $url): string|false
     {
         $context = stream_context_create([
@@ -236,6 +240,44 @@ class ThemeCompiler implements ThemeCompilerInterface
         ]);
 
         return @file_get_contents($url, false, $context);
+    }
+
+    private function readBuildMetaFile(
+        string $relativeMetaPath,
+        AssetPackage $package,
+        string $packageKey,
+    ): ?string {
+        $raw = $this->readBuildMetaFromAssetFilesystem($relativeMetaPath);
+        if ($raw !== null) {
+            return $raw;
+        }
+
+        if ($packageKey !== 'global_asset') {
+            return null;
+        }
+
+        return $this->readBuildMetaFromPublicUrl($relativeMetaPath, $package);
+    }
+
+    private function readBuildMetaFromAssetFilesystem(string $relativeMetaPath): ?string
+    {
+        $filesystemPath = ltrim($relativeMetaPath, '/');
+
+        try {
+            $raw = $this->assetFilesystem->read($filesystemPath);
+
+            return $raw !== '' ? $raw : null;
+        } catch (FilesystemException) {
+            return null;
+        }
+    }
+
+    private function readBuildMetaFromPublicUrl(string $relativeMetaPath, AssetPackage $package): ?string
+    {
+        $url = $package->getUrl(ltrim($relativeMetaPath, '/'));
+        $raw = $this->fetchPublicFile($url);
+
+        return \is_string($raw) && $raw !== '' ? $raw : null;
     }
 
     /**
@@ -399,15 +441,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $relativeMetaPath = $this->getPublishedComponentsRoot($bundleName) . '/.vite/build-meta.json';
-        $package = $this->resolveAssetPackageForBundle($bundleName, $configurationCollection);
+        $packageKey = $this->resolveAssetPackageKeyForBundle($bundleName, $configurationCollection);
 
-        if ($package === null) {
+        if ($packageKey === null) {
             return $this->bundleBuildMetaCache[$bundleName] = null;
         }
 
-        $url = $package->getUrl($relativeMetaPath);
-        $raw = $this->fetchPublicFile($url);
-        if (!\is_string($raw) || $raw === '') {
+        $package = $this->packages[$packageKey];
+        $raw = $this->readBuildMetaFile($relativeMetaPath, $package, $packageKey);
+        if ($raw === null || $raw === '') {
             return $this->bundleBuildMetaCache[$bundleName] = null;
         }
 
@@ -516,6 +558,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         string $bundleName,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): ?AssetPackage {
+        $packageKey = $this->resolveAssetPackageKeyForBundle($bundleName, $configurationCollection);
+
+        return $packageKey !== null ? $this->packages[$packageKey] : null;
+    }
+
+    private function resolveAssetPackageKeyForBundle(
+        string $bundleName,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): ?string {
         $isAppBundle = $this->isAppBundle($bundleName, $configurationCollection);
 
         /**
@@ -531,7 +582,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         foreach ($preferredKeys as $key) {
             if (isset($this->packages[$key])) {
-                return $this->packages[$key];
+                return $key;
             }
         }
 

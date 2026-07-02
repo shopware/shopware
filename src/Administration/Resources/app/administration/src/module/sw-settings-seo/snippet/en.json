@@ -40,6 +40,7 @@
     "labelSeoPathInfo": "SEO path",
     "textEmptySeoUrls": "There are no SEO URLs yet.",
     "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to a headless Sales Channel.",
+    "errorInvalidCharacters": "The SEO path contains characters that are not allowed in URLs (for example #, \\ or a stray %).",
     "labelMainCategory": "Main category",
     "placeholderMainCategory": "Choose a main category..."
   }

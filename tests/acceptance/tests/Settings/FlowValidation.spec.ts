@@ -32,7 +32,7 @@ test(
             },
         };
         const customer = await TestDataService.createCustomer(customerOverrides);
-        
+
         const order = await TestDataService.createOrder([{ product, quantity: 1 }], customer);
         TestDataService.addCreatedRecord('order', order.id);
 
@@ -48,11 +48,12 @@ test(
         });
 
         await test.step('Validate order state and customer tag via UI', async () => {
+            await TestDataService.clearCaches();
             await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
             await ShopAdmin.expects(AdminOrderDetail.orderStatus).toContainText('In Progress');
             await ShopAdmin.expects(AdminOrderDetail.orderPaymentStatus).toContainText('Paid');
             await ShopAdmin.expects(AdminOrderDetail.orderDeliveryStatus).toContainText('Shipped (partially)');
-            
+
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
             await ShopAdmin.expects(AdminCustomerDetail.tagList).toContainText(tagTrue.name);
         });

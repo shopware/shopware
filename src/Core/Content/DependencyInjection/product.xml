@@ -187,6 +187,24 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder"/>
+
+            <tag name="shopware.entity_indexer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
@@ -453,8 +471,6 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
-
-            <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed, as product states are deprecated.</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">

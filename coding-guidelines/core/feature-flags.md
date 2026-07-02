@@ -2,6 +2,8 @@
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
 We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
 
+Related ADR: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md).
+
 ### Activating the flag
 To switch flags on and off you can use the ***.env*** to configure each feature flag. Using dots inside an env variable are not allowed, so we use underscore instead:
 ```
@@ -86,13 +88,29 @@ class ApiController
 ```
 
 ### Using flags in tests
-You can flag a test by using the corresponding helper function. This can also be used in the `setUp()` method.
+In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
+
 ```php
-use Shopware\Core\Framework\Feature;
- 
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+
 class ProductTest
 {
-  public function testNewFeature() 
+  #[DisabledFeatures(['v6.5.0.0'])]
+  public function testLegacyFeature()
+  {
+     // test code
+  }
+}
+```
+
+In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method.
+
+```php
+use Shopware\Core\Framework\Feature;
+
+class ProductTest
+{
+  public function testNewFeature()
   {
      Feature::skipTestIfActive('v6.5.0.0', $this);
 

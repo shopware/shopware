@@ -1,8 +1,6 @@
 /**
  * @sw-package framework
  */
-import './app/assets/scss/all.scss';
-import 'inter-ui/inter.css';
 import { ShopwareInstance } from 'src/core/shopware';
 
 // IIFE

@@ -4,7 +4,7 @@
 // a leg never silently runs on broken setup.
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { FILES, appUrl, readJson, writeJson, blockedResult } from './lib.mjs';
+import { FILES, appUrl, readJson, shopDir, writeJson, blockedResult } from './lib.mjs';
 import { reset } from './reset.mjs';
 import { seed } from './seed.mjs';
 import { runBundle } from './run-bundle.mjs';
@@ -46,8 +46,7 @@ const fail = (target, out, reason) => {
 // Bounded demo dataset on the live shop when the plan asks for realistic catalog volume. Mirrors the
 // provision action's generator so the trunk leg (which provisions demodata from the plan) matches.
 function generateDemodata() {
-  const shop = process.env.SHOP_DIR || 'shop';
-  const run = (args) => spawnSync('php', args, { cwd: shop, stdio: 'inherit', env: { ...process.env, APP_ENV: 'prod' } });
+  const run = (args) => spawnSync('php', args, { cwd: shopDir(), stdio: 'inherit', env: { ...process.env, APP_ENV: 'prod' } });
   if (run(['bin/console', 'framework:demodata', '--no-interaction', '--multiplier=0.1', '--products=80', '--orders=0', '--reviews=0', '--promotions=0']).status !== 0) {
     console.warn('::warning::framework:demodata failed — continuing without demo data');
   }

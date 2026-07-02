@@ -75,7 +75,7 @@ function renderVerdict() {
   const as = legA?.status ?? 'null';
   const bs = legB?.status ?? 'null';
   const rv = (legA || plan).version ?? '?';
-  const labels = { AL: `v${rv}`, BL: 'trunk', AS: as, BS: bs };
+  const labels = { AL: `v${rv}`, BL: 'trunk' };
 
   const verdict = process.env.VERDICT || 'needs_human_review';
   const fix = process.env.FIX || '';

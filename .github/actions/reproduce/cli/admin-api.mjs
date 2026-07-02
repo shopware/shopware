@@ -5,15 +5,13 @@
 //
 // Auth is the first-party password grant that works on a default install (admin / shopware). All
 // requests use Accept: application/json for the flat response shape (id at the top level).
-import { appUrl } from './lib.mjs';
+import { adminPass, adminUser, appUrl } from './lib.mjs';
 
 const base = () => {
   const url = appUrl();
   if (!url) throw new Error('APP_URL is required');
   return url;
 };
-const adminUser = () => process.env.ADMIN_USER || 'admin';
-const adminPass = () => process.env.ADMIN_PASS || 'shopware';
 
 let cachedToken = '';
 

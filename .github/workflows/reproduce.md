@@ -40,8 +40,8 @@ engine:
   id: claude
   model: claude-sonnet-4-6
 
-# The trusted post-step verifier does the authoritative run; the agent's own tools are feedback only.
-# Sandbox stays off until the gh-aw sandbox artifact handoff is confirmed on this workflow.
+# Sandbox is disabled: the gh-aw sandbox artifact handoff does not work on this workflow yet.
+# The trusted post-step verifier owns the authoritative result either way.
 strict: false
 sandbox:
   agent: false
@@ -138,8 +138,7 @@ steps:
       APP_URL: ${{ steps.provision.outputs.app_url }}
     run: bash .github/actions/reproduce/steps/compose-prompt.sh
 
-  # The agent runs unsandboxed, so it reaches the shop directly at its real URL — same origin as the
-  # Admin SPA, which avoids the cross-origin admin-login failure a Host-rewriting proxy caused.
+  # The agent runs unsandboxed and reaches the shop directly at its real URL.
   - name: Export shop coordinates
     run: |
       {
@@ -306,7 +305,6 @@ safe-outputs:
             name: repro-reported
             path: artifacts/repro-reported
 
-        # One source of truth: did the agent produce a runnable plan AND a trusted reported result?
         - name: Detect bundle
           id: bundle
           run: |

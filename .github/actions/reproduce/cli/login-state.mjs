@@ -5,11 +5,12 @@
 //
 // Usage: node login-state.mjs <APP_URL> <out-state.json>   (exit 0 = state saved)
 import { chromium } from '@playwright/test';
+import { adminPass, adminUser } from './lib.mjs';
 
 const [appUrl, out] = process.argv.slice(2);
 if (!appUrl || !out) { console.error('usage: login-state.mjs <APP_URL> <out.json>'); process.exit(2); }
-const user = process.env.SW_ADMIN_USER ?? process.env.ADMIN_USER ?? 'admin';
-const pass = process.env.SW_ADMIN_PASS ?? process.env.ADMIN_PASS ?? 'shopware';
+const user = adminUser();
+const pass = adminPass();
 
 const browser = await chromium.launch();
 try {

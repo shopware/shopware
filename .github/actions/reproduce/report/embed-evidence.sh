@@ -27,6 +27,7 @@ n=${#names[@]}
 if [ "$n" -eq 0 ]; then echo '{"legs":[]}' > "$OUT"; echo "no playwright evidence"; exit 0; fi
 
 staged=$(mktemp -d)
+trap 'rm -rf "$staged" "${repo:-}"' EXIT
 for i in $(seq 0 $((n - 1))); do
   cp "${pngs[$i]}" "$staged/${names[$i]}.png"
   [ -n "${vids[$i]}" ] && cp "${vids[$i]}" "$staged/${names[$i]}.webm" || true

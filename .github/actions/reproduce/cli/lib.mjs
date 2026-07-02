@@ -17,7 +17,6 @@ export const FILES = {
 
 export const EXECUTORS = ['playwright', 'http', 'direct'];
 export const LAYERS = ['storefront-ui', 'admin-ui', 'store-api', 'admin-api', 'service'];
-export const STATUSES = ['reproduced', 'not_reproduced', 'inconclusive', 'blocked'];
 
 // Install-specific ids resolved against the running shop (see admin-api.mjs). Fixtures and HTTP
 // plans reference these by name so one bundle runs on any freshly-provisioned instance — a literal
@@ -27,10 +26,11 @@ export const ENTITY_PLACEHOLDERS = [
   'LANGUAGE', 'SYSTEM_LANGUAGE', 'CUSTOMER_GROUP', 'PAYMENT_METHOD', 'SHIPPING_METHOD',
   'ORDER_STATE_OPEN', 'ORDER_DELIVERY_STATE_OPEN', 'ORDER_TRANSACTION_STATE_OPEN',
 ];
-// Placeholders the HTTP executor fills in at request time (not entity ids).
-export const RUNTIME_PLACEHOLDERS = ['STOREFRONT_URL', 'SW_ACCESS_KEY', 'SW_CONTEXT_TOKEN'];
 
 export const appUrl = () => (process.env.APP_URL || '').replace(/\/$/, '');
+export const shopDir = () => process.env.SHOP_DIR || 'shop';
+export const adminUser = () => process.env.SW_ADMIN_USER ?? process.env.ADMIN_USER ?? 'admin';
+export const adminPass = () => process.env.SW_ADMIN_PASS ?? process.env.ADMIN_PASS ?? 'shopware';
 
 export function readJson(path, fallback = undefined) {
   try {

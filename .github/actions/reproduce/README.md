@@ -4,8 +4,8 @@ Turn a Shopware bug report into **one verified reproduction**, then post a verdi
 
 An AI agent authors a small reproduction *bundle* on a live shop. It decides no outcome: after it
 stops, deterministic scripts re-run that exact bundle on the **reported version** and on **trunk**,
-compare the results, and post the verdict. Because the trusted re-run happens from an immutable copy
-of this tooling on fresh runners, the agent cannot fake a result — so the evidence can be trusted.
+compare the results, and post the verdict. The trusted re-run happens from an immutable copy of this
+tooling on fresh runners, so the agent cannot fake a result.
 
 ## Pipeline
 

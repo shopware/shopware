@@ -5,7 +5,7 @@
 #
 # Env: ISSUE, VERSION (reported version label, "trunk" if none), APP_URL (agent-visible shop URL),
 #      OUT (default context.md).
-set -uo pipefail
+set -euo pipefail
 
 ISSUE=${ISSUE:-?}
 VERSION=${VERSION:-trunk}

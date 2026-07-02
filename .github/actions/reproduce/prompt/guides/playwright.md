@@ -71,7 +71,8 @@ Each leg then records a `.webm` that the comment links. Leave it off otherwise.
 
 **When you set `record_video: true`, narrate the recording** — a silent motion clip is hard to follow,
 and the whole point of the video is that a human can watch the symptom happen. Use the two helpers from
-`./video-helpers.js`: `narrate(page, "what's happening")` (a subtitle) and `mark(page, locator, "label")`
+`./video-helpers.js` (the harness places this file next to your spec at run time — keep the import
+path exactly as written): `narrate(page, "what's happening")` (a subtitle) and `mark(page, locator, "label")`
 (highlights the element about to be used). Narrate each meaningful step — the navigation, the action
 that triggers the symptom, and the failing state. **Write each as its own single-line `await` statement,
 next to — never wrapping — the real action**, e.g.:

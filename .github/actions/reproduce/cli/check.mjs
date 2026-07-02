@@ -1,8 +1,6 @@
-// Verify the seeded state is actually reachable and rendered on its surface — the targeted
-// "prove my pre-assumptions" tool. For each plan.seeded_readiness entry it loads the route and
-// asserts the marker (selector visible, optional text, optional minimum size), writes a screenshot,
-// and returns whether all checks passed. This lets exploration confirm setup without running the
-// whole spec. It proves SETUP, not the symptom — keep the reported broken control out of here.
+// Verify the seeded state renders: for each plan.seeded_readiness entry, load the route, assert the
+// marker (selector visible, optional text, optional minimum size), and write a screenshot.
+// It proves SETUP, not the symptom — keep the reported broken control out of here.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -60,19 +58,20 @@ async function runCheck(page, c, index, failures, observations) {
   if (!target) { failures.push(`${name}: missing or non-local path/url`); return; }
 
   const url = `${target}${target.includes('?') ? '&' : '?'}seededReadiness=${Date.now()}-${index}`;
-  const timeout = Number(c.timeout_ms || 15000);
-  await page.goto(url, { waitUntil: c.waitUntil || 'load', timeout: Number(c.timeout_ms || 30000) });
+  const elementTimeout = Number(c.timeout_ms || 15000);
+  const navTimeout = Number(c.timeout_ms || 30000);
+  await page.goto(url, { waitUntil: c.waitUntil || 'load', timeout: navTimeout });
 
   const consent = page.getByRole('button', { name: 'Only technically required' });
   if (await consent.count() === 1) await consent.click().catch(() => {});
 
   const selector = String(c.selector || 'body');
-  await page.locator(selector).first().waitFor({ state: 'visible', timeout })
+  await page.locator(selector).first().waitFor({ state: 'visible', timeout: elementTimeout })
     .catch(() => failures.push(`${name}: selector ${JSON.stringify(selector)} not visible on ${url}`));
 
   if (typeof c.text === 'string') {
     const textSelector = String(c.text_selector || selector);
-    const actual = await page.locator(textSelector).first().textContent({ timeout }).catch(() => '');
+    const actual = await page.locator(textSelector).first().textContent({ timeout: elementTimeout }).catch(() => '');
     if (!(actual ?? '').replace(/\s+/g, ' ').includes(c.text)) {
       failures.push(`${name}: ${JSON.stringify(textSelector)} does not include ${JSON.stringify(c.text)} on ${url}`);
     }
@@ -88,7 +87,6 @@ async function runCheck(page, c, index, failures, observations) {
   await page.screenshot({ path: shot, fullPage: false }).catch(() => {});
 }
 
-// Admin readiness reuses the saved admin session; storefront readiness pre-accepts consent.
 async function storageStateOptions(plan) {
   if (fs.existsSync('admin-state.json')) return { storageState: 'admin-state.json' };
   if (plan.layer === 'storefront-ui' && plan.browser_state?.auto_cookie_consent !== false) {

@@ -26,8 +26,8 @@ const listenPort = Number(process.env.SHOPWARE_MCP_BRIDGE_PORT || '18765');
 
 // Remote MCP session id, negotiated on first successful forward.
 let sessionId = null;
-// Whether the remote MCP proxy is usable. Starts disabled if opted out or if
-// credentials are missing; also flips to true if the remote becomes unreachable.
+// True when the remote MCP proxy can't be used — at init when opted out or credentials are
+// missing, and set again at runtime if the remote becomes unreachable.
 let remoteUnavailable = disabled || !accessKey || !secretAccessKey;
 // Number of tools reported by the remote (null until first tools/list forward).
 let remoteToolCount = null;
@@ -256,7 +256,6 @@ async function localToolCall(name, args = {}) {
         payload,
       },
     };
-    // dryRun defaults to true: return the normalized envelope without mutating.
     if (args.dryRun !== false) {
       return jsonText({ dryRun: true, operation });
     }
@@ -412,11 +411,9 @@ async function handle(message) {
 
   if (remoteUnavailable) {
     const empty = emptyList(method);
-    if (empty) {
-      return result(id, empty);
-    }
-
-    return error(id, 'Shopware MCP is not available for this reported version or the bridge has no credentials.', -32601);
+    return empty
+      ? result(id, empty)
+      : error(id, 'Shopware MCP is not available for this reported version or the bridge has no credentials.', -32601);
   }
 
   // Remote available: forward, merging remote + local tools on tools/list.

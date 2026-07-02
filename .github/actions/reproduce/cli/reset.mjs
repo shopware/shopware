@@ -4,7 +4,7 @@
 // current state rather than aborting the leg.
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { FILES } from './lib.mjs';
+import { FILES, shopDir } from './lib.mjs';
 
 function parseDatabaseUrl(url) {
   const u = new URL(url);
@@ -21,7 +21,7 @@ export function reset() {
     { stdio: 'inherit', env: { ...process.env, MYSQL_PWD: db.pass } });
   if (restore.status !== 0) { console.warn('::warning::DB reset failed — running on the current state'); return; }
 
-  const shop = process.env.SHOP_DIR || 'shop';
+  const shop = shopDir();
   if (fs.existsSync(`${shop}/bin/console`)) {
     spawnSync('php', ['bin/console', 'cache:pool:clear', '--all'], { cwd: shop, stdio: 'ignore', env: { ...process.env, APP_ENV: 'prod' } });
   }

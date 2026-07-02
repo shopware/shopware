@@ -1,9 +1,7 @@
-// `playwright` executor: run the generated spec ONCE against the leg's shop, then map the result.
-// The spec asserts the HEALTHY behaviour, so it FAILS on the buggy version (⇒ reproduced) and
-// PASSES when healthy (⇒ not_reproduced). A failure that is NOT a value assertion — a missing
-// element, navigation error, ambiguous locator, or an explicit PRECONDITION_NOT_FOUND throw — is
-// cross-version drift, not the symptom ⇒ inconclusive. Admin specs start authenticated; storefront
-// specs start consented (the harness owns both), so the spec navigates straight to the route.
+// `playwright` executor: run the spec ONCE against the leg's shop. Spec fails (healthy assertion)
+// ⇒ reproduced; passes ⇒ not_reproduced. A failure that is NOT a value assertion — missing element,
+// navigation error, ambiguous locator, explicit PRECONDITION_NOT_FOUND throw — is cross-version
+// drift, not the symptom ⇒ inconclusive. The harness owns admin auth and storefront consent.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';

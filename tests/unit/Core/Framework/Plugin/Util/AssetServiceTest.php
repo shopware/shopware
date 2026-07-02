@@ -261,7 +261,7 @@ class AssetServiceTest extends TestCase
             });
         $adapter->method('read')->willReturn(json_encode([], \JSON_THROW_ON_ERROR));
 
-        $assetService = $this->createAssetService($this->createFilesystem());
+        $assetService = $this->createAssetService(new Filesystem($adapter));
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }

@@ -687,6 +687,29 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(isFileAccepted).toBe(true);
     });
 
+    it('should pass extension mime types to the extension check', async () => {
+        const file = {
+            name: 'book.epub',
+            type: 'application/epub+zip',
+        };
+        const extensionMimeTypesByExtension = {
+            epub: ['application/epub+zip'],
+        };
+        const checkByExtension = jest.fn().mockReturnValue(true);
+        wrapper.vm.fileValidationService.checkByExtension = checkByExtension;
+
+        await wrapper.setProps({
+            extensionAccept: 'epub',
+            extensionMimeTypesByExtension,
+            fileAccept: '*/*',
+        });
+
+        const isFileAccepted = wrapper.vm.checkFileType(file);
+
+        expect(isFileAccepted).toBe(true);
+        expect(checkByExtension).toHaveBeenCalledWith(file, 'epub', null, extensionMimeTypesByExtension);
+    });
+
     it('should reject uploads when no fileAccept or extensionAccept is defined', async () => {
         const file = {
             name: 'dummy.pdf',

@@ -44,6 +44,7 @@ export default {
         return {
             isMediaLoading: false,
             fileAcceptedExtensions: [],
+            fileAcceptedMimeTypesByExtension: {},
         };
     },
 
@@ -107,7 +108,8 @@ export default {
     methods: {
         async createdComponent() {
             this.configService.getConfig().then((result) => {
-                this.fileAcceptedExtensions = result.settings.private_allowed_extensions;
+                this.fileAcceptedExtensions = result.settings.private_allowed_extensions ?? [];
+                this.fileAcceptedMimeTypesByExtension = result.settings.private_allowed_mime_types_by_extension ?? {};
             });
         },
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionWhitelistProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -41,6 +42,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class InfoController extends AbstractController
 {
+    private readonly ?PresignedMediaUploadService $presignedMediaUploadService;
+
+    private readonly ?MediaFileExtensionWhitelistProvider $mediaFileExtensionWhitelistProvider;
+
     /**
      * @internal
      */
@@ -58,8 +63,22 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
+        PresignedMediaUploadService|MediaFileExtensionWhitelistProvider|null $presignedMediaUploadService,
+        PresignedMediaUploadService|MediaFileExtensionWhitelistProvider|null $mediaFileExtensionWhitelistProvider = null,
     ) {
+        if ($presignedMediaUploadService instanceof MediaFileExtensionWhitelistProvider) {
+            $this->mediaFileExtensionWhitelistProvider = $presignedMediaUploadService;
+            $this->presignedMediaUploadService = $mediaFileExtensionWhitelistProvider instanceof PresignedMediaUploadService
+                ? $mediaFileExtensionWhitelistProvider
+                : null;
+
+            return;
+        }
+
+        $this->presignedMediaUploadService = $presignedMediaUploadService;
+        $this->mediaFileExtensionWhitelistProvider = $mediaFileExtensionWhitelistProvider instanceof MediaFileExtensionWhitelistProvider
+            ? $mediaFileExtensionWhitelistProvider
+            : null;
     }
 
     #[Route(
@@ -188,6 +207,8 @@ class InfoController extends AbstractController
             $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
         }
 
+        $mediaFileExtensionWhitelistProvider = $this->getMediaFileExtensionWhitelistProvider();
+
         $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
@@ -202,7 +223,8 @@ class InfoController extends AbstractController
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
-                'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
+                'private_allowed_extensions' => $mediaFileExtensionWhitelistProvider->getAllowedExtensions(true, $context),
+                'private_allowed_mime_types_by_extension' => $mediaFileExtensionWhitelistProvider->getMimeTypesByExtension(true, $context),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
@@ -245,6 +267,32 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
+    }
+
+    private function getMediaFileExtensionWhitelistProvider(): MediaFileExtensionWhitelistProvider
+    {
+        return $this->mediaFileExtensionWhitelistProvider ?? new MediaFileExtensionWhitelistProvider(
+            $this->eventDispatcher,
+            $this->getFilesystemAllowedExtensions('shopware.filesystem.allowed_extensions'),
+            $this->getFilesystemAllowedExtensions('shopware.filesystem.private_allowed_extensions'),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getFilesystemAllowedExtensions(string $parameter): array
+    {
+        $extensions = $this->params->get($parameter);
+
+        if (!\is_array($extensions)) {
+            return [];
+        }
+
+        /** @var list<string> $extensions */
+        $extensions = array_values($extensions);
+
+        return $extensions;
     }
 
     /**

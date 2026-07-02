@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionWhitelistProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -113,7 +114,11 @@ class InfoControllerTest extends TestCase
             || \is_string($settings['firstMigrationDate'])
         );
         static::assertArrayHasKey('private_allowed_extensions', $settings);
-        static::assertFalse($settings['private_allowed_extensions']);
+        static::assertSame(['pdf', 'epub'], $settings['private_allowed_extensions']);
+        static::assertArrayHasKey('private_allowed_mime_types_by_extension', $settings);
+        static::assertIsArray($settings['private_allowed_mime_types_by_extension']);
+        static::assertContains('application/pdf', $settings['private_allowed_mime_types_by_extension']['pdf']);
+        static::assertSame(['application/epub+zip'], $settings['private_allowed_mime_types_by_extension']['epub']);
         static::assertArrayHasKey('enableHtmlSanitizer', $settings);
         static::assertTrue($settings['enableHtmlSanitizer']);
         static::assertArrayHasKey('minSearchTermLength', $settings);
@@ -247,14 +252,29 @@ class InfoControllerTest extends TestCase
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
+    public function testConfigSupportsLegacyConstructorArguments(): void
+    {
+        $response = $this->createController(includeWhitelistProvider: false)
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($data);
+        static::assertSame(['pdf', 'epub'], $data['settings']['private_allowed_extensions']);
+        static::assertSame(['application/epub+zip'], $data['settings']['private_allowed_mime_types_by_extension']['epub']);
+    }
+
     /**
      * @param list<string> $adminWorkerTransports
      */
-    private function createController(array $adminWorkerTransports = ['slow']): InfoController
+    private function createController(array $adminWorkerTransports = ['slow'], bool $includeWhitelistProvider = true): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
-            'shopware.filesystem.private_allowed_extensions' => false,
+            'shopware.filesystem.allowed_extensions' => [],
+            'shopware.filesystem.private_allowed_extensions' => ['pdf', 'epub'],
             'shopware.admin_worker.transports' => $adminWorkerTransports,
             'shopware.admin_worker.enable_notification_worker' => true,
             'shopware.admin_worker.enable_queue_stats_worker' => true,
@@ -265,6 +285,25 @@ class InfoControllerTest extends TestCase
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
         ]);
+
+        if (!$includeWhitelistProvider) {
+            return new InfoController(
+                static::createStub(DefinitionService::class),
+                $parameterBag,
+                static::createStub(BusinessEventCollector::class),
+                static::createStub(IncrementGatewayRegistry::class),
+                $this->migrationInfo,
+                static::createStub(AppUrlVerifier::class),
+                static::createStub(FlowActionCollector::class),
+                new StaticSystemConfigService(),
+                static::createStub(ApiRouteInfoResolver::class),
+                StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
+                $this->shopIdProvider,
+                $this->statsService,
+                $this->eventDispatcher,
+                null,
+            );
+        }
 
         return new InfoController(
             static::createStub(DefinitionService::class),
@@ -281,6 +320,7 @@ class InfoControllerTest extends TestCase
             $this->statsService,
             $this->eventDispatcher,
             null,
+            new MediaFileExtensionWhitelistProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );
     }
 }

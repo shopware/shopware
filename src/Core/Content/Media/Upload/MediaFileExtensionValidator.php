@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
-use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -18,28 +17,35 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('discovery')]
 readonly class MediaFileExtensionValidator
 {
+    private MediaFileExtensionWhitelistProvider $whitelistProvider;
+
     /**
-     * @param array<string> $allowedExtensions
-     * @param list<string> $privateAllowedExtensions
+     * @param array<string>|null $allowedExtensions
+     * @param list<string>|null $privateAllowedExtensions
      */
     public function __construct(
-        private EventDispatcherInterface $eventDispatcher,
-        private array $allowedExtensions,
-        private array $privateAllowedExtensions,
+        EventDispatcherInterface|MediaFileExtensionWhitelistProvider $eventDispatcher,
+        ?array $allowedExtensions = null,
+        ?array $privateAllowedExtensions = null,
     ) {
+        if ($eventDispatcher instanceof MediaFileExtensionWhitelistProvider) {
+            $this->whitelistProvider = $eventDispatcher;
+
+            return;
+        }
+
+        $this->whitelistProvider = new MediaFileExtensionWhitelistProvider(
+            $eventDispatcher,
+            $allowedExtensions ?? [],
+            $privateAllowedExtensions ?? [],
+        );
     }
 
     public function validate(string $extension, bool $isPrivate, Context $context, string $mediaId = ''): void
     {
-        $event = new MediaFileExtensionWhitelistEvent(
-            $isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions,
-            $context,
-        );
-        $this->eventDispatcher->dispatch($event);
-
         $fileExtension = mb_strtolower($extension);
 
-        foreach ($event->getWhitelist() as $allowed) {
+        foreach ($this->whitelistProvider->getAllowedExtensions($isPrivate, $context) as $allowed) {
             if ($fileExtension === mb_strtolower((string) $allowed)) {
                 return;
             }

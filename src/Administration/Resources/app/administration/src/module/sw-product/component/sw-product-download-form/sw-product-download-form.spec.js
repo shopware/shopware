@@ -5,7 +5,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 /**
  * @sw-package inventory
  */
-async function createWrapper(hasError = false) {
+async function createWrapper(hasError = false, configSettings = {}) {
     if (hasError) {
         Shopware.Store.get('error').addApiError({
             expression: 'product.product1Id.downloads',
@@ -41,6 +41,11 @@ async function createWrapper(hasError = false) {
                                     'jpg',
                                     'pdf',
                                 ],
+                                private_allowed_mime_types_by_extension: {
+                                    pdf: ['application/pdf'],
+                                    epub: ['application/epub+zip'],
+                                },
+                                ...configSettings,
                             },
                         });
                     },
@@ -50,6 +55,11 @@ async function createWrapper(hasError = false) {
                 'sw-upload-listener': true,
                 'sw-product-image': await wrapTestComponent('sw-product-image'),
                 'sw-media-upload-v2': {
+                    name: 'sw-media-upload-v2',
+                    props: [
+                        'extensionAccept',
+                        'extensionMimeTypesByExtension',
+                    ],
                     template: '<div class="sw-media-upload-v2"></div>',
                 },
                 'sw-media-preview-v2': true,
@@ -154,6 +164,31 @@ describe('module/sw-product/component/sw-product-download-form', () => {
         await flushPromises();
 
         expect(wrapper.vm.fileAccept).toBe('png, svg, jpg, pdf');
+    });
+
+    it('should read private mime types by extension from the config service', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.fileAcceptedMimeTypesByExtension).toEqual({
+            pdf: ['application/pdf'],
+            epub: ['application/epub+zip'],
+        });
+    });
+
+    it('should pass accepted extensions and mime types to the media upload component', async () => {
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mediaUpload = wrapper.getComponent({ name: 'sw-media-upload-v2' });
+
+        expect(mediaUpload.props('extensionAccept')).toBe('png, svg, jpg, pdf');
+        expect(mediaUpload.props('extensionMimeTypesByExtension')).toEqual({
+            pdf: ['application/pdf'],
+            epub: ['application/epub+zip'],
+        });
     });
 
     it('should have an error state', async () => {

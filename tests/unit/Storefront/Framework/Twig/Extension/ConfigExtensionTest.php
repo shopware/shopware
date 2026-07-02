@@ -22,7 +22,7 @@ class ConfigExtensionTest extends TestCase
 {
     public function testGetFunctionsReturnsExpectedFunctions(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
         $functions = $extension->getFunctions();
 
         static::assertCount(4, $functions);
@@ -114,7 +114,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testThemeThrowsWhenContextKeyIsMissing(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
@@ -123,7 +123,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testThemeThrowsWhenContextIsNotSalesChannelContext(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
@@ -177,7 +177,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testThemeCssVarsThrowsWhenContextKeyIsMissing(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 

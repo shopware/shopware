@@ -332,10 +332,11 @@ class ServiceLifecycleTest extends TestCase
         $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '6.6.0.0-a1bcd']);
         $this->registryReturnsEntry();
         $this->fetchReturnsAppInfo();
-        $this->requirementsMet(true);
 
+        $this->requirementsValidator->expects($this->never())->method('isSatisfied');
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
+        $this->appManager->expects($this->never())->method('uninstall');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());

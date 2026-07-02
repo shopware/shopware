@@ -35,6 +35,7 @@ export interface ContentSystemElementTypePropertyAdminUi {
     component?: string;
     props?: Record<string, unknown>;
     entity?: string;
+    helpText?: string;
     visibleWhen?: ContentSystemElementAdminUiVisibleWhen;
     [key: string]: unknown;
 }

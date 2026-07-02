@@ -1,5 +1,11 @@
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
-import { getAdminUiProps, getInitialPropertyValue, getPropertyControlType, isPropertyVisible } from './element-settings.util';
+import {
+    getAdminUiHelpText,
+    getAdminUiProps,
+    getInitialPropertyValue,
+    getPropertyControlType,
+    isPropertyVisible,
+} from './element-settings.util';
 
 describe('module/sw-experience-studio/util/element-settings.util', () => {
     const stringProperty: ContentSystemElementTypeProperty = {
@@ -46,6 +52,15 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 component: 'mt-select',
             },
         })).toBe('select');
+    });
+
+    it('maps adminUI color properties to color controls', () => {
+        expect(getPropertyControlType({
+            ...stringProperty,
+            adminUI: {
+                component: 'color',
+            },
+        })).toBe('color');
     });
 
     it('maps adminUI radio panel properties to radio panel controls', () => {
@@ -113,6 +128,20 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
 
     it('returns empty adminUI props when missing', () => {
         expect(getAdminUiProps(stringProperty)).toEqual({});
+    });
+
+    it('returns adminUI help text when provided', () => {
+        expect(getAdminUiHelpText({
+            ...stringProperty,
+            adminUI: {
+                component: 'mt-text-field',
+                helpText: 'sw-experience-studio.elements.grid.columns.helpText',
+            },
+        })).toBe('sw-experience-studio.elements.grid.columns.helpText');
+    });
+
+    it('returns null when adminUI help text is missing', () => {
+        expect(getAdminUiHelpText(stringProperty)).toBeNull();
     });
 
     it('maps plain string properties to text controls', () => {

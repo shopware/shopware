@@ -4,6 +4,7 @@ import type {
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
 import {
+    getAdminUiHelpText,
     getAdminUiProps as getPropertyAdminUiProps,
     getInitialPropertyValue,
     isPropertyVisible,
@@ -327,6 +328,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         getControlProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
             return getPropertyAdminUiProps(property);
+        },
+
+        getPropertyHelpText(property: ContentSystemElementTypeProperty): string | undefined {
+            const helpText = getAdminUiHelpText(property);
+
+            if (!helpText) {
+                return undefined;
+            }
+
+            return this.$te(helpText) ? this.$t(helpText) : helpText;
         },
 
         getRadioPanelOptions(property: ContentSystemElementTypeProperty): RadioPanelOption[] {

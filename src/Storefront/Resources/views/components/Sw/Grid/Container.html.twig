@@ -15,7 +15,8 @@
     centered = true,
     border = null,
     borderVariant = null,
-    borderSubtle = false,
+    backgroundColor = null,
+    backgroundImage = null,
     slots = [],
 %}
 
@@ -236,7 +237,7 @@
             true: 'centered',
         },
         border: {
-            true: 'border',
+            all: 'border',
             top: 'border-top',
             end: 'border-end',
             bottom: 'border-bottom',
@@ -270,7 +271,8 @@
         centered,
         border,
         borderVariant,
-        borderSubtle,
+        backgroundColor,
+        backgroundImage
     }),
 } %}
 
@@ -293,6 +295,13 @@
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
+
+{% if backgroundColor %}
+    {% set gridStyle = gridStyle ~ 'background-color: ' ~ backgroundColor ~ '; ' %}
+{% endif %}
+{% if backgroundImage %}
+    {% set gridStyle = gridStyle ~ 'background-image: url(' ~ backgroundImage ~ '); ' %}
+{% endif %}
 
 {% if mode == 'auto-fit' or mode == 'auto-fill' %}
     {% set gridStyle = gridStyle ~ 'grid-template-columns: repeat(' ~ mode ~ ', minmax(' ~ itemMinWidth ~ ', 1fr));' %}

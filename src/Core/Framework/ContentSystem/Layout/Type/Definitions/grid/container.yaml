@@ -282,7 +282,9 @@ properties:
     type: string
     title: "Border"
     description: "Border position."
+    required: false
     enum:
+      - "all"
       - "top"
       - "end"
       - "bottom"
@@ -294,6 +296,7 @@ properties:
     type: string
     title: "Border Variant"
     description: "Border color variant."
+    required: false
     enum:
       - "primary"
       - "secondary"
@@ -301,11 +304,23 @@ properties:
     adminUI:
       component: "select"
 
-  borderSubtle:
-    type: boolean
-    title: "Border Subtle"
-    description: "Use subtle border style."
-    default: false
+  backgroundColor:
+    type: string
+    title: "Background Color"
+    description: "Optional background color of the container."
+    default: null
+    required: false
+    adminUI:
+      component: "color"
+
+  backgroundImage:
+    type: Shopware\Core\Content\Media\MediaEntity
+    title: "Background Image"
+    description: "Optional background image of the container."
+    default: null
+    required: false
+    adminUI:
+      component: "media-field"
 
 slots:
   - name: content

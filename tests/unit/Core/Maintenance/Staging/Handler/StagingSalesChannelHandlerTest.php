@@ -41,7 +41,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );
@@ -70,7 +70,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );
@@ -103,7 +103,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );
@@ -136,7 +136,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );

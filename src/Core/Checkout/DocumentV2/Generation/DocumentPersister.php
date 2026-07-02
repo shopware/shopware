@@ -169,7 +169,7 @@ final readonly class DocumentPersister
 
         $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
 
-        if ($documentTypeId === null || $documentTypeId === '') {
+        if ($documentTypeId === null) {
             throw DocumentV2Exception::documentTypeNotFound($documentType);
         }
 

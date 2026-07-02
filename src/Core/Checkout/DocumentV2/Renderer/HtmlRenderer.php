@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Template\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Template\TemplateContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -59,7 +59,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             itemsPerPage: 1000,
         );
 
-        $template = DocumentType::from($input->documentType)->templatePath();
+        $template = $renderData->templatePathFor(self::FORMAT->value);
 
         $content = $this->documentTemplateRenderer->render(
             $template,

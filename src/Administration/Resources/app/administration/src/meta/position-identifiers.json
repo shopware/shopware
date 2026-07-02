@@ -366,6 +366,8 @@
  "sw-users-permissions-user-detail",
  "sw-users-permissions-user-detail-integrations",
  "sw-users-permissions-user-detail-mcp-allowlist",
+ "sw-users-permissions-user-detail-roles-permissions",
+ "sw-users-permissions-user-detail-user-interface",
  "sw-users-permissions-user-listing",
  "sw-variant-card-tabs",
  "tabExtension.componentSectionId"

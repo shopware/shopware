@@ -21,7 +21,7 @@ class QueryBuilderDataExtractorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $this->queryBuilder = new QueryBuilder(static::createStub(Connection::class));
     }
 
     public function testGetSelect(): void

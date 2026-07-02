@@ -741,7 +741,7 @@ class ThemeCompilerImportMapTest extends TestCase
      */
     private function createCompilerWithFetchPublicFileOverride(array $packages, \Closure $fetchPublicFile): ThemeCompiler
     {
-        $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
+        $themePathBuilder = static::createStub(AbstractThemePathBuilder::class);
         $themePathBuilder->method('assemblePath')->willReturn('theme-path');
         if ($packages === []) {
             $packages = [
@@ -751,7 +751,7 @@ class ThemeCompilerImportMapTest extends TestCase
 
         $assetFilesystem = $this->assetFilesystem;
 
-        return new class($this->createMock(FilesystemOperator::class), $this->createMock(FilesystemOperator::class), $assetFilesystem, new CopyBatchInputFactory(), $this->createMock(ThemeFileResolver::class), true, $this->createMock(EventDispatcherInterface::class), $this->createMock(ThemeFilesystemResolver::class), $packages, $this->createMock(CacheInvalidator::class), $this->createMock(LoggerInterface::class), $themePathBuilder, $this->createMock(AbstractScssCompiler::class), [], false, 'public', $fetchPublicFile) extends ThemeCompiler {
+        return new class($this->createStub(FilesystemOperator::class), $this->createStub(FilesystemOperator::class), $assetFilesystem, new CopyBatchInputFactory(), $this->createStub(ThemeFileResolver::class), true, $this->createStub(EventDispatcherInterface::class), $this->createStub(ThemeFilesystemResolver::class), $packages, $this->createStub(CacheInvalidator::class), $this->createStub(LoggerInterface::class), $themePathBuilder, $this->createStub(AbstractScssCompiler::class), [], false, 'public', $fetchPublicFile) extends ThemeCompiler {
             /**
              * @var \Closure(string): (string|false)
              */

@@ -56,7 +56,7 @@ export default {
         },
         text: {
             csv: 'icons-multicolor-file-thumbnail-csv',
-            plain: 'icons-multicolor-file-thumbnail-csv',
+            plain: 'icons-multicolor-file-thumbnail-txt',
         },
         image: {
             gif: 'icons-multicolor-file-thumbnail-gif',

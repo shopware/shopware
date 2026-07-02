@@ -82,7 +82,7 @@ class TwigDateRequestListenerTest extends TestCase
         }
 
         $event = new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -117,7 +117,7 @@ class TwigDateRequestListenerTest extends TestCase
         $request->cookies->set(TwigDateRequestListener::TIMEZONE_COOKIE, 'America/New_York');
 
         $event = new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );

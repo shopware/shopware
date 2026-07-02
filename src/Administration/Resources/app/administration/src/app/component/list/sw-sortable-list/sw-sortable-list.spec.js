@@ -301,4 +301,60 @@ describe('src/component/list/sw-sortable-list', () => {
 
         expect(scrollByOptions).toHaveLength(0);
     });
+
+    it('should build mergedDragConfig without mutating the shared default config', async () => {
+        wrapper = await createWrapper();
+
+        const merged = wrapper.vm.mergedDragConfig;
+
+        expect(merged.onDragStart).toBe(wrapper.vm.onDragStart);
+        expect(merged.onDragEnter).toBe(wrapper.vm.onDragEnter);
+        expect(merged.onDrop).toBe(wrapper.vm.onDrop);
+
+        expect(wrapper.vm.defaultConfig.onDragStart).toBeUndefined();
+        expect(wrapper.vm.defaultConfig.onDragEnter).toBeUndefined();
+        expect(wrapper.vm.defaultConfig.onDrop).toBeUndefined();
+    });
+
+    it('should let caller-supplied dragConf override the built-in handlers', async () => {
+        const customOnDrop = jest.fn();
+
+        wrapper = await createWrapper({
+            props: {
+                dragConf: {
+                    dragGroup: 'custom-group',
+                    onDrop: customOnDrop,
+                },
+            },
+        });
+
+        const merged = wrapper.vm.mergedDragConfig;
+
+        // caller overrides win (spread last)...
+        expect(merged.dragGroup).toBe('custom-group');
+        expect(merged.onDrop).toBe(customOnDrop);
+        // ...while handlers the caller did not override fall back to the instance methods
+        expect(merged.onDragStart).toBe(wrapper.vm.onDragStart);
+        expect(merged.onDragEnter).toBe(wrapper.vm.onDragEnter);
+    });
+
+    it('should not trigger an infinite update loop when multiple lists are mounted', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const wrapperA = await createWrapper();
+        const wrapperB = await createWrapper();
+
+        await flushPromises();
+
+        const recursiveWarnings = warnSpy.mock.calls.filter((call) =>
+            call.some((arg) => typeof arg === 'string' && arg.includes('Maximum recursive updates exceeded')),
+        );
+
+        expect(recursiveWarnings).toHaveLength(0);
+        expect(wrapperA.findAll('.sw-sortable-list__item')).toHaveLength(3);
+        expect(wrapperB.findAll('.sw-sortable-list__item')).toHaveLength(3);
+
+        warnSpy.mockRestore();
+        wrapperA.unmount();
+        wrapperB.unmount();
+    });
 });

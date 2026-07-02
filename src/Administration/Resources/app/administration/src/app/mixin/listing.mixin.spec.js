@@ -316,6 +316,39 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(getListMock).toHaveBeenCalledWith();
     });
 
+    it('should reload when stored filter query changes without local filter criteria', async () => {
+        await wrapper.unmount();
+
+        getListMock = jest.fn(() => {});
+        wrapper = await createWrapper({
+            defaultData: {
+                storeKey: 'grid.filter.product_review',
+            },
+            routeFirstPush: {
+                name: 'sw.product.index',
+                query: {
+                    page: '1',
+                    limit: '25',
+                },
+            },
+        });
+
+        await flushPromises();
+        getListMock.mockClear();
+
+        await router.push({
+            query: {
+                page: '1',
+                limit: '25',
+                'grid.filter.product_review': encodeURIComponent(JSON.stringify({})),
+            },
+        });
+
+        await flushPromises();
+
+        expect(getListMock).toHaveBeenCalledWith();
+    });
+
     it('should clear app selections when leaving a route-loaded listing component', async () => {
         await wrapper.unmount();
         wrapper = undefined;

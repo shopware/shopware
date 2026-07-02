@@ -112,6 +112,11 @@ foreach ($trunkHeadings as $heading) {
 
 $total = \count($trunkHeadings);
 
+// Order entries by the introducing commit hash so log and summary are stable and grouped by commit.
+$byCommit = static fn (array $a, array $b): int => strcmp($a['sha'], $b['sha']);
+usort($missing, $byCommit);
+usort($warnings, $byCommit);
+
 // ── Console log (visible in the Actions job log) ────────────────────────────────
 if ($warnings) {
     echo 'WARN: ' . \count($warnings) . " of {$total} entries need manual verification:\n\n";

@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Mcp;
+namespace Shopware\Tests\DevOps\Core\Framework\Mcp;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Framework;
 use Shopware\Storefront\Storefront;
@@ -21,7 +20,6 @@ use Symfony\Component\Filesystem\Path;
  *
  * @internal
  */
-#[CoversNothing]
 class McpDiscoveryScanDirsConfigTest extends TestCase
 {
     /**

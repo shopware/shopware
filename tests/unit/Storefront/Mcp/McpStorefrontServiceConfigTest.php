@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Mcp\Tool\ThemeConfigTool;
+use Shopware\Tests\DevOps\Core\Framework\Mcp\McpDiscoveryScanDirsConfigTest;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -18,8 +19,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
  * Wrong tags cause silent disappearance from the MCP tool registry.
  *
  * Discovery of the Storefront `Mcp` scan dir (so the SDK finds the #[McpTool]
- * attributes) is covered by
- * \Shopware\Tests\Unit\Core\Framework\Mcp\McpDiscoveryScanDirsConfigTest.
+ * attributes) is covered by {@see McpDiscoveryScanDirsConfigTest}.
  *
  * @internal
  */

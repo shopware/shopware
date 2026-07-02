@@ -16,5 +16,83 @@
         <service id="Shopware\Core\Framework\AdminAuth\Entity\UserMethod\AdminAuthUserMethodDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <!-- Built-in method settings (enabled / roles / order): YAML gate + runtime system-config layer -->
+        <service id="Shopware\Core\Framework\AdminAuth\MethodSettingsService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.admin_auth.mfa.methods%</argument>
+            <argument>%shopware.admin_auth.password_login%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\SecretEncryptor">
+            <argument>%kernel.secret%</argument>
+        </service>
+
+        <!-- MFA policy + challenge store + rate limiter -->
+        <service id="Shopware\Core\Framework\AdminAuth\Mfa\MfaPolicyService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\MethodSettingsService"/>
+            <argument>%shopware.admin_auth.mfa.required%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Mfa\MfaChallengeStore">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\Mfa\MfaRateLimiter">
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <!-- Primary factor verifiers -->
+        <service id="Shopware\Core\Framework\AdminAuth\OAuth\Verifier\PasswordVerifier">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\MethodSettingsService"/>
+            <tag name="shopware.admin_auth.primary_verifier"/>
+        </service>
+
+        <!-- Second factor verifiers -->
+        <service id="Shopware\Core\Framework\AdminAuth\OAuth\Verifier\TotpVerifier">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\SecretEncryptor"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <tag name="shopware.admin_auth.second_factor_verifier"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\OAuth\Verifier\RecoveryCodeVerifier">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <tag name="shopware.admin_auth.second_factor_verifier"/>
+        </service>
+
+        <!-- Builds the admin_primary / admin_second_factor grants for the ApiAuthenticationListener -->
+        <service id="Shopware\Core\Framework\AdminAuth\AdminAuthGrantFactory">
+            <argument type="tagged_iterator" tag="shopware.admin_auth.primary_verifier"/>
+            <argument type="tagged_iterator" tag="shopware.admin_auth.second_factor_verifier"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Mfa\MfaPolicyService"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Mfa\MfaChallengeStore"/>
+            <argument type="service" id="shopware.jwt_config"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Mfa\MfaRateLimiter"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <!-- Rejects MFA-pending tokens from every route except the second-factor token exchange -->
+        <service id="Shopware\Core\Framework\AdminAuth\PendingTokenGuard">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- Prune expired MFA challenges hourly -->
+        <service id="Shopware\Core\Framework\AdminAuth\ScheduledTask\PruneMfaChallengesTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AdminAuth\ScheduledTask\PruneMfaChallengesTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\Mfa\MfaChallengeStore"/>
+            <tag name="messenger.message_handler"/>
+        </service>
     </services>
 </container>

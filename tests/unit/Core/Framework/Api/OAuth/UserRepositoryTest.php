@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\UserRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -107,7 +108,54 @@ class UserRepositoryTest extends TestCase
         static::assertNull($response);
     }
 
-    protected function createUserRepository(?UserEntity $user): UserRepository
+    public function testLoginIsRejectedWhenPasswordLoginIsDisabled(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user, passwordLoginEnabled: false);
+
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $this->createMock(ClientEntityInterface::class)
+        );
+
+        static::assertNull($response, 'password login must be rejected even with correct credentials');
+    }
+
+    #[DisabledFeatures(['ADMIN_AUTH'])]
+    public function testPasswordLoginConfigIsIgnoredWhenFeatureIsInactive(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user, passwordLoginEnabled: false);
+
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $this->createMock(ClientEntityInterface::class)
+        );
+
+        static::assertNotNull($response, 'without the ADMIN_AUTH feature the config must have no effect');
+    }
+
+    protected function createUserRepository(?UserEntity $user, bool $passwordLoginEnabled = true): UserRepository
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $queryBuilder->method('select')->willReturnSelf();
@@ -125,6 +173,6 @@ class UserRepositoryTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        return new UserRepository($connection);
+        return new UserRepository($connection, $passwordLoginEnabled);
     }
 }

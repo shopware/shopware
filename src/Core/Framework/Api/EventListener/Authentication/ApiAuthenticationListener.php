@@ -8,7 +8,9 @@ use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use Shopware\Core\Framework\AdminAuth\AdminAuthGrantFactory;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
@@ -37,6 +39,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly UserRepositoryInterface $userRepository,
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly AdminAuthGrantFactory $adminAuthGrantFactory,
         private readonly string $accessTokenTtl = 'PT10M',
         private readonly string $refreshTokenTtl = 'P1W'
     ) {
@@ -72,6 +75,12 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);
         $this->authorizationServer->enableGrantType($refreshTokenGrant, $accessTokenInterval);
         $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $accessTokenInterval);
+
+        if (Feature::isActive('ADMIN_AUTH')) {
+            foreach ($this->adminAuthGrantFactory->createGrants($refreshTokenInterval) as $grant) {
+                $this->authorizationServer->enableGrantType($grant, $accessTokenInterval);
+            }
+        }
     }
 
     public function validateRequest(ControllerEvent $event): void

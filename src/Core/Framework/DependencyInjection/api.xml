@@ -225,6 +225,7 @@
 
         <service id="Shopware\Core\Framework\Api\OAuth\UserRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.admin_auth.password_login%</argument>
         </service>
 
         <!-- Scopes -->
@@ -291,6 +292,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\AdminAuth\AdminAuthGrantFactory"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 

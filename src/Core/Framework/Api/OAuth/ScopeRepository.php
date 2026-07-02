@@ -9,6 +9,9 @@ use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use Shopware\Core\Framework\AdminAuth\OAuth\Grant\AdminPrimaryGrant;
+use Shopware\Core\Framework\AdminAuth\OAuth\Grant\AdminSecondFactorGrant;
+use Shopware\Core\Framework\AdminAuth\OAuth\Scope\MfaPendingScope;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -66,6 +69,10 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier(string $identifier): ?ScopeEntityInterface
     {
+        if ($this->isMfaMarkerScope($identifier)) {
+            return new MfaPendingScope($identifier);
+        }
+
         return $this->scopes[$identifier] ?? null;
     }
 
@@ -81,11 +88,17 @@ class ScopeRepository implements ScopeRepositoryInterface
     ): array {
         $hasWrite = false;
 
-        if ($grantType === self::PASSWORD_GRANT) {
+        // A completed admin-auth login (primary factor without MFA, or the finishing second factor)
+        // must receive exactly the same scopes as a core password login.
+        $isPasswordEquivalent = $grantType === self::PASSWORD_GRANT
+            || $grantType === AdminPrimaryGrant::TYPE
+            || $grantType === AdminSecondFactorGrant::TYPE;
+
+        if ($isPasswordEquivalent) {
             $hasWrite = true;
         }
 
-        if ($grantType !== self::PASSWORD_GRANT) {
+        if (!$isPasswordEquivalent) {
             $scopes = $this->removeScope($scopes, UserVerifiedScope::class);
         }
 
@@ -148,5 +161,20 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
 
         return $scopes;
+    }
+
+    /**
+     * MFA scopes carried by an admin-auth pending token: the static `admin-mfa-pending` marker plus
+     * the dynamic `admin-mfa-challenge:<id>` / `admin-mfa-methods:<csv>` markers. They must resolve to
+     * a scope entity (instead of failing the lookup) so the pending token can be validated again on
+     * the second-factor token request.
+     *
+     * @phpstan-assert-if-true non-empty-string $identifier
+     */
+    private function isMfaMarkerScope(string $identifier): bool
+    {
+        return $identifier === MfaPendingScope::IDENTIFIER
+            || str_starts_with($identifier, AdminPrimaryGrant::CHALLENGE_SCOPE_PREFIX)
+            || str_starts_with($identifier, AdminPrimaryGrant::METHODS_SCOPE_PREFIX);
     }
 }

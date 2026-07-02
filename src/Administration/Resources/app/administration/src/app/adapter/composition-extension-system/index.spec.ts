@@ -2843,6 +2843,140 @@ describe('src/app/adapter/composition-extension-system', () => {
                 '[originalComponent] Override result value not working. Cannot override props. Following prop should be changed: "multiplier"',
             );
         });
+
+        it('should throw when the original setup function returns no public or private setup state', () => {
+            const context = {
+                attrs: {},
+                slots: {},
+                emit: jest.fn(),
+                expose: jest.fn(),
+            } as unknown as SetupContext;
+
+            expect(() => {
+                createExtendableSetup(
+                    {
+                        props: {},
+                        context,
+                        name: 'originalComponent',
+                    },
+                    () => ({}),
+                );
+            }).toThrow(
+                '[originalComponent] The original setup function for the originalComponent component must return at least one public or private property.',
+            );
+        });
+
+        it('should console an error when the original setup function returns an unexpected top-level key', () => {
+            const context = {
+                attrs: {},
+                slots: {},
+                emit: jest.fn(),
+                expose: jest.fn(),
+            } as unknown as SetupContext;
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            createExtendableSetup(
+                {
+                    props: {},
+                    context,
+                    name: 'originalComponent',
+                },
+                () =>
+                    ({
+                        public: {
+                            count: ref(1),
+                        },
+                        ignored: true,
+                    }) as unknown as {
+                        public: {
+                            count: ReturnType<typeof ref<number>>;
+                        };
+                    },
+            );
+
+            expect(consoleError).toHaveBeenCalledWith(
+                '[originalComponent] The original setup function for the originalComponent component returned an unexpected value. Only public and private properties at first level are allowed.',
+            );
+        });
+
+        it('should accept new ref properties returned from an override', async () => {
+            const originalComponent = defineComponent({
+                template: '<div class="message">{{ message }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => ({
+                            public: {
+                                count: ref(1),
+                            },
+                        }),
+                    ),
+            });
+
+            overrideComponentSetup()('originalComponent', () => ({
+                message: ref('Message from override'),
+            }));
+
+            const wrapper = mount(originalComponent);
+
+            await flushPromises();
+            expect(wrapper.find('.message').text()).toBe('Message from override');
+        });
+
+        it('should not retry a failing override when subsequent overrides are registered', async () => {
+            const capturedErrors: unknown[] = [];
+            const failingOverride = jest.fn(() => {
+                throw new Error('Simulated override failure');
+            });
+            const originalComponent = defineComponent({
+                template: '<div class="count">{{ count }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => ({
+                            public: {
+                                count: ref(1),
+                            },
+                        }),
+                    ),
+            });
+
+            const wrapper = mount(originalComponent, {
+                global: {
+                    config: {
+                        errorHandler: (error: unknown) => {
+                            capturedErrors.push(error);
+                        },
+                    },
+                },
+            });
+
+            overrideComponentSetup()('originalComponent', failingOverride);
+
+            await flushPromises();
+
+            expect(failingOverride).toHaveBeenCalledTimes(1);
+            expect(capturedErrors).toHaveLength(1);
+            expect(capturedErrors[0]).toBeInstanceOf(Error);
+            expect((capturedErrors[0] as Error).message).toBe('Simulated override failure');
+
+            overrideComponentSetup()('originalComponent', () => ({
+                count: ref(5),
+            }));
+
+            await flushPromises();
+
+            expect(failingOverride).toHaveBeenCalledTimes(1);
+            expect(wrapper.find('.count').text()).toBe('5');
+        });
     });
 
     describe('Context:', () => {

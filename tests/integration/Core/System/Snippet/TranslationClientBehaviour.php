@@ -17,6 +17,16 @@ use Shopware\Core\System\Snippet\Struct\TranslationConfig;
  */
 trait TranslationClientBehaviour
 {
+    /**
+     * Number of platform snippet files downloaded per locale (Administration, Core, Storefront).
+     */
+    private const PLATFORM_FILE_COUNT = 3;
+
+    /**
+     * Number of snippet files downloaded per configured plugin per locale (Administration, Storefront).
+     */
+    private const PLUGIN_FILE_COUNT = 2;
+
     public function getTranslationRequestHandler(): MockHandler
     {
         $handler = static::getContainer()->get('shopware.translation.mock_handler');
@@ -39,7 +49,7 @@ trait TranslationClientBehaviour
         $config = static::getContainer()->get(TranslationConfig::class);
         static::assertInstanceOf(TranslationConfig::class, $config);
 
-        $fileCount = 3 + \count($config->plugins) * 2;
+        $fileCount = self::PLATFORM_FILE_COUNT + \count($config->plugins) * self::PLUGIN_FILE_COUNT;
 
         for ($i = 0; $i < $fileCount; ++$i) {
             $this->appendTranslationResponse(new Response(200, [], '{}'));

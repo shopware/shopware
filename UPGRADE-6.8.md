@@ -4,13 +4,6 @@
 
 <details>
 
-## Product search: whole-phrase matches now score higher
-
-Elasticsearch product search now adds a dedicated `match_phrase` clause for multi-word searches, boosted above single-word matches. A product whose field contains the full search phrase contiguously (e.g. `Paper Rippers`) now outranks one that only contains the individual words scattered around; previously phrase proximity was a weak, implicit side effect of the query build.
-
-> [!NOTE]
-> This only re-ranks — the same documents still match, so no query returns more or fewer results. But `_score` values and borderline orderings shift, which can affect the `core.search.minScore` cutoff if you have configured one.
-
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.

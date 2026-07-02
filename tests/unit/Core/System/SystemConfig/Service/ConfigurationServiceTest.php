@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
@@ -32,35 +33,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 #[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
-    /**
-     * @var array<mixed>
-     */
-    private array $serverVarsBackup;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $envVarsBackup;
-
-    /**
-     * @var array<string, FeatureFlagConfig>
-     */
-    private array $featureConfigBackup;
-
-    protected function setUp(): void
-    {
-        $this->serverVarsBackup = $_SERVER;
-        $this->envVarsBackup = $_ENV;
-        $this->featureConfigBackup = Feature::getRegisteredFeatures();
-    }
-
-    protected function tearDown(): void
-    {
-        $_SERVER = $this->serverVarsBackup;
-        $_ENV = $this->envVarsBackup;
-        Feature::resetRegisteredFeatures();
-        Feature::registerFeatures($this->featureConfigBackup);
-    }
+    use EnvTestBehaviour;
 
     public function testInvalidDomain(): void
     {
@@ -144,11 +117,11 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationFeatureFlag(): void
     {
-        Feature::registerFeature('FEATURE_NEXT_101');
-        Feature::registerFeature('FEATURE_NEXT_102');
+        $this->setEnvVars([
+            'FEATURE_NEXT_101' => '1',
+            'FEATURE_NEXT_102' => '1',
+        ]);
 
-        $_SERVER['FEATURE_NEXT_101'] = '1';
-        $_SERVER['FEATURE_NEXT_102'] = '1';
         static::assertTrue(Feature::isActive('FEATURE_NEXT_101'));
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
 
@@ -165,11 +138,11 @@ class ConfigurationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testConfigurationFeatureFlagDeprecated(): void
     {
-        Feature::registerFeature('FEATURE_NEXT_101');
-        Feature::registerFeature('FEATURE_NEXT_102');
+        $this->setEnvVars([
+            'FEATURE_NEXT_101' => '1',
+            'FEATURE_NEXT_102' => '1',
+        ]);
 
-        $_SERVER['FEATURE_NEXT_101'] = '1';
-        $_SERVER['FEATURE_NEXT_102'] = '1';
         static::assertTrue(Feature::isActive('FEATURE_NEXT_101'));
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
 
@@ -184,11 +157,11 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
     {
-        Feature::registerFeature('FEATURE_NEXT_101');
-        Feature::registerFeature('FEATURE_NEXT_102');
+        $this->setEnvVars([
+            'FEATURE_NEXT_101' => '0',
+            'FEATURE_NEXT_102' => '0',
+        ]);
 
-        $_SERVER['FEATURE_NEXT_101'] = '0';
-        $_SERVER['FEATURE_NEXT_102'] = '0';
         static::assertFalse(Feature::isActive('FEATURE_NEXT_101'));
         static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
 
@@ -224,11 +197,11 @@ class ConfigurationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabledDeprecated(): void
     {
-        Feature::registerFeature('FEATURE_NEXT_101');
-        Feature::registerFeature('FEATURE_NEXT_102');
+        $this->setEnvVars([
+            'FEATURE_NEXT_101' => '0',
+            'FEATURE_NEXT_102' => '0',
+        ]);
 
-        $_SERVER['FEATURE_NEXT_101'] = '0';
-        $_SERVER['FEATURE_NEXT_102'] = '0';
         static::assertFalse(Feature::isActive('FEATURE_NEXT_101'));
         static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
 

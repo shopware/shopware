@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommandTest;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -33,7 +32,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  *
  * @codeCoverageIgnore
  *
- * @see WebhookDrainToAsyncCommandTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommandTest
  */
 #[AsCommand(
     name: 'webhook:drain-to-async',

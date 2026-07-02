@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -54,7 +54,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -229,7 +229,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -281,7 +281,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -333,7 +333,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -471,9 +471,9 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('extended', $renderer->render($file, $this->createSalesChannelContext()));
     }
 
-    private function createSeoUrlPlaceholderHandler(): SeoUrlPlaceholderHandlerInterface&MockObject
+    private function createSeoUrlPlaceholderHandler(): SeoUrlPlaceholderHandlerInterface&Stub
     {
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $seoUrlPlaceholderHandler = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
         $seoUrlPlaceholderHandler
             ->method('replace')
             ->willReturnArgument(0);
@@ -489,7 +489,7 @@ class SalesChannelFileRendererTest extends TestCase
         ChainLoader $loader,
         array|TemplateNamespaceHierarchyBuilderInterface $hierarchy = ['Ucp' => 0, 'Framework' => -1]
     ): TemplateFinder {
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(
@@ -536,10 +536,10 @@ class SalesChannelFileRendererTest extends TestCase
         ]);
     }
 
-    private function createSalesChannelContext(?SalesChannelEntity $salesChannel = null, ?string $domainId = null): SalesChannelContext&MockObject
+    private function createSalesChannelContext(?SalesChannelEntity $salesChannel = null, ?string $domainId = null): SalesChannelContext&Stub
     {
         $salesChannel ??= $this->createSalesChannel('Context sales channel');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn($salesChannel->getId());
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
@@ -551,11 +551,11 @@ class SalesChannelFileRendererTest extends TestCase
     /**
      * @param \Closure(Criteria, Context): void|null $criteriaAssertion
      *
-     * @return EntityRepository<SalesChannelCollection>&MockObject
+     * @return EntityRepository<SalesChannelCollection>&Stub
      */
-    private function createSalesChannelRepository(?SalesChannelEntity $salesChannel = null, ?\Closure $criteriaAssertion = null): EntityRepository&MockObject
+    private function createSalesChannelRepository(?SalesChannelEntity $salesChannel = null, ?\Closure $criteriaAssertion = null): EntityRepository&Stub
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository
             ->method('search')
             ->willReturnCallback(static function (Criteria $criteria, Context $context) use ($salesChannel, $criteriaAssertion): EntitySearchResult {

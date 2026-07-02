@@ -61,6 +61,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Core\\System\\',
         'Shopware\\Tests\\Unit\\Core\\Content\\',
         'Shopware\\Tests\\Unit\\Core\\Framework\\Mcp\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\',
     ];
 
     public function getNodeType(): string

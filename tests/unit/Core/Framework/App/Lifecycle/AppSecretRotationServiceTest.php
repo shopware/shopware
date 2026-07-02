@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -138,7 +139,7 @@ class AppSecretRotationServiceTest extends TestCase
         $appId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->registrationLock->method('acquire')->willReturn($this->lock);
+        $this->lockRunsOperation();
 
         // the app id resolves to no entity, so loadApp throws before anything is rotated
         $searchResult = $this->createMock(EntitySearchResult::class);
@@ -164,9 +165,8 @@ class AppSecretRotationServiceTest extends TestCase
         $app = $this->createAppOnIntegration($appId, $oldIntegrationId);
         $this->setupAppLookup($appId, $app);
 
-        // the per-app lock is taken for the whole rotation and released afterwards
-        $this->registrationLock->expects($this->once())->method('acquire')->willReturn($this->lock);
-        $this->lock->expects($this->once())->method('release');
+        // the whole rotation runs under the per-app lock
+        $this->lockRunsOperation();
 
         $manifest = $this->createMock(Manifest::class);
         $filesystem = $this->createMock(Filesystem::class);
@@ -214,8 +214,7 @@ class AppSecretRotationServiceTest extends TestCase
         $context = Context::createDefaultContext();
 
         // another rotation or recovery for this app is already running, so the lock cannot be taken
-        $this->registrationLock->expects($this->once())->method('acquire')->willThrowException(AppException::appSecretRotationInProgress($appId));
-        $this->lock->expects($this->never())->method('release');
+        $this->registrationLock->expects($this->once())->method('locked')->willThrowException(AppException::appSecretRotationInProgress($appId));
 
         // we never even read the app or call the app server when we cannot take the lock
         $this->appRepository->expects($this->never())->method('search');
@@ -236,9 +235,8 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setUnconfirmedAppSecrets(['left-over-pending']);
         $this->setupAppLookup($appId, $app);
 
-        // the lock is taken, and released again even though we abort
-        $this->registrationLock->expects($this->once())->method('acquire')->willReturn($this->lock);
-        $this->lock->expects($this->once())->method('release');
+        // the abort still happens under the per-app lock
+        $this->lockRunsOperation();
 
         // we must not rotate over the unresolved pending secret
         $this->registrationService->expects($this->never())->method('registerApp');
@@ -262,8 +260,7 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setAppSecret('committed-secret');
         $this->setupAppLookup($appId, $app);
 
-        $this->registrationLock->method('acquire')->willReturn($this->lock);
-        $this->lock->expects($this->once())->method('release');
+        $this->lockRunsOperation();
 
         $this->setupResolvableManifestWithSetup();
 
@@ -294,8 +291,7 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setUnconfirmedAppSecrets(['minted-by-the-prior-recovery', $secretAppStillTrusts]);
         $this->setupAppLookup($appId, $app);
 
-        $this->registrationLock->method('acquire')->willReturn($this->lock);
-        $this->lock->expects($this->once())->method('release');
+        $this->lockRunsOperation();
 
         $this->setupResolvableManifestWithSetup();
 
@@ -312,6 +308,106 @@ class AppSecretRotationServiceTest extends TestCase
         $this->service->recoverNow($appId, $context);
 
         static::assertContains($secretAppStillTrusts, $triedSecrets, 'recovery must try the secret remembered from a prior ambiguous attempt');
+    }
+
+    public function testRecoverKeepsUnconfirmedSecretsWhenEveryCandidateIsRejected(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $oldIntegrationId = Uuid::randomHex();
+        $unconfirmed = ['pending-secret'];
+
+        $app = $this->createAppOnIntegration($appId, $oldIntegrationId);
+        $app->setUnconfirmedAppSecrets($unconfirmed);
+        $app->setAppSecret('committed-secret');
+        $this->setupAppLookup($appId, $app);
+
+        $this->lockRunsOperation();
+
+        $this->setupResolvableManifestWithSetup();
+
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willThrowException(AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret'));
+
+        $update = $this->exactly(2);
+        $this->appRepository->expects($update)
+            ->method('update')
+            ->willReturnCallback(function (array $payload) use ($update, $appId, $oldIntegrationId): EntityWrittenContainerEvent {
+                if ($update->numberOfInvocations() === 1) {
+                    // first write: the switch onto a fresh integration
+                    static::assertArrayHasKey('integration', $payload[0]);
+                } else {
+                    // second write: the revert — pointing back at the old integration WITHOUT touching the
+                    // unconfirmed list (its absence from the payload is the kept-list assertion)
+                    static::assertSame([['id' => $appId, 'integrationId' => $oldIntegrationId]], $payload);
+                }
+
+                return $this->createMock(EntityWrittenContainerEvent::class);
+            });
+
+        $this->expectExceptionObject(AppException::appSecretRotationClaimed('TestApp'));
+
+        $this->service->recoverNow($appId, $context);
+    }
+
+    public function testDiscardNowClearsUnconfirmedSecretsUnderTheLock(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->registrationLock->expects($this->once())
+            ->method('locked')
+            ->with($appId, static::isInstanceOf(\Closure::class))
+            ->willReturnCallback(fn (string $lockedAppId, \Closure $operation) => $operation($this->lock));
+
+        $this->appRepository->expects($this->once())
+            ->method('update')
+            ->with([[
+                'id' => $appId,
+                'unconfirmedAppSecrets' => null,
+                'unconfirmedAppSecretsUpdatedAt' => null,
+            ]], static::isInstanceOf(Context::class));
+
+        $this->service->discardNow($appId, $context);
+    }
+
+    public function testRecoverRefreshesTheLockBeforeEachCandidate(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $app->setUnconfirmedAppSecrets(['first-pending', 'second-pending']);
+        $app->setAppSecret('committed-secret');
+        $this->setupAppLookup($appId, $app);
+
+        $this->lockRunsOperation();
+        // one refresh per candidate: two pending + the committed fallback
+        $this->registrationLock->expects($this->exactly(3))->method('refresh')->with($this->lock);
+
+        $this->setupResolvableManifestWithSetup();
+
+        $attempt = 0;
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willReturnCallback(function () use (&$attempt): void {
+                ++$attempt;
+                if ($attempt < 3) {
+                    throw AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret');
+                }
+            });
+
+        $this->service->recoverNow($appId, $context);
+    }
+
+    /**
+     * Stub the per-app lock so the guarded operation actually runs. The acquire/release/refresh mechanics are
+     * AppRegistrationLock's own tested contract; these tests only care that the body executes under the lock.
+     */
+    private function lockRunsOperation(): void
+    {
+        $this->registrationLock->expects($this->once())
+            ->method('locked')
+            ->willReturnCallback(fn (string $appId, \Closure $operation) => $operation($this->lock));
     }
 
     /**

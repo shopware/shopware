@@ -254,6 +254,51 @@ class AppSecretRotationEndToEndTest extends TestCase
         );
     }
 
+    public function testTransientRecoveryRejectionKeepsPendingSecretsForRetry(): void
+    {
+        $app = $this->installApp();
+        $committedSecret = $app->getAppSecret();
+        static::assertNotNull($committedSecret);
+
+        $pendingSecret = 'pending-secret';
+        $this->enqueueReRegistrationAttempt(minting: $pendingSecret, confirmResponse: new Response(500));
+        $this->rotateExpectingAmbiguousFailure($app->getId());
+
+        static::assertSame([$pendingSecret], $this->getInstalledApp()->getUnconfirmedAppSecrets());
+
+        // A transient proxy/WAF 4xx can look like a definitive rejection. Recovery exhausts both candidates
+        // and reports "claimed", but it must keep the pending record so the operator can retry after the
+        // transient clears.
+        $this->enqueueReRegistrationAttempt(minting: 'transient-recovery-secret', confirmResponse: new Response(403));
+        $this->enqueueReRegistrationAttempt(minting: 'transient-recovery-secret', confirmResponse: new Response(403));
+
+        try {
+            $this->rotationService->recoverNow($app->getId(), $this->context);
+            static::fail('Recovery must report claimed when every candidate receives a 4xx.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_SECRET_ROTATION_CLAIMED, $e->getErrorCode());
+        }
+
+        $afterTransientFailure = $this->getInstalledApp();
+        static::assertSame($committedSecret, $afterTransientFailure->getAppSecret());
+        static::assertSame([$pendingSecret], $afterTransientFailure->getUnconfirmedAppSecrets());
+
+        // Once the transient clears, the same pending record lets recovery self-heal.
+        $recoveredSecret = 'recovered-after-transient';
+        $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
+
+        $this->rotationService->recoverNow($app->getId(), $this->context);
+
+        $recovered = $this->getInstalledApp();
+        static::assertSame($recoveredSecret, $recovered->getAppSecret());
+        static::assertNull($recovered->getUnconfirmedAppSecrets());
+        $this->assertConfirmCarriesDualSignature(
+            $this->lastConfirm(),
+            newSecret: $recoveredSecret,
+            previousSecret: $pendingSecret,
+        );
+    }
+
     public function testRecoveryReRegistersAFirstRegistrationThatNeverCommitted(): void
     {
         $app = $this->installApp();
@@ -343,9 +388,9 @@ class AppSecretRotationEndToEndTest extends TestCase
         }
 
         $reverted = $this->getInstalledApp();
-        // No committed secret to restore, and the pending record is cleared by the revert.
+        // No committed secret to restore, and the pending record is retained for a retry or explicit discard.
         static::assertNull($reverted->getAppSecret());
-        static::assertNull($reverted->getUnconfirmedAppSecrets());
+        static::assertSame([$rejectedPendingSecret], $reverted->getUnconfirmedAppSecrets());
     }
 
     public function testRecoveryRevertsAndRecommendsShopIdChangeWhenBothSecretsAreRejected(): void
@@ -369,10 +414,11 @@ class AppSecretRotationEndToEndTest extends TestCase
             static::assertStringContainsString('app:shop-id:change', $e->getMessage());
         }
 
-        // The active secret is left on the last known-good value and the pending record is cleared.
+        // The active secret is left on the last known-good value and the pending record is retained for a
+        // retry or explicit discard.
         $reverted = $this->getInstalledApp();
         static::assertSame($committedSecret, $reverted->getAppSecret());
-        static::assertNull($reverted->getUnconfirmedAppSecrets());
+        static::assertSame(['pending-secret'], $reverted->getUnconfirmedAppSecrets());
     }
 
     private function installApp(): AppEntity

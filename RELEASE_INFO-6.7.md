@@ -753,12 +753,14 @@ Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues
 
 ### Atomic app secret rotation and a recovery command
 
-Rotating an app's shared secret is now atomic. The new secret is stored as a *pending* secret and only becomes the app's active secret once the app confirms it; until then the app keeps authenticating with its current secret. If a rotation is interrupted — a worker crash, a timeout, or the app being briefly unreachable — the app is never left with a secret Shopware and the app disagree on.
+Rotating an app's shared secret is now atomic. The new secret is stored as a *pending* secret and only becomes the app's active secret once the app confirms it; until then the app keeps authenticating with its current secret. If a rotation is interrupted — a worker crash, a timeout, or the app being briefly unreachable — the mismatch is detectable and operator-recoverable.
 
 A new CLI command finishes or inspects an interrupted rotation:
 
 - `bin/console app:secret:recover` lists every app that still has an unconfirmed secret.
-- `bin/console app:secret:recover <app-name>` re-runs the confirmation for that app, either committing the unconfirmed secret or, when the app reports the old secret is no longer valid, reverting cleanly.
+- `bin/console app:secret:recover <app-name>` re-registers that app with a fresh integration, either committing the recovered secret or, when the app still cannot be recovered, leaving the pending secrets for another retry.
+
+An interrupted rotation whose app kept its old credentials should be recovered promptly with `app:secret:recover`; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until it completes.
 
 Operators who run a fleet of shops get a `app.unconfirmed_app_secrets.count` telemetry gauge so a stuck rotation is visible without inspecting the database.
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
@@ -476,7 +477,7 @@ XML,
             $this->createMock(DeletedAppsGateway::class),
             $this->requirementsValidator,
             new NativeClock(),
-            new AppRegistrationLock(new LockFactory(new InMemoryStore()))
+            new AppRegistrationLock(new LockFactory(new InMemoryStore()), new NullLogger())
         );
     }
 

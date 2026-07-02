@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -76,9 +77,7 @@ class AppSecretRotationService
         Context $context,
         string $trigger
     ): void {
-        $lock = $this->registrationLock->acquire($appId);
-
-        try {
+        $this->registrationLock->locked($appId, function () use ($appId, $context, $trigger): void {
             $app = $this->loadApp($appId, $context);
 
             // An unconfirmed secret from a previous rotation must be recovered first; rotating again would
@@ -143,9 +142,7 @@ class AppSecretRotationService
 
                 throw $exception;
             }
-        } finally {
-            $lock->release();
-        }
+        });
     }
 
     public function findAppsWithUnconfirmedSecrets(Context $context): AppCollection
@@ -181,16 +178,31 @@ class AppSecretRotationService
      */
     public function recoverNow(string $appId, Context $context): void
     {
-        $lock = $this->registrationLock->acquire($appId);
-
-        try {
-            $this->doRecover($appId, $context);
-        } finally {
-            $lock->release();
-        }
+        $this->registrationLock->locked(
+            $appId,
+            fn (LockInterface $lock) => $this->doRecover($appId, $context, $lock)
+        );
     }
 
-    private function doRecover(string $appId, Context $context): void
+    /**
+     * Drop the unconfirmed secrets of an app whose recovery was given up on (every candidate rejected and the
+     * operator decided the registration is genuinely lost). Explicit and destructive: after this, only
+     * app:shop-id:change can re-establish the registration.
+     */
+    public function discardNow(string $appId, Context $context): void
+    {
+        $this->registrationLock->locked($appId, function () use ($appId, $context): void {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId): void {
+                $this->appRepository->update([[
+                    'id' => $appId,
+                    'unconfirmedAppSecrets' => null,
+                    'unconfirmedAppSecretsUpdatedAt' => null,
+                ]], $context);
+            });
+        });
+    }
+
+    private function doRecover(string $appId, Context $context, LockInterface $lock): void
     {
         $app = $this->loadApp($appId, $context);
 
@@ -238,6 +250,8 @@ class AppSecretRotationService
 
         try {
             foreach ($candidateSecrets as $appHeldSecret) {
+                $this->registrationLock->refresh($lock, $appId);
+
                 try {
                     $this->registrationService->reRegisterWithAppHeldSecret($manifest, $appId, $newSecret, $context, $appHeldSecret);
 
@@ -275,10 +289,10 @@ class AppSecretRotationService
             throw $e;
         }
 
-        // The app refused every candidate secret, so core no longer holds a secret it trusts and the
-        // registration cannot be recovered. Put the app back on the integration it had before recovery and
-        // clear the now-useless unconfirmed list.
-        $this->restorePreviousIntegrationAndDiscardSecrets(
+        // The app refused every candidate secret. Put the app back on the integration it had before recovery
+        // but keep the unconfirmed list: a transient 4xx/WAF/proxy response can look like a definitive
+        // rejection, and a later retry may still recover the app.
+        $this->restorePreviousIntegration(
             appId: $appId,
             currentIntegrationId: $currentIntegrationId,
             newIntegrationId: $newIntegrationId,
@@ -335,32 +349,6 @@ class AppSecretRotationService
     ): void {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $currentIntegrationId, $newIntegrationId): void {
             $this->appRepository->update([['id' => $appId, 'integrationId' => $currentIntegrationId]], $context);
-
-            $this->integrationRepository->update([
-                ['id' => $currentIntegrationId, 'deletedAt' => null],
-                ['id' => $newIntegrationId, 'deletedAt' => $this->clock->now()],
-            ], $context);
-        });
-    }
-
-    /**
-     * Like restorePreviousIntegration, but also drops the unconfirmed list. Used when recovery has exhausted
-     * every candidate secret: the app trusts none of them, so the list is useless and must stop flagging the
-     * app as stuck.
-     */
-    private function restorePreviousIntegrationAndDiscardSecrets(
-        string $appId,
-        string $currentIntegrationId,
-        string $newIntegrationId,
-        Context $context
-    ): void {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $currentIntegrationId, $newIntegrationId): void {
-            $this->appRepository->update([[
-                'id' => $appId,
-                'integrationId' => $currentIntegrationId,
-                'unconfirmedAppSecrets' => null,
-                'unconfirmedAppSecretsUpdatedAt' => null,
-            ]], $context);
 
             $this->integrationRepository->update([
                 ['id' => $currentIntegrationId, 'deletedAt' => null],

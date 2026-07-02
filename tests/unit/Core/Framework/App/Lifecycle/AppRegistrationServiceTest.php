@@ -236,6 +236,41 @@ class AppRegistrationServiceTest extends TestCase
         $this->registerTestApp($manifest);
     }
 
+    public function testRegisterAppDoesNotPersistUnconfirmedSecretWhenConfirmationPayloadCannotBeBuilt(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $this->stubHandshake(self::MATCHING_PROOF);
+
+        $this->mockHandler->append(
+            $this->appServerResponse([
+                'proof' => self::MATCHING_PROOF,
+                'secret' => self::CURRENT_APP_SECRET,
+                'confirmation_url' => self::CONFIRMATION_URL,
+            ], SymfonyResponse::HTTP_BAD_REQUEST),
+        );
+
+        $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
+        $shopIdProviderMock->method('getShopId')->willThrowException(new \RuntimeException('shop id backend failed'));
+
+        $this->appRegistrationService = new AppRegistrationService(
+            $this->handshakeFactoryMock,
+            new Client(['handler' => $this->mockHandler]),
+            $this->appRepositoryMock,
+            'https://shopware.swag',
+            $shopIdProviderMock,
+            '6.5.2.0',
+            new NativeClock(),
+            new NullLogger(),
+            $this->meterMock,
+        );
+
+        $this->appRepositoryMock->expects($this->never())->method('update');
+
+        $this->expectExceptionObject(new \RuntimeException('shop id backend failed'));
+
+        $this->registerTestApp($manifest);
+    }
+
     public function testRegisterAppKeepsPendingSecretWhenHandshakeFailsWithClientError(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');

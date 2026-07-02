@@ -297,9 +297,15 @@ class AppManager
             $willRegister = $hasSetup && (!$app->getAppSecret() || $install);
 
             if ($willRegister) {
-                // The install already holds the lock; an update that turns out to need registration takes it
-                // here. Either way the registration is serialised against a concurrent rotation or recovery.
-                $lock ??= $this->registrationLock->acquire($id);
+                // The install already holds the lock — refresh it, since the metadata/custom-entity work above
+                // may have consumed much of the TTL. An update that turns out to need registration takes a
+                // fresh lock here. Either way the registration is serialised against a concurrent rotation
+                // or recovery and starts on a full TTL.
+                if ($lock === null) {
+                    $lock = $this->registrationLock->acquire($id);
+                } else {
+                    $this->registrationLock->refresh($lock, $id);
+                }
 
                 try {
                     $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
@@ -315,7 +321,9 @@ class AppManager
                 }
             }
         } finally {
-            $lock?->release();
+            if ($lock !== null) {
+                $this->registrationLock->release($lock, $id);
+            }
         }
 
         // Refetch app to get secret after registration

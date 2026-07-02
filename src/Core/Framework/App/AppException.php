@@ -210,7 +210,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::APP_SECRET_ROTATION_CLAIMED,
-            'App "{{ appName }}" could not be re-registered with either the current or the unconfirmed secret; the registration appears to be claimed by another party. Generate a new shop id with bin/console app:shop-id:change.',
+            'App "{{ appName }}" could not be re-registered with either the current or the unconfirmed secret. If the app server was briefly unreachable, retry bin/console app:secret:recover {{ appName }}. If the registration is genuinely lost, run bin/console app:secret:recover {{ appName }} --discard then bin/console app:shop-id:change.',
             ['appName' => $appName],
             $previous
         );

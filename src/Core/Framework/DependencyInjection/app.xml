@@ -328,6 +328,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock">
             <argument type="service" id="lock.factory"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">

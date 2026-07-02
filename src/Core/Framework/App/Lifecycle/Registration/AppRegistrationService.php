@@ -92,15 +92,20 @@ class AppRegistrationService
             );
         }
 
-        // Save the minted secret as unconfirmed BEFORE confirming. If we crash between confirm and commit, this is
-        // the only record of a secret the app may already hold — what recovery re-registers against.
+        // Build the payload first — a failure here (e.g. the shop id lookup) must not leave a false
+        // unconfirmed record, since no confirm was ever sent.
+        $confirmationPayload = $this->getConfirmationPayload($app, $secretAccessKey);
+
+        // Save the minted secret as unconfirmed BEFORE the confirm leaves. If we crash between confirm and
+        // commit, this is the only record of a secret the app may already hold — what recovery re-registers
+        // against.
         $this->saveUnconfirmedAppSecrets($app->getId(), $context, $secret);
 
         try {
             // A re-registration confirm carries two signatures: shopware-shop-signature signed with the new
             // secret (proves we received it) and shopware-shop-signature-previous signed with the current
             // secret (proves we are the same shop the app already knows).
-            $this->confirmRegistration($app, $context, $secret, $currentSecret, $secretAccessKey, $confirmationUrl);
+            $this->confirmRegistration($context, $secret, $currentSecret, $confirmationPayload, $confirmationUrl);
         } catch (ClientException $e) {
             // A 4xx means the app answered and clearly rejected the confirm. Drop the rejected secret so
             // app_secret stays on the current (old) value; both sides now agree on the old secret.
@@ -212,19 +217,19 @@ class AppRegistrationService
         });
     }
 
+    /**
+     * @param array<string, string> $payload
+     */
     private function confirmRegistration(
-        AppEntity $app,
         Context $context,
         #[\SensitiveParameter]
         string $secret,
         #[\SensitiveParameter]
         ?string $currentSecret,
         #[\SensitiveParameter]
-        string $secretAccessKey,
+        array $payload,
         string $confirmationUrl
     ): void {
-        $payload = $this->getConfirmationPayload($app, $secretAccessKey);
-
         $signature = $this->signPayload($payload, $secret);
 
         $headers = [
@@ -307,7 +312,7 @@ class AppRegistrationService
     /**
      * @param array<string, string> $body
      */
-    private function signPayload(array $body, #[\SensitiveParameter] string $secret): string
+    private function signPayload(#[\SensitiveParameter] array $body, #[\SensitiveParameter] string $secret): string
     {
         return hash_hmac('sha256', json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }

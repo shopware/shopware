@@ -40,13 +40,18 @@ class RecoverAppSecretCommandTest extends TestCase
     public function testListShowsAppsWithAPendingSecret(): void
     {
         $rotationService = $this->createMock(AppSecretRotationService::class);
-        $rotationService->method('findAppsWithUnconfirmedSecrets')->willReturn(new AppCollection([$this->app('StuckApp')]));
+        $app = $this->app('StuckApp');
+        $app->setUnconfirmedAppSecretsUpdatedAt(new \DateTimeImmutable('2025-06-13 12:00:00+00:00'));
+        $rotationService->method('findAppsWithUnconfirmedSecrets')->willReturn(new AppCollection([$app]));
 
         [$io, $output] = $this->io();
         $exitCode = (new RecoverAppSecretCommand($this->createMock(EntityRepository::class), $rotationService))($io);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('StuckApp', $output->fetch());
+        $content = $output->fetch();
+        static::assertStringContainsString('Pending since', $content);
+        static::assertStringContainsString('StuckApp', $content);
+        static::assertStringContainsString('2025-06-13T12:00:00+00:00', $content);
     }
 
     public function testRecoverFailsWhenTheAppDoesNotExist(): void
@@ -81,6 +86,26 @@ class RecoverAppSecretCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $exitCode);
         static::assertStringContainsString('Re-registered app "Recoverable" with a fresh secret.', $output->fetch());
+    }
+
+    public function testDiscardSucceeds(): void
+    {
+        $app = $this->app('Lost');
+
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository->method('search')->willReturn($this->searchResult([$app]));
+
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->once())
+            ->method('discardNow')
+            ->with($app->getId(), static::isInstanceOf(Context::class));
+        $rotationService->expects($this->never())->method('recoverNow');
+
+        [$io, $output] = $this->io();
+        $exitCode = (new RecoverAppSecretCommand($appRepository, $rotationService))($io, 'Lost', true);
+
+        static::assertSame(Command::SUCCESS, $exitCode);
+        static::assertStringContainsString('app:shop-id:change', $output->fetch());
     }
 
     public function testRecoverReportsSuccessWhenThereIsNothingToRecover(): void

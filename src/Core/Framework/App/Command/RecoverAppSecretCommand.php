@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -39,11 +40,23 @@ final readonly class RecoverAppSecretCommand
         SymfonyStyle $io,
         #[Argument(description: 'The name of the app to recover. Omit to list apps with an unconfirmed secret.')]
         ?string $name = null,
+        #[Option(description: 'Discard the unconfirmed secret for the named app instead of trying recovery. Use this before app:shop-id:change when the app registration is genuinely lost.')]
+        bool $discard = false,
     ): int {
         $context = Context::createCLIContext();
 
-        return $name === null
-            ? $this->listAppsWithUnconfirmedSecrets($io, $context)
+        if ($discard && $name === null) {
+            $io->error('--discard requires an app name.');
+
+            return Command::FAILURE;
+        }
+
+        if ($name === null) {
+            return $this->listAppsWithUnconfirmedSecrets($io, $context);
+        }
+
+        return $discard
+            ? $this->discardApp($io, $context, $name)
             : $this->recoverApp($io, $context, $name);
     }
 
@@ -58,11 +71,27 @@ final readonly class RecoverAppSecretCommand
 
         $rows = [];
         foreach ($apps as $app) {
-            $rows[] = [$app->getName(), $app->getId()];
+            $updatedAt = $app->getUnconfirmedAppSecretsUpdatedAt();
+            $rows[] = [$app->getName(), $app->getId(), $updatedAt?->format(\DateTimeInterface::ATOM) ?? 'unknown'];
         }
 
-        $io->table(['App', 'App ID'], $rows);
+        $io->table(['App', 'App ID', 'Pending since'], $rows);
         $io->note('Run "app:secret:recover <name>" to re-register an app with an unconfirmed secret.');
+
+        return Command::SUCCESS;
+    }
+
+    private function discardApp(SymfonyStyle $io, Context $context, string $name): int
+    {
+        $app = $this->findAppByName($name, $context);
+        if (!$app instanceof AppEntity) {
+            $io->error(\sprintf('No app found for "%s".', $name));
+
+            return Command::FAILURE;
+        }
+
+        $this->rotationService->discardNow($app->getId(), $context);
+        $io->success(\sprintf('Discarded the unconfirmed secret for "%s". Run "app:shop-id:change" to create a new registration.', $app->getName()));
 
         return Command::SUCCESS;
     }

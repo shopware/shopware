@@ -137,7 +137,21 @@ class RecoverAppSecretCommandTest extends TestCase
 
         $reverted = $this->getInstalledApp();
         static::assertSame('current-secret', $reverted->getAppSecret());
-        static::assertNull($reverted->getUnconfirmedAppSecrets());
+        static::assertSame(['pending-secret'], $reverted->getUnconfirmedAppSecrets());
+    }
+
+    public function testDiscardClearsPendingSecretForShopIdChange(): void
+    {
+        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
+        $app = $this->getInstalledApp();
+        $this->seedSecrets($app->getId(), 'current-secret', 'pending-secret');
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME, '--discard' => true]));
+        static::assertStringContainsString('app:shop-id:change', $this->commandTester->getDisplay());
+
+        $discarded = $this->getInstalledApp();
+        static::assertSame('current-secret', $discarded->getAppSecret());
+        static::assertNull($discarded->getUnconfirmedAppSecrets());
     }
 
     public function testRecoverOnAppWithoutPendingSecretSucceedsWithNothingToDo(): void

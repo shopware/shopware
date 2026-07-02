@@ -21,6 +21,7 @@ class SeoException extends HttpException
     public const ENTITY_NAME_PARAMETER_IS_MISSING = 'FRAMEWORK__ENTITY_NAME_PARAMETER_IS_MISSING';
     public const SALES_CHANNEL_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_NOT_FOUND';
     public const SEO_URL_ROUTE_NOT_FOUND = 'CONTENT__SEO_URL_ROUTE_NOT_FOUND';
+    public const INVALID_HEADLESS_TEMPLATE = 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE';
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
      */
@@ -107,5 +108,14 @@ class SeoException extends HttpException
     public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
     {
         return new UnexpectedTypeException($givenType, $expectedType);
+    }
+
+    public static function invalidHeadlessTemplate(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_HEADLESS_TEMPLATE,
+            'For headless sales channels the SEO URL template must resolve to a full URL including the protocol (e.g. https://).',
+        );
     }
 }

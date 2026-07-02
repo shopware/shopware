@@ -16,6 +16,7 @@
       "labelPossibleValues": "Mögliche Variablen",
       "tooltipValidTemplate": "Das Template ist gültig.",
       "tooltipInvalidTemplate": "Das Template ist ungültig.",
+      "invalidHeadlessUrlTemplate": "Für Headless-Verkaufskanäle muss die Vorlage zu einer vollständigen URL auflösen (inkl. http(s)://).",
       "messageSaveError": "Nicht alle SEO-URL-Templates sind gültig.",
       "messageSaveSuccess": "SEO-URL-Templates wurden gespeichert.",
       "preview": "Vorschau:",

@@ -16,6 +16,7 @@
       "labelPossibleValues": "Possible variables",
       "tooltipValidTemplate": "Template valid",
       "tooltipInvalidTemplate": "Invalid template",
+      "invalidHeadlessUrlTemplate": "For headless sales channels the template must resolve to a full URL (incl. http(s)://).",
       "messageSaveError": "Not all templates are valid.",
       "messageSaveSuccess": "SEO URL templates have been saved.",
       "preview": "Preview:",

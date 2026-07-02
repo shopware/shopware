@@ -51,7 +51,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                 $mapping = $this->createDefaultMapping($matches[0]);
                 $seoMapping = $this->createSeoMapping($context, $mapping);
                 foreach ($seoMapping as $key => $value) {
-                    if ($context->isHeadless() && filter_var($value, \FILTER_VALIDATE_URL)) {
+                    if ($context->isHeadless() && preg_match('#^https?://.+#i', trim($value)) === 1) {
                         $seoMapping[$key] = $value;
                         continue;
                     }

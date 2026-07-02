@@ -267,4 +267,76 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(seoUrlTemplateService.preview).toHaveBeenCalled();
         expect(seoUrlTemplateService.getContext).toHaveBeenCalled();
     });
+
+    it('should translate the headless full-url error and expose it as a field error', async () => {
+        const { wrapper, seoUrlTemplateService } = await createWrapper();
+        seoUrlTemplateService.preview.mockRejectedValue({
+            response: {
+                data: { errors: [{ code: 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE', detail: 'raw backend message' }] },
+            },
+        });
+
+        const entity = {
+            id: 'headless-entity',
+            routeName: 'store-api.product.detail',
+            entityName: 'product',
+            template: '{{ product.name }}',
+        };
+        await wrapper.vm.fetchSeoUrlPreview(entity);
+        await flushPromises();
+
+        expect(wrapper.vm.errorMessages[entity.id]).toEqual({
+            code: 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE',
+            detail: 'sw-seo-url-template-card.general.invalidHeadlessUrlTemplate',
+        });
+
+        expect(Shopware.Store.get('error').getApiErrorFromPath('seo_url_template', entity.id, ['template'])).toBeNull();
+    });
+
+    it('should clear the field error once the preview succeeds', async () => {
+        const { wrapper, seoUrlTemplateService } = await createWrapper();
+        const entity = {
+            id: 'recovering-entity',
+            routeName: 'store-api.product.detail',
+            entityName: 'product',
+            template: 'https://foo.bar/{{ product.name }}',
+        };
+
+        seoUrlTemplateService.preview.mockRejectedValueOnce({
+            response: {
+                data: { errors: [{ code: 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE', detail: 'raw backend message' }] },
+            },
+        });
+        await wrapper.vm.fetchSeoUrlPreview(entity);
+        await flushPromises();
+        expect(wrapper.vm.errorMessages[entity.id]).not.toBeNull();
+
+        seoUrlTemplateService.preview.mockResolvedValueOnce([{ seoPathInfo: 'https://foo.bar/test' }]);
+        await wrapper.vm.fetchSeoUrlPreview(entity);
+        await flushPromises();
+        expect(wrapper.vm.errorMessages[entity.id]).toBeNull();
+    });
+
+    it('should keep the raw backend error for other (non-headless) template errors', async () => {
+        const { wrapper, seoUrlTemplateService } = await createWrapper();
+        seoUrlTemplateService.preview.mockRejectedValue({
+            response: {
+                data: { errors: [{ code: 'FRAMEWORK__INVALID_SEO_TEMPLATE', detail: 'Twig syntax error' }] },
+            },
+        });
+
+        const entity = {
+            id: 'storefront-entity',
+            routeName: 'frontend.detail.page',
+            entityName: 'product',
+            template: '{{ broken',
+        };
+        await wrapper.vm.fetchSeoUrlPreview(entity);
+        await flushPromises();
+
+        expect(wrapper.vm.errorMessages[entity.id]).toEqual({
+            code: 'FRAMEWORK__INVALID_SEO_TEMPLATE',
+            detail: 'Twig syntax error',
+        });
+    });
 });

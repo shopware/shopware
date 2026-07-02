@@ -231,13 +231,13 @@ class SeoActionControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
 
-        // The product is not visible in the headless sales channel; the preview resolves any entity of the definition.
         $this->createTestProduct($salesChannelId);
 
+        // headless templates must render a full URL
         $data = [
             'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
             'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
-            'template' => '{{ product.name }}',
+            'template' => 'https://foo.bar/{{ product.name }}',
             'salesChannelId' => $salesChannelId,
         ];
         $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
@@ -248,7 +248,61 @@ class SeoActionControllerTest extends TestCase
         static::assertIsString($content);
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('test', $data[0]['seoPathInfo']);
+        static::assertSame('https://foo.bar/test', $data[0]['seoPathInfo']);
+    }
+
+    public function testPreviewForHeadlessStoreApiRouteRequiresFullUrl(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '{{ product.name }}',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(400, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE', $data['errors'][0]['code']);
+    }
+
+    public function testPreviewForHeadlessStoreApiRouteWithEmptyTemplateIsNotInvalid(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testPreviewForHeadlessStoreApiRouteWithFullUrlButNoEntities(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => 'https://foo.bar/{{ product.name }}',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testGetSeoContextForHeadlessStoreApiRoute(): void

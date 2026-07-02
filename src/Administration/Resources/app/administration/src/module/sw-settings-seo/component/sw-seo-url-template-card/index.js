@@ -22,6 +22,8 @@ const HEADLESS_SEO_URL_ROUTES = [
     { storefrontRouteName: 'frontend.landing.page', routeName: 'store-api.landing-page.detail', entityName: 'landing_page' },
 ];
 
+const INVALID_HEADLESS_TEMPLATE_ERROR_CODE = 'CONTENT__INVALID_HEADLESS_SEO_URL_TEMPLATE';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -316,8 +318,8 @@ export default {
 
             this.debouncedPreviews[entity.id]();
         },
-        setErrorMessagesForEntity(entity, value = null) {
-            this.errorMessages[entity.id] = value;
+        setErrorMessagesForEntity(entity, error = null) {
+            this.errorMessages[entity.id] = error;
         },
         fetchSeoUrlPreview(entity) {
             this.previewLoadingStates[entity.id] = true;
@@ -343,7 +345,11 @@ export default {
                     this.previewLoadingStates[entity.id] = false;
                 })
                 .catch((err) => {
-                    this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
+                    const error = err.response.data.errors[0];
+                    if (error.code === INVALID_HEADLESS_TEMPLATE_ERROR_CODE) {
+                        error.detail = this.$t('sw-seo-url-template-card.general.invalidHeadlessUrlTemplate');
+                    }
+                    this.setErrorMessagesForEntity(entity, error);
 
                     this.previews[entity.id] = [];
 

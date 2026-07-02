@@ -48,7 +48,7 @@
                             :is-inherited="props.isInherited"
                             :model-value="props.currentValue"
                             :disabled="props.isInherited"
-                            :error="seoUrlTemplatesTemplateError[index]"
+                            :error="errorMessages[seoUrlTemplate.id] || seoUrlTemplatesTemplateError[index]"
                             :name="`sw-field--seo-url-template-${seoUrlTemplate.entity}`"
                             :label="getLabel(seoUrlTemplate)"
                             :placeholder="getPlaceholder(seoUrlTemplate)"

@@ -321,6 +321,12 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelIdParameterIsMissing();
         }
 
+        $template = $seoUrlTemplate['template'] ?? '';
+
+        if ($salesChannel->isHeadless() && trim($template) !== '' && !$this->isFullUrlTemplate($template)) {
+            throw SeoException::invalidHeadlessTemplate();
+        }
+
         $criteria = $previewCriteria ?? new Criteria();
         $criteria->setLimit(10);
         $route->prepareCriteria($criteria, $salesChannel);
@@ -330,11 +336,14 @@ class SeoActionController extends AbstractController
             throw SeoException::noEntitiesForPreview($repository->getDefinition()->getEntityName(), $routeName);
         }
 
-        $template = $seoUrlTemplate['template'] ?? '';
-
         $result = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
 
         return \is_array($result) ? $result : iterator_to_array($result);
+    }
+
+    private function isFullUrlTemplate(string $template): bool
+    {
+        return preg_match('#^https?://.+#i', trim($template)) === 1;
     }
 
     private function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@shopware-ag/gh-project-automation": "1.14.1"
+    "@shopware-ag/gh-project-automation": "1.15.0"
   },
   "devDependencies": {
     "@types/node": "24.10.0"

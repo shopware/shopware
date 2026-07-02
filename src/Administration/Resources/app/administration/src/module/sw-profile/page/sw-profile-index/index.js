@@ -23,7 +23,6 @@ export default {
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
-        'ssoSettingsService',
         'validationApiService',
     ],
 
@@ -242,7 +241,7 @@ export default {
             this.user = await this.getUserData();
         },
 
-        onSave() {
+        async onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
                 Promise.all([
                     this.saveMinSearchTermLength(),
@@ -252,26 +251,18 @@ export default {
                 return;
             }
 
-            this.ssoSettingsService.isSso().then(async (response) => {
-                if (response.isSso) {
-                    this.saveUser();
+            const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
 
-                    return;
+            if (isValid) {
+                const passwordCheck = this.checkPassword();
+                if (passwordCheck === null || passwordCheck === true) {
+                    this.confirmPasswordModal = true;
                 }
 
-                const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
+                return;
+            }
 
-                if (isValid) {
-                    const passwordCheck = this.checkPassword();
-                    if (passwordCheck === null || passwordCheck === true) {
-                        this.confirmPasswordModal = true;
-                    }
-
-                    return;
-                }
-
-                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
-            });
+            this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
         },
 
         /**

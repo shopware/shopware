@@ -8,7 +8,6 @@ use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('framework')]
@@ -24,7 +23,6 @@ class UserRepository implements UserRepositoryInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly LoginConfigService $loginConfigService,
     ) {
     }
 
@@ -35,11 +33,6 @@ class UserRepository implements UserRepositoryInterface
         string $grantType,
         ClientEntityInterface $clientEntity
     ): ?UserEntityInterface {
-        if ($this->loginConfigService->getConfig()?->useDefault === false) {
-            // never allow login via password if the default login is disabled (e.g. using SSO only)
-            return null;
-        }
-
         $builder = $this->connection->createQueryBuilder();
         $user = $builder->select('user.id', 'user.password', 'user.active')
             ->from('user')

@@ -417,7 +417,19 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         async onLogoutUser() {
-            await this.loginService.logoutSso();
+            try {
+                // Revoke server-side tokens (RFC-7009). Use native fetch to bypass Axios
+                // interceptors — the refresh-token interceptor would otherwise attempt
+                // a token refresh during logout.
+                await fetch(`${Shopware.Context.api.apiPath}/_action/user/logout`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${this.loginService.getToken()}` },
+                });
+            } catch {
+                // Best-effort: continue with the local logout even if revocation fails
+            }
+
+            this.loginService.logout();
 
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();

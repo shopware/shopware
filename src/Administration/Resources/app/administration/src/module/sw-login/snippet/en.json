@@ -14,7 +14,6 @@
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
-      "buttonSsoLogin": "Log in with Shopware",
       "messageUnsupportedGrantType": "Authorisation grant type not supported by authorisation server.",
       "messageInvalidRequest": "Invalid request.",
       "messageInvalidClient": "Client authentication failed.",

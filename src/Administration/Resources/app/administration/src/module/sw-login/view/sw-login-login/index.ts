@@ -4,7 +4,6 @@
 
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
-import type { LoginConfig } from '../../../../core/service/login.service';
 
 const { Component, Mixin } = Shopware;
 
@@ -13,9 +12,6 @@ interface LoginData {
     password: string;
     rememberMe: boolean;
     loginAlertMessage: string;
-    loginConfig: null | LoginConfig;
-    loginConfigLoaded: boolean;
-    ssoLoading: boolean;
 }
 
 /**
@@ -47,9 +43,6 @@ export default Component.wrapComponentConfig({
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
-            loginConfig: null,
-            loginConfigLoaded: false,
-            ssoLoading: false,
         };
     },
 
@@ -69,35 +62,12 @@ export default Component.wrapComponentConfig({
             window.location.reload();
         },
 
-        _navigateTo(url: string) {
-            window.location.href = url;
-        },
-
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
                 const localeFactory = Shopware.Application.getContainer('factory').locale;
 
                 await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
             }
-
-            this.loginConfig = await this.loginService.getLoginTemplateConfig();
-
-            if (!this.loginConfig.useDefault && this.loginConfig.url) {
-                this.doSsoForwarding();
-            }
-
-            this.loginConfigLoaded = true;
-        },
-
-        doSsoForwarding() {
-            if (!this.loginConfig) {
-                return;
-            }
-
-            this.ssoLoading = true;
-            window.sessionStorage.setItem('redirectFromLogin', 'true');
-            window.sessionStorage.setItem('sw-sso-session', 'true');
-            this._navigateTo(this.loginConfig.url);
         },
 
         loginUserWithPassword() {

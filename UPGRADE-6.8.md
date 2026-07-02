@@ -165,6 +165,21 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
+## Removal of the experimental admin SSO
+
+The experimental single sign-on login for the Administration (`Shopware\Core\Framework\Sso`, all `@internal`) has been removed. This affects you only if you configured the `shopware.admin_login` section in your `shopware.yaml` — remove that section, it is no longer recognized.
+
+Removed surface:
+
+- API routes `/api/oauth/sso/config`, `/api/oauth/sso/auth`, `/api/oauth/sso/code`, `/api/_action/sso/invite-user` and `/api/_info/is-sso`.
+- The OAuth grant type `shopware_grant` on `/api/oauth/token`; the `password`, `refresh_token` and `client_credentials` grants are unaffected.
+- The `oauth_user` table (dropped with the destructive migration phase).
+- Administration: the `sw-sso-error` module, the SSO user detail page and invitation components, the `ssoSettingsService`/`ssoInvitationService` services, and `loginService.logoutSso()`/`loginService.getLoginTemplateConfig()`.
+
+Admin users log in with username and password again. Users that were provisioned through SSO keep working, as they are regular admin users; set a password for them via the password recovery flow if needed.
+
+A replacement providing OIDC single sign-on with configurable group-to-role mapping, passkeys (WebAuthn) and multi-factor authentication is in development behind the `ADMIN_AUTH` feature flag.
+
 ## Reference-based Admin API detail routes use one-to-one associations
 
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.

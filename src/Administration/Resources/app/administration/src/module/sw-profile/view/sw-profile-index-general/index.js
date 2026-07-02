@@ -11,7 +11,6 @@ export default {
 
     inject: [
         'acl',
-        'ssoSettingsService',
     ],
 
     emits: [
@@ -21,18 +20,6 @@ export default {
         'media-remove',
         'media-open',
     ],
-
-    created() {
-        this.ssoSettingsService.isSso().then((isSso) => {
-            this.showPasswordChangeCard = !isSso.isSso;
-        });
-    },
-
-    data() {
-        return {
-            showPasswordChangeCard: true,
-        };
-    },
 
     props: {
         user: {

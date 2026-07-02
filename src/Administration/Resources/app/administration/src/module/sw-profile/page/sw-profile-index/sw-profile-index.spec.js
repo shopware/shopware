@@ -9,7 +9,6 @@ import TimezoneService from 'src/core/service/timezone.service';
 
 async function createWrapper(
     privileges = [],
-    isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
 ) {
@@ -103,11 +102,6 @@ async function createWrapper(
                     },
                     search: () => {
                         return Promise.resolve();
-                    },
-                },
-                ssoSettingsService: {
-                    isSso: () => {
-                        return Promise.resolve(isSso);
                     },
                 },
                 validationApiService: {
@@ -253,7 +247,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
     it('should show the password confirm modal', async () => {
         const updateFunction = jest.fn(() => Promise.resolve({}));
-        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        const wrapper = await createWrapper(['user.update_profile'], updateFunction);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
@@ -264,18 +258,6 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         expect(passwordConfirmModal.exists()).toBeTruthy();
         expect(updateFunction).not.toHaveBeenCalled();
-    });
-
-    it('should update the user', async () => {
-        const updateFunction = jest.fn(() => Promise.resolve({}));
-        const wrapper = await createWrapper(['user.update_profile'], { isSso: true }, updateFunction);
-        await flushPromises();
-
-        const saveButton = wrapper.find('.sw-profile__save-action');
-        await saveButton.trigger('click');
-        await flushPromises();
-
-        expect(updateFunction).toHaveBeenCalled();
     });
 
     it('should save minSearchTermLength and userSearchPreferences', async () => {
@@ -302,7 +284,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };
 
-        const wrapper = await createWrapper(['user:editor'], { isSso: false }, () => Promise.resolve({}), loginService);
+        const wrapper = await createWrapper(['user:editor'], () => Promise.resolve({}), loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -338,7 +320,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };
 
-        const wrapper = await createWrapper(['user:editor'], { isSso: false }, () => Promise.resolve({}), loginService);
+        const wrapper = await createWrapper(['user:editor'], () => Promise.resolve({}), loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -366,7 +348,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const loginService = { loginByUsername, logout: jest.fn() };
         const updateUser = jest.fn(() => Promise.resolve({}));
 
-        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        const wrapper = await createWrapper([], updateUser, loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -403,7 +385,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const loginService = { loginByUsername, logout: jest.fn() };
         const updateUser = jest.fn(() => Promise.resolve({}));
 
-        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        const wrapper = await createWrapper([], updateUser, loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -431,7 +413,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const loginService = { loginByUsername, logout: jest.fn() };
         const updateUser = jest.fn(() => Promise.reject(new Error('Save failed')));
 
-        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        const wrapper = await createWrapper([], updateUser, loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -460,7 +442,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const logout = jest.fn();
         const loginService = { loginByUsername, logout };
 
-        const wrapper = await createWrapper(['user:editor'], { isSso: false }, () => Promise.resolve({}), loginService);
+        const wrapper = await createWrapper(['user:editor'], () => Promise.resolve({}), loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -491,7 +473,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const loginService = { loginByUsername, logout };
         const updateUser = jest.fn(() => Promise.resolve({}));
 
-        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        const wrapper = await createWrapper([], updateUser, loginService);
         await flushPromises();
 
         await wrapper.setData({

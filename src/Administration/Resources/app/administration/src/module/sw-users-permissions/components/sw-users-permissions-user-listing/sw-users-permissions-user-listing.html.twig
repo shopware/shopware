@@ -17,18 +17,7 @@
 
         {% block sw_settings_user_list_actions_create_user %}
         <mt-button
-            v-if="isSso"
-            size="small"
-            :disabled="!acl.can('users_and_permissions.creator') || undefined"
-            class="sw-users-permissions-user-listing__add-user-button"
-            variant="secondary"
-            @click="openInvitationModal"
-        >
-            {{ $t('sw-users-permissions.sso.inviteButtonLabel') }}
-        </mt-button>
-
-        <mt-button
-            v-else
+            ghost
             size="small"
             :disabled="!acl.can('users_and_permissions.creator') || undefined"
             class="sw-users-permissions-user-listing__add-user-button"
@@ -37,13 +26,6 @@
         >
             {{ $t('sw-users-permissions.users.general.labelCreateNewUser') }}
         </mt-button>
-
-        <sw-user-sso-invitation-modal
-            v-if="showInvitationModal"
-            @modal-close="closeInvitationModal"
-            @user-invited="onUserInvited"
-            @invitation-failed="invitationFailed"
-        />
         {% endblock %}
         {% endblock %}
     </div>
@@ -87,7 +69,6 @@
         {% block sw_settings_user_list_column_username_preview %}
         <template #preview-username="{ item }">
             <sw-avatar
-                v-if="!isSso"
                 size="26px"
                 :first-name="item.firstName"
                 :last-name="item.lastName"
@@ -113,18 +94,7 @@
         {% block sw_settings_user_list_column_email %}
         <template #column-email="{ item }">
             {% block sw_settings_user_list_column_email_content %}
-            <mt-link
-                v-if="isSso"
-                class="sw-settings-user-list__columns"
-                :to="{ name: userDetailRouterLink, params: { id: item.id } }"
-            >
-                {{ item.email }}
-            </mt-link>
-
-            <span
-                v-else
-                class="sw-data-grid__cell-value"
-            >
+            <span class="sw-data-grid__cell-value">
                 {{ item.email }}
             </span>
             {% endblock %}
@@ -187,7 +157,6 @@
 
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
                 <mt-password-field
-                    v-if="!isSso"
                     v-model="confirmPassword"
                     class="sw-settings-user-detail__confirm-password"
                     required
@@ -214,7 +183,7 @@
 
                     {% block sw_settings_user_list_delete_modal_confirm %}
                     <mt-button
-                        :disabled="!confirmPassword && !isSso || undefined"
+                        :disabled="!confirmPassword || undefined"
                         :is-loading="isConfirmingPassword"
                         variant="critical"
                         size="small"

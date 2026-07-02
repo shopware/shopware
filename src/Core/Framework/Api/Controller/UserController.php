@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
+use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\UserCollection;
@@ -45,7 +45,7 @@ class UserController extends AbstractController
         private readonly EntityRepository $roleRepository,
         private readonly EntityRepository $keyRepository,
         private readonly UserDefinition $userDefinition,
-        private readonly SsoService $ssoService,
+        private readonly RefreshTokenRepository $refreshTokenRepository,
     ) {
     }
 
@@ -144,7 +144,7 @@ class UserController extends AbstractController
             throw ApiException::userNotLoggedIn();
         }
 
-        $this->ssoService->revokeUserTokens($userId);
+        $this->refreshTokenRepository->revokeRefreshTokensForUser($userId);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -342,10 +342,6 @@ class UserController extends AbstractController
     {
         // only validate scope for administration clients
         if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) !== 'administration') {
-            return;
-        }
-
-        if ($this->ssoService->isSso()) {
             return;
         }
 

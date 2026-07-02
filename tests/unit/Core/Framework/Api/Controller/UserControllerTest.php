@@ -8,10 +8,10 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Api\Controller\UserController;
+use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -26,12 +26,12 @@ class UserControllerTest extends TestCase
     {
         $userId = 'test-user-id';
 
-        $ssoService = $this->createMock(SsoService::class);
-        $ssoService->expects($this->once())
-            ->method('revokeUserTokens')
+        $refreshTokenRepository = $this->createMock(RefreshTokenRepository::class);
+        $refreshTokenRepository->expects($this->once())
+            ->method('revokeRefreshTokensForUser')
             ->with($userId);
 
-        $controller = $this->createController($ssoService);
+        $controller = $this->createController($refreshTokenRepository);
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
         $response = $controller->logout($context);
@@ -59,7 +59,7 @@ class UserControllerTest extends TestCase
         $controller->logout($context);
     }
 
-    private function createController(?SsoService $ssoService = null): UserController
+    private function createController(?RefreshTokenRepository $refreshTokenRepository = null): UserController
     {
         return new UserController(
             $this->createMock(EntityRepository::class),
@@ -67,7 +67,7 @@ class UserControllerTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(UserDefinition::class),
-            $ssoService ?? $this->createMock(SsoService::class),
+            $refreshTokenRepository ?? $this->createMock(RefreshTokenRepository::class),
         );
     }
 }

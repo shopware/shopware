@@ -8,7 +8,7 @@ import useSystem from '../../../../app/composables/use-system';
 const originalNavigatorLanguage = navigator.language;
 const originalNavigatorLanguages = navigator.languages;
 
-async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
+async function createWrapper(loginSuccessfull) {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
@@ -54,9 +54,6 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
 
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
-                    getLoginTemplateConfig: () => {
-                        return Promise.resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
-                    },
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -82,10 +79,6 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
     });
 
     await flushPromises();
-
-    if (!useDefault) {
-        return { wrapper };
-    }
 
     const passwordInput = wrapper.findByLabel('["sw-login.index.labelPassword"]');
     const usernameInput = wrapper.get('#sw-field--username');
@@ -179,51 +172,5 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         await createWrapper(true);
 
         expect(setAdminLocaleSpy).toHaveBeenCalledWith('de-DE');
-    });
-
-    it('should redirect for SSO login', async () => {
-        const navigateToSpy = jest.fn();
-        const component = await wrapTestComponent('sw-login-login', { sync: true });
-        component.methods._navigateTo = navigateToSpy;
-
-        mount(component, {
-            global: {
-                mocks: {
-                    $t: (...args) => JSON.stringify([...args]),
-                },
-                provide: {
-                    loginService: {
-                        loginByUsername: () => Promise.resolve(),
-                        setRememberMe: () => {},
-                        getLoginTemplateConfig: () => {
-                            return Promise.resolve({ useDefault: false, ssoProviders: [], url: 'https://sso.test' });
-                        },
-                    },
-                    userService: {},
-                    licenseViolationService: {},
-                },
-                stubs: {
-                    'router-view': true,
-                    'sw-loader': true,
-                    'sw-text-field': true,
-                    'sw-text-field-deprecated': true,
-                    'sw-contextual-field': true,
-                    'sw-block-field': true,
-                    'router-link': true,
-                    'sw-checkbox-field': true,
-                    'sw-checkbox-field-deprecated': true,
-                    'sw-base-field': true,
-                    'sw-field-error': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                },
-            },
-        });
-
-        await flushPromises();
-
-        expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
     });
 });

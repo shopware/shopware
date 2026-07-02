@@ -4,20 +4,16 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
+use League\OAuth2\Server\Grant\PasswordGrant;
+use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
-use Shopware\Core\Framework\Sso\ShopwareGrantType;
-use Shopware\Core\Framework\Sso\ShopwarePasswordGrantType;
-use Shopware\Core\Framework\Sso\ShopwareRefreshTokenGrantType;
-use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
-use Shopware\Core\Framework\Sso\UserService\UserService;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -41,9 +37,6 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly UserRepositoryInterface $userRepository,
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly RouteScopeRegistry $routeScopeRegistry,
-        private readonly UserService $userService,
-        private readonly ExternalTokenService $tokenService,
-        private readonly ClockInterface $clock,
         private readonly string $accessTokenTtl = 'PT10M',
         private readonly string $refreshTokenTtl = 'P1W'
     ) {
@@ -70,20 +63,15 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $accessTokenInterval = new \DateInterval($this->accessTokenTtl);
         $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
 
-        $passwordGrant = new ShopwarePasswordGrantType($this->userRepository, $this->refreshTokenRepository, $this->userService);
+        $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
         $passwordGrant->setRefreshTokenTTL($refreshTokenInterval);
 
-        $refreshTokenGrant = new ShopwareRefreshTokenGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
+        $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
-
-        // At this point session is not set $event->getRequest()->getSession()
-        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService, $this->clock);
-        $shopwareGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);
         $this->authorizationServer->enableGrantType($refreshTokenGrant, $accessTokenInterval);
         $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $accessTokenInterval);
-        $this->authorizationServer->enableGrantType($shopwareGrant, $accessTokenInterval);
     }
 
     public function validateRequest(ControllerEvent $event): void

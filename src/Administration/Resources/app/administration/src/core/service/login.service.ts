@@ -14,12 +14,6 @@ export interface AuthObject {
     expiry: number;
 }
 
-/** @private */
-export interface LoginConfig {
-    useDefault: boolean;
-    url: string;
-}
-
 interface TokenResponse {
     access_token: string;
     refresh_token: string;
@@ -42,7 +36,6 @@ export interface LoginService {
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
     restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
-    logoutSso: () => Promise<void>;
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
     isLoggedIn: () => boolean;
     addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void;
@@ -53,11 +46,8 @@ export interface LoginService {
     verifyUserToken: (password: string) => Promise<string>;
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
-    getLoginTemplateConfig: () => Promise<LoginConfig>;
     subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
     isRefreshing: () => Promise<boolean>;
-    /** @internal */
-    _navigateTo: (url: string) => void;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -85,13 +75,6 @@ export default function createLoginService(
     const refreshSubscribers: Array<(token: string) => void> = [];
     const refreshErrorSubscribers: Array<(error: Error) => void> = [];
 
-    // Wraps window.location.href assignment to enable test mocking (JSDOM
-    // marks window.location as non-configurable). Mirrors the upstream
-    // _navigateTo pattern used in sw-login-login component.
-    let navigateToFn = (url: string): void => {
-        window.location.href = url;
-    };
-
     return {
         loginByUsername,
         verifyUserByUsername,
@@ -101,7 +84,6 @@ export default function createLoginService(
         setBearerAuthentication,
         restartAutoTokenRefresh,
         logout,
-        logoutSso,
         forwardLogout,
         isLoggedIn,
         addOnTokenChangedListener,
@@ -112,17 +94,8 @@ export default function createLoginService(
         verifyUserToken,
         getStorage,
         setRememberMe,
-        getLoginTemplateConfig,
         subscribeToTokenRefresh,
         isRefreshing,
-
-        /** @internal */
-        get _navigateTo() {
-            return navigateToFn;
-        },
-        set _navigateTo(fn: (url: string) => void) {
-            navigateToFn = fn;
-        },
     };
 
     /**
@@ -573,7 +546,7 @@ export default function createLoginService(
 
     /**
      * Clears local authentication state: cookies, context token, bearer cache,
-     * remember-me flag, and auto-refresh timer. Shared by logout() and logoutSso().
+     * remember-me flag, and auto-refresh timer.
      */
     function clearAuthState(): void {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
@@ -599,56 +572,6 @@ export default function createLoginService(
         forwardLogout(isInactivityLogout, shouldRedirect);
 
         return true;
-    }
-
-    /**
-     * Revokes server-side tokens, clears local auth state, and navigates
-     * to the appropriate login surface:
-     * - SSO sessions → full-page redirect to the SSO provider (prompt=login)
-     * - Non-SSO sessions → standard logout via {@link forwardLogout}
-     *
-     * Falls back to regular logout if the SSO configuration cannot be loaded.
-     */
-    async function logoutSso(): Promise<void> {
-        let loginConfig: LoginConfig;
-
-        try {
-            loginConfig = await getLoginTemplateConfig();
-        } catch {
-            logout();
-            return;
-        }
-
-        if (!loginConfig.url) {
-            logout();
-            return;
-        }
-
-        const token = getToken();
-
-        try {
-            // Use native fetch to bypass Axios interceptors — the refresh-token
-            // interceptor would otherwise attempt a token refresh during logout.
-            await fetch(`${context.apiPath}/_action/user/logout`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-        } catch {
-            // Best-effort: continue even if server-side revocation fails
-        }
-
-        const isSsoSession = !!sessionStorage.getItem('sw-sso-session');
-
-        if (!loginConfig.useDefault || isSsoSession) {
-            clearAuthState();
-            notifyOnLogoutListener();
-            sessionStorage.setItem('sw-sso-session', 'true');
-            navigateToFn(`${loginConfig.url}&usePromptLogin=1`);
-            return;
-        }
-
-        sessionStorage.removeItem('sw-sso-session');
-        logout();
     }
 
     /**
@@ -779,13 +702,5 @@ export default function createLoginService(
      */
     function getStorage(): CookieStorage {
         return cookieStorage;
-    }
-
-    function getLoginTemplateConfig(): Promise<LoginConfig> {
-        return httpClient
-            .get<LoginConfig>('/oauth/sso/config', {
-                baseURL: context.apiPath!,
-            })
-            .then((response) => response.data);
     }
 }

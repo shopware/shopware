@@ -41,7 +41,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $container->compile();
 
         $definition = $container->get(ProductDefinition::class);
-        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+        $definition->compile(new StaticDefinitionInstanceRegistry([], static::createStub(ValidatorInterface::class), static::createStub(EntityWriteGateway::class)));
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
@@ -65,7 +65,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $container->compile();
 
         $definition = $container->get(ProductDefinition::class);
-        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+        $definition->compile(new StaticDefinitionInstanceRegistry([], static::createStub(ValidatorInterface::class), static::createStub(EntityWriteGateway::class)));
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
@@ -101,7 +101,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $definition = $container->get('test_attribute_entity.definition');
         static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
 
-        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+        $definition->compile(new StaticDefinitionInstanceRegistry([], static::createStub(ValidatorInterface::class), static::createStub(EntityWriteGateway::class)));
 
         static::assertTrue($definition->getFields()->has('product'));
         static::assertInstanceOf(ManyToOneAssociationField::class, $definition->getFields()->get('product'));

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
@@ -28,13 +28,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AbstractCmsElementResolver::class)]
 class AbstractCmsElementResolverTest extends TestCase
 {
-    private DefinitionInstanceRegistry&MockObject $registry;
+    private DefinitionInstanceRegistry&Stub $registry;
 
     private TestEntityDefinition $definition;
 
     protected function setUp(): void
     {
-        $this->registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->registry = static::createStub(DefinitionInstanceRegistry::class);
         $this->definition = new TestEntityDefinition();
         $this->definition->compile($this->registry);
     }

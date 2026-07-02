@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
+use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
@@ -425,9 +426,15 @@ class WebhookDeliveryServiceTest extends TestCase
         bool $isAdminWorkerEnabled = false,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ): WebhookDeliveryService {
+        $signingSecretResolver = $this->createMock(WebhookSigningSecretResolver::class);
+        $signingSecretResolver->method('resolve')->willReturnCallback(
+            static fn (WebhookEventMessage $message): ?string => $message->getSecret()
+        );
+
         return new WebhookDeliveryService(
             $this->webhookClient,
             $this->appPayloadServiceHelper,
+            $signingSecretResolver,
             $this->webhookOutboxStore,
             $this->retryDelayCalculator,
             $this->bus,

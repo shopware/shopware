@@ -1,0 +1,59 @@
+<ram:SellerTradeParty>
+    <ram:Name>{{ seller.companyName }}</ram:Name>
+
+    {% if seller.executiveDirector or seller.companyPhone or seller.companyEmail %}
+        <ram:DefinedTradeContact>
+            {% if seller.executiveDirector %}
+                <ram:PersonName>{{ seller.executiveDirector }}</ram:PersonName>
+            {% endif %}
+
+            {% if seller.companyPhone %}
+                <ram:TelephoneUniversalCommunication>
+                    <ram:CompleteNumber>{{ seller.companyPhone }}</ram:CompleteNumber>
+                </ram:TelephoneUniversalCommunication>
+            {% endif %}
+
+            {% if seller.companyEmail %}
+                <ram:EmailURIUniversalCommunication>
+                    <ram:URIID>{{ seller.companyEmail }}</ram:URIID>
+                </ram:EmailURIUniversalCommunication>
+            {% endif %}
+        </ram:DefinedTradeContact>
+    {% endif %}
+
+    <ram:PostalTradeAddress>
+        {% if seller.companyZipcode %}
+            <ram:PostcodeCode>{{ seller.companyZipcode }}</ram:PostcodeCode>
+        {% endif %}
+
+        {% if seller.companyStreet %}
+            <ram:LineOne>{{ seller.companyStreet }}</ram:LineOne>
+        {% endif %}
+
+        {% if seller.companyCity %}
+            <ram:CityName>{{ seller.companyCity }}</ram:CityName>
+        {% endif %}
+
+        {% if seller.companyCountry.iso %}
+            <ram:CountryID>{{ seller.companyCountry.iso }}</ram:CountryID>
+        {% endif %}
+    </ram:PostalTradeAddress>
+
+    {% if seller.companyEmail %}
+        <ram:URIUniversalCommunication>
+            <ram:URIID schemeID="EM">{{ seller.companyEmail }}</ram:URIID>
+        </ram:URIUniversalCommunication>
+    {% endif %}
+
+    {% if seller.taxNumber %}
+        <ram:SpecifiedTaxRegistration>
+            <ram:ID schemeID="FC">{{ seller.taxNumber }}</ram:ID>
+        </ram:SpecifiedTaxRegistration>
+    {% endif %}
+
+    {% if seller.vatId %}
+        <ram:SpecifiedTaxRegistration>
+            <ram:ID schemeID="VA">{{ seller.vatId }}</ram:ID>
+        </ram:SpecifiedTaxRegistration>
+    {% endif %}
+</ram:SellerTradeParty>

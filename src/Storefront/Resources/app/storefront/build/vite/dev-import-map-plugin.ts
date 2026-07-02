@@ -79,6 +79,15 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
     const flagFile = path.join(projectRoot, 'var/cache/storefront_components.dev.json');
     let viteRoot = '';
     const resolveBundleBasePath = (basePath?: string): string => path.resolve(projectRoot, basePath ?? '');
+    const resolveDevOrigin = (server: ViteDevServer): string => {
+        const configuredOrigin = server.config.server.origin;
+        if (configuredOrigin) {
+            return configuredOrigin.replace(/\/$/, '');
+        }
+
+        const port = server.config.server.port ?? 5175;
+        return `http://localhost:${port}`;
+    };
 
     const cleanup = (): void => {
         try {
@@ -330,8 +339,7 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
             });
 
             const write = (): void => {
-                const port = server.config.server.port ?? 5175;
-                const origin = `http://localhost:${port}`;
+                const origin = resolveDevOrigin(server);
                 const imports: Record<string, string> = {};
 
                 // shopware runtime module — lives inside the Vite root so it

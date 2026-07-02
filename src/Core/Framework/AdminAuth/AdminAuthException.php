@@ -26,6 +26,13 @@ class AdminAuthException extends HttpException
     public const OIDC_ID_TOKEN_INVALID = 'FRAMEWORK__ADMIN_AUTH_OIDC_ID_TOKEN_INVALID';
     public const OIDC_LOGIN_FAILED = 'FRAMEWORK__ADMIN_AUTH_OIDC_LOGIN_FAILED';
     public const INVALID_OAUTH_STATE = 'FRAMEWORK__ADMIN_AUTH_INVALID_OAUTH_STATE';
+    public const METHOD_DISABLED = 'FRAMEWORK__ADMIN_AUTH_METHOD_DISABLED';
+    public const MISSING_USER_CONTEXT = 'FRAMEWORK__ADMIN_AUTH_MISSING_USER_CONTEXT';
+    public const USER_NOT_VERIFIED = 'FRAMEWORK__ADMIN_AUTH_USER_NOT_VERIFIED';
+    public const MFA_ENROLLMENT_NOT_FOUND = 'FRAMEWORK__ADMIN_AUTH_MFA_ENROLLMENT_NOT_FOUND';
+    public const INVALID_MFA_CODE = 'FRAMEWORK__ADMIN_AUTH_INVALID_MFA_CODE';
+    public const WEBAUTHN_REGISTRATION_FAILED = 'FRAMEWORK__ADMIN_AUTH_WEBAUTHN_REGISTRATION_FAILED';
+    public const WEBAUTHN_UNEXPECTED_RESPONSE = 'FRAMEWORK__ADMIN_AUTH_WEBAUTHN_UNEXPECTED_RESPONSE';
 
     public static function encryptionFailed(): self
     {
@@ -144,6 +151,73 @@ class AdminAuthException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_OAUTH_STATE,
             'Invalid or expired OAuth login state.'
+        );
+    }
+
+    public static function methodDisabled(string $method): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::METHOD_DISABLED,
+            'The authentication method "{{ method }}" is disabled.',
+            ['method' => $method]
+        );
+    }
+
+    public static function missingUserContext(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_USER_CONTEXT,
+            'This action requires an authenticated admin user context.'
+        );
+    }
+
+    public static function userNotVerified(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::USER_NOT_VERIFIED,
+            'This action requires a re-verified user (user-verified scope).'
+        );
+    }
+
+    public static function mfaEnrollmentNotFound(): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MFA_ENROLLMENT_NOT_FOUND,
+            'The MFA enrollment was not found.'
+        );
+    }
+
+    public static function invalidMfaCode(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_MFA_CODE,
+            'The provided code is invalid.'
+        );
+    }
+
+    public static function webAuthnUnexpectedResponse(string $expected): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBAUTHN_UNEXPECTED_RESPONSE,
+            'Unexpected WebAuthn response, expected an {{ expected }} response.',
+            ['expected' => $expected]
+        );
+    }
+
+    public static function webAuthnRegistrationFailed(string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBAUTHN_REGISTRATION_FAILED,
+            'Passkey registration failed: {{ reason }}',
+            ['reason' => $reason],
+            $previous
         );
     }
 }

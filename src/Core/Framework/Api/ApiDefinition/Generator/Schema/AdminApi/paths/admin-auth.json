@@ -26,11 +26,11 @@
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "description": "\"password\" for the built-in password login, the provider UUID for OIDC providers."
+                                                        "description": "The method type for built-in methods (\"password\", \"webauthn\"), the provider UUID for OIDC providers."
                                                     },
                                                     "type": {
                                                         "type": "string",
-                                                        "enum": ["password", "oidc"]
+                                                        "enum": ["password", "webauthn", "oidc"]
                                                     },
                                                     "label": {
                                                         "type": ["string", "null"],
@@ -209,6 +209,443 @@
                     },
                     "400": {
                         "description": "The discovery document could not be fetched or is incomplete."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/webauthn\/login-options": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Create WebAuthn login options",
+                "description": "Issues WebAuthn assertion request options for a passwordless (discoverable) or second-factor passkey login. The server-issued challenge is returned as a signed challengeToken that must be echoed back in the subsequent token request. Does not require authentication. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthWebauthnLoginOptions",
+                "responses": {
+                    "200": {
+                        "description": "The assertion request options and the signed challenge token.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "options": {
+                                            "type": "object",
+                                            "description": "The WebAuthn PublicKeyCredentialRequestOptions to pass to navigator.credentials.get()."
+                                        },
+                                        "challengeToken": {
+                                            "type": "string",
+                                            "description": "Signed, short-lived challenge token to send along with the assertion in the token request."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The webauthn method is disabled."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/methods": {
+            "get": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "List the current user's enrolled MFA methods",
+                "description": "Returns the authenticated user's own enrolled authentication methods. Secrets and credentials are never included. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaMethodsList",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user's enrolled methods.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "methods": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$"
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "enum": ["totp", "webauthn", "recovery_codes"]
+                                                    },
+                                                    "active": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "label": {
+                                                        "type": ["string", "null"]
+                                                    },
+                                                    "lastUsedAt": {
+                                                        "type": ["string", "null"],
+                                                        "format": "date-time"
+                                                    },
+                                                    "remaining": {
+                                                        "type": "integer",
+                                                        "description": "Unused recovery codes; only present for recovery_codes entries."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/methods\/{id}": {
+            "delete": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Delete one of the current user's MFA methods",
+                "description": "Deletes one of the authenticated user's own enrolled methods. Methods of other users cannot be deleted through this route. Requires the user-verified scope (fresh password re-verification). Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaMethodDelete",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The method UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The method was deleted (or did not belong to the current user)."
+                    },
+                    "403": {
+                        "description": "The token is missing the user-verified scope."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/totp\/register\/options": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Begin a TOTP enrollment",
+                "description": "Generates a fresh TOTP secret for the authenticated user, stores it server-side as a pending (inactive) method and returns the secret and otpauth URI exactly once for the QR code. Requires the user-verified scope. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaTotpRegisterOptions",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "label": {
+                                        "type": "string",
+                                        "description": "Display label for the enrollment, e.g. the authenticator app name."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The pending enrollment.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "The pending method id to pass to the verify call."
+                                        },
+                                        "secret": {
+                                            "type": "string",
+                                            "description": "The base32 TOTP secret; returned exactly once."
+                                        },
+                                        "otpauthUri": {
+                                            "type": "string",
+                                            "description": "otpauth:\/\/ provisioning URI for the QR code."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The totp method is disabled."
+                    },
+                    "403": {
+                        "description": "The token is missing the user-verified scope."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/totp\/register\/verify": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Complete a TOTP enrollment",
+                "description": "Activates a pending TOTP enrollment once the user proves possession of the seed with a valid 6-digit code. Requires the user-verified scope. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaTotpRegisterVerify",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["id", "code"],
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "The pending method id from the options call."
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "pattern": "^\\d{6}$",
+                                        "description": "The current 6-digit TOTP code."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The enrollment was activated.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The code is invalid or the totp method is disabled."
+                    },
+                    "403": {
+                        "description": "The token is missing the user-verified scope."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active or the pending enrollment was not found."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/webauthn\/register\/options": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Begin a passkey enrollment",
+                "description": "Issues WebAuthn credential creation options for the authenticated user (existing credentials excluded) plus a signed challengeToken the verify call must echo back. Requires the user-verified scope. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaWebauthnRegisterOptions",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The creation options and the signed challenge token.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "options": {
+                                            "type": "object",
+                                            "description": "The WebAuthn PublicKeyCredentialCreationOptions to pass to navigator.credentials.create()."
+                                        },
+                                        "challengeToken": {
+                                            "type": "string",
+                                            "description": "Signed, short-lived challenge token to send along with the credential in the verify request."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The webauthn method is disabled."
+                    },
+                    "403": {
+                        "description": "The token is missing the user-verified scope."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/webauthn\/register\/verify": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Complete a passkey enrollment",
+                "description": "Verifies the authenticator's attestation response against the challenge and stores the passkey as an active method for the authenticated user. Requires the user-verified scope. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaWebauthnRegisterVerify",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["credential", "challengeToken"],
+                                "properties": {
+                                    "credential": {
+                                        "type": "string",
+                                        "description": "The JSON-serialized PublicKeyCredential from navigator.credentials.create()."
+                                    },
+                                    "challengeToken": {
+                                        "type": "string",
+                                        "description": "The signed challenge token from the options call."
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "description": "Display label for the passkey."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The passkey was registered.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The attestation response could not be verified, the challenge token is invalid or the webauthn method is disabled."
+                    },
+                    "403": {
+                        "description": "The token is missing the user-verified scope."
+                    },
+                    "404": {
+                        "description": "The ADMIN_AUTH feature is not active."
+                    }
+                }
+            }
+        },
+        "\/_action\/admin-auth\/mfa\/recovery-codes": {
+            "post": {
+                "tags": [
+                    "Admin Authentication",
+                    "Experimental"
+                ],
+                "summary": "Generate recovery codes",
+                "description": "(Re-)generates the authenticated user's recovery-code set. The plaintext codes are returned exactly once and only their hashes are stored; regenerating invalidates all previous codes. Requires the user-verified scope. Only available with the ADMIN_AUTH feature enabled, returns 404 otherwise. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "adminAuthMfaRecoveryCodesGenerate",
+                "security": [
+                    {
+                        "oAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The freshly generated recovery codes.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The recovery_codes method is disabled."
+                    },
+                    "403": {
+                        "description": "The token is missing the user-verified scope."
                     },
                     "404": {
                         "description": "The ADMIN_AUTH feature is not active."

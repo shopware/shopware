@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,6 +69,10 @@ class AdminAuthControllerTest extends TestCase
         static::assertSame('password', $byId['password']['type']);
         static::assertNull($byId['password']['startUrl']);
 
+        static::assertArrayHasKey('webauthn', $byId);
+        static::assertSame('webauthn', $byId['webauthn']['type']);
+        static::assertNull($byId['webauthn']['startUrl']);
+
         static::assertArrayHasKey($providerId, $byId);
         static::assertSame('oidc', $byId[$providerId]['type']);
         static::assertSame('Corporate SSO', $byId[$providerId]['label']);
@@ -89,6 +94,41 @@ class AdminAuthControllerTest extends TestCase
         $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotContains($providerId, array_column($data['methods'], 'id'));
+    }
+
+    public function testWebauthnLoginOptionsReturnsOptionsAndChallengeToken(): void
+    {
+        Feature::skipTestIfInActive('ADMIN_AUTH', $this);
+
+        $browser = $this->getBrowser();
+        $browser->request(Request::METHOD_POST, '/api/_action/admin-auth/webauthn/login-options');
+
+        $response = $browser->getResponse();
+        static::assertNotFalse($response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($data['options']);
+        static::assertNotEmpty($data['options']['challenge']);
+        static::assertSame([], $data['options']['allowCredentials'], 'discoverable login must not enumerate credentials');
+        static::assertIsString($data['challengeToken']);
+        static::assertStringContainsString('.', $data['challengeToken'], 'the challenge token must be signed');
+    }
+
+    public function testWebauthnLoginOptionsIsRejectedWhenTheMethodIsDisabled(): void
+    {
+        Feature::skipTestIfInActive('ADMIN_AUTH', $this);
+
+        static::getContainer()->get(SystemConfigService::class)->set(
+            'core.adminAuth.methods',
+            ['webauthn' => ['enabled' => false]]
+        );
+
+        $browser = $this->getBrowser();
+        $browser->request(Request::METHOD_POST, '/api/_action/admin-auth/webauthn/login-options');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode());
     }
 
     public function testOidcStartRedirectsToTheProviderWithStateAndNonce(): void

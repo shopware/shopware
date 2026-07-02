@@ -8,11 +8,14 @@ use Shopware\Core\Framework\AdminAuth\AdminAuthException;
 use Shopware\Core\Framework\AdminAuth\MethodSettingsService;
 use Shopware\Core\Framework\AdminAuth\OAuth\Grant\AdminPrimaryGrant;
 use Shopware\Core\Framework\AdminAuth\OAuth\Verifier\OidcVerifier;
+use Shopware\Core\Framework\AdminAuth\OAuth\Verifier\WebAuthnVerifier;
 use Shopware\Core\Framework\AdminAuth\Oidc\OidcClient;
 use Shopware\Core\Framework\AdminAuth\Oidc\OidcDiscoveryService;
 use Shopware\Core\Framework\AdminAuth\Oidc\StateService;
 use Shopware\Core\Framework\AdminAuth\Provider\AdminAuthProvider;
 use Shopware\Core\Framework\AdminAuth\Provider\ProviderRegistry;
+use Shopware\Core\Framework\AdminAuth\WebAuthn\WebAuthnChallengeStore;
+use Shopware\Core\Framework\AdminAuth\WebAuthn\WebAuthnService;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -54,6 +57,8 @@ class AdminAuthController extends AbstractController
         private readonly PsrHttpFactory $psrHttpFactory,
         private readonly RouterInterface $router,
         private readonly ClockInterface $clock,
+        private readonly WebAuthnService $webAuthnService,
+        private readonly WebAuthnChallengeStore $webAuthnChallengeStore,
     ) {
     }
 
@@ -72,13 +77,16 @@ class AdminAuthController extends AbstractController
 
         $methods = [];
 
-        if ($this->methodSettings->isPrimary('password')) {
-            $methods[] = [
-                'id' => 'password',
-                'type' => 'password',
-                'label' => null,
-                'startUrl' => null,
-            ];
+        // Built-in primary methods (password, passkey) the login screen renders natively.
+        foreach (['password', WebAuthnVerifier::METHOD] as $builtIn) {
+            if ($this->methodSettings->isPrimary($builtIn)) {
+                $methods[] = [
+                    'id' => $builtIn,
+                    'type' => $builtIn,
+                    'label' => null,
+                    'startUrl' => null,
+                ];
+            }
         }
 
         foreach ($this->providerRegistry->all() as $provider) {
@@ -98,6 +106,35 @@ class AdminAuthController extends AbstractController
             'methods' => $methods,
             'managedByConfig' => $this->providerRegistry->isManagedByConfig(),
             'adminUiEnabled' => $this->providerRegistry->isAdminUiEnabled(),
+        ]);
+    }
+
+    /**
+     * Issues WebAuthn assertion options for a passwordless / second-factor passkey login. The
+     * server-issued challenge is returned as a signed `challengeToken` the client must echo back in
+     * the token request (see {@see WebAuthnChallengeStore}). Discoverable login uses an empty
+     * allowCredentials list, so no user enumeration is possible through this endpoint.
+     */
+    #[Route(
+        path: '/api/_action/admin-auth/webauthn/login-options',
+        name: 'api.admin_auth.webauthn.login_options',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_POST]
+    )]
+    public function webauthnLoginOptions(): JsonResponse
+    {
+        $this->ensureFeatureActive();
+
+        if (!$this->methodSettings->isEnabled(WebAuthnVerifier::METHOD)) {
+            throw AdminAuthException::methodDisabled(WebAuthnVerifier::METHOD);
+        }
+
+        $options = $this->webAuthnService->createRequestOptions();
+        $optionsJson = $this->webAuthnService->serializeOptions($options);
+
+        return new JsonResponse([
+            'options' => json_decode($optionsJson, true),
+            'challengeToken' => $this->webAuthnChallengeStore->issue($optionsJson, WebAuthnChallengeStore::PURPOSE_LOGIN),
         ]);
     }
 

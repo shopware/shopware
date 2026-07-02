@@ -11,58 +11,9 @@ type ScriptBlock = {
     end: number;
     contentStart: number;
     content: string;
-    generatedPassthroughAttributesSource: string;
-    generatedNormalScriptAttributesSource: string;
+    openingTagSource: string;
     lang: string | null;
 };
-
-type SfcAttributeValue = string | true;
-
-function escapeAttributeValue(value: string): string {
-    return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
-
-function buildGeneratedAttributesSource(
-    attributes: Record<string, SfcAttributeValue>,
-    {
-        setup,
-        fallbackLanguage,
-    }: {
-        setup: boolean;
-        fallbackLanguage: string;
-    },
-): string {
-    const generatedAttributes = new Map<string, SfcAttributeValue>(Object.entries(attributes));
-
-    if (setup) {
-        generatedAttributes.set('setup', true);
-    } else {
-        generatedAttributes.delete('setup');
-    }
-
-    if (!generatedAttributes.has('lang')) {
-        generatedAttributes.set('lang', fallbackLanguage);
-    }
-
-    if (generatedAttributes.size === 0) {
-        return '';
-    }
-
-    const source = Array.from(generatedAttributes.entries()).map(
-        ([
-            name,
-            value,
-        ]) => {
-            if (value === true) {
-                return name;
-            }
-
-            return `${name}="${escapeAttributeValue(value)}"`;
-        },
-    );
-
-    return ` ${source.join(' ')}`;
-}
 
 /**
  * Verifies that a possible `<script` token is the tag Vue parsed, not text inside an attribute.
@@ -113,6 +64,13 @@ function findScriptStart(source: string, contentStart: number): number {
 }
 
 /**
+ * Removes only the boolean or valued `setup` attribute from the parsed script tag.
+ */
+function removeSetupAttributeFromScriptBlock(openingTagSource: string): string {
+    return openingTagSource.replace(/\ssetup(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?=\s|>)/u, '');
+}
+
+/**
  * Builds the shared block shape consumed by semantic normalization and lowering.
  */
 function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: ScriptBlock['type']): ScriptBlock {
@@ -126,16 +84,9 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
         end,
         contentStart,
         content: descriptorBlock.content,
-        generatedPassthroughAttributesSource: buildGeneratedAttributesSource(descriptorBlock.attrs, {
-            setup: type === 'scriptSetup',
-            fallbackLanguage: 'ts',
-        }),
-        generatedNormalScriptAttributesSource: buildGeneratedAttributesSource(descriptorBlock.attrs, {
-            setup: false,
-            fallbackLanguage: 'ts',
-        }),
+        openingTagSource: source.slice(start, contentStart),
         lang: descriptorBlock.lang ?? null,
     };
 }
 
-export { type ScriptBlock, toScriptBlock };
+export { type ScriptBlock, removeSetupAttributeFromScriptBlock, toScriptBlock };

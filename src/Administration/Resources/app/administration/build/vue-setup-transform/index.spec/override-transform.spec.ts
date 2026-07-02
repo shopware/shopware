@@ -30,15 +30,15 @@ describe('build/vue-setup-transform override transforms', () => {
         `;
 
         const expected = stripIndent`
-            <script lang="ts">
+            <script>
             import { computed } from 'vue';
 
             export default {
                 setup() {
-                    Shopware.Component.overrideComponentSetup()('sw-my-component', (__swPreviousState, __swProps, __swContext) => {
-                        const useSwPreviousState = () => __swPreviousState;
-                        const useSwProps = () => __swProps;
-                        const useSwContext = () => __swContext;
+                    Shopware.Component.overrideComponentSetup()('sw-my-component', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
+                        const useSwPreviousState = () => __swSetupPreviousState;
+                        const useSwProps = () => __swSetupProps;
+                        const useSwContext = () => __swSetupContext;
 
                         const previousState = useSwPreviousState();
                         const props = useSwProps();

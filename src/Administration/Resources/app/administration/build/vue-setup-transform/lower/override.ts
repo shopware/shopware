@@ -5,7 +5,8 @@
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { buildCallbackBodyChunks, escapeSingleQuoted, getTakenNames, makeUniqueName } from './shared';
+import { removeSetupAttributeFromScriptBlock } from '../utils/sfc-script-block';
+import { buildCallbackBodyChunks, escapeSingleQuoted } from './shared';
 
 /**
  * Builds the override callback payload from declared replacements and template-used private aliases.
@@ -44,10 +45,11 @@ function buildOverrideReturn(analysis: ShopwareSetupScriptAnalysis): string {
  * registerOverrideComponent.
  */
 function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
-    const takenNames = getTakenNames(analysis);
-    const previousStateName = makeUniqueName('__swPreviousState', takenNames);
-    const propsName = makeUniqueName('__swProps', takenNames);
-    const contextName = makeUniqueName('__swContext', takenNames);
+    // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
+    // deterministic and never collide.
+    const previousStateName = '__swSetupPreviousState';
+    const propsName = '__swSetupProps';
+    const contextName = '__swSetupContext';
     const callbackBody = buildCallbackBodyChunks(block, analysis, null);
     const body = [
         generated(`const useSwPreviousState = () => ${previousStateName};\n`),
@@ -56,9 +58,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
         ...callbackBody,
         generated(`\n\n${buildOverrideReturn(analysis)}`),
     ];
-    const chunks: SourceChunk[] = [
-        generated(`<script${block.generatedNormalScriptAttributesSource}>\n`),
-    ];
+    const chunks: SourceChunk[] = [generated(`${removeSetupAttributeFromScriptBlock(block.openingTagSource)}\n`)];
 
     analysis.imports.forEach((importBlock) => {
         chunks.push(fromSource(block, importBlock));

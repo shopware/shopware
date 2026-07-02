@@ -54,9 +54,7 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
         ...callbackBody,
         generated(`\n\n${buildBaseReturn(analysis)}`),
     ];
-    const chunks: SourceChunk[] = [
-        generated(`<script${block.generatedPassthroughAttributesSource}>\n`),
-    ];
+    const chunks: SourceChunk[] = [generated(`${block.openingTagSource}\n`)];
 
     analysis.imports.forEach((importBlock) => {
         chunks.push(fromSource(block, importBlock));

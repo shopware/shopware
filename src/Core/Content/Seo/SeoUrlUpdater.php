@@ -167,7 +167,12 @@ class SeoUrlUpdater
 
         $result = [];
         foreach ($domains as $domain) {
-            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? $default;
+            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? null;
+
+            if ($template === null && !$isHeadless) {
+                $template = $default;
+            }
+
             if ($template === null) {
                 continue;
             }

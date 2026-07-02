@@ -209,6 +209,46 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('hidden')));
     }
 
+    public function testHeadlessSalesChannelDoesNotInheritDefaultTemplate(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+
+        // "all sales channels" default template (sales_channel_id IS NULL) for the store-api route ...
+        $connection->insert('seo_url_template', [
+            'id' => Uuid::randomBytes(),
+            'sales_channel_id' => null,
+            'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entity_name' => ProductDefinition::ENTITY_NAME,
+            'template' => '{{ product.translated.name }}',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        // ... and a headless channel row without an own template (NULL) must NOT inherit that default.
+        $connection->insert('seo_url_template', [
+            'id' => Uuid::randomBytes(),
+            'sales_channel_id' => Uuid::fromHexToBytes($this->headlessSalesChannel['id']),
+            'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entity_name' => ProductDefinition::ENTITY_NAME,
+            'template' => null,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $product = (new ProductBuilder($this->ids, 'headless-no-inherit'))
+            ->price(100)
+            ->name('inherited-product')
+            ->visibility($this->headlessSalesChannel['id'])
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        static::getContainer()->get(SeoUrlUpdater::class)->update(
+            ProductStoreApiUrlRoute::ROUTE_NAME,
+            [$this->ids->get('headless-no-inherit')]
+        );
+
+        static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('headless-no-inherit')));
+    }
+
     /**
      * @return iterable<string, array{translations: list<string>, pathInfo: non-empty-string}>
      */

@@ -31,7 +31,7 @@ class EntitySearchToolTest extends TestCase
     public function testSearchWithDefaultCriteria(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -46,21 +46,21 @@ class EntitySearchToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('product')->willReturn($definition);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
 
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -78,7 +78,7 @@ class EntitySearchToolTest extends TestCase
     public function testSearchWithPagination(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -94,21 +94,21 @@ class EntitySearchToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
 
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -125,7 +125,7 @@ class EntitySearchToolTest extends TestCase
     public function testTopLevelParamsMergeIntoCriteria(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(5);
@@ -140,10 +140,10 @@ class EntitySearchToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -161,10 +161,10 @@ class EntitySearchToolTest extends TestCase
             )
             ->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -177,7 +177,7 @@ class EntitySearchToolTest extends TestCase
     public function testDefaultLimitIsAlwaysAppliedToPayload(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -185,10 +185,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -206,10 +206,10 @@ class EntitySearchToolTest extends TestCase
             )
             ->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -219,7 +219,7 @@ class EntitySearchToolTest extends TestCase
     public function testCriteriaJsonLimitTakesPrecedenceOverDefault(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(50);
@@ -227,10 +227,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -248,10 +248,10 @@ class EntitySearchToolTest extends TestCase
             )
             ->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -261,7 +261,7 @@ class EntitySearchToolTest extends TestCase
     public function testDefaultsTotalCountModeToExact(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -269,10 +269,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -287,10 +287,10 @@ class EntitySearchToolTest extends TestCase
                 return $criteria;
             });
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -303,7 +303,7 @@ class EntitySearchToolTest extends TestCase
     public function testCallerCanOverrideTotalCountMode(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -311,10 +311,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -329,10 +329,10 @@ class EntitySearchToolTest extends TestCase
                 return $criteria;
             });
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
@@ -348,14 +348,14 @@ class EntitySearchToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntitySearchTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
         );
         $output = ($tool)('product', 'not-json');
 
@@ -376,10 +376,10 @@ class EntitySearchToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider, $this->createMock(JsonEntityEncoder::class));
+        $tool = new EntitySearchTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class));
         $output = ($tool)('product');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -395,14 +395,14 @@ class EntitySearchToolTest extends TestCase
         $registry->method('has')->willReturn(false);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntitySearchTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
         );
         $output = ($tool)('unknown_entity');
 

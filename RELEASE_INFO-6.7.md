@@ -18,6 +18,10 @@ MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which brea
 **Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
 If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
 
+### Plugin activation rolls back when post-activation fails
+
+Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

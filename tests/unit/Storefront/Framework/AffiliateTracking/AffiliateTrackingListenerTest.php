@@ -120,7 +120,7 @@ class AffiliateTrackingListenerTest extends TestCase
     private function createControllerEvent(Request $request): ControllerEvent
     {
         return new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static fn () => null,
             $request,
             HttpKernelInterface::MAIN_REQUEST,

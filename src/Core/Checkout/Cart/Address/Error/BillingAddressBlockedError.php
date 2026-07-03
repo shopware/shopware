@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,9 +12,7 @@ class BillingAddressBlockedError extends Error implements AddressErrorInterface
 {
     private const KEY = 'billing-address-blocked';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $addressId will be required and non-nullable
-     */
+    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'addressId', description: 'Will be natively typed as non-nullable string.')]
     public function __construct(
         protected readonly string $name,
         protected readonly ?string $addressId = null,

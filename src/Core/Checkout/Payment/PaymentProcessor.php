@@ -118,10 +118,8 @@ class PaymentProcessor
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - first parameter will become `PaymentToken $token` instead of being the last optional parameter
-     * @deprecated tag:v6.8.0 - reason:return-type-change - will return `void` instead of `TokenStruct`
-     *
-     * new signature to copy: public function finalize(PaymentToken $token, Request $request, SalesChannelContext $context): void
+     * The signature will change in v6.8.0 to:
+     * `public function finalize(PaymentToken $token, Request $request, SalesChannelContext $context): void`
      */
     public function finalize(TokenStruct $token, Request $request, SalesChannelContext $context /* , ?PaymentToken $paymentToken = null */): TokenStruct
     {

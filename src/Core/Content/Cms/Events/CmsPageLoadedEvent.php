@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\Events;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -17,10 +18,9 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     protected CmsPageCollection $result;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $result type will be changed from `EntityCollection` to `CmsPageCollection`
-     *
      * @param CmsPageCollection $result
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'result', newType: 'CmsPageCollection')]
     public function __construct(
         protected Request $request,
         /* protected CmsPageCollection $result, */

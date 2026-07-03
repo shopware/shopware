@@ -2,6 +2,20 @@
 
 ## Core
 
+### New BC-change attributes for planned, non-breaking API changes
+
+Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. These annotations surfaced as unactionable `Call to deprecated method` errors in static analysis of plugin code, although no replacement API exists and no action is required.
+
+Such changes are now documented with dedicated PHP attributes under `Shopware\Core\Framework\Deprecation\BCChange` (`ReturnTypeChange`, `NewOptionalParameter`, `ParameterNameChange`, `ParameterTypeChange`, `ParameterTypeExtension`, `ExceptionChange`, `BecomesInternal`, `BecomesFinal`, `ClassHierarchyChange`, `VisibilityChange`). They are invisible to PHPStan's deprecation rules, so plugin CI pipelines no longer fail on them. The `@deprecated` annotation remains reserved for functionality that is removed or replaced and requires migration.
+
+Extension developers do not need to change anything. Tooling authors can discover all BC-change markers via reflection:
+
+```php
+$reflection->getAttributes(BCChangeAttribute::class, \ReflectionAttribute::IS_INSTANCEOF);
+```
+
+The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
+
 ### Webhooks are signed with the current app secret after a secret rotation
 
 Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.

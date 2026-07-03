@@ -32,7 +32,7 @@ class CustomerGroupEntity extends Entity
 
     protected string $registrationIntroduction;
 
-    protected bool $registrationOnlyCompanyRegistration;
+    protected bool $registrationOnlyCompanyRegistration = false;
 
     protected string $registrationSeoMetaDescription;
 

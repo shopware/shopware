@@ -167,6 +167,10 @@ When `displayAsGroup` is disabled, matching variants are returned and rendered i
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
+### Customer group registration config exposes `registrationOnlyCompanyRegistration` at the root
+
+The Store API endpoint `GET /store-api/customer-group-registration/config/{customerGroupId}` now always returns `registrationOnlyCompanyRegistration` as a root-level boolean, defaulting to `false` when unset. Previously it appeared only under `translated` and was omitted from the root for customer groups that never set it.
+
 ## Storefront
 
 ### robots.txt allows crawling product feed tracking URLs

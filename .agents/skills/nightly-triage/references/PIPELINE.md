@@ -23,7 +23,7 @@ the per-test provenance tag.
 gh run view --repo shopware/shopware --job <JOB_ID> --log-failed > job-<slug>.log
 
 # PHPUnit failure headers — errors and failures are SEPARATE numbered lists,
-# so "1)" appears twice per log; dedup with sort -u
+# so "1)" appears twice per log; dedupe with sort -u
 grep -oE '[0-9]+\) Shopware\\Tests\\[A-Za-z0-9\\]+::[A-Za-z_0-9]+' job-<slug>.log \
   | sed 's/^[0-9]*) //' | sort -u > fails-<slug>.txt
 

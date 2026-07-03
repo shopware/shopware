@@ -170,11 +170,13 @@ There is deliberately no `pattern` / regex: an app-supplied regex compiled from 
 
 ### Breakpoints
 
-Values are set per breakpoint. The breakpoint key set is the fixed framework primitive `xs, sm, md, lg, xl, xxl`; it is not extensible. Each breakpoint is optional, so a responsive option may set only some of them. On an element, the stored shape is `option => breakpoint => value`:
+Values are set per breakpoint. The breakpoint key set is the fixed framework primitive `xs, sm, md, lg, xl, xxl`; it is not extensible. Each breakpoint is optional, so a responsive option may set only some of them. Breakpoints are **mobile first**, mirroring the Storefront's Bootstrap breakpoints: a value applies from its breakpoint upward until a larger breakpoint overrides it, so a value set only at `xs` affects every width. The backend stores and serves the map verbatim; rendering consumers apply this cascade. On an element, the stored shape is `option => breakpoint => value`:
 
 ```json
 { "col-span": { "md": 6, "lg": 4 }, "display": { "xs": false } }
 ```
+
+Here `col-span` is 6 from `md` upward and 4 from `lg` upward, and `display: false` at `xs` hides the element at every width.
 
 ### Collision Detection
 

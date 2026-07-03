@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Log\Package;
  * Each loader type defines its own config structure.
  */
 #[Package('framework')]
-abstract readonly class AbstractContentDataLoaderConfig
+abstract readonly class AbstractContentDataLoaderConfig implements \JsonSerializable
 {
+    /**
+     * @return array<string, mixed>
+     */
+    abstract public function jsonSerialize(): array;
 }

@@ -96,7 +96,7 @@ A custom element type registered by a plugin or app ([EXTENSION.md → Custom El
 
 `GET /api/_info/content-system-data-loader-types.json`
 
-The data sources a `data_requirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each mapped to the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderTypeSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderTypeResolver` from each loader's `producibleTypes()`.
+The data sources a `dataRequirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each mapped to the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderTypeSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderTypeResolver` from each loader's `producibleTypes()`.
 
 Response:
 
@@ -117,7 +117,7 @@ Response:
 }
 ```
 
-`<source>` is the `data_requirements` source value (`entity`, `product_listing`, …); each entry pairs the produced type (the sales-channel class where one exists) with the config seed needed to produce it — `configTemplate` carries the inferable keys, `requiredConfigKeys` lists the keys the caller must still supply.
+`<source>` is the `dataRequirements` source value (`entity`, `product_listing`, …); each entry pairs the produced type (the sales-channel class where one exists) with the config seed needed to produce it — `configTemplate` carries the inferable keys, `requiredConfigKeys` lists the keys the caller must still supply.
 
 Full field-level schema: [content-system-data-loader-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-data-loader-types.json).
 
@@ -156,12 +156,12 @@ Renders an externally supplied, **unsaved** draft layout against **real** entity
       "id": "element-uuid",
       "component": "shopware/product-heading",
       "properties": { "tag": "h1" },
-      "data_requirements": {
+      "dataRequirements": {
         "product": { "key": "product", "source": "entity", "config": { "entity": "product", "property": "product_id" } }
       },
       "slots": {},
-      "provides_context": {},
-      "accepts_context": {}
+      "providesContext": {},
+      "acceptsContext": {}
     }
   ],
   "entityType": "product",
@@ -247,10 +247,10 @@ The optional `rootSource` binds the draft to that root source's context so bindi
       "id": "element-uuid",
       "component": "shopware/product-heading",
       "properties": { "tag": "h1" },
-      "data_requirements": {},
+      "dataRequirements": {},
       "slots": {},
-      "provides_context": {},
-      "accepts_context": {}
+      "providesContext": {},
+      "acceptsContext": {}
     }
   ],
   "rootSource": "product"

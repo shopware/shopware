@@ -58,16 +58,6 @@ class CrossSellingLoaderConfigSerializer extends AbstractContentDataLoaderConfig
             throw ProductException::invalidFieldValueType('config', CrossSellingLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->property !== null) {
-            $data['property'] = $config->property;
-        }
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

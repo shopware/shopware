@@ -60,20 +60,6 @@ class BreadcrumbLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
             throw BreadcrumbException::invalidFieldValueType('config', BreadcrumbLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->property !== null) {
-            $data['property'] = $config->property;
-        }
-
-        if ($config->type !== 'product') {
-            $data['type'] = $config->type;
-        }
-
-        if ($config->referrerCategoryProperty !== null) {
-            $data['referrerCategoryProperty'] = $config->referrerCategoryProperty;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

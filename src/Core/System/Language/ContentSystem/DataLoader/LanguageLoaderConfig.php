@@ -24,4 +24,18 @@ final readonly class LanguageLoaderConfig extends AbstractContentDataLoaderConfi
         public array $associations = [],
     ) {
     }
+
+    /**
+     * @return LanguageLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->associations !== []) {
+            $data['associations'] = $this->associations;
+        }
+
+        return $data;
+    }
 }

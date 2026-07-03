@@ -95,7 +95,7 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
         }
 
         if (!\is_array($value)) {
-            throw ContentSystemException::invalidFieldValueType('data_requirements', 'array', \gettype($value));
+            throw ContentSystemException::invalidFieldValueType('dataRequirements', 'array', \gettype($value));
         }
 
         return $this->deserializeDataRequirements($value);
@@ -106,11 +106,7 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
      */
     public function serializeDataRequirement(DataRequirement $requirement): array
     {
-        return [
-            'key' => $requirement->key,
-            'source' => $requirement->source,
-            'config' => $this->configProvider->encode($requirement->source, $requirement->config),
-        ];
+        return $requirement->jsonSerialize();
     }
 
     /**

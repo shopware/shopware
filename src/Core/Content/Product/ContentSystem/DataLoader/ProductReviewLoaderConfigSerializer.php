@@ -58,16 +58,6 @@ class ProductReviewLoaderConfigSerializer extends AbstractContentDataLoaderConfi
             throw ProductException::invalidFieldValueType('config', ProductReviewLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->property !== null) {
-            $data['property'] = $config->property;
-        }
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

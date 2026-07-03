@@ -31,10 +31,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   id: string,
  *   component: string,
  *   properties: array<string, mixed>,
- *   data_requirements?: array<string, DataRequirementData>,
+ *   dataRequirements?: array<string, DataRequirementData>,
  *   slots?: array<string, list<array<string, mixed>>>,
- *   provides_context?: array<string, array<string, mixed>>,
- *   accepts_context?: array<string, ContextConsumerData>,
+ *   providesContext?: array<string, array<string, mixed>>,
+ *   acceptsContext?: array<string, ContextConsumerData>,
  *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>
  * }
  *
@@ -133,20 +133,20 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('properties', 'array', \gettype($data['properties'] ?? null));
         }
 
-        $dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
-        $dataRequirements = \array_key_exists('data_requirements', $data) && \is_array($data['data_requirements'])
-            ? $this->dataRequirementsSerializer->decode($dataRequirementsField, $data['data_requirements'])
+        $dataRequirementsField = new DataRequirementsField('dataRequirements', 'dataRequirements');
+        $dataRequirements = \array_key_exists('dataRequirements', $data) && \is_array($data['dataRequirements'])
+            ? $this->dataRequirementsSerializer->decode($dataRequirementsField, $data['dataRequirements'])
             : [];
 
-        $contextProvidersField = new ContextProvidersField('provides_context', 'providesContext');
-        $contextConsumersField = new ContextConsumersField('accepts_context', 'acceptsContext');
+        $contextProvidersField = new ContextProvidersField('providesContext', 'providesContext');
+        $contextConsumersField = new ContextConsumersField('acceptsContext', 'acceptsContext');
 
-        $providers = \array_key_exists('provides_context', $data) && \is_array($data['provides_context'])
-            ? $this->contextProvidersSerializer->decode($contextProvidersField, $data['provides_context'])
+        $providers = \array_key_exists('providesContext', $data) && \is_array($data['providesContext'])
+            ? $this->contextProvidersSerializer->decode($contextProvidersField, $data['providesContext'])
             : null;
 
-        $consumers = \array_key_exists('accepts_context', $data) && \is_array($data['accepts_context'])
-            ? $this->contextConsumersSerializer->decode($contextConsumersField, $data['accepts_context'])
+        $consumers = \array_key_exists('acceptsContext', $data) && \is_array($data['acceptsContext'])
+            ? $this->contextConsumersSerializer->decode($contextConsumersField, $data['acceptsContext'])
             : null;
 
         $contextDefinitions = new ContextDefinitions($providers ?? [], $consumers ?? []);
@@ -178,49 +178,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
      */
     public function serializeContentElement(ContentElement $element): array
     {
-        $array = [
-            'id' => $element->getId(),
-            'component' => $element->getComponent(),
-            'properties' => $this->serializeProperties($element->getProperties()),
-        ];
+        /** @var ContentElementData $data */
+        $data = $element->jsonSerialize();
 
-        $dataRequirements = $element->getDataRequirements();
-        if ($dataRequirements !== []) {
-            $serializedRequirements = array_map(function ($requirement) {
-                return $this->dataRequirementsSerializer->serializeDataRequirement($requirement);
-            }, $dataRequirements);
-            $array['data_requirements'] = $serializedRequirements;
-        }
-
-        if ($element->hasSlots()) {
-            $array['slots'] = $this->elementSlotsSerializer->serializeSlots($element->getSlots());
-        }
-
-        $providers = $element->getProvidesContext();
-        $consumers = $element->getAcceptsContext();
-
-        if ($providers !== []) {
-            $serializedProviders = [];
-            foreach ($providers as $key => $provider) {
-                $serializedProviders[$key] = $this->contextProvidersSerializer->serializeContextProvider($provider);
-            }
-
-            $array['provides_context'] = $serializedProviders;
-        }
-
-        if ($consumers !== []) {
-            $serializedConsumers = array_map(function ($consumer) {
-                return $this->contextConsumersSerializer->serializeContextConsumer($consumer);
-            }, $consumers);
-            $array['accepts_context'] = $serializedConsumers;
-        }
-
-        // Omitted when empty so it never encodes as an empty {} / [] in the stored JSON or the response
-        if (!$element->getStyle()->isEmpty()) {
-            $array['style'] = $element->getStyle()->toArray();
-        }
-
-        return $array;
+        return $data;
     }
 
     /**
@@ -269,10 +230,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'id' => [new NotBlank(), new Type('string')],
                     'component' => [new NotBlank(), new Type('string')],
                     'properties' => new Optional([new Type('array')]),
-                    'data_requirements' => $dataRequirementsField,
+                    'dataRequirements' => $dataRequirementsField,
                     'slots' => $slotsField,
-                    'provides_context' => $providesContextField,
-                    'accepts_context' => $acceptsContextField,
+                    'providesContext' => $providesContextField,
+                    'acceptsContext' => $acceptsContextField,
                     'style' => $styleField,
                 ],
                 allowExtraFields: false,
@@ -290,26 +251,5 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     protected function getConstraints(Field $field): array
     {
         return $this->buildConstraints($field);
-    }
-
-    /**
-     * @param array<string, mixed> $properties
-     *
-     * @return array<string, mixed>
-     */
-    private function serializeProperties(array $properties): array
-    {
-        $serialized = [];
-
-        foreach ($properties as $key => $value) {
-            if (\is_object($value) && method_exists($value, 'toArray')) {
-                $serialized[$key] = $value->toArray();
-                continue;
-            }
-
-            $serialized[$key] = $value;
-        }
-
-        return $serialized;
     }
 }

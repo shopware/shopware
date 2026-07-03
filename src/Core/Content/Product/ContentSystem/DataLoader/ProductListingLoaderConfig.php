@@ -25,4 +25,22 @@ final readonly class ProductListingLoaderConfig extends AbstractContentDataLoade
         public array $associations = []
     ) {
     }
+
+    /**
+     * @return ProductListingLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->property !== null) {
+            $data['property'] = $this->property;
+        }
+
+        if ($this->associations !== []) {
+            $data['associations'] = $this->associations;
+        }
+
+        return $data;
+    }
 }

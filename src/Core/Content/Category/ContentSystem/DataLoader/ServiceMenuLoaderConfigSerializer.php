@@ -44,12 +44,6 @@ class ServiceMenuLoaderConfigSerializer extends AbstractContentDataLoaderConfigS
             throw CategoryException::invalidFieldValueType('config', ServiceMenuLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->rootId !== null) {
-            $data['rootId'] = $config->rootId;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

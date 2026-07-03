@@ -57,16 +57,6 @@ class ShippingMethodLoaderConfigSerializer extends AbstractContentDataLoaderConf
             throw ShippingException::invalidFieldValueType('config', ShippingMethodLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        if ($config->onlyAvailable !== true) {
-            $data['onlyAvailable'] = $config->onlyAvailable;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

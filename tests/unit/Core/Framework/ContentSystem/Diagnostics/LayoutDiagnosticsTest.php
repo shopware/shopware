@@ -260,7 +260,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('produces a broken_required_chain binding error for a required accepts_context with no provider')]
+    #[TestDox('produces a broken_required_chain binding error for a required acceptsContext with no provider')]
     public function testBrokenRequiredChain(): void
     {
         $element = ContentElementBuilder::create('Sw:Block', 'el-1')

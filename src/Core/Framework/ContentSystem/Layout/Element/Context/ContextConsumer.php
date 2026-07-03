@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final readonly class ContextConsumer
+final readonly class ContextConsumer implements \JsonSerializable
 {
     public function __construct(
         public ContextType $type,
@@ -18,5 +18,30 @@ final readonly class ContextConsumer
         public ?string $consumerAlias = null,
         public ?string $propertyAlias = null
     ) {
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [
+            'type' => $this->type->value,
+            'required' => $this->required,
+        ];
+
+        if ($this->redistribute) {
+            $data['redistribute'] = true;
+        }
+
+        if ($this->consumerAlias !== null) {
+            $data['consumerAlias'] = $this->consumerAlias;
+        }
+
+        if ($this->propertyAlias !== null) {
+            $data['propertyAlias'] = $this->propertyAlias;
+        }
+
+        return $data;
     }
 }

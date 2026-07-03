@@ -28,4 +28,21 @@ final readonly class EntityLoaderConfig extends AbstractContentDataLoaderConfig
         public array $associations
     ) {
     }
+
+    /**
+     * @return EntityLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [
+            'entity' => $this->entity,
+            'property' => $this->property,
+        ];
+
+        if ($this->associations !== []) {
+            $data['associations'] = $this->associations;
+        }
+
+        return $data;
+    }
 }

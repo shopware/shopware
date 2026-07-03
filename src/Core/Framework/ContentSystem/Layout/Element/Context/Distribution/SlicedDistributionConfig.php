@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @phpstan-type SlicedDistributionConfigData array{
  *   distribution: 'sliced',
- *   slice_size: int,
- *   consumer_alias: string|null
+ *   sliceSize: int,
+ *   consumerAlias: string|null
  * }
  *
  * @internal
@@ -35,8 +35,8 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
     public static function fromArray(array $data): DistributionConfig
     {
         return new self(
-            sliceSize: isset($data['slice_size']) && \is_int($data['slice_size']) ? $data['slice_size'] : 10,
-            consumerAlias: isset($data['consumer_alias']) && \is_string($data['consumer_alias']) ? $data['consumer_alias'] : null
+            sliceSize: isset($data['sliceSize']) && \is_int($data['sliceSize']) ? $data['sliceSize'] : 10,
+            consumerAlias: isset($data['consumerAlias']) && \is_string($data['consumerAlias']) ? $data['consumerAlias'] : null
         );
     }
 
@@ -85,16 +85,16 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
     {
         return [
             'distribution' => 'sliced',
-            'slice_size' => $this->sliceSize,
-            'consumer_alias' => $this->consumerAlias,
+            'sliceSize' => $this->sliceSize,
+            'consumerAlias' => $this->consumerAlias,
         ];
     }
 
     public static function buildConstraints(): array
     {
         return [
-            'slice_size' => [new NotBlank(), new Type('int')],
-            'consumer_alias' => [new Type('string')],
+            'sliceSize' => [new NotBlank(), new Type('int')],
+            'consumerAlias' => [new Type('string')],
         ];
     }
 }

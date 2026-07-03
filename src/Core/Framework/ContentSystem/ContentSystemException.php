@@ -226,7 +226,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::REDISTRIBUTE_CONFLICT,
-            'Context key "{{ key }}" has both redistribute:true and explicit provides_context. Use one or the other.',
+            'Context key "{{ key }}" has both redistribute:true and explicit providesContext. Use one or the other.',
             ['key' => $contextKey]
         );
     }
@@ -236,7 +236,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
-            'Context key "{{ key }}" has consumer_alias but redistribute is not true. consumer_alias requires redistribute:true.',
+            'Context key "{{ key }}" has consumerAlias but redistribute is not true. consumerAlias requires redistribute:true.',
             ['key' => $contextKey]
         );
     }
@@ -261,7 +261,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
-            'Context key "{{ key }}" has property_alias "{{ alias }}" with dot notation. Property aliases must be simple property names without dots.',
+            'Context key "{{ key }}" has propertyAlias "{{ alias }}" with dot notation. Property aliases must be simple property names without dots.',
             ['key' => $contextKey, 'alias' => $propertyAlias]
         );
     }
@@ -271,7 +271,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PROPERTY_ALIAS_COLLISION,
-            'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each property_alias must be unique within an element.',
+            'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each propertyAlias must be unique within an element.',
             ['propertyKey' => $propertyKey, 'firstContext' => $firstContext, 'secondContext' => $secondContext]
         );
     }

@@ -38,29 +38,29 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @phpstan-type BroadcastProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'broadcast',
- *   consumer_alias: string|null
+ *   consumerAlias: string|null
  * }
  * @phpstan-type IndexedProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'indexed',
- *   consumer_alias: string|null
+ *   consumerAlias: string|null
  * }
  * @phpstan-type IteratorProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'iterator',
- *   consumer_alias: string|null
+ *   consumerAlias: string|null
  * }
  * @phpstan-type KeyedProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'keyed',
- *   key_property: string,
- *   consumer_alias: string|null
+ *   keyProperty: string,
+ *   consumerAlias: string|null
  * }
  * @phpstan-type SlicedProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'sliced',
- *   slice_size: int,
- *   consumer_alias: string|null
+ *   sliceSize: int,
+ *   consumerAlias: string|null
  * }
  * @phpstan-type ContextProviderData BroadcastProviderData|IndexedProviderData|IteratorProviderData|KeyedProviderData|SlicedProviderData
  *
@@ -120,7 +120,7 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
         }
 
         if (!\is_array($value)) {
-            throw ContentSystemException::invalidFieldValueType('provides_context', 'array', \gettype($value));
+            throw ContentSystemException::invalidFieldValueType('providesContext', 'array', \gettype($value));
         }
 
         $providers = [];
@@ -140,21 +140,10 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
      */
     public function serializeContextProvider(ContextProvider $provider): array
     {
-        // The simpler code: return ['type' => $provider->type->value, ...$provider->distributionConfig] was omitted
-        // because PHPStan was not able to infer to discriminate the return types
-        // (naturally because DistributionConfig::toArray uses a union type)
+        /** @var ContextProviderData $data */
+        $data = $provider->jsonSerialize();
 
-        $config = $provider->distributionConfig;
-        $type = $provider->type->value;
-
-        return match (true) {
-            $config instanceof BroadcastDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof IndexedDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof IteratorDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof KeyedDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof SlicedDistributionConfig => ['type' => $type, ...$config->toArray()],
-            default => throw ContentSystemException::invalidFieldType(DistributionConfig::class, $config::class),
-        };
+        return $data;
     }
 
     /**

@@ -22,4 +22,18 @@ final readonly class ServiceMenuLoaderConfig extends AbstractContentDataLoaderCo
         public ?string $rootId = null,
     ) {
     }
+
+    /**
+     * @return ServiceMenuLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->rootId !== null) {
+            $data['rootId'] = $this->rootId;
+        }
+
+        return $data;
+    }
 }

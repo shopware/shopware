@@ -20,7 +20,7 @@ Data requirements declare external data via `DataRequirement` objects (`key`, `s
 
 ContentElement is a mutable object whose `properties` map changes between lifecycle stages:
 
-| Stage | `properties` contains | `data_requirements` / `accepts_context` |
+| Stage | `properties` contains | `dataRequirements` / `acceptsContext` |
 |---|---|---|
 | **Storage** (database JSON, via field serializer encode) | Static/config values only (scalars set at design time) | Loading and context instructions — how to fill FQCN-typed properties at runtime |
 | **Post-hydration** (runtime, after `ContentElementHydrator`) | Static values AND loaded data merged together | Still present as metadata; hydrator has already used them to populate properties |

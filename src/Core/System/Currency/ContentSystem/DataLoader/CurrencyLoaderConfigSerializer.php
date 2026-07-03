@@ -49,12 +49,6 @@ class CurrencyLoaderConfigSerializer extends AbstractContentDataLoaderConfigSeri
             throw CurrencyException::invalidFieldValueType('config', CurrencyLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

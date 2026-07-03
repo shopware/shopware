@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @phpstan-type BroadcastDistributionConfigData array{
  *   distribution: 'broadcast',
- *   consumer_alias: string|null
+ *   consumerAlias: string|null
  * }
  *
  * @internal
@@ -37,7 +37,7 @@ final readonly class BroadcastDistributionConfig implements DistributionConfig
     public static function fromArray(array $data): DistributionConfig
     {
         return new self(
-            consumerAlias: isset($data['consumer_alias']) && \is_string($data['consumer_alias']) ? $data['consumer_alias'] : null
+            consumerAlias: isset($data['consumerAlias']) && \is_string($data['consumerAlias']) ? $data['consumerAlias'] : null
         );
     }
 
@@ -69,14 +69,14 @@ final readonly class BroadcastDistributionConfig implements DistributionConfig
     {
         return [
             'distribution' => 'broadcast',
-            'consumer_alias' => $this->consumerAlias,
+            'consumerAlias' => $this->consumerAlias,
         ];
     }
 
     public static function buildConstraints(): array
     {
         return [
-            'consumer_alias' => [new Type('string')],
+            'consumerAlias' => [new Type('string')],
         ];
     }
 }

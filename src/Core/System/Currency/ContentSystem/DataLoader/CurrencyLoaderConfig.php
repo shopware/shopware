@@ -24,4 +24,18 @@ final readonly class CurrencyLoaderConfig extends AbstractContentDataLoaderConfi
         public array $associations = [],
     ) {
     }
+
+    /**
+     * @return CurrencyLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->associations !== []) {
+            $data['associations'] = $this->associations;
+        }
+
+        return $data;
+    }
 }

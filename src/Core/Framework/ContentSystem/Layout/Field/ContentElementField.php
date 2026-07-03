@@ -40,10 +40,10 @@ class ContentElementField extends JsonField
         $this->componentField->addFlags(new Required());
 
         $this->propertiesField = new JsonField('properties', 'properties');
-        $this->dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
+        $this->dataRequirementsField = new DataRequirementsField('dataRequirements', 'dataRequirements');
         $this->slotsField = new ElementSlotsField('slots', 'slots');
-        $this->providesContextField = new ContextProvidersField('provides_context', 'providesContext');
-        $this->acceptsContextField = new ContextConsumersField('accepts_context', 'acceptsContext');
+        $this->providesContextField = new ContextProvidersField('providesContext', 'providesContext');
+        $this->acceptsContextField = new ContextConsumersField('acceptsContext', 'acceptsContext');
         $this->styleField = new ElementStyleField('style', 'style');
 
         parent::__construct($storageName, $propertyName, [

@@ -25,4 +25,22 @@ final readonly class CrossSellingLoaderConfig extends AbstractContentDataLoaderC
         public array $associations = [],
     ) {
     }
+
+    /**
+     * @return CrossSellingLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->property !== null) {
+            $data['property'] = $this->property;
+        }
+
+        if ($this->associations !== []) {
+            $data['associations'] = $this->associations;
+        }
+
+        return $data;
+    }
 }

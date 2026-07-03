@@ -30,7 +30,7 @@ class IteratorDistributionConfigTest extends TestCase
     {
         $data = [
             'distribution' => 'iterator',
-            'consumer_alias' => 'my-alias',
+            'consumerAlias' => 'my-alias',
         ];
 
         $config = IteratorDistributionConfig::fromArray($data);
@@ -46,15 +46,15 @@ class IteratorDistributionConfigTest extends TestCase
         static::assertSame('my-alias', $config->getConsumerAlias());
     }
 
-    #[TestDox('returns constraint mapping with consumer_alias string type constraint')]
+    #[TestDox('returns constraint mapping with consumerAlias string type constraint')]
     public function testReturnsConsumerAliasStringTypeConstraint(): void
     {
         $constraints = IteratorDistributionConfig::buildConstraints();
 
-        static::assertArrayHasKey('consumer_alias', $constraints);
-        static::assertCount(1, $constraints['consumer_alias']);
-        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
-        static::assertSame('string', $constraints['consumer_alias'][0]->type);
+        static::assertArrayHasKey('consumerAlias', $constraints);
+        static::assertCount(1, $constraints['consumerAlias']);
+        static::assertInstanceOf(Type::class, $constraints['consumerAlias'][0]);
+        static::assertSame('string', $constraints['consumerAlias'][0]->type);
     }
 
     #[DataProvider('distributeNonArrayProvider')]

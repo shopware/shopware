@@ -11,6 +11,8 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -38,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -251,7 +254,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame('hero image', $result->getProperty('alt'));
     }
 
-    #[TestDox('decodes element with data_requirements into a ContentElement with mapped DataRequirement objects')]
+    #[TestDox('decodes element with dataRequirements into a ContentElement with mapped DataRequirement objects')]
     public function testDecodeElementWithDataRequirementsReturnsContentElementWithRequirements(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
@@ -260,7 +263,7 @@ class ContentElementFieldSerializerTest extends TestCase
         $data = [
             'id' => 'elem-reqs',
             'component' => 'product-card',
-            'data_requirements' => [
+            'dataRequirements' => [
                 'product' => ['key' => 'product', 'source' => 'entity', 'config' => []],
             ],
         ];
@@ -300,11 +303,11 @@ class ContentElementFieldSerializerTest extends TestCase
         $data = [
             'id' => 'elem-ctx',
             'component' => 'context-aware',
-            'provides_context' => [
+            'providesContext' => [
                 'myData' => [
                     'type' => 'single',
                     'distribution' => 'broadcast',
-                    'consumer_alias' => null,
+                    'consumerAlias' => null,
                 ],
             ],
         ];
@@ -322,7 +325,7 @@ class ContentElementFieldSerializerTest extends TestCase
         $data = [
             'id' => 'elem-ctx',
             'component' => 'context-aware',
-            'accepts_context' => [
+            'acceptsContext' => [
                 'parentData' => [
                     'type' => 'single',
                     'required' => false,
@@ -396,93 +399,17 @@ class ContentElementFieldSerializerTest extends TestCase
 
         static::assertSame('elem-minimal', $result['id']);
         static::assertSame('hero', $result['component']);
+        // The storage/write form keeps the empty property map as an array; the API response boundary re-types it to {}
         static::assertSame([], $result['properties']);
-        static::assertArrayNotHasKey('data_requirements', $result);
+        static::assertArrayNotHasKey('dataRequirements', $result);
         static::assertArrayNotHasKey('slots', $result);
-        static::assertArrayNotHasKey('provides_context', $result);
-        static::assertArrayNotHasKey('accepts_context', $result);
+        static::assertArrayNotHasKey('providesContext', $result);
+        static::assertArrayNotHasKey('acceptsContext', $result);
         static::assertArrayNotHasKey('style', $result);
     }
 
-    #[TestDox('serializes a ContentElement object with a non-empty style into the style key')]
-    public function testSerializeContentElementWithStyleIncludesStyle(): void
-    {
-        $element = ContentElementBuilder::create('text', 'elem-style')
-            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('style', $result);
-        static::assertSame(['col-span' => ['md' => 6]], $result['style']);
-    }
-
-    #[TestDox('serializes ContentElement with data requirements to array')]
-    public function testSerializeContentElementWithDataRequirementsIncludesRequirements(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $this->configProvider->method('encode')->willReturn(['entityName' => 'product']);
-
-        $element = ContentElementBuilder::create('product-card', 'elem-req')
-            ->withDataRequirement('product', 'entity', $config)
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('data_requirements', $result);
-        static::assertArrayHasKey('product', $result['data_requirements']);
-        static::assertSame('product', $result['data_requirements']['product']['key']);
-        static::assertSame('entity', $result['data_requirements']['product']['source']);
-    }
-
-    #[TestDox('serializes ContentElement with slots to array')]
-    public function testSerializeContentElementWithSlotsIncludesSlots(): void
-    {
-        $child = ContentElementBuilder::create('text', 'child-1')->build();
-        $element = ContentElementBuilder::create('grid', 'elem-slots')
-            ->withSlot('main', [$child])
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('slots', $result);
-        static::assertArrayHasKey('main', $result['slots']);
-        static::assertCount(1, $result['slots']['main']);
-        static::assertSame('child-1', $result['slots']['main'][0]['id']);
-    }
-
-    #[TestDox('serializes ContentElement with context providers to array')]
-    public function testSerializeContentElementWithContextProvidersIncludesProviders(): void
-    {
-        $element = ContentElementBuilder::create('provider', 'elem-provider')
-            ->withProvider('myData', BroadcastDistributionConfig::simple(), ContextType::Single)
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('provides_context', $result);
-        static::assertArrayHasKey('myData', $result['provides_context']);
-        static::assertSame('single', $result['provides_context']['myData']['type']);
-        static::assertSame('broadcast', $result['provides_context']['myData']['distribution']);
-    }
-
-    #[TestDox('serializes ContentElement with context consumers to array')]
-    public function testSerializeContentElementWithContextConsumersIncludesConsumers(): void
-    {
-        $element = ContentElementBuilder::create('consumer', 'elem-consumer')
-            ->withConsumer('parentData', ContextType::Single, false)
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('accepts_context', $result);
-        static::assertArrayHasKey('parentData', $result['accepts_context']);
-        static::assertSame('single', $result['accepts_context']['parentData']['type']);
-        static::assertFalse($result['accepts_context']['parentData']['required']);
-    }
-
-    #[TestDox('serializes ContentElement property using toArray when value is object with toArray method')]
-    public function testSerializeContentElementCallsToArrayOnObjectProperties(): void
+    #[TestDox('serializes ContentElement property preserving raw value when value is non-Struct object')]
+    public function testSerializeContentElementPreservesRawObjectProperties(): void
     {
         $objectWithToArray = new ObjectWithToArray();
 
@@ -493,7 +420,7 @@ class ContentElementFieldSerializerTest extends TestCase
         $result = $this->serializer->serializeContentElement($element);
 
         static::assertArrayHasKey('properties', $result);
-        static::assertSame(['serialized' => 'value'], $result['properties']['myObj']);
+        static::assertSame($objectWithToArray, $result['properties']['myObj']);
     }
 
     #[TestDox('restores ContentElement through serialize-then-decode roundtrip')]
@@ -513,7 +440,7 @@ class ContentElementFieldSerializerTest extends TestCase
             ->build();
 
         $serialized = $this->serializer->serializeContentElement($original);
-        $restored = $this->serializer->decodeElement($serialized);
+        $restored = $this->serializer->decodeElement($this->wireRoundTrip($serialized));
 
         static::assertSame($original->getId(), $restored->getId());
         static::assertSame($original->getComponent(), $restored->getComponent());
@@ -541,18 +468,18 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayHasKey('id', $collection->fields);
         static::assertArrayHasKey('component', $collection->fields);
         static::assertArrayHasKey('properties', $collection->fields);
-        static::assertArrayHasKey('data_requirements', $collection->fields);
+        static::assertArrayHasKey('dataRequirements', $collection->fields);
         static::assertArrayHasKey('slots', $collection->fields);
-        static::assertArrayHasKey('provides_context', $collection->fields);
-        static::assertArrayHasKey('accepts_context', $collection->fields);
+        static::assertArrayHasKey('providesContext', $collection->fields);
+        static::assertArrayHasKey('acceptsContext', $collection->fields);
         static::assertArrayHasKey('style', $collection->fields);
         static::assertFalse($collection->allowExtraFields);
         static::assertFalse($collection->allowMissingFields);
 
-        static::assertInstanceOf(Optional::class, $collection->fields['data_requirements']);
+        static::assertInstanceOf(Optional::class, $collection->fields['dataRequirements']);
         static::assertInstanceOf(Optional::class, $collection->fields['slots']);
-        static::assertInstanceOf(Optional::class, $collection->fields['provides_context']);
-        static::assertInstanceOf(Optional::class, $collection->fields['accepts_context']);
+        static::assertInstanceOf(Optional::class, $collection->fields['providesContext']);
+        static::assertInstanceOf(Optional::class, $collection->fields['acceptsContext']);
         static::assertInstanceOf(Optional::class, $collection->fields['style']);
     }
 
@@ -611,6 +538,107 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame('[style][made-up-option]', $violations->get(0)->getPropertyPath());
     }
 
+    #[TestDox('preserves all camelCase wire keys and their values faithfully through a serialize-decode round-trip')]
+    public function testRoundTripPreservesCamelCaseWireFormatAndValues(): void
+    {
+        $serializer = $this->buildSerializerWithRealConfigProvider();
+
+        $config = new EntityLoaderConfig('product', 'product', ['manufacturer']);
+        $child = ContentElementBuilder::create('text', 'slot-child-1')->build();
+
+        $element = ContentElementBuilder::create('product-card', 'rt-elem-1')
+            ->withProperty('title', 'My Product')
+            ->withProperty('count', 42)
+            ->withDataRequirement('product', 'entity', $config)
+            ->withProvider('productCtx', BroadcastDistributionConfig::aliased('myAlias'), ContextType::Single)
+            ->withConsumer('catCtx', ContextType::Single, required: true, redistribute: true, consumerAlias: 'ca', propertyAlias: 'pa')
+            ->withSlot('main', [$child])
+            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
+            ->build();
+
+        $serialized = $serializer->serializeContentElement($element);
+
+        // camelCase top-level keys must be present
+        static::assertArrayHasKey('id', $serialized);
+        static::assertArrayHasKey('component', $serialized);
+        static::assertArrayHasKey('properties', $serialized);
+        static::assertArrayHasKey('dataRequirements', $serialized);
+        static::assertArrayHasKey('providesContext', $serialized);
+        static::assertArrayHasKey('acceptsContext', $serialized);
+        static::assertArrayHasKey('slots', $serialized);
+        static::assertArrayHasKey('style', $serialized);
+
+        // snake_case keys must NOT appear at the top level
+        static::assertArrayNotHasKey('data_requirements', $serialized);
+        static::assertArrayNotHasKey('provides_context', $serialized);
+        static::assertArrayNotHasKey('accepts_context', $serialized);
+
+        // provider entry: camelCase consumerAlias present, snake absent
+        static::assertArrayHasKey('productCtx', $serialized['providesContext']);
+        $providerEntry = $serialized['providesContext']['productCtx'];
+        static::assertArrayHasKey('consumerAlias', $providerEntry);
+        static::assertSame('myAlias', $providerEntry['consumerAlias']);
+        static::assertArrayNotHasKey('consumer_alias', $providerEntry);
+
+        // consumer entry: camelCase consumerAlias and propertyAlias present, snake absent
+        static::assertArrayHasKey('catCtx', $serialized['acceptsContext']);
+        $consumerEntry = $serialized['acceptsContext']['catCtx'];
+        static::assertArrayHasKey('consumerAlias', $consumerEntry);
+        static::assertSame('ca', $consumerEntry['consumerAlias']);
+        static::assertArrayHasKey('propertyAlias', $consumerEntry);
+        static::assertSame('pa', $consumerEntry['propertyAlias']);
+        static::assertArrayNotHasKey('consumer_alias', $consumerEntry);
+        static::assertArrayNotHasKey('property_alias', $consumerEntry);
+
+        // style survives serialization identically (read == write)
+        static::assertSame(['col-span' => ['md' => 6]], $serialized['style']);
+
+        $decoded = $serializer->decodeElement($this->wireRoundTrip($serialized));
+
+        // id / component / properties
+        static::assertSame('rt-elem-1', $decoded->getId());
+        static::assertSame('product-card', $decoded->getComponent());
+        static::assertSame('My Product', $decoded->getProperty('title'));
+        static::assertSame(42, $decoded->getProperty('count'));
+
+        // dataRequirements survive with config fields intact
+        static::assertCount(1, $decoded->getDataRequirements());
+        static::assertArrayHasKey('product', $decoded->getDataRequirements());
+        $decodedConfig = $decoded->getDataRequirements()['product']->config;
+        static::assertInstanceOf(EntityLoaderConfig::class, $decodedConfig);
+        static::assertSame('product', $decodedConfig->entity);
+        static::assertSame('product', $decodedConfig->property);
+        static::assertSame(['manufacturer'], $decodedConfig->associations);
+
+        // providesContext survives — non-empty, with correct type, distribution and consumerAlias
+        $providers = $decoded->getProvidesContext();
+        static::assertCount(1, $providers, 'providesContext must NOT collapse to empty');
+        static::assertArrayHasKey('productCtx', $providers);
+        static::assertSame(ContextType::Single, $providers['productCtx']->type);
+        $decodedDistribution = $providers['productCtx']->distributionConfig;
+        static::assertInstanceOf(BroadcastDistributionConfig::class, $decodedDistribution);
+        static::assertSame('myAlias', $decodedDistribution->getConsumerAlias());
+
+        // acceptsContext survives — non-empty, with all consumer fields intact
+        $consumers = $decoded->getAcceptsContext();
+        static::assertCount(1, $consumers, 'acceptsContext must NOT collapse to empty');
+        static::assertArrayHasKey('catCtx', $consumers);
+        $decodedConsumer = $consumers['catCtx'];
+        static::assertSame(ContextType::Single, $decodedConsumer->type);
+        static::assertTrue($decodedConsumer->required);
+        static::assertTrue($decodedConsumer->redistribute);
+        static::assertSame('ca', $decodedConsumer->consumerAlias);
+        static::assertSame('pa', $decodedConsumer->propertyAlias);
+
+        // slot with nested element survives
+        static::assertTrue($decoded->hasSlots());
+        static::assertArrayHasKey('main', $decoded->getSlots());
+        static::assertCount(1, $decoded->getSlots()['main']);
+
+        // style survives identically (decoded == original)
+        static::assertSame(['col-span' => ['md' => 6]], $decoded->getStyle()->toArray());
+    }
+
     /**
      * Validates $element against the constraints produced by a freshly-built ContentElementField,
      * using a real Symfony validator. Both style-option tests share this act phase verbatim.
@@ -623,6 +651,20 @@ class ContentElementFieldSerializerTest extends TestCase
     {
         return Validation::createValidatorBuilder()->getValidator()
             ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
+    }
+
+    /**
+     * Mirrors the storage hop: the serialized tree is persisted as JSON and read back with
+     * associative arrays, so an empty object {} comes back as []. The in-memory serialize output
+     * is never fed straight to decode in production.
+     *
+     * @param array<string, mixed> $serialized
+     *
+     * @return array<string, mixed>
+     */
+    private function wireRoundTrip(array $serialized): array
+    {
+        return json_decode((string) json_encode($serialized, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function createContentElementField(): ContentElementField
@@ -727,6 +769,57 @@ class ContentElementFieldSerializerTest extends TestCase
             $contextConsumersSerializer,
             $slotsSerializer,
             $this->buildStyleSerializer($validator, $definitionRegistry)
+        );
+    }
+
+    /**
+     * Builds a ContentElementFieldSerializer wired to a real DataLoaderConfigSerializerProvider
+     * (with EntityLoaderConfigSerializer registered) so the config array survives the round-trip
+     * through the genuine decode path.
+     */
+    private function buildSerializerWithRealConfigProvider(): ContentElementFieldSerializer
+    {
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+
+        $realConfigProvider = new DataLoaderConfigSerializerProvider(
+            new ServiceLocator([
+                EntityLoaderConfigSerializer::getSource() => static fn () => new EntityLoaderConfigSerializer(),
+            ])
+        );
+
+        $dataRequirementsSerializer = new DataRequirementsFieldSerializer($validator, $definitionRegistry, $realConfigProvider);
+        $contextProvidersSerializer = new ContextProvidersFieldSerializer($validator, $definitionRegistry);
+        $contextConsumersSerializer = new ContextConsumersFieldSerializer($validator, $definitionRegistry);
+        $styleSerializer = $this->buildStyleSerializer($validator, $definitionRegistry);
+
+        // A placeholder serializer (with stub slots) for breaking the circular dependency in slot recursion.
+        // The nested slot child is a simple element without further nesting, so the placeholder is sufficient.
+        $stubSlotsSerializer = static::createStub(ElementSlotsFieldSerializer::class);
+        $stubSlotsSerializer->method('decode')->willReturn([]);
+        $stubSlotsSerializer->method('serializeSlots')->willReturn([]);
+        $stubSlotsSerializer->method('buildConstraints')->willReturn([new Type('array')]);
+
+        $baseSerializer = new ContentElementFieldSerializer(
+            $validator,
+            $definitionRegistry,
+            $dataRequirementsSerializer,
+            $contextProvidersSerializer,
+            $contextConsumersSerializer,
+            $stubSlotsSerializer,
+            $styleSerializer
+        );
+
+        $slotsSerializer = new ElementSlotsFieldSerializer($validator, $definitionRegistry, $baseSerializer);
+
+        return new ContentElementFieldSerializer(
+            $validator,
+            $definitionRegistry,
+            $dataRequirementsSerializer,
+            $contextProvidersSerializer,
+            $contextConsumersSerializer,
+            $slotsSerializer,
+            $styleSerializer
         );
     }
 

@@ -60,20 +60,6 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
             throw CategoryException::invalidFieldValueType('config', NavigationLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->rootId !== null) {
-            $data['rootId'] = $config->rootId;
-        }
-
-        if ($config->depth !== NavigationLoaderConfig::DEFAULT_DEPTH) {
-            $data['depth'] = $config->depth;
-        }
-
-        if ($config->activeProperty !== 'activeId') {
-            $data['activeProperty'] = $config->activeProperty;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

@@ -28,4 +28,26 @@ final readonly class BreadcrumbLoaderConfig extends AbstractContentDataLoaderCon
         public ?string $referrerCategoryProperty = null,
     ) {
     }
+
+    /**
+     * @return BreadcrumbLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->property !== null) {
+            $data['property'] = $this->property;
+        }
+
+        if ($this->type !== 'product') {
+            $data['type'] = $this->type;
+        }
+
+        if ($this->referrerCategoryProperty !== null) {
+            $data['referrerCategoryProperty'] = $this->referrerCategoryProperty;
+        }
+
+        return $data;
+    }
 }

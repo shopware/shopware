@@ -40,8 +40,8 @@ class KeyedDistributionConfigTest extends TestCase
     {
         $original = [
             'distribution' => 'keyed',
-            'key_property' => 'product_id',
-            'consumer_alias' => 'my-alias',
+            'keyProperty' => 'product_id',
+            'consumerAlias' => 'my-alias',
         ];
 
         $config = KeyedDistributionConfig::fromArray($original);
@@ -49,21 +49,32 @@ class KeyedDistributionConfigTest extends TestCase
         static::assertSame($original, $config->toArray());
     }
 
-    #[TestDox('returns constraint mapping with key_property NotBlank+Type and consumer_alias Type constraints')]
+    #[TestDox('falls back to the default keyProperty when the camelCase key is absent (legacy snake_case key_property is ignored)')]
+    public function testFromArrayFallsBackToDefaultKeyPropertyWhenCamelCaseKeyAbsent(): void
+    {
+        $config = KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'key_property' => 'legacy-ignored']);
+
+        static::assertSame(
+            ['distribution' => 'keyed', 'keyProperty' => 'data_key', 'consumerAlias' => null],
+            $config->toArray()
+        );
+    }
+
+    #[TestDox('returns constraint mapping with keyProperty NotBlank+Type and consumerAlias Type constraints')]
     public function testBuildConstraintsReturnsExpectedConstraints(): void
     {
         $constraints = KeyedDistributionConfig::buildConstraints();
 
-        static::assertArrayHasKey('key_property', $constraints);
-        static::assertCount(2, $constraints['key_property']);
-        static::assertInstanceOf(NotBlank::class, $constraints['key_property'][0]);
-        static::assertInstanceOf(Type::class, $constraints['key_property'][1]);
-        static::assertSame('string', $constraints['key_property'][1]->type);
+        static::assertArrayHasKey('keyProperty', $constraints);
+        static::assertCount(2, $constraints['keyProperty']);
+        static::assertInstanceOf(NotBlank::class, $constraints['keyProperty'][0]);
+        static::assertInstanceOf(Type::class, $constraints['keyProperty'][1]);
+        static::assertSame('string', $constraints['keyProperty'][1]->type);
 
-        static::assertArrayHasKey('consumer_alias', $constraints);
-        static::assertCount(1, $constraints['consumer_alias']);
-        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
-        static::assertSame('string', $constraints['consumer_alias'][0]->type);
+        static::assertArrayHasKey('consumerAlias', $constraints);
+        static::assertCount(1, $constraints['consumerAlias']);
+        static::assertInstanceOf(Type::class, $constraints['consumerAlias'][0]);
+        static::assertSame('string', $constraints['consumerAlias'][0]->type);
     }
 
     #[TestDox('returns null for every consumer when data is not an array')]

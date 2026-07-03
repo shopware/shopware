@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Field;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -75,9 +76,8 @@ class DataRequirementsFieldSerializerTest extends TestCase
     {
         $field = $this->createDataRequirementsField();
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $config->method('jsonSerialize')->willReturn(['entityName' => 'product', 'id' => 'abc']);
         $requirement = new DataRequirement('my-key', 'entity', $config);
-
-        $this->configProvider->method('encode')->willReturn(['entityName' => 'product', 'id' => 'abc']);
 
         $kvPair = new KeyValuePair('data_requirements', ['my-key' => $requirement], false);
 
@@ -241,31 +241,50 @@ class DataRequirementsFieldSerializerTest extends TestCase
         $this->serializer->decode($invalidField, ['some' => 'data']);
     }
 
-    #[TestDox('throws exception when decode receives non-string non-array non-null value')]
+    #[TestDox('throws exception when decode receives invalid value type')]
     public function testDecodeThrowsOnInvalidValueType(): void
     {
         $field = $this->createDataRequirementsField();
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('data_requirements', 'array', 'integer')
+            ContentSystemException::invalidFieldValueType('dataRequirements', 'array', 'integer')
         );
 
         $this->serializer->decode($field, 42);
     }
 
-    #[TestDox('serializes DataRequirement to array with key, source, and encoded config')]
-    public function testSerializeDataRequirementReturnsExpectedArray(): void
+    /**
+     * @param array<string, mixed> $configValue
+     * @param array<string, mixed> $expectedConfig
+     */
+    #[DataProvider('serializeDataRequirementConfigProvider')]
+    #[TestDox('serializes DataRequirement to array with key, source, and config from value object jsonSerialize: $_dataName')]
+    public function testSerializeDataRequirementReturnsExpectedArray(array $configValue, array $expectedConfig): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('product-data', 'entity', $config);
+        $config->method('jsonSerialize')->willReturn($configValue);
 
-        $this->configProvider->method('encode')->willReturn(['entityName' => 'product', 'id' => 'test-id']);
+        $requirement = new DataRequirement('product-data', 'entity', $config);
 
         $result = $this->serializer->serializeDataRequirement($requirement);
 
         static::assertSame('product-data', $result['key']);
         static::assertSame('entity', $result['source']);
-        static::assertSame(['entityName' => 'product', 'id' => 'test-id'], $result['config']);
+        static::assertSame($expectedConfig, $result['config']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>}>
+     */
+    public static function serializeDataRequirementConfigProvider(): iterable
+    {
+        yield 'populated config passes through from jsonSerialize' => [
+            ['entityName' => 'product', 'id' => 'test-id'],
+            ['entityName' => 'product', 'id' => 'test-id'],
+        ];
+
+        // The storage/write form keeps the empty config as an array; the response boundary re-types it to {}
+        yield 'empty config kept as an array' => [[], []];
     }
 
     #[TestDox('returns Type array and All Collection constraints with expected field structure')]

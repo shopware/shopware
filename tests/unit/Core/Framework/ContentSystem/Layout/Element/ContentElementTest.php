@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
@@ -290,12 +291,51 @@ class ContentElementTest extends TestCase
         static::assertSame(['col-span' => ['md' => 6]], $element->jsonSerialize()['style']);
     }
 
-    #[TestDox('omits the style key from serialized output when the style is empty')]
-    public function testOmitsStyleKeyFromSerializedOutputWhenEmpty(): void
+    #[TestDox('omits optional keys from serialized output when the element has no data requirements, slots, context, or style')]
+    public function testOmitsOptionalKeysFromSerializedOutputWhenEmpty(): void
     {
         $data = ContentElementBuilder::create('test-component', 'test-id')->build()->jsonSerialize();
 
         static::assertArrayNotHasKey('style', $data);
+        static::assertArrayNotHasKey('dataRequirements', $data);
+        static::assertArrayNotHasKey('slots', $data);
+        static::assertArrayNotHasKey('providesContext', $data);
+        static::assertArrayNotHasKey('acceptsContext', $data);
+
+        // NEVER-emitted keys — Struct internals and API-alias must never appear
+        static::assertArrayNotHasKey('extensions', $data);
+        static::assertArrayNotHasKey('apiAlias', $data);
+        static::assertArrayNotHasKey('contextDefinitions', $data);
+    }
+
+    #[TestDox('providers and consumers survive jsonSerialize and are reconstructed under providesContext and acceptsContext')]
+    public function testContextSurvivesJsonSerializationAsProvidedAndAcceptedContext(): void
+    {
+        $element = ContentElementBuilder::create('test-component', 'test-id')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withConsumer('category', ContextType::Single, required: true)
+            ->build();
+
+        $data = $element->jsonSerialize();
+
+        static::assertArrayHasKey('providesContext', $data);
+        static::assertArrayHasKey('acceptsContext', $data);
+
+        // Provider: flat shape — type + distribution config spread in
+        // BroadcastDistributionConfig::toArray() emits consumerAlias unconditionally (null here)
+        static::assertSame(
+            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => null],
+            $data['providesContext']['product']
+        );
+
+        // Consumer: required flag present, optional fields omitted when false/null
+        static::assertSame(
+            ['type' => 'single', 'required' => true],
+            $data['acceptsContext']['category']
+        );
+
+        // context definitions must NOT be leaked under the old key
+        static::assertArrayNotHasKey('contextDefinitions', $data);
     }
 
     /**

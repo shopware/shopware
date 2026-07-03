@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
@@ -120,5 +121,18 @@ class RuntimeDetectableViolations
     #[BecomesAbstract(version: 'v6.8.0')]
     public function becomesAbstractWithoutTrigger(): void
     {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options')]
+    public function removalWithoutTrigger(?array $options = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function removalWithTrigger(?array $legacy = null): void
+    {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $legacy is deprecated');
+        }
     }
 }

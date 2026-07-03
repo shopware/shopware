@@ -115,7 +115,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
 
         $collection = new SalesChannelProductCollection([$entity]);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn($collection);
 
         $data = new ElementDataCollection();

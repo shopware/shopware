@@ -43,7 +43,7 @@ Mutate (step 2b), diagnose (step 3), and preview (step 4) are all write-free and
 
 ## Introspection Endpoints
 
-All three are `GET`, return JSON, require Admin API auth, and are served by `Framework/Api/Controller/InfoController`. They are introspection over what is registered at build time, so their content grows as plugins and apps register more types (see [EXTENSION.md](EXTENSION.md)).
+These are all `GET`, return JSON, require Admin API auth, and are served by `Framework/Api/Controller/InfoController`. They are introspection over what is registered at build time, so their content grows as plugins and apps register more types (see [EXTENSION.md](EXTENSION.md)).
 
 The response envelope shown under each endpoint below is the human summary. The authoritative, field-level response schema is the OpenAPI path file linked at the end of each section.
 
@@ -141,6 +141,64 @@ A flat array of DAL entity names that support content layout assignment. The val
 
 Full field-level schema: [content-system-entity-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-entity-types.json).
 
+### Style options
+
+`GET /api/_info/content-system-style-options.json`
+
+The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Backed by the style option registry (`Layout/Element/Style/Registry`), serialized via `StyleOptionSpecification::toSchema()`. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](#element-types).
+
+Response:
+
+```json
+{
+  "styleOptions": {
+    "col-span": {
+      "type": "integer",
+      "enum": null,
+      "range": { "min": 1, "max": 12 },
+      "maxLength": null,
+      "default": null,
+      "adminUI": { "component": "number", "label": "Column Span" },
+      "breakpointAware": true
+    }
+  }
+}
+```
+
+`range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` is advisory only — an introspection/Admin pre-fill hint, never seeded into stored element JSON or applied at serve time. `breakpointAware` marks whether the option's value is set per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) or as a single flat scalar.
+
+Full field-level schema: [content-system-style-options.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-style-options.json).
+
+### Binding specifications
+
+`GET /api/_info/content-system-binding-specifications.json`
+
+The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — keyed by their source-qualified id (`source:id`). Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the same ids reported per element in the `applicableBindings` field of the mutation, persisted mutation, and diagnose responses (see below), and what a client passes back as `bindingSpecificationId` to the bind-element actions.
+
+Response:
+
+```json
+{
+  "bindingSpecifications": {
+    "core:from-media-library": {
+      "id": "from-media-library",
+      "type": "Sw:Media:Image",
+      "label": "From media library",
+      "resolves": {
+        "media": { "loader": "entity", "config": { "entity": "media", "property": "mediaId" } }
+      },
+      "inputs": {
+        "mediaId": []
+      }
+    }
+  }
+}
+```
+
+`source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none.
+
+Full field-level schema: [content-system-binding-specifications.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-binding-specifications.json).
+
 ## Preview Endpoint
 
 `POST /api/_action/content-system/preview/entity`
@@ -236,7 +294,7 @@ Entity resolution and hydration do not run at mint time; they happen when the re
 
 Resolves every element property of an **unsaved** draft layout and reports what is structurally broken or still unresolved — **without** persisting and **without** rendering against a real entity. It answers the editor's after-local-edit "what is broken / still unresolved" question and backs agent layout linting. Served by `Api/ContentDiagnoseController`. Route name: `api.action.content_system.layout.diagnose`.
 
-The optional `rootSource` binds the draft to that root source's context so binding-scope resolvability can be checked. Without it, only intrinsic well-formedness is evaluated. The value is resolved through `Adapter/RootSourceRegistry::resolve()` (an entity type, a section id such as `header`/`footer`, or `none`).
+The optional `rootSource` binds the draft to that root source's context so binding-scope resolvability can be checked. Without it, only intrinsic well-formedness is evaluated. The value is resolved through `Adapter/RootSourceRegistry::resolveGated()` (an entity type, a section id such as `header`/`footer`, or `none`).
 
 ### Request
 
@@ -266,19 +324,19 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
 
 ### Response
 
-`200 OK` with `{ resolutions, diagnostics }` — never persisted, never cached.
+`200 OK` with `{ resolutions, diagnostics, applicableBindings }` — never persisted, never cached.
 
 ```json
 {
   "resolutions": {
     "<elementId>": [
       {
-        "key": "title",
+        "key": "media",
         "kind": "reference",
-        "required": true,
-        "type": "string",
+        "required": false,
+        "type": null,
         "default": null,
-        "fqcn": null,
+        "fqcn": "Shopware\\Core\\Content\\Media\\MediaEntity",
         "resolved": {
           "origin": "loader",
           "contextKey": null,
@@ -287,45 +345,55 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
           "distribution": null,
           "contextType": null,
           "loaderSource": "entity",
-          "configTemplate": { "entity": "product" },
+          "configTemplate": { "entity": "media", "property": "mediaId" },
           "configComplete": true
         },
-        "candidates": []
+        "candidates": [
+          {
+            "origin": "loader",
+            "contextKey": null,
+            "providerElementId": null,
+            "path": null,
+            "distribution": null,
+            "contextType": null,
+            "loaderSource": "entity",
+            "configTemplate": { "entity": "media", "property": "mediaId" },
+            "configComplete": true
+          }
+        ]
       }
     ]
   },
   "diagnostics": {
     "wellFormed": true,
-    "resolvable": false,
-    "violations": [
-      {
-        "code": "unresolved_required",
-        "scope": "binding",
-        "severity": "error",
-        "elementId": "element-uuid",
-        "key": "title",
-        "message": "...",
-        "candidates": []
-      }
-    ]
+    "resolvable": true,
+    "violations": []
+  },
+  "applicableBindings": {
+    "<elementId>": ["core:from-media-library"]
   }
 }
 ```
 
-`resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider) or `loader` (a data loader).
+`resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider), `loader` (a data loader), or `stored` (the element's own applied wiring — a stored reference wiring whose produced type resolves and is assignable to the declared FQCN; it only ever fills `resolved` directly, never a `candidates` menu entry). A `stored` candidate is not loader-shaped: its `loaderSource`, `configTemplate`, and `configComplete` all serialize as `null` (clients branch on `origin` before reading them).
+
+`applicableBindings` maps each element id to the source-qualified binding specification ids applicable to that element's type (`Binding/ApplicableBindingsResolver`) — the ids from the [Binding specifications](#binding-specifications) introspection endpoint that a client may pass as `bindingSpecificationId` to a bind-element action. It is a per-type lookup, independent of `rootSource` and of the element's actual wiring: a specification declared for a type is listed for every element of that type. An entry is emitted for every element in the tree; a listed element's own list is `[]` when its type has no applicable specification. The map itself encodes as `{}` only when the tree has no elements.
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 
 | `code`                   | `scope`   | `severity` |
 |--------------------------|-----------|------------|
-| `unregistered_component` | intrinsic | error      |
-| `duplicate_element_id`   | intrinsic | error      |
-| `invalid_config`         | intrinsic | error      |
-| `orphaned_provider`      | intrinsic | warning    |
-| `unresolved_required`    | binding   | error      |
-| `ambiguous_required`     | binding   | error      |
-| `broken_required_chain`  | binding   | error      |
-| `unresolved_optional`    | binding   | warning    |
+| `unregistered_component`     | intrinsic | error      |
+| `duplicate_element_id`       | intrinsic | error      |
+| `invalid_config`             | intrinsic | error      |
+| `mismatched_reference_type`  | intrinsic | error      |
+| `orphaned_provider`          | intrinsic | warning    |
+| `unresolved_required`        | binding   | error      |
+| `ambiguous_required`         | binding   | error      |
+| `broken_required_chain`      | binding   | error      |
+| `unresolved_optional`        | binding   | warning    |
+
+`mismatched_reference_type` flags a stored reference wiring (any `dataRequirements` entry the element carries, not only one recorded in `attributedSpecifications`) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead; a config that resolves and fits produces no violation — it becomes a `stored` resolution instead (see the `origin` note above).
 
 ### Errors
 
@@ -350,11 +418,12 @@ POST /api/_action/content-system/layout/duplicate-element
 POST /api/_action/content-system/layout/wrap-elements
 POST /api/_action/content-system/layout/unwrap-element
 POST /api/_action/content-system/layout/attach-element
+POST /api/_action/content-system/layout/bind-element
 ```
 
-Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, or `attach_element`.
+Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, or `bind_element`.
 
-Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolve()` selection as the diagnose endpoint (empty or omitted → only intrinsic well-formedness is evaluated).
+Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolveGated()` selection as the diagnose endpoint (empty or omitted → only intrinsic well-formedness is evaluated).
 
 ### Request
 
@@ -370,10 +439,13 @@ Every action shares one envelope and adds its own operation fields. Shared field
 | `wrap-elements`     | `elementIds` (required, a non-empty list of ids that are siblings in one slot, or all roots); `containerType` (required); `slot` (required)                                                         |
 | `unwrap-element`    | `containerElementId` (required)                                                                                                                                                                     |
 | `attach-element`    | `element` (required, a raw element subtree to splice in; every id in it is reminted); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
+| `bind-element`      | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the [Binding specifications](#binding-specifications) endpoint or an element's `applicableBindings` entry)                                                                                       |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
 `attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
+
+`bind-element` applies `bindingSpecificationId`'s wiring onto `elementId`: each `resolves` entry becomes a data requirement, merged into the element's existing wiring and overwriting the same key (re-applying a binding over an already-bound key replaces its wiring, it does not fail); each `inputs` entry with a default seeds that primitive property only into a key the element does not already carry; every wired key's attribution is recorded (see the [Binding/](Binding/README.md) module). Adds wiring only — it never detaches or drops anything.
 
 Example (`insert-element`):
 
@@ -400,7 +472,8 @@ Example (`insert-element`):
   "affectedElementIds": ["<elementId>"],
   "orphaned": [ ... ],
   "droppedWiring": ["<wiringKey>"],
-  "droppedProperties": { "<propertyKey>": "<droppedValue>" }
+  "droppedProperties": { "<propertyKey>": "<droppedValue>" },
+  "applicableBindings": { "<elementId>": ["core:from-media-library"] }
 }
 ```
 
@@ -413,6 +486,7 @@ Example (`insert-element`):
 | `orphaned`           | Subtrees the edit detached (for example, a replace dropping the children of a slot the new type does not have), serialized as elements so the caller can re-place them.                            |
 | `droppedWiring`      | Wiring keys the edit could not keep (for example, a replace to a type without that reference property), so the caller can re-wire.                                                                 |
 | `droppedProperties`  | Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key, so the caller can re-apply them; encodes as `{}` when empty.     |
+| `applicableBindings` | Binding specification ids applicable to each element's type, for the whole resulting tree (not restricted to `affectedElementIds`); identical in shape to the Resolve-and-Diagnose response's field of the same name. |
 
 Nothing the edit detaches or drops is silently lost: it is always returned through `orphaned`, `droppedWiring`, or `droppedProperties`.
 
@@ -428,6 +502,8 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Inserting into a parent, moving under a different parent, or wrapping, without naming the target slot    | 400  | `mutationSlotRequired`                            |
 | Wrap targets are empty, or not in one container (must be siblings in a single slot, or all root-level)   | 400  | `mutationInvalidWrapTargets`                      |
 | `type` / `newType` / `containerType` is not a registered element type                                    | 400  | `mutationUnknownType`                             |
+| `bindingSpecificationId` is not a registered binding specification                                       | 400  | `bindingSpecificationNotFound`                    |
+| The binding specification's declared `type` does not match the target element's `component`              | 400  | `bindingTypeMismatch`                             |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child (rejected before the edit runs); or an element config that is a client defect | 400 | `invalidLayoutStructure`                          |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry`                                 | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
 
@@ -442,6 +518,7 @@ POST /api/_action/content-system/layout/{layoutId}/duplicate-element
 POST /api/_action/content-system/layout/{layoutId}/wrap-elements
 POST /api/_action/content-system/layout/{layoutId}/unwrap-element
 POST /api/_action/content-system/layout/{layoutId}/attach-element
+POST /api/_action/content-system/layout/{layoutId}/bind-element
 ```
 
 The persisted counterpart to the mutation endpoints above, for agents and automation operating on a **stored** layout. Each applies exactly one structural edit to the `content_layout` named in the path and **commits** the result, returning the same re-resolved layout plus diagnostics. The committing write runs the resolvability gates, so a persisted edit that breaks resolvability for a bound source is rejected and nothing is written. Served by `Api/ContentLayoutMutationController`; route names follow `api.action.content_system.layout.persisted_<op>`.
@@ -457,7 +534,7 @@ The layout is named in the path. Every body carries the operation's fields (iden
 | Field             | Required       | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |-------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `expectedVersion` | yes (nullable) | Optimistic-concurrency token: the layout's `updatedAt` as last read. `null` for a never-updated layout. A mismatch is a `409`, an unparseable token a `400`, and nothing is written in either case.                                                                                                                                                                                                                                                                                                         |
-| operation fields  | per op         | `insert-element`: `type` (+ `parentElementId`, `slot`, `index`); `remove-element`: `elementId`; `move-element`: `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element`: `elementId`, `newType`; `duplicate-element`: `elementId` (+ `index`); `wrap-elements`: `elementIds`, `containerType`, `slot`; `unwrap-element`: `containerElementId`; `attach-element`: `element` (a raw subtree, ids reminted) (+ `parentElementId`, `slot`, `index`). |
+| operation fields  | per op         | `insert-element`: `type` (+ `parentElementId`, `slot`, `index`); `remove-element`: `elementId`; `move-element`: `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element`: `elementId`, `newType`; `duplicate-element`: `elementId` (+ `index`); `wrap-elements`: `elementIds`, `containerType`, `slot`; `unwrap-element`: `containerElementId`; `attach-element`: `element` (a raw subtree, ids reminted) (+ `parentElementId`, `slot`, `index`); `bind-element`: `elementId`, `bindingSpecificationId`. |
 
 Example (`replace-element`):
 
@@ -471,11 +548,11 @@ Example (`replace-element`):
 
 ### Response
 
-`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring, droppedProperties }` shape as the stateless endpoints — but the layout is now committed. A `replace` that detaches the children of a slot the new type does not have commits the tree **without** them and returns them in `orphaned` (and any static property values the new type cannot hold in `droppedProperties`); nothing is silently lost, and the caller re-places them with an `attach-element` call. `diagnostics` reflects the layout's own immutable `root_source`, resolved once: the binding-scope violations are those for that single root source.
+`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring, droppedProperties, applicableBindings }` shape as the stateless endpoints — but the layout is now committed. A `replace` that detaches the children of a slot the new type does not have commits the tree **without** them and returns them in `orphaned` (and any static property values the new type cannot hold in `droppedProperties`); nothing is silently lost, and the caller re-places them with an `attach-element` call. `diagnostics` reflects the layout's own immutable `root_source`, resolved once: the binding-scope violations are those for that single root source. `applicableBindings` is computed the same way as on the stateless endpoints.
 
 ### Errors
 
-In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `#[MapRequestPayload]` validation):
+In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `bindingSpecificationNotFound`, `bindingTypeMismatch`, `#[MapRequestPayload]` validation):
 
 | Condition                                                                         | HTTP | Factory / source                                                                                                                            |
 |-----------------------------------------------------------------------------------|------|---------------------------------------------------------------------------------------------------------------------------------------------|
@@ -492,4 +569,5 @@ Detached content (`orphaned`), dropped wiring (`droppedWiring`), and dropped pro
 - [EXTENSION.md](EXTENSION.md): registering the element types, data loaders, and entity types these endpoints expose
 - [Api/](Api/README.md): the preview, diagnose, and mutation controller implementations
 - [Mutation/](Mutation/README.md): the structural edit operations behind the mutation endpoints
+- [Binding/](Binding/README.md): the binding specification system behind the bind-element actions
 - [SalesChannel/](SalesChannel/README.md): the Store API rendering routes

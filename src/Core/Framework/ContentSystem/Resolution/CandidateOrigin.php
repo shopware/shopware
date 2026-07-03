@@ -12,4 +12,5 @@ enum CandidateOrigin: string
 {
     case Parent = 'parent';
     case Loader = 'loader';
+    case Stored = 'stored';
 }

@@ -4,14 +4,12 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
+use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Normalizes the diagnostics half of an admin content response — the per-element resolutions map and the
- * diagnostics report — into the wire shape shared by the resolve-and-diagnose and mutation actions.
- *
  * @internal
  */
 #[Package('framework')]
@@ -64,6 +62,16 @@ final class LayoutDiagnosticsResultNormalizer
      */
     private function normalizeCandidate(ResolutionCandidate $candidate): array
     {
+        // configComplete is meaningful only for a Loader candidate. A Stored candidate carries no loader-shaped
+        // fields — it is applied wiring, not an environment offer — so it serializes null. A Parent candidate is
+        // pinned false per the documented wire contract, so a Parent constructed with configComplete=true can
+        // never contradict the schema.
+        $configComplete = match ($candidate->origin) {
+            CandidateOrigin::Stored => null,
+            CandidateOrigin::Parent => false,
+            CandidateOrigin::Loader => $candidate->configComplete,
+        };
+
         return [
             'origin' => $candidate->origin->value,
             'contextKey' => $candidate->contextKey,
@@ -73,7 +81,7 @@ final class LayoutDiagnosticsResultNormalizer
             'contextType' => $candidate->contextType?->value,
             'loaderSource' => $candidate->loaderSource,
             'configTemplate' => $candidate->configTemplate,
-            'configComplete' => $candidate->configComplete,
+            'configComplete' => $configComplete,
         ];
     }
 

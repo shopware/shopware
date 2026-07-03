@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -14,8 +15,6 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 #[Package('framework')]
 final class TypedEnumValidator extends ConstraintValidator
 {
-    private const PRIMITIVE_TYPES = ['string', 'integer', 'boolean', 'number'];
-
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof TypedEnum) {
@@ -82,7 +81,7 @@ final class TypedEnumValidator extends ConstraintValidator
 
         $resolvedType = $types[0];
 
-        if (!\in_array($resolvedType, self::PRIMITIVE_TYPES, true)) {
+        if (!\in_array($resolvedType, PropertyType::PRIMITIVE_TYPES, true)) {
             return null;
         }
 

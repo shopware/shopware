@@ -39,6 +39,15 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
+    #[TestDox('propagates previous throwable when a data loader config is invalid')]
+    public function testPreservesPreviousThrowableOnInvalidLoaderConfig(): void
+    {
+        $previous = new \RuntimeException('rootId expected non-empty string, got integer');
+        $e = ContentSystemException::invalidLoaderConfig('navigation', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
+    }
+
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
@@ -78,7 +87,7 @@ class ContentSystemExceptionTest extends TestCase
     {
         // A code in the catalogue is reachable from the layout decode path (dataRequirements / acceptsContext),
         // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
-        // catalogue membership is pinned separately by testClientDefectCodes.
+        // catalogue membership is pinned by a separate test.
         yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
         // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
@@ -115,6 +124,13 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
             'count',
+        ];
+
+        yield 'invalid loader config' => [
+            ContentSystemException::invalidLoaderConfig('navigation', new \RuntimeException('rootId expected non-empty string, got integer')),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
+            'navigation',
         ];
 
         yield 'invalid map key' => [
@@ -314,6 +330,45 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
             '[0].id: id must be a non-empty string; [1].component: component must be a non-empty string',
+        ];
+
+        yield 'binding specification duplicate' => [
+            ContentSystemException::bindingSpecificationDuplicate('from-media-library', 'core', 'app:Acme'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_DUPLICATE',
+            'from-media-library',
+        ];
+
+        yield 'binding specification load failed' => [
+            ContentSystemException::bindingSpecificationLoadFailed('/path/x.yaml', 'missing or empty "id"'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED',
+            '/path/x.yaml',
+        ];
+
+        yield 'binding specifications invalid' => [
+            ContentSystemException::bindingSpecificationsInvalid(
+                new ConstraintViolationList([
+                    new ConstraintViolation('must not be blank', null, [], null, 'resolves[media]', null),
+                ])
+            ),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID',
+            'resolves[media]',
+        ];
+
+        yield 'binding specification not found' => [
+            ContentSystemException::bindingSpecificationNotFound('ghost'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND',
+            'ghost',
+        ];
+
+        yield 'binding type mismatch' => [
+            ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
+            'Sw:Media:Image',
         ];
     }
 }

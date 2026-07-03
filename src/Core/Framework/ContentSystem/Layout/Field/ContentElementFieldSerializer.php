@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -35,7 +36,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   slots?: array<string, list<array<string, mixed>>>,
  *   providesContext?: array<string, array<string, mixed>>,
  *   acceptsContext?: array<string, ContextConsumerData>,
- *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>
+ *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>,
+ *   attributedSpecifications?: array<string, string>
  * }
  *
  * @internal
@@ -162,6 +164,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? $this->elementStyleSerializer->deserialize($data['style'])
             : new ElementStyle();
 
+        $attributedSpecifications = \array_key_exists('attributedSpecifications', $data) && \is_array($data['attributedSpecifications'])
+            ? $data['attributedSpecifications']
+            : [];
+
         return new ContentElement(
             $data['id'],
             $data['component'],
@@ -169,7 +175,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $data['properties'] ?? [],
             $slots,
             $contextDefinitions,
-            $style
+            $style,
+            $attributedSpecifications
         );
     }
 
@@ -180,6 +187,18 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     {
         /** @var ContentElementData $data */
         $data = $element->jsonSerialize();
+
+        if ($element->getAttributedSpecifications() !== []) {
+            $data['attributedSpecifications'] = $element->getAttributedSpecifications();
+        }
+
+        // jsonSerialize() never emits attributedSpecifications — it is deliberately absent from the
+        // Store API full format, which serializes elements via jsonSerialize() directly. Re-serialize
+        // slot children here so nested bound elements keep their attribution in storage and admin
+        // responses too, since jsonSerialize()'s own slot recursion carries none.
+        if ($element->getSlots() !== []) {
+            $data['slots'] = $this->elementSlotsSerializer->serializeSlots($element->getSlots());
+        }
 
         return $data;
     }
@@ -235,6 +254,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'providesContext' => $providesContextField,
                     'acceptsContext' => $acceptsContextField,
                     'style' => $styleField,
+                    'attributedSpecifications' => new Optional([new Type('array'), new All([new Type('string')])]),
                 ],
                 allowExtraFields: false,
                 allowMissingFields: false

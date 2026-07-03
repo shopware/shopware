@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Output\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -43,7 +44,7 @@ class ContentPageTest extends TestCase
     {
         [$page, $configProvider] = $this->createPageWithConfigProvider();
 
-        $decomposed = $page->getContentDecomposedPage($configProvider);
+        $decomposed = $page->getContentDecomposedPage($configProvider, new ConfigCanonicalizer());
 
         static::assertCount(1, $decomposed->skeletons);
         static::assertSame('root-1', $decomposed->skeletons[0]->id);
@@ -55,7 +56,7 @@ class ContentPageTest extends TestCase
     {
         [$page, $configProvider] = $this->createPageWithConfigProvider();
 
-        $dataPage = $page->getContentDataPage($configProvider);
+        $dataPage = $page->getContentDataPage($configProvider, new ConfigCanonicalizer());
 
         static::assertSame('layout-1', $dataPage->layoutId);
         static::assertArrayHasKey('root-1', $dataPage->assignments);

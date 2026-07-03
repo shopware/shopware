@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\Context;
@@ -17,11 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * The resolve-and-diagnose action: returns per-element resolutions plus a diagnostics report for a draft layout
- * tree from the request, without persisting and without reading or writing the stored content_layout entity.
- *
- * The admin Context is passed straight through; no SalesChannelContext is built, because the binding computation
- * needs only Context.
+ * The admin Context is passed straight through; no SalesChannelContext is built — the binding
+ * computation needs only Context.
  *
  * @final
  */
@@ -36,6 +34,7 @@ class ContentDiagnoseController
         private readonly DraftLayoutDecoder $decoder,
         private readonly LayoutDiagnostics $diagnostics,
         private readonly RootSourceRegistry $rootSourceRegistry,
+        private readonly ApplicableBindingsResolver $applicableBindingsResolver,
     ) {
     }
 
@@ -52,6 +51,6 @@ class ContentDiagnoseController
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 
-        return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report));
+        return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report, $this->applicableBindingsResolver->resolve($tree)));
     }
 }

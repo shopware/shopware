@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor;
 
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -32,7 +33,8 @@ class PropertiesExtractionVisitor implements ElementVisitor
     private array $assignments = [];
 
     public function __construct(
-        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
+        private readonly ConfigCanonicalizer $configCanonicalizer
     ) {
     }
 
@@ -41,7 +43,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
         $properties = $element->getProperties();
         $dataRequirements = $element->getDataRequirements();
 
-        // Build map: property key → DataRequirement for config-based deduplication
+        // Index requirements by property key for config-based dedup below
         $requirementMap = [];
         foreach ($dataRequirements as $requirement) {
             $requirementMap[$requirement->key] = $requirement;
@@ -60,7 +62,6 @@ class PropertiesExtractionVisitor implements ElementVisitor
 
     public function leave(ContentElement $element): void
     {
-        // Cleanup: Remove empty assignments to keep response clean
         if ($this->assignments[$element->getId()] === []) {
             unset($this->assignments[$element->getId()]);
         }
@@ -138,28 +139,9 @@ class PropertiesExtractionVisitor implements ElementVisitor
             $requirement->config
         );
 
-        $this->canonicalizeConfig($configArray);
+        $configArray = $this->configCanonicalizer->canonicalize($configArray);
 
         return Hasher::hash($configArray);
-    }
-
-    /**
-     * @param array<int|string, mixed> $config
-     */
-    private function canonicalizeConfig(array &$config): void
-    {
-        ksort($config);
-
-        foreach ($config as &$value) {
-            if (\is_array($value)) {
-                // Sort numeric arrays (like associations list) by value
-                if (array_is_list($value)) {
-                    sort($value);
-                } else {
-                    $this->canonicalizeConfig($value);
-                }
-            }
-        }
     }
 
     private function generateRefId(object $value, string $configHash): string

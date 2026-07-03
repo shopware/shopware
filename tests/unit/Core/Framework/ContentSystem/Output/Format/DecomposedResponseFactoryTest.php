@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Output\Format;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
@@ -21,7 +22,7 @@ class DecomposedResponseFactoryTest extends TestCase
     #[TestDox('creates ContentDecomposedRouteResponse from content page')]
     public function testCreateResponseReturnsContentDecomposedRouteResponse(): void
     {
-        $factory = new DecomposedResponseFactory(new DataLoaderConfigSerializerProvider(new ServiceLocator([])));
+        $factory = new DecomposedResponseFactory(new DataLoaderConfigSerializerProvider(new ServiceLocator([])), new ConfigCanonicalizer());
         $root = ContentElementBuilder::create('section', 'r1')->build();
         $page = new ContentPage('layout-1', [$root], 'Test', null);
 

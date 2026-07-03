@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
 use Symfony\Component\Validator\Validation;
@@ -26,12 +26,16 @@ class DatabaseStyleOptionLoaderTest extends TestCase
             ['name' => 'col-span', 'schema' => json_encode(['type' => 'integer', 'range' => ['min' => 1, 'max' => 12]]), 'app_name' => 'Acme'],
         ]);
 
-        $options = $this->loader($connection, 'prod')->load();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $options = $this->loader($connection, 'prod', $logger)->load();
 
         static::assertCount(1, $options);
         static::assertSame('col-span', $options[0]->name());
         static::assertSame('app:Acme', $options[0]->source());
         static::assertSame('integer', $options[0]->valueType()->type());
+        static::assertTrue($options[0]->breakpointAware());
     }
 
     #[TestDox('loads a flat option with breakpointAware=false when the schema column declares it')]
@@ -49,80 +53,85 @@ class DatabaseStyleOptionLoaderTest extends TestCase
         static::assertFalse($options[0]->breakpointAware());
     }
 
-    #[TestDox('loads an option as breakpointAware=true when the schema column omits the key')]
-    public function testLoadsBreakpointAwareTrueWhenKeyAbsent(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'col-span', 'schema' => json_encode(['type' => 'integer', 'range' => ['min' => 1, 'max' => 12]]), 'app_name' => 'Acme'],
-        ]);
-
-        $options = $this->loader($connection, 'prod')->load();
-
-        static::assertCount(1, $options);
-        static::assertTrue($options[0]->breakpointAware());
-    }
-
     #[TestDox('returns nothing in dev, where app options load from the filesystem instead')]
     public function testReturnsEmptyInDev(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        static::assertSame([], $this->loader($connection, 'dev')->load());
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        static::assertSame([], $this->loader($connection, 'dev', $logger)->load());
     }
 
-    #[TestDox('fails hard when a persisted schema is not valid JSON')]
-    public function testFailsOnInvalidSchemaJson(): void
+    #[TestDox('skips a row whose persisted schema is not valid JSON and logs a warning')]
+    public function testSkipsRowWithInvalidSchemaJson(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['name' => 'col-span', 'schema' => '{not json', 'app_name' => 'Acme'],
         ]);
 
-        $this->expectExceptionObject(
-            ContentSystemException::styleOptionLoadFailed('col-span', 'Syntax error')
-        );
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('app:Acme:col-span'));
 
-        $this->loader($connection, 'prod')->load();
+        $options = $this->loader($connection, 'prod', $logger)->load();
+
+        static::assertSame([], $options);
     }
 
-    #[TestDox('fails hard when a persisted schema is valid JSON but not a map')]
-    public function testFailsOnNonArraySchema(): void
+    #[TestDox('skips a row whose persisted schema is valid JSON but not a map and logs a warning')]
+    public function testSkipsRowWithNonArraySchema(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['name' => 'col-span', 'schema' => json_encode('just-a-string'), 'app_name' => 'Acme'],
         ]);
 
-        $this->expectExceptionObject(
-            ContentSystemException::styleOptionLoadFailed('col-span', 'persisted schema must decode to an array/map, got string')
-        );
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('app:Acme:col-span'));
 
-        $this->loader($connection, 'prod')->load();
+        $options = $this->loader($connection, 'prod', $logger)->load();
+
+        static::assertSame([], $options);
     }
 
-    #[TestDox('fails batch validation when a persisted option declaration is malformed')]
-    public function testFailsValidationForMalformedPersistedOption(): void
+    #[TestDox('skips a row that fails validation while a valid sibling row survives, and logs a warning')]
+    public function testSkipsRowThatFailsValidationWhileValidSiblingSurvives(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => 'col-span', 'schema' => json_encode(['type' => 'integer', 'range' => ['min' => 1, 'max' => 12]]), 'app_name' => 'Acme'],
             ['name' => 'broken', 'schema' => json_encode(['type' => 'object']), 'app_name' => 'Acme'],
         ]);
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/options\[broken\]\.type/');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::logicalAnd(
+                static::stringContains('app:Acme:broken'),
+                static::stringContains('not a valid choice'),
+            ));
 
-        $this->loader($connection, 'prod')->load();
+        $options = $this->loader($connection, 'prod', $logger)->load();
+
+        static::assertCount(1, $options);
+        static::assertSame('col-span', $options[0]->name());
     }
 
-    private function loader(Connection $connection, string $environment): DatabaseStyleOptionLoader
+    private function loader(Connection $connection, string $environment, ?LoggerInterface $logger = null): DatabaseStyleOptionLoader
     {
         return new DatabaseStyleOptionLoader(
             new StyleOptionSpecificationSerializer(),
             $this->validator(),
             $connection,
             $environment,
+            $logger ?? static::createStub(LoggerInterface::class),
         );
     }
 

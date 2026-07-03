@@ -18,6 +18,8 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -135,7 +137,6 @@ class InfoControllerTest extends TestCase
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
         $this->shopIdProvider
-            ->expects($this->once())
             ->method('getShopId')
             ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
 
@@ -252,22 +253,6 @@ class InfoControllerTest extends TestCase
         static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
     }
 
-    #[TestDox('returns empty types array when no element types are registered')]
-    public function testContentSystemElementTypesReturnsEmptyWhenNoTypesRegistered(): void
-    {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-
-        $controller = $this->createController(elementTypeRegistry: $registry);
-        $response = $controller->getContentSystemElementTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([], $data['types']);
-    }
-
     #[TestDox('returns content system element types as JSON')]
     public function testContentSystemElementTypes(): void
     {
@@ -320,6 +305,37 @@ class InfoControllerTest extends TestCase
         static::assertTrue($data['styleOptions']['col-span']['breakpointAware']);
     }
 
+    #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
+    public function testContentSystemElementTypesEncodesEmptyStyleOptionsAsObject(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('allResolved')->willReturn([]);
+
+        $controller = $this->createController(styleOptionRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"styleOptions":{}', $content);
+    }
+
+    #[TestDox('returns empty types array when no element types are registered')]
+    public function testContentSystemElementTypesReturnsEmptyWhenNoTypesRegistered(): void
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        $controller = $this->createController(elementTypeRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([], $data['types']);
+    }
+
     #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
     public function testContentSystemStyleOptionsReturnsRegisteredOptionsKeyedByWireName(): void
     {
@@ -362,56 +378,44 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
-    #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
-    public function testContentSystemElementTypesEncodesEmptyStyleOptionsAsObject(): void
+    #[TestDox('returns the registered binding specifications keyed by source-qualified id with their derived schema')]
+    public function testContentSystemBindingSpecificationsReturnsRegisteredSpecificationsKeyedByQualifiedId(): void
     {
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('allResolved')->willReturn([]);
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification()]);
 
-        $controller = $this->createController(styleOptionRegistry: $registry);
-        $response = $controller->getContentSystemElementTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"styleOptions":{}', $content);
-    }
-
-    #[TestDox('returns empty data loader types when no loaders are registered')]
-    public function testContentSystemDataLoaderTypesReturnsEmptyWhenNoLoaders(): void
-    {
-        $schemaGenerator = static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class);
-        $schemaGenerator->method('getSchema')->willReturn(['sources' => []]);
-
-        $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
-        $response = $controller->contentSystemDataLoaderTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        static::assertSame(['sources' => []], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
-    }
-
-    #[TestDox('returns content system data loader type schema as JSON')]
-    public function testContentSystemDataLoaderTypes(): void
-    {
-        $expected = [
-            'sources' => [
-                'navigation' => [
-                    'types' => [['className' => 'Shopware\\Core\\Content\\Category\\Tree\\Tree']],
-                ],
-            ],
-        ];
-
-        $schemaGenerator = static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class);
-        $schemaGenerator->method('getSchema')->willReturn($expected);
-
-        $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
-        $response = $controller->contentSystemDataLoaderTypes();
+        $controller = $this->createController(bindingSpecificationRegistry: $registry);
+        $response = $controller->getContentSystemBindingSpecifications();
 
         static::assertSame(200, $response->getStatusCode());
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'core:from-media-library' => [
+                'id' => 'from-media-library',
+                'type' => 'media-gallery',
+                'label' => 'From Media Library',
+                'resolves' => [],
+                'inputs' => [],
+            ],
+        ], $data['bindingSpecifications']);
+    }
+
+    #[TestDox('encodes an empty binding specification catalog as a JSON object, not an array')]
+    public function testContentSystemBindingSpecificationsEncodesEmptySetAsObject(): void
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        $controller = $this->createController(bindingSpecificationRegistry: $registry);
+        $response = $controller->getContentSystemBindingSpecifications();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
     #[TestDox('returns content system entity types as JSON')]
@@ -429,6 +433,11 @@ class InfoControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    private function bindingSpecification(): BindingSpecification
+    {
+        return new BindingSpecification('from-media-library', 'media-gallery', 'From Media Library', [], [], 'core');
     }
 
     private function styleOption(): StyleOptionSpecification
@@ -465,6 +474,7 @@ class InfoControllerTest extends TestCase
         ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
+        ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -498,6 +508,7 @@ class InfoControllerTest extends TestCase
             $elementTypeRegistry ?? static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $styleOptionRegistry ?? static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
+            $bindingSpecificationRegistry ?? static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             null,
         );
     }

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
 /**
@@ -158,6 +159,21 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame([], $result[0]->getDataRequirements());
         static::assertSame(['legacy'], $replace->droppedWiring());
+    }
+
+    #[TestDox('keeps the attributed specification for a carried wired key and drops it for a wired key the new type no longer has')]
+    public function testReplaceKeepsAttributedSpecificationForCarriedKeyAndDropsForAbsentKey(): void
+    {
+        $old = ContentElementBuilder::create('Sw:Old', 'el')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withDataRequirement('legacy', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withAttributedSpecification('product', 'spec-product')
+            ->withAttributedSpecification('legacy', 'spec-legacy')
+            ->build();
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New'))->apply([$old]);
+
+        static::assertSame(['product' => 'spec-product'], $result[0]->getAttributedSpecifications());
     }
 
     #[TestDox('reports a dropped context provider and consumer key once each')]

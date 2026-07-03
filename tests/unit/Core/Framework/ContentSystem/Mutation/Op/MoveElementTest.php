@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
@@ -94,6 +95,20 @@ class MoveElementTest extends TestCase
         $children = array_values($result[0]->getSlots()['content']->getElements());
         static::assertSame(['child', 'a'], array_map(static fn (ContentElement $e): string => $e->getId(), $children));
         static::assertSame([], $move->affected());
+    }
+
+    #[TestDox('carries attributed specifications over to the rebuilt receiving parent')]
+    public function testMovePreservesAttributedSpecificationsOnRebuiltParent(): void
+    {
+        $target = ContentElementBuilder::create('Sw:Block', 'target')
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+        $tree = [new ContentElement('movable', 'Sw:Card'), $target];
+
+        $result = (new MoveElement('movable', 'target', 'content'))->apply($tree);
+
+        static::assertSame('target', $result[0]->getId());
+        static::assertSame(['product' => 'spec-1'], $result[0]->getAttributedSpecifications());
     }
 
     #[TestDox('moves a nested element out to the root and reports the moved subtree as affected')]

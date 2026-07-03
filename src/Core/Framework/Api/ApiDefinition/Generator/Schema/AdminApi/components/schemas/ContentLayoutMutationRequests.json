@@ -264,6 +264,30 @@
                     }
                 ]
             },
+            "ContentLayoutBindElementRequest": {
+                "title": "Bind element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "bindingSpecificationId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to bind the specification onto."
+                            },
+                            "bindingSpecificationId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or from an element's `applicableBindings` entry.",
+                                "example": "core:from-media-library"
+                            }
+                        }
+                    }
+                ]
+            },
             "ContentLayoutPersistedInsertElementRequest": {
                 "title": "Insert element request (persisted)",
                 "type": "object",
@@ -485,6 +509,30 @@
                                 "minimum": 0,
                                 "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
                                 "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedBindElementRequest": {
+                "title": "Bind element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "bindingSpecificationId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to bind the specification onto."
+                            },
+                            "bindingSpecificationId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or from an element's `applicableBindings` entry.",
+                                "example": "core:from-media-library"
                             }
                         }
                     }

@@ -17,9 +17,11 @@ use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
@@ -65,7 +67,7 @@ class LayoutMutationControllerTest extends TestCase
      * @param \Closure(LayoutMutationController): Response $invoke
      * @param class-string<LayoutMutation> $expectedOp
      */
-    #[DataProvider('routeDispatchProvider')]
+    #[DataProvider('dispatchesExpectedOpProvider')]
     #[TestDox('dispatches each route to the matching mutation op')]
     public function testRouteDispatchesExpectedOp(\Closure $invoke, string $expectedOp): void
     {
@@ -85,7 +87,7 @@ class LayoutMutationControllerTest extends TestCase
     /**
      * @return iterable<string, array{\Closure(LayoutMutationController): Response, class-string<LayoutMutation>}>
      */
-    public static function routeDispatchProvider(): iterable
+    public static function dispatchesExpectedOpProvider(): iterable
     {
         $context = Context::createDefaultContext();
 
@@ -217,6 +219,8 @@ class LayoutMutationControllerTest extends TestCase
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementSerializer(),
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
         );
     }
 

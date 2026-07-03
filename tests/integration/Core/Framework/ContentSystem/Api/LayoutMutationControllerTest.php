@@ -20,6 +20,8 @@ class LayoutMutationControllerTest extends TestCase
 
     private const BASE_URL = '/api/_action/content-system/layout/';
 
+    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+
     #[TestDox('inserts a registered element at the root and returns the re-resolved layout and diagnostics')]
     public function testInsertElement(): void
     {
@@ -225,6 +227,85 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
     }
 
+    // These two tests cover the negative paths that need no shipped specification, and double as the
+    // bind-element route-wiring check: a 400 with this app-level error code (not a Symfony 404
+    // route-not-found body) proves the request reached LayoutMutationController::bind(). The positive
+    // round trip against the real shipped core:from-media-library specification follows below.
+    #[TestDox('rejects an unknown bindingSpecificationId with a 400 and the bindingSpecificationNotFound code')]
+    public function testBindElementRejectsUnknownBindingSpecification(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'bind-element', [
+            'layout' => [$this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'bindingSpecificationId' => 'ghost:not-a-spec',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('inlines the core from-media-library specification\'s wiring and attribution on a draft bind')]
+    public function testBindElementInlinesCoreSpecificationWiringAndAttribution(): void
+    {
+        $body = $this->mutate('bind-element', [
+            'layout' => [$this->element('img-1', 'Sw:Media:Image')],
+            'elementId' => 'img-1',
+            'bindingSpecificationId' => self::CORE_MEDIA_BINDING_ID,
+        ]);
+
+        $bound = $body['layout'][0];
+        static::assertSame('img-1', $bound['id']);
+        static::assertSame(
+            ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $bound['dataRequirements']['media']
+        );
+        static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $bound['attributedSpecifications']);
+        static::assertContains(self::CORE_MEDIA_BINDING_ID, $body['applicableBindings']['img-1']);
+    }
+
+    #[TestDox('resolves the bound media reference via CandidateOrigin::Stored once mediaId is filled in on the bound draft')]
+    public function testBoundImageWithMediaIdFilledResolvesMediaViaStoredWiring(): void
+    {
+        $bound = $this->mutate('bind-element', [
+            'layout' => [$this->element('img-1', 'Sw:Media:Image')],
+            'elementId' => 'img-1',
+            'bindingSpecificationId' => self::CORE_MEDIA_BINDING_ID,
+        ])['layout'][0];
+
+        $bound['properties']['mediaId'] = 'a-media-id';
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/layout/diagnose', ['layout' => [$bound]]);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $diagnosis = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $mediaResolution = $this->resolutionFor($diagnosis['resolutions']['img-1'], 'media');
+
+        static::assertNotNull($mediaResolution['resolved']);
+        static::assertSame('stored', $mediaResolution['resolved']['origin']);
+    }
+
+    #[TestDox('carries an applicableBindings key per element in every mutation response body')]
+    public function testMutationResponseCarriesApplicableBindingsKeyPerElement(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $body = $this->mutate('insert-element', [
+            'layout' => [$this->element('block-a', $component)],
+            'type' => $component,
+        ]);
+
+        static::assertArrayHasKey('applicableBindings', $body);
+        foreach (array_column($body['layout'], 'id') as $elementId) {
+            static::assertArrayHasKey($elementId, $body['applicableBindings']);
+        }
+    }
+
     #[TestDox('treats an empty rootSource as absent and evaluates only well-formedness without gating')]
     public function testTreatsEmptyRootSourceAsAbsent(): void
     {
@@ -260,5 +341,21 @@ class LayoutMutationControllerTest extends TestCase
     private function element(string $id, string $component): array
     {
         return ['id' => $id, 'component' => $component, 'properties' => []];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $resolutions
+     *
+     * @return array<string, mixed>
+     */
+    private function resolutionFor(array $resolutions, string $key): array
+    {
+        foreach ($resolutions as $resolution) {
+            if ($resolution['key'] === $key) {
+                return $resolution;
+            }
+        }
+
+        static::fail(\sprintf('No resolution found for key "%s"', $key));
     }
 }

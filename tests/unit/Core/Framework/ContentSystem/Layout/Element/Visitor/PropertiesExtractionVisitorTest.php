@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Visitor;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -26,7 +28,9 @@ class PropertiesExtractionVisitorTest extends TestCase
     protected function setUp(): void
     {
         $this->configSerializerProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
-        $this->visitor = new PropertiesExtractionVisitor($this->configSerializerProvider);
+        // A real ConfigCanonicalizer: these tests exercise the config-hash canonicalization behavior, so the
+        // canonicalizer must run for real rather than be stubbed out.
+        $this->visitor = new PropertiesExtractionVisitor($this->configSerializerProvider, new ConfigCanonicalizer());
     }
 
     #[TestDox('extracts scalar property with scalar prefix and element-key-specific hash')]
@@ -69,17 +73,20 @@ class PropertiesExtractionVisitorTest extends TestCase
         static::assertSame(['a', 'b', 'c'], $data[$refId]);
     }
 
-    #[TestDox('extracts Entity object with requirement using apiAlias, uniqueIdentifier, and config hash')]
-    public function testExtractsEntity(): void
+    /**
+     * @param non-empty-string $expectedPrefix
+     */
+    #[DataProvider('extractsObjectWithRequirementProvider')]
+    #[TestDox('extracts $_dataName')]
+    public function testExtractsObjectWithRequirement(object $value, string $expectedPrefix): void
     {
-        $entity = new StubExtractorEntity('entity-abc');
         $config = new StubLoaderConfig();
 
         $this->configSerializerProvider->method('encode')
             ->willReturn(['type' => 'entity', 'id' => 'abc']);
 
         $element = ContentElementBuilder::create('card', 'elem-3')
-            ->withProperty('product', $entity)
+            ->withProperty('product', $value)
             ->withDataRequirement('product', 'entity', $config)
             ->build();
 
@@ -90,58 +97,18 @@ class PropertiesExtractionVisitorTest extends TestCase
         $assignments = $this->visitor->getAssignments();
 
         $refId = $assignments['elem-3']['product'];
-        static::assertStringStartsWith('test_entity:entity-abc:', $refId);
-        static::assertSame($entity, $data[$refId]);
+        static::assertStringStartsWith($expectedPrefix, $refId);
+        static::assertSame($value, $data[$refId]);
     }
 
-    #[TestDox('extracts Struct object with requirement using apiAlias, splObjectId, and config hash')]
-    public function testExtractsStruct(): void
+    /**
+     * @return iterable<string, array{object, non-empty-string}>
+     */
+    public static function extractsObjectWithRequirementProvider(): iterable
     {
-        $struct = new StubStruct();
-        $config = new StubLoaderConfig();
-
-        $this->configSerializerProvider->method('encode')
-            ->willReturn(['type' => 'struct']);
-
-        $element = ContentElementBuilder::create('widget', 'elem-4')
-            ->withProperty('data', $struct)
-            ->withDataRequirement('data', 'custom', $config)
-            ->build();
-
-        $this->visitor->enter($element);
-        $this->visitor->leave($element);
-
-        $data = $this->visitor->getData();
-        $assignments = $this->visitor->getAssignments();
-
-        $refId = $assignments['elem-4']['data'];
-        static::assertStringStartsWith('test_struct:', $refId);
-        static::assertSame($struct, $data[$refId]);
-    }
-
-    #[TestDox('extracts plain object with requirement using object prefix, splObjectId, and config hash')]
-    public function testExtractsPlainObject(): void
-    {
-        $obj = new \stdClass();
-        $config = new StubLoaderConfig();
-
-        $this->configSerializerProvider->method('encode')
-            ->willReturn(['type' => 'plain']);
-
-        $element = ContentElementBuilder::create('widget', 'elem-5')
-            ->withProperty('payload', $obj)
-            ->withDataRequirement('payload', 'custom', $config)
-            ->build();
-
-        $this->visitor->enter($element);
-        $this->visitor->leave($element);
-
-        $data = $this->visitor->getData();
-        $assignments = $this->visitor->getAssignments();
-
-        $refId = $assignments['elem-5']['payload'];
-        static::assertStringStartsWith('object:', $refId);
-        static::assertSame($obj, $data[$refId]);
+        yield 'entity uses apiAlias and uniqueIdentifier' => [new StubExtractorEntity('entity-abc'), 'test_entity:entity-abc:'];
+        yield 'struct uses apiAlias and splObjectId' => [new StubStruct(), 'test_struct:'];
+        yield 'plain object uses object prefix and splObjectId' => [new \stdClass(), 'object:'];
     }
 
     #[TestDox('extracts object without requirement using object prefix and splObjectId')]
@@ -195,41 +162,42 @@ class PropertiesExtractionVisitorTest extends TestCase
         static::assertCount(1, $data);
     }
 
-    #[TestDox('deduplicates elements with same entity and config containing nested associative sub-arrays')]
-    public function testDeduplicatesWithNestedAssociativeConfigArray(): void
+    #[TestDox('stores a null scalar property under a scalar reference id, not deduplicated')]
+    public function testExtractsNullScalarProperty(): void
     {
-        $entity = new StubExtractorEntity('entity-nested');
-        $config = new StubLoaderConfig();
-
-        // The encoded config contains both a nested associative sub-array (triggers
-        // recursive canonicalizeConfig) and a list array (triggers sort branch).
-        $this->configSerializerProvider->method('encode')
-            ->willReturn([
-                'filters' => ['limit' => 10, 'status' => 'active'],
-                'associations' => ['media', 'manufacturer'],
-                'type' => 'entity',
-            ]);
-
-        $element1 = ContentElementBuilder::create('card', 'elem-nested-1')
-            ->withProperty('product', $entity)
-            ->withDataRequirement('product', 'entity', $config)
+        $element = ContentElementBuilder::create('text', 'elem-9')
+            ->withProperty('title', null)
             ->build();
 
-        $element2 = ContentElementBuilder::create('card', 'elem-nested-2')
-            ->withProperty('product', $entity)
-            ->withDataRequirement('product', 'entity', $config)
-            ->build();
-
-        $this->visitor->enter($element1);
-        $this->visitor->leave($element1);
-        $this->visitor->enter($element2);
-        $this->visitor->leave($element2);
-
-        $assignments = $this->visitor->getAssignments();
-        static::assertSame($assignments['elem-nested-1']['product'], $assignments['elem-nested-2']['product']);
+        $this->visitor->enter($element);
+        $this->visitor->leave($element);
 
         $data = $this->visitor->getData();
-        static::assertCount(1, $data);
+        $assignments = $this->visitor->getAssignments();
+
+        $refId = $assignments['elem-9']['title'];
+        static::assertStringStartsWith('scalar:', $refId);
+        static::assertArrayHasKey($refId, $data);
+        static::assertNull($data[$refId]);
+    }
+
+    #[TestDox('stores an empty array property under an array reference id, not deduplicated')]
+    public function testExtractsEmptyArrayProperty(): void
+    {
+        $element = ContentElementBuilder::create('list', 'elem-10')
+            ->withProperty('items', [])
+            ->build();
+
+        $this->visitor->enter($element);
+        $this->visitor->leave($element);
+
+        $data = $this->visitor->getData();
+        $assignments = $this->visitor->getAssignments();
+
+        $refId = $assignments['elem-10']['items'];
+        static::assertStringStartsWith('array:', $refId);
+        static::assertArrayHasKey($refId, $data);
+        static::assertSame([], $data[$refId]);
     }
 
     #[TestDox('clears properties on element after extraction')]

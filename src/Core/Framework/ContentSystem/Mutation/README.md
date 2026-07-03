@@ -18,7 +18,7 @@ Because the operation never mutates shared state, the same draft can be diffed a
 
 1. **Apply** the operation to the decoded tree.
 2. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness output.
-3. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, and the orphaned subtrees, dropped wiring, and dropped property values the operation surfaced.
+3. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, the orphaned subtrees, dropped wiring, and dropped property values the operation surfaced, and the binding specifications applicable to the whole resulting tree (`applicableBindings`, from `Binding/ApplicableBindingsResolver`, independent of `affected`).
 
 ## Result Channels
 
@@ -42,7 +42,7 @@ The contract is that no structural edit silently loses content or wiring: anythi
 
 ## Operations
 
-All eight live in `Op/` and extend `AbstractLayoutMutation`:
+All nine live in `Op/` and extend `AbstractLayoutMutation`:
 
 - **InsertElement** - inserts a fresh element of a given type (primitive defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root.
 - **RemoveElement** - deletes an element and its whole subtree.
@@ -52,6 +52,7 @@ All eight live in `Op/` and extend `AbstractLayoutMutation`:
 - **WrapElements** - mints a container element and moves a set of sibling elements into it, placing the container where the first target was.
 - **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position. The removed container's own static property values and consumed wiring (its data requirements and accepted context) come back through `droppedProperties` / `droppedWiring`, so nothing the container held is lost.
 - **AttachElement** - splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the detachment a replace reports through `orphaned`: it re-places a detached subtree (or a copied one) without trusting client ids.
+- **BindElement** - applies a `Binding/Specification/BindingSpecification`'s wiring onto one element: each `resolves` entry becomes a data requirement (overwriting an existing key's wiring), each `inputs` entry with a default seeds that primitive property only when the element does not already carry it, and every wired key's attribution is recorded. Adds wiring only — it never detaches or drops anything, so `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
 
 ## Key Classes
 
@@ -59,9 +60,9 @@ All eight live in `Op/` and extend `AbstractLayoutMutation`:
 - `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
 - `MutationPipeline` - Apply, diagnose, assemble. The shared stateless runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream). Never persists.
 - `PersistedLayoutMutator` - The persisted counterpart to `MutationPipeline`: it commits one operation to a stored `content_layout`. Loads by id (404 if absent), guards an optimistic-concurrency token against the row's `updatedAt` (409 on a stale token, without writing), applies the operation, and persists the mutated tree, whose write runs the resolvability gates. The response diagnostics are derived from the loaded layout's single `root_source` (resolved via `Adapter/RootSourceRegistry`), consistent with what the gate enforces. Detached content (`orphaned`), dropped wiring (`droppedWiring`), and dropped property values (`droppedProperties`) are committed-out of the tree but returned in the result so the caller can re-place the subtrees with `AttachElement`, re-wire the keys, or re-apply the values; nothing is silently lost.
-- `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring, dropped property values.
+- `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring, dropped property values, and the applicable binding specifications for the whole resulting tree.
 - `ElementLocation` / `ParentSlot` - Where an element sits: the node, its index in its containing list, and its parent slot coordinates (`null` parent for a root element).
 
 ## Subdirectories
 
-- **Op/** - The eight concrete operations, each one structural edit.
+- **Op/** - The nine concrete operations, each one structural edit.

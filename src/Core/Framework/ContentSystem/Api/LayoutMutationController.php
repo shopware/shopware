@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -27,8 +30,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * Exposes the layout mutation actions. Each binds its request DTO, builds one {@see LayoutMutation}, and
- * runs it through {@see MutationPipeline}, returning the re-resolved layout plus diagnostics without persisting.
+ * The stateless draft-tree counterpart to {@see ContentLayoutMutationController}.
  *
  * @final
  */
@@ -45,6 +47,8 @@ class LayoutMutationController
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
     ) {
     }
 
@@ -126,6 +130,17 @@ class LayoutMutationController
         Context $context,
     ): Response {
         $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/bind-element', name: 'api.action.content_system.layout.bind_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function bind(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        BindElementRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->configSerializerProvider);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

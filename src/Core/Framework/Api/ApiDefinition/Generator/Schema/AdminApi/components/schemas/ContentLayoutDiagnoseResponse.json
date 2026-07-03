@@ -8,7 +8,7 @@
                 "title": "Content layout diagnose response",
                 "type": "object",
                 "description": "The response returned by the resolve-and-diagnose route: the per-element property resolutions plus the well-formedness / resolvability report for the supplied draft layout. Never persisted, never cached.",
-                "required": ["resolutions", "diagnostics"],
+                "required": ["resolutions", "diagnostics", "applicableBindings"],
                 "properties": {
                     "resolutions": {
                         "allOf": [
@@ -23,18 +23,28 @@
                         ],
                         "description": "The well-formedness / resolvability report. With no source bound (neither `entityType` nor `section`), only intrinsic well-formedness is evaluated and `resolvable` is not meaningful.",
                         "readOnly": true
+                    },
+                    "applicableBindings": {
+                        "type": "object",
+                        "description": "Map of element id to the source-qualified binding specification ids (`source:id`) applicable to that element's type, keyed by declared type rather than by the element's actual wiring. Pass an id back as `bindingSpecificationId` to a bind-element action. An entry is emitted for every element in the tree; a listed element's own list encodes as `[]` when its type has no applicable specification. The map itself encodes as `{}` only when the tree has no elements.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "readOnly": true,
+                        "example": { "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:from-media-library"] }
                     }
                 },
                 "example": {
                     "resolutions": {
                         "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": [
                             {
-                                "key": "title",
+                                "key": "media",
                                 "kind": "reference",
-                                "required": true,
+                                "required": false,
                                 "type": null,
                                 "default": null,
-                                "fqcn": "Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity",
+                                "fqcn": "Shopware\\Core\\Content\\Media\\MediaEntity",
                                 "resolved": null,
                                 "candidates": []
                             }
@@ -42,18 +52,21 @@
                     },
                     "diagnostics": {
                         "wellFormed": true,
-                        "resolvable": false,
+                        "resolvable": true,
                         "violations": [
                             {
-                                "code": "unresolved_required",
+                                "code": "unresolved_optional",
                                 "scope": "binding",
-                                "severity": "error",
+                                "severity": "warning",
                                 "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                "key": "title",
-                                "message": "Required property \"title\" could not be resolved.",
+                                "key": "media",
+                                "message": "Optional property \"media\" has no source.",
                                 "candidates": []
                             }
                         ]
+                    },
+                    "applicableBindings": {
+                        "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:from-media-library"]
                     }
                 }
             }

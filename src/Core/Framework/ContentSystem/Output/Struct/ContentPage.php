@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
@@ -27,13 +28,11 @@ class ContentPage extends Struct
     ) {
     }
 
-    /**
-     * Lazily creates decomposed version with extracted properties.
-     */
     public function getContentDecomposedPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider
+        DataLoaderConfigSerializerProvider $configSerializerProvider,
+        ConfigCanonicalizer $configCanonicalizer
     ): ContentDecomposedPage {
-        $visitor = new PropertiesExtractionVisitor($configSerializerProvider);
+        $visitor = new PropertiesExtractionVisitor($configSerializerProvider, $configCanonicalizer);
 
         foreach ($this->elements as $element) {
             $clone = clone $element;
@@ -50,9 +49,6 @@ class ContentPage extends Struct
         );
     }
 
-    /**
-     * Creates skeleton version without hydrated data.
-     */
     public function getContentSkeletonPage(): ContentSkeletonPage
     {
         return new ContentSkeletonPage(
@@ -63,13 +59,11 @@ class ContentPage extends Struct
         );
     }
 
-    /**
-     * Creates data version with hydrated data and assignments to the skeleton but without the skeleton.
-     */
     public function getContentDataPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider
+        DataLoaderConfigSerializerProvider $configSerializerProvider,
+        ConfigCanonicalizer $configCanonicalizer
     ): ContentDataPage {
-        return $this->getContentDecomposedPage($configSerializerProvider)->getContentDataPage();
+        return $this->getContentDecomposedPage($configSerializerProvider, $configCanonicalizer)->getContentDataPage();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 
+use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
@@ -34,7 +35,8 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
         private readonly ContentElementFieldSerializer $contentElementSerializer,
-        private readonly LayoutDefaultSeeder $defaultSeeder
+        private readonly LayoutDefaultSeeder $defaultSeeder,
+        private readonly AttributionReconciler $attributionReconciler
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -42,7 +44,9 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
     /**
      * Seeds each element's primitive type defaults into the write payload before the resolvability gate decodes it,
      * so a tree reaching storage outside the layout mutations (direct DAL write, Sync API, import, fixtures) still
-     * carries its type defaults. Runs ahead of {@see PreWriteValidationEvent}.
+     * carries its type defaults, then reconciles each element's `attributedSpecifications` against its current
+     * wiring so a stored attribution stays honest by construction (see {@see AttributionReconciler}). Runs ahead
+     * of {@see PreWriteValidationEvent}.
      */
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
@@ -58,6 +62,7 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
         }
 
         $data[$key] = $this->defaultSeeder->seed($value);
+        $data[$key] = $this->attributionReconciler->reconcile($data[$key]);
 
         return $data;
     }

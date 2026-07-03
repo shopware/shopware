@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -80,14 +81,6 @@ class AvailableContextResolverTest extends TestCase
         $rootContext = $this->rootAmbientProductContext();
 
         static::assertSame([], $this->resolver()->resolve('child-1', [$root], $rootContext));
-    }
-
-    #[TestDox('returns an empty set for an unknown element id')]
-    public function testUnknownElementYieldsEmpty(): void
-    {
-        $root = new ContentElement('root-1', 'Sw:Block');
-
-        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
     }
 
     #[TestDox('exposes a backed ancestor provider to its direct child but not past a non-redistributing intermediate')]
@@ -211,6 +204,14 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame('level-2', $available[0]->providerElementId);
     }
 
+    #[TestDox('returns an empty set for an unknown element id')]
+    public function testUnknownElementYieldsEmpty(): void
+    {
+        $root = new ContentElement('root-1', 'Sw:Block');
+
+        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
+    }
+
     /**
      * @param list<ProvidedContext> $available
      *
@@ -269,7 +270,7 @@ class AvailableContextResolverTest extends TestCase
         $configSerializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $configSerializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
-        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers);
+        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class));
 
         return new AvailableContextResolver($registry, $elementResolver);
     }

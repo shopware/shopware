@@ -219,6 +219,26 @@
             <tag name="shopware.app_manifest.validator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemBindingSpecificationPersister">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader"/>
+            <argument type="service" id="app_content_system_binding_specification.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
+            <argument type="service" id="lock.factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemBindingSpecificationLifecycleHandler">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemBindingSpecificationPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-1402"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\ContentSystemBindingSpecificationAppValidator">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader"/>
+            <tag name="shopware.app_manifest.validator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\AppService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
@@ -710,6 +730,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 

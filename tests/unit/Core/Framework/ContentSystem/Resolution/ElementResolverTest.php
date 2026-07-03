@@ -11,8 +11,10 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -22,9 +24,12 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
 /**
@@ -155,9 +160,124 @@ class ElementResolverTest extends TestCase
             $registry,
             $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
             static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderProvider::class),
         );
 
         static::assertSame([], $resolver->resolve('Sw:Unknown', new ResolutionContext('el-1', [])));
+    }
+
+    #[TestDox('resolves a required reference to the applied Stored candidate over a deterministic environment default, leaving the environment candidates list unchanged')]
+    public function testAppliedStoredWiringTakesPrecedenceOverEnvironmentDefault(): void
+    {
+        $available = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: 'root-1',
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $resolver = new ElementResolver(
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            $this->loaderProvider($loader),
+        );
+
+        $resolutions = $resolver->resolve($element, new ResolutionContext('el-1', $available));
+
+        static::assertNotNull($resolutions[0]->resolved);
+        static::assertSame(CandidateOrigin::Stored, $resolutions[0]->resolved->origin);
+        static::assertCount(1, $resolutions[0]->candidates);
+        static::assertSame(CandidateOrigin::Parent, $resolutions[0]->candidates[0]->origin);
+        static::assertSame([], array_values(array_filter(
+            $resolutions[0]->candidates,
+            static fn (ResolutionCandidate $candidate): bool => $candidate->origin === CandidateOrigin::Stored,
+        )));
+    }
+
+    #[TestDox('falls back to the environment default when applied wiring produces a type not assignable to the declared reference')]
+    public function testTypeMismatchedAppliedWiringFallsBackToEnvironmentDefault(): void
+    {
+        $available = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: 'root-1',
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(CategoryEntity::class);
+
+        $resolver = new ElementResolver(
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            $this->loaderProvider($loader),
+        );
+
+        $resolutions = $resolver->resolve($element, new ResolutionContext('el-1', $available));
+
+        static::assertNotNull($resolutions[0]->resolved);
+        static::assertSame(CandidateOrigin::Parent, $resolutions[0]->resolved->origin);
+    }
+
+    #[TestDox('yields no Stored resolution when applied wiring resolution throws a client-defect exception')]
+    public function testClientDefectDuringAppliedWiringYieldsNoStoredResolution(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willThrowException(ContentSystemException::configSerializerNotRegistered('entity'));
+
+        $resolver = new ElementResolver(
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            $this->loaderProvider($loader),
+        );
+
+        $resolutions = $resolver->resolve($element, new ResolutionContext('el-1', []));
+
+        static::assertNull($resolutions[0]->resolved);
+    }
+
+    #[TestDox('propagates a non-client-defect exception raised while resolving applied wiring\'s produced type')]
+    public function testNonClientDefectDuringAppliedWiringPropagates(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $exception = ContentSystemException::mutationTargetNotFound('el-1');
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willThrowException($exception);
+
+        $resolver = new ElementResolver(
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            $this->loaderProvider($loader),
+        );
+
+        $this->expectExceptionObject($exception);
+
+        $resolver->resolve($element, new ResolutionContext('el-1', []));
     }
 
     /**
@@ -182,6 +302,7 @@ class ElementResolverTest extends TestCase
             $this->registryReturning($spec),
             $this->typeResolver($map),
             $serializers ?? static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderProvider::class),
         );
 
         return $resolver->resolve('Sw:Block', $context);
@@ -202,6 +323,17 @@ class ElementResolverTest extends TestCase
         $resolver->method('resolve')->willReturn($map);
 
         return $resolver;
+    }
+
+    /**
+     * @param AbstractContentDataLoader<Struct> $loader
+     */
+    private function loaderProvider(AbstractContentDataLoader $loader): DataLoaderProvider
+    {
+        $provider = static::createStub(DataLoaderProvider::class);
+        $provider->method('get')->willReturn($loader);
+
+        return $provider;
     }
 
     private function serializersDecoding(bool $succeeds): DataLoaderConfigSerializerProvider

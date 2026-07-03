@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
@@ -31,7 +32,21 @@ class DataLoaderConfigSerializerProvider
             throw ContentSystemException::configSerializerNotRegistered($source);
         }
 
-        return $this->locator->get($source)->decode($data);
+        try {
+            return $this->locator->get($source)->decode($data);
+        } catch (HttpException $e) {
+            if ($e instanceof ContentSystemException) {
+                throw $e;
+            }
+
+            // A domain config serializer's decode() throws its own domain exception (a sibling of
+            // ContentSystemException — DomainExceptionRule forbids a domain-namespaced class from
+            // throwing ContentSystemException directly) for a client config-shape defect. Re-classify
+            // it here at the shared decode seam so the single ContentSystemException client-defect
+            // guard the binding / diagnostics stack already relies on catches it, instead of the
+            // domain sibling escaping as an uncaught 500.
+            throw ContentSystemException::invalidLoaderConfig($source, $e);
+        }
     }
 
     /**
@@ -43,6 +58,18 @@ class DataLoaderConfigSerializerProvider
             throw ContentSystemException::configSerializerNotRegistered($source);
         }
 
-        return $this->locator->get($source)->encode($config);
+        try {
+            return $this->locator->get($source)->encode($config);
+        } catch (HttpException $e) {
+            if ($e instanceof ContentSystemException) {
+                throw $e;
+            }
+
+            // Mirror decode(): a domain serializer's encode() throws its own domain HttpException (a sibling
+            // of ContentSystemException — DomainExceptionRule forbids throwing ContentSystemException directly).
+            // Re-classify it here so the single client-defect guard the reconciler relies on catches it, rather
+            // than the sibling escaping as an uncaught 500 on every content_layout write.
+            throw ContentSystemException::invalidLoaderConfig($source, $e);
+        }
     }
 }

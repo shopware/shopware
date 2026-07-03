@@ -4,17 +4,15 @@ namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The per-element resolution kernel. For each declared property of the element's type it determines how the
- * property could be filled at its position: primitives carry a static value; references collect candidate
- * sources (ancestor/root providers plus data loaders) and a deterministic conservative default selection.
- *
  * @final
  */
 #[Package('framework')]
@@ -27,6 +25,7 @@ class ElementResolver
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly AbstractContentSystemDataLoaderTypeResolver $typeResolver,
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
+        private readonly DataLoaderProvider $dataLoaderProvider,
     ) {
     }
 
@@ -40,6 +39,10 @@ class ElementResolver
         if (!$this->registry->has($type)) {
             return [];
         }
+
+        // A string $element carries no stored wiring by design: only a ContentElement instance has
+        // dataRequirements, so a type-name-only resolve never produces a Stored candidate.
+        $storedRequirements = $element instanceof ContentElement ? $element->getDataRequirements() : [];
 
         $resolutions = [];
 
@@ -59,25 +62,56 @@ class ElementResolver
                 continue;
             }
 
-            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context);
+            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context, $storedRequirements[$key] ?? null);
         }
 
         return $resolutions;
     }
 
-    private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context): PropertyResolution
+    private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context, ?DataRequirement $storedRequirement): PropertyResolution
     {
         $parents = $this->parentCandidates($fqcn, $context);
         $loaders = $this->loaderCandidates($fqcn);
+        $stored = $this->storedCandidate($fqcn, $storedRequirement);
 
         return new PropertyResolution(
             key: $key,
             kind: PropertyKind::Reference,
             required: $required,
             fqcn: $fqcn,
-            resolved: $this->pickDefault($parents, $loaders),
+            resolved: $stored ?? $this->pickDefault($parents, $loaders),
             candidates: [...$parents, ...$loaders],
         );
+    }
+
+    /**
+     * Applied wiring is a resolution, not a candidate: a Stored requirement whose produced type resolves and
+     * is assignable to the declared FQCN becomes the resolved pick directly, never a candidates menu entry.
+     * A config that fails to resolve (client defect) or resolves to a mismatched type yields no Stored
+     * candidate — {@see LayoutDiagnostics} reports the former as InvalidConfig, the latter as
+     * MismatchedReferenceType.
+     */
+    private function storedCandidate(string $fqcn, ?DataRequirement $requirement): ?ResolutionCandidate
+    {
+        if ($requirement === null) {
+            return null;
+        }
+
+        try {
+            $produced = $this->dataLoaderProvider->get($requirement->source)->resolveProducedType($requirement->config);
+        } catch (ContentSystemException $exception) {
+            if (!ContentSystemException::isClientDefect($exception)) {
+                throw $exception;
+            }
+
+            return null;
+        }
+
+        if (!is_a($produced, $fqcn, true)) {
+            return null;
+        }
+
+        return new ResolutionCandidate(origin: CandidateOrigin::Stored);
     }
 
     /**

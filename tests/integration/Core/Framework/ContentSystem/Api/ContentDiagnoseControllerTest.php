@@ -92,6 +92,16 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
+    #[TestDox('reports the core media binding specification as applicable for a Sw:Media:Image element')]
+    public function testDiagnoseReportsApplicableBindingsForImageElement(): void
+    {
+        $body = $this->diagnose([
+            'layout' => [['id' => 'img-1', 'component' => 'Sw:Media:Image', 'properties' => []]],
+        ]);
+
+        static::assertSame(['core:from-media-library'], $body['applicableBindings']['img-1']);
+    }
+
     /**
      * @param array<string, mixed> $payload
      *

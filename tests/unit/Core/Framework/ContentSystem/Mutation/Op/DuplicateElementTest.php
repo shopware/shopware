@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
@@ -71,6 +72,22 @@ class DuplicateElementTest extends TestCase
         static::assertSame([$clone->getId(), $clonedChild->getId()], $duplicate->affected());
     }
 
+    #[TestDox('reports only the clone id as affected when the duplicated element has no children')]
+    public function testDuplicateLeafAffectedIsCloneIdOnly(): void
+    {
+        $tree = [new ContentElement('original', 'Sw:Card'), new ContentElement('other', 'Sw:Block')];
+
+        $duplicate = new DuplicateElement('original');
+        $result = $duplicate->apply($tree);
+
+        $clone = $result[1];
+        static::assertNotSame('original', $clone->getId());
+        static::assertSame('original', $result[0]->getId());
+        static::assertSame('Sw:Card', $clone->getComponent());
+        static::assertSame([], $clone->getProperties());
+        static::assertSame([$clone->getId()], $duplicate->affected());
+    }
+
     #[TestDox('carries key-based wiring, context definitions, and style over to the clone unchanged')]
     public function testDuplicatePreservesWiringAndStyle(): void
     {
@@ -84,6 +101,21 @@ class DuplicateElementTest extends TestCase
         static::assertSame(['product' => $requirement], $result[1]->getDataRequirements());
         static::assertSame($contextDefinitions, $result[1]->getContextDefinitions());
         static::assertSame($style->toArray(), $result[1]->getStyle()->toArray());
+    }
+
+    #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]
+    public function testDuplicatePreservesAttributedSpecificationsOnClone(): void
+    {
+        $original = ContentElementBuilder::create('Sw:Card', 'original')
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+        $tree = [$original, new ContentElement('other', 'Sw:Block')];
+
+        $result = (new DuplicateElement('original'))->apply($tree);
+
+        $clone = $result[1];
+        static::assertNotSame('original', $clone->getId());
+        static::assertSame(['product' => 'spec-1'], $clone->getAttributedSpecifications());
     }
 
     #[TestDox('duplicates a nested element into the same parent slot')]

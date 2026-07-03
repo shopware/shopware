@@ -569,6 +569,40 @@ class InfoControllerTest extends TestCase
         static::assertContains('landing_page', $data['entityTypes']);
     }
 
+    public function testContentSystemBindingSpecifications(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-binding-specifications.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('bindingSpecifications', $data);
+        static::assertIsArray($data['bindingSpecifications']);
+
+        // The core catalog ships one specification (Binding/Definitions/media/image/from-media-library.yaml),
+        // keyed by its source-qualified id. It sources the Image element's `media` reference from the entity
+        // loader against its own `mediaId` and lists `mediaId` as a residual input with no default.
+        static::assertArrayHasKey('core:from-media-library', $data['bindingSpecifications']);
+        static::assertSame(
+            [
+                'id' => 'from-media-library',
+                'type' => 'Sw:Media:Image',
+                'label' => 'From media library',
+                'resolves' => [
+                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'inputs' => ['mediaId' => []],
+            ],
+            $data['bindingSpecifications']['core:from-media-library'],
+        );
+    }
+
     public function testFetchMessageStats(): void
     {
         $statsService = $this->getContainer()->get(StatsService::class);

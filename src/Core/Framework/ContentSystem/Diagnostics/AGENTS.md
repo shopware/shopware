@@ -2,11 +2,11 @@
 
 ## Source Code References
 
-- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext, ?Context $context = null): LayoutAnalysis`. Flattens the element tree, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
+- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext, ?Context $context = null): LayoutAnalysis`. Flattens the element tree, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, mismatched reference type on stored wiring, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
 - `LayoutAnalysis` - Output of `analyze()`. `public DiagnosticsReport $report` and `public array $resolutions` (keyed by element id, values are `list<PropertyResolution>`). `@internal final readonly`.
 - `DiagnosticsReport` - Holds `list<Violation> $violations`. `isWellFormed(): bool` (no intrinsic-scope Error violations — persistence gate). `isResolvable(): bool` (no binding-scope Error violations — serving gate). Also `intrinsicErrors()`, `bindingErrors()`. `@internal final readonly`.
 - `Violation` - `@internal final readonly`. Constructor: `ViolationCode $code, string $elementId, ?string $key, string $message, list<ResolutionCandidate> $candidates = []`. `scope()` and `severity()` delegate to the code.
-- `ViolationCode` - `enum: string`, 8 cases. Single source of truth for scope and severity. See README for the full mapping table.
+- `ViolationCode` - `enum: string`, 9 cases. Single source of truth for scope and severity. See README for the full mapping table.
 - `ViolationScope` - `enum: string`. Cases: `Intrinsic`, `Binding`. `@internal`.
 - `ViolationSeverity` - `enum: string`. Cases: `Error`, `Warning`. `@internal`.
 - `RootContextMapper` - `map(array<DataRequirement> $requirements): list<ProvidedContext>` maps a bound source's page data requirements to the root-ambient context for `analyze()` (each context broadcast `Single` from the virtual root). Also exposes `resolveType(DataRequirement): string`, used by the diagnostics core to detect `InvalidConfig`.
@@ -19,4 +19,5 @@
 - `ViolationCode` is the only place scope and severity are defined — do not derive them anywhere else.
 - Primitive-property satisfaction is strict: `propertyBindingViolation` flags a required primitive as `UnresolvedRequired` iff `$element->getProperty($key) === null`. Do not reintroduce a `|| $resolution->default === null` term: serving applies no type default, so a bare default does not satisfy; the default reaches storage via `Mutation` scaffold/replace seeding and the write-boundary `Layout/LayoutDefaultSeeder`, not at diagnosis. `PropertyResolution::default` stays populated (the editor still sees the type default) but is not consulted for satisfaction.
 - `RootContextMapper::resolveType()` throws `ContentSystemException` for unregistered source or unknown entity; `LayoutDiagnostics` catches client-defect codes and converts them to `InvalidConfig` violations.
+- `storedRequirementViolation()` runs one `resolveType()` call per stored `DataRequirement` and reports exactly one outcome: a client-defect resolve failure is `InvalidConfig`; a resolve that succeeds but produces a type not assignable to the property's declared reference FQCN is `MismatchedReferenceType`; a resolve that succeeds and fits produces no violation (`Resolution/ElementResolver` reports it as a `Stored` resolution instead, never a `candidates` menu entry).
 - `LayoutDiagnostics` has `@internal` on its constructor, not on the class itself.

@@ -409,6 +409,55 @@
                     "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
                 }
             }
+        },
+        "/_action/content-system/layout/{layoutId}/bind-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Bind a specification to an element in a stored layout",
+                "operationId": "contentSystemLayoutPersistedBindElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Binds `bindingSpecificationId`'s wiring onto `elementId`, mirroring the draft bind-element action. The committing write runs the resolvability gates. An unregistered `bindingSpecificationId` is rejected with `400` (`bindingSpecificationNotFound`); a specification whose declared `type` does not match the target element's `component` is rejected with `400` (`bindingTypeMismatch`). `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedBindElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Bind a specification to an element",
+                                    "value": {
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "bindingSpecificationId": "core:from-media-library",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics, with the binding's wiring applied.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
         }
     }
 }

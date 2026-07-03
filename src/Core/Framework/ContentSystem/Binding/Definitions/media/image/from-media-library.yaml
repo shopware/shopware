@@ -1,0 +1,11 @@
+id: from-media-library
+type: Sw:Media:Image
+label: "From media library"
+resolves:
+  media:
+    loader: entity
+    config:
+      entity: media
+      property: mediaId
+inputs:
+  mediaId: {}

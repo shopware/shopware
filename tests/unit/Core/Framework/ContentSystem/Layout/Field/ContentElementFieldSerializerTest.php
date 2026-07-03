@@ -239,6 +239,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame([], $result->getProvidesContext());
         static::assertSame([], $result->getAcceptsContext());
         static::assertTrue($result->getStyle()->isEmpty());
+        static::assertSame([], $result->getAttributedSpecifications());
     }
 
     #[TestDox('decodes element with properties into a ContentElement with accessible property values')]
@@ -352,6 +353,29 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame(['col-span' => ['md' => 6]], $result->getStyle()->toArray());
     }
 
+    #[TestDox('decodes an attributedSpecifications key into the element attributed specifications map')]
+    public function testDecodeElementWithAttributedSpecificationsReturnsMap(): void
+    {
+        $result = $this->serializer->decodeElement([
+            'id' => 'elem-attr',
+            'component' => 'text',
+            'attributedSpecifications' => ['product' => 'binding-spec-1'],
+        ]);
+
+        static::assertSame(['product' => 'binding-spec-1'], $result->getAttributedSpecifications());
+    }
+
+    #[TestDox('decodes an element array that omits attributedSpecifications into an empty attributed specifications map')]
+    public function testDecodeElementWithoutAttributedSpecificationsReturnsEmptyMap(): void
+    {
+        $result = $this->serializer->decodeElement([
+            'id' => 'elem-raw',
+            'component' => 'text',
+        ]);
+
+        static::assertSame([], $result->getAttributedSpecifications());
+    }
+
     /**
      * @param array<string, string> $data
      */
@@ -399,13 +423,14 @@ class ContentElementFieldSerializerTest extends TestCase
 
         static::assertSame('elem-minimal', $result['id']);
         static::assertSame('hero', $result['component']);
-        // The storage/write form keeps the empty property map as an array; the API response boundary re-types it to {}
+        // properties is a nested map: [] on every path (storage and API response) — unlike a top-level customFields field, it is never re-typed to {}
         static::assertSame([], $result['properties']);
         static::assertArrayNotHasKey('dataRequirements', $result);
         static::assertArrayNotHasKey('slots', $result);
         static::assertArrayNotHasKey('providesContext', $result);
         static::assertArrayNotHasKey('acceptsContext', $result);
         static::assertArrayNotHasKey('style', $result);
+        static::assertArrayNotHasKey('attributedSpecifications', $result);
     }
 
     #[TestDox('serializes ContentElement property preserving raw value when value is non-Struct object')]
@@ -452,6 +477,56 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertCount(1, $restored->getAcceptsContext());
     }
 
+    #[TestDox('restores attributedSpecifications through serialize-then-decode roundtrip')]
+    public function testSerializeContentElementRoundtripPreservesAttributedSpecifications(): void
+    {
+        $original = ContentElementBuilder::create('product-card', 'elem-attr-rt')
+            ->withAttributedSpecification('product', 'binding-spec-1')
+            ->withAttributedSpecification('category', 'binding-spec-2')
+            ->build();
+
+        $serialized = $this->serializer->serializeContentElement($original);
+        $restored = $this->serializer->decodeElement($this->wireRoundTrip($serialized));
+
+        static::assertSame(
+            ['product' => 'binding-spec-1', 'category' => 'binding-spec-2'],
+            $restored->getAttributedSpecifications()
+        );
+    }
+
+    #[TestDox('includes attributedSpecifications in the serialized output for a top-level element with non-empty attribution')]
+    public function testSerializeContentElementIncludesAttributedSpecificationsForTopLevelElement(): void
+    {
+        $element = ContentElementBuilder::create('product-card', 'elem-attr')
+            ->withAttributedSpecification('product', 'binding-spec-1')
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($element);
+
+        static::assertArrayHasKey('attributedSpecifications', $result);
+        static::assertSame(['product' => 'binding-spec-1'], $result['attributedSpecifications']);
+    }
+
+    #[TestDox('includes attributedSpecifications in the serialized output for a nested slot child with non-empty attribution')]
+    public function testSerializeContentElementIncludesAttributedSpecificationsForNestedSlotChild(): void
+    {
+        $child = ContentElementBuilder::create('text', 'child-attr')
+            ->withAttributedSpecification('category', 'binding-spec-2')
+            ->build();
+
+        $parent = ContentElementBuilder::create('grid', 'parent-attr')
+            ->withSlot('main', [$child])
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($parent);
+
+        static::assertArrayHasKey('slots', $result);
+        $childData = $result['slots']['main'][0];
+
+        static::assertArrayHasKey('attributedSpecifications', $childData);
+        static::assertSame(['category' => 'binding-spec-2'], $childData['attributedSpecifications']);
+    }
+
     #[TestDox('returns Type and Collection constraints when field has no Required flag')]
     public function testBuildConstraintsWithoutRequiredFlagReturnsExpectedStructure(): void
     {
@@ -473,6 +548,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayHasKey('providesContext', $collection->fields);
         static::assertArrayHasKey('acceptsContext', $collection->fields);
         static::assertArrayHasKey('style', $collection->fields);
+        static::assertArrayHasKey('attributedSpecifications', $collection->fields);
         static::assertFalse($collection->allowExtraFields);
         static::assertFalse($collection->allowMissingFields);
 
@@ -481,6 +557,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertInstanceOf(Optional::class, $collection->fields['providesContext']);
         static::assertInstanceOf(Optional::class, $collection->fields['acceptsContext']);
         static::assertInstanceOf(Optional::class, $collection->fields['style']);
+        static::assertInstanceOf(Optional::class, $collection->fields['attributedSpecifications']);
     }
 
     #[TestDox('appends NotBlank constraint when field has Required flag')]
@@ -508,6 +585,52 @@ class ContentElementFieldSerializerTest extends TestCase
         $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
 
         static::assertCount(0, $violations);
+    }
+
+    #[TestDox('accepts a written element that omits attributedSpecifications entirely')]
+    public function testBuildConstraintsAcceptsElementWithoutAttributedSpecifications(): void
+    {
+        $element = [
+            'id' => 'elem-1',
+            'component' => 'text',
+        ];
+
+        $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[TestDox('accepts a written element whose attributedSpecifications is a populated map')]
+    public function testBuildConstraintsAcceptsPopulatedAttributedSpecifications(): void
+    {
+        $element = [
+            'id' => 'elem-1',
+            'component' => 'text',
+            'attributedSpecifications' => ['product' => 'binding-spec-1'],
+        ];
+
+        $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[TestDox('rejects a non-string value in the attributedSpecifications map')]
+    public function testRejectsNonStringAttributionValue(): void
+    {
+        $element = [
+            'id' => 'el',
+            'component' => 'text',
+            'attributedSpecifications' => ['product' => 123],
+        ];
+
+        $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
+
+        $paths = array_map(
+            static fn (ConstraintViolationInterface $violation): string => $violation->getPropertyPath(),
+            iterator_to_array($violations)
+        );
+
+        static::assertContains('[attributedSpecifications][product]', $paths);
     }
 
     #[TestDox('throws exception when buildConstraints receives wrong field type')]
@@ -538,8 +661,8 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame('[style][made-up-option]', $violations->get(0)->getPropertyPath());
     }
 
-    #[TestDox('preserves all camelCase wire keys and their values faithfully through a serialize-decode round-trip')]
-    public function testRoundTripPreservesCamelCaseWireFormatAndValues(): void
+    #[TestDox('serializes a content element into the camelCase wire format')]
+    public function testSerializeContentElementUsesCamelCaseWireFormat(): void
     {
         $serializer = $this->buildSerializerWithRealConfigProvider();
 
@@ -592,8 +715,27 @@ class ContentElementFieldSerializerTest extends TestCase
 
         // style survives serialization identically (read == write)
         static::assertSame(['col-span' => ['md' => 6]], $serialized['style']);
+    }
 
-        $decoded = $serializer->decodeElement($this->wireRoundTrip($serialized));
+    #[TestDox('restores element values by decoding the camelCase wire format')]
+    public function testDecodeElementRestoresValuesFromCamelCaseWireFormat(): void
+    {
+        $serializer = $this->buildSerializerWithRealConfigProvider();
+
+        $config = new EntityLoaderConfig('product', 'product', ['manufacturer']);
+        $child = ContentElementBuilder::create('text', 'slot-child-1')->build();
+
+        $element = ContentElementBuilder::create('product-card', 'rt-elem-1')
+            ->withProperty('title', 'My Product')
+            ->withProperty('count', 42)
+            ->withDataRequirement('product', 'entity', $config)
+            ->withProvider('productCtx', BroadcastDistributionConfig::aliased('myAlias'), ContextType::Single)
+            ->withConsumer('catCtx', ContextType::Single, required: true, redistribute: true, consumerAlias: 'ca', propertyAlias: 'pa')
+            ->withSlot('main', [$child])
+            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
+            ->build();
+
+        $decoded = $serializer->decodeElement($this->wireRoundTrip($serializer->serializeContentElement($element)));
 
         // id / component / properties
         static::assertSame('rt-elem-1', $decoded->getId());

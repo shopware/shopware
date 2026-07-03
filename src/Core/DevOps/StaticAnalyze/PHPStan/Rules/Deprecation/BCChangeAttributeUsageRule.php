@@ -1,0 +1,243 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
+
+use PhpParser\Node;
+use PHPStan\Analyser\Scope;
+use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
+use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
+use PHPStan\Node\InClassNode;
+use PHPStan\Rules\IdentifierRuleError;
+use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * Validates that BC-change attributes announce changes that are structurally possible:
+ * the version has a valid format, referenced parameters exist (or, for new parameters,
+ * do not exist yet), and the announced state differs from the current declaration.
+ *
+ * @implements Rule<InClassNode>
+ *
+ * @internal
+ */
+#[Package('framework')]
+class BCChangeAttributeUsageRule implements Rule
+{
+    private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
+
+    private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
+
+    private const PARAMETER_SCOPED = [
+        NewOptionalParameter::class,
+        ParameterNameChange::class,
+        ParameterTypeNarrowing::class,
+        ParameterTypeWidening::class,
+    ];
+
+    public function getNodeType(): string
+    {
+        return InClassNode::class;
+    }
+
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $class = $node->getClassReflection()->getNativeReflection();
+        $classLine = $node->getOriginalNode()->getStartLine();
+
+        $errors = [];
+        foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
+            $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
+            $errors = [...$errors, ...$this->validateClassLevel($attribute, $class, $classLine)];
+        }
+
+        foreach ($class->getMethods() as $method) {
+            if ($method->getDeclaringClass()->getName() !== $class->getName()) {
+                continue;
+            }
+
+            $symbol = \sprintf('%s::%s()', $class->getShortName(), $method->getName());
+            $line = $method->getStartLine() ?: $classLine;
+            foreach ($this->bcChangeAttributes($method->getAttributes()) as $attribute) {
+                $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
+                $errors = [...$errors, ...$this->validateMethodLevel($attribute, $method, $symbol, $line)];
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param list<ReflectionAttribute|FakeReflectionAttribute> $attributes
+     *
+     * @return list<ReflectionAttribute|FakeReflectionAttribute>
+     */
+    private function bcChangeAttributes(array $attributes): array
+    {
+        $matches = [];
+        foreach ($attributes as $attribute) {
+            if (\str_starts_with($attribute->getName(), self::BC_CHANGE_NAMESPACE_PREFIX)) {
+                $matches[] = $attribute;
+            }
+        }
+
+        return $matches;
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateCommon(ReflectionAttribute|FakeReflectionAttribute $attribute, string $symbol, int $line): array
+    {
+        $errors = [];
+
+        $version = $this->argument($attribute, 'version', 0);
+        if (!\is_string($version) || preg_match(self::VERSION_PATTERN, $version) !== 1) {
+            $errors[] = $this->error($line, \sprintf(
+                '%s on "%s": version "%s" must match the format "v6.8.0".',
+                $this->shortName($attribute),
+                $symbol,
+                \is_scalar($version) ? (string) $version : \gettype($version)
+            ));
+        }
+
+        if (\in_array($attribute->getName(), self::PARAMETER_SCOPED, true)) {
+            $parameterName = $this->argument($attribute, 'parameterName', 1);
+            if (\is_string($parameterName) && \str_starts_with($parameterName, '$')) {
+                $errors[] = $this->error($line, \sprintf(
+                    '%s on "%s": parameter name "%s" must be given without the leading "$".',
+                    $this->shortName($attribute),
+                    $symbol,
+                    $parameterName
+                ));
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionClass $class, int $line): array
+    {
+        $symbol = $class->getShortName();
+
+        if ($attribute->getName() === BecomesFinal::class && $class->isFinal()) {
+            return [$this->error($line, \sprintf('BecomesFinal on "%s": the class is already final.', $symbol))];
+        }
+
+        if ($attribute->getName() === BecomesInternal::class && $this->isMarkedInternal($class->getDocComment())) {
+            return [$this->error($line, \sprintf('BecomesInternal on "%s": the class is already @internal.', $symbol))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateMethodLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $attributeClass = $attribute->getName();
+
+        if ($attributeClass === BecomesAbstract::class && $method->isAbstract()) {
+            return [$this->error($line, \sprintf('BecomesAbstract on "%s": the method is already abstract.', $symbol))];
+        }
+
+        if ($attributeClass === BecomesInternal::class && $this->isMarkedInternal($method->getDocComment())) {
+            return [$this->error($line, \sprintf('BecomesInternal on "%s": the method is already @internal.', $symbol))];
+        }
+
+        if ($attributeClass === VisibilityChange::class) {
+            $newVisibility = $this->argument($attribute, 'newVisibility', 1);
+            if ($newVisibility === 'protected' && !$method->isPublic()) {
+                return [$this->error($line, \sprintf(
+                    'VisibilityChange on "%s": announced visibility "protected" is not narrower than the current visibility.',
+                    $symbol
+                ))];
+            }
+            if ($newVisibility === 'private' && $method->isPrivate()) {
+                return [$this->error($line, \sprintf('VisibilityChange on "%s": the method is already private.', $symbol))];
+            }
+        }
+
+        if (!\in_array($attributeClass, self::PARAMETER_SCOPED, true)) {
+            return [];
+        }
+
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameterExists = $this->parameterExists($method, ltrim($parameterName, '$'));
+
+        if ($attributeClass === NewOptionalParameter::class && $parameterExists) {
+            return [$this->error($line, \sprintf(
+                'NewOptionalParameter on "%s": parameter "%s" already exists.',
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if ($attributeClass !== NewOptionalParameter::class && !$parameterExists) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": parameter "%s" does not exist.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    private function parameterExists(\ReflectionMethod $method, string $parameterName): bool
+    {
+        foreach ($method->getParameters() as $parameter) {
+            if ($parameter->getName() === $parameterName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function argument(ReflectionAttribute|FakeReflectionAttribute $attribute, string $name, int $position): mixed
+    {
+        $arguments = $attribute->getArguments();
+
+        return $arguments[$name] ?? $arguments[$position] ?? null;
+    }
+
+    private function isMarkedInternal(string|false $doc): bool
+    {
+        return \is_string($doc) && \str_contains($doc, '@internal');
+    }
+
+    private function shortName(ReflectionAttribute|FakeReflectionAttribute $attribute): string
+    {
+        $parts = explode('\\', $attribute->getName());
+
+        return end($parts);
+    }
+
+    private function error(int $line, string $message): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message($message)
+            ->identifier('shopware.bcChangeAttribute')
+            ->line($line)
+            ->build();
+    }
+}

@@ -4,16 +4,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - will be marked internal as it never should be used directly, but only over the #[Serialized] attribute
- *
  * General field to support custom serializes in attribute entities, should never be used directly, but only over the #[Serialized] attribute.
  * If you use EntityDefinition classes you should add your own specific field for your custom serializer instead.
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0', description: 'Never use it directly, only via the #[Serialized] attribute.')]
 class SerializedField extends Field implements StorageAware
 {
     /**

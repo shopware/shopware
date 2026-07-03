@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
@@ -17,9 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- * The command alias `snippets:validate` will be removed in v6.8.0.
- *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
 #[AsCommand(
@@ -28,6 +26,7 @@ use Symfony\Component\Console\Question\Question;
     aliases: ['snippets:validate'],
 )]
 #[Package('discovery')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ValidateSnippetsCommand extends Command
 {
     /**

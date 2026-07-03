@@ -38,8 +38,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-interface',
         // Throwing deprecations in PHPStan rules would cause problems while executed
         'reason:remove-phpstan-rule',
-        // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
-        'reason:becomes-internal',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
         // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.

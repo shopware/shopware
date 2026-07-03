@@ -43,14 +43,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class OpenApiDefinitionSchemaBuilder
 {
     private readonly CamelCaseToSnakeCaseNameConverter $converter;

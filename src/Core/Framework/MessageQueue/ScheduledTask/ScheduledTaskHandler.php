@@ -58,9 +58,8 @@ abstract class ScheduledTaskHandler
      * @internal invoked by the {@see ScheduledTaskExecutor} to honor a subclass that overrides the deprecated
      * {@see rescheduleTask()} hook. Implement {@see DynamicallyScheduledTaskHandler} instead of overriding this.
      *
-     * @deprecated tag:v6.8.0 - reason:becomes-internal - will be removed together with the {@see rescheduleTask()}
-     * hook; the executor will always persist the schedule itself and use {@see DynamicallyScheduledTaskHandler}
-     * for custom timing. Still called from inside the core, so it does not trigger a deprecation itself.
+     * Will be removed in v6.8.0 together with the {@see rescheduleTask()} hook; the executor will then always
+     * persist the schedule itself and use {@see DynamicallyScheduledTaskHandler} for custom timing.
      */
     public function rescheduleNext(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {

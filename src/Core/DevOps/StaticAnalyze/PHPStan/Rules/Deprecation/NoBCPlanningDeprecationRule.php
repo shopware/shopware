@@ -47,7 +47,6 @@ class NoBCPlanningDeprecationRule implements Rule
     private const MIGRATION_PENDING = [
         'reason:return-type-change',
         'reason:parameter-type-change',
-        'reason:becomes-internal',
     ];
 
     /**

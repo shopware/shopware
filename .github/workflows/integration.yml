@@ -76,15 +76,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: ./.github/actions/phpunit-prepare
+      - name: Setup and install Shopware
+        uses: ./.github/actions/phpunit-prepare
         with:
           php-version: ${{ matrix.php }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
-      - uses: ./.github/actions/phpunit-run
+      - name: Run PHPUnit
+        uses: ./.github/actions/phpunit-run
         with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
-      - uses: ./.github/actions/phpunit-upload
+      - name: Upload test results to Codecov
+        uses: ./.github/actions/phpunit-upload
         # !cancelled(): junit test results must upload even when the run failed
         if: ${{ !cancelled() }}
         with:

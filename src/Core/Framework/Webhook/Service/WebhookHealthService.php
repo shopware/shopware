@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Webhook\Health\EndpointLifecycle;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\HealthConfig;
+use Shopware\Core\Framework\Webhook\Health\SuspensionCause;
 use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\WebhookException;
@@ -247,11 +248,16 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
                 return null;
             }
 
+            $ref = $this->webhookRefOf($webhookId);
+
             return new WebhookActivatedEvent(
                 $webhookId,
-                $this->appIdOf($webhookId),
+                $ref['appId'],
                 $fromState,
                 $trigger,
+                $ref['name'],
+                $ref['eventName'],
+                $this->clock->now(),
                 $this->toDateTime($row['suspended_since']),
             );
         });
@@ -416,7 +422,15 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         if ($outcome === EndpointState::Degraded->value) {
             // Hold the rest of the backlog for the ladder; the in-flight row is held by the result side.
             $this->outboxStore->pauseDeliveriesForWebhook($webhookId);
-            $this->dispatchBestEffort(new WebhookDegradedEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Healthy));
+            $ref = $this->webhookRefOf($webhookId);
+            $this->dispatchBestEffort(new WebhookDegradedEvent(
+                $webhookId,
+                $ref['appId'],
+                EndpointState::Healthy,
+                $ref['name'],
+                $ref['eventName'],
+                $this->clock->now(),
+            ));
         }
 
         if ($outcome !== 'unchanged') {
@@ -438,7 +452,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
 
             if ($row === null) {
                 // Fail-open first failure on a webhook without a health row.
-                return $this->insertFreshRowForNonTransient($webhookId, nonTransientFailures: 1, suspend: $this->config->nonTransientThreshold <= 1);
+                return $this->insertFreshRowForNonTransient($webhookId, nonTransientFailures: 1, suspend: $this->config->nonTransientThreshold <= 1, cause: SuspensionCause::AuthStreak);
             }
 
             $state = EndpointState::from((string) $row['endpoint_state']);
@@ -455,7 +469,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
 
             $streak = (int) $row['consecutive_non_transient_failures'] + 1;
             if ($streak >= $this->config->nonTransientThreshold) {
-                return $this->suspendLocked($webhookId, $row, $state, nonTransientFailures: $streak);
+                return $this->suspendLocked($webhookId, $row, $state, nonTransientFailures: $streak, cause: SuspensionCause::AuthStreak);
             }
 
             if ($state === EndpointState::Degraded) {
@@ -490,7 +504,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
             $row = $this->lockHealthRow($webhookId);
 
             if ($row === null) {
-                return $this->insertFreshRowForNonTransient($webhookId, nonTransientFailures: 0, suspend: true);
+                return $this->insertFreshRowForNonTransient($webhookId, nonTransientFailures: 0, suspend: true, cause: SuspensionCause::Gone);
             }
 
             $state = EndpointState::from((string) $row['endpoint_state']);
@@ -505,7 +519,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
                 return null;
             }
 
-            return $this->suspendLocked($webhookId, $row, $state, nonTransientFailures: (int) $row['consecutive_non_transient_failures']);
+            return $this->suspendLocked($webhookId, $row, $state, nonTransientFailures: (int) $row['consecutive_non_transient_failures'], cause: SuspensionCause::Gone);
         });
 
         $this->finishSuspension($webhookId, $suspension);
@@ -566,7 +580,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         if ($state === EndpointState::Degraded && $next >= \count($this->config->cooldownScheduleSeconds)) {
             // Schedule exhausted: the DEGRADED budget IS the schedule's length → SUSPENDED, ladder
             // staying at the top tier.
-            return $this->suspendLocked($webhookId, $row, $state, nonTransientFailures: $streak, entryIndex: $top);
+            return $this->suspendLocked($webhookId, $row, $state, nonTransientFailures: $streak, cause: SuspensionCause::ScheduleExhausted, entryIndex: $top);
         }
 
         $index = min($next, $top);
@@ -597,7 +611,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
      *
      * @param array<string, mixed> $row the FOR-UPDATE-locked webhook_health row
      */
-    private function suspendLocked(string $webhookId, array $row, EndpointState $fromState, int $nonTransientFailures, int $entryIndex = 0): WebhookSuspendedEvent
+    private function suspendLocked(string $webhookId, array $row, EndpointState $fromState, int $nonTransientFailures, SuspensionCause $cause, int $entryIndex = 0): WebhookSuspendedEvent
     {
         $now = $this->now();
         $since = $row['suspended_since'] !== null ? (string) $row['suspended_since'] : $now;
@@ -620,7 +634,18 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         );
         $this->mirrorBcColumns($webhookId);
 
-        return new WebhookSuspendedEvent($webhookId, $this->appIdOf($webhookId), $fromState, new \DateTimeImmutable($since));
+        $ref = $this->webhookRefOf($webhookId);
+
+        return new WebhookSuspendedEvent(
+            $webhookId,
+            $ref['appId'],
+            $fromState,
+            new \DateTimeImmutable($since),
+            $cause,
+            $ref['name'],
+            $ref['eventName'],
+            new \DateTimeImmutable($now),
+        );
     }
 
     /**
@@ -663,7 +688,15 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         }
 
         $this->mirrorBcColumns($webhookId);
-        $this->dispatchBestEffort(new WebhookDegradedEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Suspended));
+        $ref = $this->webhookRefOf($webhookId);
+        $this->dispatchBestEffort(new WebhookDegradedEvent(
+            $webhookId,
+            $ref['appId'],
+            EndpointState::Suspended,
+            $ref['name'],
+            $ref['eventName'],
+            $this->clock->now(),
+        ));
 
         return true;
     }
@@ -690,11 +723,16 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
             $this->outboxStore->resumeDeliveriesForWebhook($webhookId);
             $this->mirrorBcColumns($webhookId);
 
+            $ref = $this->webhookRefOf($webhookId);
+
             return new WebhookActivatedEvent(
                 $webhookId,
-                $this->appIdOf($webhookId),
+                $ref['appId'],
                 EndpointState::Degraded,
                 $trigger,
+                $ref['name'],
+                $ref['eventName'],
+                $this->clock->now(),
                 $this->toDateTime($row['suspended_since']),
             );
         });
@@ -727,7 +765,7 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
      * Fail-open insert for a non-transient failure on a webhook without a health row. Returns the
      * suspension event when the fresh row suspends immediately (410, or an auth threshold of 1).
      */
-    private function insertFreshRowForNonTransient(string $webhookId, int $nonTransientFailures, bool $suspend): ?WebhookSuspendedEvent
+    private function insertFreshRowForNonTransient(string $webhookId, int $nonTransientFailures, bool $suspend, SuspensionCause $cause): ?WebhookSuspendedEvent
     {
         $now = $this->now();
 
@@ -754,9 +792,22 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
 
         $this->mirrorBcColumns($webhookId);
 
-        return $suspend
-            ? new WebhookSuspendedEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Healthy, new \DateTimeImmutable($now))
-            : null;
+        if (!$suspend) {
+            return null;
+        }
+
+        $ref = $this->webhookRefOf($webhookId);
+
+        return new WebhookSuspendedEvent(
+            $webhookId,
+            $ref['appId'],
+            EndpointState::Healthy,
+            new \DateTimeImmutable($now),
+            $cause,
+            $ref['name'],
+            $ref['eventName'],
+            new \DateTimeImmutable($now),
+        );
     }
 
     private function hasInFlightRow(string $webhookId): bool
@@ -857,14 +908,25 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         }
     }
 
-    private function appIdOf(string $webhookId): ?string
+    /**
+     * The webhook row's identity for a lifecycle event — one PK SELECT, same cost as the former
+     * app-id-only lookup. All-null when the webhook row vanished between the transition and the
+     * emission (delete race): the event still fires, keyed by id.
+     *
+     * @return array{appId: ?string, name: ?string, eventName: ?string}
+     */
+    private function webhookRefOf(string $webhookId): array
     {
-        $appId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(app_id)) FROM webhook WHERE id = :id',
+        $row = $this->connection->fetchAssociative(
+            'SELECT LOWER(HEX(app_id)) AS app_id, name, event_name FROM webhook WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($webhookId)]
         );
 
-        return \is_string($appId) ? $appId : null;
+        return [
+            'appId' => \is_array($row) && \is_string($row['app_id']) ? $row['app_id'] : null,
+            'name' => \is_array($row) && \is_string($row['name']) ? $row['name'] : null,
+            'eventName' => \is_array($row) && \is_string($row['event_name']) ? $row['event_name'] : null,
+        ];
     }
 
     private function toDateTime(mixed $storageValue): ?\DateTimeImmutable

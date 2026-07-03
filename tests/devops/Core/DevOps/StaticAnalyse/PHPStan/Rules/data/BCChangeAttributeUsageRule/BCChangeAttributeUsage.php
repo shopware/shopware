@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
+use Shopware\Core\Framework\Feature;
 
 #[BecomesFinal(version: 'v6.8.0')]
 final class AlreadyFinalClass
@@ -70,6 +71,9 @@ class ValidUsages
     #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
     public function validMethod(int|string $id): void
     {
+        if (!\is_string($id)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing an int $id is deprecated');
+        }
     }
 }
 
@@ -102,6 +106,19 @@ class ClassWithFinalMethod
 {
     #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'value', newType: 'string|int')]
     final public function wideningOnFinalMethod(string $value): void
+    {
+    }
+}
+
+class RuntimeDetectableViolations
+{
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
+    public function narrowingWithoutTrigger(int|string $id): void
+    {
+    }
+
+    #[BecomesAbstract(version: 'v6.8.0')]
+    public function becomesAbstractWithoutTrigger(): void
     {
     }
 }

@@ -3,6 +3,10 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
@@ -30,6 +34,9 @@ use Shopware\Core\Framework\Log\Package;
  * extender-only changes are not announced on final symbols, where no extenders can
  * exist and the change can be applied directly.
  *
+ * Announced changes whose legacy usage is detectable at runtime must trigger a
+ * conditional runtime deprecation via `Feature::triggerDeprecationOrThrow()`.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -40,6 +47,16 @@ class BCChangeAttributeUsageRule implements Rule
     private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
 
     private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
+
+    /**
+     * Attributes whose legacy usage is detectable at runtime: a narrowed parameter can
+     * check the passed value, and the default implementation of a method becoming
+     * abstract only runs when a subclass still relies on it.
+     */
+    private const RUNTIME_DETECTABLE = [
+        BecomesAbstract::class,
+        ParameterTypeNarrowing::class,
+    ];
 
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
@@ -62,6 +79,11 @@ class BCChangeAttributeUsageRule implements Rule
         $class = $node->getClassReflection()->getNativeReflection();
         $classLine = $node->getOriginalNode()->getStartLine();
         $classIsFinal = $class->isFinal() || \str_contains((string) $class->getDocComment(), '@final');
+
+        $methodNodes = [];
+        foreach ($node->getOriginalNode()->getMethods() as $methodNode) {
+            $methodNodes[$methodNode->name->toLowerString()] = $methodNode;
+        }
 
         $errors = [];
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
@@ -86,6 +108,9 @@ class BCChangeAttributeUsageRule implements Rule
                 if ($specific === [] && ($classIsFinal || $method->isFinal())) {
                     $subject = $classIsFinal ? 'class' : 'method';
                     $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
+                }
+                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true)) {
+                    $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
             }
@@ -242,6 +267,33 @@ class BCChangeAttributeUsageRule implements Rule
             $this->shortName($attribute),
             $symbol,
             $subject
+        ))];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateTriggersRuntimeDeprecation(ReflectionAttribute|FakeReflectionAttribute $attribute, ?ClassMethod $methodNode, string $symbol, int $line): array
+    {
+        if ($methodNode === null || $methodNode->stmts === null) {
+            // abstract and interface methods have no body that could trigger
+            return [];
+        }
+
+        $trigger = (new NodeFinder())->findFirst(
+            $methodNode->stmts,
+            static fn (Node $n): bool => $n instanceof StaticCall
+                && $n->name instanceof Identifier
+                && $n->name->toString() === 'triggerDeprecationOrThrow'
+        );
+        if ($trigger !== null) {
+            return [];
+        }
+
+        return [$this->error($line, \sprintf(
+            '%s on "%s": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
+            $this->shortName($attribute),
+            $symbol
         ))];
     }
 

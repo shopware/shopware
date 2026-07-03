@@ -13,7 +13,7 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 * When a core symbol you use carries a BC-change attribute, the attribute tells you whether your project can be affected: attributes implementing `CallSiteCompatibilityChange` concern code *calling* the symbol (for example a parameter type being narrowed, or a parameter you pass as a named argument being renamed), attributes implementing `ExtenderCompatibilityChange` concern classes in your project that *extend or override* the symbol (for example a return type being narrowed or a class becoming final). Each attribute states the version in which the change happens and the new declaration, so you can prepare ahead of the next major.
 * If your code does not use the annotated symbol in the affected way, there is nothing to do.
 
-The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
+All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 

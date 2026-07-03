@@ -22,8 +22,14 @@ class WebhookEntity extends Entity
 
     protected ?string $appId = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy BC mirror of the endpoint health state; read `endpoint_state` via the webhook health API (GET /api/app-system/webhook/state) instead. Removed with WEBHOOKS_REWORK.
+     */
     protected bool $active;
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy shared failure counter; read `consecutiveTransientFailures` via the webhook health API instead. Removed with WEBHOOKS_REWORK.
+     */
     protected int $errorCount;
 
     protected ?AppEntity $app = null;
@@ -88,21 +94,41 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy BC mirror of the endpoint health state; read `endpoint_state` via the webhook health API (GET /api/app-system/webhook/state) instead. Removed with WEBHOOKS_REWORK.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (BC-mirror accessor during the WEBHOOKS_REWORK rollout; a runtime notice would pollute logs — the @deprecated tag + v6.8.0 runbook are the cutover signal)
+     */
     public function isActive(): bool
     {
         return $this->active;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy BC mirror of the endpoint health state; the health model owns the active flag under WEBHOOKS_REWORK. Removed with the flag.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (BC-mirror accessor during the WEBHOOKS_REWORK rollout; a runtime notice would pollute logs — the @deprecated tag + v6.8.0 runbook are the cutover signal)
+     */
     public function setActive(bool $active): void
     {
         $this->active = $active;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy shared failure counter; read `consecutiveTransientFailures` via the webhook health API instead. Removed with WEBHOOKS_REWORK.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (BC-mirror accessor during the WEBHOOKS_REWORK rollout; a runtime notice would pollute logs — the @deprecated tag + v6.8.0 runbook are the cutover signal)
+     */
     public function getErrorCount(): int
     {
         return $this->errorCount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy shared failure counter; the health model owns failure counting under WEBHOOKS_REWORK. Removed with the flag.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (BC-mirror accessor during the WEBHOOKS_REWORK rollout; a runtime notice would pollute logs — the @deprecated tag + v6.8.0 runbook are the cutover signal)
+     */
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;

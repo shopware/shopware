@@ -45,6 +45,11 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Legacy flag-off failure handler: the error_count threshold flips
+     * active=0 and propagates to sibling webhooks. With WEBHOOKS_REWORK on it does nothing. Removed
+     * together with the flag and the legacy `webhook.active`/`error_count` columns.
+     */
     public function failed(WorkerMessageFailedEvent $event): void
     {
         if (Feature::isActive('WEBHOOKS_REWORK')) {
@@ -84,8 +89,8 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Flag-on never reaches here (the early return above hands the whole retry lifecycle to the
-        // health model), so this match only covers the two legacy flag-off strategies.
+        // With the flag on we never get here (the early return above hands the whole retry
+        // lifecycle to the health model), so this match only covers the two legacy flag-off strategies.
         $params = match ($this->failureStrategy) {
             WebhookFailureStrategy::DisableOnThreshold => $this->handleDisableOnThreshold($webhook),
             WebhookFailureStrategy::Ignore => $this->handleIgnore($webhook),

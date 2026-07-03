@@ -19,6 +19,8 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -35,6 +37,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -389,9 +392,14 @@ class InvoiceDataProviderTest extends TestCase
             new DocumentBaseConfigDefinition(),
         );
 
+        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
+        $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
+
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
+            $mediaRepository,
+            $this->createMock(SystemConfigService::class),
         );
 
         return new InvoiceDataProvider(

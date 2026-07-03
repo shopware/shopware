@@ -394,6 +394,7 @@ export default {
             typeIsLoading: false,
             salesChannels: null,
             customFieldSets: null,
+            showCompanySettingsMovedBanner: true,
             isShowDisplayNoteDelivery: false,
             isShowDivergentDeliveryAddress: false,
             documentConfigSalesChannels: [],
@@ -749,6 +750,10 @@ export default {
 
         onChangeCompanyLogo(media) {
             this.documentConfig.logoId = media.at(0)?.id || null;
+        },
+
+        hideCompanySettingsMovedBanner() {
+            this.showCompanySettingsMovedBanner = false;
         },
 
         /**

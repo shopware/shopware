@@ -18,6 +18,7 @@
         :class="`sw-system-config__card--${index}`"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
+        :subtitle="getInlineSnippet(card.subtitle)"
     >
         <slot name="title">
             <sw-ai-copilot-badge v-if="card.aiBadge" />

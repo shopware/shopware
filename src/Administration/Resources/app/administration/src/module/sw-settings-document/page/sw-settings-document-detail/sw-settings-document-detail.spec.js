@@ -121,7 +121,7 @@ const repositoryMockFactory = (entity) => {
     return false;
 };
 
-const createWrapper = async (customOptions, privileges = []) => {
+const createWrapper = async (customOptions, privileges = [], isDocumentGenerationReworkActive = false) => {
     return mount(
         await wrapTestComponent('sw-settings-document-detail', {
             sync: true,
@@ -149,6 +149,11 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'mt-checkbox': MtCheckbox,
+                    'mt-banner': {
+                        name: 'mt-banner',
+                        template: '<div class="mt-banner"><slot /></div>',
+                        props: ['title', 'variant', 'closable'],
+                    },
                     'sw-media-compact-upload-v2': {
                         template: '<div id="sw-media-compact-upload"/>',
                         props: [
@@ -169,6 +174,9 @@ const createWrapper = async (customOptions, privileges = []) => {
                 provide: {
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
+                    },
+                    feature: {
+                        isActive: (flag) => flag === 'DOCUMENT_GENERATION_REWORK' && isDocumentGenerationReworkActive,
                     },
                     acl: {
                         can: (key) => (key ? privileges.includes(key) : true),
@@ -325,6 +333,60 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(displayAdditionalNoteDeliveryCheckbox.props('label')).toBe(
             'sw-settings-document.detail.labelDisplayAdditionalNoteDelivery',
         );
+    });
+
+    it('should show the company settings card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
+    });
+
+    it('should hide the company settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        }, [], true);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(true);
+    });
+
+    it('should hide the moved company settings banner after closing it', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        }, [], true);
+        await flushPromises();
+
+        await wrapper.getComponent({ name: 'mt-banner' }).vm.$emit('close');
+
+        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
+    });
+
+    it('should show company address switches in the settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        }, [], true);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__settings_card-company-options').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__settings_card-display-company').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__settings_card-display-return').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
+    });
+
+    it('should keep company address switches in the company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__settings_card-company-options').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__company_card_display_company').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {

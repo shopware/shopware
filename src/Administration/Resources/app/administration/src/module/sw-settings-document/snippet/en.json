@@ -22,6 +22,8 @@
       "textHeadline": "New document",
       "configCard": "Settings",
       "companyCard": "Company settings",
+      "companySettingsMovedBannerTitle": "Company settings has moved",
+      "companySettingsMovedBannerDescription": "Company settings for documents are now managed in Settings > Basic information > Company information.",
       "assignmentCard": "Assignment",
       "labelName": "Technical name",
       "labelFileNamePrefix": "Filename prefix",
@@ -49,8 +51,8 @@
       },
       "labelItemsPerPage": "Items per page",
       "placeholderItemsPerPage": "Enter number of items per page...",
-      "labelDisplayCompanyAddress": "Display company address",
-      "labelDisplayReturnAddress": "Display return address",
+      "labelDisplayCompanyAddress": "Company address",
+      "labelDisplayReturnAddress": "Return address",
       "labelCompanyCity": "City",
       "labelCompanyCountry": "Country",
       "labelCompanyName": "Company Name",
@@ -116,4 +118,3 @@
     }
   }
 }
-

@@ -61,6 +61,19 @@
     </card>
 
     <card>
+        <name>companyInformation</name>
+        <flag>DOCUMENT_GENERATION_REWORK</flag>
+        <title>Company information</title>
+        <title lang="de-DE">Unternehmensinformationen</title>
+        <subtitle>This company information is used for generated documents and appears on document templates where applicable.</subtitle>
+        <subtitle lang="de-DE">Diese Unternehmensinformationen werden für generierte Dokumente verwendet und erscheinen, wo zutreffend, in Dokumentvorlagen.</subtitle>
+
+        <component name="sw-settings-company-information">
+            <name>companyInfo</name>
+        </component>
+    </card>
+
+    <card>
         <title>Shop pages</title>
         <title lang="de-DE">Shopseiten</title>
 

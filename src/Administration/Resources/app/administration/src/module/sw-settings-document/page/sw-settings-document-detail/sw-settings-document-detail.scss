@@ -1,4 +1,8 @@
 .sw-settings-document-detail {
+    &__company-settings-moved-banner {
+        margin-bottom: var(--scale-size-32);
+    }
+
     &__assignment_card {
         .sw-settings-document-detail__select-type {
             margin-bottom: 0;

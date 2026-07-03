@@ -1,0 +1,10 @@
+.sw-settings-company-information {
+    &__media {
+        width: 50%;
+        min-width: 200px;
+    }
+
+    &__form {
+        margin-top: var(--scale-size-32);
+    }
+}

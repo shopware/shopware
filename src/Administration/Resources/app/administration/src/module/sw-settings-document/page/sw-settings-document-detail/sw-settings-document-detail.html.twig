@@ -45,6 +45,17 @@
     {% block sw_settings_document_detail_content %}
     <template #content>
         <sw-card-view>
+            <mt-banner
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showCompanySettingsMovedBanner"
+                class="sw-settings-document-detail__company-settings-moved-banner"
+                variant="info"
+                closable
+                :title="$t('sw-settings-document.detail.companySettingsMovedBannerTitle')"
+                @close="hideCompanySettingsMovedBanner"
+            >
+                {{ $t('sw-settings-document.detail.companySettingsMovedBannerDescription') }}
+            </mt-banner>
+
             {% block sw_settings_document_detail_assignment_card %}
             <mt-card
                 class="sw-settings-document-detail__assignment_card"
@@ -276,6 +287,26 @@
                             :label="$t('sw-settings-document.detail.labelDisplayCustomerVatId')"
                         />
                         {% endblock %}
+
+                        {% block sw_settings_document_detail_content_field_display_company_address %}
+                            <mt-checkbox
+                                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                                v-model:checked="documentConfig.config.displayCompanyAddress"
+                                class="sw-settings-document-detail__field-display-company-address"
+                                :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
+                                :disabled="!acl.can('document.editor') || undefined"
+                            />
+                        {% endblock %}
+
+                        {% block sw_settings_document_detail_content_field_display_return_address %}
+                            <mt-checkbox
+                                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                                v-model:checked="documentConfig.config.displayReturnAddress"
+                                class="sw-settings-document-detail__field-display-return-address"
+                                :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
+                                :disabled="!acl.can('document.editor') || undefined"
+                            />
+                        {% endblock %}
                     </div>
                 </div>
             </mt-card>
@@ -283,6 +314,7 @@
 
             {% block sw_settings_document_detail_company_card %}
             <mt-card
+                v-if="!feature.isActive('DOCUMENT_GENERATION_REWORK')"
                 class="sw-settings-document-detail__company_card"
                 position-identifier="sw-settings-document-detail-company"
                 :title="$t('sw-settings-document.detail.companyCard')"

@@ -12,12 +12,16 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\Doc
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -28,6 +32,9 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 class DocumentConfigLoaderTest extends TestCase
 {
     private const COMPANY_COUNTRY_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c0';
+    private const COMPANY_INFO_CONFIG_KEY = 'core.basicInformation.companyInfo';
+    private const LEGACY_LOGO_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c1';
+    private const COMPANY_INFO_LOGO_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c2';
 
     public function testLoadPicksMatchingSalesChannelRowWhenMultipleNonGlobalRowsReturned(): void
     {
@@ -64,7 +71,12 @@ class DocumentConfigLoaderTest extends TestCase
             new CountryDefinition(),
         );
 
-        $loader = new DocumentConfigLoader($documentRepo, $countryRepo);
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
 
         $bundle = $loader->load(
             DocumentType::INVOICE->value,
@@ -102,7 +114,12 @@ class DocumentConfigLoaderTest extends TestCase
             new CountryDefinition(),
         );
 
-        $loader = new DocumentConfigLoader($documentRepo, $countryRepo);
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
 
         $bundle = $loader->load(
             DocumentType::INVOICE->value,
@@ -135,7 +152,12 @@ class DocumentConfigLoaderTest extends TestCase
             new CountryDefinition(),
         );
 
-        $loader = new DocumentConfigLoader($documentRepo, $countryRepo);
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
 
         static::expectException(DocumentV2Exception::class);
         static::expectExceptionMessageMatches('/itemsPerPage/');
@@ -147,12 +169,180 @@ class DocumentConfigLoaderTest extends TestCase
         );
     }
 
+    public function testLoadPrefersCompanyInfoFromSystemConfigWhenPresent(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Legacy GmbH',
+        );
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'System Config GmbH',
+                'companyStreet' => 'System Street 5',
+                'companyZipcode' => '54321',
+                'companyCity' => 'System City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+                'logoId' => self::COMPANY_INFO_LOGO_ID,
+            ], $salesChannelId),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $salesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('System Config GmbH', $bundle->company->companyName);
+        static::assertSame('System Street 5', $bundle->company->companyStreet);
+        static::assertSame(self::COMPANY_INFO_LOGO_ID, $bundle->config->logo?->getId());
+    }
+
+    public function testLoadRejectsInvalidCompanyInfoFromSystemConfigWithoutLegacyFallback(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Legacy GmbH',
+        );
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'System Config GmbH',
+            ], $salesChannelId),
+        );
+
+        static::expectException(DocumentV2Exception::class);
+        static::expectExceptionMessageMatches('/companyCountry|companyStreet|companyZipcode|companyCity/');
+
+        $loader->load(
+            DocumentType::INVOICE->value,
+            $salesChannelId,
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testLoadDoesNotFallBackToLegacyLogoWhenCompanyInfoConfigHasNoLogoId(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Legacy GmbH',
+            logoId: self::LEGACY_LOGO_ID,
+        );
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'System Config GmbH',
+                'companyStreet' => 'System Street 5',
+                'companyZipcode' => '54321',
+                'companyCity' => 'System City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            ], $salesChannelId),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $salesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertNull($bundle->config->logo);
+    }
+
+    public function testLoadFallsBackToLegacyLogoWhenCompanyInfoConfigIsAbsent(): void
+    {
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Legacy GmbH',
+            logoId: self::LEGACY_LOGO_ID,
+        );
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            Uuid::randomHex(),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(self::LEGACY_LOGO_ID, $bundle->config->logo?->getId());
+    }
+
     private function createBaseConfig(
         bool $global,
         string $pageSize,
         string $companyName,
         ?string $salesChannelId = null,
         int $itemsPerPage = 10,
+        ?string $logoId = null,
     ): DocumentBaseConfigEntity {
         $entity = new DocumentBaseConfigEntity();
         $entity->setUniqueIdentifier(Uuid::randomHex());
@@ -168,6 +358,11 @@ class DocumentConfigLoaderTest extends TestCase
             'companyCity' => 'Example City',
             'companyCountryId' => self::COMPANY_COUNTRY_ID,
         ]);
+
+        if ($logoId !== null) {
+            $entity->setLogoId($logoId);
+            $entity->setLogo($this->createMedia($logoId));
+        }
 
         if (!$global && $salesChannelId !== null) {
             $assignment = new DocumentBaseConfigSalesChannelEntity();
@@ -190,5 +385,51 @@ class DocumentConfigLoaderTest extends TestCase
         $country->setId(self::COMPANY_COUNTRY_ID);
 
         return $country;
+    }
+
+    /**
+     * @return StaticEntityRepository<MediaCollection>
+     */
+    private function createMediaRepository(): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
+        $mediaRepository = new StaticEntityRepository(
+            [new MediaCollection([
+                $this->createMedia(self::COMPANY_INFO_LOGO_ID),
+                $this->createMedia(self::LEGACY_LOGO_ID),
+            ])],
+            new MediaDefinition(),
+        );
+
+        return $mediaRepository;
+    }
+
+    private function createMedia(string $id): MediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier($id);
+        $media->setId($id);
+
+        return $media;
+    }
+
+    /**
+     * @param array<string, mixed>|null $companyInfo
+     */
+    private function createSystemConfigService(?array $companyInfo = null, ?string $expectedSalesChannelId = null): SystemConfigService
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('get')
+            ->willReturnCallback(function (string $key, ?string $salesChannelId) use ($companyInfo, $expectedSalesChannelId): ?array {
+                static::assertSame(self::COMPANY_INFO_CONFIG_KEY, $key);
+
+                if ($expectedSalesChannelId !== null) {
+                    static::assertSame($expectedSalesChannelId, $salesChannelId);
+                }
+
+                return $companyInfo;
+            });
+
+        return $systemConfigService;
     }
 }

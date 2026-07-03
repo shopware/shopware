@@ -49,6 +49,7 @@ import { sendTimeoutExpired, deprecatedTabComponent, deprecatedPopoverComponent 
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
+import CacheService from '../../src/app/service/cache.service';
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -112,6 +113,12 @@ config.plugins.VueWrapper.install((wrapper) => {
 // enable autoUnmount for wrapper after each test
 enableAutoUnmount(afterEach);
 
+const cacheService = new CacheService();
+const userConfigService = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
@@ -122,6 +129,9 @@ Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 Shopware.Service().list().forEach(serviceKey => {
     config.global.provide[serviceKey] = Shopware.Service(serviceKey);
 });
+
+Shopware.Service().register('cacheService', () => cacheService);
+Shopware.Service().register('userConfigService', () => userConfigService);
 
 // Set important functions for Shopware Core
 Shopware.Application.view = {
@@ -612,6 +622,19 @@ beforeEach(() => {
     warnTrace = null;
     unhandledRejectionError = null;
     global.activeFeatureFlags = [];
+
+    Shopware.Service('cacheService')?.clear?.();
+
+    const registeredUserConfigService = Shopware.Service('userConfigService');
+    if (jest.isMockFunction(registeredUserConfigService?.search)) {
+        registeredUserConfigService.search.mockReset();
+        registeredUserConfigService.search.mockResolvedValue({ data: {} });
+    }
+
+    if (jest.isMockFunction(registeredUserConfigService?.upsert)) {
+        registeredUserConfigService.upsert.mockReset();
+        registeredUserConfigService.upsert.mockResolvedValue();
+    }
 });
 
 // eslint-disable-next-line jest/require-top-level-describe

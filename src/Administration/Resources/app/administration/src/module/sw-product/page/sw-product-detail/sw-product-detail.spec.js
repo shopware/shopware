@@ -99,11 +99,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                 }
 
                                 return {};
-                            },
-                            search: searchFunction,
-                            get: getFunction,
-                            hasChanges: () => true,
-                            save: () => Promise.resolve({}),
+                                },
+                                search: searchFunction,
+                                searchIds: () => Promise.resolve({ data: [] }),
+                                get: getFunction,
+                                hasChanges: () => true,
+                                save: () => Promise.resolve({}),
                         }),
                     },
                     systemConfigApiService: {
@@ -361,7 +362,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             ]),
         );
 
-        await wrapper.vm.loadCurrencies();
+        await flushPromises();
         await nextTick();
 
         expect(wrapper.vm.product.purchasePrices).toStrictEqual([

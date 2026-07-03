@@ -186,6 +186,12 @@ function clientMockFactory() {
     // Add default responses
     responses.addResponse({
         method: 'POST',
+        url: '/search-ids/number-range',
+        response: { data: [] },
+    });
+
+    responses.addResponse({
+        method: 'POST',
         url: /\/api\/v\d\/search\/.*/g,
         status: 200,
         warning: true,

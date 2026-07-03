@@ -69,7 +69,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithCategories($lineItemCategoryIds),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -109,7 +109,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -140,7 +140,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -167,7 +167,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
         $this->rule->match(new LineItemScope(
             $this->createLineItemWithCategories(['3']),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
     }
 
@@ -187,7 +187,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);

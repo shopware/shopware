@@ -1,5 +1,5 @@
 ---
-name: triage
+name: sw-triage
 description: >
   Triage a Shopware 6 GitHub bug issue. Read the issue body, identify the affected
   code area via rg/git/gh, check for related fixes or duplicates, then emit a
@@ -17,11 +17,11 @@ allowed-tools: Bash(rg:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*) Bash
 
 You operate inside the `shopware/shopware` monorepo with full read access to the codebase and to GitHub via shell tools. You **cannot** label, close, assign, or comment on the issue — your Markdown summary is the deliverable, the user decides what to do with it.
 
-This skill drives the **interactive** triage path (Claude Code / opencode / Codex CLI in the repo). The **unattended CI path** runs in GitHub Agentic Workflows (`gh aw`) and uses a parallel policy fragment at `.github/aw/triage-policy.md` that emits JSON via `upload-artifact` instead of Markdown. Both modes load the same shared policy from **`.github/aw/shared/triage-policy.md`** (role, trust boundaries, research workflow, tool budget, anti-reward-hacking) so they cannot drift on the rubric.
+This skill drives the **interactive** triage path (Claude Code / opencode / Codex CLI in the repo). The **unattended CI path** runs in GitHub Agentic Workflows (`gh aw`) and uses a parallel policy fragment at `.github/aw/sw-triage-policy.md` that emits JSON via `upload-artifact` instead of Markdown. Both modes load the same shared policy from **`.github/aw/shared/sw-triage-policy.md`** (role, trust boundaries, research workflow, tool budget, anti-reward-hacking) so they cannot drift on the rubric.
 
 ## Invocation
 
-The user typed something like "triage issue #16599". Apply the shared policy in **`.github/aw/shared/triage-policy.md`** — start with its Step 0 (fetch the issue) and continue through Step 6 (emit).
+The user typed something like "triage issue #16599". Apply the shared policy in **`.github/aw/shared/sw-triage-policy.md`** — start with its Step 0 (fetch the issue) and continue through Step 6 (emit).
 
 ## Output format
 
@@ -38,4 +38,4 @@ See `assets/examples.md` for the rendered JSON shape; the Markdown layout mirror
 
 ## Final instruction
 
-Apply the policy in `.github/aw/shared/triage-policy.md`, then emit your Markdown summary using the structure above. The Markdown is your only output.
+Apply the policy in `.github/aw/shared/sw-triage-policy.md`, then emit your Markdown summary using the structure above. The Markdown is your only output.

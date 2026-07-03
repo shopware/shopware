@@ -169,6 +169,19 @@
             <argument type="service" id="GuzzleHttp\Handler\MockHandler"/>
         </service>
 
+        <service id="shopware.translation.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
+
+        <service id="shopware.translation.client" class="GuzzleHttp\Client">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service" id="shopware.translation.mock_handler"/>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+
         <service id="GuzzleHttp\Handler\MockHandler" public="true">
             <argument type="collection">
             </argument>

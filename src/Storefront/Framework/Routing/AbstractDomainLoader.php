@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
 
@@ -20,9 +21,7 @@ abstract class AbstractDomainLoader
      */
     abstract public function load(): array;
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract, the default implementation that builds the collection from the deprecated load() will be removed
-     */
+    #[BecomesAbstract(version: 'v6.8.0', description: 'The default implementation that builds the collection from the deprecated load() will be removed.')]
     public function loadDomains(): DomainCollection
     {
         return DomainCollection::fromArray($this->load());

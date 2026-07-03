@@ -40,8 +40,8 @@ class PreWriteValidationEventTest extends TestCase
 
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class, CategoryDefinition::class, ProductTranslationDefinition::class, OrderDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

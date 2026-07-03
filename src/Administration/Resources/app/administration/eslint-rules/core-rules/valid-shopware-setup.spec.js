@@ -35,14 +35,14 @@ ruleTester.run('valid-shopware-setup', rule, {
     valid: [
         {
             filename: 'base.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 const count = 1;
 swDefinePublic({ count });
 </script>`,
         },
         {
             filename: 'base-props.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const props = defineProps<{ initialCount?: number }>();
 const count = props.initialCount ?? 0;
 swDefinePublic({ count });
@@ -50,23 +50,15 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-bare-props.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 defineProps();
 const count = 1;
 swDefinePublic({ count });
 </script>`,
         },
         {
-            filename: 'base-destructured-props.vue',
-            code: `<script setup sw-component="sw-my-component">
-const { initialCount = 0 } = defineProps();
-const count = initialCount;
-swDefinePublic({ count });
-</script>`,
-        },
-        {
             filename: 'base-props-with-defaults.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const props = withDefaults(defineProps<{ initialCount?: number }>(), {
     initialCount: 1,
 });
@@ -76,7 +68,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-props-with-imported-defaults.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 import { defaultCount } from './defaults';
 
 const props = withDefaults(defineProps<{ initialCount?: number }>(), {
@@ -87,17 +79,8 @@ swDefinePublic({ count });
 </script>`,
         },
         {
-            filename: 'base-destructured-props-with-local-defaults.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
-const defaultCount = 1;
-const { initialCount = defaultCount } = defineProps<{ initialCount?: number }>();
-const count = initialCount;
-swDefinePublic({ count });
-</script>`,
-        },
-        {
             filename: 'base-emits.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const emit = defineEmits<{ save: [id: string] }>();
 const count = 1;
 swDefinePublic({ count });
@@ -105,7 +88,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-expose.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 function focus() {}
 defineExpose({ focus });
 const count = 1;
@@ -114,7 +97,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-slots.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const slots = defineSlots<{ default(props: { count: number }): unknown }>();
 const count = slots.default ? 1 : 0;
 swDefinePublic({ count });
@@ -122,7 +105,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-options.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 defineOptions({ inheritAttrs: false });
 const count = 1;
 swDefinePublic({ count });
@@ -130,7 +113,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-options-with-imported-value.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 import { inheritAttrs } from './options';
 
 defineOptions({ inheritAttrs });
@@ -139,8 +122,8 @@ swDefinePublic({ count });
 </script>`,
         },
         {
-            filename: 'override.vue',
-            code: `<script setup lang="ts" sw-override="sw-my-component">
+            filename: 'sw-my-component.override.vue',
+            code: `<script setup lang="ts">
 const previousState = useSwPreviousState();
 const doubled: number = previousState.count.value * 2;
 swDefineOverride({ doubled });
@@ -150,8 +133,43 @@ swDefineOverride({ doubled });
 
     invalid: [
         {
-            filename: 'override-props.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'base-destructured-props.vue',
+            code: `<script setup lang="ts">
+const { initialCount = 0 } = defineProps<{ initialCount?: number }>();
+const count = initialCount;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through '
+                        + 'destructuring (const { count = 1 } = defineProps()) are not applied. Assign the macro to a '
+                        + 'variable such as `const props = defineProps(...)` and read `props.<name>`, and use '
+                        + '`withDefaults(defineProps(...), { ... })` for defaults.',
+                },
+            ],
+        },
+        {
+            filename: 'base-destructured-props-with-defaults.vue',
+            code: `<script setup lang="ts">
+const { initialCount = 0 } = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount: 3,
+});
+const count = initialCount;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'Destructuring the props object is not supported in Shopware setup blocks. Assign '
+                        + '`withDefaults(defineProps(...), { ... })` to a variable such as `const props = ...` and read '
+                        + '`props.<name>`.',
+                },
+            ],
+        },
+        {
+            filename: 'override-props.override.vue',
+            code: `<script setup>
 const props = defineProps();
 swDefineOverride({});
 </script>`,
@@ -162,8 +180,8 @@ swDefineOverride({});
             ],
         },
         {
-            filename: 'override-props-with-defaults.vue',
-            code: `<script setup lang="ts" sw-override="sw-my-component">
+            filename: 'override-props-with-defaults.override.vue',
+            code: `<script setup lang="ts">
 const props = withDefaults(defineProps<{ label?: string }>(), {
     label: 'fallback',
 });
@@ -176,8 +194,8 @@ swDefineOverride({});
             ],
         },
         {
-            filename: 'override-emits.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'override-emits.override.vue',
+            code: `<script setup>
 const emit = defineEmits(['save']);
 swDefineOverride({});
 </script>`,
@@ -188,8 +206,8 @@ swDefineOverride({});
             ],
         },
         {
-            filename: 'override-expose.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'override-expose.override.vue',
+            code: `<script setup>
 defineExpose({});
 swDefineOverride({});
 </script>`,
@@ -200,8 +218,8 @@ swDefineOverride({});
             ],
         },
         {
-            filename: 'override-slots.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'override-slots.override.vue',
+            code: `<script setup>
 const slots = defineSlots();
 swDefineOverride({});
 </script>`,
@@ -212,8 +230,8 @@ swDefineOverride({});
             ],
         },
         {
-            filename: 'override-options.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'override-options.override.vue',
+            code: `<script setup>
 defineOptions({ inheritAttrs: false });
 swDefineOverride({});
 </script>`,
@@ -225,7 +243,7 @@ swDefineOverride({});
         },
         {
             filename: 'base-with-defaults-local-binding.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const defaultCount = 1;
 const props = withDefaults(defineProps<{ initialCount?: number }>(), {
     initialCount: defaultCount,
@@ -242,7 +260,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-with-defaults-local-shorthand.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const initialCount = 1;
 const props = withDefaults(defineProps<{ initialCount?: number }>(), {
     initialCount,
@@ -259,7 +277,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-define-props-local-binding.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const defaultCount = 1;
 const props = defineProps({
     initialCount: {
@@ -278,7 +296,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-define-emits-local-binding.vue',
-            code: `<script setup lang="ts" sw-component="sw-my-component">
+            code: `<script setup lang="ts">
 const events = ['save'];
 const emit = defineEmits(events);
 const count = 1;
@@ -293,7 +311,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'base-define-options-local-binding.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 const inheritAttrs = false;
 defineOptions({
     inheritAttrs,
@@ -310,7 +328,7 @@ swDefinePublic({ count });
         },
         {
             filename: 'dynamic-key.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 const count = 1;
 swDefinePublic({ [dynamicKey]: count });
 </script>`,
@@ -322,8 +340,8 @@ swDefinePublic({ [dynamicKey]: count });
             ],
         },
         {
-            filename: 'override-public.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'override-public.override.vue',
+            code: `<script setup>
 const count = 1;
 swDefinePublic({ count });
 swDefineOverride({ count });
@@ -339,7 +357,7 @@ swDefineOverride({ count });
         },
         {
             filename: 'base-override.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 const count = 1;
 swDefineOverride({ count });
 </script>`,
@@ -353,8 +371,8 @@ swDefineOverride({ count });
             ],
         },
         {
-            filename: 'reserved-override-private-variable.vue',
-            code: `<script setup sw-override="sw-my-component">
+            filename: 'reserved-override-private-variable.override.vue',
+            code: `<script setup>
 const __swOverride = {};
 swDefineOverride({});
 </script>`,
@@ -366,7 +384,7 @@ swDefineOverride({});
         },
         {
             filename: 'reserved-override-private-import.vue',
-            code: `<script setup sw-component="sw-my-component">
+            code: `<script setup>
 import { __swOverride } from './state';
 
 const count = 1;

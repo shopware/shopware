@@ -25,11 +25,12 @@ describe('build/vite-plugins/shopware-setup', () => {
     it('delegates Shopware setup Vue files to the shared transform', async () => {
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin(pluginOptions);
-        const source = `<script setup sw-component="sw-my-component">
+        const source = `<script setup>
 const count = 1;
+swDefinePublic({ count });
 </script>`;
 
-        const result = await transformVueSource(plugin, source);
+        const result = await transformVueSource(plugin, source, '/example/sw-my-component.vue');
 
         expect(result).toHaveProperty('code');
         expect(result.code).toContain('Shopware.Component.createExtendableSetup(');
@@ -37,19 +38,73 @@ const count = 1;
         expect(result.map).toBeNull();
     });
 
-    it('delegates sw-override blocks in .override.vue files', async () => {
+    it('delegates override blocks in .override.vue files', async () => {
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin(pluginOptions);
-        const source = `<script setup sw-override="sw-my-component">
+        const source = `<script setup>
 const count = 1;
 
 swDefineOverride({});
 </script>`;
 
-        const result = await transformVueSource(plugin, source, '/example/component.override.vue');
+        const result = await transformVueSource(plugin, source, '/example/sw-my-component.override.vue');
 
         expect(result).toHaveProperty('code');
         expect(result.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
+    });
+
+    it('rejects two base components that resolve to the same name', async () => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin(pluginOptions);
+        const source = `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        await transformVueSource(plugin, source, '/a/sw-my-component.vue');
+
+        await expect(transformVueSource(plugin, source, '/b/sw-my-component.vue')).rejects.toThrow(
+            'Duplicate native setup base component name "sw-my-component"',
+        );
+    });
+
+    it('allows an override to reuse its base component name', async () => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin(pluginOptions);
+
+        await transformVueSource(
+            plugin,
+            `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+            '/base/sw-my-component.vue',
+        );
+
+        await expect(
+            transformVueSource(
+                plugin,
+                `<script setup>
+swDefineOverride({});
+</script>`,
+                '/override/sw-my-component.override.vue',
+            ),
+        ).resolves.toHaveProperty('code');
+    });
+
+    it('re-transforms the same base file without a false duplicate', async () => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin(pluginOptions);
+        const source = `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        await transformVueSource(plugin, source, '/example/sw-my-component.vue');
+
+        await expect(transformVueSource(plugin, source, '/example/sw-my-component.vue')).resolves.toHaveProperty(
+            'code',
+        );
     });
 
     it('ignores Vue files without Shopware setup blocks', async () => {

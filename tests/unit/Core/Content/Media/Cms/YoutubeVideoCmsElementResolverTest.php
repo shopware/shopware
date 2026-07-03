@@ -62,7 +62,7 @@ class YoutubeVideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -85,7 +85,7 @@ class YoutubeVideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -118,7 +118,7 @@ class YoutubeVideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -131,8 +131,8 @@ class YoutubeVideoCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->method('get')->with('media-1')->willReturn($media);
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('get')->willReturn($media);
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $searchResult);
@@ -155,7 +155,7 @@ class YoutubeVideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 

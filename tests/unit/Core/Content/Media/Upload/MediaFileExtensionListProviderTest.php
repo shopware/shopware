@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -39,6 +40,25 @@ class MediaFileExtensionListProviderTest extends TestCase
         $provider = new MediaFileExtensionListProvider($eventDispatcher, ['jpg'], ['pdf']);
 
         static::assertSame(['pdf', 'epub'], $provider->getAllowedExtensions(true, Context::createDefaultContext()));
+    }
+
+    public function testPassesContextToWhitelistEvent(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static function (MediaFileExtensionWhitelistEvent $event) use ($context): bool {
+                static::assertSame($context, $event->getContext());
+
+                return true;
+            }))
+            ->willReturnArgument(0);
+
+        $provider = new MediaFileExtensionListProvider($eventDispatcher, ['jpg'], []);
+
+        static::assertSame(['jpg'], $provider->getAllowedExtensions(false, $context));
     }
 
     public function testNormalizesAndDeduplicatesExtensions(): void

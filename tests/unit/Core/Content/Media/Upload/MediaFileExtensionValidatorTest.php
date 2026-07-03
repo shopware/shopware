@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
@@ -18,44 +17,40 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MediaFileExtensionValidator::class)]
 class MediaFileExtensionValidatorTest extends TestCase
 {
-    private MediaFileExtensionListProvider&MockObject $mediaFileExtensionListProvider;
-
-    protected function setUp(): void
-    {
-        $this->mediaFileExtensionListProvider = $this->createMock(MediaFileExtensionListProvider::class);
-    }
-
     public function testValidateAllowsPublicExtension(): void
     {
         $context = Context::createDefaultContext();
+        $mediaFileExtensionListProvider = $this->createMock(MediaFileExtensionListProvider::class);
 
-        $this->mediaFileExtensionListProvider->expects($this->once())
+        $mediaFileExtensionListProvider->expects($this->once())
             ->method('getAllowedExtensions')
             ->with(false, $context)
             ->willReturn(['jpg', 'png']);
 
-        $validator = new MediaFileExtensionValidator($this->mediaFileExtensionListProvider);
+        $validator = new MediaFileExtensionValidator($mediaFileExtensionListProvider);
         $validator->validate('jpg', false, $context);
     }
 
     public function testValidateAllowsPrivateExtension(): void
     {
         $context = Context::createDefaultContext();
+        $mediaFileExtensionListProvider = $this->createMock(MediaFileExtensionListProvider::class);
 
-        $this->mediaFileExtensionListProvider->expects($this->once())
+        $mediaFileExtensionListProvider->expects($this->once())
             ->method('getAllowedExtensions')
             ->with(true, $context)
             ->willReturn(['pdf']);
 
-        $validator = new MediaFileExtensionValidator($this->mediaFileExtensionListProvider);
+        $validator = new MediaFileExtensionValidator($mediaFileExtensionListProvider);
         $validator->validate('pdf', true, $context);
     }
 
     public function testValidateIsCaseInsensitive(): void
     {
-        $this->mediaFileExtensionListProvider->method('getAllowedExtensions')->willReturn(['JPG']);
+        $mediaFileExtensionListProvider = static::createStub(MediaFileExtensionListProvider::class);
+        $mediaFileExtensionListProvider->method('getAllowedExtensions')->willReturn(['JPG']);
 
-        $validator = new MediaFileExtensionValidator($this->mediaFileExtensionListProvider);
+        $validator = new MediaFileExtensionValidator($mediaFileExtensionListProvider);
 
         $this->expectNotToPerformAssertions();
         $validator->validate('jpg', false, Context::createDefaultContext());
@@ -63,9 +58,10 @@ class MediaFileExtensionValidatorTest extends TestCase
 
     public function testValidateThrowsWhenExtensionIsNotAllowed(): void
     {
-        $this->mediaFileExtensionListProvider->method('getAllowedExtensions')->willReturn(['jpg', 'png']);
+        $mediaFileExtensionListProvider = static::createStub(MediaFileExtensionListProvider::class);
+        $mediaFileExtensionListProvider->method('getAllowedExtensions')->willReturn(['jpg', 'png']);
 
-        $validator = new MediaFileExtensionValidator($this->mediaFileExtensionListProvider);
+        $validator = new MediaFileExtensionValidator($mediaFileExtensionListProvider);
 
         $this->expectExceptionObject(MediaException::fileExtensionNotSupported('media-42', 'php'));
 

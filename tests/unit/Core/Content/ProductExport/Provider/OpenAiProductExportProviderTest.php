@@ -35,7 +35,7 @@ class OpenAiProductExportProviderTest extends TestCase
     {
         $provider = new OpenAiProductExportProvider(
             $this->createSalesChannelRepository(),
-            $this->createMock(SystemConfigService::class)
+            static::createStub(SystemConfigService::class)
         );
 
         static::assertSame('open-ai', $provider->getTechnicalName());

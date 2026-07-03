@@ -296,14 +296,14 @@ class LifecycleManagerTest extends TestCase
         $manager = new LifecycleManager(
             $envEnabled,
             $appEnv,
-            $this->createMock(Privileges::class),
+            static::createStub(Privileges::class),
             new StaticSystemConfigService($systemConfig),
             $this->createAppRepository(),
-            $this->createMock(AppLifecycle::class),
-            $this->createMock(AllServiceInstaller::class),
-            $this->createMock(PermissionsService::class),
-            $this->createMock(Client::class),
-            $this->createMock(RequirementsValidator::class),
+            static::createStub(AppLifecycle::class),
+            static::createStub(AllServiceInstaller::class),
+            static::createStub(PermissionsService::class),
+            static::createStub(Client::class),
+            static::createStub(RequirementsValidator::class),
         );
 
         static::assertSame($expectedEnabled, $manager->enabled());

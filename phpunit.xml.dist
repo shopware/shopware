@@ -41,13 +41,6 @@
             <directory suffix="Struct.php">src/Administration/Snippet/</directory>
             <directory suffix="Collection.php">src/Administration/Snippet/</directory>
 
-            <directory suffix="Definition.php">src/Core/</directory>
-            <directory suffix="Entity.php">src/Core/</directory>
-            <directory suffix="Event.php">src/Core/</directory>
-            <directory suffix="Field.php">src/Core/</directory>
-            <directory suffix="Struct.php">src/Core/</directory>
-            <directory suffix="Collection.php">src/Core/</directory>
-
             <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
             <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
             <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>

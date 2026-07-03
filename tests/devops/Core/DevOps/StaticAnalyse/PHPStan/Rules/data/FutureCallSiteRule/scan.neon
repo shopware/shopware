@@ -1,0 +1,3 @@
+parameters:
+    scanFiles:
+        - future_call_sites.php

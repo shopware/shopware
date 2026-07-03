@@ -15,6 +15,8 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 
 All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
 
+You can also opt in to future-compatibility analysis: including `vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/future-compatibility.neon` in your project's `phpstan.neon` makes PHPStan report code that works today but breaks with an announced change — arguments outside a narrowing parameter type, arguments for parameters being removed, named arguments for parameters being renamed, calls to symbols becoming internal or less visible, and subclasses that do not yet anticipate announced signature changes. Calls to methods with an announced wider return type are analyzed against the future type (e.g. nullable), so you can make your code compatible with the current and the next major version at the same time.
+
 ### Webhooks are signed with the current app secret after a secret rotation
 
 Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.

@@ -1,0 +1,10 @@
+parameters:
+    scanFiles:
+        - WidensReturn.php
+
+services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\FutureCompatibility\AnnouncedTypeResolver
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\FutureCompatibility\FutureReturnTypeExtension
+        tags: [phpstan.broker.expressionTypeResolverExtension]

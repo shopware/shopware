@@ -577,6 +577,11 @@
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
             "Shopware\\Tests\\Migration\\": "tests/migration/",
             "Shopware\\Tests\\DevOps\\": "tests/devops/"
-        }
+        },
+        "classmap": [
+            "tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/FutureCallSiteRule/future_call_sites.php",
+            "tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/FutureExtensionRule/future_extenders.php",
+            "tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Type/data/WidensReturn.php"
+        ]
     }
 }

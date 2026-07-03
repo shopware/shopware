@@ -34,6 +34,7 @@ parameters:
 
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+        - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Type/data/WidensReturn.php
 
     universalObjectCratesClasses:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy

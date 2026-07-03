@@ -11,6 +11,18 @@ import { runBundle } from './run-bundle.mjs';
 // check.mjs pulls in @playwright/test, which is only installed for playwright bundles — import it
 // lazily so an http/direct verify never needs Playwright.
 
+/**
+ * Runs the deterministic reproduction sequence for one target leg.
+ *
+ * This is the shared sequence for trusted `verify` and preview `try`: reset when requested,
+ * optionally generate demodata, seed fixtures, prove readiness, then run the selected executor.
+ *
+ * @example
+ * const result = await pipeline({ target: 'reported', out: FILES.result, reset: true });
+ * if (result.status === 'blocked') {
+ *   return;
+ * }
+ */
 export async function pipeline({ target, out, reset: doReset }) {
   if (!appUrl()) {
     return fail(target, out, 'APP_URL is not set — the live shop coordinates were not exported');
@@ -51,6 +63,9 @@ export async function pipeline({ target, out, reset: doReset }) {
   return result;
 }
 
+/**
+ * Writes a blocked result and stops the current leg after setup failure.
+ */
 const fail = (target, out, reason) => {
   const plan = readJson(FILES.plan, {});
   writeJson(out, blockedResult(plan, target, reason));
@@ -58,8 +73,12 @@ const fail = (target, out, reason) => {
   return { status: 'blocked' };
 };
 
-// Bounded demo dataset on the live shop when the plan asks for realistic catalog volume. Mirrors the
-// provision action's generator so the trunk leg (which provisions demodata from the plan) matches.
+/**
+ * Generates bounded demo catalog data for repros that need realistic storefront volume.
+ *
+ * The same generator settings are used for the trunk provision path, keeping catalog-dependent
+ * scenarios comparable between legs without allowing unbounded fixture setup.
+ */
 function generateDemodata() {
   const run = (args) => spawnSync('php', args, { cwd: shopDir(), stdio: 'inherit', env: { ...process.env, APP_ENV: 'prod' } });
   const demodataArgs = [
@@ -79,8 +98,16 @@ function generateDemodata() {
   run(['bin/console', 'dal:refresh:index', '--no-interaction']);
 }
 
-// A screenshot/report from a PRIOR attempt must never be uploaded as THIS leg's evidence. Keep only
-// the readiness screenshots (written just now); the executor writes fresh evidence when it runs.
+/**
+ * Removes stale executor artifacts before the official leg runs.
+ *
+ * Readiness screenshots are kept because they were just created for this setup; executor screenshots,
+ * traces, and PHPUnit output must be fresh so reports cannot reuse evidence from an earlier attempt.
+ *
+ * @example
+ * clearStaleArtifacts();
+ * const result = await runBundle({ target, out });
+ */
 function clearStaleArtifacts() {
   fs.rmSync('playwright-report', { recursive: true, force: true });
   fs.rmSync('phpunit-output.txt', { force: true });
@@ -93,6 +120,9 @@ function clearStaleArtifacts() {
   }
 }
 
+/**
+ * Prints the newest screenshot hint after a Playwright leg for human review.
+ */
 function hintScreenshot() {
   const dir = 'test-results';
   const shot = fs.existsSync(dir) ? fs.readdirSync(dir).find((f) => f.endsWith('.png')) : null;

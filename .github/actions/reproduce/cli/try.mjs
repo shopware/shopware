@@ -6,4 +6,10 @@
 import { FILES } from './lib.mjs';
 import { pipeline } from './pipeline.mjs';
 
+/**
+ * Runs the bundle as an agent-facing preview without resetting the database.
+ *
+ * The result is useful repair feedback in `builder-result.json`, but the official verdict still
+ * comes from `verify` on clean reported and trunk legs.
+ */
 export const tryBundle = () => pipeline({ target: 'builder', out: FILES.builderResult, reset: false });

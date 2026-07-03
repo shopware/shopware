@@ -10,6 +10,12 @@ import { stripNarration, hasLeftoverNarration } from './strip-narration.mjs';
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', 'host.docker.internal'];
 
+/**
+ * Validates the authored reproduction bundle without executing it.
+ *
+ * Use this before `try` or `verify` to catch structural defects that would make the deterministic
+ * two-leg run untrustworthy, such as unsafe Playwright setup or install-specific HTTP ids.
+ */
 export function validate() {
   const errors = [];
   const add = (cond, message) => {
@@ -65,6 +71,18 @@ export function validate() {
   return errors.length ? refuse(errors) : ok();
 }
 
+/**
+ * Checks the Playwright spec shape that the verdict run will execute.
+ *
+ * The narrated video helpers are stripped before validation so the reviewed spec and the executed
+ * spec have the same action/assertion logic.
+ *
+ * @example
+ * const errors = validateSpec({ executor: 'playwright', script_path: 'repro.spec.ts' });
+ * if (errors.length > 0) {
+ *   return refuse(errors);
+ * }
+ */
 function validateSpec(plan) {
   const specPath = plan.script_path || FILES.specTs;
   if (!fs.existsSync(specPath)) {
@@ -133,6 +151,15 @@ const STABLE_IDS = new Set([
 ]);
 const HEX32 = /(?<![0-9a-f])[0-9a-f]{32}(?![0-9a-f])/g;
 
+/**
+ * Finds literal install ids that would not survive replay on the trunk leg.
+ *
+ * IDs created by the request body or seeded through fixtures are allowed; references to existing
+ * install entities must use placeholders resolved separately for each Shopware instance.
+ *
+ * @example
+ * errors.push(...validateHttpIds(plan));
+ */
 function validateHttpIds(plan) {
   const allowed = new Set(STABLE_IDS);
   if (fs.existsSync(FILES.fixtures)) {
@@ -182,6 +209,18 @@ function validateHttpIds(plan) {
   ];
 }
 
+/**
+ * Validates browser readiness checks that prove seeded setup before the symptom runs.
+ *
+ * These checks are intentionally limited to browser-visible markers; HTTP and direct preconditions
+ * belong in executor assertions where they can affect the leg outcome.
+ *
+ * @example
+ * const errors = validateReadiness({ seeded_readiness: [{ path: '/', selector: 'body' }] });
+ * if (errors.length) {
+ *   return refuse(errors);
+ * }
+ */
 function validateReadiness(plan) {
   const checks = plan.seeded_readiness || plan.readiness_checks || [];
   if (!Array.isArray(checks)) {
@@ -201,12 +240,18 @@ function validateReadiness(plan) {
   });
 }
 
+/**
+ * Prints validation refusals and exits with failure.
+ */
 function refuse(errors) {
   for (const e of errors) {
     console.error(`REFUSED — ${e}`);
   }
   process.exit(1);
 }
+/**
+ * Prints the successful validation marker consumed by workflow logs.
+ */
 function ok() {
   console.log('ok');
   return true;

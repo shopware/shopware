@@ -13,6 +13,9 @@ const templates = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 
 const DATA = JSON.parse(fs.readFileSync(path.join(templates, 'verdicts.json'), 'utf8'));
 const OUT = process.env.OUT || 'comment.md';
 
+/**
+ * Reads optional JSON report artifacts, returning null for absent leg outputs.
+ */
 const readJson = (p) => {
   try {
     return JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -20,10 +23,17 @@ const readJson = (p) => {
     return null;
   }
 };
+/**
+ * Replaces simple `{{KEY}}` placeholders in phrase templates.
+ */
 const fill = (str, vars) => String(str ?? '').replace(/{{(\w+)}}/g, (_, k) => vars[k] ?? '');
 
-// Read an extra file written by the agent job (agent-summary.md, workspace-edits.txt): from the
-// collected artifact dir first, then the working dir (where the incomplete path extracts it).
+/**
+ * Reads an auxiliary agent artifact for inclusion in the issue comment.
+ *
+ * The renderer checks the collected artifact directory first and then the working directory, matching
+ * the two workflow paths used by complete and incomplete reproduction reports.
+ */
 function readExtra(name) {
   for (const p of [`${process.env.ART || 'artifacts'}/repro-plan/${name}`, name]) {
     try {
@@ -38,9 +48,16 @@ function readExtra(name) {
   return '';
 }
 
-// mustache-lite: {{#KEY}}…{{/KEY}} keeps the block iff ctx[KEY] is truthy; {{KEY}} substitutes.
-// Single var pass (sections just inline their body), so substituted values — e.g. the agent summary —
-// are never re-scanned for placeholders.
+/**
+ * Renders the tiny template language used by reproduction issue comments.
+ *
+ * Sections are resolved before a single variable pass so substituted values from agent output are
+ * never scanned again for placeholders or template control syntax.
+ *
+ * @example
+ * const markdown = render(tpl, { VERDICT_BADGE: 'live_bug', RUN_URL: runUrl });
+ * fs.writeFileSync(OUT, redact(tidy(markdown)));
+ */
 function render(tpl, ctx) {
   // Resolve sections first, looping to handle nesting; then a single var pass (a substituted value
   // is inserted last, so it is never re-scanned for placeholders).
@@ -56,6 +73,9 @@ function render(tpl, ctx) {
   return out.replace(/{{(\w+)}}/g, (_, key) => ctx[key] ?? '');
 }
 
+/**
+ * Redacts common secret token formats before markdown leaves the workflow.
+ */
 const redact = (text) => text
   .replace(/sk-ant-[A-Za-z0-9_-]{8,}/g, '[REDACTED_KEY]')
   .replace(/(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/g, '[REDACTED_TOKEN]')
@@ -63,10 +83,20 @@ const redact = (text) => text
   .replace(/AKIA[0-9A-Z]{16}/g, '[REDACTED_AWS_KEY]')
   .replace(/([Bb]earer\s+)[A-Za-z0-9._~+/-]{16,}=*/g, '$1[REDACTED]');
 
-// Guarantee a blank line before every heading (sections may collapse the spacing) and squeeze
-// runs of blank lines — so the layout is robust to which optional sections rendered.
+/**
+ * Normalizes markdown spacing after optional template sections collapse.
+ *
+ * This keeps headings readable and avoids excessive blank lines regardless of which verdict,
+ * evidence, or agent-summary sections are present.
+ */
 const tidy = (md) => `${md.replace(/([^\n])\n(#{2,4} )/g, '$1\n\n$2').replace(/\n{3,}/g, '\n\n').trim()}\n`;
 
+/**
+ * Writes the final comment markdown to disk, step summary, and stdout.
+ *
+ * Redaction happens at this boundary so rendered agent text and reproduced scripts cannot leak common
+ * token formats into issue comments.
+ */
 function write(markdown) {
   const redacted = redact(tidy(markdown));
   fs.writeFileSync(OUT, redacted);
@@ -89,6 +119,12 @@ if (process.env.MODE === 'incomplete') {
   write(renderVerdict());
 }
 
+/**
+ * Builds the full two-leg verdict comment context and renders it through the checked-in template.
+ *
+ * The renderer decides whether to expose the generated bundle based on verdict confidence and
+ * whether a leg reproduced, keeping unsure/blocked comments short unless evidence is useful.
+ */
 function renderVerdict() {
   const art = process.env.ART || 'artifacts';
   const plan = readJson(`${art}/repro-plan/reproduction-plan.json`) || {};
@@ -160,12 +196,21 @@ function renderVerdict() {
   return render(fs.readFileSync(path.join(templates, 'comment.verdict.md'), 'utf8'), ctx);
 }
 
+/**
+ * Formats the generated Given/When/Then scenario for the report details.
+ */
 function scenarioBlock(plan) {
   return Array.isArray(plan.scenario) && plan.scenario.length
     ? plan.scenario.map((s) => `- ${s.replace(/^(Given|When|Then|And|But) /, '**$1** ')}`).join('\n')
     : '';
 }
 
+/**
+ * Extracts a compact agent explanation for the report header.
+ *
+ * The plan can carry either the final agent explanation or a confidence reason; both are normalized
+ * to one line so they fit inside the result section quote.
+ */
 function agentExplanation(plan) {
   const text = plan.agent_explanation || plan.confidence_reason;
   if (!text || text === 'null') {
@@ -174,9 +219,18 @@ function agentExplanation(plan) {
   return String(text).replace(/\s+/g, ' ').trim();
 }
 
-// One collapsible per leg — its status in the summary line, and everything for that leg inside it
-// (checks + gloss, screenshot, recording). Combined into a single "Both versions" spoiler when the
-// legs share an outcome, split otherwise. Evidence URLs come from the manifest embed-evidence.sh wrote.
+/**
+ * Builds the per-leg result section shown in the issue comment.
+ *
+ * Matching leg outcomes are collapsed into a single "Both versions" spoiler, while divergent
+ * outcomes stay separate so screenshots and recordings line up with the leg that produced them.
+ *
+ * @example
+ * const markdown = resultSection({ legA, legB, as, bs, labels, explanation, evidence });
+ * if (markdown) {
+ *   sections.push(markdown);
+ * }
+ */
 function resultSection({ legA, legB, as, bs, labels, explanation, evidence }) {
   const evFor = (name) => (evidence?.legs || []).find((l) => l.name === name) || {};
   const out = [];
@@ -202,6 +256,12 @@ function resultSection({ legA, legB, as, bs, labels, explanation, evidence }) {
   return out.join('\n\n');
 }
 
+/**
+ * Renders one collapsible leg section with checks, reason text, and visual evidence.
+ *
+ * Structured HTTP failures show only failed checks, while Playwright and direct legs show their raw
+ * reporter output plus any screenshot or video URLs from the evidence manifest.
+ */
 function legSpoiler(summary, leg, ev) {
   // Result shows only what happened: the FAILING check(s) for a structured (http) leg, or the raw
   // reporter for a playwright/direct leg — then the `→` gloss/reason. The full assertion list lives
@@ -217,23 +277,44 @@ function legSpoiler(summary, leg, ev) {
   return spoiler(summary, body.filter(Boolean).join('\n\n'));
 }
 
+/**
+ * Maps a machine leg status to the human-facing badge phrase.
+ */
 function statusBadge(s) {
   return DATA.phrases.status[s] || DATA.phrases.status.null;
 }
 
+/**
+ * Wraps markdown content in a GitHub-compatible details block.
+ */
 function spoiler(summary, body) {
   return `<details><summary>${summary}</summary>\n\n${body}\n\n</details>`;
 }
 
+/**
+ * Formats expected or actual values for pseudo assertion output.
+ */
 function qval(v) {
   return /^\d+$/.test(v) ? v : `'${v}'`;
 }
 
+/**
+ * Normalizes inline labels before embedding them in generated pseudo code.
+ */
 function clean(s) {
   return String(s).replace(/\s+/g, ' ').replace(/\*\//g, '* /').trim();
 }
 
-// require*/assert* call for a check (require* = precondition, assert* = symptom).
+/**
+ * Formats one structured HTTP check as reviewer-facing pseudo test code.
+ *
+ * Preconditions become `require*` calls and symptom checks become `assert*` calls, mirroring how the
+ * HTTP executor classifies setup failures versus reproduced symptoms.
+ *
+ * @example
+ * const call = callOf({ role: 'assert', op: 'equals', subject: 'status', expected: '200' });
+ * lines.push(`${call} // failed`);
+ */
 function callOf(c) {
   const ops = {
     present: 'Present',
@@ -252,7 +333,12 @@ function callOf(c) {
   return `${verb}${name}(${c.subject}, ${qval(String(c.expected))})`;
 }
 
-// What Result shows for a leg: only the failing checks (http), or the raw reporter (playwright/direct).
+/**
+ * Builds the concise result body shown for a single leg.
+ *
+ * HTTP legs expose only failed structured checks; non-HTTP legs fall back to the executor reporter
+ * unless the leg is a plain healthy pass.
+ */
 function resultChecks(leg) {
   const checks = leg.assertion?.checks;
   if (Array.isArray(checks) && checks.length) {
@@ -280,7 +366,12 @@ function resultChecks(leg) {
   return (leg.status !== 'not_reproduced' && reporter && reporter !== 'null') ? `\`\`\`\n${reporter}\n\`\`\`` : '';
 }
 
-// The full expectation list for the Reproduction test spoiler (definitions, no pass/fail).
+/**
+ * Formats the full structured HTTP expectation list for the reproduction details spoiler.
+ *
+ * Unlike the result section, this includes every check without pass/fail annotations so reviewers can
+ * see the complete contract beside the generated curl script.
+ */
 function assertionList(checks) {
   if (!Array.isArray(checks) || !checks.length) {
     return '';
@@ -293,7 +384,12 @@ function assertionList(checks) {
   return lines.join('\n');
 }
 
-// Keep a multi-line value intact for a block comment: cap the length and neutralize any `*/`.
+/**
+ * Prepares a multi-line actual value for embedding in a generated block comment.
+ *
+ * Long response fragments are capped and block-comment terminators are neutralized so failed-check
+ * output cannot break the fenced pseudo test block in the issue comment.
+ */
 function blockSafe(s) {
   const capped = s.length > 1200 ? `${s.slice(0, 1200)}\n… (truncated)` : s;
   return capped.replace(/\*\//g, '* /');

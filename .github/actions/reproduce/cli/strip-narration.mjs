@@ -5,6 +5,12 @@
 // assertion code is byte-identical). That equality is what lets the comment be trusted.
 import fs from 'node:fs';
 
+/**
+ * Removes video-only narration from an authored Playwright reproduction spec.
+ *
+ * The verdict run and issue comment use this stripped source so subtitles and marker helpers cannot
+ * affect the executed actions or final assertion.
+ */
 export function stripNarration(spec) {
   return String(spec)
     .replace(/^[ \t]*import\s+\{[^}]*\}\s+from\s+['"]\.\/video-helpers\.js['"];?[ \t]*\n/gm, '')
@@ -13,7 +19,12 @@ export function stripNarration(spec) {
     .trimStart();
 }
 
-// True if narration survived a strip (malformed / multi-statement) — the caller should refuse it.
+/**
+ * Detects malformed narration that survived stripping.
+ *
+ * Callers refuse the bundle when this returns true because hidden narration statements could change
+ * the verdict run or make the displayed spec differ from the executed one.
+ */
 export const hasLeftoverNarration = (stripped) =>
   /\bfrom\s+['"]\.\/video-helpers\.js['"]/.test(stripped) || /\bawait\s+(?:narrate|mark)\(/.test(stripped);
 

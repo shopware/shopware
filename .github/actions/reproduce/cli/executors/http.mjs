@@ -10,10 +10,33 @@ import { spawnSync } from 'node:child_process';
 import { appUrl, makeResult, fillPlaceholders } from '../lib.mjs';
 import { token, resolvePlaceholders, salesChannelAccessKey } from '../admin-api.mjs';
 
+/**
+ * Detects Admin API requests that need bearer-token auth.
+ */
 const isAdminPath = (p) => p.startsWith('/api/');
+
+/**
+ * Detects Store API requests that need `sw-access-key` auth.
+ */
 const isStorePath = (p) => p.startsWith('/store-api/');
+
+/**
+ * Evaluates a jq assertion field against the final HTTP response body.
+ */
 const jqField = (filter, body) => (spawnSync('jq', ['-r', filter], { input: body, encoding: 'utf8' }).stdout || '').trim();
 
+/**
+ * Executes an HTTP reproduction plan against one provisioned Shopware leg.
+ *
+ * Use this for Admin API and Store API issues where the final response can be judged with
+ * structured assertions; executor-owned auth prevents generated bundles from smuggling credentials.
+ *
+ * @example
+ * const result = await run({ plan, target: 'reported' });
+ * if (result.status === 'inconclusive') {
+ *   console.error(result.blocked_reason);
+ * }
+ */
 export async function run({ plan, target }) {
   const requests = plan.requests || [plan.request];
   const assertions = plan.assertions || (plan.assertion ? [plan.assertion] : []);
@@ -41,8 +64,16 @@ export async function run({ plan, target }) {
   });
 }
 
-// Resolve only what this plan needs: install ids (if it references entity placeholders), a store
-// access key (for store-api without one provided), and the base storefront URL.
+/**
+ * Resolves only the live-leg context referenced by this HTTP bundle.
+ *
+ * Placeholder ids are fetched lazily so simple HTTP plans do not need Admin API lookups, while
+ * Store API requests still receive a valid access key when the bundle did not provide one.
+ *
+ * @example
+ * const ids = await resolveContext(plan, plan.requests, plan.assertions);
+ * const requestPath = fillPlaceholders(plan.request.path, ids);
+ */
 async function resolveContext(plan, requests, assertions) {
   const placeholderPattern = /\{\{([A-Z0-9_]+)\}\}/g;
   const referenced = [
@@ -63,6 +94,18 @@ async function resolveContext(plan, requests, assertions) {
   return ids;
 }
 
+/**
+ * Sends a request sequence while preserving the executor-owned auth boundary.
+ *
+ * Setup requests must return 2xx before the final request can be judged; the generated `repro.sh`
+ * mirrors user-authored headers but intentionally omits injected auth headers.
+ *
+ * @example
+ * const evaluation = await sendRequests(plan.requests, ids);
+ * if (evaluation.blocked) {
+ *   return { status: 'blocked', reporter: evaluation.blocked };
+ * }
+ */
 async function sendRequests(requests, ids) {
   let code = ''; let bodyText = ''; let blocked = ''; let script = '';
   for (let i = 0; i < requests.length; i += 1) {
@@ -129,6 +172,16 @@ const OPS = {
   lt: (a, e) => Number(a) < Number(e),
 };
 
+/**
+ * Classifies HTTP assertions into the shared reproduction status model.
+ *
+ * Preconditions stop as `inconclusive`, failed symptom assertions become `reproduced`, and unreadable
+ * fields on non-2xx responses stay inconclusive to avoid false positives.
+ *
+ * @example
+ * const { status, checks, reporter } = classify(plan.assertions, evaluation);
+ * const blockedReason = ['blocked', 'inconclusive'].includes(status) ? reporter : null;
+ */
 function classify(assertions, { code, bodyText, blocked }) {
   if (blocked) {
     return { status: 'blocked', checks: [], reporter: blocked };

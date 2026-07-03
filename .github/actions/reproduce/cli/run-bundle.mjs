@@ -7,6 +7,12 @@ import { run as runDirect } from './executors/direct.mjs';
 
 const EXECUTORS = { http: runHttp, playwright: runPlaywright, direct: runDirect };
 
+/**
+ * Dispatches the authored bundle to its selected executor and writes the leg result.
+ *
+ * This is the single step that turns a prepared plan into `result.json`; reset, seeding, and
+ * readiness checks stay in `pipeline.mjs` so both trusted and preview runs share ordering.
+ */
 export async function runBundle({ target, out }) {
   const plan = readJson(FILES.plan);
   const executor = EXECUTORS[plan.executor];

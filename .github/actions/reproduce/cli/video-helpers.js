@@ -4,6 +4,12 @@
 // Author them as standalone one-line `await` statements; the real action stays a separate plain line.
 const DELAY = Number(process.env.REPRO_VIDEO_STEP_MS || 900);
 
+/**
+ * Shows a subtitle overlay during the optional narrated video pass.
+ *
+ * The verdict spec is stripped before execution, so this helper is evidence-only and must remain
+ * safe to remove without changing the reproduction logic.
+ */
 export async function narrate(page, text) {
   await page.evaluate((message) => {
     let el = document.querySelector('[data-repro-subtitle]');
@@ -23,6 +29,12 @@ export async function narrate(page, text) {
   await page.waitForTimeout(DELAY);
 }
 
+/**
+ * Highlights the next interacted element during narrated video capture.
+ *
+ * The marker is transient visual evidence for reviewers; authored specs call it on its own line so
+ * strip-narration can remove it cleanly for the machine verdict run.
+ */
 export async function mark(page, locator, label = '') {
   await locator.scrollIntoViewIfNeeded().catch(() => {});
   const box = await locator.boundingBox().catch(() => null);

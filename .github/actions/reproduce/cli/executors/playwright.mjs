@@ -10,8 +10,23 @@ import { FILES, appUrl, makeResult, readJson } from '../lib.mjs';
 import { stripNarration } from '../strip-narration.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+/**
+ * Removes ANSI color codes from Playwright reporter errors before classification.
+ */
 const stripAnsi = (s) => s.replace(/\[[0-9;]*m/g, '');
 
+/**
+ * Runs a generated Playwright spec for one leg and returns the shared result contract.
+ *
+ * The verdict run strips narration before execution; optional video capture runs separately and
+ * cannot influence the official status.
+ *
+ * @example
+ * const result = await run({ plan, target: 'trunk' });
+ * if (result.status === 'reproduced') {
+ *   console.log(result.evidence.reporter_output);
+ * }
+ */
 export async function run({ plan, target }) {
   const specPath = plan.script_path || FILES.specTs;
   if (!fs.existsSync(specPath)) {
@@ -52,9 +67,17 @@ export async function run({ plan, target }) {
   return classify(plan, target, cleanSpec, report);
 }
 
+/**
+ * Builds the empty assertion payload used when Playwright cannot produce a verdict assertion.
+ */
 const nullAssertion = () => ({ expect: null, actual: null, matched: null });
 
-// A valid {width,height} of positive integers ⇒ the JSON string the config parses; anything else ⇒ null.
+/**
+ * Converts a valid plan viewport into the JSON environment value read by Playwright config.
+ *
+ * Invalid or missing dimensions return null so the config falls back to Playwright's desktop
+ * default instead of resizing after video capture has fixed the frame.
+ */
 function viewportEnv(v) {
   if (!v || !Number.isFinite(v.width) || !Number.isFinite(v.height) || v.width <= 0 || v.height <= 0) {
     return null;
@@ -62,8 +85,18 @@ function viewportEnv(v) {
   return JSON.stringify({ width: Math.round(v.width), height: Math.round(v.height) });
 }
 
-// admin-ui: log in once (proven locators) and hand the spec a session. A login failure is an env
-// problem, not a reproduction result ⇒ blocked. storefront-ui: pre-accept consent (best effort).
+/**
+ * Prepares browser storage state owned by the harness rather than the generated spec.
+ *
+ * Admin login failure is treated as blocked environment setup, while storefront consent is best
+ * effort and can be disabled by consent-specific repros through the plan.
+ *
+ * @example
+ * const storage = prepareAuth({ layer: 'admin-ui' }, 'reported');
+ * if (storage.blocked) {
+ *   return storage.blocked;
+ * }
+ */
 function prepareAuth(plan, target) {
   if (plan.layer === 'admin-ui') {
     const loginStateScript = path.join(here, '..', 'login-state.mjs');
@@ -103,9 +136,18 @@ function prepareAuth(plan, target) {
   return { state: '' };
 }
 
-// Run the spec in an isolated dir. The verdict run (video:false) drives the JSON report we classify.
-// The video run (video:true) records a narrated .webm into its own output dir — kept separate so it
-// never overwrites the verdict run's screenshot/trace — and the recording is copied to ./video.webm.
+/**
+ * Runs Playwright in an isolated temporary project for either verdict or optional video evidence.
+ *
+ * The non-video run returns the JSON report used for classification; the video run writes only
+ * evidence and is isolated so it cannot overwrite verdict screenshots or traces.
+ *
+ * @example
+ * const report = runSpec(cleanSpec, storage.state, { video: false, viewport });
+ * if (!report) {
+ *   return classify(plan, target, cleanSpec, report);
+ * }
+ */
 function runSpec(spec, storageState, { video, viewport }) {
   const suffix = video ? '-video' : '';
   const hasRunnerTemp = process.env.RUNNER_TEMP && fs.existsSync(process.env.RUNNER_TEMP);
@@ -152,6 +194,12 @@ function runSpec(spec, storageState, { video, viewport }) {
   return readJson(reportPath, null);
 }
 
+/**
+ * Finds the first recorded Playwright video in a nested test-results directory.
+ *
+ * The video run can place recordings under generated test subdirectories, so this walks recursively
+ * before copying the evidence to the stable `video.webm` artifact name.
+ */
 function findWebm(dir) {
   if (!fs.existsSync(dir)) {
     return null;
@@ -175,6 +223,10 @@ function findWebm(dir) {
  *
  * A failed final value assertion is the reported symptom (`reproduced`); setup, navigation,
  * missing-element, and cross-version locator failures stay `inconclusive`.
+ *
+ * @example
+ * const result = classify(plan, 'reported', cleanSpec, report);
+ * const trusted = ['reproduced', 'not_reproduced'].includes(result.status);
  */
 function classify(plan, target, spec, report) {
   const build = (status, actual, reporter, reason = null) => makeResult({
@@ -273,6 +325,12 @@ function classify(plan, target, spec, report) {
   return build('not_reproduced', `${expected} passing`, `all ${expected} test(s) passed (healthy)`);
 }
 
+/**
+ * Collects failed and timed-out Playwright error messages from the JSON report tree.
+ *
+ * Classification needs the complete nested error text because assertion failures, navigation
+ * failures, and locator setup drift can appear at different depths in the report.
+ */
 function collectErrors(report) {
   const messages = [];
   const walk = (node) => {

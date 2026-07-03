@@ -19,6 +19,9 @@ const MATRIX = {
   'null/not_reproduced': 'not_reproducible',
 };
 
+/**
+ * Reads optional JSON verdict artifacts, returning null when a leg did not upload one.
+ */
 const readJson = (path) => {
   try {
     return JSON.parse(fs.readFileSync(path, 'utf8'));
@@ -26,8 +29,23 @@ const readJson = (path) => {
     return null;
   }
 };
+/**
+ * Compacts verdict output values for safe `GITHUB_OUTPUT` emission.
+ */
 const oneLine = (s, max = 300) => String(s).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 
+/**
+ * Computes the deterministic issue verdict from the reported and trunk leg results.
+ *
+ * Agent confidence and blocked/inconclusive legs override the simple status matrix so uncertain
+ * evidence is surfaced as `needs_human_review` instead of a misleading closure recommendation.
+ *
+ * @example
+ * const result = computeVerdict('artifacts');
+ * if (result.verdict === 'needs_human_review') {
+ *   console.log(result.unsure_reason);
+ * }
+ */
 export function computeVerdict(art = process.env.ART || 'artifacts') {
   const reportedLeg = readJson(`${art}/repro-reported/result.json`);
   const trunkLeg = readJson(`${art}/repro-trunk/result.json`);

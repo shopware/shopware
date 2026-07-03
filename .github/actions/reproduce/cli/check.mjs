@@ -11,6 +11,9 @@ import { FILES, appUrl, readJson } from './lib.mjs';
 const OUT = 'seeded-readiness.json';
 const here = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Converts a readiness route/path into a local URL safe for the provisioned shop.
+ */
 const localUrl = (raw) => {
   const target = String(raw ?? '');
   if (!target) {
@@ -28,8 +31,17 @@ const localUrl = (raw) => {
   return `${appUrl()}/${target.replace(/^\/+/, '')}`;
 };
 
+/**
+ * Reads readiness checks from the current and legacy plan field names.
+ */
 const readinessChecks = (plan) => plan.seeded_readiness || plan.readiness_checks || [];
 
+/**
+ * Verifies browser-visible seeded setup before the symptom executor runs.
+ *
+ * Each readiness check loads a route and records a screenshot while asserting only setup markers,
+ * never the reported broken control, so failures block the leg as setup drift.
+ */
 export async function check({ plan = readJson(FILES.plan, {}) } = {}) {
   if (!appUrl() || plan.executor !== 'playwright') {
     return { ok: true, skipped: true };
@@ -66,6 +78,12 @@ export async function check({ plan = readJson(FILES.plan, {}) } = {}) {
   return { ok: failures.length === 0, failures };
 }
 
+/**
+ * Runs one browser readiness check and records failures without throwing.
+ *
+ * The caller aggregates all failures so the blocked result can explain every missing seeded marker
+ * instead of stopping at the first one.
+ */
 async function runCheck(page, c, index, failures, observations) {
   const name = String(c.name || `readiness check ${index + 1}`);
   const target = localUrl(c.path ?? c.url ?? c.route);
@@ -110,6 +128,12 @@ async function runCheck(page, c, index, failures, observations) {
   await page.screenshot({ path: shot, fullPage: false }).catch(() => {});
 }
 
+/**
+ * Builds Playwright storage options for readiness checks.
+ *
+ * Admin readiness reuses the harness login state, while storefront readiness can pre-accept consent
+ * unless the reproduction explicitly needs to exercise the consent flow.
+ */
 async function storageStateOptions(plan) {
   if (fs.existsSync('admin-state.json')) {
     return { storageState: 'admin-state.json' };
@@ -124,4 +148,7 @@ async function storageStateOptions(plan) {
   return {};
 }
 
+/**
+ * Writes the readiness report consumed by the pipeline and uploaded artifacts.
+ */
 const writeReport = (report) => fs.writeFileSync(OUT, `${JSON.stringify(report, null, 2)}\n`);

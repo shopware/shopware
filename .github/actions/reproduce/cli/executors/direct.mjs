@@ -8,6 +8,18 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { FILES, makeResult } from '../lib.mjs';
 
+/**
+ * Runs a generated PHPUnit reproduction test for one target leg.
+ *
+ * Use this executor for service or DAL bugs where HTTP/UI paths would not exercise the reported
+ * behavior faithfully; a passing test means healthy, while assertion failure means reproduced.
+ *
+ * @example
+ * const result = run({ plan, target: 'reported' });
+ * if (result.status === 'inconclusive') {
+ *   console.error(result.blocked_reason);
+ * }
+ */
 export function run({ plan, target }) {
   const specPath = plan.script_path || FILES.testPhp;
   const shop = process.env.SHOP_DIR || (fs.existsSync('vendor/bin/phpunit') ? '.' : 'shop');
@@ -30,10 +42,17 @@ export function run({ plan, target }) {
   });
 }
 
-// PHPUnit prints a failure/error as: a `N) Class::method` header, then the assertion message and
-// `Failed asserting that …`, then the source location — the useful part is everything AFTER the
-// header. Capture the first block up to the next block or the summary, drop the boilerplate header,
-// and shorten the absolute source path to `File.php:line`, so the comment shows WHY it failed.
+/**
+ * Extracts the useful failure block from PHPUnit output for the issue comment.
+ *
+ * PHPUnit prefixes failures with a numbered test header and absolute paths; this keeps the assertion
+ * message while shortening paths so reviewers see why the direct repro failed.
+ *
+ * @example
+ * // Returns:
+ * // Failed asserting that false is true.
+ * // ReproTest.php:186
+ */
 function failureBlock(output, max = 1200) {
   const start = output.search(/^\d+\) /m);
   if (start === -1) {
@@ -48,6 +67,12 @@ function failureBlock(output, max = 1200) {
   return block.length > max ? `${block.slice(0, max)}\n…` : block;
 }
 
+/**
+ * Copies the generated direct test into Shopware's integration suite and runs PHPUnit.
+ *
+ * A provided `PHPUNIT_REPORT` can short-circuit execution for deterministic fixture tests or local
+ * debugging; otherwise the generated test is discovered through Shopware's autoload-dev namespace.
+ */
 function runPhpunit(specPath, shop, plan, target) {
   if (process.env.PHPUNIT_REPORT) {
     return fs.readFileSync(process.env.PHPUNIT_REPORT, 'utf8');
@@ -67,6 +92,16 @@ function runPhpunit(specPath, shop, plan, target) {
   return `${res.stdout || ''}${res.stderr || ''}` || `PHP direct executor could not run phpunit in ${shop}. Install PHP or set PHPUNIT_REPORT.`;
 }
 
+/**
+ * Maps PHPUnit output onto the shared reproduction status model.
+ *
+ * Assertion failures are symptoms, bootstrap/runtime errors are inconclusive unless the plan
+ * explicitly declares a `symptom_pattern` that makes the exception itself the reported bug.
+ *
+ * @example
+ * const { status, reporter, reason } = classify(output, plan);
+ * const blockedReason = status === 'inconclusive' ? reason : null;
+ */
 function classify(output, plan) {
   const firstError = failureBlock(output).replace(/\s+/g, ' ').slice(0, 700);
   if (/^OK[ (]/m.test(output)) {
@@ -95,6 +130,9 @@ function classify(output, plan) {
   };
 }
 
+/**
+ * Builds a blocked direct-executor result when the generated PHPUnit test cannot run.
+ */
 const blocked = (plan, target, spec, reason) => makeResult({
   plan,
   target,

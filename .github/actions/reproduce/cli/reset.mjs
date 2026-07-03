@@ -6,6 +6,9 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { FILES, shopDir } from './lib.mjs';
 
+/**
+ * Extracts MySQL connection parts from Shopware's `DATABASE_URL`.
+ */
 function parseDatabaseUrl(url) {
   const u = new URL(url);
   return {
@@ -17,6 +20,12 @@ function parseDatabaseUrl(url) {
   };
 }
 
+/**
+ * Restores the clean post-install database snapshot before a trusted leg runs.
+ *
+ * Reset is best-effort so freshly provisioned legs without a snapshot can still continue, while
+ * stale rows and cache are cleared whenever the snapshot is available.
+ */
 export function reset() {
   if (!fs.existsSync(FILES.snapshot)) {
     console.log('no DB snapshot — running on the current state');

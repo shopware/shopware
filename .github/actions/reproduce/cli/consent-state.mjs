@@ -29,6 +29,9 @@ try {
 } catch { /* leave the empty hash; the banner may reappear but the run still proceeds */ }
 
 const expires = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30;
+/**
+ * Builds a Playwright storageState cookie for the current storefront host.
+ */
 const cookie = (name, value) => ({
   name,
   value,

@@ -8,6 +8,9 @@ import fs from 'node:fs';
 import { FILES, ENTITY_PLACEHOLDERS, readJson, fillPlaceholders, unresolvedPlaceholders } from './lib.mjs';
 import { resolvePlaceholders, sync, uploadMedia, refreshIndexes } from './admin-api.mjs';
 
+/**
+ * Converts Admin API-style entity names to Sync API operation entity names.
+ */
 const snakeCase = (name) => name.replace(/-/g, '_');
 
 class SeedError extends Error {
@@ -17,8 +20,16 @@ class SeedError extends Error {
   }
 }
 
-// The Sync API needs an operation envelope per key: { entity, action, payload }. Forgive the two
-// recurring shapes agents write: a bare array (wrap as upsert) and a hyphenated entity name (snake).
+/**
+ * Normalizes fixture authoring shortcuts into Admin Sync API operations.
+ *
+ * Agents may write either a bare payload array or a full operation envelope; this helper preserves
+ * both while converting hyphenated entity names to the snake-case names expected by Sync API.
+ *
+ * @example
+ * const operations = toSyncOperations({ product: [{ id: '...' }] });
+ * console.log(operations.product.entity); // "product"
+ */
 function toSyncOperations(fixtures) {
   const operations = {};
   for (const [key, value] of Object.entries(fixtures)) {
@@ -32,6 +43,19 @@ function toSyncOperations(fixtures) {
   return operations;
 }
 
+/**
+ * Applies deterministic fixture state to the current Shopware leg.
+ *
+ * Use this before an executor runs so both reported and trunk legs receive the same static rows,
+ * uploaded media bytes, and refreshed storefront indexes.
+ *
+ * @example
+ * try {
+ *   await seed({ fixturesPath: FILES.fixtures });
+ * } catch (err) {
+ *   return fail(target, out, `seeding fixtures.json failed: ${err.message}`);
+ * }
+ */
 export async function seed({ fixturesPath = FILES.fixtures } = {}) {
   if (!fs.existsSync(fixturesPath)) {
     console.log(`no fixtures (${fixturesPath}) — nothing to seed`);
@@ -81,6 +105,12 @@ export async function seed({ fixturesPath = FILES.fixtures } = {}) {
   console.log('refreshed storefront indexes');
 }
 
+/**
+ * Uploads fixture media bytes after Sync API has created the media rows.
+ *
+ * Media rows alone do not create file-backed thumbnails or replaceable assets, so this step attaches
+ * actual bytes before browser flows open the Media library.
+ */
 async function uploadFixtureMedia(uploads, ids) {
   if (!Array.isArray(uploads) || uploads.length === 0) {
     return;

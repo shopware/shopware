@@ -7,6 +7,9 @@
 // requests use Accept: application/json for the flat response shape (id at the top level).
 import { adminPass, adminUser, appUrl } from './lib.mjs';
 
+/**
+ * Returns the Admin API base URL for the current provisioned shop.
+ */
 const base = () => {
   const url = appUrl();
   if (!url) {
@@ -17,6 +20,15 @@ const base = () => {
 
 let cachedToken = '';
 
+/**
+ * Returns an Admin API bearer token for deterministic seeding and HTTP execution.
+ *
+ * The token is cached per process because a leg may perform many placeholder lookups and Sync API
+ * calls, all against the same provisioned shop.
+ *
+ * @example
+ * const headers = { Authorization: `Bearer ${await token()}` };
+ */
 export async function token() {
   if (cachedToken) {
     return cachedToken;
@@ -40,13 +52,21 @@ export async function token() {
   return cachedToken;
 }
 
+/**
+ * Builds JSON Admin API headers with the cached bearer token.
+ */
 const authHeaders = async () => ({
   Authorization: `Bearer ${await token()}`,
   Accept: 'application/json',
   'Content-Type': 'application/json',
 });
 
-// POST /api/search/<entity> → flat search response.
+/**
+ * Searches one Admin API entity and returns the flat JSON API response.
+ *
+ * Placeholder resolution uses this instead of DAL internals so the deterministic runner works
+ * against any provisioned Shopware version with Admin API credentials.
+ */
 export async function search(entity, criteria) {
   const res = await fetch(`${base()}/api/search/${entity}`, {
     method: 'POST',
@@ -59,10 +79,21 @@ export async function search(entity, criteria) {
   return res.json();
 }
 
+/**
+ * Extracts the first id-like field from an Admin API search result.
+ */
 const firstId = (result, field = 'id') => result?.data?.[0]?.[field] ?? '';
 
-// Resolve every {{PLACEHOLDER}} to a live id on the running shop. Mirrors the ids fixtures/HTTP
-// plans reference. SYSTEM_LANGUAGE is Shopware's stable Defaults::LANGUAGE_SYSTEM constant.
+/**
+ * Resolves every portable bundle placeholder to a live id on the current Shopware leg.
+ *
+ * Fixtures and HTTP plans use these values instead of install-specific UUIDs; stable constants such
+ * as `SYSTEM_LANGUAGE` are returned directly while generated entities are read through Admin search.
+ *
+ * @example
+ * const ids = await resolvePlaceholders();
+ * const body = fillPlaceholders(JSON.stringify(fixtures), ids);
+ */
 export async function resolvePlaceholders() {
   const active = (field) => ({ limit: 1, filter: [{ type: 'equals', field, value: true }] });
   const orderState = (machine) => ({ limit: 1, filter: [
@@ -98,13 +129,29 @@ export async function resolvePlaceholders() {
   };
 }
 
-// Resolve an active sales-channel access key for store-api auth.
+/**
+ * Resolves an active sales-channel access key for Store API executor requests.
+ *
+ * The HTTP executor injects this value when the plan targets `/store-api/*` and did not provide a
+ * leg-specific `SW_ACCESS_KEY` environment override.
+ */
 export async function salesChannelAccessKey() {
   const sc = await search('sales-channel', { limit: 5, filter: [{ type: 'equals', field: 'active', value: true }] });
   return (sc.data || []).map((c) => c.accessKey).find(Boolean) || '';
 }
 
-// POST /api/_action/sync with the operation envelope. Returns { ok, status, detail }.
+/**
+ * Sends a prepared Sync API operation envelope and returns a non-throwing result object.
+ *
+ * Seeding wants actionable API validation detail in `seed-error.txt`, so callers receive
+ * `{ ok, status, detail }` instead of an exception with a lost response body.
+ *
+ * @example
+ * const result = await sync(toSyncOperations(fixtures));
+ * if (!result.ok) {
+ *   throw new SeedError(`sync HTTP ${result.status}: ${result.detail}`);
+ * }
+ */
 export async function sync(operations) {
   const res = await fetch(`${base()}/api/_action/sync`, {
     method: 'POST',
@@ -119,7 +166,12 @@ export async function sync(operations) {
   return { ok: false, status: res.status, detail };
 }
 
-// Upload raw bytes onto an already-seeded media entity.
+/**
+ * Uploads raw fixture bytes onto an already-seeded media entity.
+ *
+ * Sync API creates the media row, but browser media flows need `hasFile`/thumbnail state backed by
+ * actual uploaded bytes before the leg opens the Media library.
+ */
 export async function uploadMedia({ mediaId, path, extension, mimeType, fileName }) {
   const fs = await import('node:fs');
   const query = new URLSearchParams({ extension });
@@ -138,9 +190,12 @@ export async function uploadMedia({ mediaId, path, extension, mimeType, fileName
   return { ok: false, status: res.status, detail: body?.errors?.map((e) => e.detail).join('; ') || '' };
 }
 
-// Storefront indexers don't run on their own in CI (no queue worker), so freshly-synced
-// products/categories/pages won't appear in listings until indexed. Drive them via the Admin API
-// (runs inside the live process, works from the sandbox).
+/**
+ * Runs storefront-relevant indexers after fixture seeding.
+ *
+ * CI has no queue worker, so freshly synced products, categories, and pages may stay invisible until
+ * these Admin API indexer calls complete inside the live Shopware process.
+ */
 export async function refreshIndexes(indexers = ['category.indexer', 'product.indexer', 'product_stream.indexer', 'landing_page.indexer']) {
   const headers = await authHeaders();
   for (const indexer of indexers) {

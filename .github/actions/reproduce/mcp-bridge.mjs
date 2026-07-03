@@ -36,15 +36,23 @@ let adminToken = '';
 
 // --- JSON-RPC helpers --------------------------------------------------------
 
+/**
+ * Builds a JSON-RPC success response.
+ */
 function result(id, value) {
   return { jsonrpc: '2.0', id, result: value };
 }
 
+/**
+ * Builds a JSON-RPC error response with the bridge's default server-error code.
+ */
 function error(id, message, code = -32000) {
   return { jsonrpc: '2.0', id, error: { code, message } };
 }
 
-// Empty results for the *list methods, used when running local-only.
+/**
+ * Returns empty MCP list results for capabilities unavailable in local-only mode.
+ */
 function emptyList(method) {
   if (method === 'tools/list') {
     return { tools: [] };
@@ -59,7 +67,9 @@ function emptyList(method) {
   return null;
 }
 
-// Wrap a value as an MCP text content result.
+/**
+ * Wraps a string or JSON-serializable value as MCP text content.
+ */
 function jsonText(value) {
   return {
     content: [
@@ -73,8 +83,12 @@ function jsonText(value) {
 
 // --- Local fallback tools ----------------------------------------------------
 
-// Tools implemented directly against the Admin/Sync API. These are always
-// available (given credentials) and are merged with any remote tools.
+/**
+ * Describes local fallback tools implemented directly against the Admin and Sync APIs.
+ *
+ * These tools are merged with remote MCP tools when available and remain usable on older Shopware
+ * versions that do not expose a remote MCP endpoint.
+ */
 function localTools() {
   return [
     {
@@ -135,16 +149,25 @@ function localTools() {
   ];
 }
 
+/**
+ * Checks whether a tool name is implemented by the local Admin/Sync fallback set.
+ */
 function isLocalTool(name) {
   return localTools().some((tool) => tool.name === name);
 }
 
 // --- Admin API access (used by local tools) ---------------------------------
 
+/**
+ * Normalizes Admin API entity names accepted from agent-authored tool arguments.
+ */
 function normalizeEntityName(entity) {
   return String(entity || '').trim().replace(/_/g, '-');
 }
 
+/**
+ * Validates and returns a safe Admin API entity name for local fallback requests.
+ */
 function assertEntity(entity) {
   const normalized = normalizeEntityName(entity);
   if (!/^[a-z][a-z0-9-]*$/.test(normalized)) {
@@ -153,8 +176,12 @@ function assertEntity(entity) {
   return normalized;
 }
 
-// Derive the Admin API base URL from the configured MCP endpoint by stripping
-// the trailing /api/_mcp path segment.
+/**
+ * Derives the Admin API base URL from the configured MCP endpoint.
+ *
+ * The bridge receives the remote `/api/_mcp` URL, while local fallback tools need the regular
+ * Admin API base URL for OAuth, search, read, and sync calls.
+ */
 function adminBaseUrl() {
   const value = endpoint.replace(/\/api\/_mcp\/?$/, '').replace(/\/$/, '');
   if (!value) {
@@ -163,8 +190,12 @@ function adminBaseUrl() {
   return value;
 }
 
-// Perform an authenticated Admin API request, lazily obtaining an OAuth token
-// via the client-credentials grant on first use.
+/**
+ * Performs an authenticated Admin API request for local fallback tools.
+ *
+ * The OAuth token is fetched lazily with the configured integration credentials and cached for
+ * subsequent local tool calls in the same bridge process.
+ */
 async function adminFetch(path, options = {}) {
   if (!adminToken) {
     const tokenResponse = await fetch(`${adminBaseUrl()}/api/oauth/token`, {
@@ -203,7 +234,12 @@ async function adminFetch(path, options = {}) {
   return body ? JSON.parse(body) : {};
 }
 
-// Execute a locally-implemented tool against the Admin/Sync API.
+/**
+ * Executes one locally implemented Shopware tool against Admin or Sync API.
+ *
+ * Local tools give the agent schema/search/upsert capabilities even when the reported Shopware
+ * version predates the remote MCP server.
+ */
 async function localToolCall(name, args = {}) {
   if (!accessKey || !secretAccessKey) {
     throw new Error('Shopware Admin API credentials are missing.');
@@ -270,7 +306,9 @@ async function localToolCall(name, args = {}) {
 
 // --- Remote MCP proxy --------------------------------------------------------
 
-// Server capabilities returned when handling initialize locally (no remote).
+/**
+ * Builds the local initialize response when no remote MCP endpoint is usable.
+ */
 function localInitialize(id) {
   return result(id, {
     protocolVersion,
@@ -286,9 +324,12 @@ function localInitialize(id) {
   });
 }
 
-// Forward a JSON-RPC message to the remote Shopware MCP endpoint. Authenticates
-// with the sw-access-key headers, carries the negotiated session id, and parses
-// both plain JSON and text/event-stream responses.
+/**
+ * Forwards one JSON-RPC message to the remote Shopware MCP endpoint.
+ *
+ * The bridge carries the negotiated MCP session id and accepts both plain JSON and SSE responses,
+ * because Shopware MCP versions can differ in transport response shape.
+ */
 async function forward(message) {
   const headers = {
     accept: 'application/json, text/event-stream',
@@ -338,7 +379,11 @@ async function forward(message) {
   return JSON.parse(body);
 }
 
-// Best-effort teardown of the remote MCP session (issued on shutdown/DELETE).
+/**
+ * Tears down the remote MCP session when the bridge shuts down or receives DELETE.
+ *
+ * Cleanup is best-effort only; failed teardown must not break the workflow job.
+ */
 async function closeRemoteSession() {
   if (remoteUnavailable || !sessionId) {
     return;
@@ -360,8 +405,12 @@ async function closeRemoteSession() {
 
 // --- JSON-RPC request handling -----------------------------------------------
 
-// Route a single JSON-RPC message. Prefers the remote proxy when available and
-// degrades to the local tools (or empty lists) when it is not.
+/**
+ * Routes one JSON-RPC message through remote MCP or local fallback behavior.
+ *
+ * Initialization and list methods degrade gracefully to local capabilities, while tool calls dispatch
+ * to local implementations first and then remote tools when available.
+ */
 async function handle(message) {
   const method = message.method;
   const id = message.id;
@@ -445,7 +494,12 @@ async function handle(message) {
   }
 }
 
-// Dispatch tools/call to a local implementation or forward it to the remote.
+/**
+ * Dispatches `tools/call` to a local implementation or forwards it to remote MCP.
+ *
+ * Local tool errors are returned as MCP tool errors so the agent can inspect validation feedback
+ * without losing the JSON-RPC session.
+ */
 async function handleToolCall(message) {
   const id = message.id;
   const name = message.params?.name;
@@ -479,7 +533,9 @@ async function handleToolCall(message) {
 
 // --- Transports --------------------------------------------------------------
 
-// stdio transport: one JSON-RPC message per line in, one per line out.
+/**
+ * Handles one newline-delimited JSON-RPC message from stdio transport.
+ */
 async function handleLine(line) {
   const trimmed = line.trim();
   if (!trimmed) {
@@ -500,6 +556,9 @@ async function handleLine(line) {
   }
 }
 
+/**
+ * Starts the stdio MCP transport used by agent tool processes.
+ */
 function startStdio() {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -511,8 +570,12 @@ function startStdio() {
   });
 }
 
-// HTTP transport on /mcp. POST carries JSON-RPC; DELETE tears down the session;
-// GET (and any other method) returns 405 — this doubles as the health signal.
+/**
+ * Starts the HTTP MCP transport on `/mcp`.
+ *
+ * POST carries JSON-RPC, DELETE tears down the session, and GET returns 405 as a simple health
+ * signal for workflow setup scripts.
+ */
 function startHttp() {
   const server = http.createServer((request, response) => {
     if (request.method === 'GET') {

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 abstract class AbstractContentSystemBindingSpecificationLoader
 {

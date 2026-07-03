@@ -396,7 +396,7 @@ class InvoiceDataProviderTest extends TestCase
 
         return new InvoiceDataProvider(
             $configLoader,
-            $validator ?? $this->createMock(ValidatorInterface::class),
+            $validator ?? static::createStub(ValidatorInterface::class),
         );
     }
 
@@ -439,7 +439,7 @@ class InvoiceDataProviderTest extends TestCase
             );
         }
 
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')
             ->willReturn(new ConstraintViolationList($violations));
 

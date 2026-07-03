@@ -34,7 +34,7 @@ class AppMcpCapabilityDetectorTest extends TestCase
 
     public function testDetectsCapabilitiesFromMcpXml(): void
     {
-        $detector = new AppMcpCapabilityDetector($this->createMock(Connection::class));
+        $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));
         $capabilities = $detector->fromMcp(Mcp::createFromXmlFile(__DIR__ . '/../../App/Mcp/_fixtures/mcp.xml'));
 
         static::assertTrue($capabilities->tools);
@@ -44,7 +44,7 @@ class AppMcpCapabilityDetectorTest extends TestCase
 
     public function testEmptyMcpXmlHasNoCapabilities(): void
     {
-        $detector = new AppMcpCapabilityDetector($this->createMock(Connection::class));
+        $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));
         $capabilities = $detector->fromMcp(Mcp::createFromXmlFile(__DIR__ . '/../../App/Mcp/_fixtures/mcp_empty.xml'));
 
         static::assertFalse($capabilities->hasChanges());

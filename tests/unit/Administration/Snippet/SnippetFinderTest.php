@@ -32,6 +32,7 @@ use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -454,6 +455,7 @@ class SnippetFinderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: static::createStub(ClientInterface::class),
             config: $translationConfig,
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

@@ -3,13 +3,23 @@
  */
 
 import { mount } from '@vue/test-utils';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 describe('src/app/component/structure/sw-language-switch', () => {
     let wrapper = null;
+    let languageRepositoryMock = null;
 
     beforeEach(async () => {
         jest.restoreAllMocks();
         Shopware.Store.get('context').api.languageId = '123456789';
+
+        languageRepositoryMock = {
+            search: jest.fn(() =>
+                Promise.resolve(new EntityCollection('language', 'language', Shopware.Context.api, new Criteria(), [])),
+            ),
+        };
+        Shopware.Service('repositoryFactory').create = jest.fn(() => languageRepositoryMock);
 
         wrapper = mount(await wrapTestComponent('sw-language-switch', { sync: true }), {
             global: {

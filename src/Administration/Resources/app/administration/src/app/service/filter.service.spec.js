@@ -133,7 +133,7 @@ describe('app/service/filter.service.js', () => {
         await filterService.getStoredFilters('test');
 
         expect(userConfigServiceMock.search).toHaveBeenCalledTimes(1);
-        expect(userConfigServiceMock.search).toHaveBeenCalledWith(null);
+        expect(userConfigServiceMock.search).toHaveBeenCalledWith(['test']);
     });
 
     it('getStoredFilters when there is no data from database, has data from url', async () => {

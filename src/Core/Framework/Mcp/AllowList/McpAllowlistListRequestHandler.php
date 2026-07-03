@@ -46,7 +46,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * @return Response<ListToolsResult>|Response<ListResourcesResult>|Response<ListPromptsResult>
+     * @return Response<ListToolsResult|ListResourcesResult|ListPromptsResult>
      */
     #[\Override]
     public function handle(Request $request, SessionInterface $session): Response
@@ -65,7 +65,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * @return Response<ListToolsResult>
+     * @return Response<ListToolsResult|ListResourcesResult|ListPromptsResult>
      */
     private function handleListTools(ListToolsRequest $request): Response
     {
@@ -74,7 +74,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         if ($allowlist->tools === null) {
             $page = $this->registry->getTools($this->pageSize, $request->cursor);
 
-            return new Response($request->getId(), new ListToolsResult($this->collectTools($page->references), $page->nextCursor));
+            return $this->createResponse($request->getId(), new ListToolsResult($this->collectTools($page->references), $page->nextCursor));
         }
 
         $tools = $this->collectTools(
@@ -84,11 +84,11 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
 
         [$page, $nextCursor] = $this->paginate($tools, $request->cursor);
 
-        return new Response($request->getId(), new ListToolsResult($page, $nextCursor));
+        return $this->createResponse($request->getId(), new ListToolsResult($page, $nextCursor));
     }
 
     /**
-     * @return Response<ListResourcesResult>
+     * @return Response<ListToolsResult|ListResourcesResult|ListPromptsResult>
      */
     private function handleListResources(ListResourcesRequest $request): Response
     {
@@ -97,7 +97,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         if ($allowlist->resources === null) {
             $page = $this->registry->getResources($this->pageSize, $request->cursor);
 
-            return new Response($request->getId(), new ListResourcesResult($this->collectResources($page->references), $page->nextCursor));
+            return $this->createResponse($request->getId(), new ListResourcesResult($this->collectResources($page->references), $page->nextCursor));
         }
 
         $resources = $this->collectResources(
@@ -107,11 +107,11 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
 
         [$page, $nextCursor] = $this->paginate($resources, $request->cursor);
 
-        return new Response($request->getId(), new ListResourcesResult($page, $nextCursor));
+        return $this->createResponse($request->getId(), new ListResourcesResult($page, $nextCursor));
     }
 
     /**
-     * @return Response<ListPromptsResult>
+     * @return Response<ListToolsResult|ListResourcesResult|ListPromptsResult>
      */
     private function handleListPrompts(ListPromptsRequest $request): Response
     {
@@ -120,7 +120,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         if ($allowlist->prompts === null) {
             $page = $this->registry->getPrompts($this->pageSize, $request->cursor);
 
-            return new Response($request->getId(), new ListPromptsResult($this->collectPrompts($page->references), $page->nextCursor));
+            return $this->createResponse($request->getId(), new ListPromptsResult($this->collectPrompts($page->references), $page->nextCursor));
         }
 
         $prompts = $this->collectPrompts(
@@ -130,7 +130,15 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
 
         [$page, $nextCursor] = $this->paginate($prompts, $request->cursor);
 
-        return new Response($request->getId(), new ListPromptsResult($page, $nextCursor));
+        return $this->createResponse($request->getId(), new ListPromptsResult($page, $nextCursor));
+    }
+
+    /**
+     * @return Response<ListToolsResult|ListResourcesResult|ListPromptsResult>
+     */
+    private function createResponse(string|int $id, ListToolsResult|ListResourcesResult|ListPromptsResult $result): Response
+    {
+        return new Response($id, $result);
     }
 
     /**

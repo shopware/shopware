@@ -183,9 +183,6 @@ class ContentElement extends Struct
         }
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function hasSlots(): bool
     {
         return $this->slots !== [];

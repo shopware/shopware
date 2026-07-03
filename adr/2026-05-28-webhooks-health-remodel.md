@@ -1,7 +1,7 @@
 ---
 title: Webhook endpoint health remodel
 date: 2026-05-28
-updated: 2026-07-02 — the health clock moved off the scheduled-task infrastructure onto the delivery worker's transport poll (the scheduler's cadence is host-controlled and cannot honour a 60 s tick); 2026-06-10 — non-transient suspension threshold, staged backlog drop, lifecycle events + trip notification, disable provenance, trial/clock edge rules (post-review amendment)
+updated: 2026-07-03 — lifecycle-event payload contract (names, transition time, machine-readable suspension cause); 2026-07-02 — the health clock moved off the scheduled-task infrastructure onto the delivery worker's transport poll (the scheduler's cadence is host-controlled and cannot honour a 60 s tick); 2026-06-10 — non-transient suspension threshold, staged backlog drop, lifecycle events + trip notification, disable provenance, trial/clock edge rules (post-review amendment)
 area: framework
 tags: [webhook, health, circuit-breaker, reliability, outbox]
 ---
@@ -366,6 +366,8 @@ A breaker that trips silently turns hours of shed events into a month-end surpri
 | DISABLED | `WebhookDisabledEvent` | yes — always |
 
 - **Best-effort:** emitted post-commit; a listener failure never affects the transition — the events are advisory, the `webhook_health` row is the truth. Events plus structured logs are also the provenance record; there is no separate audit table.
+- **Payload contract:** ids, names, coarse state/cause enums, and timestamps — never the endpoint URL, headers, delivery payloads, exception messages, or counts. Concretely, every event carries `webhookId`, `webhookName` (the vendor's key into `GET /state` and `POST /reactivate` — both are name-keyed), `eventName` (the affected webhook's subscription — what makes an operator's Flow rule readable), `fromState`, and `occurredAt` (the transition's own time; the envelope timestamp is per delivery *attempt*, so a held event delivered late would otherwise carry no transition time). `WebhookSuspendedEvent` adds `suspendedSince` (the episode anchor) and `cause` (`auth_streak` | `gone` | `schedule_exhausted`) — the remedy differs per cause (rotate credentials / fix a retired URL / wait out recovery), and a machine-readable enum is in-contract where remedy *text* is not. The "no counts, no remedy instructions" rule continues to bind the Admin-notice wording.
+- **App-less observers see everything — deliberately.** A webhook without an owning app passes dispatch eligibility unconditionally, so an operator-created webhook subscribed to `webhook.health.*` receives all apps' health events, names included. That is an operator-trust channel with the same trust level as the Admin; app-owned webhooks stay strictly scoped to their own app's events.
 - **One notification per suspension** because repeated alarms from a flapping endpoint would teach operators to ignore the channel.
 - **The recovery notice** closes the loop — deliberately without counts or remedy instructions: the merchant and the app vendor are different parties, and acting on the gap is the vendor's job. The vendor's record is `GET /state` (`suspended_since` → recovery bounds the window) plus the replayable FAILED rows; replayed deliveries are ordinary subscribed events — recovery never introduces a new event type an app must learn.
 

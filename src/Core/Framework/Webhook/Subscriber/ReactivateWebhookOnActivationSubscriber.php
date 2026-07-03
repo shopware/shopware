@@ -6,17 +6,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 use Shopware\Core\Framework\Webhook\Health\EndpointLifecycle;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Routes the admin reactivate gesture — `PATCH /api/webhook/{id}` with `active = true` — through the
- * health model so a SUSPENDED/DISABLED webhook is reset to HEALTHY (counters cleared, held backlog
- * resumed, audit event emitted), not merely flipped `active = 1` over stale health. This is the
- * manual recovery path while the flag is on. `reactivate()` is a no-op for an already-HEALTHY webhook,
- * so an unrelated edit that happens to include `active = true` costs nothing. A bare secret rotation
- * emits no such write, so it stays a known gap (recover via this PATCH or an app install/update).
+ * Routes the admin reactivate gesture (`PATCH /api/webhook/{id}` with `active = true`)
+ * through the health model. A SUSPENDED/DISABLED webhook is reset to HEALTHY — counters
+ * cleared, held backlog resumed, audit event emitted — not just flipped to `active = 1`
+ * on top of stale health. This is the manual recovery path while the flag is on.
+ *
+ * `reactivate()` is a no-op for an already-HEALTHY webhook, so an unrelated edit that
+ * happens to include `active = true` costs nothing. A bare secret rotation emits no such
+ * write, so it stays a known gap (recover via this PATCH or an app install/update).
  *
  * @internal
  */
@@ -51,7 +54,8 @@ class ReactivateWebhookOnActivationSubscriber implements EventSubscriberInterfac
             $id = $payload['id'] ?? null;
 
             if (($payload['active'] ?? null) === true && \is_string($id)) {
-                $this->endpointLifecycle->reactivateOnActiveFlip($id);
+                // The Manual trigger carries the echo guard: only a real value flip causes a transition.
+                $this->endpointLifecycle->reactivate($id, WebhookActivationTrigger::Manual);
             }
         }
     }

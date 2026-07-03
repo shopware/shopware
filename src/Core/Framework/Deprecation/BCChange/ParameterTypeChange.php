@@ -7,13 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Signals that the type of a parameter will be narrowed in the given version.
  *
- * Callers already passing a value of the announced type do not need to act. Callers relying on
- * the wider current type must adjust before the change happens. Tooling (e.g. Rector) can add
- * type guards or casts at call sites by reading `$newType`.
+ * Call sites passing values that are not covered by the announced type must adjust before the
+ * change happens; call sites already passing the announced type are not affected. Overrides may
+ * keep the wider parameter type (contravariance). Tooling (e.g. Rector) can add type guards or
+ * casts at affected call sites by reading `$newType`.
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
-final class ParameterTypeChange implements BCChangeAttribute
+final class ParameterTypeChange implements CallSiteCompatibilityChange
 {
     /**
      * @param string $parameterName the name of the parameter, without the leading `$`

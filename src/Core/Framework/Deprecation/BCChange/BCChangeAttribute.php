@@ -8,10 +8,15 @@ use Shopware\Core\Framework\Log\Package;
  * Marker interface for all BC-change attributes.
  *
  * BC-change attributes document planned changes to the public API surface that are *not* deprecations:
- * there is no replacement API to migrate to and no action is required from callers today.
- * They replace the former `@deprecated tag:vX.Y.Z - reason:*` PHPDoc markers for such changes,
- * which incorrectly surfaced as deprecation errors in static analysis of third-party code.
+ * there is no replacement API to migrate to and the annotated symbol keeps working as-is. Whether
+ * third-party code has to act before the announced version depends on how it uses the symbol; the
+ * sub-interfaces state which audience can be affected:
  *
+ * - {@see CallSiteCompatibilityChange} — code calling the symbol can be affected
+ * - {@see ExtenderCompatibilityChange} — code extending or overriding the symbol can be affected
+ *
+ * These attributes replace the former `@deprecated tag:vX.Y.Z - reason:*` PHPDoc markers for such
+ * changes, which incorrectly surfaced as deprecation errors in static analysis of third-party code.
  * Use `@deprecated` (together with `Feature::triggerDeprecationOrThrow()`) only when functionality
  * is removed or replaced and extension developers have to migrate.
  *

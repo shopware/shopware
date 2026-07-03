@@ -8,8 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Deprecation\BCChange\BCChangeAttribute;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeChange;
@@ -36,9 +38,10 @@ class BCChangeAttributesTest extends TestCase
 {
     /**
      * @param class-string<BCChangeAttribute> $attributeClass
+     * @param list<class-string<BCChangeAttribute>> $expectedAudiences
      */
     #[DataProvider('attributeConfigurationProvider')]
-    public function testAttributeConfiguration(string $attributeClass, int $expectedFlags): void
+    public function testAttributeConfiguration(string $attributeClass, int $expectedFlags, array $expectedAudiences): void
     {
         $reflection = new \ReflectionClass($attributeClass);
 
@@ -46,6 +49,16 @@ class BCChangeAttributesTest extends TestCase
         static::assertTrue(
             $reflection->implementsInterface(BCChangeAttribute::class),
             \sprintf('"%s" must implement the marker interface for tooling discovery', $attributeClass)
+        );
+
+        $implementedAudiences = array_values(array_filter(
+            [CallSiteCompatibilityChange::class, ExtenderCompatibilityChange::class],
+            static fn (string $audience) => $reflection->implementsInterface($audience)
+        ));
+        static::assertSame(
+            $expectedAudiences,
+            $implementedAudiences,
+            \sprintf('"%s" declares unexpected affected audiences', $attributeClass)
         );
 
         $attributeConfig = $reflection->getAttributes(\Attribute::class);
@@ -58,58 +71,68 @@ class BCChangeAttributesTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{class-string<BCChangeAttribute>, int}>
+     * @return iterable<string, array{class-string<BCChangeAttribute>, int, list<class-string<BCChangeAttribute>>}>
      */
     public static function attributeConfigurationProvider(): iterable
     {
-        yield 'return type changes target a single method' => [
+        yield 'return type narrowing targets a single method and affects extenders' => [
             ReturnTypeChange::class,
             \Attribute::TARGET_METHOD,
+            [ExtenderCompatibilityChange::class],
         ];
 
-        yield 'new optional parameters target methods and are repeatable per parameter' => [
+        yield 'new optional parameters target methods, are repeatable per parameter and affect extenders' => [
             NewOptionalParameter::class,
             \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE,
+            [ExtenderCompatibilityChange::class],
         ];
 
-        yield 'parameter renames target methods and are repeatable per parameter' => [
+        yield 'parameter renames target methods, are repeatable per parameter and affect named-argument call sites' => [
             ParameterNameChange::class,
             \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE,
+            [CallSiteCompatibilityChange::class],
         ];
 
-        yield 'parameter type narrowing targets methods and is repeatable per parameter' => [
+        yield 'parameter type narrowing targets methods, is repeatable per parameter and affects call sites' => [
             ParameterTypeChange::class,
             \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE,
+            [CallSiteCompatibilityChange::class],
         ];
 
-        yield 'parameter type widening targets methods and is repeatable per parameter' => [
+        yield 'parameter type widening targets methods, is repeatable per parameter and affects extenders' => [
             ParameterTypeExtension::class,
             \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE,
+            [ExtenderCompatibilityChange::class],
         ];
 
-        yield 'exception changes target a single method' => [
+        yield 'exception changes target a single method and affect catching call sites' => [
             ExceptionChange::class,
             \Attribute::TARGET_METHOD,
+            [CallSiteCompatibilityChange::class],
         ];
 
-        yield 'becoming internal targets classes and methods' => [
+        yield 'becoming internal targets classes and methods and affects call sites and extenders' => [
             BecomesInternal::class,
             \Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD,
+            [CallSiteCompatibilityChange::class, ExtenderCompatibilityChange::class],
         ];
 
-        yield 'becoming final targets classes' => [
+        yield 'becoming final targets classes and affects extenders' => [
             BecomesFinal::class,
             \Attribute::TARGET_CLASS,
+            [ExtenderCompatibilityChange::class],
         ];
 
-        yield 'class hierarchy changes target classes' => [
+        yield 'class hierarchy changes target classes and affect call sites and extenders' => [
             ClassHierarchyChange::class,
             \Attribute::TARGET_CLASS,
+            [CallSiteCompatibilityChange::class, ExtenderCompatibilityChange::class],
         ];
 
-        yield 'visibility changes target a single method' => [
+        yield 'visibility changes target a single method and affect call sites and extenders' => [
             VisibilityChange::class,
             \Attribute::TARGET_METHOD,
+            [CallSiteCompatibilityChange::class, ExtenderCompatibilityChange::class],
         ];
     }
 

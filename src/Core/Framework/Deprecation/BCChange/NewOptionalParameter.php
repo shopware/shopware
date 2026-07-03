@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Signals that a new optional parameter will be added to the method in the given version.
  *
- * Callers do not need to act. Classes overriding the method must add the parameter with the
- * announced name and type to stay compatible. Tooling can detect conflicts for callers that
- * already pass a named argument with the announced name.
+ * Call sites are not affected — the parameter is optional. Classes overriding the method must
+ * add the parameter with the announced name and type to keep a compatible signature once the
+ * change happens.
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
-final class NewOptionalParameter implements BCChangeAttribute
+final class NewOptionalParameter implements ExtenderCompatibilityChange
 {
     /**
      * @param string $parameterName the name of the new parameter, without the leading `$`

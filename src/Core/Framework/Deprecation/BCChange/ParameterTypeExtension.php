@@ -7,12 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Signals that the type of a parameter will be widened in the given version.
  *
- * Callers do not need to act. Classes overriding the method must widen the parameter type
- * accordingly to stay compatible with the announced type.
+ * Call sites are not affected — every currently accepted value stays accepted. Classes overriding
+ * the method must widen the parameter type of their override to the announced type before the
+ * change happens, as a narrower parameter type in the override violates contravariance.
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
-final class ParameterTypeExtension implements BCChangeAttribute
+final class ParameterTypeExtension implements ExtenderCompatibilityChange
 {
     /**
      * @param string $parameterName the name of the parameter, without the leading `$`

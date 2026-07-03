@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Signals that the inheritance chain of the class will change in the given version.
  *
- * Callers do not need to act. Extension code extending the class or type-hinting against one
- * of its current ancestors may be affected and should be flagged by tooling. The required
- * `$description` states what will change in the hierarchy.
+ * Classes extending the annotated class, and call sites type-hinting or `instanceof`-checking
+ * against one of its current ancestors, must adjust before the change happens if they rely on a
+ * part of the hierarchy that goes away. The required `$description` states what will change.
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 #[Package('framework')]
-final class ClassHierarchyChange implements BCChangeAttribute
+final class ClassHierarchyChange implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     public function __construct(
         public readonly string $version,

@@ -5,15 +5,15 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Signals that the return type of the method will change in the given version.
+ * Signals that the return type of the method will be narrowed in the given version.
  *
- * Callers do not need to act. Classes overriding the method must ensure their return type
- * stays compatible with the announced type. Tooling (e.g. Rector) can prepare call sites
- * and overrides by reading `$newType`.
+ * Call sites are not affected — the announced type satisfies the current one. Classes overriding
+ * the method must declare a return type that is compatible with the announced type before the
+ * change happens. Tooling (e.g. Rector) can prepare overrides by reading `$newType`.
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
-final class ReturnTypeChange implements BCChangeAttribute
+final class ReturnTypeChange implements ExtenderCompatibilityChange
 {
     public function __construct(
         public readonly string $version,

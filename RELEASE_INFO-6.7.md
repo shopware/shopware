@@ -8,7 +8,7 @@ Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations 
 
 Such changes are now documented with dedicated PHP attributes under `Shopware\Core\Framework\Deprecation\BCChange` (`ReturnTypeChange`, `NewOptionalParameter`, `ParameterNameChange`, `ParameterTypeChange`, `ParameterTypeExtension`, `ExceptionChange`, `BecomesInternal`, `BecomesFinal`, `ClassHierarchyChange`, `VisibilityChange`). They are invisible to PHPStan's deprecation rules, so plugin CI pipelines no longer fail on them. The `@deprecated` annotation remains reserved for functionality that is removed or replaced and requires migration.
 
-Extension developers do not need to change anything. Tooling authors can discover all BC-change markers via reflection:
+Whether an annotated change requires action depends on how your code uses the symbol; each attribute implements one or both of the audience interfaces `CallSiteCompatibilityChange` (code calling the symbol can be affected, e.g. by a parameter type narrowing) and `ExtenderCompatibilityChange` (code extending or overriding the symbol can be affected, e.g. by a return type narrowing). Tooling authors can discover all BC-change markers via reflection:
 
 ```php
 $reflection->getAttributes(BCChangeAttribute::class, \ReflectionAttribute::IS_INSTANCEOF);

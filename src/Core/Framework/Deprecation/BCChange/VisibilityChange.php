@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Signals that the visibility of the method will be reduced in the given version.
  *
- * Callers inside the announced visibility scope do not need to act. Extension code calling the
- * method from outside the announced scope must stop doing so before the change happens and
- * should be flagged by tooling.
+ * Call sites outside the announced visibility scope must stop calling the method before the
+ * change happens. Overrides in extending classes must not declare a wider visibility than the
+ * announced one once the change happens.
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
-final class VisibilityChange implements BCChangeAttribute
+final class VisibilityChange implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     /**
      * @param 'protected'|'private' $newVisibility

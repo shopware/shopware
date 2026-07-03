@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Migration;
+namespace Shopware\Tests\Unit\Core\Framework\Migration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_3\Migration1565270366PromotionSetGroupRule;
 use Shopware\Core\Migration\V6_3\Migration1565346846Promotion;
 use Shopware\Core\Migration\V6_3\Migration1566293076AddAutoIncrement;
@@ -28,18 +29,24 @@ use Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKi
 /**
  * @internal
  */
+#[CoversClass(MigrationSource::class)]
 class MigrationSourceTest extends TestCase
 {
-    use KernelTestBehaviour;
-
+    #[TestDox('core.V6_3 namespace pattern: $_dataName')]
     #[DataProvider('provideCoreRegexDataV6_3')]
     public function testCoreRegexV63(string $subject, bool $shouldMatch): void
     {
-        $pattern = static::getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core.V6_3')->getNamespacePattern();
+        // mirrors the MigrationSource.core.V6_3 service: only the namespace mapping matters for the pattern
+        $source = new MigrationSource('core.V6_3', [
+            __DIR__ => 'Shopware\Core\Migration\V6_3',
+        ]);
 
-        static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject, $subject));
+        $pattern = $source->getNamespacePattern();
+
+        static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject));
     }
 
+    #[TestDox('multi-directory namespace pattern: $_dataName')]
     #[DataProvider('provideUnitTestData')]
     public function testUnitRegex(string $subject, bool $shouldMatch): void
     {
@@ -51,7 +58,7 @@ class MigrationSourceTest extends TestCase
 
         $pattern = $source->getNamespacePattern();
 
-        static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject, $subject));
+        static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject));
     }
 
     public function testNestedMigrationSources(): void
@@ -113,11 +120,11 @@ class MigrationSourceTest extends TestCase
     }
 
     /**
-     * @return list<array{class-string|string, bool}>
+     * @return \Generator<string, array{0: class-string|string, 1: bool}>
      */
-    public static function provideCoreRegexDataV6_3(): array
+    public static function provideCoreRegexDataV6_3(): \Generator
     {
-        $cases = [
+        foreach ([
             [Migration1565270366PromotionSetGroupRule::class, true],
             [Migration1565346846Promotion::class, true],
             [Migration1566293076AddAutoIncrement::class, true],
@@ -137,23 +144,25 @@ class MigrationSourceTest extends TestCase
             [Migration1570684913ScheduleIndexer::class, true],
             [Migration1571059598ChangeGreatBritainToUnitedKingdom::class, true],
             ['Shopware\Core\Migration\V6_3\Something\Migration1571059598ChangeGreatBritainToUnitedKingdom', false],
-        ];
-
-        return $cases;
+        ] as [$subject, $shouldMatch]) {
+            yield $subject => [$subject, $shouldMatch];
+        }
     }
 
     /**
-     * @return list<array{string, bool}>
+     * @return \Generator<string, array{0: string, 1: bool}>
      */
-    public static function provideUnitTestData(): array
+    public static function provideUnitTestData(): \Generator
     {
-        return [
+        foreach ([
             ['__NOPE__', false],
             ['Shopware\Storefront\Migration\Migration1572858066UpdateDefaultCategorySeoUrlTemplate', false],
             ['My\Test\Namespace\Haha', true],
             ['My\Test\Namespace2\Haha', true],
             ['My\Test\Namespace\2\Haha', false],
             ['My\Test\Namespace2\Not\A\Class', false],
-        ];
+        ] as [$subject, $shouldMatch]) {
+            yield $subject => [$subject, $shouldMatch];
+        }
     }
 }

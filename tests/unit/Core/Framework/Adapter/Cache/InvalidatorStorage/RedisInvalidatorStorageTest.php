@@ -16,7 +16,7 @@ class RedisInvalidatorStorageTest extends TestCase
 {
     public function testStorage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = static::createStub(LoggerInterface::class);
         $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
 
         static::assertSame($storage->loadAndDelete(), []);

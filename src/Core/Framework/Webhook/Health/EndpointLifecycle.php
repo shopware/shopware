@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Health;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 
 /**
  * Off-hot-path webhook-health orchestration: the clocked duties driven by the transport-polled
@@ -16,8 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  *   ── this interface ──
  *   SUSPENDED → DISABLED           tick() duty 3                  held past `max_suspended_days`
  *   any non-HEALTHY → HEALTHY      reactivateForApp               app install/update clean slate (operator-disabled excluded)
- *
- * Manual per-webhook reactivation (any → HEALTHY) is owned by the reactivation API, not this interface.
+ *   any non-HEALTHY → HEALTHY      reactivate                     manual per-webhook reactivation (admin PATCH / app API)
  *
  * @internal
  */
@@ -58,4 +58,15 @@ interface EndpointLifecycle
      * @return int number of webhooks reset
      */
     public function reactivateForApp(string $appId): int;
+
+    /**
+     * Manual per-webhook reset to HEALTHY — the operator gesture (admin `PATCH active = true`) or
+     * the app's self-service API; $trigger says which. Heals idempotently: on an already-HEALTHY
+     * webhook (or one without a health row) the BC mirror and the held-row resume still run, so a
+     * crash-stranded `paused` backlog or a drifted legacy `active`/`error_count` is repaired even
+     * when no state transition happens.
+     *
+     * @return int 1 when a non-HEALTHY webhook was reset, 0 otherwise
+     */
+    public function reactivate(string $webhookId, WebhookActivationTrigger $trigger): int;
 }

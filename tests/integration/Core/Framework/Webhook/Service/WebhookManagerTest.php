@@ -38,6 +38,10 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
+use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -896,7 +900,9 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void
@@ -948,7 +954,9 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testAsyncDispatchCreatesWebhookEventLogEntry(): void
@@ -1016,7 +1024,9 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
@@ -1042,7 +1052,9 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testSyncDispatchCreatesOutboxEntriesAndDelivers(): void
@@ -1123,24 +1135,26 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
-        // Even on failure, the event log should exist and show failed status
-        $eventLog = $this->connection->fetchAssociative(
-            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
-            ['name' => 'hook1']
-        );
+            // Even on failure, the event log should exist and show failed status
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
 
-        static::assertIsArray($eventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
 
-        // Verify webhook_delivery row is also cleaned up on failure (terminal state)
-        $deliveryCount = (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $eventLog['id']]
-        );
+            // Verify webhook_delivery row is also cleaned up on failure (terminal state)
+            $deliveryCount = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
 
-        static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+            static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+        });
     }
 
     public function testSyncDispatchWithMultipleWebhooksCreatesMultipleOutboxEntries(): void
@@ -1256,16 +1270,18 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
-        $eventLog = $this->connection->fetchAssociative(
-            'SELECT delivery_status, response_status_code, response_reason_phrase FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
-            ['name' => 'hook1']
-        );
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT delivery_status, response_status_code, response_reason_phrase FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
 
-        static::assertIsArray($eventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
-        static::assertSame(500, (int) $eventLog['response_status_code']);
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+            static::assertSame(500, (int) $eventLog['response_status_code']);
+        });
     }
 
     public function testSyncDispatchDoesNotCallMessageBus(): void
@@ -1595,7 +1611,23 @@ class WebhookManagerTest extends TestCase
             $adminWorkerEnabled,
             static::getContainer()->get(WebhookDeliveryService::class),
             static::getContainer()->get(WebhookOutboxStore::class),
-            null,
+            // Always-Deliver stub: the same decision the fail-open gate makes without a health row,
+            // so the legacy-path tests here never depend on webhook_health state.
+            new class implements EndpointHealth {
+                public function gateFor(string $webhookId): WebhookDispatchDecision
+                {
+                    return WebhookDispatchDecision::Deliver;
+                }
+
+                public function recordSuccess(string $webhookId): void
+                {
+                }
+
+                public function recordFailure(string $webhookId, ErrorClassification $classification, int $attempt): EndpointState
+                {
+                    return EndpointState::Healthy;
+                }
+            },
         );
     }
 

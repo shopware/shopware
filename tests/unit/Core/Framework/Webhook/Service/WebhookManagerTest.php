@@ -241,7 +241,7 @@ class WebhookManagerTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
     }
 
-    public function testFlagOnWithNoHealthBoundDeliversEveryWebhookViaProcess(): void
+    public function testFlagOnDeliversEveryHealthyWebhookViaProcess(): void
     {
         $event = $this->prepareEvent();
         $first = $this->getWebhook('foobar');
@@ -252,8 +252,8 @@ class WebhookManagerTest extends TestCase
             static fn (array $roleIds): array => array_fill_keys($roleIds, new AclPrivilegeCollection([])),
         );
 
-        // No EndpointHealth bound (null): flag-on must behave exactly like trunk —
-        // every webhook delivered, nothing held.
+        // Every gate decides Deliver (HEALTHY): flag-on matches trunk — every webhook
+        // delivered, nothing held.
         $manager = $this->getWebhookManager(true);
 
         $this->deliveryService->expects($this->never())->method('hold');
@@ -689,6 +689,13 @@ class WebhookManagerTest extends TestCase
 
     private function getWebhookManager(bool $isAdminWorkerEnabled, ?EndpointHealth $endpointHealth = null): WebhookManager
     {
+        if ($endpointHealth === null) {
+            // Default gate: every webhook reads HEALTHY (the source's fail-open for a missing
+            // health row), so tests not exercising the gate deliver everything.
+            $endpointHealth = $this->createMock(EndpointHealth::class);
+            $endpointHealth->method('gateFor')->willReturn(WebhookDispatchDecision::Deliver);
+        }
+
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
@@ -497,6 +498,93 @@ class WebhookDispatchEndToEndTest extends TestCase
     }
 
     /**
+     * Proves the 429 → TransientRateLimit → `Retry-After` wiring end to end: the response header
+     * reaches {@see RetryDelayCalculator::computeNextRetryAt} through the classification gate and sets
+     * `next_retry_at`. A first-attempt 429 keeps the endpoint HEALTHY (degraded_threshold is 5, only
+     * attempt 1 counts, so one delivery can't cross it), so the row takes the normal backoff branch
+     * honouring the header rather than being paused or failed.
+     *
+     * Catches: the header being dropped before the calculator, or the Retry-After being applied to a
+     * non-429 classification — both of which would leave `next_retry_at` on the fixed +5s tier.
+     *
+     * Steps:
+     * 1. Register a webhook; endpoint returns `429` with `Retry-After: 120`.
+     * 2. Run the worker.
+     *
+     * Expected:
+     * - `webhook_delivery` row is `pending_retry`.
+     * - `next_retry_at` is ~120s in the future, NOT the +5s attempt-1 schedule tier.
+     *
+     * NOTE: the harness wires the real Symfony clock (no injectable/frozen clock — `next_retry_at`
+     * is `now() + delay` in wall time), so this asserts a bounded WINDOW, not an exact instant. The
+     * delta is computed in SQL against `NOW(3)` to avoid PHP↔MySQL clock/timezone skew. The window
+     * [110s, 130s] excludes the +5s schedule tier, so it can only pass when the header is honoured.
+     */
+    public function testRateLimitResponseHonoursRetryAfterHeader(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        $this->appendNewResponse(new Response(429, ['Retry-After' => '120'], '{"error":"rate limited"}'));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+            $this->runWorker();
+        });
+
+        $delivery = $this->fetchDeliveryStatusAndRetryDelta('test-webhook');
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['status'], 'A 429 must park the delivery for retry');
+        static::assertNotNull($delivery['retryDeltaSeconds'], 'A pending_retry row must carry a next_retry_at');
+        static::assertGreaterThanOrEqual(110, $delivery['retryDeltaSeconds'], 'Retry-After: 120 must push next_retry_at ~120s out, not the +5s schedule tier');
+        static::assertLessThanOrEqual(130, $delivery['retryDeltaSeconds'], 'next_retry_at must honour the 120s header, not a larger fallback');
+    }
+
+    /**
+     * The clamp lives in {@see RetryDelayCalculator} (unit-tested); this proves the end-to-end wiring
+     * falls back to the fixed schedule when the header is out of range. `999999`s exceeds the 4h
+     * ceiling, so the calculator ignores it and uses the attempt-1 tier (+5s).
+     *
+     * Catches: an out-of-range Retry-After being applied verbatim (parking the row ~999999s out
+     * instead of +5s) — i.e. a missing range check on the wired path.
+     *
+     * Steps:
+     * 1. Register a webhook; endpoint returns `429` with `Retry-After: 999999`.
+     * 2. Run the worker.
+     *
+     * Expected:
+     * - `webhook_delivery` row is `pending_retry`.
+     * - `next_retry_at` is ~5s out (the attempt-1 schedule tier), NOT ~999999s.
+     *
+     * NOTE: same real-clock constraint as {@see testRateLimitResponseHonoursRetryAfterHeader}; the
+     * delta is computed in SQL. The window (1s, 60s] excludes both the honoured 999999s value and the
+     * higher schedule tiers, pinning it to the +5s attempt-1 tier while tolerating worker latency.
+     */
+    public function testRateLimitWithOutOfRangeRetryAfterFallsBackToSchedule(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        $this->appendNewResponse(new Response(429, ['Retry-After' => '999999'], '{"error":"rate limited"}'));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+            $this->runWorker();
+        });
+
+        $delivery = $this->fetchDeliveryStatusAndRetryDelta('test-webhook');
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['status'], 'A 429 must park the delivery for retry');
+        static::assertNotNull($delivery['retryDeltaSeconds'], 'A pending_retry row must carry a next_retry_at');
+        static::assertGreaterThanOrEqual(1, $delivery['retryDeltaSeconds'], 'next_retry_at must be in the future');
+        static::assertLessThanOrEqual(60, $delivery['retryDeltaSeconds'], 'An out-of-range Retry-After (999999s) must fall back to the +5s attempt-1 tier, not be applied verbatim');
+    }
+
+    /**
      * Steps:
      * 1. Dispatch a webhook event.
      * 2. Fast-forward the retry budget via 5 × (markRunning + markPendingRetry) on the
@@ -662,18 +750,21 @@ class WebhookDispatchEndToEndTest extends TestCase
     }
 
     /**
-     * Steps:
-     * 1. Register a webhook with `error_count = MAX_ERROR_COUNT - 1` (= 9).
-     * 2. Dispatch the event.
-     * 3. Burn the retry budget the same way `testTerminalFailureAfterMaxRetriesMovesRowToFailed` does.
-     * 4. Worker polls → endpoint returns 500 → terminal branch fires.
+     * A single delivery exhausting its own retry ladder is not an endpoint-health signal under the
+     * rework: per-delivery aggregation counts only attempt 1, so one terminal failure cannot cross the
+     * DEGRADED threshold alone. Unlike the legacy disable-on-threshold, the endpoint stays active.
      *
-     * Expected:
-     * - `webhook_event_log` row is `FAILED`.
-     * - `webhook.error_count` resets to `0` (the disable-on-threshold strategy zeros it).
-     * - `webhook.active` flips to `0` — the webhook is disabled at the threshold.
+     * Steps:
+     * 1. Register a webhook with `error_count = MAX_ERROR_COUNT - 1` (= 9) — at the legacy disable edge.
+     * 2. Dispatch the event; burn the retry budget; worker polls → 500 → terminal branch fires.
+     *
+     * Expected (rework):
+     * - `webhook_event_log` row is `FAILED` (the delivery is given up after its retries).
+     * - `webhook.active` stays `1` — the rework does not disable on one delivery's exhaustion.
+     * - `webhook.error_count` is left at `9` — the BC mirror is transition-driven and this delivery
+     *   fired no health transition (attempts > 1 do not count), so nothing rewrote the column.
      */
-    public function testTerminalFailureBumpsErrorCountAndDisablesWebhookAtThreshold(): void
+    public function testTerminalFailureDoesNotDisableWebhookUnderRework(): void
     {
         $webhookId = Uuid::randomHex();
         $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
@@ -714,8 +805,8 @@ class WebhookDispatchEndToEndTest extends TestCase
             ['id' => Uuid::fromHexToBytes($webhookId)],
         );
         static::assertIsArray($webhook);
-        static::assertSame(0, (int) $webhook['error_count'], 'Disable-on-threshold strategy zeroes error_count');
-        static::assertSame(0, (int) $webhook['active'], 'Webhook is disabled once it crosses the threshold');
+        static::assertSame(1, (int) $webhook['active'], 'Rework keeps the endpoint active despite one delivery exhausting its retries');
+        static::assertSame(9, (int) $webhook['error_count'], 'No health transition fired, so the transition-driven BC mirror left error_count untouched');
     }
 
     /**
@@ -892,6 +983,30 @@ class WebhookDispatchEndToEndTest extends TestCase
     }
 
     /**
+     * Returns the hot `webhook_delivery` row's status and the seconds between the DB's current time
+     * and its `next_retry_at`. The delta is computed in SQL (`TIMESTAMPDIFF` against `NOW(3)`) so it
+     * is immune to PHP↔MySQL clock/timezone skew — the harness has no injectable clock, so absolute
+     * timestamps would be flaky. `retryDeltaSeconds` is null when the row has no `next_retry_at`.
+     *
+     * @return array{status: string, retryDeltaSeconds: int|null}
+     */
+    private function fetchDeliveryStatusAndRetryDelta(string $webhookName): array
+    {
+        $eventId = $this->fetchOutboxEventId($webhookName);
+        $row = $this->connection->fetchAssociative(
+            'SELECT delivery_status, TIMESTAMPDIFF(SECOND, NOW(3), next_retry_at) AS retry_delta
+             FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($eventId)]
+        );
+        static::assertIsArray($row, \sprintf('Expected a webhook_delivery row for webhook "%s"', $webhookName));
+
+        return [
+            'status' => (string) $row['delivery_status'],
+            'retryDeltaSeconds' => $row['retry_delta'] === null ? null : (int) $row['retry_delta'],
+        ];
+    }
+
+    /**
      * Makes an already scheduled retry immediately pickable by the next worker tick.
      */
     private function makeRetryImmediatelyDue(string $webhookName): void
@@ -925,8 +1040,10 @@ class WebhookDispatchEndToEndTest extends TestCase
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(WebhookHealthService::class),
             static::getContainer()->get('logger'),
-            null,
-            null,
+            // The real health service + classifier, as wired in production — flag-on failures here
+            // record genuine health evidence (one transient per delivery stays under the threshold).
+            static::getContainer()->get(WebhookHealthService::class),
+            new HttpErrorClassifier(),
             $isAdminWorkerEnabled,
         );
 
@@ -943,7 +1060,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
-            null,
+            static::getContainer()->get(WebhookHealthService::class),
         );
     }
 

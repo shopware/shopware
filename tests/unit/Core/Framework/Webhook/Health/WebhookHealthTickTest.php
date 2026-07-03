@@ -18,17 +18,6 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(WebhookHealthTick::class)]
 class WebhookHealthTickTest extends TestCase
 {
-    public function testDoesNothingWithoutALifecycleImplementation(): void
-    {
-        // PR-1 inertness: until an EndpointLifecycle is bound, a poll does no work at all.
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->expects($this->never())->method('set');
-
-        $tick = new WebhookHealthTick($storage, new MockClock(), new NullLogger());
-
-        $tick->run();
-    }
-
     public function testRunsTheDutiesAndWritesTheHeartbeat(): void
     {
         $clock = new MockClock('2026-07-02 12:00:00');

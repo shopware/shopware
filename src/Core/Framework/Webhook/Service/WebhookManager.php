@@ -63,7 +63,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
-        private readonly ?EndpointHealth $endpointHealth = null,
+        private readonly EndpointHealth $endpointHealth,
     ) {
     }
 
@@ -112,14 +112,28 @@ class WebhookManager implements ResetInterface
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            // Health gate: decide only — the delivery service dispatches, the transport inserts.
-            // A null gate (no EndpointHealth bound) delivers every webhook.
+            // Health gate: this block only decides. The delivery service dispatches, and the
+            // transport writes the decision as-is.
             $deliver = [];
             $hold = [];
             foreach ($webhooksForEvent as $webhook) {
-                $decision = $this->endpointHealth?->gateFor($webhook->id) ?? WebhookDispatchDecision::Deliver;
+                // Eligibility (active app, privilege, live version) is checked BEFORE the health
+                // gate: an event that trunk would not dispatch must not cause a health side
+                // effect. Above all, it must not consume a SUSPENDED webhook's single half-open
+                // trial. The gate's trial admission re-arms the cooldown lease, so burning the
+                // trial on an event that collectMessages then drops would starve recovery — an
+                // inactive-app or privilege-filtered event could keep the trial from ever reaching
+                // an eligible delivery.
+                if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+                    continue;
+                }
+
+                $decision = $this->endpointHealth->gateFor($webhook->id);
                 if ($decision === WebhookDispatchDecision::Skip) {
-                    // SUSPENDED/DISABLED: drop the event.
+                    // SUSPENDED/DISABLED: drop the event — no row, no write. The health API
+                    // bounds the dropped window via suspended_since; listing the dropped events
+                    // one by one is impossible by design (the log must not grow while a webhook
+                    // is undeliverable).
                     continue;
                 }
 

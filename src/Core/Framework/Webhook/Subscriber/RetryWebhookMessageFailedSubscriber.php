@@ -84,6 +84,8 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Flag-on never reaches here (the early return above hands the whole retry lifecycle to the
+        // health model), so this match only covers the two legacy flag-off strategies.
         $params = match ($this->failureStrategy) {
             WebhookFailureStrategy::DisableOnThreshold => $this->handleDisableOnThreshold($webhook),
             WebhookFailureStrategy::Ignore => $this->handleIgnore($webhook),

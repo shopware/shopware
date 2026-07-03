@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core;
+namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -29,7 +28,6 @@ use Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKi
 /**
  * @internal
  */
-#[CoversClass(MigrationSource::class)]
 class MigrationSourceTest extends TestCase
 {
     use KernelTestBehaviour;

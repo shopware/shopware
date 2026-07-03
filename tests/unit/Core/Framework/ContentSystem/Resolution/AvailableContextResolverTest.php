@@ -83,14 +83,6 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame([], $this->resolver()->resolve('child-1', [$root], $rootContext));
     }
 
-    #[TestDox('returns an empty set for an unknown element id')]
-    public function testUnknownElementYieldsEmpty(): void
-    {
-        $root = new ContentElement('root-1', 'Sw:Block');
-
-        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
-    }
-
     #[TestDox('exposes a backed ancestor provider to its direct child but not past a non-redistributing intermediate')]
     public function testProviderContextStopsAtNonRedistributingIntermediate(): void
     {
@@ -210,6 +202,14 @@ class AvailableContextResolverTest extends TestCase
         static::assertCount(1, $available);
         static::assertSame('product', $available[0]->contextKey);
         static::assertSame('level-2', $available[0]->providerElementId);
+    }
+
+    #[TestDox('returns an empty set for an unknown element id')]
+    public function testUnknownElementYieldsEmpty(): void
+    {
+        $root = new ContentElement('root-1', 'Sw:Block');
+
+        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
     }
 
     /**

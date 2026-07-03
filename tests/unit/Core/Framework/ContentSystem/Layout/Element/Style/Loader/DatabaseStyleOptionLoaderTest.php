@@ -35,6 +35,7 @@ class DatabaseStyleOptionLoaderTest extends TestCase
         static::assertSame('col-span', $options[0]->name());
         static::assertSame('app:Acme', $options[0]->source());
         static::assertSame('integer', $options[0]->valueType()->type());
+        static::assertTrue($options[0]->breakpointAware());
     }
 
     #[TestDox('loads a flat option with breakpointAware=false when the schema column declares it')]
@@ -50,20 +51,6 @@ class DatabaseStyleOptionLoaderTest extends TestCase
         static::assertCount(1, $options);
         static::assertSame('brand-flat', $options[0]->name());
         static::assertFalse($options[0]->breakpointAware());
-    }
-
-    #[TestDox('loads an option as breakpointAware=true when the schema column omits the key')]
-    public function testLoadsBreakpointAwareTrueWhenKeyAbsent(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'col-span', 'schema' => json_encode(['type' => 'integer', 'range' => ['min' => 1, 'max' => 12]]), 'app_name' => 'Acme'],
-        ]);
-
-        $options = $this->loader($connection, 'prod')->load();
-
-        static::assertCount(1, $options);
-        static::assertTrue($options[0]->breakpointAware());
     }
 
     #[TestDox('returns nothing in dev, where app options load from the filesystem instead')]
@@ -144,7 +131,7 @@ class DatabaseStyleOptionLoaderTest extends TestCase
             $this->validator(),
             $connection,
             $environment,
-            $logger ?? $this->createMock(LoggerInterface::class),
+            $logger ?? static::createStub(LoggerInterface::class),
         );
     }
 

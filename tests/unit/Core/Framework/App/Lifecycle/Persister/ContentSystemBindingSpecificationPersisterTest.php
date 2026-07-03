@@ -223,6 +223,27 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertCount(1, $repo->deletes);
     }
 
+    #[TestDox('serializes the persist under a per-app lock, acquiring it blocking and releasing it')]
+    public function testAcquiresAndReleasesPerAppLockAroundPersist(): void
+    {
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = static::createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with(static::stringContains($this->ids->get('app')), static::anything())
+            ->willReturn($lock);
+
+        $repo = $this->createEmptyRepository();
+        $persister = $this->buildPersister($repo, lockFactory: $lockFactory);
+
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+    }
+
     #[TestDox('returns early without writing when the app ships none and none are stored')]
     public function testEarlyReturnWhenBothEmpty(): void
     {
@@ -328,27 +349,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
 
         $this->expectExceptionObject($deleteException);
         $persister->persist($this->buildContext());
-    }
-
-    #[TestDox('serializes the persist under a per-app lock, acquiring it blocking and releasing it')]
-    public function testAcquiresAndReleasesPerAppLockAroundPersist(): void
-    {
-        $lock = static::createMock(SharedLockInterface::class);
-        $lock->expects($this->once())->method('acquire')->with(true);
-        $lock->expects($this->once())->method('release');
-
-        $lockFactory = static::createMock(LockFactory::class);
-        $lockFactory->expects($this->once())
-            ->method('createLock')
-            ->with(static::stringContains($this->ids->get('app')), static::anything())
-            ->willReturn($lock);
-
-        $repo = $this->createEmptyRepository();
-        $persister = $this->buildPersister($repo, lockFactory: $lockFactory);
-
-        $persister->persist($this->buildContext());
-
-        static::assertCount(1, $repo->upserts);
     }
 
     private function buildExistingEntity(string $idKey, string $name): AppContentSystemBindingSpecificationEntity

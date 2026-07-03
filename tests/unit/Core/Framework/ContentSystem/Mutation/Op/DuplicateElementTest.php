@@ -72,6 +72,22 @@ class DuplicateElementTest extends TestCase
         static::assertSame([$clone->getId(), $clonedChild->getId()], $duplicate->affected());
     }
 
+    #[TestDox('reports only the clone id as affected when the duplicated element has no children')]
+    public function testDuplicateLeafAffectedIsCloneIdOnly(): void
+    {
+        $tree = [new ContentElement('original', 'Sw:Card'), new ContentElement('other', 'Sw:Block')];
+
+        $duplicate = new DuplicateElement('original');
+        $result = $duplicate->apply($tree);
+
+        $clone = $result[1];
+        static::assertNotSame('original', $clone->getId());
+        static::assertSame('original', $result[0]->getId());
+        static::assertSame('Sw:Card', $clone->getComponent());
+        static::assertSame([], $clone->getProperties());
+        static::assertSame([$clone->getId()], $duplicate->affected());
+    }
+
     #[TestDox('carries key-based wiring, context definitions, and style over to the clone unchanged')]
     public function testDuplicatePreservesWiringAndStyle(): void
     {

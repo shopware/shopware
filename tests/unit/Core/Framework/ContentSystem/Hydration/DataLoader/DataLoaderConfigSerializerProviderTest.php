@@ -118,7 +118,7 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         }
     }
 
-    #[TestDox('encode() rethrows a ContentSystemException from the serializer unchanged')]
+    #[TestDox('rethrows a ContentSystemException from the serializer unchanged')]
     public function testEncodeRethrowsContentSystemExceptionUnchanged(): void
     {
         $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
@@ -135,7 +135,7 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         }
     }
 
-    #[TestDox('encode() reclassifies a non-ContentSystemException HttpException as invalidLoaderConfig')]
+    #[TestDox('reclassifies a non-ContentSystemException HttpException as invalidLoaderConfig')]
     public function testEncodeReclassifiesForeignHttpExceptionAsInvalidLoaderConfig(): void
     {
         $domainException = new class(Response::HTTP_BAD_REQUEST, 'DOMAIN__BAD', 'bad config') extends HttpException {};
@@ -153,7 +153,7 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         }
     }
 
-    #[TestDox('encode() lets a bare non-HttpException from the serializer propagate unwrapped')]
+    #[TestDox('lets a bare non-HttpException from the serializer propagate unwrapped')]
     public function testEncodeLetsBarePhpExceptionPropagate(): void
     {
         $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);

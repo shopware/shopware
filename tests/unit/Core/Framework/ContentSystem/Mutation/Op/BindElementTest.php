@@ -25,8 +25,8 @@ class BindElementTest extends TestCase
 {
     use AssertsImmutableInput;
 
-    #[TestDox('inlines the resolves entry as a DataRequirement with the spec source and decoded config')]
-    public function testBindInlinesResolvesAsDataRequirement(): void
+    #[TestDox('inlines the resolves entry as a DataRequirement, seeds the input default, and attributes the resolves key to the specification id')]
+    public function testBindWiresResolvesSeedsDefaultsAndAttributesSpecification(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $tree = [new ContentElement('el', 'Sw:Product')];
@@ -34,17 +34,8 @@ class BindElementTest extends TestCase
         $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
 
         static::assertEquals(['product' => new DataRequirement('product', 'entity', $config)], $result[0]->getDataRequirements());
-    }
-
-    #[TestDox('seeds the input default into a property key the element does not already have')]
-    public function testBindSeedsInputDefaultForAbsentKey(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $tree = [new ContentElement('el', 'Sw:Product')];
-
-        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
-
         static::assertSame('123', $result[0]->getProperty('mediaId'));
+        static::assertSame(['product' => 'spec-1'], $result[0]->getAttributedSpecifications());
     }
 
     #[TestDox('does not seed a property when the input has no default and the element lacks the key')]
@@ -58,18 +49,6 @@ class BindElementTest extends TestCase
         static::assertFalse($result[0]->hasProperty('mediaId'));
     }
 
-    #[TestDox('does not overwrite an authored explicit null on the input key with the default')]
-    public function testBindKeepsAuthoredExplicitNullOverDefault(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $old = ContentElementBuilder::create('Sw:Product', 'el')->withProperty('mediaId', null)->build();
-
-        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply([$old]);
-
-        static::assertTrue($result[0]->hasProperty('mediaId'));
-        static::assertNull($result[0]->getProperty('mediaId'));
-    }
-
     #[TestDox('does not overwrite an authored non-null value on the input key with the default')]
     public function testBindKeepsAuthoredValueOverDefault(): void
     {
@@ -79,17 +58,6 @@ class BindElementTest extends TestCase
         $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply([$old]);
 
         static::assertSame('authored', $result[0]->getProperty('mediaId'));
-    }
-
-    #[TestDox('attributes the resolves key to the applied binding specification id')]
-    public function testBindAttributesResolvesKeyToSpecificationId(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $tree = [new ContentElement('el', 'Sw:Product')];
-
-        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
-
-        static::assertSame(['product' => 'spec-1'], $result[0]->getAttributedSpecifications());
     }
 
     #[TestDox('replaces the wiring and attribution of a key already bound by a different specification')]
@@ -138,6 +106,44 @@ class BindElementTest extends TestCase
         );
     }
 
+    #[TestDox('does not mutate the input tree')]
+    public function testBindDoesNotMutateInput(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $tree = [new ContentElement('el', 'Sw:Product')];
+        $before = $this->snapshotTree($tree);
+
+        (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
+
+        $this->assertInputTreeUnmutated($before, $tree);
+    }
+
+    #[TestDox('reports the bound element as affected and detaches nothing')]
+    public function testReportsAffectedElementAndNoDetachment(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config));
+
+        $bind->apply([new ContentElement('el', 'Sw:Product')]);
+
+        static::assertSame(['el'], $bind->affected());
+        static::assertSame([], $bind->orphaned());
+        static::assertSame([], $bind->droppedWiring());
+        static::assertSame([], $bind->droppedProperties());
+    }
+
+    #[TestDox('does not overwrite an authored explicit null on the input key with the default')]
+    public function testBindKeepsAuthoredExplicitNullOverDefault(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $old = ContentElementBuilder::create('Sw:Product', 'el')->withProperty('mediaId', null)->build();
+
+        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply([$old]);
+
+        static::assertTrue($result[0]->hasProperty('mediaId'));
+        static::assertNull($result[0]->getProperty('mediaId'));
+    }
+
     #[TestDox('rejects a specification whose type does not match the target element component with a 400')]
     public function testBindTypeMismatchRejected(): void
     {
@@ -175,32 +181,6 @@ class BindElementTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $bind->apply([new ContentElement('el', 'Sw:Product')]);
-    }
-
-    #[TestDox('does not mutate the input tree')]
-    public function testBindDoesNotMutateInput(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $tree = [new ContentElement('el', 'Sw:Product')];
-        $before = $this->snapshotTree($tree);
-
-        (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
-
-        $this->assertInputTreeUnmutated($before, $tree);
-    }
-
-    #[TestDox('reports the bound element as affected and detaches nothing')]
-    public function testReportsAffectedElementAndNoDetachment(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config));
-
-        $bind->apply([new ContentElement('el', 'Sw:Product')]);
-
-        static::assertSame(['el'], $bind->affected());
-        static::assertSame([], $bind->orphaned());
-        static::assertSame([], $bind->droppedWiring());
-        static::assertSame([], $bind->droppedProperties());
     }
 
     private function registry(AbstractContentDataLoaderConfig $config): AbstractContentSystemBindingSpecificationRegistry

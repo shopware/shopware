@@ -67,7 +67,7 @@ class LayoutMutationControllerTest extends TestCase
      * @param \Closure(LayoutMutationController): Response $invoke
      * @param class-string<LayoutMutation> $expectedOp
      */
-    #[DataProvider('routeDispatchProvider')]
+    #[DataProvider('dispatchesExpectedOpProvider')]
     #[TestDox('dispatches each route to the matching mutation op')]
     public function testRouteDispatchesExpectedOp(\Closure $invoke, string $expectedOp): void
     {
@@ -87,7 +87,7 @@ class LayoutMutationControllerTest extends TestCase
     /**
      * @return iterable<string, array{\Closure(LayoutMutationController): Response, class-string<LayoutMutation>}>
      */
-    public static function routeDispatchProvider(): iterable
+    public static function dispatchesExpectedOpProvider(): iterable
     {
         $context = Context::createDefaultContext();
 

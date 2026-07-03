@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
@@ -20,31 +21,34 @@ class ConfigCanonicalizerTest extends TestCase
         $this->canonicalizer = new ConfigCanonicalizer();
     }
 
-    #[TestDox('key-sorts a flat map so key order does not affect the canonical shape')]
-    public function testKeySortsFlatMap(): void
+    /**
+     * @return iterable<string, array{array<int|string, mixed>, array<int|string, mixed>}>
+     */
+    public static function canonicalizesProvider(): iterable
     {
-        static::assertSame(
-            ['associations' => 'media', 'limit' => 5],
-            $this->canonicalizer->canonicalize(['limit' => 5, 'associations' => 'media'])
-        );
+        yield 'flat map' => [['limit' => 5, 'associations' => 'media'], ['associations' => 'media', 'limit' => 5]];
+        yield 'list values' => [['associations' => ['media', 'manufacturer']], ['associations' => ['manufacturer', 'media']]];
+        yield 'nested map' => [['filters' => ['status' => 'active', 'limit' => 10]], ['filters' => ['limit' => 10, 'status' => 'active']]];
+        yield 'empty config' => [[], []];
+        yield 'list of maps' => [
+            ['items' => [['name' => 'zebra', 'id' => 2], ['name' => 'apple', 'id' => 1]]],
+            ['items' => [['id' => 1, 'name' => 'apple'], ['id' => 2, 'name' => 'zebra']]],
+        ];
+        yield 'deeply nested maps sort at every level' => [
+            ['config' => ['zebra' => 1, 'apple' => ['yak' => 2, 'ant' => 3]]],
+            ['config' => ['apple' => ['ant' => 3, 'yak' => 2], 'zebra' => 1]],
+        ];
     }
 
-    #[TestDox('value-sorts a list so list order does not affect the canonical shape')]
-    public function testValueSortsListValues(): void
+    /**
+     * @param array<int|string, mixed> $input
+     * @param array<int|string, mixed> $expected
+     */
+    #[DataProvider('canonicalizesProvider')]
+    #[TestDox('canonicalizes: $_dataName')]
+    public function testCanonicalizes(array $input, array $expected): void
     {
-        static::assertSame(
-            ['associations' => ['manufacturer', 'media']],
-            $this->canonicalizer->canonicalize(['associations' => ['media', 'manufacturer']])
-        );
-    }
-
-    #[TestDox('recurses into a nested associative sub-array, key-sorting it too')]
-    public function testRecursesIntoNestedAssociativeSubArray(): void
-    {
-        static::assertSame(
-            ['filters' => ['limit' => 10, 'status' => 'active']],
-            $this->canonicalizer->canonicalize(['filters' => ['status' => 'active', 'limit' => 10]])
-        );
+        static::assertSame($expected, $this->canonicalizer->canonicalize($input));
     }
 
     #[TestDox('produces the identical canonical shape for two configs differing only in key and list order')]
@@ -63,41 +67,5 @@ class ConfigCanonicalizerTest extends TestCase
             $this->canonicalizer->canonicalize($first),
             $this->canonicalizer->canonicalize($second)
         );
-    }
-
-    #[TestDox('leaves an empty config unchanged')]
-    public function testLeavesEmptyConfigUnchanged(): void
-    {
-        static::assertSame([], $this->canonicalizer->canonicalize([]));
-    }
-
-    #[TestDox('canonicalizes each map inside a list (key-sorting it) and then value-sorts the list')]
-    public function testCanonicalizesEachMapInAListAndSortsTheList(): void
-    {
-        // canonicalize() recurses into each list item before sorting, so a nested map's own keys are sorted
-        // too and the list is ordered by the resulting canonical maps.
-        static::assertSame(
-            [
-                'items' => [
-                    ['id' => 1, 'name' => 'apple'],
-                    ['id' => 2, 'name' => 'zebra'],
-                ],
-            ],
-            $this->canonicalizer->canonicalize([
-                'items' => [
-                    ['name' => 'zebra', 'id' => 2],
-                    ['name' => 'apple', 'id' => 1],
-                ],
-            ])
-        );
-    }
-
-    #[TestDox('canonicalizes map items nested inside a list so inner key order does not affect equality')]
-    public function testCanonicalizesMapsNestedInLists(): void
-    {
-        $a = ['orderings' => [['field' => 'name', 'direction' => 'ASC'], ['field' => 'price', 'direction' => 'DESC']]];
-        $b = ['orderings' => [['direction' => 'DESC', 'field' => 'price'], ['direction' => 'ASC', 'field' => 'name']]];
-
-        static::assertSame($this->canonicalizer->canonicalize($a), $this->canonicalizer->canonicalize($b));
     }
 }

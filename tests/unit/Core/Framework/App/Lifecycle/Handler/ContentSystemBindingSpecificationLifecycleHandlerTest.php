@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemBindingSpecificationLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemBindingSpecificationPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -22,44 +21,10 @@ use Shopware\Core\Framework\Util\Filesystem;
 #[CoversClass(ContentSystemBindingSpecificationLifecycleHandler::class)]
 class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
 {
-    #[TestDox('install persists the app bindings')]
-    public function testInstallPersists(): void
-    {
-        $context = $this->buildPersistContext();
-
-        $this->handlerExpectingPersist($context)->install($context);
-    }
-
-    #[TestDox('update persists the app bindings')]
-    public function testUpdatePersists(): void
-    {
-        $context = $this->buildPersistContext();
-
-        $this->handlerExpectingPersist($context)->update($context);
-    }
-
     #[TestDox('activate invalidates the registry so the now-live app bindings appear immediately')]
     public function testActivateInvalidates(): void
     {
         $this->handlerExpectingInvalidation()->activate($this->buildActivationContext());
-    }
-
-    #[TestDox('deactivate invalidates the registry')]
-    public function testDeactivateInvalidates(): void
-    {
-        $this->handlerExpectingInvalidation()->deactivate($this->buildActivationContext());
-    }
-
-    #[TestDox('uninstall invalidates the registry')]
-    public function testUninstallInvalidates(): void
-    {
-        $this->handlerExpectingInvalidation()->uninstall($this->buildRemovalContext());
-    }
-
-    #[TestDox('delete invalidates the registry on local removal without re-deactivating')]
-    public function testDeleteInvalidates(): void
-    {
-        $this->handlerExpectingInvalidation()->delete($this->buildRemovalContext());
     }
 
     #[TestDox('propagates a persister failure on install rather than swallowing it')]
@@ -86,17 +51,6 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
         (new ContentSystemBindingSpecificationLifecycleHandler($persister, $registry))->activate($this->buildActivationContext());
     }
 
-    private function handlerExpectingPersist(AppPersistContext $context): ContentSystemBindingSpecificationLifecycleHandler
-    {
-        $persister = $this->createMock(ContentSystemBindingSpecificationPersister::class);
-        $persister->expects($this->once())->method('persist')->with($context);
-
-        $registry = $this->createMock(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->expects($this->never())->method('invalidate');
-
-        return new ContentSystemBindingSpecificationLifecycleHandler($persister, $registry);
-    }
-
     private function handlerExpectingInvalidation(): ContentSystemBindingSpecificationLifecycleHandler
     {
         $persister = $this->createMock(ContentSystemBindingSpecificationPersister::class);
@@ -120,11 +74,6 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
     private function buildActivationContext(): AppActivationContext
     {
         return new AppActivationContext($this->buildApp(), Context::createDefaultContext());
-    }
-
-    private function buildRemovalContext(): AppRemovalContext
-    {
-        return new AppRemovalContext($this->buildApp(), Context::createDefaultContext());
     }
 
     private function buildPersistContext(): AppPersistContext

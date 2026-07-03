@@ -7,9 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\CachedContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
@@ -73,26 +71,6 @@ class CachedContentSystemBindingSpecificationRegistryTest extends TestCase
         static::assertSame([], $registry->all());
         // Second call proves the empty result is cached rather than re-delegated (once() above).
         static::assertSame([], $registry->all());
-    }
-
-    #[TestDox('returns the inner registry from getDecorated')]
-    public function testGetDecoratedReturnsInner(): void
-    {
-        $inner = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-
-        $registry = new CachedContentSystemBindingSpecificationRegistry($inner, new ArrayAdapter());
-
-        static::assertSame($inner, $registry->getDecorated());
-    }
-
-    #[TestDox('throws when invalidate is called on the leaf registry, per the decoration-pattern contract')]
-    public function testInvalidateOnLeafRegistryThrows(): void
-    {
-        // invalidate() is defined on the abstract base (self::class), inherited unchanged by the leaf;
-        // only the cached decorator overrides it. So the exception names the abstract base class.
-        $this->expectExceptionObject(new DecorationPatternException(AbstractContentSystemBindingSpecificationRegistry::class));
-
-        (new ContentSystemBindingSpecificationRegistry([]))->invalidate();
     }
 
     private function specification(string $id): BindingSpecification

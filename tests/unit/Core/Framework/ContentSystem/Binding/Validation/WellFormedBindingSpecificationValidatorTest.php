@@ -21,33 +21,22 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(WellFormedBindingSpecificationValidator::class)]
 class WellFormedBindingSpecificationValidatorTest extends TestCase
 {
-    #[TestDox('accepts a well-formed binding specification declaration without violations')]
-    public function testAcceptsWellFormedDeclaration(): void
+    #[DataProvider('acceptsWellFormedDeclarationProvider')]
+    #[TestDox('accepts $_dataName without violations')]
+    public function testAcceptsWellFormedDeclaration(BindingSpecificationDto $dto): void
     {
-        $dto = new BindingSpecificationDto(
-            'media-gallery',
-            'From media library',
-            ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]],
-            ['alt' => ['default' => 'fallback alt']],
-        );
-
         static::assertCount(0, $this->validate($dto));
     }
 
-    #[TestDox('accepts an empty resolves/inputs declaration without violations')]
-    public function testAcceptsEmptyResolvesAndInputs(): void
+    /**
+     * @return iterable<string, array{BindingSpecificationDto}>
+     */
+    public static function acceptsWellFormedDeclarationProvider(): iterable
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'From media library', [], []);
-
-        static::assertCount(0, $this->validate($dto));
-    }
-
-    #[TestDox('accepts absent (null) resolves/inputs, as when the YAML body omits both keys')]
-    public function testAcceptsNullResolvesAndInputs(): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'From media library', null, null);
-
-        static::assertCount(0, $this->validate($dto));
+        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt']])];
+        yield 'empty resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', [], [])];
+        yield 'null resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', null, null)];
+        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]])];
     }
 
     #[DataProvider('rejectsMalformedDeclarationProvider')]
@@ -137,14 +126,6 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
             'inputs[alt].default',
             'default" must be a scalar or null',
         ];
-    }
-
-    #[TestDox('accepts an inputs entry whose default is explicitly null')]
-    public function testAcceptsInputsEntryWithNullDefault(): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]]);
-
-        static::assertCount(0, $this->validate($dto));
     }
 
     #[TestDox('throws UnexpectedTypeException when the constraint type is wrong')]

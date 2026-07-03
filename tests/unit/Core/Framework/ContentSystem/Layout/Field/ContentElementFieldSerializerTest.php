@@ -661,8 +661,8 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame('[style][made-up-option]', $violations->get(0)->getPropertyPath());
     }
 
-    #[TestDox('preserves all camelCase wire keys and their values faithfully through a serialize-decode round-trip')]
-    public function testRoundTripPreservesCamelCaseWireFormatAndValues(): void
+    #[TestDox('serializes a content element into the camelCase wire format')]
+    public function testSerializeContentElementUsesCamelCaseWireFormat(): void
     {
         $serializer = $this->buildSerializerWithRealConfigProvider();
 
@@ -715,8 +715,27 @@ class ContentElementFieldSerializerTest extends TestCase
 
         // style survives serialization identically (read == write)
         static::assertSame(['col-span' => ['md' => 6]], $serialized['style']);
+    }
 
-        $decoded = $serializer->decodeElement($this->wireRoundTrip($serialized));
+    #[TestDox('restores element values by decoding the camelCase wire format')]
+    public function testDecodeElementRestoresValuesFromCamelCaseWireFormat(): void
+    {
+        $serializer = $this->buildSerializerWithRealConfigProvider();
+
+        $config = new EntityLoaderConfig('product', 'product', ['manufacturer']);
+        $child = ContentElementBuilder::create('text', 'slot-child-1')->build();
+
+        $element = ContentElementBuilder::create('product-card', 'rt-elem-1')
+            ->withProperty('title', 'My Product')
+            ->withProperty('count', 42)
+            ->withDataRequirement('product', 'entity', $config)
+            ->withProvider('productCtx', BroadcastDistributionConfig::aliased('myAlias'), ContextType::Single)
+            ->withConsumer('catCtx', ContextType::Single, required: true, redistribute: true, consumerAlias: 'ca', propertyAlias: 'pa')
+            ->withSlot('main', [$child])
+            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
+            ->build();
+
+        $decoded = $serializer->decodeElement($this->wireRoundTrip($serializer->serializeContentElement($element)));
 
         // id / component / properties
         static::assertSame('rt-elem-1', $decoded->getId());

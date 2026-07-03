@@ -55,6 +55,20 @@ class MutationPipelineTest extends TestCase
         static::assertSame(['new-1'], array_keys($result->resolutions));
     }
 
+    #[TestDox('returns no resolutions when the mutation affects nothing')]
+    public function testRunReturnsEmptyResolutionsWhenNothingAffected(): void
+    {
+        $resolutions = [
+            'new-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')],
+        ];
+
+        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)), static::createStub(ApplicableBindingsResolver::class));
+
+        $result = $pipeline->run($this->mutation([new ContentElement('new-1', 'Sw:Card')], []), [new ContentElement('el-1', 'Sw:Block')], null);
+
+        static::assertSame([], $result->resolutions);
+    }
+
     #[TestDox('passes orphaned subtrees from the op through to the result')]
     public function testRunCarriesOrphaned(): void
     {

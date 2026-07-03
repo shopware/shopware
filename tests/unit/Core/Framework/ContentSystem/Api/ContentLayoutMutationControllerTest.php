@@ -83,7 +83,7 @@ class ContentLayoutMutationControllerTest extends TestCase
      * @param \Closure(ContentLayoutMutationController): Response $invoke
      * @param class-string<LayoutMutation> $expectedOp
      */
-    #[DataProvider('routeDispatchProvider')]
+    #[DataProvider('dispatchesExpectedOpProvider')]
     #[TestDox('dispatches each route to the matching mutation op')]
     public function testRouteDispatchesExpectedOp(\Closure $invoke, string $expectedOp): void
     {
@@ -105,7 +105,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     /**
      * @return iterable<string, array{\Closure(ContentLayoutMutationController): Response, class-string<LayoutMutation>}>
      */
-    public static function routeDispatchProvider(): iterable
+    public static function dispatchesExpectedOpProvider(): iterable
     {
         $context = Context::createDefaultContext();
 
@@ -122,7 +122,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     /**
      * @param \Closure(array<string, mixed>): void $assert
      */
-    #[DataProvider('replaceOptionalFieldsProvider')]
+    #[DataProvider('serializesOptionalReplaceFieldsProvider')]
     #[TestDox('serializes the populated optional replace fields in the persisted response')]
     public function testReplaceSerializesOptionalFields(MutationResult $result, \Closure $assert): void
     {
@@ -136,7 +136,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     /**
      * @return iterable<string, array{MutationResult, \Closure(array<string, mixed>): void}>
      */
-    public static function replaceOptionalFieldsProvider(): iterable
+    public static function serializesOptionalReplaceFieldsProvider(): iterable
     {
         yield 'orphaned subtrees surface for re-attachment' => [
             new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]),

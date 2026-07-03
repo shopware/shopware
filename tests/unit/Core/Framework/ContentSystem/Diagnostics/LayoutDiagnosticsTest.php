@@ -122,6 +122,75 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->bindingErrors());
     }
 
+    #[TestDox('resolves a required reference via valid applied wiring, producing no unresolved_required binding error and keeping the element well-formed')]
+    public function testValidAppliedWiringResolvesRequiredReferenceAndStaysWellFormed(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $analysis = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], []);
+
+        static::assertTrue($analysis->report->isWellFormed());
+        static::assertSame([], $analysis->report->bindingErrors());
+        static::assertNotNull($analysis->resolutions['el-1'][0]->resolved);
+        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['el-1'][0]->resolved->origin);
+    }
+
+    #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
+    public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(CategoryEntity::class);
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], [])->report;
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::MismatchedReferenceType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
+    public function testAppliedWiringBacksDeclaredProviderAndSatisfiesDescendantChain(): void
+    {
+        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withSlot('content', [$child])
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $analysis = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$root], []);
+
+        static::assertSame([], $analysis->report->bindingErrors());
+        static::assertNotNull($analysis->resolutions['root-1'][0]->resolved);
+        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['root-1'][0]->resolved->origin);
+    }
+
     #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
     public function testOrphanedProviderWarning(): void
     {
@@ -198,75 +267,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
-    #[TestDox('resolves a required reference via valid applied wiring, producing no unresolved_required binding error and keeping the element well-formed')]
-    public function testValidAppliedWiringResolvesRequiredReferenceAndStaysWellFormed(): void
-    {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
-
-        $analysis = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
-            loaderProvider: $this->loaderProvider($loader),
-        )->analyze([$element], []);
-
-        static::assertTrue($analysis->report->isWellFormed());
-        static::assertSame([], $analysis->report->bindingErrors());
-        static::assertNotNull($analysis->resolutions['el-1'][0]->resolved);
-        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['el-1'][0]->resolved->origin);
-    }
-
-    #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
-    public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
-    {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willReturn(CategoryEntity::class);
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
-            loaderProvider: $this->loaderProvider($loader),
-        )->analyze([$element], [])->report;
-
-        static::assertFalse($report->isWellFormed());
-        static::assertSame(ViolationCode::MismatchedReferenceType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
-    public function testAppliedWiringBacksDeclaredProviderAndSatisfiesDescendantChain(): void
-    {
-        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->build();
-        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->withSlot('content', [$child])
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
-
-        $analysis = $this->diagnostics(
-            [
-                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
-                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
-            ],
-            loaderProvider: $this->loaderProvider($loader),
-        )->analyze([$root], []);
-
-        static::assertSame([], $analysis->report->bindingErrors());
-        static::assertNotNull($analysis->resolutions['root-1'][0]->resolved);
-        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['root-1'][0]->resolved->origin);
-    }
-
     #[TestDox('produces an unresolved_required binding error for a required reference with no candidate')]
     public function testUnresolvedRequired(): void
     {
@@ -320,7 +320,7 @@ class LayoutDiagnosticsTest extends TestCase
     /**
      * @param array<string, mixed> $properties
      */
-    #[DataProvider('unresolvedRequiredPrimitiveProvider')]
+    #[DataProvider('producesUnresolvedRequiredPrimitiveProvider')]
     #[TestDox('produces an unresolved_required binding error for a required primitive without a default and no usable value')]
     public function testRequiredPrimitiveWithoutValueIsUnresolved(array $properties): void
     {
@@ -335,7 +335,7 @@ class LayoutDiagnosticsTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function unresolvedRequiredPrimitiveProvider(): iterable
+    public static function producesUnresolvedRequiredPrimitiveProvider(): iterable
     {
         yield 'no stored value' => [[]];
         yield 'stored explicit null counts as no value' => [['headline' => null]];

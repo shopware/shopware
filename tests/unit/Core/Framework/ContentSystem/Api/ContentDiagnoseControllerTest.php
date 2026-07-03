@@ -6,10 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -69,6 +69,24 @@ class ContentDiagnoseControllerTest extends TestCase
         $body = $this->decode($response);
         static::assertFalse($body['diagnostics']['wellFormed']);
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
+    }
+
+    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
+    public function testDiagnoseMapsDecodeClientDefect(): void
+    {
+        $serializer = static::createStub(ContentElementFieldSerializer::class);
+        $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            serializer: $serializer,
+        );
+
+        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+
+        $body = $this->decode($response);
+        static::assertFalse($body['diagnostics']['wellFormed']);
+        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
     }
 
     #[TestDox('threads the root source context resolved from the registry into the diagnostics analysis')]
@@ -159,24 +177,6 @@ class ContentDiagnoseControllerTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $exception->getErrorCode());
         }
-    }
-
-    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
-    public function testDiagnoseMapsDecodeClientDefect(): void
-    {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
-
-        $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: $serializer,
-        );
-
-        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
-
-        $body = $this->decode($response);
-        static::assertFalse($body['diagnostics']['wellFormed']);
-        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
     }
 
     #[TestDox('rejects a structurally invalid element with a 400')]

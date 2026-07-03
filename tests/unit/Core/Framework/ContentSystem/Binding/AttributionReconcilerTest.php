@@ -216,33 +216,6 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame([], $reconciled->getAttributedSpecifications());
     }
 
-    #[TestDox('rethrows a non-client-defect ContentSystemException instead of dropping the key')]
-    public function testRethrowsNonClientDefectException(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        $internalFault = ContentSystemException::invalidFieldType(AbstractContentDataLoaderConfig::class, StubArrayLoaderConfig::class);
-        static::assertFalse(ContentSystemException::isClientDefect($internalFault));
-
-        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
-        $serializer->method('decode')->willThrowException($internalFault);
-        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['entity' => static fn () => $serializer]));
-
-        $config = new StubArrayLoaderConfig(['limit' => 5]);
-        $element = ContentElementBuilder::create('card', 'elem-1')
-            ->withDataRequirement('product', 'entity', $config)
-            ->withAttributedSpecification('product', 'spec-1')
-            ->build();
-
-        $reconciler = $this->reconciler(['spec-1' => $specification], $provider);
-
-        $this->expectExceptionObject($internalFault);
-
-        $reconciler->reconcile([$element]);
-    }
-
     #[TestDox('keeps attribution and passes properties through unchanged, since stored property values are never compared')]
     public function testKeepsAttributionRegardlessOfPropertyValueChanges(): void
     {
@@ -499,6 +472,33 @@ class AttributionReconcilerTest extends TestCase
         $reconciledChild = $reconciledParent['slots']['content'][0];
         static::assertIsArray($reconciledChild);
         static::assertArrayNotHasKey('attributedSpecifications', $reconciledChild);
+    }
+
+    #[TestDox('rethrows a non-client-defect ContentSystemException instead of dropping the key')]
+    public function testRethrowsNonClientDefectException(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', ['limit' => 5]),
+        ]);
+
+        $internalFault = ContentSystemException::invalidFieldType(AbstractContentDataLoaderConfig::class, StubArrayLoaderConfig::class);
+        static::assertFalse(ContentSystemException::isClientDefect($internalFault));
+
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('decode')->willThrowException($internalFault);
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['entity' => static fn () => $serializer]));
+
+        $config = new StubArrayLoaderConfig(['limit' => 5]);
+        $element = ContentElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', $config)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $reconciler = $this->reconciler(['spec-1' => $specification], $provider);
+
+        $this->expectExceptionObject($internalFault);
+
+        $reconciler->reconcile([$element]);
     }
 
     /**

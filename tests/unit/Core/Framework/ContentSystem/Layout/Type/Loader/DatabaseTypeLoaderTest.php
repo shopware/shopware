@@ -58,7 +58,7 @@ class DatabaseTypeLoaderTest extends TestCase
             static::createStub(ValidatorInterface::class),
             $connection,
             'dev',
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         static::assertSame([], $loader->load());
@@ -87,7 +87,7 @@ class DatabaseTypeLoaderTest extends TestCase
             $validator,
             $connection,
             'prod',
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
         $definitions = $loader->load();
 

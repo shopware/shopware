@@ -18,7 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 #[CoversClass(LayoutDiagnosticsResultNormalizer::class)]
 class LayoutDiagnosticsResultNormalizerTest extends TestCase
 {
-    #[DataProvider('candidateConfigCompleteProvider')]
+    #[DataProvider('normalizesCandidateConfigCompletePerOriginProvider')]
     #[TestDox('normalizes a candidate configComplete per its origin, regardless of the constructed value')]
     public function testNormalizesCandidateConfigCompletePerOrigin(CandidateOrigin $origin, bool $constructed, ?bool $expected): void
     {
@@ -33,7 +33,7 @@ class LayoutDiagnosticsResultNormalizerTest extends TestCase
     /**
      * @return iterable<string, array{CandidateOrigin, bool, ?bool}>
      */
-    public static function candidateConfigCompleteProvider(): iterable
+    public static function normalizesCandidateConfigCompletePerOriginProvider(): iterable
     {
         // Parent is pinned false per the wire contract, so a Parent constructed with configComplete=true can
         // never leak a true into the response schema.

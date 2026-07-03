@@ -30,7 +30,7 @@ class ViolationCodeTest extends TestCase
         static::assertSame($expectedSeverity, $code->severity());
     }
 
-    #[TestDox('the scope and severity providers stay exhaustive over every violation code')]
+    #[TestDox('keeps the scope and severity providers exhaustive over every violation code')]
     public function testProvidersCoverEveryViolationCode(): void
     {
         $scopeCodes = array_values(array_map(

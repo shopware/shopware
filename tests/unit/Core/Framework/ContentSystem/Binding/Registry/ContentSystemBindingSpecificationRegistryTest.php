@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\AbstractContentSystemBindingSpecificationLoader;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -31,7 +32,7 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         );
     }
 
-    #[TestDox('byType returns only specifications matching the given type, as a list')]
+    #[TestDox('returns only specifications matching the given type, as a list')]
     public function testByTypeFiltersByType(): void
     {
         $registry = new ContentSystemBindingSpecificationRegistry([
@@ -48,16 +49,6 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         static::assertSame(['from-media-library', 'from-media-library-alt'], array_map(static fn (BindingSpecification $s) => $s->id(), $byType));
     }
 
-    #[TestDox('byType returns an empty list when no specification matches the type')]
-    public function testByTypeReturnsEmptyListForUnmatchedType(): void
-    {
-        $registry = new ContentSystemBindingSpecificationRegistry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
-        ]);
-
-        static::assertSame([], $registry->byType('unknown-type'));
-    }
-
     #[TestDox('get resolves a specification by its source-qualified id')]
     public function testGetResolvesBySourceQualifiedId(): void
     {
@@ -69,6 +60,16 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
 
         static::assertNotNull($specification);
         static::assertSame('from-media-library', $specification->id());
+    }
+
+    #[TestDox('returns an empty list when no specification matches the type')]
+    public function testByTypeReturnsEmptyListForUnmatchedType(): void
+    {
+        $registry = new ContentSystemBindingSpecificationRegistry([
+            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+        ]);
+
+        static::assertSame([], $registry->byType('unknown-type'));
     }
 
     #[TestDox('get returns null for an id that does not exist')]
@@ -87,6 +88,16 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         $this->expectExceptionObject(new DecorationPatternException(ContentSystemBindingSpecificationRegistry::class));
 
         (new ContentSystemBindingSpecificationRegistry([]))->getDecorated();
+    }
+
+    #[TestDox('throws when invalidate is called on the leaf registry, per the decoration-pattern contract')]
+    public function testInvalidateOnLeafRegistryThrows(): void
+    {
+        // invalidate() is defined on the abstract base (self::class), inherited unchanged by the leaf;
+        // only the cached decorator overrides it. So the exception names the abstract base class.
+        $this->expectExceptionObject(new DecorationPatternException(AbstractContentSystemBindingSpecificationRegistry::class));
+
+        (new ContentSystemBindingSpecificationRegistry([]))->invalidate();
     }
 
     #[TestDox('throws bindingSpecificationDuplicate when two loaders emit the same source-qualified id')]

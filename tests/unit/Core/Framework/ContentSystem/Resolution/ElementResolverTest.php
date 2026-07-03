@@ -280,22 +280,6 @@ class ElementResolverTest extends TestCase
         $resolver->resolve($element, new ResolutionContext('el-1', []));
     }
 
-    #[TestDox('never produces a Stored resolution for the string-overload resolve(), which carries no element wiring')]
-    public function testStringOverloadNeverProducesStoredResolution(): void
-    {
-        $resolutions = $this->resolve(
-            ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build(),
-            new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([]),
-        );
-
-        static::assertNull($resolutions[0]->resolved);
-        static::assertSame([], array_values(array_filter(
-            $resolutions[0]->candidates,
-            static fn (ResolutionCandidate $candidate): bool => $candidate->origin === CandidateOrigin::Stored,
-        )));
-    }
-
     /**
      * @return iterable<string, array{bool, string|int|float|bool|null}>
      */

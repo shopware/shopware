@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Field;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +39,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ContentElementListFieldSerializer::class)]
 class ContentElementListFieldSerializerTest extends TestCase
 {
-    #[TestDox('normalize seeds the type primitive defaults into a raw layout payload before encode')]
+    #[TestDox('seeds the type primitive defaults into a raw layout payload before encode')]
     public function testNormalizeSeedsPrimitiveDefaultsIntoRawPayload(): void
     {
         $field = $this->createContentElementListField();
@@ -49,8 +50,8 @@ class ContentElementListFieldSerializerTest extends TestCase
         static::assertSame([['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['headline' => 'Hi']]], $result['elements']);
     }
 
-    #[TestDox('normalize wraps a single ContentElement value into a list')]
-    public function testNormalizeWrapsSingleContentElementIntoList(): void
+    #[TestDox('wraps a single ContentElement value into a list and seeds the type primitive defaults onto it')]
+    public function testNormalizeWrapsSingleContentElementIntoListAndSeedsPrimitiveDefaults(): void
     {
         $field = $this->createContentElementListField();
         $element = new ContentElement('el', 'Sw:Block');
@@ -58,20 +59,10 @@ class ContentElementListFieldSerializerTest extends TestCase
         $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => $element], $this->parameters());
 
         static::assertSame([$element], $result['elements']);
-    }
-
-    #[TestDox('normalize seeds the type primitive defaults onto a wrapped ContentElement')]
-    public function testNormalizeSeedsPrimitiveDefaultsOnWrappedContentElement(): void
-    {
-        $field = $this->createContentElementListField();
-        $element = new ContentElement('el', 'Sw:Block');
-
-        $this->serializerWithRealSeeder()->normalize($field, ['elements' => $element], $this->parameters());
-
         static::assertSame('Hi', $element->getProperty('headline'));
     }
 
-    #[TestDox('normalize leaves a non-list layout value untouched')]
+    #[TestDox('leaves a non-list layout value untouched')]
     public function testNormalizeLeavesNonListValueUntouched(): void
     {
         $field = $this->createContentElementListField();
@@ -261,7 +252,6 @@ class ContentElementListFieldSerializerTest extends TestCase
 
         $result = $this->serializer()->decode($field, []);
 
-        static::assertIsArray($result);
         static::assertSame([], $result);
     }
 
@@ -278,44 +268,31 @@ class ContentElementListFieldSerializerTest extends TestCase
         $this->serializer()->decode($invalidField, []);
     }
 
-    #[TestDox('throws exception when decode receives non-string non-array non-null value')]
-    public function testDecodeThrowsOnInvalidValueType(): void
+    #[TestDox('throws invalidFieldValueType on an invalid decode value: $_dataName')]
+    #[DataProvider('throwsOnInvalidDecodeValueProvider')]
+    public function testDecodeThrowsOnInvalidValue(mixed $value, string $path, string $expected, string $given): void
     {
         $field = $this->createContentElementListField();
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('elements', 'array', 'integer')
+            ContentSystemException::invalidFieldValueType($path, $expected, $given)
         );
 
-        $this->serializer()->decode($field, 42);
+        $this->serializer()->decode($field, $value);
     }
 
-    #[TestDox('throws exception when decode receives associative array instead of indexed array')]
-    public function testDecodeThrowsOnAssociativeArray(): void
+    public static function throwsOnInvalidDecodeValueProvider(): iterable
     {
-        $field = $this->createContentElementListField();
+        yield 'non-array scalar value' => [42, 'elements', 'array', 'integer'];
 
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType(
-                'elements',
-                'indexed array of elements',
-                'associative array'
-            )
-        );
+        yield 'associative array instead of indexed list' => [
+            ['key' => ['id' => 'elem-1', 'component' => 'text', 'properties' => []]],
+            'elements',
+            'indexed array of elements',
+            'associative array',
+        ];
 
-        $this->serializer()->decode($field, ['key' => ['id' => 'elem-1', 'component' => 'text', 'properties' => []]]);
-    }
-
-    #[TestDox('throws exception when decode receives array with non-array element')]
-    public function testDecodeThrowsOnNonArrayElement(): void
-    {
-        $field = $this->createContentElementListField();
-
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('elements[0]', 'array', 'string')
-        );
-
-        $this->serializer()->decode($field, ['not-an-array']);
+        yield 'array with non-array element' => [['not-an-array'], 'elements[0]', 'array', 'string'];
     }
 
     #[TestDox('returns Type and All constraints without Required flag')]

@@ -28,8 +28,8 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->once())->method('validate')->willReturn(new ConstraintViolationList());
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('warning');
@@ -63,7 +63,53 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             ->with(static::stringContains('WHERE a.active = 1'))
             ->willReturn([]);
 
-        $this->loader($connection, 'prod', $this->createMock(ValidatorInterface::class))->load();
+        $this->loader($connection, 'prod', static::createStub(ValidatorInterface::class))->load();
+    }
+
+    #[TestDox('skips a row with a blank name while a valid sibling row survives, and logs a warning')]
+    public function testSkipsRowWithBlankNameWhileValidSiblingSurvives(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => '', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+        ]);
+
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::logicalAnd(
+                static::stringContains('app:Acme:<unknown>'),
+                static::stringContains('no name'),
+            ));
+
+        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame('from-media-library', $specifications[0]->id());
+    }
+
+    #[TestDox('loads a persisted binding whose name is the string "0" instead of silently skipping it')]
+    public function testLoadsBindingNamedZero(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => '0', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+        ]);
+
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame('0', $specifications[0]->id());
     }
 
     #[TestDox('skips a row whose persisted schema is not valid JSON and logs a warning')]
@@ -122,8 +168,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         ]);
 
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->exactly(2))
-            ->method('validate')
+        $validator->method('validate')
             ->willReturnOnConsecutiveCalls(new ConstraintViolationList(), $violations);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -140,52 +185,6 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         static::assertSame('from-media-library', $specifications[0]->id());
     }
 
-    #[TestDox('skips a row with a blank name while a valid sibling row survives, and logs a warning')]
-    public function testSkipsRowWithBlankNameWhileValidSiblingSurvives(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => '', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
-            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
-        ]);
-
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->once())->method('validate')->willReturn(new ConstraintViolationList());
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(static::logicalAnd(
-                static::stringContains('app:Acme:<unknown>'),
-                static::stringContains('no name'),
-            ));
-
-        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
-
-        static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
-    }
-
-    #[TestDox('loads a persisted binding whose name is the string "0" instead of silently skipping it')]
-    public function testLoadsBindingNamedZero(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => '0', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
-        ]);
-
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->once())->method('validate')->willReturn(new ConstraintViolationList());
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('warning');
-
-        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
-
-        static::assertCount(1, $specifications);
-        static::assertSame('0', $specifications[0]->id());
-    }
-
     #[TestDox('skips a row when the validator throws, keeping the valid sibling, instead of aborting the whole load')]
     public function testSkipsRowWhenValidatorThrowsWhileValidSiblingSurvives(): void
     {
@@ -196,8 +195,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         ]);
 
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->exactly(2))
-            ->method('validate')
+        $validator->method('validate')
             ->willReturnCallback(function (): ConstraintViolationList {
                 static $calls = 0;
                 if (++$calls === 2) {
@@ -218,8 +216,8 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         static::assertSame('from-media-library', $specifications[0]->id());
     }
 
-    #[TestDox('skips a row when denormalize() throws, keeping the valid sibling, instead of aborting the whole load')]
-    public function testSkipsRowWhenDenormalizeThrowsWhileValidSiblingSurvives(): void
+    #[TestDox('skips a row whose schema cannot be deserialized into a specification, keeping the valid sibling, instead of aborting the whole load')]
+    public function testSkipsRowWithUnprocessableSchemaWhileValidSiblingSurvives(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
@@ -227,7 +225,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
-        $serializer = $this->createMock(BindingSpecificationSerializer::class);
+        $serializer = static::createStub(BindingSpecificationSerializer::class);
         $serializer->method('denormalize')->willReturnCallback(
             static function (array $data): BindingSpecificationDto {
                 if (($data['type'] ?? null) === 'x') {
@@ -238,7 +236,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             }
         );
 
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -280,7 +278,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         return new DatabaseBindingSpecificationLoader(
             $environment,
             $connection,
-            $logger ?? $this->createMock(LoggerInterface::class),
+            $logger ?? static::createStub(LoggerInterface::class),
             new BindingSpecificationSerializer(),
             $validator,
         );

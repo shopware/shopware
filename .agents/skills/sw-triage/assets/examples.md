@@ -1,6 +1,6 @@
 # Triage Output — Field Rules & Worked Examples
 
-These are illustrative final outputs in the **strict JSON shape** emitted by the gh aw CI workflow (`.github/workflows/triage.md`). The interactive skill emits the equivalent information as Markdown — the field semantics are identical, only the wire format differs. Your actual reasoning, paths, SHAs, and issue numbers must come from your real investigation — **never invented**.
+These are illustrative final outputs in the **strict JSON shape** emitted by the gh aw CI workflow (`.github/workflows/sw-triage.md`). The interactive skill emits the equivalent information as Markdown — the field semantics are identical, only the wire format differs. Your actual reasoning, paths, SHAs, and issue numbers must come from your real investigation — **never invented**.
 
 The interactive Markdown layout is fully specified by the template in SKILL.md "Output format" → no separate example needed here.
 
@@ -22,7 +22,7 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
 | `recent_commits_in_area` | yes | Short `git log --oneline` entries, max 200 chars each |
 | `change_size_estimate` | yes | One enum: `quick-fix` (<30 LOC single file), `small` (single component), `medium` (cross-component), `large` (architectural), `unknown` |
 
-**Emission rules:** the unattended gh aw workflow emits the JSON object as its final message — no markdown code fence, no preamble, no trailing prose. The post-run processor (`.github/workflows/process-triage-result.yml`) runs the validator (`.github/bin/js/validate-triage-output.ts`) to enforce these constraints + scan for secret leakage before publishing deterministic issue updates.
+**Emission rules:** the unattended gh aw workflow emits the JSON object as its final message — no markdown code fence, no preamble, no trailing prose. The post-run processor (`.github/workflows/process-sw-triage-result.yml`) runs the validator (`.github/bin/js/validate-sw-triage-output.ts`) to enforce these constraints + scan for secret leakage before publishing deterministic issue updates.
 
 ## A — `valid-bug` with affected code identified
 

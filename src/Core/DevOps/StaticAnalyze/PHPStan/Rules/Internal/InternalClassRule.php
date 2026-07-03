@@ -188,7 +188,6 @@ class InternalClassRule implements Rule
     private function isInternal(string $doc, ClassReflection $class): bool
     {
         return \str_contains($doc, '@internal')
-            || \str_contains($doc, 'reason:becomes-internal')
             || BCChangeMarkers::has(BecomesInternal::class, $class);
     }
 
@@ -274,7 +273,6 @@ class InternalClassRule implements Rule
     private function isFinal(ClassReflection $class, string $doc): bool
     {
         return str_contains($doc, '@final')
-            || str_contains($doc, 'reason:becomes-final')
             || $class->isFinal()
             || BCChangeMarkers::has(BecomesFinal::class, $class);
     }

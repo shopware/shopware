@@ -39,7 +39,6 @@ class NoBCPlanningDeprecationRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        // an empty pending list simulates the state after all annotations are migrated
-        return new NoBCPlanningDeprecationRule([]);
+        return new NoBCPlanningDeprecationRule();
     }
 }

@@ -39,21 +39,6 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:exception-change' => 'Use a plain comment instead; thrown exceptions are not part of the BC promise.',
     ];
 
-    /**
-     * Reason tags that still exist in the codebase. They are removed from this list tag by
-     * tag as the existing annotations are migrated to the BC-change attributes; once a tag
-     * is removed, this rule prevents it from being reintroduced.
-     */
-    private const MIGRATION_PENDING = [
-    ];
-
-    /**
-     * @param list<string> $migrationPending overridable for tests
-     */
-    public function __construct(private readonly array $migrationPending = self::MIGRATION_PENDING)
-    {
-    }
-
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -87,7 +72,7 @@ class NoBCPlanningDeprecationRule implements Rule
 
         $errors = [];
         foreach (self::REPLACEMENTS as $reason => $replacement) {
-            if (!\str_contains($doc, $reason) || \in_array($reason, $this->migrationPending, true)) {
+            if (!\str_contains($doc, $reason)) {
                 continue;
             }
 

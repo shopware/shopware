@@ -18,9 +18,10 @@
       "global": "Global"
     },
     "detail": {
-      "displayTitle": "Anzeigen:",
       "textHeadline": "Neues Dokument",
       "configCard": "Einstellungen",
+      "displayedContentCard": "Angezeigte Inhalte",
+      "displayedContentCardSubtitle": "Wähle aus, welche Inhalte im Dokument angezeigt werden sollen.",
       "companyCard": "Geschäftseinstellungen",
       "companySettingsMovedBannerTitle": "Geschäftseinstellungen wurden verschoben",
       "companySettingsMovedBannerDescription": "Die Geschäftseinstellungen für Dokumente werden jetzt unter Einstellungen > Stammdaten > Unternehmensinformationen verwaltet.",
@@ -88,6 +89,7 @@
       "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\".",
+      "helpTextPaymentDueDate": "Verwendet einen relativen Datums-Modifier basierend auf dem Dokumentdatum, zum Beispiel \"+14 days\".",
       "labelFileTypes": "Dateiformate",
       "placeholderFileTypes": "Dateiformate auswählen ...",
       "placeholderCompanyName": "Geschäftsname eingeben ...",

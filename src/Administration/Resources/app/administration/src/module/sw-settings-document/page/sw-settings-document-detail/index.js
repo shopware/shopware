@@ -105,6 +105,16 @@ export const DOCUMENT_SETTINGS_GENERAL = (tc) => [
             placeholder: tc('sw-settings-document.detail.placeholderFileTypes'),
         },
     },
+    {
+        name: 'paymentDueDate',
+        type: 'text',
+        config: {
+            type: 'text',
+            label: tc('sw-settings-document.detail.labelPaymentDueDate'),
+            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
+            helpText: tc('sw-settings-document.detail.helpTextPaymentDueDate'),
+        },
+    },
 ];
 
 /**
@@ -333,15 +343,6 @@ export const DOCUMENT_SETTINGS_COMPANY = (tc) => [
             placeholder: tc('sw-settings-document.detail.placeholderExecutiveDirector'),
         },
     },
-    {
-        name: 'paymentDueDate',
-        type: 'text',
-        config: {
-            type: 'text',
-            label: tc('sw-settings-document.detail.labelPaymentDueDate'),
-            placeholder: tc('sw-settings-document.detail.placeholderPaymentDueDate'),
-        },
-    },
 ];
 
 /**
@@ -478,10 +479,6 @@ export default {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
-        },
-
-        showCompanyForm() {
-            return this.documentConfig.config.displayCompanyAddress || this.documentConfig.config.displayReturnAddress;
         },
 
         fileTypesSelected() {

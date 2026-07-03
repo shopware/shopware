@@ -393,6 +393,18 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
     });
 
+    it('should always show payment due date in the settings card', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('paymentDueDate');
+
+        const paymentDueDateField = wrapper.vm.generalFormFields.find((field) => field.name === 'paymentDueDate');
+        expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
+    });
+
     it('should keep company address switches in the company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
@@ -401,6 +413,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(false);
         expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(false);
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('paymentDueDate');
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_company').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
     });
@@ -461,7 +474,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    it('should have assignment card at the top of the page', async () => {
+    it('should render assignment, settings, and displayed content cards in order', async () => {
         const wrapper = await createWrapper(
             {
                 props: {
@@ -474,8 +487,12 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         const swCardComponents = wrapper.findAll('.mt-card');
 
-        expect(swCardComponents.length).toBeGreaterThan(0);
+        expect(swCardComponents.length).toBeGreaterThanOrEqual(3);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
+        expect(swCardComponents.at(1).attributes()['position-identifier']).toBe('sw-settings-document-detail-content');
+        expect(swCardComponents.at(2).attributes()['position-identifier']).toBe(
+            'sw-settings-document-detail-displayed-content',
+        );
     });
 
     it('should be have config file formats only show pdf', async () => {
@@ -552,11 +569,11 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },
         { name: 'company address active', config: { displayCompanyAddress: true, displayReturnAddress: false } },
         { name: 'both addresses active', config: { displayCompanyAddress: true, displayReturnAddress: true } },
-    ])('should display company settings if company address is selected', async ({ config }) => {
+    ])('should always display the legacy company form when DOCUMENT_GENERATION_REWORK is inactive', async ({ config }) => {
         const wrapper = await createWrapper({}, ['document.editor']);
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(true);
 
         await wrapper.setData({
             documentConfig: {
@@ -564,8 +581,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
         });
 
-        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(
-            config.displayCompanyAddress || config.displayReturnAddress,
-        );
+        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(true);
     });
 });

@@ -18,9 +18,10 @@
       "global": "Global"
     },
     "detail": {
-      "displayTitle": "Display:",
       "textHeadline": "New document",
       "configCard": "Settings",
+      "displayedContentCard": "Displayed content",
+      "displayedContentCardSubtitle": "Select which content should be displayed in the document.",
       "companyCard": "Company settings",
       "companySettingsMovedBannerTitle": "Company settings has moved",
       "companySettingsMovedBannerDescription": "Company settings for documents are now managed in Settings > Basic information > Company information.",
@@ -88,6 +89,7 @@
       "labelDisplayDivergentDeliveryAddress": "Divergent delivery address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
       "helpTextDisplayAdditionalNoteDelivery": "Eligible only for EU member states, see also \"Settings > Countries\".",
+      "helpTextPaymentDueDate": "Uses a relative date modifier based on the document date, for example \"+14 days\".",
       "labelFileTypes": "File formats",
       "placeholderFileTypes": "Select file formats...",
       "placeholderCompanyName": "Enter company name...",

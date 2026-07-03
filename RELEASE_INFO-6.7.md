@@ -116,6 +116,9 @@ Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` ins
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.
+### Whole-phrase product-search matches rank higher
+
+Elasticsearch product search now adds an explicit phrase-proximity boost for multi-word searches, weighted above single-word matches. A product whose field contains the full search phrase in order now ranks above one that only contains the individual words scattered around. The same documents still match — this only re-ranks — but `_score` values and borderline orderings shift, which can affect a configured `core.search.minScore`. The per-match-type boosts are configurable via `elasticsearch.search.boost.*`.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 

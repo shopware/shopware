@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch;
 
 use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -39,10 +40,18 @@ class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
             return $query;
         }
 
+        // Text fields produce a DisMax whose individual clauses are already
+        // named with their match type by FieldQueryBuilder — don't add a
+        // second, type-less name on top of it.
+        if ($query instanceof DisMaxQuery) {
+            return $query;
+        }
+
         $explainPayload = json_encode([
             'field' => $config->getField(),
             'term' => $token,
             'ranking' => $config->getRanking(),
+            'type' => 'exact',
         ]);
 
         if ($query instanceof NestedQuery) {

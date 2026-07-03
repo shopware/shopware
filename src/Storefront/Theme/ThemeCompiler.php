@@ -217,6 +217,20 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $result;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Build-meta loading no longer fetches public URLs.
+     * Keep as protected no-op for backwards compatibility.
+     */
+    protected function fetchPublicFile(string $url): string|false
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        return false;
+    }
+
     private function readBuildMetaFile(string $relativeMetaPath): ?string
     {
         $filesystemPath = ltrim($relativeMetaPath, '/');

@@ -74,12 +74,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: ./.github/actions/phpunit-run
+      - uses: ./.github/actions/phpunit-prepare
         with:
           php-version: ${{ matrix.php }}
+          needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+      - uses: ./.github/actions/phpunit-run
+        with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
-          needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
           # no codecov-token: the major run's signal is the gate, not Test Analytics
 
   # single required/monitorable status for the whole major matrix

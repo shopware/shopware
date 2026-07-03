@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
 #[McpTool(name: 'shopware-media-upload', title: 'Media Upload', description: 'Upload any image or file — including product cover images — to Shopware\'s media library from a URL. url is the only required parameter; productId, fileName, and mediaFolderId are all optional. Call this tool immediately with just the URL whenever the user asks to upload, import, or add an image. Returns the new mediaId.')]
+#[McpToolGroup('media')]
 #[McpToolRequires('media:create')]
 #[McpToolRequires('product:update')]
 #[Package('framework')]

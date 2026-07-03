@@ -150,7 +150,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             $groupInfo = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group']);
             $group = $groupInfo !== null && \is_string($groupInfo['group']) && $groupInfo['group'] !== ''
                 ? $groupInfo['group']
-                : self::deriveToolGroup($toolInfo['name']);
+                : 'other';
 
             $groupMap[$toolInfo['name']] = $group;
         }
@@ -158,11 +158,4 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         $container->setParameter('shopware.mcp.tool_groups', $groupMap);
     }
 
-    private static function deriveToolGroup(string $toolName): string
-    {
-        $parts = explode('-', $toolName, 2);
-        $group = $parts[0] ?? '';
-
-        return $group !== '' ? $group : 'other';
-    }
 }

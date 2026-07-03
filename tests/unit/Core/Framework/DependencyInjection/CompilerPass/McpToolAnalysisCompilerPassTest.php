@@ -162,7 +162,7 @@ class McpToolAnalysisCompilerPassTest extends TestCase
 
         static::assertSame([
             'shopware-analysis-explicit-group-tool' => 'catalogue',
-            'shopware-analysis-core-tool' => 'shopware',
+            'shopware-analysis-core-tool' => 'other',
             'shopware-analysis-method-level-group-tool' => 'orders',
         ], $container->getParameter('shopware.mcp.tool_groups'));
     }

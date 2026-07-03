@@ -79,14 +79,14 @@ class McpCapabilityCatalogTest extends TestCase
         static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
     }
 
-    public function testEnrichedToolsDerivesGroupFromNamePrefix(): void
+    public function testEnrichedToolsUsesOtherGroupWhenNoGroupIsConfigured(): void
     {
         $registry = new Registry();
         $this->registerTool($registry, 'swag-order-export', 'Export orders');
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
 
-        static::assertSame('swag', $catalog->enrichedTools()[0]['group']);
+        static::assertSame('other', $catalog->enrichedTools()[0]['group']);
     }
 
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void

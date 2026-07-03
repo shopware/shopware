@@ -184,17 +184,9 @@ class McpCapabilityCatalog
             'name' => $name,
             'title' => $title,
             'description' => $description,
-            'group' => $this->toolGroups[$name] ?? self::deriveToolGroup($name),
+            'group' => $this->toolGroups[$name] ?? 'other',
             'dependencies' => $this->toolDependencies[$name] ?? [],
             'requiredPrivileges' => $privileges,
         ];
-    }
-
-    private static function deriveToolGroup(string $toolName): string
-    {
-        $parts = explode('-', $toolName, 2);
-        $group = $parts[0] ?? '';
-
-        return $group !== '' ? $group : 'other';
     }
 }

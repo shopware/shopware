@@ -7,6 +7,7 @@ use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
  */
 #[McpTool(name: 'shopware-entity-delete', title: 'Entity Delete', description: 'Delete Shopware entities by their UUIDs. Always use dryRun=true (default) first to preview cascade effects and dependent entity deletions, then set dryRun=false to execute. Returns {success, data: {deleted, notFound}, _meta: {dryRun}}.')]
 #[McpToolDependsOn('shopware-entity-search')]
+#[McpToolGroup('entity')]
 #[McpToolRequires(entityParam: 'entity', operations: ['delete'])]
 #[Package('framework')]
 class EntityDeleteTool extends McpToolResponse

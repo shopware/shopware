@@ -154,20 +154,12 @@ function unwrapTransparentMacroExpression(node: BabelNode | null | undefined): B
     return node;
 }
 
-module.exports = {
-    containsRange,
-    getNodeRange,
-    isFunctionNode,
-    parseScript,
-    unwrapTransparentMacroExpression,
-    walk,
-};
-
 export {
     type AstVisitor,
     type SourceRange,
     containsRange,
     getNodeRange,
+    isBabelNodeLike,
     isFunctionNode,
     parseScript,
     unwrapTransparentMacroExpression,

@@ -17,7 +17,7 @@ import {
     WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
     WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
 } from './script-analyzer/macros';
-import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
+import { type SourceRange, getNodeRange, isBabelNodeLike, parseScript, walk } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
 import {
     assertNoUnsupportedSyntax,
@@ -175,10 +175,6 @@ function isRuntimeIdentifierReference(node: Identifier, parent: BabelNode | null
     }
 
     return true;
-}
-
-function isBabelNodeLike(value: unknown): value is BabelNode {
-    return Boolean(value && typeof value === 'object' && 'type' in value && typeof value.type === 'string');
 }
 
 function shouldSkipReferenceChild(key: string): boolean {
@@ -551,10 +547,5 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         overridePrivateNamespace: null,
     };
 }
-
-module.exports = {
-    UNSUPPORTED_VUE_MACROS,
-    analyzeShopwareSetupScript,
-};
 
 export { type ImportBlock, type ShopwareSetupScriptAnalysis, UNSUPPORTED_VUE_MACROS, analyzeShopwareSetupScript };

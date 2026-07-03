@@ -86,14 +86,6 @@ function getTakenNames(analysis: ShopwareSetupScriptAnalysis): Set<string> {
     ]);
 }
 
-module.exports = {
-    buildCallbackBodyChunks,
-    escapeSingleQuoted,
-    formatObjectProperties,
-    getTakenNames,
-    makeUniqueName,
-};
-
 export {
     type SetupInputNames,
     buildCallbackBodyChunks,

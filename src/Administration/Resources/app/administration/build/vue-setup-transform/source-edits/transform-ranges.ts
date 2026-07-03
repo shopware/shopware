@@ -70,8 +70,4 @@ function transformRanges(
     return [trim(chunks)];
 }
 
-module.exports = {
-    transformRanges,
-};
-
 export { transformRanges };

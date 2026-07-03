@@ -1,0 +1,27 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Deprecation\BCChange;
+
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * Marker interface for all BC-change attributes.
+ *
+ * BC-change attributes document planned changes to the public API surface that are *not* deprecations:
+ * there is no replacement API to migrate to and no action is required from callers today.
+ * They replace the former `@deprecated tag:vX.Y.Z - reason:*` PHPDoc markers for such changes,
+ * which incorrectly surfaced as deprecation errors in static analysis of third-party code.
+ *
+ * Use `@deprecated` (together with `Feature::triggerDeprecationOrThrow()`) only when functionality
+ * is removed or replaced and extension developers have to migrate.
+ *
+ * Tooling can discover all BC-change attributes on a symbol via reflection:
+ * `$reflection->getAttributes(BCChangeAttribute::class, \ReflectionAttribute::IS_INSTANCEOF)`
+ *
+ * Every implementation exposes a public `$version` property containing the Shopware version tag
+ * (e.g. `'v6.8.0'`) in which the announced change will happen.
+ */
+#[Package('framework')]
+interface BCChangeAttribute
+{
+}

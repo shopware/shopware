@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-final
- */
 #[Package('fundamentals@after-sales')]
+#[BecomesFinal(version: 'v6.8.0')]
 class RuleComparison
 {
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool

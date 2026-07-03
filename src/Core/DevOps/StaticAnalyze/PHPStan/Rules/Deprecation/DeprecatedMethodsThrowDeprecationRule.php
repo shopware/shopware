@@ -44,8 +44,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:new-optional-parameter',
         // Parameter name is changing, which could break usage of named parameters, but should not trigger a deprecation
         'reason:parameter-name-change',
-        // Classes that will be final, can only be changed with the next major
-        'reason:becomes-final',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
         // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.

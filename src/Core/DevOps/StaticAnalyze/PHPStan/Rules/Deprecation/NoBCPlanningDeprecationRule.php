@@ -51,7 +51,6 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:new-optional-parameter',
         'reason:parameter-name-change',
         'reason:becomes-internal',
-        'reason:becomes-final',
         'reason:class-hierarchy-change',
         'reason:visibility-change',
         'reason:exception-change',

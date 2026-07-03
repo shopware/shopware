@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 
@@ -68,6 +69,39 @@ class ValidUsages
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
     #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
     public function validMethod(int|string $id): void
+    {
+    }
+}
+
+final class SealedClass
+{
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'static')]
+    public function narrowingOnFinalClass(): self
+    {
+        return $this;
+    }
+
+    #[BecomesInternal(version: 'v6.8.0')]
+    public function internalOnFinalClassIsAllowed(): void
+    {
+    }
+}
+
+/**
+ * @final
+ */
+class SoftSealedClass
+{
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'states', parameterType: 'array')]
+    public function newParameterOnSoftFinalClass(): void
+    {
+    }
+}
+
+class ClassWithFinalMethod
+{
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'value', newType: 'string|int')]
+    final public function wideningOnFinalMethod(string $value): void
     {
     }
 }

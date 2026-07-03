@@ -7,12 +7,15 @@ use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
 use PHPStan\Node\InClassNode;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -23,7 +26,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Validates that BC-change attributes announce changes that are structurally possible:
  * the version has a valid format, referenced parameters exist (or, for new parameters,
- * do not exist yet), and the announced state differs from the current declaration.
+ * do not exist yet), the announced state differs from the current declaration, and
+ * extender-only changes are not announced on final symbols, where no extenders can
+ * exist and the change can be applied directly.
  *
  * @implements Rule<InClassNode>
  *
@@ -43,6 +48,10 @@ class BCChangeAttributeUsageRule implements Rule
         ParameterTypeWidening::class,
     ];
 
+    public function __construct(private readonly ReflectionProvider $reflectionProvider)
+    {
+    }
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -52,11 +61,16 @@ class BCChangeAttributeUsageRule implements Rule
     {
         $class = $node->getClassReflection()->getNativeReflection();
         $classLine = $node->getOriginalNode()->getStartLine();
+        $classIsFinal = $class->isFinal() || \str_contains((string) $class->getDocComment(), '@final');
 
         $errors = [];
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
             $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
-            $errors = [...$errors, ...$this->validateClassLevel($attribute, $class, $classLine)];
+            $specific = $this->validateClassLevel($attribute, $class, $classLine);
+            if ($specific === [] && $classIsFinal) {
+                $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
+            }
+            $errors = [...$errors, ...$specific];
         }
 
         foreach ($class->getMethods() as $method) {
@@ -68,7 +82,12 @@ class BCChangeAttributeUsageRule implements Rule
             $line = $method->getStartLine() ?: $classLine;
             foreach ($this->bcChangeAttributes($method->getAttributes()) as $attribute) {
                 $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
-                $errors = [...$errors, ...$this->validateMethodLevel($attribute, $method, $symbol, $line)];
+                $specific = $this->validateMethodLevel($attribute, $method, $symbol, $line);
+                if ($specific === [] && ($classIsFinal || $method->isFinal())) {
+                    $subject = $classIsFinal ? 'class' : 'method';
+                    $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
+                }
+                $errors = [...$errors, ...$specific];
             }
         }
 
@@ -201,6 +220,29 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateExtenderOnlyOnFinal(ReflectionAttribute|FakeReflectionAttribute $attribute, string $symbol, string $subject, int $line): array
+    {
+        if (!$this->reflectionProvider->hasClass($attribute->getName())) {
+            return [];
+        }
+
+        $attributeClass = $this->reflectionProvider->getClass($attribute->getName());
+        if (!$attributeClass->implementsInterface(ExtenderCompatibilityChange::class)
+            || $attributeClass->implementsInterface(CallSiteCompatibilityChange::class)) {
+            return [];
+        }
+
+        return [$this->error($line, \sprintf(
+            '%s on "%s": the %s is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
+            $this->shortName($attribute),
+            $symbol,
+            $subject
+        ))];
     }
 
     private function parameterExists(\ReflectionMethod $method, string $parameterName): bool

@@ -20,41 +20,53 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/BCChangeAttributeUsageRule/BCChangeAttributeUsage.php'], [
             [
                 'BecomesFinal on "AlreadyFinalClass": the class is already final.',
-                14,
+                15,
             ],
             [
                 'BecomesInternal on "WrongVersionFormatClass": version "6.8.0" must match the format "v6.8.0".',
-                19,
+                20,
             ],
             [
                 'BecomesInternal on "AlreadyInternalClass": the class is already @internal.',
-                27,
+                28,
             ],
             [
                 'NewOptionalParameter on "MethodLevelViolations::leadingDollar()": parameter name "$states" must be given without the leading "$".',
-                34,
+                35,
             ],
             [
                 'NewOptionalParameter on "MethodLevelViolations::alreadyExistingParameter()": parameter "existing" already exists.',
-                39,
+                40,
             ],
             [
                 'ParameterNameChange on "MethodLevelViolations::missingParameter()": parameter "missing" does not exist.',
-                44,
+                45,
             ],
             [
                 'BecomesAbstract on "MethodLevelViolations::alreadyAbstract()": the method is already abstract.',
-                49,
+                50,
             ],
             [
                 'VisibilityChange on "MethodLevelViolations::alreadyProtected()": announced visibility "protected" is not narrower than the current visibility.',
-                52,
+                53,
+            ],
+            [
+                'ReturnTypeNarrowing on "SealedClass::narrowingOnFinalClass()": the class is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
+                78,
+            ],
+            [
+                'NewOptionalParameter on "SoftSealedClass::newParameterOnSoftFinalClass()": the class is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
+                95,
+            ],
+            [
+                'ParameterTypeWidening on "ClassWithFinalMethod::wideningOnFinalMethod()": the method is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
+                103,
             ],
         ]);
     }
 
     protected function getRule(): Rule
     {
-        return new BCChangeAttributeUsageRule();
+        return new BCChangeAttributeUsageRule($this->createReflectionProvider());
     }
 }

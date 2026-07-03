@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -78,6 +80,8 @@ class McpCapabilityDiscoveryTest extends TestCase
      */
     public static function expectedTools(): iterable
     {
+        yield 'shopware-toolsets-list' => ['shopware-toolsets-list'];
+        yield 'shopware-toolset-enable' => ['shopware-toolset-enable'];
         yield 'shopware-entity-schema' => ['shopware-entity-schema'];
         yield 'shopware-entity-search' => ['shopware-entity-search'];
         yield 'shopware-entity-aggregate' => ['shopware-entity-aggregate'];
@@ -142,6 +146,10 @@ class McpCapabilityDiscoveryTest extends TestCase
 
         $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
 
+        if ($method === 'tools/list' && $sessionId !== null) {
+            $this->enableAllToolsetsForSession($sessionId);
+        }
+
         // Step 2: call the list method
         $browser->request(
             'POST',
@@ -183,5 +191,22 @@ class McpCapabilityDiscoveryTest extends TestCase
         $value = $sessionHeader[0] ?? null;
 
         return \is_string($value) ? $value : null;
+    }
+
+    private function enableAllToolsetsForSession(string $sessionId): void
+    {
+        $toolsetRegistry = static::getContainer()->get(McpToolsetRegistry::class);
+        static::assertInstanceOf(McpToolsetRegistry::class, $toolsetRegistry);
+
+        $toolsetSessionStorage = static::getContainer()->get(McpToolsetSessionStorage::class);
+        static::assertInstanceOf(McpToolsetSessionStorage::class, $toolsetSessionStorage);
+
+        foreach ($toolsetRegistry->toolsets() as $toolset) {
+            if ($toolset['enabledByDefault']) {
+                continue;
+            }
+
+            $toolsetSessionStorage->enable($sessionId, $toolset['name']);
+        }
     }
 }

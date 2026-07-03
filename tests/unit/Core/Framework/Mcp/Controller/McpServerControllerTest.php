@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -258,6 +260,126 @@ class McpServerControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         $toolNames = array_column($data['result']['tools'] ?? [], 'name');
         static::assertSame($expectedToolNames, array_values($toolNames));
+    }
+
+    public function testToolsListIsFilteredByDefaultAndEnabledToolsets(): void
+    {
+        $server = Server::builder()
+            ->addTool(static fn (): string => '[]', name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, description: 'List toolsets')
+            ->addTool(static fn (): string => '[]', name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, description: 'Enable toolset')
+            ->addTool(static fn (): string => '[]', name: 'shopware-entity-search', description: 'Entity Search')
+            ->addTool(static fn (): string => '[]', name: 'shopware-system-config-read', description: 'System Config Read')
+            ->build();
+
+        $sessionId = $this->initializeMcpSession($server);
+
+        $listBody = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'tools/list',
+            'params' => [],
+        ], \JSON_THROW_ON_ERROR);
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(
+            tools: [
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+                'shopware-entity-search',
+                'shopware-system-config-read',
+            ],
+            resources: null,
+            prompts: null,
+        ));
+
+        $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
+        $toolsetRegistry->expects($this->once())
+            ->method('advertisedTools')
+            ->with(['shopware-entity'])
+            ->willReturn([
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+                'shopware-entity-search',
+            ]);
+
+        $toolsetSessionStorage = $this->createMock(McpToolsetSessionStorage::class);
+        $toolsetSessionStorage->expects($this->once())
+            ->method('enabledToolsets')
+            ->with($sessionId)
+            ->willReturn(['shopware-entity']);
+
+        $psrRequest = new ServerRequest(
+            'POST',
+            '/api/_mcp',
+            ['Content-Type' => 'application/json', 'Mcp-Session-Id' => $sessionId],
+            $listBody,
+        );
+
+        $controller = $this->buildController(
+            $psrRequest,
+            new HttpFoundationFactory(),
+            $allowlistProvider,
+            server: $server,
+            toolsetRegistry: $toolsetRegistry,
+            toolsetSessionStorage: $toolsetSessionStorage,
+        );
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody, server: ['HTTP_MCP_SESSION_ID' => $sessionId]);
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), true);
+        $toolNames = array_column($data['result']['tools'] ?? [], 'name');
+        static::assertSame([
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            'shopware-entity-search',
+        ], array_values($toolNames));
+    }
+
+    public function testToolCallRemainsAllowlistOnlyWhenToolsetIsNotEnabled(): void
+    {
+        $server = Server::builder()
+            ->addTool(static fn (): string => '{"success": true}', name: 'shopware-system-config-read', description: 'System Config Read')
+            ->build();
+
+        $sessionId = $this->initializeMcpSession($server);
+
+        $callBody = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'tools/call',
+            'params' => ['name' => 'shopware-system-config-read', 'arguments' => []],
+        ], \JSON_THROW_ON_ERROR);
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['shopware-system-config-read'], resources: null, prompts: null));
+
+        $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
+        $toolsetRegistry->expects($this->never())->method('advertisedTools');
+
+        $toolsetSessionStorage = $this->createMock(McpToolsetSessionStorage::class);
+        $toolsetSessionStorage->expects($this->never())->method('enabledToolsets');
+
+        $psrRequest = new ServerRequest(
+            'POST',
+            '/api/_mcp',
+            ['Content-Type' => 'application/json', 'Mcp-Session-Id' => $sessionId],
+            $callBody,
+        );
+
+        $controller = $this->buildController(
+            $psrRequest,
+            new HttpFoundationFactory(),
+            $allowlistProvider,
+            server: $server,
+            toolsetRegistry: $toolsetRegistry,
+            toolsetSessionStorage: $toolsetSessionStorage,
+        );
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $callBody, server: ['HTTP_MCP_SESSION_ID' => $sessionId]);
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), true);
+        static::assertSame('2.0', $data['jsonrpc']);
+        static::assertArrayNotHasKey('error', $data);
     }
 
     /**
@@ -859,6 +981,8 @@ class McpServerControllerTest extends TestCase
         ?McpAllowlistProvider $allowlistProvider = null,
         ?RateLimiter $rateLimiter = null,
         ?Server $server = null,
+        ?McpToolsetRegistry $toolsetRegistry = null,
+        ?McpToolsetSessionStorage $toolsetSessionStorage = null,
     ): McpServerController {
         $psr17 = new Psr17Factory();
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
@@ -874,6 +998,8 @@ class McpServerControllerTest extends TestCase
             new McpSessionIdValidator(),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
+            toolsetRegistry: $toolsetRegistry,
+            toolsetSessionStorage: $toolsetSessionStorage,
         );
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Session;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,8 +32,12 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $storage->expects($this->once())
             ->method('deleteForSession')
             ->with('test-session-id');
+        $toolsetStorage = $this->createMock(McpToolsetSessionStorage::class);
+        $toolsetStorage->expects($this->once())
+            ->method('deleteForSession')
+            ->with('test-session-id');
 
-        $subscriber = new McpSessionCleanupSubscriber($storage);
+        $subscriber = new McpSessionCleanupSubscriber($storage, $toolsetStorage);
 
         $request = Request::create('/api/_mcp', 'DELETE');
         $request->headers->set('Mcp-Session-Id', 'test-session-id');
@@ -51,7 +56,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $storage = $this->createMock(ToolResultCacheStorage::class);
         $storage->expects($this->never())->method('deleteForSession');
 
-        $subscriber = new McpSessionCleanupSubscriber($storage);
+        $subscriber = new McpSessionCleanupSubscriber($storage, $this->createMock(McpToolsetSessionStorage::class));
 
         $request = Request::create('/api/_mcp', 'POST');
         $request->headers->set('Mcp-Session-Id', 'test-session-id');
@@ -70,7 +75,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $storage = $this->createMock(ToolResultCacheStorage::class);
         $storage->expects($this->never())->method('deleteForSession');
 
-        $subscriber = new McpSessionCleanupSubscriber($storage);
+        $subscriber = new McpSessionCleanupSubscriber($storage, $this->createMock(McpToolsetSessionStorage::class));
 
         $request = Request::create('/api/something-else', 'DELETE');
         $request->headers->set('Mcp-Session-Id', 'test-session-id');
@@ -89,7 +94,7 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $storage = $this->createMock(ToolResultCacheStorage::class);
         $storage->expects($this->never())->method('deleteForSession');
 
-        $subscriber = new McpSessionCleanupSubscriber($storage);
+        $subscriber = new McpSessionCleanupSubscriber($storage, $this->createMock(McpToolsetSessionStorage::class));
 
         $request = Request::create('/api/_mcp', 'DELETE');
 

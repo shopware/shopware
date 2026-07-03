@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpToolListChangedNotifier;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
 use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
 use Shopware\Core\Framework\Mcp\Resource\CurrencyListResource;
@@ -31,6 +34,8 @@ use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
+use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
+use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -119,6 +124,8 @@ class McpServiceConfigTest extends TestCase
         yield OrderStateTool::class => [OrderStateTool::class];
         yield MediaUploadTool::class => [MediaUploadTool::class];
         yield StoreApiContextTool::class => [StoreApiContextTool::class];
+        yield ToolsetsListTool::class => [ToolsetsListTool::class];
+        yield ToolsetEnableTool::class => [ToolsetEnableTool::class];
         yield ShopwareContextPrompt::class => [ShopwareContextPrompt::class];
         yield EntityListResource::class => [EntityListResource::class];
         yield BusinessEventsResource::class => [BusinessEventsResource::class];
@@ -131,6 +138,9 @@ class McpServiceConfigTest extends TestCase
         yield AppMcpCapabilityExecutor::class => [AppMcpCapabilityExecutor::class];
         yield AppMcpToolLoader::class => [AppMcpToolLoader::class];
         yield McpCapabilityCatalog::class => [McpCapabilityCatalog::class];
+        yield McpToolsetRegistry::class => [McpToolsetRegistry::class];
+        yield McpToolsetSessionStorage::class => [McpToolsetSessionStorage::class];
+        yield McpToolListChangedNotifier::class => [McpToolListChangedNotifier::class];
     }
 
     /**
@@ -148,6 +158,8 @@ class McpServiceConfigTest extends TestCase
         yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
         yield OrderStateTool::class => [OrderStateTool::class];
         yield MediaUploadTool::class => [MediaUploadTool::class];
+        yield ToolsetsListTool::class => [ToolsetsListTool::class];
+        yield ToolsetEnableTool::class => [ToolsetEnableTool::class];
     }
 
     /**

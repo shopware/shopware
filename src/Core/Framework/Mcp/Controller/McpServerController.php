@@ -23,6 +23,8 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -65,6 +67,8 @@ class McpServerController
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
+        private readonly ?McpToolsetRegistry $toolsetRegistry = null,
+        private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
     ) {
     }
 
@@ -119,7 +123,7 @@ class McpServerController
 
         $psrResponse = $this->server->run($transport);
 
-        if ($allowlist !== null && $request->getMethod() === 'POST') {
+        if ($request->getMethod() === 'POST') {
             $psrResponse = $this->filterListResponse($request, $psrResponse, $allowlist);
         }
 
@@ -181,7 +185,7 @@ class McpServerController
         return null;
     }
 
-    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, McpAllowlist $allowlist): PsrResponseInterface
+    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, ?McpAllowlist $allowlist): PsrResponseInterface
     {
         \assert($this->streamFactory !== null);
 
@@ -203,7 +207,7 @@ class McpServerController
             return $psrResponse;
         }
 
-        $this->applyAllowlistFilter($response, $method, $allowlist);
+        $this->applyAllowlistFilter($request, $response, $method, $allowlist);
 
         $newBody = Json::encode($response);
         $newStream = $this->streamFactory->createStream($newBody);
@@ -213,22 +217,46 @@ class McpServerController
             ->withHeader('Content-Length', (string) \strlen($newBody));
     }
 
-    private function hasListFilter(?string $method, McpAllowlist $allowlist): bool
+    private function hasListFilter(?string $method, ?McpAllowlist $allowlist): bool
     {
-        return ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null)
-            || ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null)
-            || ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null);
+        return ($method === ListToolsRequest::getMethod() && ($allowlist?->tools !== null || $this->toolsetRegistry !== null))
+            || ($method === ListResourcesRequest::getMethod() && $allowlist?->resources !== null)
+            || ($method === ListPromptsRequest::getMethod() && $allowlist?->prompts !== null);
     }
 
-    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, McpAllowlist $allowlist): void
+    private function applyAllowlistFilter(Request $request, McpJsonRpcResponse $response, ?string $method, ?McpAllowlist $allowlist): void
     {
-        if ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null) {
-            $response->filterTools($allowlist->tools);
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null) {
+        if ($method === ListToolsRequest::getMethod()) {
+            if ($allowlist?->tools !== null) {
+                $response->filterTools($allowlist->tools);
+            }
+
+            $advertisedTools = $this->advertisedToolsForSession($request);
+            if ($advertisedTools !== null) {
+                $response->filterTools($advertisedTools);
+            }
+        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist?->resources !== null) {
             $response->filterResources($allowlist->resources);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null) {
+        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist?->prompts !== null) {
             $response->filterPrompts($allowlist->prompts);
         }
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function advertisedToolsForSession(Request $request): ?array
+    {
+        if ($this->toolsetRegistry === null) {
+            return null;
+        }
+
+        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
+            return $this->toolsetRegistry->advertisedTools([]);
+        }
+
+        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface

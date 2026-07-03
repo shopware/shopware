@@ -40,6 +40,9 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpToolListChangedNotifier;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
@@ -64,6 +67,8 @@ use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
+use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
+use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
@@ -126,6 +131,8 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
+            service(McpToolsetRegistry::class),
+            service(McpToolsetSessionStorage::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -181,6 +188,11 @@ return static function (ContainerConfigurator $container): void {
             param('shopware.mcp.tool_privileges'),
         ]);
 
+    $services->set(McpToolsetRegistry::class)
+        ->args([service(McpCapabilityCatalog::class)]);
+
+    $services->set(McpToolListChangedNotifier::class);
+
     $services->set(McpToolListController::class)
         ->public()
         ->args([
@@ -211,8 +223,14 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ToolResultCacheStorage::class)
         ->args([service(Connection::class), service(ClockInterface::class)]);
 
+    $services->set(McpToolsetSessionStorage::class)
+        ->args([service(Connection::class), service(ClockInterface::class)]);
+
     $services->set(McpSessionCleanupSubscriber::class)
-        ->args([service(ToolResultCacheStorage::class)])
+        ->args([
+            service(ToolResultCacheStorage::class),
+            service(McpToolsetSessionStorage::class),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->instanceof(McpToolResponse::class)
@@ -300,6 +318,23 @@ return static function (ContainerConfigurator $container): void {
     $services->set(StoreApiContextTool::class)
         ->args([service(StoreApiMcpContextProvider::class)])
         ->tag('shopware.store_api_mcp.tool');
+
+    $services->set(ToolsetsListTool::class)
+        ->args([
+            service(McpToolsetRegistry::class),
+            service(McpToolsetSessionStorage::class),
+            service('request_stack'),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ToolsetEnableTool::class)
+        ->args([
+            service(McpToolsetRegistry::class),
+            service(McpToolsetSessionStorage::class),
+            service(McpToolListChangedNotifier::class),
+            service('request_stack'),
+        ])
+        ->tag('mcp.tool');
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)

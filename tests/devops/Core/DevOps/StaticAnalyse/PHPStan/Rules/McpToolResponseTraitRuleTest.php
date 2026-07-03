@@ -46,6 +46,6 @@ class McpToolResponseTraitRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new McpToolResponseRule();
+        return new McpToolResponseRule(self::createReflectionProvider());
     }
 }

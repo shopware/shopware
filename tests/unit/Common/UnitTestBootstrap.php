@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-use PHPUnit\TextUI\Configuration\SourceFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\TestBootstrapper;
 use Symfony\Component\Dotenv\Dotenv;
@@ -20,18 +19,4 @@ if (!class_exists(Dotenv::class)) {
 $envFilePath = (new TestBootstrapper())->getProjectDir() . '/.env';
 if (is_file($envFilePath) || is_file($envFilePath . '.dist') || is_file($envFilePath . '.local.php')) {
     (new Dotenv())->usePutenv()->bootEnv($envFilePath);
-}
-
-/*
- * Eagerly build PHPUnit's source map (full <source> tree traversal). It is otherwise built
- * lazily while classifying the FIRST triggered deprecation/notice — billing seconds (native fs)
- * to minutes (Docker bind mount) to whichever test happens to trigger it, which poisons the
- * slow-test-detector output with a wandering false entry. @internal API, so fail soft.
- */
-if (class_exists(SourceFilter::class)) {
-    try {
-        SourceFilter::instance();
-    } catch (Throwable) {
-        // pre-warming is an optimization only — never break the suite over it
-    }
 }

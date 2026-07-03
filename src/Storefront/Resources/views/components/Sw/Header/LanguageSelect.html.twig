@@ -1,0 +1,40 @@
+{% props
+    languages,
+    actionRoute = path('frontend.checkout.switch-language'),
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-language-select',
+} %}
+
+{% set attributeDefaultsForm = {
+    action: actionRoute,
+    method: 'post',
+    class: 'sw-language-select__form',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <button
+        type="button"
+        class="btn btn-link text-body btn-sm dropdown-toggle border-0 p-0 link-underline link-underline-opacity-0 fs-5 fw-normal"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+    >
+        {{ context.languageInfo.name|sw_sanitize }}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end">
+        <form {{ attributes.nested('form').defaults(attributeDefaultsForm) }}>
+            {% for language in languages %}
+                {% set isActiveLanguage = language.id is same as(context.context.languageId) %}
+                <button
+                    name="languageId"
+                    class="dropdown-item"
+                    value="{{ language.id }}"
+                    {% if isActiveLanguage %}{% endif %}
+                >
+                    {{ language.name }}
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+</div>

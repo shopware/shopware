@@ -1,0 +1,91 @@
+{% props
+    icon = null,
+    variant = 'primary',
+    outline = false,
+    size = null,
+    text = null,
+%}
+
+{% set buttonCVA = cva({
+    base: 'sw-button btn',
+    variants: {
+        variant: {
+            buy: 'btn-buy',
+            link: 'btn-link',
+            inline: 'btn-link-inline',
+        },
+        size: {
+            sm: 'btn-sm',
+            lg: 'btn-lg',
+        },
+    },
+    compoundVariants: [{
+        variant: ['primary'],
+        outline: [false],
+        class: 'btn-primary',
+    }, {
+        variant: ['secondary'],
+        outline: [false],
+        class: 'btn-secondary',
+    }, {
+        variant: ['light'],
+        outline: [false],
+        class: 'btn-light',
+    }, {
+        variant: ['dark'],
+        outline: [false],
+        class: 'btn-dark',
+    }, {
+        variant: ['danger'],
+        outline: [false],
+        class: 'btn-danger',
+    }, {
+        variant: ['warning'],
+        outline: [false],
+        class: 'btn-warning',
+    }, {
+        variant: ['success'],
+        outline: [false],
+        class: 'btn-success',
+    }, {
+        variant: ['info'],
+        outline: [false],
+        class: 'btn-info',
+    }, {
+        variant: ['primary'],
+        outline: [true],
+        class: 'btn-outline-primary',
+    }, {
+        variant: ['secondary'],
+        outline: [true],
+        class: 'btn-outline-secondary',
+    }, {
+        variant: ['light'],
+        outline: [true],
+        class: 'btn-outline-light',
+    }, {
+        variant: ['dark'],
+        outline: [true],
+        class: 'btn-outline-dark',
+    }, {
+        variant: ['danger'],
+        outline: [true],
+        class: 'btn-outline-danger',
+    }, {
+        variant: ['warning'],
+        outline: [true],
+        class: 'btn-outline-warning',
+    }, {
+        variant: ['success'],
+        outline: [true],
+        class: 'btn-outline-success',
+    }, {
+        variant: ['info'],
+        outline: [true],
+        class: 'btn-outline-info',
+    }],
+}) %}
+
+<button {{ attributes.defaults({ class: buttonCVA.apply({ variant, outline, size }) }) }}>
+    {% block content %}{{ text }}{% endblock %}
+</button>

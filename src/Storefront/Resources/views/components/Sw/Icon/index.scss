@@ -1,0 +1,99 @@
+/*
+Icons
+==============================================
+Basic styling for icon component plus helper classes for sizing and colors.
+*/
+
+// Basics
+// --------------------------
+
+.sw-icon {
+    --sw-icon-base-size: 1.375rem;
+    width: var(--sw-icon-base-size);
+    height: var(--sw-icon-base-size);
+    display: inline-block;
+    line-height: 1;
+
+    > svg {
+        width: 100%;
+        height: 100%;
+        vertical-align: middle;
+        display: inline-block;
+        fill: currentColor;
+
+        path,
+        use {
+            fill: currentColor;
+        }
+    }
+}
+
+// Icon Sizes
+// -------------------------
+
+.sw-icon--fluid {
+    width: 100%;
+    height: 100%;
+}
+
+.sw-icon--lg {
+    width: calc(var(--sw-icon-base-size) * 1.33);
+    height: calc(var(--sw-icon-base-size) * 1.33);
+}
+
+.sw-icon--sm {
+    width: calc(var(--sw-icon-base-size) * 0.875);
+    height: calc(var(--sw-icon-base-size) * 0.875);
+}
+
+.sw-icon--xs {
+    width: calc(var(--sw-icon-base-size) * 0.75);
+    height: calc(var(--sw-icon-base-size) * 0.75);
+}
+
+@for $i from 1 through 10 {
+    .sw-icon-#{$i}x {
+        width: calc(#{$i} * var(--icon-base-size));
+        height: calc(#{$i} * var(--icon-base-size));
+    }
+}
+
+// Rotated & Flipped Icons
+// -------------------------
+
+.sw-icon--rotate-90 {
+    svg {
+        transform: rotate(90deg);
+    }
+}
+
+.sw-icon--rotate-180 {
+    svg {
+        transform: rotate(180deg);
+    }
+}
+
+.sw-icon--rotate-270 {
+    svg {
+        transform: rotate(270deg);
+    }
+}
+
+.sw-icon--flip-horizontal {
+    svg {
+        transform: scale(-1, 1);
+    }
+}
+
+.sw-icon--flip-vertical {
+    svg {
+        transform: scale(1, -1);
+    }
+}
+
+.sw-icon--flip-both,
+.sw-icon--flip-horizontal.sw-icon--flip-vertical {
+    svg {
+        transform: scale(-1, -1);
+    }
+}

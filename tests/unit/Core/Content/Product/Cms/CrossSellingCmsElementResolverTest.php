@@ -31,7 +31,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
-        $route = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $route = static::createStub(AbstractProductCrossSellingRoute::class);
         $resolver = new CrossSellingCmsElementResolver($route);
         static::assertSame('cross-selling', $resolver->getType());
     }
@@ -44,8 +44,8 @@ class CrossSellingCmsElementResolverTest extends TestCase
             (new CrossSellingElement())->assign(['total' => 1]),
         ]));
 
-        $route = $this->createMock(AbstractProductCrossSellingRoute::class);
-        $route->method('load')->with($productId)->willReturn($response);
+        $route = static::createStub(AbstractProductCrossSellingRoute::class);
+        $route->method('load')->willReturn($response);
 
         $resolver = new CrossSellingCmsElementResolver($route);
         $config = new FieldConfigCollection([
@@ -61,7 +61,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
@@ -82,7 +82,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
 
     public function testEnrichSetsEmptyCrossSellingWithoutConfig(): void
     {
-        $route = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $route = static::createStub(AbstractProductCrossSellingRoute::class);
         $resolver = new CrossSellingCmsElementResolver($route);
 
         $slot = new CmsSlotEntity();

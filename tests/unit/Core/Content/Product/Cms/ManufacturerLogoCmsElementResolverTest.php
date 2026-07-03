@@ -223,7 +223,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
@@ -271,7 +271,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $manufacturer->setId('manufacturer-1');
         $manufacturer->setMedia($mappedMedia);
 
-        $mappedResult = $this->createMock(EntitySearchResult::class);
+        $mappedResult = static::createStub(EntitySearchResult::class);
         $mappedResult->method('getEntities')->willReturn(new ProductManufacturerCollection([$manufacturer]));
 
         $data = new ElementDataCollection();
@@ -318,7 +318,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
 
         $invalidEntity = new MediaEntity();
         $invalidEntity->setUniqueIdentifier('invalid-1');
-        $invalidMappedResult = $this->createMock(EntitySearchResult::class);
+        $invalidMappedResult = static::createStub(EntitySearchResult::class);
         $invalidMappedResult->method('getEntities')->willReturn(new MediaCollection([$invalidEntity]));
 
         $data = new ElementDataCollection();

@@ -569,7 +569,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             $repo,
             $this->presignedUrlGenerator,
             $this->eventDispatcher,
-            $this->createMock(TypeDetector::class),
+            static::createStub(TypeDetector::class),
             $this->mediaFileCleanup,
             $this->extensionValidator,
             $this->mediaPathStrategy,

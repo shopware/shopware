@@ -231,7 +231,7 @@ class ProductReviewLoaderTest extends TestCase
         return new ProductReviewLoader(
             $productReviewRouteMock,
             $this->systemConfigService,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
     }
 

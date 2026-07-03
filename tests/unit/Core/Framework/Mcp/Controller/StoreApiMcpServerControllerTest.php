@@ -7,6 +7,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
@@ -152,9 +153,9 @@ class StoreApiMcpServerControllerTest extends TestCase
         );
     }
 
-    private function createSalesChannelContext(): SalesChannelContext&MockObject
+    private function createSalesChannelContext(): SalesChannelContext&Stub
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
         $salesChannelContext->method('getToken')->willReturn('context-token');
 

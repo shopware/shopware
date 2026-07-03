@@ -50,7 +50,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -84,7 +84,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
@@ -129,7 +129,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
@@ -169,7 +169,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
@@ -213,7 +213,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
@@ -251,12 +251,12 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
     private function getResolver(): ProductDescriptionReviewsCmsElementResolver
     {
         $productReviewLoader = new ProductReviewLoader(
-            $this->createMock(AbstractProductReviewRoute::class),
+            static::createStub(AbstractProductReviewRoute::class),
             $this->systemConfigService,
             new EventDispatcher()
         );
 
-        $scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $scriptExecutor = static::createStub(ScriptExecutor::class);
 
         return new ProductDescriptionReviewsCmsElementResolver($productReviewLoader, $scriptExecutor, $this->systemConfigService);
     }

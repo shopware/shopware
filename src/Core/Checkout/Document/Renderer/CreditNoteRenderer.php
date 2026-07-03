@@ -362,7 +362,6 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
          * to still support these special cases and is still better than failing the credit note generation,
          * which might be needed years later for a business case.
          */
-
         $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,

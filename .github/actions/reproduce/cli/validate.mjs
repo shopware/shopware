@@ -31,6 +31,7 @@ export function validate() {
   if (plan.executor === 'http') {
     add(!plan.request && !plan.requests, 'http plan needs a `request` or `requests`');
     add(!plan.assertion && !plan.assertions, 'http plan needs an `assertion` or `assertions`');
+    errors.push(...validateHttpIds(plan));
   }
   if (plan.executor === 'direct') add(!fs.existsSync(plan.script_path || FILES.testPhp), `direct plan needs ${plan.script_path || FILES.testPhp}`);
   if (plan.executor === 'playwright') errors.push(...validateSpec(plan));
@@ -72,6 +73,29 @@ function validateSpec(plan) {
   }
 
   return errors;
+}
+
+// The plan is replayed verbatim on BOTH legs, but every install generates its own UUIDs for
+// countries/salutations/payment methods/etc. A literal install id resolved on the reported shop
+// won't exist on trunk — the request 400s and the leg comes back `blocked` instead of a verdict
+// (see issue #2). Reject bare 32-hex ids in an http plan and steer to per-leg placeholders. Two
+// exemptions: the handful of Shopware core constants that are identical on every install, and any id
+// the agent seeds through fixtures.json (that row is created with the same id on both legs).
+const STABLE_IDS = new Set([
+  '2fbb5fe2e29a4d70aa5854ce7ce3e20b', // Defaults::LANGUAGE_SYSTEM
+  'b7d2554b0ce847cd82f3ac9bd1c0dfca', // Defaults::LIVE_VERSION
+]);
+const HEX32 = /(?<![0-9a-f])[0-9a-f]{32}(?![0-9a-f])/g;
+
+function validateHttpIds(plan) {
+  const allowed = new Set(STABLE_IDS);
+  if (fs.existsSync(FILES.fixtures)) {
+    try { for (const m of fs.readFileSync(FILES.fixtures, 'utf8').matchAll(HEX32)) allowed.add(m[0]); } catch { /* invalid fixtures reported elsewhere */ }
+  }
+  const blob = JSON.stringify([plan.request, plan.requests, plan.assertion, plan.assertions]);
+  const literals = [...new Set([...blob.matchAll(HEX32)].map((m) => m[0]))].filter((id) => !allowed.has(id));
+  if (!literals.length) return [];
+  return [`http plan hardcodes install-specific id(s) ${literals.slice(0, 5).join(', ')} — Shopware generates these per install, so they won't exist on the trunk leg and its request will fail (leg → blocked). Use per-leg placeholders ({{COUNTRY}}, {{SALUTATION}}, {{SALUTATION2}}, {{TAX}}, {{CURRENCY}}, {{PAYMENT_METHOD}}, {{SHIPPING_METHOD}}, {{CUSTOMER_GROUP}}, {{LANGUAGE}}, … — full list in prompt/guides/fixtures.md), which the executor resolves against each leg's live DB, or seed the entity in fixtures.json with a stable id and reference that.`];
 }
 
 function validateReadiness(plan) {

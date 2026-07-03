@@ -19,6 +19,17 @@ A request may set arbitrary `headers` (placeholders allowed in values), includin
 useful for header-handling bugs, e.g. `{ "method": "GET", "path": "/api/language",
 "headers": { "sw-language-id": "" } }`.
 
+**Entity ids must be placeholders, never literal install ids.** The exact plan is replayed on both
+legs, and every install generates different UUIDs for countries, salutations, payment/shipping
+methods, and the like. A literal id resolved on the reported shop won't exist on trunk — the request
+`400`s and the leg comes back `blocked` instead of a verdict (this is what happened on #2). Use the
+per-leg placeholders (`{{COUNTRY}}`, `{{SALUTATION}}`, `{{SALUTATION2}}`, `{{TAX}}`, `{{CURRENCY}}`,
+`{{PAYMENT_METHOD}}`, `{{SHIPPING_METHOD}}`, `{{CUSTOMER_GROUP}}`, `{{LANGUAGE}}`,
+`{{SYSTEM_LANGUAGE}}`, … — full list in [fixtures.md](fixtures.md)) in the path, body, **and** the
+assertion `expect`; the executor resolves each against the running leg's DB. If you need an entity
+that has no placeholder, seed it in `fixtures.json` with a stable id and reference that id.
+`repro validate` rejects bare install ids in an http plan.
+
 Assertion fields are jq filters on the final response. Ops: `equals` (default), `contains`,
 `matches`, `present`, `absent`, `gt`, `lt`. `expect` is the **healthy** value. Mark setup checks
 `"role": "precondition"` and the symptom `"role": "assert"`.

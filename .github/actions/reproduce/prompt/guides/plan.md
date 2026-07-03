@@ -52,7 +52,7 @@ Put the request(s) and assertion(s) in the plan itself (no separate artifact):
 ```json
 {
   "executor": "http", "layer": "store-api", "version": "6.6.10.0", "issue": 1,
-  "requests": [ { "method": "POST", "path": "/store-api/product/<id>", "body": {} } ],
+  "requests": [ { "method": "POST", "path": "/store-api/product/{{PRODUCT_ID}}", "body": { "salutationId": "{{SALUTATION}}" } } ],
   "assertions": [
     { "kind": "http_status", "expect": 200, "role": "precondition", "label": "product loads" },
     { "field": ".product.calculatedPrice.unitPrice", "op": "equals", "expect": 19.99, "role": "assert", "label": "price is correct" }
@@ -60,4 +60,6 @@ Put the request(s) and assertion(s) in the plan itself (no separate artifact):
 }
 ```
 
-See [executors.md](executors.md) for the assertion operators and how each status is decided.
+Any entity id in the path/body/assertions must be a `{{PLACEHOLDER}}`, never a literal install id —
+the plan is replayed on trunk where those ids differ. See [executors.md](executors.md) for the id
+rule, the assertion operators, and how each status is decided.

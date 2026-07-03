@@ -49,6 +49,24 @@ class ToolSearchTest extends TestCase
         static::assertContains('parameter', $results[0]->matchedIn);
     }
 
+    public function testSearchHandlesToolWithoutDescriptionOrInputProperties(): void
+    {
+        $search = new ToolSearch();
+
+        $results = $search->search([
+            new Tool(
+                name: 'entity-read',
+                title: null,
+                inputSchema: ['type' => 'object'], // @phpstan-ignore argument.type (malformed schema covers defensive fallback)
+                description: null,
+                annotations: null,
+            ),
+        ], 'entity', 10);
+
+        static::assertNotEmpty($results);
+        static::assertSame('entity-read', $results[0]->tool->name);
+    }
+
     public function testFindsExactMultiTokenName(): void
     {
         $search = new ToolSearch();

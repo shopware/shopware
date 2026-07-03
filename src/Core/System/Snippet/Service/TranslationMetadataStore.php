@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @phpstan-type DecodedMetadata array<string, array{locale: string, updatedAt: string, progress: int}>
  */
 #[Package('discovery')]
-class TranslationMetadataLoader
+class TranslationMetadataStore
 {
     private const CROWDIN_METADATA_LOCK = 'crowdin-metadata.lock';
 
@@ -67,6 +67,18 @@ class TranslationMetadataLoader
             $path,
             json_encode($remoteMetadata->jsonSerialize(), \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT),
         );
+    }
+
+    public function remove(string $locale): void
+    {
+        $metadata = $this->getLocalMetadata();
+
+        if (!$metadata->has($locale)) {
+            return;
+        }
+
+        $metadata->remove($locale);
+        $this->save($metadata);
     }
 
     public function getLocalMetadata(): MetadataCollection

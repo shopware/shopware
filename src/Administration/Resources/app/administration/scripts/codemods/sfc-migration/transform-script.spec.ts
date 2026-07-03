@@ -2384,5 +2384,96 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
             expectManualFallback(result, apiName);
         });
+
+        it('drops a method that calls another method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                    callDropped() {
+                        return this.dropped();
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'unknown this property');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('drops a method that references a name removed as a duplicate public binding', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { collision: 1 };
+                },
+                methods: {
+                    collision() {
+                        return 2;
+                    },
+                    useCollision() {
+                        return this.collision;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'duplicate');
+            expect(result.script).not.toContain('this.collision');
+        });
+
+        it('marks props that reference a destructured module-local declaration as unsupported', () => {
+            const js = `const { propConfig } = Shopware.Utils;
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    label: propConfig,
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('defineProps({');
+        });
+
+        it('marks emits that reference a destructured module-local declaration as unsupported', () => {
+            const js = `const { onSave } = Shopware.Utils;
+
+            Shopware.Component.register('sw-test', {
+                emits: {
+                    save: onSave,
+                },
+                methods: {
+                    save(payload) {
+                        this.$emit('save', payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'emits');
+            expect(result.script).not.toContain('defineEmits({');
+        });
+
+        it('does not back off when a prop key matches an unrelated module-local name', () => {
+            const js = `const label = 'module local';
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    label: String,
+                },
+                methods: {
+                    getLabel() {
+                        return this.label;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+            expect(result.scriptType).toBe('setup');
+        });
     });
 });

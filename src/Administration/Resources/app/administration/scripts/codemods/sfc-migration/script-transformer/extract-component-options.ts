@@ -59,7 +59,34 @@ function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>): boo
         return false;
     }
 
-    return node.getDescendantsOfKind(SyntaxKind.Identifier).some((identifier) => moduleLocalNames.has(identifier.getText()));
+    return node
+        .getDescendantsOfKind(SyntaxKind.Identifier)
+        .some((identifier) => moduleLocalNames.has(identifier.getText()) && isValueReference(identifier));
+}
+
+/**
+ * A property key (`{ label: … }`) or a member name (`Shopware.Utils`) that
+ * happens to match a module-local name is not a reference to it. Only value
+ * positions count, so those static names must be excluded to avoid false
+ * Options API backoffs. Shorthand entries (`{ label }`) are references.
+ */
+function isValueReference(identifier: TsNode): boolean {
+    const parent = identifier.getParent();
+    if (!parent) {
+        return true;
+    }
+
+    if (
+        Node.isPropertyAssignment(parent) ||
+        Node.isMethodDeclaration(parent) ||
+        Node.isGetAccessorDeclaration(parent) ||
+        Node.isSetAccessorDeclaration(parent) ||
+        Node.isPropertyAccessExpression(parent)
+    ) {
+        return parent.getNameNode().getStart() !== identifier.getStart();
+    }
+
+    return true;
 }
 
 function analyzeObjectOrArrayOption(

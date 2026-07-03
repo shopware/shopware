@@ -268,70 +268,91 @@ function collectSupportedCompositionMembers(
     );
     collectUnsupportedEntries(unsupportedMethodEntries, 'methods', 'method', manualMigrationReasons, todoComments);
 
-    const injectNames = new Set(supportedInjectProps.map((p) => p.localName));
     const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
-    const computedNames = new Set(supportedComputedProps.map((p) => p.name));
 
-    // `this.` accesses are validated against every identifier-safe member so a
-    // method referencing a sibling that is dropped later is not misreported as
-    // an unknown property.
-    const validationCtx: RewriteContext = {
-        propNames,
-        dataNames: new Set(identifierSafeDataProps.map((p) => p.name)),
-        computedNames,
-        methodNames: new Set(identifierSafeMethodProps.map((p) => p.name)),
-        injectNames,
+    // Dropping a member can turn a `this.<member>` reference inside another
+    // member into an unresolved access, and removing duplicates can do the same.
+    // Iterate to a fixpoint so the emitted setup never keeps a stale instance
+    // reference to a member that was filtered out.
+    let members: SupportedPublicMembers = {
+        supportedInjectProps,
+        supportedDataProps: identifierSafeDataProps,
+        supportedComputedProps,
+        supportedMethodProps: identifierSafeMethodProps,
     };
 
-    const supportedDataProps = filterInstanceDependentData(
-        identifierSafeDataProps,
-        validationCtx,
-        manualMigrationReasons,
-        todoComments,
-    );
-    const supportedMethodProps = filterInstanceDependentMethods(
-        identifierSafeMethodProps,
-        validationCtx,
-        manualMigrationReasons,
-        todoComments,
-    );
+    for (;;) {
+        const ctx = buildMemberContext(members, propNames);
+        const filteredData = filterInstanceDependentData(
+            members.supportedDataProps,
+            ctx,
+            manualMigrationReasons,
+            todoComments,
+        );
+        const filteredMethods = filterInstanceDependentMethods(
+            members.supportedMethodProps,
+            ctx,
+            manualMigrationReasons,
+            todoComments,
+        );
+        const deduped = dropDuplicatePublicNames(
+            { ...members, supportedDataProps: filteredData, supportedMethodProps: filteredMethods },
+            manualMigrationReasons,
+            todoComments,
+        );
 
-    const deduped = dropDuplicatePublicNames(
-        { supportedInjectProps, supportedDataProps, supportedComputedProps, supportedMethodProps },
-        manualMigrationReasons,
-        todoComments,
-    );
+        const settled =
+            deduped.supportedInjectProps.length === members.supportedInjectProps.length &&
+            deduped.supportedDataProps.length === members.supportedDataProps.length &&
+            deduped.supportedComputedProps.length === members.supportedComputedProps.length &&
+            deduped.supportedMethodProps.length === members.supportedMethodProps.length;
 
-    const dataNames = new Set(deduped.supportedDataProps.map((p) => p.name));
-    const methodNames = new Set(deduped.supportedMethodProps.map((p) => p.name));
-    const finalInjectNames = new Set(deduped.supportedInjectProps.map((p) => p.localName));
-    const finalComputedNames = new Set(deduped.supportedComputedProps.map((p) => p.name));
+        members = deduped;
+        if (settled) {
+            break;
+        }
+    }
+
+    const injectNames = new Set(members.supportedInjectProps.map((p) => p.localName));
+    const dataNames = new Set(members.supportedDataProps.map((p) => p.name));
+    const computedNames = new Set(members.supportedComputedProps.map((p) => p.name));
+    const methodNames = new Set(members.supportedMethodProps.map((p) => p.name));
 
     const supportedWatchProps = collectSupportedWatchProps(
         watchProps,
         unsupportedWatchEntries,
         propNames,
         dataNames,
-        finalComputedNames,
+        computedNames,
         methodNames,
-        finalInjectNames,
+        injectNames,
     );
 
     return {
-        supportedInjectProps: deduped.supportedInjectProps,
-        supportedDataProps: deduped.supportedDataProps,
-        supportedComputedProps: deduped.supportedComputedProps,
-        supportedMethodProps: deduped.supportedMethodProps,
+        supportedInjectProps: members.supportedInjectProps,
+        supportedDataProps: members.supportedDataProps,
+        supportedComputedProps: members.supportedComputedProps,
+        supportedMethodProps: members.supportedMethodProps,
         supportedWatchProps,
         watchProps,
         unsupportedWatchEntries,
         propNames,
         dataNames,
-        computedNames: finalComputedNames,
+        computedNames,
         methodNames,
-        injectNames: finalInjectNames,
+        injectNames,
         manualMigrationReasons,
         todoComments,
+    };
+}
+
+function buildMemberContext(members: SupportedPublicMembers, propNames: Set<string>): RewriteContext {
+    return {
+        propNames,
+        dataNames: new Set(members.supportedDataProps.map((p) => p.name)),
+        computedNames: new Set(members.supportedComputedProps.map((p) => p.name)),
+        methodNames: new Set(members.supportedMethodProps.map((p) => p.name)),
+        injectNames: new Set(members.supportedInjectProps.map((p) => p.localName)),
     };
 }
 

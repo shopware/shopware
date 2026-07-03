@@ -1,4 +1,4 @@
-import type { CallExpression, PropertyAccessExpression, SourceFile } from 'ts-morph';
+import type { BindingName, CallExpression, PropertyAccessExpression, SourceFile } from 'ts-morph';
 import { Node, Project, ScriptKind, SyntaxKind } from 'ts-morph';
 import type { CodeSnippet, ComponentRegistration, RewriteSnippetKind } from './types';
 
@@ -132,12 +132,7 @@ export function collectModuleLocalNames(sourceFile: SourceFile, registration: Co
             stmt.asKindOrThrow(SyntaxKind.VariableStatement)
                 .getDeclarationList()
                 .getDeclarations()
-                .forEach((declaration) => {
-                    const nameNode = declaration.getNameNode();
-                    if (Node.isIdentifier(nameNode)) {
-                        names.add(nameNode.getText());
-                    }
-                });
+                .forEach((declaration) => addBindingNames(declaration.getNameNode(), names));
         } else if (stmt.isKind(SyntaxKind.FunctionDeclaration) || stmt.isKind(SyntaxKind.ClassDeclaration)) {
             const name =
                 stmt.asKind(SyntaxKind.FunctionDeclaration)?.getName() ??
@@ -149,6 +144,20 @@ export function collectModuleLocalNames(sourceFile: SourceFile, registration: Co
     }
 
     return names;
+}
+
+/** Collects the bound names of a declaration, including destructuring patterns. */
+function addBindingNames(nameNode: BindingName, names: Set<string>): void {
+    if (Node.isIdentifier(nameNode)) {
+        names.add(nameNode.getText());
+        return;
+    }
+
+    nameNode.getElements().forEach((element) => {
+        if (Node.isBindingElement(element)) {
+            addBindingNames(element.getNameNode(), names);
+        }
+    });
 }
 
 export function extractModuleLevelCode(sourceFile: SourceFile, registration: ComponentRegistration): string {

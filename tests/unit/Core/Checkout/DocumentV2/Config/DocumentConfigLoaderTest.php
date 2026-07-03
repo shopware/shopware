@@ -418,7 +418,7 @@ class DocumentConfigLoaderTest extends TestCase
      */
     private function createSystemConfigService(?array $companyInfo = null, ?string $expectedSalesChannelId = null): SystemConfigService
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = $this->createStub(SystemConfigService::class);
         $systemConfigService->method('get')
             ->willReturnCallback(function (string $key, ?string $salesChannelId) use ($companyInfo, $expectedSalesChannelId): ?array {
                 static::assertSame(self::COMPANY_INFO_CONFIG_KEY, $key);

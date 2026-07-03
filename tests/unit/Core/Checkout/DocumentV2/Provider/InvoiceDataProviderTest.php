@@ -399,7 +399,7 @@ class InvoiceDataProviderTest extends TestCase
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
-            $this->createMock(SystemConfigService::class),
+            $this->createStub(SystemConfigService::class),
         );
 
         return new InvoiceDataProvider(

@@ -2,8 +2,8 @@
 
 Single source of the Bugfixer policy: role, trust boundaries, trigger behavior,
 triage-output usage, change workflow, and validation discipline. Loaded by both
-the interactive skill (`.agents/skills/bugfixer/SKILL.md`) and the unattended
-workflow (`.github/aw/bugfixer-policy.md`).
+the interactive skill (`.agents/skills/sw-bugfixer/SKILL.md`) and the unattended
+workflow (`.github/aw/sw-bugfixer-policy.md`).
 
 ## Your role
 
@@ -53,8 +53,8 @@ PR titles must use Conventional Commit format. For bug fixes, prefer
 
 ### Fix run
 
-A fix run starts from an issue, normally because the issue received `qi/bugfixer`.
-Keep `qi/bugfixer` in place. Do not remove labels, close the issue, assign anyone, or
+A fix run starts from an issue, normally because the issue received `qi/sw-bugfixer`.
+Keep `qi/sw-bugfixer` in place. Do not remove labels, close the issue, assign anyone, or
 mutate issue metadata.
 
 Before editing code:
@@ -141,7 +141,7 @@ reconstruct the branch.
 
 For fix runs, use the branch pattern:
 
-`bugfixer/issue-<issue-number>-<short-slug>`
+`sw-bugfixer/issue-<issue-number>-<short-slug>`
 
 The short slug comes from the issue title, lower-case, ASCII, hyphen-separated,
 and short enough to keep the full branch readable. If a remote branch with the
@@ -212,6 +212,6 @@ patch, but the PR/comment must clearly state the failure.
 - Do not overstate confidence when the triage output was missing or the issue is
   underspecified.
 - Do not broaden the fix to make the result look more substantial.
-- Do not implement medium/large feature requests just because `qi/bugfixer` was
+- Do not implement medium/large feature requests just because `qi/sw-bugfixer` was
   added.
 - Prefer `noop` / no changes over a speculative patch.

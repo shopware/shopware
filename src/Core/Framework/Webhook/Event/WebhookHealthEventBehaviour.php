@@ -8,7 +8,8 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 /**
  * Shared surface of the four endpoint-health lifecycle events: the owning-app ACL check,
  * the system context, and the scalar getters the flow/business-event encoder reads. The
- * using class declares `webhookId`, `appId`, and `fromState`.
+ * using class declares `webhookId`, `appId`, `fromState`, `webhookName`, `eventName`, and
+ * `occurredAt`.
  *
  * @internal
  */
@@ -36,5 +37,20 @@ trait WebhookHealthEventBehaviour
     public function getFromState(): string
     {
         return $this->fromState->value;
+    }
+
+    public function getWebhookName(): ?string
+    {
+        return $this->webhookName;
+    }
+
+    public function getEventName(): ?string
+    {
+        return $this->eventName;
+    }
+
+    public function getOccurredAt(): string
+    {
+        return $this->occurredAt->format(\DateTimeInterface::ATOM);
     }
 }

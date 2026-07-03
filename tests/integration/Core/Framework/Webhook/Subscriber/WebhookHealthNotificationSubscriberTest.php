@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\SuspensionCause;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -103,12 +104,18 @@ class WebhookHealthNotificationSubscriberTest extends TestCase
                 null,
                 EndpointState::Suspended,
                 DisabledOrigin::Escalation,
+                $this->webhookName,
+                'checkout.order.placed',
+                new \DateTimeImmutable('2026-06-05 10:00:00'),
             ));
             $this->dispatcher->dispatch(new WebhookDisabledEvent(
                 $this->ids->get('wh'),
                 null,
                 EndpointState::Healthy,
                 DisabledOrigin::Operator,
+                $this->webhookName,
+                'checkout.order.placed',
+                new \DateTimeImmutable('2026-06-05 10:00:00'),
             ));
         });
 
@@ -130,6 +137,9 @@ class WebhookHealthNotificationSubscriberTest extends TestCase
                 null,
                 EndpointState::Degraded,
                 WebhookActivationTrigger::Trial,
+                $this->webhookName,
+                'checkout.order.placed',
+                new \DateTimeImmutable('2026-06-05 10:00:00'),
                 new \DateTimeImmutable('2026-06-01 12:00:00'),
             ));
         });
@@ -147,6 +157,9 @@ class WebhookHealthNotificationSubscriberTest extends TestCase
                 null,
                 EndpointState::Degraded,
                 WebhookActivationTrigger::Idle,
+                $this->webhookName,
+                'checkout.order.placed',
+                new \DateTimeImmutable('2026-06-05 10:00:00'),
                 null,
             ));
         });
@@ -165,7 +178,16 @@ class WebhookHealthNotificationSubscriberTest extends TestCase
 
     private function suspendedEvent(\DateTimeImmutable $since): WebhookSuspendedEvent
     {
-        return new WebhookSuspendedEvent($this->ids->get('wh'), null, EndpointState::Healthy, $since);
+        return new WebhookSuspendedEvent(
+            $this->ids->get('wh'),
+            null,
+            EndpointState::Healthy,
+            $since,
+            SuspensionCause::AuthStreak,
+            $this->webhookName,
+            'checkout.order.placed',
+            $since,
+        );
     }
 
     private function notificationCount(): int

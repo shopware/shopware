@@ -12,10 +12,11 @@ use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * A webhook entered DISABLED, either by the 7-day escalation or by an operator kill;
- * `origin` says which. Best-effort and post-commit: the event is advisory only, the
- * `webhook_health` row is the truth, and a listener failure never affects the transition.
- * Entering DISABLED always notifies the Admin.
+ * A webhook entered DISABLED — by the 7-day escalation or an operator kill; `origin` says which.
+ * Best-effort and post-commit: advisory only, the `webhook_health` row is the truth, and a listener
+ * failure never affects the transition. Entering DISABLED always notifies the Admin.
+ * `webhookName`/`eventName` are null only when the webhook row vanished between the transition and
+ * the emission lookup.
  *
  * @internal
  */
@@ -31,6 +32,9 @@ final readonly class WebhookDisabledEvent implements Hookable, FlowEventAware
         public ?string $appId,
         public EndpointState $fromState,
         public DisabledOrigin $origin,
+        public ?string $webhookName,
+        public ?string $eventName,
+        public \DateTimeImmutable $occurredAt,
     ) {
     }
 
@@ -50,6 +54,9 @@ final readonly class WebhookDisabledEvent implements Hookable, FlowEventAware
             'webhookId' => $this->webhookId,
             'fromState' => $this->fromState->value,
             'origin' => $this->origin->value,
+            'webhookName' => $this->webhookName,
+            'eventName' => $this->eventName,
+            'occurredAt' => $this->getOccurredAt(),
         ];
     }
 
@@ -63,6 +70,9 @@ final readonly class WebhookDisabledEvent implements Hookable, FlowEventAware
         return (new EventDataCollection())
             ->add('webhookId', new ScalarValueType(ScalarValueType::TYPE_STRING))
             ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('origin', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('origin', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('webhookName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('eventName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('occurredAt', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

@@ -8,13 +8,16 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\SuspensionCause;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * A webhook entered SUSPENDED. Best-effort and post-commit: the event is advisory only,
- * the `webhook_health` row is the truth, and a listener failure never affects the
- * transition. `suspendedSince` is the episode anchor: set once on the first suspension
- * and unchanged across re-suspensions. It keys the one-notification-per-suspension rule.
+ * A webhook entered SUSPENDED. Best-effort and post-commit: advisory only, the `webhook_health` row
+ * is the truth, and a listener failure never affects the transition. `suspendedSince` is the
+ * episode anchor — set once on the first suspension and unchanged across re-suspension — and keys
+ * the one-notification-per-suspension rule; `occurredAt` is this transition's own time (on
+ * re-suspension the two differ). `webhookName`/`eventName` are null only when the webhook row
+ * vanished between the transition and the emission lookup.
  *
  * @internal
  */
@@ -30,6 +33,10 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
         public ?string $appId,
         public EndpointState $fromState,
         public \DateTimeImmutable $suspendedSince,
+        public SuspensionCause $cause,
+        public ?string $webhookName,
+        public ?string $eventName,
+        public \DateTimeImmutable $occurredAt,
     ) {
     }
 
@@ -39,9 +46,10 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
     }
 
     /**
-     * Ids and state only. Never the endpoint URL, headers, or a delivery payload.
-     * `suspendedSince` is the anchor the app vendor reconciles against (it also appears
-     * on `GET /state`).
+     * Ids, names, coarse state/cause enums, and timestamps only. Never the endpoint URL,
+     * headers, or a delivery payload. `suspendedSince` is the anchor the app vendor
+     * reconciles against (it also appears on `GET /state`); `webhookName` is the key into
+     * `GET /state` and `POST /reactivate`; `cause` names the remedy class.
      *
      * @return array<string, mixed>
      */
@@ -51,7 +59,16 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
             'webhookId' => $this->webhookId,
             'fromState' => $this->fromState->value,
             'suspendedSince' => $this->getSuspendedSince(),
+            'cause' => $this->cause->value,
+            'webhookName' => $this->webhookName,
+            'eventName' => $this->eventName,
+            'occurredAt' => $this->getOccurredAt(),
         ];
+    }
+
+    public function getCause(): string
+    {
+        return $this->cause->value;
     }
 
     public function getSuspendedSince(): string
@@ -64,6 +81,10 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
         return (new EventDataCollection())
             ->add('webhookId', new ScalarValueType(ScalarValueType::TYPE_STRING))
             ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('suspendedSince', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('suspendedSince', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('cause', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('webhookName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('eventName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('occurredAt', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

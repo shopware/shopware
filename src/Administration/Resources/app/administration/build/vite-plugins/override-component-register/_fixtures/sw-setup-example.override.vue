@@ -1,4 +1,4 @@
-<script setup sw-override="sw-setup-example">
+<script setup>
 const count = 1;
 
 swDefineOverride({

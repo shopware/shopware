@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ImportExportLogEntity>
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class ImportExportLogCollection extends EntityCollection

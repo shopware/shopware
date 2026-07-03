@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class AppCmsBlockDefinition extends EntityDefinition

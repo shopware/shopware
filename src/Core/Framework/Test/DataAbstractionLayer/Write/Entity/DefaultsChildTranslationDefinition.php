@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class DefaultsChildTranslationDefinition extends EntityTranslationDefinition
 {

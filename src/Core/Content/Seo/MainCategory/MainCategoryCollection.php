@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MainCategoryEntity>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class MainCategoryCollection extends EntityCollection

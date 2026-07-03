@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class ToManyAssociationMappingDefinition extends MappingEntityDefinition
 {

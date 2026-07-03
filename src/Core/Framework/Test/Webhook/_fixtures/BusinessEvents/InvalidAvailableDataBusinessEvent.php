@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class InvalidAvailableDataBusinessEvent implements FlowEventAware
 {

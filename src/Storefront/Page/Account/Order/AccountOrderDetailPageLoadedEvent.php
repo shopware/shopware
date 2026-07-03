@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed without replacement
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class AccountOrderDetailPageLoadedEvent extends PageLoadedEvent

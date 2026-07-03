@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AppFlowActionEntity>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppFlowActionCollection extends EntityCollection

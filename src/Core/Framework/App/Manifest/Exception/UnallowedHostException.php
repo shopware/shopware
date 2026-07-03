@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal only for use by the app-system
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class UnallowedHostException extends \RuntimeException

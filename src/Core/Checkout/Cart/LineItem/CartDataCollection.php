@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<mixed>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class CartDataCollection extends Collection

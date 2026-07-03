@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<LogEntryEntity>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class LogEntryCollection extends EntityCollection

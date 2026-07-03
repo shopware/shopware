@@ -8,6 +8,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 
 /**
  * @extends EntityCollection<LanguageEntity>
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@discovery')]
 class LanguageCollection extends EntityCollection

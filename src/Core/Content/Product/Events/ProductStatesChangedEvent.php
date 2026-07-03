@@ -11,6 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductStatesChangedEvent extends Event implements ShopwareEvent

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1600156989AddProductSalesField extends MigrationStep

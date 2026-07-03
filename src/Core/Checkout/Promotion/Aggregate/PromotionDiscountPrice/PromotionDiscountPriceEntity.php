@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class PromotionDiscountPriceEntity extends Entity
 {

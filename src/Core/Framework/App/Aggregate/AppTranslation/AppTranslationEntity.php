@@ -11,6 +11,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 /**
  * @internal only for use by the app-system
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppTranslationEntity extends Entity

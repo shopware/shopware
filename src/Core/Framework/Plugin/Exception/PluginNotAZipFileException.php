@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use StoreException::pluginNotAZipFile instead
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class PluginNotAZipFileException extends ShopwareHttpException

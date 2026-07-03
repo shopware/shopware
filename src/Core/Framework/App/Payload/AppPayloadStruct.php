@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * @internal
  *
  * @phpstan-type RequestOptions array{'app_request_context': Context, 'request_type': array{'app_secret': non-falsy-string, 'validated_response': true}, 'headers': array{Content-Type: string}, 'body': string, 'timeout'?: int}
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class AppPayloadStruct

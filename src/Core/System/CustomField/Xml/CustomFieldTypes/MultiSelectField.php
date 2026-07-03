@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class MultiSelectField extends SingleSelectField

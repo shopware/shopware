@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Event\RouteRequest;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CurrencyRouteRequestEvent extends RouteRequestEvent
 {

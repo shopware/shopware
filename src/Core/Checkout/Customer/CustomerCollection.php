@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @extends EntityCollection<CustomerEntity>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class CustomerCollection extends EntityCollection

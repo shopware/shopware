@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductMediaEntity>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductMediaCollection extends EntityCollection

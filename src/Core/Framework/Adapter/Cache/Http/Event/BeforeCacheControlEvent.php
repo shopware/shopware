@@ -10,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * Event dispatched before cache control headers are modified.
  * Listeners can prevent cache control modification by calling skipCacheControl().
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class BeforeCacheControlEvent extends Event

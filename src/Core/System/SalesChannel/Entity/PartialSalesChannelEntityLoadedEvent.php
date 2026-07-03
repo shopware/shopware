@@ -9,6 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends SalesChannelEntityLoadedEvent<PartialEntity>
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent

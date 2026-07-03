@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed as it is unused
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ApiTypeNotFoundException extends ShopwareHttpException

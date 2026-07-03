@@ -10,6 +10,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class AppCmsBlockTranslationEntity extends Entity

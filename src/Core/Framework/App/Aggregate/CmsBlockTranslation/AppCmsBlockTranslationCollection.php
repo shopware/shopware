@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @extends EntityCollection<AppCmsBlockTranslationEntity>
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class AppCmsBlockTranslationCollection extends EntityCollection

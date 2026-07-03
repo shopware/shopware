@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StoreLicenseViolationTypeStruct extends Struct
 {

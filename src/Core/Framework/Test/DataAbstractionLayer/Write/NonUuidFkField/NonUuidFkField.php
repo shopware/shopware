@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 
 /**
  * @internal test class
+ * @codeCoverageIgnore
  */
 class NonUuidFkField extends FkField
 {

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class ConsistsOfManyToManyDefinition extends MappingEntityDefinition
 {

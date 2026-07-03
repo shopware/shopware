@@ -49,6 +49,7 @@ use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
  * @internal
  *
  * @phpstan-type SourceConfig array<string, mixed>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppDefinition extends EntityDefinition

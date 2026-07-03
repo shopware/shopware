@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 abstract class AssociationField extends Field

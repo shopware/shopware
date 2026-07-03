@@ -14,6 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class TestEvent extends Event implements FlowEventAware
 {

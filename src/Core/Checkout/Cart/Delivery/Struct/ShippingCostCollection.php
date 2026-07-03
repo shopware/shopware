@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal
  *
  * @extends Collection<ShippingCost>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class ShippingCostCollection extends Collection

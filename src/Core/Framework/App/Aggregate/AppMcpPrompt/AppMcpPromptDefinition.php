@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppMcpPromptDefinition extends EntityDefinition

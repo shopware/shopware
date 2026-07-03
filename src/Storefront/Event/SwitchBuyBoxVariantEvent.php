@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class SwitchBuyBoxVariantEvent extends Event implements ShopwareSalesChannelEvent
 {

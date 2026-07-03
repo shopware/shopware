@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class PluginPreDeactivateEvent extends PluginLifecycleEvent
 {

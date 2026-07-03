@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class ThemeTranslationEntity extends TranslationEntity
 {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<DomainRuleStruct>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class DomainRuleCollection extends Collection

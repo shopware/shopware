@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class RootDefinition extends EntityDefinition
 {

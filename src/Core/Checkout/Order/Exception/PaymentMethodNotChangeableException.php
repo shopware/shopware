@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed. Use OrderException::paymentMethodNotChangeable instead
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class PaymentMethodNotChangeableException extends OrderException

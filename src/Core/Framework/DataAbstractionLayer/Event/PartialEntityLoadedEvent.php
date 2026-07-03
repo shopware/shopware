@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityLoadedEvent<PartialEntity>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class PartialEntityLoadedEvent extends EntityLoadedEvent

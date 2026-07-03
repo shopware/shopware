@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  *
  * @extends EntityCollection<AppPaymentMethodEntity>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppPaymentMethodCollection extends EntityCollection

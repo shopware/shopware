@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<AbstractCheckoutGatewayCommand>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class CheckoutGatewayCommandCollection extends Collection

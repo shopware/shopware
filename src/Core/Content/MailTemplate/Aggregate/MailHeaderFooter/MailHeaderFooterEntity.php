@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class MailHeaderFooterEntity extends Entity
 {

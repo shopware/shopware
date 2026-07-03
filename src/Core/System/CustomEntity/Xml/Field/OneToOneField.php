@@ -7,6 +7,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class OneToOneField extends AssociationField

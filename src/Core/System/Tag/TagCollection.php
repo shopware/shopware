@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<TagEntity>
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@framework')]
 class TagCollection extends EntityCollection

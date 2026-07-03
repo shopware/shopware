@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<SeoUrlEntity>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class SeoUrlCollection extends EntityCollection

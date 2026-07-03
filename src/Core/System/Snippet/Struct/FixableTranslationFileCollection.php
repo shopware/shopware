@@ -13,6 +13,7 @@ use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
  * @example "path/to/file/de.json" maps to the TranslationFiles of "de-DE.json" and "de-AT.json" in the same directory, if "de.json" is missing.
  *
  * @extends Collection<TranslationFile>
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class FixableTranslationFileCollection extends Collection

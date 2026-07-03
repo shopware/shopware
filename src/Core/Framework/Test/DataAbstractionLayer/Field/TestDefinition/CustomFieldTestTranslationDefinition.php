@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class CustomFieldTestTranslationDefinition extends EntityTranslationDefinition
 {

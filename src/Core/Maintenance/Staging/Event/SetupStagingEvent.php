@@ -10,6 +10,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * @internal
  *
  * @phpstan-type DomainRewriteRule = array{match: string, type: string, replace: string}
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class SetupStagingEvent

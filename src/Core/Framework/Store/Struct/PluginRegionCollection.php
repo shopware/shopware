@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * Pseudo immutable collection
  *
  * @extends Collection<PluginRegionStruct>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 final class PluginRegionCollection extends Collection

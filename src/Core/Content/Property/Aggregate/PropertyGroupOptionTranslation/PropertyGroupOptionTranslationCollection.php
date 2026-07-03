@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupOptionTranslationEntity>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class PropertyGroupOptionTranslationCollection extends EntityCollection

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ManyToOneProductDefinition extends EntityDefinition

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<UserAccessKeyEntity>
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@framework')]
 class UserAccessKeyCollection extends EntityCollection

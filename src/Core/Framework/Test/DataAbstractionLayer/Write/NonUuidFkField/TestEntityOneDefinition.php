@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal test class
+ * @codeCoverageIgnore
  */
 class TestEntityOneDefinition extends EntityDefinition
 {

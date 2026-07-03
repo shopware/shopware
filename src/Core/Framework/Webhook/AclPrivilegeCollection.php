@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AclPrivilegeCollection

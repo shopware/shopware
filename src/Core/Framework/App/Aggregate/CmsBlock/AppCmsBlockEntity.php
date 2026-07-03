@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @phpstan-import-type BlockArray from Block
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class AppCmsBlockEntity extends Entity

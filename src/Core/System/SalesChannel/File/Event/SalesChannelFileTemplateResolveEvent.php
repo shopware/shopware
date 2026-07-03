@@ -7,6 +7,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class SalesChannelFileTemplateResolveEvent extends Event

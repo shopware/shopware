@@ -24,6 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class PluginDefinition extends EntityDefinition
 {

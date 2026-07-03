@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template-extends StoreCollection<BinaryStruct>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class BinaryCollection extends StoreCollection

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class MaintenanceRedirectEvent extends StorefrontRedirectEvent
 {

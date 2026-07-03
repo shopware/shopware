@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Framework\Twig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class ErrorTemplateStruct extends Struct
 {

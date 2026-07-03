@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class InvalidTypeBusinessEvent implements FlowEventAware
 {

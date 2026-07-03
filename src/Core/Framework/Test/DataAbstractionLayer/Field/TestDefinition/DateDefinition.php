@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class DateDefinition extends EntityDefinition
 {

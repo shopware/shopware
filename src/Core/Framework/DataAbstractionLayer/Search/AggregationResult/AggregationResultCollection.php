@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @extends Collection<AggregationResult>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AggregationResultCollection extends Collection

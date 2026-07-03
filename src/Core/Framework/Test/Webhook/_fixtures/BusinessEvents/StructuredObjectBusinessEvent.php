@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class StructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {

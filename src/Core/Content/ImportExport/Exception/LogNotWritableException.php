@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - Unused exception will be removed
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class LogNotWritableException extends ShopwareHttpException

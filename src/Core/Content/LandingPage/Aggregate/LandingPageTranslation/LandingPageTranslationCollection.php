@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<LandingPageTranslationEntity>
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class LandingPageTranslationCollection extends EntityCollection

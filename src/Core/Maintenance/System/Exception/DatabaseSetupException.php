@@ -7,6 +7,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class DatabaseSetupException extends MaintenanceException

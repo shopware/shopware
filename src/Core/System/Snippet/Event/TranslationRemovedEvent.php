@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Dispatched after the downloaded translation files and metadata entry for a locale have been removed.
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class TranslationRemovedEvent

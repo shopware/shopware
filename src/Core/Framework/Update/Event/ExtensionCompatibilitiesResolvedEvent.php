@@ -13,6 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @internal
  *
  * @phpstan-import-type Compatibility from ExtensionCompatibility
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ExtensionCompatibilitiesResolvedEvent extends Event

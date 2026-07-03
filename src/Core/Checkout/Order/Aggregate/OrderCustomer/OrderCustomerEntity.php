@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderCustomerEntity extends Entity
 {

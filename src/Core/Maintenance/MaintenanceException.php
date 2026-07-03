@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class MaintenanceException extends HttpException

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class GroupByTestDefinition extends EntityDefinition
 {

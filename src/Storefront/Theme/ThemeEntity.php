@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class ThemeEntity extends Entity
 {

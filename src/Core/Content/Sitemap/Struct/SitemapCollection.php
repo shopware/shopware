@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Sitemap>
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class SitemapCollection extends Collection

@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class RuleEntity extends Entity
 {

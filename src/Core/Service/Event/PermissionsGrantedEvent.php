@@ -9,6 +9,7 @@ use Shopware\Core\Service\Permission\PermissionsConsent;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 readonly class PermissionsGrantedEvent implements ShopwareEvent

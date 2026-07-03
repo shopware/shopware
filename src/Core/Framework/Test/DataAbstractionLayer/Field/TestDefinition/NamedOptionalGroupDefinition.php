@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class NamedOptionalGroupDefinition extends EntityDefinition
 {

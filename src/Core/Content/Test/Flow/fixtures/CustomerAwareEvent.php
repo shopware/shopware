@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class CustomerAwareEvent implements CustomerAware, FlowEventAware

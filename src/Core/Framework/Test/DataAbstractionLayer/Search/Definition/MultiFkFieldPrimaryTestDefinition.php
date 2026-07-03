@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class MultiFkFieldPrimaryTestDefinition extends EntityDefinition
 {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<DocumentIdStruct>
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class DocumentIdCollection extends Collection

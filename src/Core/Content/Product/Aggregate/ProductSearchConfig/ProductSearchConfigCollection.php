@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductSearchConfigEntity>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductSearchConfigCollection extends EntityCollection

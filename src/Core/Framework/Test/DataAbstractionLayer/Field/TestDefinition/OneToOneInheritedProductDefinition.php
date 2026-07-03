@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class OneToOneInheritedProductDefinition extends EntityDefinition
 {

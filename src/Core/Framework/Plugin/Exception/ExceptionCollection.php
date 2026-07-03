@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<ShopwareHttpException>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ExceptionCollection extends Collection

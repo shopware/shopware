@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @template TEntity of Entity
  *
  * @extends EntityLoadedEvent<TEntity>
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent

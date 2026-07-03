@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class InvalidateExpiredCacheRequestEvent
 {

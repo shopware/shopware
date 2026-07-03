@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use CartException::unsupportedValue() or CustomerException::unsupportedValue() or RuleException::unsupportedValue() instead
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class UnsupportedValueException extends ShopwareHttpException

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal
  *
  * @extends Collection<DatadogPayload>
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class DatadogPayloadCollection extends Collection

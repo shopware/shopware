@@ -10,6 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class TestFlowBusinessEvent extends Event implements FlowEventAware

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class LandingPageEntity extends Entity
 {

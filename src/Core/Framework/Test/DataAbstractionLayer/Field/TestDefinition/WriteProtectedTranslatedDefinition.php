@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 class WriteProtectedTranslatedDefinition extends EntityDefinition
 {

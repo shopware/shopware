@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal Used for custom entities
  *
  * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class DynamicTranslationEntityDefinition extends EntityTranslationDefinition

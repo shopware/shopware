@@ -31,6 +31,7 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
  * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
  *
  * @phpstan-import-type SourceConfig from AppDefinition
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppEntity extends Entity

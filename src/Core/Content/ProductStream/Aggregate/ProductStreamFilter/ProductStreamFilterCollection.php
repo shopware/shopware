@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductStreamFilterEntity>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductStreamFilterCollection extends EntityCollection

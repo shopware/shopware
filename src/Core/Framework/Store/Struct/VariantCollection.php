@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template-extends StoreCollection<VariantStruct>
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class VariantCollection extends StoreCollection

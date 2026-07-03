@@ -13,6 +13,8 @@ if (class_exists(AdminNotificationEntity::class)) {
     /**
      * @deprecated tag:v6.8.0 - reason:class-hierarchy-change - Will not extend from `\Shopware\Administration\Notification\NotificationEntity` and will instead extend directly from `\Shopware\Core\Framework\DataAbstractionLayer\Entity`
      *
+     * @codeCoverageIgnore
+     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
@@ -126,6 +128,9 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
     }
 } else {
+    /**
+     * @codeCoverageIgnore
+     */
     #[Package('framework')]
     class NotificationEntity extends Entity
     {

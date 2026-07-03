@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @template TElement of ProductEntity = ProductEntity
  *
  * @extends EntityCollection<TElement>
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductCollection extends EntityCollection

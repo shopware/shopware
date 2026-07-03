@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class PluginEntity extends Entity
 {

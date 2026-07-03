@@ -1,0 +1,20 @@
+.sw-boolean-filter {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--bs-gray-200);
+
+    &.is--hidden {
+        display: none;
+    }
+}
+
+.sw-boolean-filter__input {
+    margin: 0;
+    cursor: pointer;
+}
+
+.sw-boolean-filter__label {
+    margin-left: 0.5rem;
+    cursor: pointer;
+}

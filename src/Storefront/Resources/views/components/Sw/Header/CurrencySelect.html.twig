@@ -1,0 +1,47 @@
+{% props
+    currencies,
+    actionRoute = path('frontend.checkout.configure'),
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-currency-select',
+} %}
+
+{% set attributeDefaultsForm = {
+    action: actionRoute,
+    method: 'post',
+    class: 'sw-currency-select__form',
+    'data-form-add-dynamic-redirect': 'true'
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <button
+        type="button"
+        class="btn btn-link text-body btn-sm dropdown-toggle border-0 p-0 link-underline link-underline-opacity-0 fs-5 fw-normal"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+    >
+        {{ context.currency.symbol }} {{ context.currency.translated.name|sw_sanitize }}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end">
+        <form {{ attributes.nested('form').defaults(attributeDefaultsForm) }}>
+            {% for currency in currencies %}
+                {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
+                <button
+                    name="currencyId"
+                    class="dropdown-item"
+                    value="{{ currency.id }}"
+                    {% if isActiveLanguage %}{% endif %}
+                >
+                    <span
+                        class="badge text-bg-secondary"
+                        style="display: inline-block; min-width: 1.8rem; --bs-badge-border-radius: 5px;"
+                    >
+                        {{ currency.symbol }}
+                    </span>
+                    {{ currency.name }}
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+</div>

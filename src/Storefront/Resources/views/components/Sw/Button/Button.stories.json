@@ -1,0 +1,26 @@
+{
+    "title": "Sw/Button",
+    "parameters": {
+        "server": {
+            "id": "Sw:Button"
+        },
+        "template": "<twig:Sw:Button text=\"Click me!\" variant=\"primary\" icon=\"cart\" />"
+    },
+    "argTypes": {
+        "text": { "control": "text" },
+        "variant": {
+          "control": "select",
+          "options": ["primary", "secondary"]
+        }
+      },
+    "stories": [
+        {
+            "name": "Button",
+            "args": {
+                "text": "Click me!",
+                "variant": "primary",
+                "icon": ""
+            }
+        }
+    ]
+}

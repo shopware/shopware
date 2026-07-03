@@ -1,0 +1,40 @@
+{% props
+    category,
+    navigationTree,
+    backdrop = true
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-flyout p-2 bg-body position-absolute pt-3 pb-3',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <div class="sw-flyout__container container">
+        <div class="flex justify-content-end pb-3">
+            <a
+                href="{{ category.seoUrl ?: '#' }}"
+                class="sw-flyout__show-all link-primary link-offset-2"
+            >
+                {{ 'general.toCategory'|trans|sw_sanitize }} {{ category.translated.name }}
+                <twig:Sw:Icon name="arrow-head-right" size="xs" />
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="sw-flyout__categories-container col-10">
+                <twig:Sw:Header:FlyoutCategories :navigationTree="navigationTree" />
+            </div>
+            <div class="col-2">
+                <twig:Sw:Media:Image
+                    class="sw-flyout__category-image"
+                    :media="category.media"
+                    loading="lazy"
+                />
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if backdrop %}
+    <div class="sw-flyout__backdrop modal-backdrop"></div>
+{% endif %}

@@ -1,0 +1,163 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    totalCount = 0,
+    currentSorting = null,
+    filterAggregations = [],
+    availableSortings = [],
+    filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
+    showLayoutSwitch = true,
+    visibleFilterCount = 3,
+    slots = [],
+%}
+
+{% set filterPanelOptions = {
+    visibleFilterCount: visibleFilterCount,
+} %}
+
+{% set defaultAttributes = {
+    class: 'sw-filter-panel container',
+    'data-component': 'Sw:Filter:Panel',
+    'data-component-options': filterPanelOptions|json_encode,
+} %}
+
+{% set manufacturerAggregation = filterAggregations.get('manufacturer') %}
+{% set priceAggregation = filterAggregations.get('price') %}
+{% set ratingAggregation = filterAggregations.get('rating') %}
+{% set shippingFreeAggregation = filterAggregations.get('shipping-free') %}
+{% set propertiesAggregation = filterAggregations.get('properties') %}
+
+{% set manufacturerFilter %}
+    {% if manufacturerAggregation.entities|length > 0 %}
+        {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
+        {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item :filterName="manufacturerFilterName">
+            <twig:Sw:Filter:Type:MultiSelectFilter
+                name="manufacturer"
+                :displayName="manufacturerFilterName"
+                :options="manufacturersSorted">
+            </twig:Sw:Filter:Type:MultiSelectFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set ratingFilter %}
+    {% if ratingAggregation is defined %}
+        {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item :filterName="ratingFilterName">
+            <twig:Sw:Filter:Type:RatingFilter name="rating"></twig:Sw:Filter:Type:RatingFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set priceFilter %}
+    {% if priceAggregation is defined %}
+        {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item :filterName="priceFilterName">
+            <twig:Sw:Filter:Type:RangeFilter
+                minKey="min-price"
+                maxKey="max-price"
+                :unit="context.currency.symbol"
+                :minInputValue="0"
+                :maxInputValue="priceAggregation.max">
+            </twig:Sw:Filter:Type:RangeFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set propertiesFilter %}
+    {% if propertiesAggregation.entities|length > 0 %}
+        {% for property in propertiesAggregation.entities %}
+            <twig:Sw:Filter:Item :filterName="property.translated.name">
+                <twig:Sw:Filter:Type:MultiSelectFilter
+                    name="properties"
+                    :displayName="property.translated.name"
+                    :displayType="property.displayType"
+                    :options="property.options">
+                </twig:Sw:Filter:Type:MultiSelectFilter>
+            </twig:Sw:Filter:Item>
+        {% endfor %}
+    {% endif %}
+{% endset %}
+
+{% set shippingFreeFilter %}
+    {% if shippingFreeAggregation.max > 0 %}
+        {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Type:BooleanFilter
+            name="shipping-free"
+            :displayName="shippingFreeFilterName">
+        </twig:Sw:Filter:Type:BooleanFilter>
+    {% endif %}
+{% endset %}
+
+{% set filters = {
+    manufacturer: manufacturerFilter,
+    rating: ratingFilter,
+    price: priceFilter,
+    properties: propertiesFilter,
+    'shipping-free': shippingFreeFilter,
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+
+    {# Filter template for outer block scope. #}
+    {% set filterTemplate %}
+        {% block filters %}
+            {# Rendering filters in order #}
+            {% for filter in filterOrder %}
+                {{ filters[filter] }}
+            {% endfor %}
+        {% endblock %}
+    {% endset%}
+
+    <twig:Sw:Content:Offcanvas id="filter-offcanvas" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
+        <div class="sw-filter-panel__filter">
+
+            <twig:Slot name="additional-filters-start"></twig:Slot>
+
+            {{ filterTemplate }}
+
+            <twig:Slot name="additional-filters-end"></twig:Slot>
+
+            {# Expand or collapse hidden filters #}
+            {% if filterAggregations|length > visibleFilterCount %}
+                <button class="sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn d-none d-md-block">
+                    <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
+                    <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
+                    <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+                </button>
+            {% endif %}
+        </div>
+    </twig:Sw:Content:Offcanvas>
+
+    {# Offcanvas filter button for mobile #}
+    <button
+        class="sw-filter-panel__filter-btn btn-light btn d-block d-md-none"
+        aria-controls="filter-offcanvas"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#filter-offcanvas">
+        {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+    </button>
+
+    {% block actions %}
+        <div class="sw-filter-panel__actions">
+            <span class="sw-filter-panel__counter text-light-emphasis text-nowrap d-none d-lg-inline-block">
+                {{ 'listing.resultCount'|trans({ '%count%': totalCount })|sw_sanitize }}
+            </span>
+
+            {% if availableSortings and availableSortings.elements and availableSortings.elements|length > 0 %}
+                <twig:Sw:Filter:Sorting :currentSorting="currentSorting" :sortings="availableSortings.elements" />
+            {% endif %}
+
+            {% if showLayoutSwitch %}
+                <twig:Sw:Filter:LayoutSwitch />
+            {% endif %}
+        </div>
+    {% endblock %}
+</div>

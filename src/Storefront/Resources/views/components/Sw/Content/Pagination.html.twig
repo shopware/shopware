@@ -1,0 +1,99 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    page = 1,
+    totalPages = null,
+    total = null,
+    limit = null,
+    scope = null,
+    pageParameter = 'p',
+    searchQuery = '',
+    useHref = false,
+%}
+
+{% set paginationOptions = {
+    useHref: useHref,
+} %}
+
+{% set attributeDefaults = {
+    class: 'sw-pagination sw-pagination__' ~ scope,
+    'aria-label': ('general.pagination.title'|trans|striptags),
+    'data-component': 'Sw:Content:Pagination',
+    'data-pagination-options': paginationOptions|json_encode
+} %}
+
+{% set totalPages = totalPages ?? (total / (limit ?: 1))|round(0, 'ceil') %}
+
+<nav {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        {% if totalPages > 1 %}
+            <ul class="sw-pagination__list pagination">
+                <li class="sw-pagination__item page-item page-first{% if page == 1 %} disabled{% endif %}">
+                    <a href="{{ useHref ? '?' ~ pageParameter ~ '=1' ~ searchQuery : '#' }}"
+                    class="sw-pagination__link page-link"
+                    data-page="1"
+                    aria-label="{{ 'general.pagination.first'|trans|striptags }}"
+                    {% if page == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                        <twig:Sw:Icon name="arrow-medium-double-left" pack="solid" size="xs" />
+                    </a>
+                </li>
+
+                <li class="sw-pagination__item page-item page-prev{% if page == 1 %} disabled{% endif %}">
+                    <a href="{{ useHref ? '?' ~ pageParameter ~ '=' ~ (page - 1) ~ searchQuery : '#' }}"
+                    class="sw-pagination__link page-link"
+                    data-page="{{ page - 1 }}"
+                    aria-label="{{ 'general.pagination.prev'|trans|striptags }}"
+                    {% if page == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                        <twig:Sw:Icon name="arrow-medium-left" pack="solid" size="xs" />
+                    </a>
+                </li>
+
+                {% set start = page - 2 %}
+                {% if start <= 0 %}
+                    {% set start = page - 1 %}
+                    {% if start <= 0 %}
+                        {% set start = page %}
+                    {% endif %}
+                {% endif %}
+
+                {% set end = start + 4 %}
+                {% if end > totalPages %}
+                    {% set end = totalPages %}
+                {% endif %}
+
+                {% for pageItem in start..end %}
+                    <li class="sw-pagination__item page-item page-{{ pageItem }}{% if page == pageItem %} active{% endif %}">
+                        <a href="{{ useHref ? '?' ~ pageParameter ~ '=' ~ pageItem ~ searchQuery : '#' }}"
+                        class="sw-pagination__link page-link"
+                        data-page="{{ pageItem }}"
+                        {% if page == pageItem %} aria-current="page"{% endif %}>
+                        <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ pageItem }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+                <li class="sw-pagination__item page-item page-next{% if page == totalPages %} disabled{% endif %}">
+                    <a href="{{ useHref ? '?' ~ pageParameter ~ '=' ~ (page + 1) ~ searchQuery : '#' }}"
+                    class="sw-pagination__link page-link"
+                    data-page="{{ page + 1 }}"
+                    aria-label="{{ 'general.pagination.next'|trans|striptags }}"
+                    {% if page == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                        <twig:Sw:Icon name="arrow-medium-right" pack="solid" size="xs" />
+                    </a>
+                </li>
+
+                <li class="sw-pagination__item page-item page-last{% if page == totalPages %} disabled{% endif %}">
+                    <a href="{{ useHref ? '?' ~ pageParameter ~ '=' ~ totalPages ~ searchQuery : '#' }}"
+                    class="sw-pagination__link page-link"
+                    data-page="{{ totalPages }}"
+                    aria-label="{{ 'general.pagination.last'|trans|striptags }}"
+                    {% if page == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                        <twig:Sw:Icon name="arrow-medium-double-right" pack="solid" size="xs" />
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
+    {% endblock %}
+</nav>

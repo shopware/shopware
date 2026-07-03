@@ -1,0 +1,48 @@
+.btn {
+    --bs-btn-disabled-color: var(--btn-link-disabled-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-buy {
+    --bs-btn-bg: var(--buy-btn-bg);
+    --bs-btn-border-color: var(--buy-btn-bg);
+    --bs-btn-color: var(--buy-btn-color);
+    --bs-btn-hover-bg: var(--buy-btn-bg);
+    --bs-btn-hover-border-color: var(--buy-btn-bg);
+    --bs-btn-hover-color: var(--buy-btn-color);
+
+    &.disabled,
+    &:disabled {
+        opacity: 1;
+        background: var(--disabled-btn-bg);
+        border-color: var(--disabled-btn-border-color);
+        color: var(--gray-300);
+    }
+}
+
+.btn-link {
+    --bs-btn-font-weight: var(--font-weight-semibold);
+    --bs-btn-focus-box-shadow: var(--input-btn-focus-box-shadow);
+}
+
+// Button styling with the appearance of a regular text link
+.btn-link-inline {
+    --bs-btn-color: var(--btn-link-color);
+    --bs-btn-hover-color: var(--btn-link-hover-color);
+    --bs-btn-font-weight: var(--font-weight-normal);
+    --bs-btn-font-size: inherit;
+    --bs-btn-focus-box-shadow: var(--input-btn-focus-box-shadow);
+    --bs-btn-line-height: var(--line-height-base);
+    --bs-btn-padding-y: 0;
+    --bs-btn-padding-x: 0;
+    --bs-btn-border-width: 0;
+    text-decoration: underline;
+    vertical-align: baseline;
+    text-align: left;
+    white-space: normal;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

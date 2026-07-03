@@ -1,0 +1,22 @@
+{# TODO: Legacy cart offcanvas JS #}
+{% props
+    cartInfoRoute = path('frontend.checkout.info'),
+    emptyValue = 0|currency,
+%}
+
+{% set jsOptions = {
+    cartInfoRoute,
+    emptyValue
+} %}
+
+{% set attributeDefaults = {
+    class: 'sw-cart-widget',
+    icon: 'cart',
+    'data-component': 'Sw:Header:CartWidget',
+    'data-component-options': jsOptions|json_encode,
+    'data-off-canvas-cart': 'true',
+} %}
+
+<twig:Sw:Header:Widget {{ ...attributes.defaults(attributeDefaults) }}>
+    <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+</twig:Sw:Header:Widget>

@@ -1,0 +1,26 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name = 'boolean-filter-' ~ random(),
+    displayName = '',
+    hidden = false,
+%}
+
+{% set defaultAttributes = {
+    class: 'sw-boolean-filter sw-filter sw-filter-item' ~ (hidden ? ' is--hidden' : ''),
+    'data-component': 'Sw:Filter:Type:BooleanFilter',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <input
+        type="checkbox"
+        class="sw-boolean-filter__input form-check-input"
+        name="{{ name }}"
+        id="{{ name }}">
+
+    <label class="sw-boolean-filter__label form-check-label" for="{{ name }}">
+        {{ displayName }}
+    </label>
+</div>

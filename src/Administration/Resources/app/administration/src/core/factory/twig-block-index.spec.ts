@@ -2,12 +2,14 @@
  * @sw-package framework
  */
 
+import { compile } from '@vue/compiler-dom';
 import {
     indexTwigBlocksFromTemplate,
     getBlockEntries,
     hasBlockEntries,
     resetBlockIndex,
 } from 'src/core/factory/twig-block-index';
+import transformNativeLegacyBlockConditionals from 'src/core/factory/transform-legacy-block-conditionals';
 
 describe('core/factory/twig-block-index.ts', () => {
     afterEach(() => {
@@ -16,6 +18,10 @@ describe('core/factory/twig-block-index.ts', () => {
     });
 
     describe('indexTwigBlocksFromTemplate', () => {
+        function options(segmentCaseIndex: number, isStartingCondition: boolean, renderOrderSegment: string): string {
+            return `{ segmentCaseIndex: ${segmentCaseIndex}, isStartingCondition: ${isStartingCondition}, renderOrderSegment: '${renderOrderSegment}' }`;
+        }
+
         it('indexes a single block from a Twig template', () => {
             indexTwigBlocksFromTemplate(
                 'sw-product-detail',
@@ -51,6 +57,175 @@ describe('core/factory/twig-block-index.ts', () => {
             const [entry] = getBlockEntries('comp_name_block');
             expect(entry.componentName).toBe('sw-product-detail');
             expect(entry.innerTemplate).toContain('class="inner"');
+        });
+
+        it('stores legacy Twig parent/v-else overrides with native block condition helpers', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block legacy_else_block %}
+                    {% parent %}
+                    <div v-else class="legacy-else"></div>
+                {% endblock %}
+            `,
+            );
+
+            const [entry] = getBlockEntries('legacy_else_block');
+
+            expect(entry.innerTemplate).toContain('<sw-block-parent />');
+            expect(entry.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElse('legacy_else_block:0', ${options(0, false, 'shimExtension')})"`,
+            );
+            expect(entry.innerTemplate).not.toContain('v-else class="legacy-else"');
+            expect(entry.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'legacy_else_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                },
+            ]);
+        });
+
+        it('offsets legacy condition cases for chained plugin overrides of the same block', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-plugin-one',
+                `
+                {% block shared_condition_block %}
+                    {% parent %}
+                    <div v-else-if="condition2" class="plugin-one"></div>
+                {% endblock %}
+            `,
+            );
+            indexTwigBlocksFromTemplate(
+                'sw-plugin-two',
+                `
+                {% block shared_condition_block %}
+                    {% parent %}
+                    <div v-else class="plugin-two"></div>
+                {% endblock %}
+            `,
+            );
+
+            const [
+                pluginOne,
+                pluginTwo,
+            ] = getBlockEntries('shared_condition_block');
+
+            expect(pluginOne.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElseIf('shared_condition_block:0', condition2, ${options(0, false, 'shimExtension')})"`,
+            );
+            expect(pluginOne.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'shared_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                },
+            ]);
+            expect(pluginTwo.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElse('shared_condition_block:0', ${options(1, false, 'shimExtension')})"`,
+            );
+            expect(pluginTwo.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'shared_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 1,
+                },
+            ]);
+        });
+
+        it('rewrites Twig-started condition chains across separate overrides', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block twig_started_condition_block %}
+                    {% parent %}
+                    <h1 v-if="conditionFromPluginOne" class="plugin-one-condition">Plugin one</h1>
+                {% endblock %}
+            `,
+            );
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block twig_started_condition_block %}
+                    {% parent %}
+                    <h1 v-else class="plugin-two-fallback">Plugin two fallback</h1>
+                {% endblock %}
+            `,
+            );
+
+            const [
+                pluginOne,
+                pluginTwo,
+            ] = getBlockEntries('twig_started_condition_block');
+
+            expect(pluginOne.innerTemplate).toContain(
+                `v-if="$swLegacyBlockIf('twig_started_condition_block:0', conditionFromPluginOne, ${options(0, true, 'shimExtension')})"`,
+            );
+            expect(pluginOne.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'twig_started_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                    startsChain: true,
+                },
+            ]);
+            expect(pluginTwo.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElse('twig_started_condition_block:0', ${options(1, false, 'shimExtension')})"`,
+            );
+            expect(pluginTwo.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'twig_started_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 1,
+                },
+            ]);
+        });
+
+        it('rebuilds indexed Twig condition chains with native continuation aliases', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block block_2 %}
+                    <div v-else-if="conditionFromPlugin" class="plugin-two">plugin two</div>
+                {% endblock %}
+            `,
+            );
+
+            const nativeTemplate = transformNativeLegacyBlockConditionals(
+                `
+                <sw-block name="block_1">
+                    <div v-if="condition1" class="one">one</div>
+                </sw-block>
+
+                <sw-block name="block_2">
+                    <div v-else-if="condition2" class="two">two</div>
+                </sw-block>
+            `,
+                'sw-product-detail',
+            );
+            const [entry] = getBlockEntries('block_2');
+
+            expect(nativeTemplate).toBe(`
+                <sw-block name="block_1">
+                    <div v-if="$swLegacyBlockIf('block_1:0', condition1, ${options(0, true, 'defaultSlot')})" class="one">one</div>
+                </sw-block>
+
+                <sw-block name="block_2">
+                    <div v-if="$swLegacyBlockElseIf('block_1:0', condition2, ${options(1, false, 'defaultSlot')})" class="two">two</div>
+                </sw-block>
+            `);
+            expect(entry.innerTemplate).toBe(
+                `                    <div v-if="$swLegacyBlockElseIf('block_1:0', conditionFromPlugin, ${options(0, false, 'shimExtension')})" class="plugin-two">plugin two</div>
+                `,
+            );
+            expect(entry.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'block_1:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                },
+            ]);
+            expect(() => compile(entry.innerTemplate)).not.toThrow();
         });
 
         it('accumulates multiple entries for the same block name from separate calls', () => {

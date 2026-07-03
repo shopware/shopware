@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -49,7 +51,8 @@ class StateMachineRegistry implements ResetInterface
         private readonly EntityRepository $stateMachineHistoryRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly StateMachineLocker $stateMachineLocker
+        private readonly StateMachineLocker $stateMachineLocker,
+        private readonly Connection $connection
     ) {
     }
 
@@ -191,11 +194,17 @@ class StateMachineRegistry implements ResetInterface
             'internalComment' => $transition->getInternalComment(),
         ];
 
-        $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
-
         $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
 
-        $repository->upsert($data, $context);
+        // Record the history entry and apply the new state atomically, so a failure of either write
+        // cannot leave the entity state and the state_machine_history out of sync. The history is written
+        // first on purpose: if it fails, the state update (and its entity-written events for indexers,
+        // cache invalidation and webhooks) is never performed. Nested DAL transactions are handled via
+        // DBAL savepoints.
+        RetryableTransaction::transactional($this->connection, function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
+            $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
+            $repository->upsert($data, $context);
+        });
 
         $stateMachineStateCollection = new StateMachineStateCollection();
 

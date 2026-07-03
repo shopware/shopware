@@ -70,7 +70,15 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service_closure" id="messenger.transport.async"/>
             <argument type="service_closure" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\WebhookHealthTick"/>
             <tag name="messenger.transport_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Health\WebhookHealthTick">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand">
@@ -142,9 +150,15 @@
             <tag name="shopware.hookable_event.describer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
@@ -207,6 +221,7 @@
             <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
 
             <tag name="controller.service_arguments"/>
         </service>
@@ -245,15 +260,5 @@
         <service id="Shopware\Core\Framework\Webhook\Health\EndpointHealth" alias="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
         <service id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle" alias="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
         <service id="Shopware\Core\Framework\Webhook\Health\ErrorClassifier" alias="Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier"/>
-
-        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTask">
-            <tag name="shopware.scheduled.task"/>
-        </service>
-        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
-            <tag name="messenger.message_handler"/>
-        </service>
     </services>
 </container>

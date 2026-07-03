@@ -111,7 +111,7 @@
                 "viewByTool": "By Tool",
                 "grantAllMissing": "Grant all missing",
                 "grant": "Grant",
-                "saveReminder": "Permissions pre-selected — click Save on the role to apply."
+                "saveReminder": "Permissions pre-selected. Click Save on the role to apply."
             }
         },
         "users": {
@@ -148,8 +148,9 @@
                 }
             },
             "user-detail": {
-                "labelCard": "Basic information",
+                "labelCard": "Information",
                 "labelIntegrationsCard": "Integrations",
+                "labelRolesPermissionsCard": "Roles & permissions",
                 "labelFirstName": "First name",
                 "labelLastName": "Last name",
                 "labelEmail": "Email address",
@@ -158,9 +159,11 @@
                 "labelUsername": "User name",
                 "labelPassword": "Password",
                 "labelProfilePicture": "Profile picture",
+                "labelUserInterface": "User interface",
                 "labelLanguage": "User interface language",
                 "labelLanguagePlaceholder": "Choose language...",
                 "labelChangePassword": "Change password",
+                "labelActive": "Active",
                 "labelAdministrator": "Administrator",
                 "labelTimezone": "Timezone",
                 "labelJobTitle": "Job title",

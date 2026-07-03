@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Webhook\Api\WebhookHealthController;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
-use Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTask;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -308,10 +308,10 @@ class WebhookHealthControllerTest extends TestCase
         });
     }
 
-    public function testHealthStatusReportsFreshTaskAsNotStale(): void
+    public function testHealthStatusReportsFreshTickAsNotStale(): void
     {
-        $lastRun = $this->dateTime('-10 seconds');
-        $this->registerHealthTask($lastRun, runInterval: 60);
+        $lastTick = $this->dateTime('-10 seconds');
+        $this->seedTickHeartbeat($lastTick);
 
         $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
             $admin = $this->getBrowser();
@@ -321,13 +321,13 @@ class WebhookHealthControllerTest extends TestCase
             return $this->decode($admin);
         });
 
-        static::assertSame(['lastRunAt' => $lastRun, 'stale' => false], $content, 'a run 10s ago within a 60s interval is fresh');
+        static::assertSame(['lastTickAt' => $lastTick, 'stale' => false], $content, 'a tick 10s ago within a 60s interval is fresh');
     }
 
-    public function testHealthStatusReportsTaskOlderThanTwoIntervalsAsStale(): void
+    public function testHealthStatusReportsTickOlderThanTwoIntervalsAsStale(): void
     {
-        $lastRun = $this->dateTime('-10 minutes');
-        $this->registerHealthTask($lastRun, runInterval: 60);
+        $lastTick = $this->dateTime('-10 minutes');
+        $this->seedTickHeartbeat($lastTick);
 
         $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
             $admin = $this->getBrowser();
@@ -337,12 +337,14 @@ class WebhookHealthControllerTest extends TestCase
             return $this->decode($admin);
         });
 
-        static::assertSame(['lastRunAt' => $lastRun, 'stale' => true], $content, 'a run older than 2x the interval is stale');
+        static::assertSame(['lastTickAt' => $lastTick, 'stale' => true], $content, 'a tick older than 2x the interval is stale');
     }
 
-    public function testHealthStatusReportsNeverRunTaskAsStale(): void
+    public function testHealthStatusReportsNeverTickedAsStale(): void
     {
-        $this->registerHealthTask(null, runInterval: 60);
+        // No heartbeat key at all — the state of a system where no delivery worker ever
+        // consumed the webhook transport.
+        $this->seedTickHeartbeat(null);
 
         $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
             $admin = $this->getBrowser();
@@ -352,22 +354,7 @@ class WebhookHealthControllerTest extends TestCase
             return $this->decode($admin);
         });
 
-        static::assertSame(['lastRunAt' => null, 'stale' => true], $content, 'a task that never ran is stale');
-    }
-
-    public function testHealthStatusReportsUnregisteredTaskAsStale(): void
-    {
-        $this->unregisterHealthTask();
-
-        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
-            $admin = $this->getBrowser();
-            $admin->request('GET', '/api/_action/webhook/health-status');
-            static::assertSame(Response::HTTP_OK, $admin->getResponse()->getStatusCode());
-
-            return $this->decode($admin);
-        });
-
-        static::assertSame(['lastRunAt' => null, 'stale' => true], $content, 'a missing scheduled_task row reads as stale, not as an error');
+        static::assertSame(['lastTickAt' => null, 'stale' => true], $content, 'no completed tick yet reads as stale, not as an error');
     }
 
     /**
@@ -676,32 +663,20 @@ class WebhookHealthControllerTest extends TestCase
     }
 
     /**
-     * Replaces the health task's scheduled_task row per test (the shared test DB does not register
-     * the task itself); the transaction rollback restores whatever was there.
+     * Pins the tick heartbeat key per test — null removes it (never ticked). The KV storage is
+     * request-cached, so writes go through the container service, not raw SQL, to stay visible
+     * to the controller within this kernel.
      */
-    private function registerHealthTask(?string $lastRun, int $runInterval): void
+    private function seedTickHeartbeat(?string $lastTick): void
     {
-        $this->unregisterHealthTask();
+        $storage = static::getContainer()->get(AbstractKeyValueStorage::class);
+        if ($lastTick === null) {
+            $storage->remove(WebhookHealthTick::HEARTBEAT_STORAGE_KEY);
 
-        $this->connection->insert('scheduled_task', [
-            'id' => Uuid::randomBytes(),
-            'name' => WebhookHealthTask::getTaskName(),
-            'scheduled_task_class' => WebhookHealthTask::class,
-            'run_interval' => $runInterval,
-            'default_run_interval' => WebhookHealthTask::getDefaultInterval(),
-            'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-            'last_execution_time' => $lastRun,
-            'next_execution_time' => $this->dateTime(),
-            'created_at' => $this->dateTime(),
-        ]);
-    }
+            return;
+        }
 
-    private function unregisterHealthTask(): void
-    {
-        $this->connection->executeStatement(
-            'DELETE FROM scheduled_task WHERE name = :name OR scheduled_task_class = :class',
-            ['name' => WebhookHealthTask::getTaskName(), 'class' => WebhookHealthTask::class]
-        );
+        $storage->set(WebhookHealthTick::HEARTBEAT_STORAGE_KEY, $lastTick);
     }
 
     /**

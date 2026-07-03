@@ -11,14 +11,13 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
  * @codeCoverageIgnore
  *
- * @see RetryWebhookMessageFailedSubscriberTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriberTest
  *
  * @internal
  */

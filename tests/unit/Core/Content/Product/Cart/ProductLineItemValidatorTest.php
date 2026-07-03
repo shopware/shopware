@@ -24,7 +24,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add(
             $builder
                 ->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext)
@@ -63,7 +63,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add(
             $builder
             ->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext)
@@ -98,7 +98,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add(
             $builder
             ->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext)
@@ -133,7 +133,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add($builder->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext));
         $cart->add($builder->create(['id' => 'product-2', 'referencedId' => 'product-2'], $salesChannelContext)->setReferencedId('product-1'));
 

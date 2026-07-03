@@ -263,7 +263,7 @@ class InternalClassRule implements Rule
             return false;
         }
 
-        return !empty($class->getAttributes(AsMessageHandler::class));
+        return $class->getAttributes(AsMessageHandler::class) !== [];
     }
 
     private function isFinal(ClassReflection $class, string $doc): bool

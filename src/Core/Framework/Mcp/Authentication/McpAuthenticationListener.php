@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
-use Shopware\Core\Framework\Api\OAuth\ClientRepository;
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
@@ -38,7 +38,7 @@ class McpAuthenticationListener implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly ClientRepository $clientRepository,
+        private readonly ClientRepositoryInterface $clientRepository,
         private readonly RateLimiter $rateLimiter,
     ) {
     }

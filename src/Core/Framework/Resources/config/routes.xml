@@ -20,5 +20,4 @@
     <import resource="../../Mcp/Controller/*Controller.php" type="attribute" />
     <import resource="../../Validation/Api/*Controller.php" type="attribute" />
     <import resource="../../Webhook/Api/*Controller.php" type="attribute" />
-
 </routes>

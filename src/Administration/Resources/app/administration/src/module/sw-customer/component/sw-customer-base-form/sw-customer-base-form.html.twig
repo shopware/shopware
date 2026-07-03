@@ -15,37 +15,30 @@
         />
         {% endblock %}
 
-        <sw-container
-            columns="1fr 1fr"
-            class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full"
-        >
-            {% block sw_customer_base_form_first_salutation_field %}
-            <sw-entity-single-select
-                v-model:value="customer.salutationId"
-                name="sw-field--customer-salutationId"
-                class="sw-customer-base-form__salutation-select"
-                entity="salutation"
-                :label="$t('sw-customer.baseForm.labelSalutation')"
-                :placeholder="$t('sw-customer.baseForm.placeholderSalutation')"
-                :error="customerSalutationIdError"
-                :criteria="salutationCriteria"
-                label-property="displayName"
-            />
-            {% endblock %}
+        {% block sw_customer_base_form_first_salutation_field %}
+        <sw-entity-single-select
+            v-model:value="customer.salutationId"
+            name="sw-field--customer-salutationId"
+            class="sw-customer-base-form__salutation-select"
+            entity="salutation"
+            :label="$t('sw-customer.baseForm.labelSalutation')"
+            :placeholder="$t('sw-customer.baseForm.placeholderSalutation')"
+            :error="customerSalutationIdError"
+            :criteria="salutationCriteria"
+            label-property="displayName"
+        />
+        {% endblock %}
 
-            {% block sw_customer_base_form_title_field %}
-
-            <mt-text-field
-                v-model="customer.title"
-                name="sw-field--customer-title"
-                :label="$t('sw-customer.baseForm.labelTitle')"
-                :placeholder="$t('sw-customer.baseForm.placeholderTitle')"
-            />
-            {% endblock %}
-        </sw-container>
+        {% block sw_customer_base_form_title_field %}
+        <mt-text-field
+            v-model="customer.title"
+            name="sw-field--customer-title"
+            :label="$t('sw-customer.baseForm.labelTitle')"
+            :placeholder="$t('sw-customer.baseForm.placeholderTitle')"
+        />
+        {% endblock %}
 
         {% block sw_customer_base_form_first_name_field %}
-
         <mt-text-field
             v-model="customer.firstName"
             name="sw-field--customer-firstName"
@@ -57,7 +50,6 @@
         {% endblock %}
 
         {% block sw_customer_base_form_last_name_field %}
-
         <mt-text-field
             v-model="customer.lastName"
             name="sw-field--customer-lastName"
@@ -93,7 +85,6 @@
         {% endblock %}
 
         {% block sw_customer_base_form_vat_id_field %}
-
         <mt-text-field
             v-if="isBusinessAccountType"
             id="vatId"
@@ -102,17 +93,6 @@
             :error="customerVatIdsError"
             :label="$t('sw-customer.addressForm.labelVatId')"
             :placeholder="$t('sw-customer.addressForm.placeholderVatId')"
-        />
-        {% endblock %}
-
-        {% block sw_customer_base_form_birthday_field %}
-        <mt-datepicker
-            v-model="customer.birthday"
-            type="date"
-            name="birthday"
-            hide-hint
-            :label="$t('sw-customer.baseForm.labelBirthday')"
-            :placeholder="$t('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
 
@@ -145,7 +125,6 @@
         {% endblock %}
 
         {% block sw_customer_base_form_customer_number_field %}
-
         <mt-text-field
             v-model="customer.customerNumber"
             name="sw-field--customer-customerNumber"
@@ -153,6 +132,17 @@
             :placeholder="$t('sw-customer.baseForm.placeholderCustomerNumber')"
             :error="customerCustomerNumberError"
             required
+        />
+        {% endblock %}
+
+        {% block sw_customer_base_form_birthday_field %}
+        <mt-datepicker
+            v-model="customer.birthday"
+            type="date"
+            name="birthday"
+            hide-hint
+            :label="$t('sw-customer.baseForm.labelBirthday')"
+            :placeholder="$t('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
     </sw-container>

@@ -56,6 +56,8 @@ import 'src/app/decorator';
 
 /** Import Meteor Component Library styles */
 import '@shopware-ag/meteor-component-library/styles.css';
+import '@shopware-ag/meteor-component-library/font.css';
+import './assets/scss/all.scss';
 
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';

@@ -101,6 +101,37 @@ class PromotionRedemptionLockerTest extends TestCase
         static::assertSame([$firstLineItem->getPayloadValue('code') => $lock], $lockExtension->locks);
     }
 
+    public function testAcquireLockNormalizesPromotionCode(): void
+    {
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('promotion-promotion-code', 5.0, true)
+            ->willReturn($lock);
+
+        $locker = new PromotionRedemptionLocker($lockFactory);
+
+        $cart = new Cart('test');
+        $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('code', 'Promotion-Code');
+        $lineItem->setPayloadValue('limitedRedemptions', true);
+        $cart->add($lineItem);
+        $extension = new CheckoutPlaceOrderExtension($cart, Generator::generateSalesChannelContext(), new RequestDataBag());
+
+        $locker->acquireLocks($extension);
+
+        $lockExtension = $extension->getExtensionOfType(LockExtension::KEY, LockExtension::class);
+        static::assertNotNull($lockExtension);
+
+        static::assertSame(['promotion-code' => $lock], $lockExtension->locks);
+    }
+
     public function testAcquireLockWithValidPromotionItemFails(): void
     {
         $lockFactory = $this->createMock(LockFactory::class);

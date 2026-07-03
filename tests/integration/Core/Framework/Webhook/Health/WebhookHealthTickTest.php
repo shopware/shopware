@@ -20,8 +20,9 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Drives the WebhookHealthTask's clocked duty — {@see EndpointLifecycle::tick()} — against the real
- * container services, on the row-state contract of the half-open ladder (ADR §Half-open recovery):
+ * Drives the health tick's clocked duty — {@see EndpointLifecycle::tick()}, pulsed in production by
+ * {@see \Shopware\Core\Framework\Webhook\Health\WebhookHealthTick} on the delivery worker's transport poll — against the real container
+ * services, on the row-state contract of the half-open ladder (ADR §Half-open recovery):
  * per DEGRADED webhook with an elapsed cooldown, release the oldest held row as the one trial
  * (grace-age filtered), no-op while a release is in flight, and idle-promote when nothing is held
  * and nothing is in flight — keeping the failure streaks, because nothing was delivered to prove
@@ -34,7 +35,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @internal
  */
-class WebhookHealthTaskTest extends TestCase
+class WebhookHealthTickTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

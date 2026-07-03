@@ -45,7 +45,7 @@ class WebhookHealthTick
         private readonly AbstractKeyValueStorage $keyValueStorage,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
-        private readonly ?EndpointLifecycle $lifecycle = null,
+        private readonly EndpointLifecycle $lifecycle,
     ) {
     }
 
@@ -56,10 +56,6 @@ class WebhookHealthTick
      */
     public function run(): void
     {
-        if ($this->lifecycle === null) {
-            return;
-        }
-
         $now = $this->clock->now();
         if ($this->nextAttemptAt !== null && $now < $this->nextAttemptAt) {
             return;

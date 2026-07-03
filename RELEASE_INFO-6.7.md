@@ -4,7 +4,7 @@
 
 ### MCP tools can be discovered on demand
 
-The MCP server now advertises a bounded default tool surface and includes the `shopware-tool-search` meta-tool. MCP clients can call this tool with a free-text query to discover relevant tool definitions from the caller's allowlisted catalogue without loading every allowed tool into the initial `tools/list` response.
+The MCP server now advertises a bounded non-deferred tool surface and includes the `shopware-tool-search` meta-tool. MCP clients can call this tool with a free-text query to discover relevant tool definitions from the caller's allowlisted catalogue without loading every allowed tool into the initial `tools/list` response. Tools are deferred by default; tools that should be visible immediately opt out with `#[McpTool(..., meta: ['deferred' => false])]`.
 
 The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
 

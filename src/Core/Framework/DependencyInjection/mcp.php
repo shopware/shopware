@@ -129,6 +129,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
+            param('shopware.mcp.advertised_tools'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);

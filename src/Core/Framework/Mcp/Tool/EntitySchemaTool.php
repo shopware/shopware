@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-entity-schema', title: 'Entity Schema', description: 'Get the field and association schema of a Shopware entity definition. Use this first to discover field names, types, and associations before building search criteria with shopware-entity-search. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.')]
+#[McpTool(name: 'shopware-entity-schema', title: 'Entity Schema', description: 'Get the field and association schema of a Shopware entity definition. Use this first to discover field names, types, and associations before building search criteria with shopware-entity-search. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.', meta: ['deferred' => false])]
 #[Package('framework')]
 class EntitySchemaTool extends McpToolResponse
 {

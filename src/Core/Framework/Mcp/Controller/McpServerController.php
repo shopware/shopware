@@ -47,11 +47,6 @@ class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';
     private const TOOL_SEARCH = 'shopware-tool-search';
-    private const DEFAULT_ADVERTISED_TOOLS = [
-        self::TOOL_SEARCH,
-        'shopware-entity-schema',
-        'shopware-entity-search',
-    ];
 
     /**
      * @internal
@@ -59,6 +54,8 @@ class McpServerController
      * The five PhpMcp bundle params below are nullable because they are injected via
      * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
      * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     *
+     * @param list<string> $advertisedTools
      */
     public function __construct(
         private readonly ?Server $server,
@@ -71,6 +68,7 @@ class McpServerController
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
+        private readonly array $advertisedTools = [self::TOOL_SEARCH],
     ) {
     }
 
@@ -246,13 +244,21 @@ class McpServerController
      */
     private function advertisedTools(McpAllowlist $allowlist): array
     {
+        $advertisedTools = $this->advertisedTools;
+
+        if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
+            array_unshift($advertisedTools, self::TOOL_SEARCH);
+        }
+
+        $advertisedTools = array_values(array_unique($advertisedTools));
+
         if ($allowlist->tools === null) {
-            return self::DEFAULT_ADVERTISED_TOOLS;
+            return $advertisedTools;
         }
 
         return array_values(array_unique(array_merge(
             [self::TOOL_SEARCH],
-            array_values(array_intersect(self::DEFAULT_ADVERTISED_TOOLS, $allowlist->tools)),
+            array_values(array_intersect($advertisedTools, $allowlist->tools)),
         )));
     }
 

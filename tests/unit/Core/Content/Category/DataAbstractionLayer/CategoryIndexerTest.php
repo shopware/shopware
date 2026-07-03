@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -36,23 +36,23 @@ class CategoryIndexerTest extends TestCase
     private CategoryIndexer $indexer;
 
     /**
-     * @var Connection&MockObject
+     * @var Connection&Stub
      */
     private Connection $connectionMock;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
+        $this->connectionMock = static::createStub(Connection::class);
 
         $this->indexer = new CategoryIndexer(
             $this->connectionMock,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ChildCountUpdater::class),
-            $this->createMock(TreeUpdater::class),
-            $this->createMock(CategoryBreadcrumbUpdater::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ChildCountUpdater::class),
+            static::createStub(TreeUpdater::class),
+            static::createStub(CategoryBreadcrumbUpdater::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(MessageBusInterface::class),
         );
     }
 
@@ -134,27 +134,27 @@ class CategoryIndexerTest extends TestCase
     public function testParentIsNotHandedToTheRecursiveTreeUpdater(): void
     {
         $treeUpdateIds = [];
-        $treeUpdater = $this->createMock(TreeUpdater::class);
+        $treeUpdater = static::createStub(TreeUpdater::class);
         $treeUpdater->method('batchUpdate')->willReturnCallback(
             function (array $ids) use (&$treeUpdateIds): void {
                 $treeUpdateIds = array_merge($treeUpdateIds, $ids);
             }
         );
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([]);
         $connection->method('getTransactionNestingLevel')->willReturn(0);
         $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure($connection));
 
         $indexer = new CategoryIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ChildCountUpdater::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ChildCountUpdater::class),
             $treeUpdater,
-            $this->createMock(CategoryBreadcrumbUpdater::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(CategoryBreadcrumbUpdater::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(MessageBusInterface::class),
         );
 
         $parentId = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4';

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ListTranslationsCommand;
@@ -24,11 +24,11 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ListTranslationsCommand::class)]
 class ListTranslationsCommandTest extends TestCase
 {
-    private TranslationMetadataStore&MockObject $metadataStore;
+    private TranslationMetadataStore&Stub $metadataStore;
 
     protected function setUp(): void
     {
-        $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
+        $this->metadataStore = static::createStub(TranslationMetadataStore::class);
     }
 
     public function testListsConfiguredLocalesSortedWithEnglishNamesAndInstalledMarker(): void

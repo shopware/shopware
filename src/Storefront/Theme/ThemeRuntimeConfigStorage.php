@@ -7,14 +7,13 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Storefront\Theme\ThemeRuntimeConfigStorageTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see ThemeRuntimeConfigStorageTest
+ * @see \Shopware\Tests\Integration\Storefront\Theme\ThemeRuntimeConfigStorageTest
  */
 #[Package('framework')]
 class ThemeRuntimeConfigStorage

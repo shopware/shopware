@@ -22,6 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -301,5 +302,20 @@ class ApiExceptionTest extends TestCase
             'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.',
             $exception->getMessage()
         );
+    }
+
+    public function testCanNotResolveForeignKeysException(): void
+    {
+        $exception = ApiException::canNotResolveForeignKeysException([
+            ['pointer' => '/0/taxId', 'entity' => 'tax'],
+            ['pointer' => '/1/manufacturerId', 'entity' => 'product_manufacturer'],
+        ]);
+
+        static::assertSame(ApiException::API_INVALID_SYNC_RESOLVERS, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertStringContainsString('Can not resolve foreign key at position /0/taxId. Reference field: tax', $exception->getMessage());
+        static::assertStringContainsString('Can not resolve foreign key at position /1/manufacturerId. Reference field: product_manufacturer', $exception->getMessage());
+        static::assertSame('/0/taxId', $exception->getParameter('pointer-0'));
+        static::assertSame('product_manufacturer', $exception->getParameter('field-1'));
     }
 }

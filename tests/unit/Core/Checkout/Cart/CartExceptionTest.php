@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Error\GenericCartError;
+use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 
 /**
  * @internal
@@ -69,5 +72,19 @@ class CartExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(CartException::CART_WRONG_DATA_TYPE, $e->getErrorCode());
         static::assertSame('Cart data some-field does not match expected type "string"', $e->getMessage());
+    }
+
+    public function testInvalidCart(): void
+    {
+        $errors = new ErrorCollection([
+            new GenericCartError('error-id', 'message-key', [], 1, false, false, false),
+        ]);
+
+        $exception = CartException::invalidCart($errors);
+
+        static::assertInstanceOf(InvalidCartException::class, $exception);
+        static::assertSame(CartException::CART_INVALID_CODE, $exception->getErrorCode());
+        static::assertStringContainsString('The cart is invalid, got 1 error(s):', $exception->getMessage());
+        static::assertStringContainsString('error-id', $exception->getMessage());
     }
 }

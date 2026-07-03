@@ -65,6 +65,10 @@ class PermissionLoggerTest extends TestCase
             }))
             ->willReturn(new Envelope(new \stdClass()));
 
+        $this->client->expects($this->never())->method('saveConsent');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+        $this->systemConfigService->expects($this->never())->method('getString');
+
         $this->permissionLogger->log($consent, ConsentState::GRANTED);
     }
 
@@ -103,6 +107,8 @@ class PermissionLoggerTest extends TestCase
                     && $request->licenseHost === $licenseHost;
             }));
 
+        $this->messageBus->expects($this->never())->method('dispatch');
+
         $this->permissionLogger->logSync($consent, ConsentState::GRANTED);
     }
 
@@ -127,6 +133,8 @@ class PermissionLoggerTest extends TestCase
             ->expects($this->once())
             ->method('revokeConsent')
             ->with($consent->identifier);
+
+        $this->messageBus->expects($this->never())->method('dispatch');
 
         $this->permissionLogger->logSync($consent, ConsentState::REVOKED);
     }
@@ -165,6 +173,8 @@ class PermissionLoggerTest extends TestCase
                     && $request->licenseHost === '';
             }));
 
+        $this->messageBus->expects($this->never())->method('dispatch');
+
         $this->permissionLogger->logSync($consent, ConsentState::GRANTED);
     }
 
@@ -184,6 +194,10 @@ class PermissionLoggerTest extends TestCase
                 return $message->permissionsConsent === $consent && $message->consentState === ConsentState::REVOKED;
             }))
             ->willReturn(new Envelope(new \stdClass()));
+
+        $this->client->expects($this->never())->method('saveConsent');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+        $this->systemConfigService->expects($this->never())->method('getString');
 
         $this->permissionLogger->log($consent, ConsentState::REVOKED);
     }

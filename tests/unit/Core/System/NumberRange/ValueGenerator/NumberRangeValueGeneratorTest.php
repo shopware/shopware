@@ -234,7 +234,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
-        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern = static::createStub(ValueGeneratorPatternIncrement::class);
         $incrPattern->method('getPatternId')->willReturn('n');
         $incrPattern->method('generate')->willReturn('5');
 

@@ -32,8 +32,8 @@ class SeoUrlPersisterTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->seoUrlPersister = new SeoUrlPersister(
             $this->connection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
             new NativeClock()
         );
     }

@@ -107,7 +107,7 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 
     private function createSalesChannelContext(?string $domainId): SalesChannelContext
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getDomainId')->willReturn($domainId);
 
         return $context;

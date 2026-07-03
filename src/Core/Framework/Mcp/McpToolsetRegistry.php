@@ -108,7 +108,7 @@ class McpToolsetRegistry
                 'name' => $name,
                 'title' => $this->humanizeToolsetName($name),
                 'description' => \sprintf('Tools inferred from the "%s-" name prefix.', $name),
-                'tools' => array_values($tools),
+                'tools' => $tools,
                 'enabledByDefault' => false,
             ];
         }

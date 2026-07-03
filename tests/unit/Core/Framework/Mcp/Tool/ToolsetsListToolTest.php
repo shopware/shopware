@@ -20,7 +20,7 @@ class ToolsetsListToolTest extends TestCase
 {
     public function testListsToolsetsWithEnabledSessionState(): void
     {
-        $registry = $this->createMock(McpToolsetRegistry::class);
+        $registry = static::createStub(McpToolsetRegistry::class);
         $registry->method('toolsets')->willReturn([
             [
                 'name' => 'default',

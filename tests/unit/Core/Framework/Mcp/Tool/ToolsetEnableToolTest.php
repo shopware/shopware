@@ -56,13 +56,13 @@ class ToolsetEnableToolTest extends TestCase
 
     public function testRejectsUnknownToolset(): void
     {
-        $registry = $this->createMock(McpToolsetRegistry::class);
+        $registry = static::createStub(McpToolsetRegistry::class);
         $registry->method('find')->willReturn(null);
 
         $tool = new ToolsetEnableTool(
             $registry,
-            $this->createMock(McpToolsetSessionStorage::class),
-            $this->createMock(McpToolListChangedNotifier::class),
+            static::createStub(McpToolsetSessionStorage::class),
+            static::createStub(McpToolListChangedNotifier::class),
             new RequestStack(),
         );
 

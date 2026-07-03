@@ -15,11 +15,11 @@ class McpToolListChangedNotifierTest extends TestCase
 {
     public function testNotifyNoopsOutsideMcpRequestFiber(): void
     {
+        static::expectNotToPerformAssertions();
+
         $notifier = new McpToolListChangedNotifier();
 
         $notifier->notify();
-
-        static::assertTrue(true);
     }
 
     public function testNotifyYieldsToolListChangedNotificationInsideFiber(): void

@@ -36,6 +36,8 @@ class StoreApiSeoUrlUpdateListenerTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->seoUrlUpdater->expects($this->never())->method('update');
+
         static::assertSame(
             [
                 ProductIndexerEvent::class => 'updateProductUrls',

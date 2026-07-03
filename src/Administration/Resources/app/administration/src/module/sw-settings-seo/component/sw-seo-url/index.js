@@ -160,33 +160,21 @@ export default {
         },
 
         seoPathInfoError() {
-            if (!this.isHeadlessSalesChannel) {
-                return null;
-            }
-
             const seoPathInfo = this.currentSeoUrl?.seoPathInfo;
-            if (!seoPathInfo || seoPathInfo.trim().length === 0 || FULL_URL_PATTERN.test(seoPathInfo.trim())) {
-                return null;
+            const trimmed = typeof seoPathInfo === 'string' ? seoPathInfo.trim() : '';
+
+            if (this.isHeadlessSalesChannel && trimmed !== '' && !FULL_URL_PATTERN.test(trimmed)) {
+                return { detail: this.$t('sw-seo-url-template-card.general.invalidHeadlessUrlTemplate') };
             }
 
-            return { detail: this.$t('sw-seo-url-template-card.general.invalidHeadlessUrlTemplate') };
-        },
-
-        seoPathInfoError() {
-            const seoPathInfo = this.currentSeoUrl?.seoPathInfo;
-
-            if (typeof seoPathInfo !== 'string' || seoPathInfo === '') {
-                return null;
+            if (typeof seoPathInfo === 'string' && seoPathInfo !== '' && DISALLOWED_SEO_PATH_CHARS.test(seoPathInfo)) {
+                return {
+                    code: 'CONTENT__SEO_URL_INVALID_CHARACTERS',
+                    detail: this.$t('sw-seo-url.errorInvalidCharacters'),
+                };
             }
 
-            if (!DISALLOWED_SEO_PATH_CHARS.test(seoPathInfo)) {
-                return null;
-            }
-
-            return {
-                code: 'CONTENT__SEO_URL_INVALID_CHARACTERS',
-                detail: this.$t('sw-seo-url.errorInvalidCharacters'),
-            };
+            return null;
         },
 
         hasAdditionalSeoSlot() {

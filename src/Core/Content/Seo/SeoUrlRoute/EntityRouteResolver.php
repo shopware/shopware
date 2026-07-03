@@ -14,8 +14,6 @@ use Symfony\Component\Routing\RouterInterface;
 class EntityRouteResolver
 {
     /**
-     * @internal
-     *
      * @param iterable<EntitySeoUrlRouteInterface> $storeApiSeoUrlRoutes
      */
     public function __construct(

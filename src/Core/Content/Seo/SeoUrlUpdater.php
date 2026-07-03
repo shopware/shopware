@@ -159,11 +159,13 @@ class SeoUrlUpdater
             ['route' => $routeName]
         );
 
-        $default = $salesChannelTemplates[''] ?? null;
+        $hasDefaultTemplate = \array_key_exists('', $salesChannelTemplates);
 
-        if (!$isHeadless && $default === null) {
+        if (!$isHeadless && !$hasDefaultTemplate) {
             throw SeoException::invalidTemplate('Default templates not configured');
         }
+
+        $default = $hasDefaultTemplate ? (string) $salesChannelTemplates[''] : null;
 
         $result = [];
         foreach ($domains as $domain) {

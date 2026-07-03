@@ -65,6 +65,7 @@
     "POST /_action/seo-url-template/validate",
     "PATCH /_action/seo-url/canonical",
     "POST /_action/seo-url/create-custom-url",
+    "GET /_action/seo-url/store-api-configs",
     "POST /_action/snippet-set",
     "GET /_action/snippet-set/author",
     "GET /_action/snippet-set/baseFile",

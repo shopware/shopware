@@ -157,5 +157,4 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
 
         $container->setParameter('shopware.mcp.tool_groups', $groupMap);
     }
-
 }

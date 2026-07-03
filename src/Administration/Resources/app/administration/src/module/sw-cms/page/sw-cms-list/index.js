@@ -175,11 +175,11 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             Shopware.Store.get('adminMenu').collapseSidebar();
 
             if (this.acl.can('user_config:read')) {
-                this.loadGridUserSettings();
+                await this.loadGridUserSettings();
             }
 
             if (this.acl.can('system_config:read')) {

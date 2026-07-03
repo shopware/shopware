@@ -57,4 +57,35 @@ class ToolsetsListToolTest extends TestCase
         static::assertTrue($result['data']['toolsets'][1]['enabled']);
         static::assertSame('prefix-fallback', $result['_meta']['taxonomy']);
     }
+
+    public function testListsToolsetsWithoutSessionState(): void
+    {
+        $registry = static::createStub(McpToolsetRegistry::class);
+        $registry->method('toolsets')->willReturn([
+            [
+                'name' => 'default',
+                'title' => 'Default tools',
+                'description' => 'Default',
+                'tools' => ['shopware-toolsets-list'],
+                'enabledByDefault' => true,
+            ],
+            [
+                'name' => 'shopware-entity',
+                'title' => 'Entity tools',
+                'description' => 'Entity',
+                'tools' => ['shopware-entity-search'],
+                'enabledByDefault' => false,
+            ],
+        ]);
+
+        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage->expects($this->never())->method('enabledToolsets');
+
+        $tool = new ToolsetsListTool($registry, $storage, new RequestStack());
+        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($result['success']);
+        static::assertTrue($result['data']['toolsets'][0]['enabled']);
+        static::assertFalse($result['data']['toolsets'][1]['enabled']);
+    }
 }

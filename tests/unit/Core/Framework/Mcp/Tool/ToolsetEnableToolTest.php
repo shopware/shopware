@@ -71,4 +71,59 @@ class ToolsetEnableToolTest extends TestCase
         static::assertFalse($result['success']);
         static::assertStringContainsString('Unknown MCP toolset "missing"', $result['error']);
     }
+
+    public function testRejectsEnableWithoutActiveSession(): void
+    {
+        $registry = static::createStub(McpToolsetRegistry::class);
+        $registry->method('find')->willReturn([
+            'name' => 'shopware-entity',
+            'title' => 'Entity tools',
+            'description' => 'Entity',
+            'tools' => ['shopware-entity-search'],
+            'enabledByDefault' => false,
+        ]);
+
+        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage->expects($this->never())->method('enable');
+
+        $notifier = $this->createMock(McpToolListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notify');
+
+        $tool = new ToolsetEnableTool($registry, $storage, $notifier, new RequestStack());
+
+        $result = json_decode($tool('shopware-entity'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($result['success']);
+        static::assertSame('Cannot enable an MCP toolset without an active MCP session.', $result['error']);
+    }
+
+    public function testDefaultToolsetDoesNotNeedSessionStorage(): void
+    {
+        $registry = static::createStub(McpToolsetRegistry::class);
+        $registry->method('find')->willReturn([
+            'name' => McpToolsetRegistry::DEFAULT_TOOLSET,
+            'title' => 'Default tools',
+            'description' => 'Default',
+            'tools' => ['shopware-toolsets-list'],
+            'enabledByDefault' => true,
+        ]);
+
+        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage->expects($this->never())->method('enable');
+
+        $notifier = $this->createMock(McpToolListChangedNotifier::class);
+        $notifier->expects($this->once())->method('notify');
+
+        $requestStack = new RequestStack();
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->headers->set('Mcp-Session-Id', 'session-a');
+        $requestStack->push($request);
+
+        $tool = new ToolsetEnableTool($registry, $storage, $notifier, $requestStack);
+
+        $result = json_decode($tool(McpToolsetRegistry::DEFAULT_TOOLSET), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($result['success']);
+        static::assertTrue($result['data']['toolset']['enabled']);
+    }
 }

@@ -24,7 +24,10 @@ class McpToolsetRegistryTest extends TestCase
             'shopware-entity-search',
             'shopware-entity-read',
             'shopware-system-config-read',
+            'shopware-order-state',
+            'shopware-media-upload',
             'merchant-cart-manage',
+            'singleton',
         ]);
 
         $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider()));
@@ -39,7 +42,25 @@ class McpToolsetRegistryTest extends TestCase
         static::assertTrue($toolsetsByName[McpToolsetRegistry::DEFAULT_TOOLSET]['enabledByDefault']);
         static::assertSame(['shopware-entity-read', 'shopware-entity-search'], $toolsetsByName['shopware-entity']['tools']);
         static::assertSame(['shopware-system-config-read'], $toolsetsByName['shopware-system-config']['tools']);
+        static::assertSame(['shopware-order-state'], $toolsetsByName['shopware-order']['tools']);
+        static::assertSame(['shopware-media-upload'], $toolsetsByName['shopware-media']['tools']);
         static::assertSame(['merchant-cart-manage'], $toolsetsByName['merchant-cart']['tools']);
+        static::assertSame(['singleton'], $toolsetsByName['singleton']['tools']);
+        static::assertSame('Singleton tools', $toolsetsByName['singleton']['title']);
+    }
+
+    public function testFindReturnsToolsetByName(): void
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            'shopware-entity-search',
+        ]);
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider()));
+
+        static::assertSame('shopware-entity', $toolsetRegistry->find('shopware-entity')['name'] ?? null);
+        static::assertNull($toolsetRegistry->find('missing'));
     }
 
     public function testAdvertisedToolsReturnsDefaultPlusEnabledToolsets(): void

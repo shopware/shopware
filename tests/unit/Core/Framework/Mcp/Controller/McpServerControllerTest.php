@@ -335,6 +335,64 @@ class McpServerControllerTest extends TestCase
         ], array_values($toolNames));
     }
 
+    public function testToolsListUsesDefaultToolsetsWhenRequestHasNoSessionHeader(): void
+    {
+        $server = Server::builder()
+            ->addTool(static fn (): string => '[]', name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, description: 'List toolsets')
+            ->addTool(static fn (): string => '[]', name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, description: 'Enable toolset')
+            ->addTool(static fn (): string => '[]', name: 'shopware-entity-search', description: 'Entity Search')
+            ->build();
+
+        $sessionId = $this->initializeMcpSession($server);
+
+        $listBody = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'tools/list',
+            'params' => [],
+        ], \JSON_THROW_ON_ERROR);
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: null));
+
+        $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
+        $toolsetRegistry->expects($this->once())
+            ->method('advertisedTools')
+            ->with([])
+            ->willReturn([
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            ]);
+
+        $toolsetSessionStorage = $this->createMock(McpToolsetSessionStorage::class);
+        $toolsetSessionStorage->expects($this->never())->method('enabledToolsets');
+
+        $psrRequest = new ServerRequest(
+            'POST',
+            '/api/_mcp',
+            ['Content-Type' => 'application/json', 'Mcp-Session-Id' => $sessionId],
+            $listBody,
+        );
+
+        $controller = $this->buildController(
+            $psrRequest,
+            new HttpFoundationFactory(),
+            $allowlistProvider,
+            server: $server,
+            toolsetRegistry: $toolsetRegistry,
+            toolsetSessionStorage: $toolsetSessionStorage,
+        );
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody);
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), true);
+        $toolNames = array_column($data['result']['tools'] ?? [], 'name');
+        static::assertSame([
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+        ], array_values($toolNames));
+    }
+
     public function testToolCallRemainsAllowlistOnlyWhenToolsetIsNotEnabled(): void
     {
         $server = Server::builder()

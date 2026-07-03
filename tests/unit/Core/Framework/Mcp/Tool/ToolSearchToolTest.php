@@ -61,6 +61,31 @@ class ToolSearchToolTest extends TestCase
         static::assertNotContains('shopware-tool-search', $names);
     }
 
+    public function testReturnsErrorWhenRegistryIsUnavailable(): void
+    {
+        $tool = new ToolSearchTool(null, new ToolSearch());
+
+        $data = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertSame('MCP registry is not available.', $data['error']);
+    }
+
+    public function testSearchResultCountIsCappedAtTwenty(): void
+    {
+        $registry = new Registry();
+        for ($i = 1; $i <= 25; ++$i) {
+            $registry->registerTool(self::tool('shopware-entity-' . $i, 'Entity helper'), 'Acme\\Tool' . $i, true);
+        }
+
+        $tool = new ToolSearchTool($registry, new ToolSearch());
+
+        $data = json_decode($tool('entity', 25), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(20, $data['data']);
+        static::assertSame(25, $data['_meta']['totalCandidates']);
+    }
+
     private function registry(): Registry
     {
         $registry = new Registry();

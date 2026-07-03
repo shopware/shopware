@@ -49,6 +49,54 @@ class ToolSearchTest extends TestCase
         static::assertContains('parameter', $results[0]->matchedIn);
     }
 
+    public function testFindsExactMultiTokenName(): void
+    {
+        $search = new ToolSearch();
+
+        $results = $search->search([
+            self::tool('order_state', 'Change order state'),
+        ], 'order state', 10);
+
+        static::assertNotEmpty($results);
+        static::assertSame('order_state', $results[0]->tool->name);
+        static::assertContains('name:exact-tokens', $results[0]->matchedIn);
+        static::assertContains('name:token', $results[0]->matchedIn);
+    }
+
+    public function testFindsByDescriptionToken(): void
+    {
+        $search = new ToolSearch();
+
+        $results = $search->search([
+            self::tool('state-transition', 'Cancel a customer order'),
+        ], 'customer', 10);
+
+        static::assertNotEmpty($results);
+        static::assertSame('state-transition', $results[0]->tool->name);
+        static::assertContains('description:token', $results[0]->matchedIn);
+    }
+
+    public function testIgnoresToolsBelowMinimumScore(): void
+    {
+        $search = new ToolSearch();
+
+        static::assertSame([], $search->search([
+            self::tool('product-read', 'Read products'),
+        ], 'shipping method', 10));
+    }
+
+    public function testMaxResultsLowerThanOneStillReturnsOneResult(): void
+    {
+        $search = new ToolSearch();
+
+        $results = $search->search([
+            self::tool('entity-search', 'Search entities'),
+            self::tool('entity-read', 'Read entities'),
+        ], 'entity', 0);
+
+        static::assertCount(1, $results);
+    }
+
     public function testLimitsResultCount(): void
     {
         $search = new ToolSearch();

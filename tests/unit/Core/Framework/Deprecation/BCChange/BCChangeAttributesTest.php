@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Deprecation\BCChange\BCChangeAttribute;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
+#[CoversClass(BecomesAbstract::class)]
 #[CoversClass(BecomesFinal::class)]
 #[CoversClass(BecomesInternal::class)]
 #[CoversClass(ClassHierarchyChange::class)]
@@ -115,6 +117,12 @@ class BCChangeAttributesTest extends TestCase
             BecomesInternal::class,
             \Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD,
             [CallSiteCompatibilityChange::class, ExtenderCompatibilityChange::class],
+        ];
+
+        yield 'becoming abstract targets a single method and affects extenders' => [
+            BecomesAbstract::class,
+            \Attribute::TARGET_METHOD,
+            [ExtenderCompatibilityChange::class],
         ];
 
         yield 'becoming final targets classes and affects extenders' => [

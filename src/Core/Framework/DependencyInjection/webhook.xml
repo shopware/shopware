@@ -221,6 +221,7 @@
             <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
 
             <tag name="controller.service_arguments"/>
         </service>

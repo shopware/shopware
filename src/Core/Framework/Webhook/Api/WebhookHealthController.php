@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Api;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\PlatformRequest;
@@ -30,7 +32,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * The two app-credential routes resolve the calling app from the integration on the token
  * and scope every query to that app. So one app can neither read nor reactivate another
- * app's webhooks. The two admin routes belong to the operator: the task heartbeat for
+ * app's webhooks. The two admin routes belong to the operator: the tick heartbeat for
  * self-hosted observability, and the dedicated deactivate action — the kill switch that
  * carries intent in any state, covering what `PATCH active = false` cannot express on a
  * webhook whose mirrored value is already false.
@@ -60,6 +62,7 @@ class WebhookHealthController
         private readonly RateLimiter $rateLimiter,
         private readonly WebhookHealthService $webhookHealthService,
         private readonly ClockInterface $clock,
+        private readonly AbstractKeyValueStorage $keyValueStorage,
     ) {
     }
 
@@ -181,8 +184,16 @@ class WebhookHealthController
         $this->assertHealthApiEnabled();
         $this->assertHasUserId($context);
 
-        // The one health task carries every clocked duty, so its heartbeat covers the whole model.
-        return new JsonResponse($this->taskHealth('webhook.health'));
+        // The one tick carries every clocked duty, so its heartbeat covers the whole model. It is
+        // written by whichever delivery worker completed a tick last; absent means never ticked —
+        // typically no worker is consuming the webhook transport.
+        $lastTickAt = $this->keyValueStorage->get(WebhookHealthTick::HEARTBEAT_STORAGE_KEY);
+        $lastTickAt = \is_string($lastTickAt) ? $lastTickAt : null;
+
+        return new JsonResponse([
+            'lastTickAt' => $lastTickAt,
+            'stale' => $this->isStale($lastTickAt),
+        ]);
     }
 
     #[Route(
@@ -304,41 +315,21 @@ class WebhookHealthController
     }
 
     /**
-     * @return array{lastRunAt: string|null, stale: bool}
+     * Stale when no tick ever completed or the last one is more than two intervals old
+     * (one missed tick plus slack). A corrupt timestamp also reads as stale.
      */
-    private function taskHealth(string $taskName): array
+    private function isStale(?string $lastTickAt): bool
     {
-        $row = $this->connection->fetchAssociative(
-            'SELECT last_execution_time, run_interval FROM scheduled_task WHERE name = :name',
-            ['name' => $taskName]
-        );
-
-        $lastRunAt = \is_array($row) && \is_string($row['last_execution_time']) ? $row['last_execution_time'] : null;
-        $runInterval = \is_array($row) && $row['run_interval'] !== null ? (int) $row['run_interval'] : null;
-
-        return [
-            'lastRunAt' => $lastRunAt,
-            'stale' => $this->isStale($lastRunAt, $runInterval),
-        ];
-    }
-
-    /**
-     * Stale when the task has never run, has no interval, or last ran more than two
-     * intervals ago (one missed tick plus slack). An unregistered task (null row) or a
-     * corrupt timestamp also reads as stale.
-     */
-    private function isStale(?string $lastRunAt, ?int $runInterval): bool
-    {
-        if ($lastRunAt === null || $runInterval === null || $runInterval <= 0) {
+        if ($lastTickAt === null) {
             return true;
         }
 
         try {
-            $lastRun = new \DateTimeImmutable($lastRunAt);
+            $lastTick = new \DateTimeImmutable($lastTickAt);
         } catch (\Exception) {
             return true;
         }
 
-        return $lastRun->getTimestamp() + 2 * $runInterval < $this->clock->now()->getTimestamp();
+        return $lastTick->getTimestamp() + 2 * WebhookHealthTick::INTERVAL_SECONDS < $this->clock->now()->getTimestamp();
     }
 }

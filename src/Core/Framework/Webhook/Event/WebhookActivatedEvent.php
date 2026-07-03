@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Webhook\Health\EndpointState;
  * advisory only, the `webhook_health` row is the truth, and a listener failure never affects the
  * transition. `clearedSuspendedSince` is non-null when this recovery ends a suspension episode
  * (the value the transition cleared) — the key for the Admin recovery notice.
+ * `webhookName`/`eventName` are null only when the webhook row vanished between the transition and
+ * the emission lookup.
  *
  * @internal
  */
@@ -21,6 +23,9 @@ final readonly class WebhookActivatedEvent
         public ?string $appId,
         public EndpointState $fromState,
         public WebhookActivationTrigger $trigger,
+        public ?string $webhookName,
+        public ?string $eventName,
+        public \DateTimeImmutable $occurredAt,
         public ?\DateTimeImmutable $clearedSuspendedSince = null,
     ) {
     }

@@ -53,8 +53,17 @@ class McpToolResponseRule implements Rule
         }
 
         $name = $node->extends->toString();
+        $resolvedName = $node->extends->getAttribute('resolvedName');
 
-        return $name === 'McpToolResponse' || $name === self::MCP_TOOL_RESPONSE_CLASS;
+        if ($resolvedName instanceof Node\Name) {
+            $name = $resolvedName->toString();
+        }
+
+        if ($name === 'McpToolResponse' || $name === self::MCP_TOOL_RESPONSE_CLASS) {
+            return true;
+        }
+
+        return class_exists($name) && is_subclass_of($name, self::MCP_TOOL_RESPONSE_CLASS);
     }
 
     private function hasMcpToolAttribute(Class_ $node): bool

@@ -26,7 +26,7 @@ class ConfiguredSeoUrlRouteTest extends TestCase
     public function testGetConfigReturnsTheConfiguredConfig(): void
     {
         $config = $this->createConfig();
-        $decorated = $this->createStub(SeoUrlRouteInterface::class);
+        $decorated = static::createStub(SeoUrlRouteInterface::class);
 
         static::assertSame($config, (new ConfiguredSeoUrlRoute($decorated, $config))->getConfig());
     }

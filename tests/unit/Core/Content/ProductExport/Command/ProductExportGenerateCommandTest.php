@@ -90,13 +90,6 @@ class ProductExportGenerateCommandTest extends TestCase
         static::assertSame(0, $commandTester->getStatusCode());
     }
 
-    private function createCommandTester(?ProductExporterInterface $productExporter = null): CommandTester
-    {
-        $command = new ProductExportGenerateCommand($this->salesChannelContextFactory, $productExporter ?? $this->productExporter);
-
-        return new CommandTester($command);
-    }
-
     /**
      * @return iterable<string, array{0: string}>
      */
@@ -104,5 +97,12 @@ class ProductExportGenerateCommandTest extends TestCase
     {
         yield 'storefront' => [Defaults::SALES_CHANNEL_TYPE_STOREFRONT];
         yield 'headless' => [Defaults::SALES_CHANNEL_TYPE_API];
+    }
+
+    private function createCommandTester(?ProductExporterInterface $productExporter = null): CommandTester
+    {
+        $command = new ProductExportGenerateCommand($this->salesChannelContextFactory, $productExporter ?? $this->productExporter);
+
+        return new CommandTester($command);
     }
 }

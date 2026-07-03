@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 
@@ -495,6 +496,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId(Uuid::randomHex());
+        $salesChannelEntity->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $salesChannelEntity->setNavigationCategoryId('navigationCategoryId');
         $salesChannelEntity->setServiceCategoryId('serviceCategoryId');
         $salesChannelEntity->setFooterCategoryId('footerCategoryId');

@@ -83,8 +83,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             ->willReturn([]);
 
         $handler = new ProductExportGenerateTaskHandler(
-            $this->createStub(EntityRepository::class),
-            $this->createStub(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $connection,
             new CollectingMessageBus(),
             new NativeClock(),

@@ -23,6 +23,7 @@ class McpCapabilityCatalog
      *
      * @param array<string, list<string>> $toolDependencies tool-name => [dep-name, ...]
      * @param array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $toolPrivileges tool-name => privilege info
+     * @param array<string, string> $toolGroups tool-name => group
      *
      * $registry is nullable via nullOnInvalid(): null when the MCP bundle is absent.
      * Once MCP_SERVER is stable (v6.8.0) remove the nullable type and the null guards
@@ -33,6 +34,7 @@ class McpCapabilityCatalog
         private readonly AppMcpPrivilegeProvider $privilegeProvider,
         private readonly array $toolDependencies = [],
         private readonly array $toolPrivileges = [],
+        private readonly array $toolGroups = [],
     ) {
     }
 
@@ -41,7 +43,7 @@ class McpCapabilityCatalog
      *
      * @param list<string>|null $allowlist null = all tools
      *
-     * @return list<array{name: string, title: ?string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}>
+     * @return list<array{name: string, title: ?string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}>
      */
     public function enrichedTools(?array $allowlist = null): array
     {
@@ -71,7 +73,7 @@ class McpCapabilityCatalog
     /**
      * Returns enriched data for a single tool, or null when not found.
      *
-     * @return array{name: string, title: ?string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null
+     * @return array{name: string, title: ?string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null
      */
     public function findTool(string $name): ?array
     {
@@ -169,7 +171,7 @@ class McpCapabilityCatalog
     /**
      * @param array<string, list<string>> $appToolPrivileges
      *
-     * @return array{name: string, title: ?string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}
+     * @return array{name: string, title: ?string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}
      */
     private function buildToolEntry(string $name, ?string $title, ?string $description, array $appToolPrivileges): array
     {
@@ -182,8 +184,17 @@ class McpCapabilityCatalog
             'name' => $name,
             'title' => $title,
             'description' => $description,
+            'group' => $this->toolGroups[$name] ?? self::deriveToolGroup($name),
             'dependencies' => $this->toolDependencies[$name] ?? [],
             'requiredPrivileges' => $privileges,
         ];
+    }
+
+    private static function deriveToolGroup(string $toolName): string
+    {
+        $parts = explode('-', $toolName, 2);
+        $group = $parts[0] ?? '';
+
+        return $group !== '' ? $group : 'other';
     }
 }

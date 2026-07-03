@@ -179,6 +179,7 @@ return static function (ContainerConfigurator $container): void {
             service(AppMcpPrivilegeProvider::class),
             param('shopware.mcp.tool_dependencies'),
             param('shopware.mcp.tool_privileges'),
+            param('shopware.mcp.tool_groups'),
         ]);
 
     $services->set(McpToolListController::class)

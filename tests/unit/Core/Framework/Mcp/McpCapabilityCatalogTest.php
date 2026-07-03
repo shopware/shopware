@@ -63,6 +63,32 @@ class McpCapabilityCatalogTest extends TestCase
         );
     }
 
+    public function testEnrichedToolsIncludesConfiguredGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'shopware-entity-search', 'Search');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            [],
+            [],
+            ['shopware-entity-search' => 'catalogue'],
+        );
+
+        static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testEnrichedToolsDerivesGroupFromNamePrefix(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-order-export', 'Export orders');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag', $catalog->enrichedTools()[0]['group']);
+    }
+
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void
     {
         $registry = new Registry();

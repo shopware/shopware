@@ -6,6 +6,7 @@ use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -30,6 +31,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
 
         $this->buildAndValidateToolDependencies($container);
         $this->buildToolPrivilegeMap($container);
+        $this->buildToolGroupMap($container);
     }
 
     /**
@@ -129,5 +131,38 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
         }
 
         $container->setParameter('shopware.mcp.tool_privileges', $privilegeMap);
+    }
+
+    private function buildToolGroupMap(ContainerBuilder $container): void
+    {
+        /** @var array<string, string> $groupMap tool-name => group */
+        $groupMap = [];
+
+        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass() ?? $serviceId;
+            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
+
+            if ($toolInfo === null || $toolInfo['name'] === null || !class_exists($class)) {
+                continue;
+            }
+
+            $groupInfo = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group']);
+            $group = $groupInfo !== null && \is_string($groupInfo['group']) && $groupInfo['group'] !== ''
+                ? $groupInfo['group']
+                : self::deriveToolGroup($toolInfo['name']);
+
+            $groupMap[$toolInfo['name']] = $group;
+        }
+
+        $container->setParameter('shopware.mcp.tool_groups', $groupMap);
+    }
+
+    private static function deriveToolGroup(string $toolName): string
+    {
+        $parts = explode('-', $toolName, 2);
+        $group = $parts[0] ?? '';
+
+        return $group !== '' ? $group : 'other';
     }
 }

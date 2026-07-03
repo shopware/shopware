@@ -2,6 +2,12 @@
 
 ## Core
 
+### MCP tools expose a group for operator-facing selection
+
+MCP tool metadata now includes a stable `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+
+Tools without an explicit group derive one from their name prefix, so existing core, plugin, and app tools continue to work.
+
 ### Webhooks are signed with the current app secret after a secret rotation
 
 Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.

@@ -66,10 +66,10 @@ abstract class UserConfigClass {
         this.setUserConfig();
 
         const configurationKey = this.getConfigurationKey();
+        const upsertData: Record<string, unknown> = {};
+        upsertData[configurationKey] = this.userConfig.value;
 
-        await Shopware.Service('userConfigService').upsert({
-            [configurationKey]: this.userConfig.value as unknown,
-        });
+        await Shopware.Service('userConfigService').upsert(upsertData);
         await this.readUserConfig();
     }
 

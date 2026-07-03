@@ -93,7 +93,7 @@ export function collectCompositionScriptState(
     registration: ComponentRegistration,
     sourceFile: SourceFile,
 ): CompositionScriptState {
-    const lifecycleHooks = extractLifecycleHooks(optionsObj);
+    let lifecycleHooks = extractLifecycleHooks(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
     const moduleLocalNames = collectModuleLocalNames(sourceFile, registration);
@@ -135,9 +135,12 @@ export function collectCompositionScriptState(
         injectNames,
     } = supportedMembers;
 
+    const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
+    lifecycleHooks = filterInstanceDependentLifecycleHooks(lifecycleHooks, ctx, manualMigrationReasons, todoComments);
+
     const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks);
 
-    const usedComposables = detectUsedComposables(allSnippets, supportedMembers.watchProps);
+    const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
     const templateRefNames = collectThisRefNames(allSnippets);
 
     if (hasDirectThisPropertyUsage(allSnippets, '$store')) {
@@ -177,8 +180,6 @@ export function collectCompositionScriptState(
             'inheritAttrs: dynamic inheritAttrs expression must be migrated manually',
         );
     }
-
-    const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
 
     return {
         registration,
@@ -289,6 +290,12 @@ function collectSupportedCompositionMembers(
             manualMigrationReasons,
             todoComments,
         );
+        const filteredComputed = filterInstanceDependentComputed(
+            members.supportedComputedProps,
+            ctx,
+            manualMigrationReasons,
+            todoComments,
+        );
         const filteredMethods = filterInstanceDependentMethods(
             members.supportedMethodProps,
             ctx,
@@ -296,7 +303,12 @@ function collectSupportedCompositionMembers(
             todoComments,
         );
         const deduped = dropDuplicatePublicNames(
-            { ...members, supportedDataProps: filteredData, supportedMethodProps: filteredMethods },
+            {
+                ...members,
+                supportedDataProps: filteredData,
+                supportedComputedProps: filteredComputed,
+                supportedMethodProps: filteredMethods,
+            },
             manualMigrationReasons,
             todoComments,
         );
@@ -318,14 +330,18 @@ function collectSupportedCompositionMembers(
     const computedNames = new Set(members.supportedComputedProps.map((p) => p.name));
     const methodNames = new Set(members.supportedMethodProps.map((p) => p.name));
 
-    const supportedWatchProps = collectSupportedWatchProps(
-        watchProps,
+    const supportedWatchProps = filterInstanceDependentWatchProps(
+        collectSupportedWatchProps(
+            watchProps,
+            unsupportedWatchEntries,
+            propNames,
+            dataNames,
+            computedNames,
+            methodNames,
+            injectNames,
+        ),
+        buildMemberContext(members, propNames),
         unsupportedWatchEntries,
-        propNames,
-        dataNames,
-        computedNames,
-        methodNames,
-        injectNames,
     );
 
     return {
@@ -457,6 +473,28 @@ function filterInstanceDependentData(
     });
 }
 
+function filterInstanceDependentComputed(
+    computedProps: ComputedProp[],
+    ctx: RewriteContext,
+    reasons: string[],
+    todoComments: string[],
+): ComputedProp[] {
+    return computedProps.filter((prop) => {
+        const unsupportedThis =
+            prop.kind === 'getter'
+                ? findUnsupportedThisUsage({ text: prop.bodyText, kind: 'body' }, ctx)
+                : (findUnsupportedThisUsage({ text: prop.getterBodyText, kind: 'body' }, ctx) ??
+                  findUnsupportedThisUsage({ text: prop.setterBodyText, kind: 'body' }, ctx));
+
+        if (unsupportedThis) {
+            pushManualMigration(reasons, todoComments, 'computed entry', `computed: ${prop.name} uses ${unsupportedThis}`);
+            return false;
+        }
+
+        return true;
+    });
+}
+
 function filterInstanceDependentMethods(
     methodProps: MethodProp[],
     ctx: RewriteContext,
@@ -470,6 +508,48 @@ function filterInstanceDependentMethods(
         );
         if (unsupportedThis) {
             pushManualMigration(reasons, todoComments, 'method', `methods: ${name} uses ${unsupportedThis}`);
+            return false;
+        }
+
+        return true;
+    });
+}
+
+function filterInstanceDependentWatchProps(
+    watchProps: WatchProp[],
+    ctx: RewriteContext,
+    unsupportedWatchEntries: string[],
+): WatchProp[] {
+    return watchProps.filter(({ name, bodyText }) => {
+        if (!bodyText) {
+            return true;
+        }
+
+        const unsupportedThis = findUnsupportedThisUsage({ text: bodyText, kind: 'body' }, ctx);
+        if (unsupportedThis) {
+            unsupportedWatchEntries.push(`${name}: watcher uses ${unsupportedThis}`);
+            return false;
+        }
+
+        return true;
+    });
+}
+
+function filterInstanceDependentLifecycleHooks(
+    lifecycleHooks: LifecycleHook[],
+    ctx: RewriteContext,
+    reasons: string[],
+    todoComments: string[],
+): LifecycleHook[] {
+    return lifecycleHooks.filter(({ hookName, bodyText }) => {
+        const unsupportedThis = findUnsupportedThisUsage({ text: bodyText, kind: 'body' }, ctx);
+        if (unsupportedThis) {
+            pushManualMigration(
+                reasons,
+                todoComments,
+                'lifecycle hook',
+                `${hookName}: lifecycle hook uses ${unsupportedThis}`,
+            );
             return false;
         }
 
@@ -677,7 +757,7 @@ function collectSetupSnippets(
     supportedMembers: SupportedCompositionMembers,
     lifecycleHooks: LifecycleHook[],
 ): CodeSnippet[] {
-    const { supportedDataProps, supportedComputedProps, supportedMethodProps, watchProps } = supportedMembers;
+    const { supportedDataProps, supportedComputedProps, supportedMethodProps, supportedWatchProps } = supportedMembers;
 
     // These snippets are the only source ranges that will be emitted into
     // setup. They drive import detection, template refs, inferred emits, and
@@ -692,7 +772,7 @@ function collectSetupSnippets(
                       { text: p.setterBodyText, kind: 'body' as const },
                   ],
         ),
-        ...watchProps.map((p) => (p.bodyText ? { text: p.bodyText, kind: 'body' as const } : undefined)),
+        ...supportedWatchProps.map((p) => (p.bodyText ? { text: p.bodyText, kind: 'body' as const } : undefined)),
         ...supportedMethodProps.map((p) => ({
             text: p.bodyText,
             kind: p.rawText === undefined ? ('body' as const) : ('expression' as const),

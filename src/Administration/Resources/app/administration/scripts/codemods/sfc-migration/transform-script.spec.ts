@@ -2423,6 +2423,87 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('this.collision');
         });
 
+        it('drops a computed property that calls a method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                computed: {
+                    value() {
+                        return this.dropped();
+                    },
+                },
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'computed');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('drops a computed property that references a name removed as a duplicate public binding', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { collision: 1 };
+                },
+                computed: {
+                    collision() {
+                        return 2;
+                    },
+                    useCollision() {
+                        return this.collision;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'duplicate');
+            expect(result.script).not.toContain('this.collision');
+        });
+
+        it('drops a watcher that calls a method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { count: 0 };
+                },
+                watch: {
+                    count() {
+                        this.dropped();
+                    },
+                },
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'watch');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
+        it('drops a lifecycle hook that calls a method dropped for unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                mounted() {
+                    this.dropped();
+                },
+                methods: {
+                    dropped() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'mounted');
+            expect(result.script).not.toContain('this.dropped');
+            expect(result.script).not.toContain('this.unknownApi');
+        });
+
         it('marks props that reference a destructured module-local declaration as unsupported', () => {
             const js = `const { propConfig } = Shopware.Utils;
 
@@ -2454,6 +2535,23 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
             expectManualFallback(result, 'emits');
             expect(result.script).not.toContain('defineEmits({');
+        });
+
+        it('does not back off when an emits validator parameter matches an unrelated module-local name', () => {
+            const js = `const payload = 'module local';
+
+            Shopware.Component.register('sw-test', {
+                emits: {
+                    save(payload) {
+                        return Boolean(payload);
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+            expect(result.scriptType).toBe('setup');
         });
 
         it('does not back off when a prop key matches an unrelated module-local name', () => {

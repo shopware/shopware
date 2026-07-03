@@ -1,4 +1,4 @@
-import type { Node as TsNode, ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
+import type { BindingName, Node as TsNode, ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import { collectModuleLocalNames } from './ast';
 import { hasUnsupportedWatchParameterShape } from './extract-watch';
@@ -61,7 +61,7 @@ function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>): boo
 
     return node
         .getDescendantsOfKind(SyntaxKind.Identifier)
-        .some((identifier) => moduleLocalNames.has(identifier.getText()) && isValueReference(identifier));
+        .some((identifier) => moduleLocalNames.has(identifier.getText()) && isValueReference(identifier, node));
 }
 
 /**
@@ -70,7 +70,11 @@ function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>): boo
  * positions count, so those static names must be excluded to avoid false
  * Options API backoffs. Shorthand entries (`{ label }`) are references.
  */
-function isValueReference(identifier: TsNode): boolean {
+function isValueReference(identifier: TsNode, rootNode: TsNode): boolean {
+    if (isDeclarationIdentifier(identifier) || isShadowedByLocalBinding(identifier, rootNode)) {
+        return false;
+    }
+
     const parent = identifier.getParent();
     if (!parent) {
         return true;
@@ -87,6 +91,55 @@ function isValueReference(identifier: TsNode): boolean {
     }
 
     return true;
+}
+
+function isDeclarationIdentifier(identifier: TsNode): boolean {
+    const parent = identifier.getParent();
+    if (!parent) {
+        return false;
+    }
+
+    if (Node.isBindingElement(parent) || Node.isParameterDeclaration(parent) || Node.isVariableDeclaration(parent)) {
+        return parent.getNameNode().getStart() === identifier.getStart();
+    }
+
+    if (Node.isFunctionDeclaration(parent) || Node.isClassDeclaration(parent)) {
+        return parent.getNameNode()?.getStart() === identifier.getStart();
+    }
+
+    return false;
+}
+
+function isShadowedByLocalBinding(identifier: TsNode, rootNode: TsNode): boolean {
+    const name = identifier.getText();
+    let current = identifier.getParent();
+
+    while (current && current !== rootNode) {
+        if (
+            Node.isMethodDeclaration(current) ||
+            Node.isFunctionDeclaration(current) ||
+            Node.isFunctionExpression(current) ||
+            Node.isArrowFunction(current)
+        ) {
+            if (current.getParameters().some((param) => bindingNameContains(param.getNameNode(), name))) {
+                return true;
+            }
+        }
+
+        current = current.getParent();
+    }
+
+    return false;
+}
+
+function bindingNameContains(nameNode: BindingName, name: string): boolean {
+    if (Node.isIdentifier(nameNode)) {
+        return nameNode.getText() === name;
+    }
+
+    return nameNode
+        .getElements()
+        .some((element) => Node.isBindingElement(element) && bindingNameContains(element.getNameNode(), name));
 }
 
 function analyzeObjectOrArrayOption(

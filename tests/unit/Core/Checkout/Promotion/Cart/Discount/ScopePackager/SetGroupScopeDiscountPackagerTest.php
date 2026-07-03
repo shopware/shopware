@@ -25,7 +25,7 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
 {
     public function testFormatRuleCollection(): void
     {
-        $builder = $this->createMock(LineItemGroupBuilder::class);
+        $builder = static::createStub(LineItemGroupBuilder::class);
         $builder
             ->method('findGroupPackages')
             ->willReturnCallback(static function (array $groupDefinitions) {
@@ -86,7 +86,7 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
         (new SetGroupScopeDiscountPackager($builder))->getMatchingItems(
             new DiscountLineItem('label', new AbsolutePriceDefinition(10), $payload, null),
             new Cart('token'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 }

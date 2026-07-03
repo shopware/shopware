@@ -48,8 +48,8 @@ class FeedLabelValidatorTest extends TestCase
                 SalesChannelTypeDefinition::class,
                 CurrencyDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $productExportDefinition = $registry->get(ProductExportDefinition::class);

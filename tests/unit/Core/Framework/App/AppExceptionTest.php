@@ -117,6 +117,17 @@ class AppExceptionTest extends TestCase
         static::assertSame('App is not supported by any source.', $e->getMessage());
     }
 
+    public function testPaymentGatewayRequestFailed(): void
+    {
+        $previous = new \RuntimeException('Request failed');
+        $e = AppException::paymentGatewayRequestFailed('PaymentApp', $previous);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(AppException::APP_PAYMENT_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
+        static::assertSame('Request from app "PaymentApp" to payment gateway failed.', $e->getMessage());
+        static::assertSame($previous, $e->getPrevious());
+    }
+
     public function testCannotMountAppFilesystem(): void
     {
         $previous = AppDownloadException::transportError('some/url');

@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Rule\CustomerRequestedGroupRule;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
@@ -38,7 +40,9 @@ use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -74,12 +78,6 @@ class FlowExecutorTest extends TestCase
 
     private MockObject&LoggerInterface $loggerMock;
 
-    private MockObject&AddOrderTagAction $addOrderTagActionMock;
-
-    private MockObject&AddCustomerTagAction $addCustomerTagActionMock;
-
-    private MockObject&StopFlowAction $stopFlowActionMock;
-
     protected function setUp(): void
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
@@ -90,16 +88,9 @@ class FlowExecutorTest extends TestCase
         $this->connectionMock->method('transactional')
             ->willReturnCallback(static fn (\Closure $func) => $func());
         $this->loggerMock = $this->createMock(LoggerInterface::class);
-        $this->addOrderTagActionMock = $this->createMock(AddOrderTagAction::class);
-        $this->addCustomerTagActionMock = $this->createMock(AddCustomerTagAction::class);
-        $this->stopFlowActionMock = $this->createMock(StopFlowAction::class);
 
         // Replace mocked FlowExecutor with an actual instance
-        $this->flowExecutor = $this->createFlowExecutor([
-            self::ACTION_ADD_ORDER_TAG => $this->addOrderTagActionMock,
-            self::ACTION_ADD_CUSTOMER_TAG => $this->addCustomerTagActionMock,
-            self::ACTION_STOP_FLOW => $this->stopFlowActionMock,
-        ]);
+        $this->flowExecutor = $this->createFlowExecutor([]);
     }
 
     public function testExecuteFlowsSingleActionExecuted(): void
@@ -113,11 +104,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
-        $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->never())->method('handleFlow');
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->never())->method('handleFlow');
 
-        $this->flowExecutor->executeFlows([
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->executeFlows([
             ['id' => 'flowId', 'name' => 'flow', 'payload' => $flow],
         ], $storableFlow);
     }
@@ -143,11 +141,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->stopFlowActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->once())->method('handleFlow')->with($storableFlow);
 
-        $this->flowExecutor->executeFlows([
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->executeFlows([
             ['id' => 'flowId', 'name' => 'flow', 'payload' => $flow],
         ], $storableFlow);
     }
@@ -172,11 +177,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', $context);
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
-        $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->never())->method('handleFlow');
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->never())->method('handleFlow');
 
-        $this->flowExecutor->executeFlows([
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->executeFlows([
             ['id' => 'flowId', 'name' => 'flow', 'payload' => $flow],
         ], $storableFlow);
     }
@@ -198,11 +210,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
-        $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->never())->method('handleFlow');
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->never())->method('handleFlow');
 
-        $this->flowExecutor->executeFlows([
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->executeFlows([
             ['id' => 'flowId', 'name' => 'flow', 'payload' => $flow],
         ], $storableFlow);
     }
@@ -325,11 +344,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
-        $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->never())->method('handleFlow');
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->never())->method('handleFlow');
 
-        $this->flowExecutor->execute($flow, $storableFlow);
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->execute($flow, $storableFlow);
     }
 
     public function testExecuteMultipleActionsExecuted(): void
@@ -351,11 +377,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->stopFlowActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->once())->method('handleFlow')->with($storableFlow);
 
-        $this->flowExecutor->execute($flow, $storableFlow);
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->execute($flow, $storableFlow);
     }
 
     public function testExecuteActionExecutedWithTrueCase(): void
@@ -379,11 +412,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', $context);
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
-        $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->never())->method('handleFlow');
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->never())->method('handleFlow');
 
-        $this->flowExecutor->execute($flow, $storableFlow);
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->execute($flow, $storableFlow);
     }
 
     public function testExecuteActionExecutedWithFalseCase(): void
@@ -404,11 +444,18 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
-        $this->addCustomerTagActionMock->expects($this->never())->method('handleFlow');
-        $this->stopFlowActionMock->expects($this->never())->method('handleFlow');
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
+        $addCustomerTagAction->expects($this->never())->method('handleFlow');
+        $stopFlowAction = $this->createMock(StopFlowAction::class);
+        $stopFlowAction->expects($this->never())->method('handleFlow');
 
-        $this->flowExecutor->execute($flow, $storableFlow);
+        $this->createFlowExecutor([
+            self::ACTION_ADD_ORDER_TAG => $addOrderTagAction,
+            self::ACTION_ADD_CUSTOMER_TAG => $addCustomerTagAction,
+            self::ACTION_STOP_FLOW => $stopFlowAction,
+        ])->execute($flow, $storableFlow);
     }
 
     public function testExecuteActionExecutedFromApp(): void
@@ -469,7 +516,7 @@ class FlowExecutorTest extends TestCase
         $flow->setData(OrderAware::ORDER, $order);
 
         $this->scopeBuilderMock->method('build')->willReturn(
-            new FlowRuleScope($order, new Cart('test'), $this->createMock(SalesChannelContext::class))
+            new FlowRuleScope($order, new Cart('test'), static::createStub(SalesChannelContext::class))
         );
 
         $rule = new OrderTagRule(Rule::OPERATOR_EQ, [$tagId]);
@@ -507,9 +554,11 @@ class FlowExecutorTest extends TestCase
         $storableFlow->setFlowState(new FlowState());
         $storableFlow->setData(OrderAware::ORDER, new \stdClass());
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
 
-        $this->flowExecutor->executeIf($ifSequence, $storableFlow);
+        $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
+            ->executeIf($ifSequence, $storableFlow);
     }
 
     public function testExecuteIfWhenRuleMissingFallsBackToContextRuleIds(): void
@@ -538,9 +587,11 @@ class FlowExecutorTest extends TestCase
         // Simulate ruleLoader returning no rule for the given id
         $this->ruleLoaderMock->method('load')->willReturn(new RuleCollection([]));
 
-        $this->addOrderTagActionMock->expects($this->once())->method('handleFlow')->with($storableFlow);
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
 
-        $this->flowExecutor->executeIf($ifSequence, $storableFlow);
+        $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
+            ->executeIf($ifSequence, $storableFlow);
     }
 
     public function testActionExecutedInTransactionWhenItImplementsTransactional(): void
@@ -725,11 +776,13 @@ class FlowExecutorTest extends TestCase
         $flow->setFlowState(new FlowState());
         $flow->getFlowState()->delayed = true;
 
-        $this->addOrderTagActionMock
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction
             ->expects($this->never())
             ->method('handleFlow');
 
-        $this->flowExecutor->executeAction($actionSequence, $flow);
+        $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
+            ->executeAction($actionSequence, $flow);
 
         static::assertNotEmpty($flow->getConfig());
     }
@@ -749,11 +802,13 @@ class FlowExecutorTest extends TestCase
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
 
-        $this->addOrderTagActionMock
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction
             ->expects($this->once())
             ->method('handleFlow');
 
-        $this->flowExecutor->executeAction($actionSequence, $flow);
+        $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
+            ->executeAction($actionSequence, $flow);
 
         static::assertNotEmpty($flow->getConfig());
     }
@@ -789,7 +844,8 @@ class FlowExecutorTest extends TestCase
             'third-sequence',
         ];
 
-        $this->addOrderTagActionMock
+        $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
+        $addOrderTagAction
             ->expects($this->exactly(3))
             ->method('handleFlow')
             ->willReturnCallback(static function (StorableFlow $flow) use (&$callCount, $idSequence): void {
@@ -801,7 +857,8 @@ class FlowExecutorTest extends TestCase
                 ++$callCount;
             });
 
-        $this->flowExecutor->executeAction($actionSequence, $flow);
+        $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
+            ->executeAction($actionSequence, $flow);
 
         static::assertNotEmpty($flow->getConfig());
     }
@@ -849,6 +906,53 @@ class FlowExecutorTest extends TestCase
         ));
 
         $this->flowExecutor->execute($flow, $storableFlow);
+    }
+
+    #[DataProvider('salesChannelContextCustomerDataProvider')]
+    public function testExecuteIfWithCustomerRuleScopeEvaluation(?CustomerEntity $contextCustomer): void
+    {
+        $trueCaseSequence = new Sequence();
+        $trueCaseSequence->assign(['sequenceId' => 'foobar']);
+        $ruleId = Uuid::randomHex();
+        $ifSequence = new IfSequence();
+        $ifSequence->assign(['ruleId' => $ruleId, 'trueCase' => $trueCaseSequence]);
+
+        $groupId = Uuid::randomHex();
+        $customer = new CustomerEntity();
+        $customer->setRequestedGroupId($groupId);
+        $contextCustomer?->setRequestedGroupId($groupId);
+
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$ruleId]);
+
+        $flow = new StorableFlow('bar', $context);
+        $flow->setFlowState(new FlowState());
+        $flow->setData(CustomerAware::CUSTOMER, $customer);
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn($contextCustomer);
+
+        $flow->setData(SalesChannelContextAware::SALES_CHANNEL_CONTEXT, $salesChannelContext);
+
+        $rule = new CustomerRequestedGroupRule(Rule::OPERATOR_EQ, [$groupId]);
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId($ruleId);
+        $ruleEntity->setPayload($rule);
+        $ruleEntity->setAreas([RuleAreas::FLOW_AREA]);
+
+        $this->ruleLoaderMock->expects($this->exactly($contextCustomer === null ? 1 : 0))
+            ->method('load')
+            ->willReturn(new RuleCollection([$ruleEntity]));
+
+        $this->flowExecutor->executeIf($ifSequence, $flow);
+
+        static::assertSame($trueCaseSequence, $flow->getFlowState()->currentSequence);
+    }
+
+    public static function salesChannelContextCustomerDataProvider(): \Generator
+    {
+        yield 'no customer in sales channel context from store' => [null];
+        yield 'customer in sales channel context from store' => [new CustomerEntity()];
     }
 
     /**

@@ -190,6 +190,35 @@ class TranslatorTest extends TestCase
         static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
     }
 
+    public function testResetRestoresConfiguredFallbackLocalesAndLocale(): void
+    {
+        $decorated = $this->createMock(SymfonyTranslator::class);
+        $decorated->method('getLocale')->willReturn('en_GB');
+        $decorated->method('getFallbackLocales')->willReturn(['de-DE', 'en-GB', 'en']);
+
+        $decorated->expects($this->once())
+            ->method('setFallbackLocales')
+            ->with(['de_DE', 'en_GB', 'en']);
+
+        $decorated->expects($this->once())
+            ->method('setLocale')
+            ->with('en_GB');
+
+        $translator = new Translator(
+            $decorated,
+            new RequestStack(),
+            $this->createMock(CacheInterface::class),
+            $this->createMock(MessageFormatterInterface::class),
+            'prod',
+            $this->createMock(Connection::class),
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            $this->createMock(SnippetService::class),
+            $this->createMock(CacheTagCollector::class),
+        );
+
+        $translator->reset();
+    }
+
     /**
      * @return iterable<string, array<int, string|Request|null>>
      */

@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 
 /**
- * Webhook-health work that runs off the hot path: the clock-driven duties behind the one
- * WebhookHealthTask tick, plus the app install/update reset. The per-delivery transitions
- * live on {@see EndpointHealth}. Who owns which transition:
+ * Off-hot-path webhook-health orchestration: the clocked duties driven by the transport-polled
+ * {@see WebhookHealthTick}, plus the app-install/update reset. The per-delivery transitions live on
+ * {@see EndpointHealth}. Who owns which transition:
  *
  *   HEALTHY  → DEGRADED            EndpointHealth::recordFailure  transient threshold crossed
  *   HEALTHY/DEGRADED → SUSPENDED   EndpointHealth::recordFailure  non-transient streak at the threshold, a 410, or the end of the cooldown schedule
@@ -26,8 +26,8 @@ use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 interface EndpointLifecycle
 {
     /**
-     * One scheduled pass over every DEGRADED/SUSPENDED webhook. Five duties; each is a
-     * cheap indexed per-webhook check in its own short transaction, with no HTTP calls:
+     * One clocked tick over every DEGRADED/SUSPENDED webhook — five duties, each a cheap indexed
+     * per-webhook check in its own short transaction, no HTTP:
      *
      *  1. Releases: for each webhook whose cooldown has passed and that has nothing in
      *     flight, flip its oldest `paused` row to claimable as the trial (DEGRADED and

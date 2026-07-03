@@ -126,28 +126,42 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             filters: mockFilter,
         });
 
-        const displayGroupFilter = {
-            operator: 'AND',
-            queries: [
-                {
-                    field: 'displayGroup',
-                    type: 'equals',
-                    value: null,
-                },
-            ],
-            type: 'not',
-        };
-
         await wrapper.vm.$nextTick();
 
         expect(spyPreviewProduct).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.systemCurrency).toStrictEqual(mockCurrency);
         expect(wrapper.vm.filters).toStrictEqual(mockFilter);
-        expect(wrapper.vm.criteria.filters).toEqual([
-            ...wrapper.vm.filters,
-            displayGroupFilter,
-        ]);
+        // grouping is no longer injected into the criteria body; it is driven by the displayAsGroup query param
+        expect(wrapper.vm.criteria.filters).toEqual(wrapper.vm.filters);
         expect(wrapper.vm.criteria.associations[0].association).toBe('manufacturer');
+
+        // displayAsGroup defaults to true and is forwarded to the preview service as the last argument
+        expect(spyPreviewProduct).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            true,
+        );
+    });
+
+    it('should forward displayAsGroup=false to the preview service', async () => {
+        const spyPreviewProduct = jest.spyOn(wrapper.vm.productStreamPreviewService, 'preview');
+
+        await wrapper.setProps({
+            filters: mockFilter,
+            displayAsGroup: false,
+        });
+
+        await flushPromises();
+
+        expect(spyPreviewProduct).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            false,
+        );
     });
 
     it('should render data grid when products were loaded', async () => {

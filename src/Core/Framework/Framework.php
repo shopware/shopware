@@ -29,6 +29,8 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFac
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\StoreApiMcpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TelemetrySubscriberCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
@@ -141,6 +143,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+        $container->addCompilerPass(new ScheduledTaskExecutorCompilerPass());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());
         $container->addCompilerPass(new TelemetrySubscriberCompilerPass());
@@ -154,6 +157,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
         $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
         $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass()); // @codeCoverageIgnore
 
         $container->addCompilerPass(new DemodataCompilerPass());
 
@@ -176,8 +180,28 @@ class Framework extends Bundle
             MeterProvider::bindMeter($this->container);
         }
 
-        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
-        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
+        // @deprecated tag:v6.8.0 - remove this if block
+        if ($this->container->hasParameter('shopware.cache.cache_compression') && $this->container->getParameter('shopware.cache.cache_compression') !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'
+            );
+
+            $this->container->setParameter('shopware.cache.compress', $this->container->getParameter('shopware.cache.cache_compression'));
+        }
+
+        // @deprecated tag:v6.8.0 - remove this if block
+        if ($this->container->hasParameter('shopware.cache.cache_compression_method') && $this->container->getParameter('shopware.cache.cache_compression_method') !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.'
+            );
+
+            $this->container->setParameter('shopware.cache.compression_method', $this->container->getParameter('shopware.cache.cache_compression_method'));
+        }
+
+        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.compress');
+        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.compression_method');
         Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
 
         /** @var StampedeProtectionConfigurator $stampedeProtectionConfigurator */

@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * TechnicalName should be a snippet key, @see \Shopware\Core\Content\Cookie\Service\CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED for an example.
  * TechnicalName is also used as name and will be translated. Description can be provided as snippet keys or directly translated text.
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class CookieGroup extends Struct

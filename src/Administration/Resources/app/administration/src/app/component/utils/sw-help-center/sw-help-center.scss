@@ -19,7 +19,7 @@
         }
 
         &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
             outline-offset: var(--scale-size-2);
         }
     }

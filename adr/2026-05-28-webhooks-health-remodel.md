@@ -1,7 +1,7 @@
 ---
 title: Webhook endpoint health remodel
 date: 2026-05-28
-updated: 2026-06-10 — non-transient suspension threshold, staged backlog drop, lifecycle events + trip notification, disable provenance, trial/clock edge rules (post-review amendment)
+updated: 2026-07-02 — the health clock moved off the scheduled-task infrastructure onto the delivery worker's transport poll (the scheduler's cadence is host-controlled and cannot honour a 60 s tick); 2026-06-10 — non-transient suspension threshold, staged backlog drop, lifecycle events + trip notification, disable provenance, trial/clock edge rules (post-review amendment)
 area: framework
 tags: [webhook, health, circuit-breaker, reliability, outbox]
 ---
@@ -127,7 +127,7 @@ The model is per-webhook: an app with five subscriptions has five independent he
 
 1. **`EndpointHealth`** — owns `webhook_health` and every state transition.
 2. **`ErrorClassifier`** — a pure function `(status, exception) → enum`: same input, same answer — no database, no clock. Stateful logic stays in the service.
-3. **Dispatch gate** — per new event, `WebhookManager` asks `gateFor`: deliver, hold, or skip. The transport writes exactly that decision — a claimable row (HEALTHY), a `paused` row (DEGRADED), or nothing at all (SUSPENDED/DISABLED) — and no later component re-decides. A decision can be momentarily stale (the state may change in the same instant); both cases heal: a claimable row escaping onto a just-suspended webhook delivers once and its result counts as ordinary evidence, and a `paused` row on a just-recovered webhook is resumed by `WebhookHealthTask` within a tick.
+3. **Dispatch gate** — per new event, `WebhookManager` asks `gateFor`: deliver, hold, or skip. The transport writes exactly that decision — a claimable row (HEALTHY), a `paused` row (DEGRADED), or nothing at all (SUSPENDED/DISABLED) — and no later component re-decides. A decision can be momentarily stale (the state may change in the same instant); both cases heal: a claimable row escaping onto a just-suspended webhook delivers once and its result counts as ordinary evidence, and a `paused` row on a just-recovered webhook is resumed by the health tick within a minute.
 4. **`paused` delivery status** — the held state. The transport ignores it; health gates delivery purely by pausing and releasing rows. The Phase 1 receiver/lease/fetch code is unchanged.
 5. **`WEBHOOKS_REWORK` flag** — the Phase 1 flag; off keeps the legacy failure-handling path.
 
@@ -150,7 +150,7 @@ flowchart TD
     HS -->|"state + counters"| WH[("webhook_health")]
     HS -.->|"pause / release / resume / drop"| OUTBOX
     HS -.->|"state entry"| NOTIF["lifecycle events<br/>(Activated / Degraded /<br/>Suspended / Disabled)<br/>+ Admin notification (S/D)"]
-    PROBE["WebhookHealthTask (60 s):<br/>releases, idle promotion,<br/>retirement, crash-leftover cleanup,<br/>stale-hold healing"] -.->|"release one<br/>(DEGRADED + SUSPENDED)"| HELD
+    PROBE["WebhookHealthTick (60 s,<br/>on the worker's transport poll):<br/>releases, idle promotion,<br/>retirement, crash-leftover cleanup,<br/>stale-hold healing"] -.->|"release one<br/>(DEGRADED + SUSPENDED)"| HELD
     REC["reactivate (admin / API)"] --> HS
 
     style OUTBOX fill:#eef,stroke:#88a
@@ -195,14 +195,14 @@ flowchart TD
 - **New events while SUSPENDED are shed: no row, no write.** DEGRADED keeps new work, SUSPENDED sheds it — that asymmetry *is* the difference between the states, and shedding costs zero I/O. Apps bound the shed window via `suspended_since` on `GET /state`.
 - **Order is never broken; a gap can exist.** Held rows resume ahead of newer traffic (FIFO — first in, first out — by row id). After recovery the receiver sees pre-suspension events, a gap (the shed window), then live traffic. Shed events consumed no sequence numbers, so the gap shows only on `/state`; the Admin notification marks trip and recovery.
 - **The transport doesn't change.** `paused` is simply not claimable; held rows re-enter only via a single-row release or the bulk resume — one atomic SQL statement per flip. The transport persists what the gate decided; there is no second decision.
-- **Two timing races heal themselves.** A row landing claimable on a just-suspended webhook delivers once, its result counting like any other. A row landing `paused` on a just-recovered webhook is resumed by the health task within a minute.
+- **Two timing races heal themselves.** A row landing claimable on a just-suspended webhook delivers once, its result counting like any other. A row landing `paused` on a just-recovered webhook is resumed by the health tick within a minute.
 
 A delivery already in flight (`running`) when the state changes:
 
 | Situation | What happens |
 |:---|:---|
 | Worker mid-delivery during a transition | The HTTP call just finishes; its result is recorded like any other — or ignored if its row is already gone. |
-| Crash leftover re-queued on a now-SUSPENDED webhook | Must not simply deliver — the health task cancels it; only the one deliberately released row may be in flight. |
+| Crash leftover re-queued on a now-SUSPENDED webhook | Must not simply deliver — the health tick cancels it; only the one deliberately released row may be in flight. |
 | Webhook goes DISABLED | Everything undelivered — queued, held, mid-flight — is cancelled; an operator's kill also stops a still-deliverable backlog. A worker finishing late writes into a deleted row and changes nothing. |
 
 **Cost — why the flip is expensive, and why it is bounded.** The flip is a bulk write holding row locks until commit; while locked, every other query touching those rows waits, so the lock-hold time directly stalls the webhook pipeline. It writes *two* tables, because `delivery_status` lives on both `webhook_delivery` and the wide `webhook_event_log` (`fetchDue` reads `el.delivery_status`). `webhook_event_log` also stores the request/response payloads (~3 KB/row), so once it outgrows MySQL's buffer pool (the memory for hot pages) its write dominates. Measured (pause flip, MySQL 8.4, 128 MB buffer pool):
@@ -253,7 +253,7 @@ A breaker must eventually test the endpoint. The canonical way is *half-open*: a
 - **One ladder** — `cooldown_schedule_seconds` (5 m → 4 h), per webhook.
 - **One delivery at a time** — when the cooldown elapses, one row is released as the trial.
 - **One success rule** — a `2xx` climbs exactly one state toward HEALTHY.
-- **One task** — `WebhookHealthTask` (60 s) carries every time-based duty as cheap indexed per-webhook checks: releases; idle promotion (below); the 7-day retirement (skipping deactivated apps); crash-leftover cleanup (cancel re-queued crash rows on SUSPENDED webhooks); stale-hold healing (resume rows left `paused` by a race). Short transactions, no HTTP calls, no held locks; released rows ride the normal receiver path; the health-status endpoint reports this one task's heartbeat.
+- **One clock** — `WebhookHealthTick` (60 s) carries every time-based duty as cheap indexed per-webhook checks: releases; idle promotion (below); the 7-day retirement (skipping deactivated apps); crash-leftover cleanup (cancel re-queued crash rows on SUSPENDED webhooks); stale-hold healing (resume rows left `paused` by a race). Short transactions, no HTTP calls, no held locks; released rows ride the normal receiver path. The tick is pulsed by the delivery worker's transport polling — not a scheduled task, whose host-controlled cadence (cron or admin-worker, commonly ~10 minutes) cannot honour 60 s. Every worker poll passes an in-memory debounce (one tick per interval per worker); there is deliberately no cross-worker election — every duty is a guarded single statement or a per-webhook `FOR UPDATE` transaction, so overlapping runners are absorbed as a few redundant indexed scans, never a wrong transition. After a completed tick the worker writes the heartbeat (an `app_config` key), which the health-status endpoint reports. The worker that delivers is, by definition, alive exactly when health has decisions to make; if no worker polls the webhook transport, nothing delivers either, so there is nothing for the clock to judge.
 
 ```mermaid
 flowchart LR
@@ -291,12 +291,12 @@ One rule per released row, no matter how it was released.
 
 | Row | Moves the ladder on failure? | Counted when |
 |:---|:---|:---|
-| Task-released trial (the oldest held row) | yes — exactly once | when its result comes back, and only if the cooldown was already over when that result landed |
+| Tick-released trial (the oldest held row) | yes — exactly once | when its result comes back, and only if the cooldown was already over when that result landed |
 | Gate-admitted trial (natural traffic while SUSPENDED) | yes — exactly once | at admission; its result does not count a second time |
 | A delivery already in flight when the breaker tripped | no | — (the row is just re-held) |
 | A row brought back by crash recovery | no | — (the row is just re-held) |
 
-Only one release can be out at a time: the task checks for in-flight rows before releasing; the gate claims its admission through the lease.
+Only one release can be out at a time: the tick checks for in-flight rows before releasing; the gate claims its admission through the lease.
 
 **One ladder index.** The position is a single field, `degraded_cycle_count`, in both states. It resets to 0 when a `2xx` moves the webhook into DEGRADED, and on every direct (non-transient) trip. In DEGRADED the same number is also the cycle counter — there is deliberately no `max_degraded_cycles` setting: the budget *is* the schedule's length; edit the schedule to change it.
 
@@ -341,7 +341,7 @@ The trial is a real delivery, so recovery works no matter what caused the trip �
 The only give-up is the **7-day wall clock** (real elapsed time, independent of traffic):
 
 - `suspended_since` is written when the webhook **first** enters SUSPENDED and never overwritten until full recovery (writers set the field only when it is empty). A SUSPENDED → DEGRADED → SUSPENDED loop does **not** restart the clock; the field is cleared only on reaching HEALTHY.
-- After `max_suspended_days` (default **7**) the health task retires the webhook to DISABLED (`disabled_origin = escalation`) — time-based, not traffic-based, so a dead, traffic-less endpoint still retires.
+- After `max_suspended_days` (default **7**) the health tick retires the webhook to DISABLED (`disabled_origin = escalation`) — time-based, not traffic-based, so a dead, traffic-less endpoint still retires.
 - **The clock pauses while the app is deactivated.** A deactivated app's events are filtered out before the gate, so its webhooks get no trials — counting that time would be unfair. So the retirement sweep skips webhooks of deactivated apps, *and* on reactivation `suspended_since` is moved forward by exactly the deactivated interval: suspended 2 days, app deactivated 3, reactivated — the clock reads 2 days, not 5. Merely skipping the sweep would retire the webhook at the first tick after reactivation.
 - No suspension-cycle counter: the cooldown is already time-triggered; a counter would only restate elapsed time.
 
@@ -382,7 +382,7 @@ A breaker that trips silently turns hours of shed events into a month-end surpri
 | DEGRADED budget | derived: the schedule's length — 5+10+20+40+60+240 min = 375 min ≈ 6 h 15 m | Not a setting: the cycle bound *is* the schedule's length; tune it by editing the schedule. An endpoint that can't recover in six hours is structurally broken; SUSPENDED is the honest label. |
 | SUSPENDED ladder entry | tier 0 on a direct trip (5 m); top tier from exhausted cycles | The shared ladder, no new setting: a blip-tripped endpoint recovers in minutes; one that already burned ~6 h of trials keeps backing off at 4 h. |
 | `max_suspended_days` | 7 | A week before retiring to DISABLED — in line with common per-endpoint norms (a few days), short enough that abandoned apps leave the dispatch path; configurable up to 14. Recovery (ladder / install-update / manual) stays available throughout. |
-| Health-task tick | 60 s — defined on the scheduled task, not in health config | One task, every time-based duty, cheap indexed checks; the smallest cooldown is 300 s, so a due trial is never late by more than a fifth of its cooldown (5× headroom). |
+| Health tick | 60 s — a constant on `WebhookHealthTick`, not in health config | One clock, every time-based duty, cheap indexed checks; pulsed by the delivery worker's transport poll, debounced per worker, overlapping runners absorbed by the duty guards; the smallest cooldown is 300 s, so a due trial is never late by more than a fifth of its cooldown (5× headroom). |
 
 The settings — `degraded_threshold`, `non_transient_threshold`, `cooldown_schedule_seconds`, `max_suspended_days` (and the co-shipping `max_paused_backlog`) — live under `shopware.webhook.health.*`; everything else above is a constant or derived.
 
@@ -392,7 +392,7 @@ The settings — `degraded_threshold`, `non_transient_threshold`, `cooldown_sche
 
 Health state lives in a dedicated **internal `webhook_health` table** — a plain SQL table, not a DAL entity (DAL validation would force all eight operational columns onto the public, BC-frozen `/api/webhook` surface; see [Considered alternatives](#considered-alternatives)). It follows the Phase 1 raw-operational-table pattern: 1:1 with `webhook`, PK/FK `ON DELETE CASCADE` (deleting a webhook deletes its health row). Eight fields: state; the three counters (transient streak, non-transient streak, ladder index); cooldown / suspended-since / disabled-since timestamps; `disabled_origin` (`operator` | `escalation`).
 
-- **Additive elsewhere:** the `paused` delivery status and `webhook_event_log.failure_reason`. No audit table — provenance rides the lifecycle events and structured logs.
+- **Additive elsewhere:** the `paused` delivery status and `webhook_event_log.failure_reason` — plus one `app_config` key (`webhook.health.tick.completed_at`, the tick heartbeat; absent until the first completed tick). No new table for the clock and no audit table — provenance rides the lifecycle events and structured logs.
 - **BC mirror (backwards compatibility):** legacy `webhook.active` / `error_count` keep being written, derived from health on each transition — generic `/api/webhook` reads *and* filters keep working.
 - **Backfill:** `INSERT … SELECT` from `webhook`; `active = 0` → DISABLED with `disabled_origin = escalation`. Named trade-off: a pre-migration operator disable is indistinguishable from an auto-disable, so an app update can revive it — not new exposure, since the pre-rework persister already re-activated manifest webhooks on every app update; the same rescue path is kept.
 
@@ -402,7 +402,7 @@ Three new app-system endpoints and one Admin observability endpoint:
 |:---|:---|:---|
 | `GET /api/app-system/webhook/state` | App credentials | Per-webhook health for the calling installation; includes the current `url`, `suspended_since` / `disabled_since`, and `disabled_origin`. |
 | `POST /api/app-system/webhook/reactivate` | App credentials | Reactivate one or more webhooks; rate-limited 10/min per integration; capped at 50 ids per call. **Refuses operator-disabled webhooks** — that recovery is the operator's. |
-| `GET /api/_action/webhook/health-status` | Admin | Scheduled-task heartbeat (probe / escalation task last-run) for self-hosted observability. |
+| `GET /api/_action/webhook/health-status` | Admin | Tick heartbeat (the `webhook.health.tick.completed_at` `app_config` key — the last completed tick, plus a `stale` flag) for self-hosted observability. |
 | `POST /api/_action/webhook/{id}/deactivate` | Admin | The operator kill-switch: → DISABLED, `disabled_origin = operator`, usable in **any** state. Exists because `PATCH active = false` cannot express intent on a SUSPENDED/DISABLED webhook, whose mirrored value is already `false` (write rules below). |
 
 The replay surface over FAILED `webhook_event_log` rows — the cancelled backlog and exhausted retries — ships in the same release (specified in the Phase 3 ADR). Shed events have no rows by design; their window is reconciled by time via the DAL API.
@@ -453,6 +453,14 @@ Only the genuinely contested decisions are listed.
 | Reuse `next_retry_at` only (no new status; hold rows with a far-future timestamp) | Overloads `pending_retry` to also mean "held by health": held rows become indistinguishable from real retries (the skip/backlog gauges can't query them), and the retry scheduler writes the same field. Making that safe means teaching the transport's crash recovery about health — re-entangling the very thing this design decouples. More code than a new status, with worse layering. |
 | **`paused` delivery status, transport-agnostic (chosen)** | The transport already ignores statuses it can't claim. Health owns the `paused` ↔ claimable flip in its own state space — no field shared with the retry scheduler. One claimable row among paused siblings = exactly one trial. No transport change; the held state is directly queryable. |
 
+### The clock for the time-based duties
+
+| Option | Why not |
+|:---|:---|
+| Scheduled task, 60 s interval (this document's first revision — amended) | The task *declares* 60 s, but the scheduler's cadence is the host's: cron setups commonly run `scheduled-task:run` every few minutes to tens of minutes, and admin-worker installations tick only while an Admin session is open. A due trial could wait out most of its cooldown again just for the clock — the ladder's timings become fiction. |
+| Fleet-wide election — a one-row CAS table or a distributed lock (this document's second revision — simplified away) | The only thing an election deduplicates is work that is already safe and cheap to repeat: every duty is a guarded single statement or a per-webhook `FOR UPDATE` transaction, and a duty scan on an idle system is a handful of indexed near-empty SELECTs. Paying a dedicated table (or an `app_config` CAS slot) for that dedup is state without a customer. A `LockFactory` lock cannot even promise the dedup: the default store is flock — per node, not distributed. |
+| **The delivery worker's transport poll, debounced per worker, no election (chosen)** | Messenger polls `get()` roughly every second whether or not traffic flows — a free, always-there pulse exactly on the process that must be alive for health to matter at all. An in-memory debounce bounds the cost to one tick per interval per worker; overlapping workers are absorbed by the duty guards. After a completed tick the worker writes the heartbeat `app_config` key. The transport wrapper carries a time pulse only — the receiver, lease, and fetch stay health-agnostic, and a tick failure is caught and logged, never thrown into the worker loop. |
+
 ### SUSPENDED recovery
 
 | Option | Why not |
@@ -460,7 +468,7 @@ Only the genuinely contested decisions are listed.
 | Opt-in `app.system_heartbeat` ping | Non-subscribers never auto-recover; the heartbeat is weekly and opt-in; and a heartbeat `2xx` can prove a *different* endpoint is up than the broken one. |
 | Active reachability probe (a scheduled `HEAD` of the webhook URL or a `baseAppUrl` health URL) | Rarely used in the industry. A `HEAD` proves the server answers — not that the real `POST` with auth succeeds. Adds a new scheduled-egress/SSRF surface; not every webhook has a `baseAppUrl`. |
 | Blind reopen — unconditionally return to HEALTHY once the cooldown elapses | Recovers a still-broken endpoint with no evidence it is fixed; an auth-broken endpoint would re-fail on the next event and oscillate. We admit a real delivery as the trial instead, so only a genuine `2xx` clears it. |
-| **The shared half-open ladder: oldest held row, else natural traffic (chosen)** | When the cooldown elapses (entry tier 5 m on a direct trip), exactly one delivery goes out — the oldest held row (released by the health task, preserving order), else the next natural delivery admitted by the gate. A `2xx` de-escalates one state (SUSPENDED → DEGRADED); HEALTHY is then earned through the same ladder. The canonical circuit-breaker half-open, and one mechanism instead of two. Cannot recover falsely: an auth-broken endpoint never returns `2xx`; it heals via the clean-slate reset. Releasing held work first means recovery never sacrifices a *new* business event while accepted work is waiting. |
+| **The shared half-open ladder: oldest held row, else natural traffic (chosen)** | When the cooldown elapses (entry tier 5 m on a direct trip), exactly one delivery goes out — the oldest held row (released by the health tick, preserving order), else the next natural delivery admitted by the gate. A `2xx` de-escalates one state (SUSPENDED → DEGRADED); HEALTHY is then earned through the same ladder. The canonical circuit-breaker half-open, and one mechanism instead of two. Cannot recover falsely: an auth-broken endpoint never returns `2xx`; it heals via the clean-slate reset. Releasing held work first means recovery never sacrifices a *new* business event while accepted work is waiting. |
 
 ### TLS failure handling
 

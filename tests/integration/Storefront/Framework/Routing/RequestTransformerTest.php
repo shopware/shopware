@@ -299,6 +299,80 @@ class RequestTransformerTest extends TestCase
         static::assertSame('http://base.test' . $resolvedUrl, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
     }
 
+    public function testCanonicalSeoUrlWithQueryParameterDoesNotSetCanonicalLink(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $domainId = Uuid::randomHex();
+
+        $this->createSalesChannels([
+            self::getGermanSalesChannel($salesChannelId, $domainId, 'http://base.test'),
+        ]);
+
+        $con = static::getContainer()->get(Connection::class);
+        $con->insert(
+            'seo_url',
+            [
+                'id' => Uuid::randomBytes(),
+                'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
+                'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+                'foreign_key' => Uuid::randomBytes(),
+                'route_name' => 'frontend.detail.page',
+                'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
+                'seo_path_info' => 'Main-product/SWDEMO10001?test=123',
+                'is_canonical' => 1,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $request = Request::create('http://base.test/Main-product/SWDEMO10001?test=123');
+
+        $resolved = $this->requestTransformer->transform($request);
+
+        static::assertSame(
+            '/detail/87a78cf58f114d5587ae23c140825694',
+            $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)
+        );
+
+        // Matching canonical SEO URL should not set a canonical link (no redirect loop)
+        static::assertNull($resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
+    }
+
+    public function testPlainCanonicalSeoUrlWithRequestQueryParameterDoesNotSetCanonicalLink(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $domainId = Uuid::randomHex();
+
+        $this->createSalesChannels([
+            self::getGermanSalesChannel($salesChannelId, $domainId, 'http://base.test'),
+        ]);
+
+        $con = static::getContainer()->get(Connection::class);
+        $con->insert(
+            'seo_url',
+            [
+                'id' => Uuid::randomBytes(),
+                'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
+                'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+                'foreign_key' => Uuid::randomBytes(),
+                'route_name' => 'frontend.detail.page',
+                'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
+                'seo_path_info' => 'Main-product/SWDEMO10001',
+                'is_canonical' => 1,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $request = Request::create('http://base.test/Main-product/SWDEMO10001?utm=123');
+
+        $resolved = $this->requestTransformer->transform($request);
+
+        static::assertSame(
+            '/detail/87a78cf58f114d5587ae23c140825694',
+            $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)
+        );
+        static::assertNull($resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
+    }
+
     /**
      * @return iterable<string, string[]>
      */

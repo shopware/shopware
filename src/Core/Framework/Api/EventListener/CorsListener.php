@@ -44,6 +44,9 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
+        // The MCP headers must be part of the global lists because this listener
+        // answers OPTIONS preflight requests before routing, so the target route
+        // (e.g. the MCP endpoints) is unknown at this point.
         $corsHeaders = [
             'Content-Type',
             'Authorization',
@@ -54,6 +57,8 @@ class CorsListener implements EventSubscriberInterface
             PlatformRequest::HEADER_INHERITANCE,
             PlatformRequest::HEADER_INDEXING_BEHAVIOR,
             PlatformRequest::HEADER_INCLUDE_SEO_URLS,
+            PlatformRequest::HEADER_MCP_SESSION_ID,
+            PlatformRequest::HEADER_MCP_PROTOCOL_VERSION,
         ];
 
         $response = $event->getResponse();

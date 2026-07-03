@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Framework\Twig;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Log\Package;
@@ -32,7 +32,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
         ],
     ];
 
-    private MockObject&AssetPackage $packageMock;
+    private Stub&AssetPackage $packageMock;
 
     private ViteFileAccessorDecorator $decorator;
 
@@ -43,7 +43,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
             new BundleFixture('TestBundle', __DIR__ . '/Fixtures/TestBundle'),
         ]);
 
-        $this->packageMock = $this->createMock(UrlPackage::class);
+        $this->packageMock = static::createStub(UrlPackage::class);
         $this->packageMock->method('getUrl')
             ->willReturn('https:://shopware.com');
 

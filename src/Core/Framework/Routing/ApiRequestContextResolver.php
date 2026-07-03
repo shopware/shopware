@@ -17,13 +17,12 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Tests\Integration\Core\Framework\Routing\ApiRequestContextResolverTest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @codeCoverageIgnore
  *
- * @see ApiRequestContextResolverTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Routing\ApiRequestContextResolverTest
  */
 #[Package('framework')]
 class ApiRequestContextResolver implements RequestContextResolverInterface
@@ -278,7 +277,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId !== null) {
-            $source->setPermissions($this->fetchPermissions($userId));
+            $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
             $source->setIsAdmin($this->isAdmin($userId));
 
             return $source;
@@ -292,6 +291,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return $source;
+    }
+
+    /**
+     * @param array<string> $permissions
+     *
+     * @return array<string>
+     */
+    private function withDefaultUserPrivileges(array $permissions): array
+    {
+        return array_values(array_unique([
+            ...$permissions,
+            ...AdminApiSource::DEFAULT_USER_PRIVILEGES,
+        ]));
     }
 
     private function isAdmin(string $userId): bool

@@ -11,10 +11,10 @@ use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * A webhook entered DEGRADED. Best-effort and post-commit: the event is advisory only,
- * the `webhook_health` row is the truth, and a listener failure never affects the
- * transition. DEGRADED is routine self-healing, so no Admin notification is attached
- * to this event.
+ * A webhook entered DEGRADED. Best-effort and post-commit: advisory only, the `webhook_health` row
+ * is the truth, and a listener failure never affects the transition. DEGRADED is routine
+ * self-healing — no Admin notification is attached to this event. `webhookName`/`eventName` are
+ * null only when the webhook row vanished between the transition and the emission lookup.
  *
  * @internal
  */
@@ -29,6 +29,9 @@ final readonly class WebhookDegradedEvent implements Hookable, FlowEventAware
         public string $webhookId,
         public ?string $appId,
         public EndpointState $fromState,
+        public ?string $webhookName,
+        public ?string $eventName,
+        public \DateTimeImmutable $occurredAt,
     ) {
     }
 

@@ -199,6 +199,16 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Subscriber\DisableWebhookOnAdminDeactivationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Subscriber\PauseSuspensionClockOnAppDeactivationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />

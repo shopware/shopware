@@ -36,30 +36,26 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * Drives the WEBHOOKS_REWORK dispatch gate ({@see WebhookManager}) through the REAL
- * {@see WebhookHealthService} bound as its EndpointHealth, so {@see WebhookHealthService::gateFor}'s
- * Skip/Hold/Deliver decision runs against the DB — not the null gate the sibling
- * {@see WebhookManagerTest} exercises (its getManager passes a null endpointHealth).
+ * Locks down the WEBHOOKS_REWORK dispatch gate ({@see WebhookManager}) with the REAL
+ * {@see WebhookHealthService} as its EndpointHealth, so the Skip/Hold/Deliver decision runs
+ * against the DB — unlike the sibling {@see WebhookManagerTest}, which passes a null gate.
  *
- * The gate maps health state → outbox-row outcome:
- *  - SUSPENDED/DISABLED → Skip: the event is shed — no webhook_event_log row, no webhook_delivery
- *    row (asserted as row counts; the shed window is bounded by `suspended_since`, per-event
- *    enumeration is impossible by design).
+ * The gate maps health state to an outbox-row outcome:
+ *  - SUSPENDED/DISABLED → Skip: the event is shed, no rows written (asserted as row counts).
+ *    SUSPENDED sheds only while its cooldown runs; once it elapses with nothing held and nothing
+ *    in flight, the gate admits one natural event as the half-open trial.
  *  - DEGRADED           → Hold: a `paused` (non-claimable) row on both mirrored tables.
  *  - HEALTHY / no row   → Deliver: a `queued` (claimable) row; the gate never writes health.
  *
- * Around the gate, the same per-webhook contract: the flag-on {@see WebhookLoader} widens the
- * candidate set so SUSPENDED/DISABLED webhooks (mirrored `active = 0`) still reach the gate;
- * a suspension confines itself to the failing webhook (no RelatedWebhooks sibling blast radius);
- * and a claimable row that escapes the suspension pause sweep is delivered once, its result
- * counting as ordinary evidence.
+ * Also pinned: the flag-on {@see WebhookLoader} lets SUSPENDED/DISABLED webhooks (mirrored
+ * `active = 0`) still reach the gate; a suspension stays on the failing webhook (no sibling blast
+ * radius); and a claimable row that escaped the suspension's pause sweep is delivered once, its
+ * result counting as ordinary evidence.
  *
- * Wiring (mirrors {@see WebhookDispatchEndToEndTest}): the manager and its delivery service are built
- * against `messenger.default_bus` with isAdminWorkerEnabled=false so the Deliver lane dispatches the
- * WebhookEventMessage through the real WebhookTransport, which persists the outbox row. The webhook +
- * webhook_health rows are seeded directly; QueueTestBehaviour does not wrap the test in a rolled-back
- * transaction, so each test cleans the webhook tables itself (the service writes inside its own
- * RetryableTransaction) and the app fixtures are deleted by id in tearDown.
+ * Wiring mirrors {@see WebhookDispatchEndToEndTest}: built on `messenger.default_bus` with
+ * isAdminWorkerEnabled=false so the Deliver lane goes through the real WebhookTransport, which
+ * persists the outbox row. QueueTestBehaviour does not roll back, so each test cleans the webhook
+ * tables itself and deletes its app fixtures in tearDown.
  *
  * @internal
  */
@@ -96,10 +92,13 @@ class WebhookDispatchGateTest extends TestCase
 
     public function testSuspendedWebhookShedsEventsWritingNoRows(): void
     {
-        // Non-app webhook: isEventDispatchingAllowed() short-circuits to true (appId === null), so
-        // every dispatch reaches the gate's Skip decision.
+        // Non-app webhook: isEventDispatchingAllowed() is always true (appId === null), so every
+        // dispatch reaches the gate's Skip decision. The cooldown must still be running — once
+        // elapsed with nothing held, the gate would admit a natural trial instead of shedding.
         $this->seedWebhook('wh-suspended', CustomerBeforeLoginEvent::EVENT_NAME);
-        $this->seedHealth('wh-suspended', EndpointState::Suspended);
+        $this->seedHealth('wh-suspended', EndpointState::Suspended, [
+            'cooldown_until' => (new \DateTimeImmutable('+1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
 
         $eventLogRowsBefore = $this->countTable('webhook_event_log');
         $deliveryRowsBefore = $this->countTable('webhook_delivery');
@@ -108,7 +107,7 @@ class WebhookDispatchGateTest extends TestCase
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
             $manager = $this->getManager();
-            // Repeated dispatches: the log must not grow while the webhook is undeliverable.
+            // Repeated dispatches: the log must not grow while the webhook sheds.
             $manager->dispatch($event);
             $manager->dispatch($event);
             $manager->dispatch($event);
@@ -151,7 +150,7 @@ class WebhookDispatchGateTest extends TestCase
     public function testDegradedWebhookHoldsEventAsPausedRow(): void
     {
         $this->seedWebhook('wh-degraded', CustomerBeforeLoginEvent::EVENT_NAME);
-        // Mid-cooldown DEGRADED — the realistic shape while the breaker waits for the next trial.
+        // Mid-cooldown DEGRADED — the normal shape while the breaker waits for the next trial.
         $this->seedHealth('wh-degraded', EndpointState::Degraded, [
             'consecutive_transient_failures' => 5,
             'cooldown_until' => (new \DateTimeImmutable('+5 minutes'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -174,7 +173,7 @@ class WebhookDispatchGateTest extends TestCase
             'A DEGRADED webhook must hold the event as a paused (non-claimable) row, not queue it.'
         );
 
-        // The hold is mirrored on the event log, the second table the receiver's read path joins.
+        // The hold is mirrored onto the event log, the second table the read path joins.
         $eventLogStatus = $this->connection->fetchOne(
             'SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name',
             ['name' => 'wh-degraded']
@@ -184,14 +183,14 @@ class WebhookDispatchGateTest extends TestCase
 
     public function testHealthyWebhookDispatchesNormally(): void
     {
-        // No health row at all → fail-open HEALTHY (currentState reads a missing row as Healthy).
+        // No health row at all: a missing row reads as HEALTHY (fail-open).
         $this->seedWebhook('wh-healthy', CustomerBeforeLoginEvent::EVENT_NAME);
 
         $event = $this->createCustomerBeforeLoginEvent();
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
-            // isAdminWorkerEnabled=false → the Deliver lane dispatches via the bus → transport writes a
-            // claimable `queued` row (true would deliver inline as RUNNING and fire a live HTTP request).
+            // isAdminWorkerEnabled=false: the Deliver lane goes via the bus and the transport writes
+            // a claimable `queued` row (true would deliver inline and fire a live HTTP request).
             $this->getManager(isAdminWorkerEnabled: false)->dispatch($event);
         });
 
@@ -206,7 +205,7 @@ class WebhookDispatchGateTest extends TestCase
             'A HEALTHY webhook must write a claimable (queued) row.'
         );
 
-        // The gate only reads health — a healthy delivery must not create a webhook_health row
+        // The gate only reads health: a healthy delivery must not create a webhook_health row
         // (DBAL fetchOne returns false when no row matches).
         static::assertFalse(
             $this->connection->fetchOne(
@@ -225,7 +224,7 @@ class WebhookDispatchGateTest extends TestCase
         $this->seedHealth('wh-suspended', EndpointState::Suspended);
         $this->seedWebhook('wh-disabled', CustomerBeforeLoginEvent::EVENT_NAME, active: false);
         $this->seedHealth('wh-disabled', EndpointState::Disabled);
-        // Inactive without a health row: a plain legacy deactivation — excluded under both flags.
+        // Inactive without a health row: a plain legacy deactivation, excluded under both flags.
         $this->seedWebhook('wh-inactive', CustomerBeforeLoginEvent::EVENT_NAME, active: false);
 
         $loader = static::getContainer()->get(WebhookLoader::class);
@@ -257,13 +256,13 @@ class WebhookDispatchGateTest extends TestCase
 
     public function testAuthStreakSuspensionLeavesSameAppSiblingHealthyAndDelivering(): void
     {
-        // Two webhooks of the SAME app on the SAME event + URL — exactly the shape trunk's
-        // RelatedWebhooks propagation used to punish collectively.
+        // Two webhooks of the SAME app on the SAME event + URL — the shape trunk's RelatedWebhooks
+        // propagation used to punish collectively.
         $this->seedAppWithWebhooks(['wh-broken', 'wh-sibling'], CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/shared-endpoint');
 
         $health = static::getContainer()->get(WebhookHealthService::class);
 
-        // Three deliveries' 401s — the non-transient streak at its threshold suspends this webhook.
+        // Three 401s in a row reach the auth-streak threshold and suspend this webhook.
         $health->recordFailure($this->ids->get('wh-broken'), ErrorClassification::NonTransientAuth, 1);
         $health->recordFailure($this->ids->get('wh-broken'), ErrorClassification::NonTransientAuth, 1);
         $health->recordFailure($this->ids->get('wh-broken'), ErrorClassification::NonTransientAuth, 1);
@@ -276,7 +275,7 @@ class WebhookDispatchGateTest extends TestCase
             )
         );
 
-        // The suspension is per-webhook: the sibling's health was never touched…
+        // The suspension is per-webhook: the sibling's health row was never touched…
         static::assertFalse(
             $this->connection->fetchOne(
                 'SELECT 1 FROM webhook_health WHERE webhook_id = :id',
@@ -305,9 +304,9 @@ class WebhookDispatchGateTest extends TestCase
 
     public function testClaimableEscapeRowIsDeliveredOnceAndItsFailureFeedsTheStreak(): void
     {
-        // The gate's decision is point-in-time: a row written claimable in the instant its webhook
-        // suspended escapes the transition's pause sweep. Seeded here post-sweep: the webhook is
-        // already SUSPENDED (cooldown running), the escaped row sits claimable.
+        // The gate decides at a point in time: a row written claimable in the instant its webhook
+        // suspended escapes the transition's pause sweep. Seeded here as if post-sweep: the webhook
+        // is already SUSPENDED (cooldown running), the escaped row sits claimable.
         $this->seedWebhook('wh-escape', CustomerBeforeLoginEvent::EVENT_NAME, active: false);
         $this->seedHealth('wh-escape', EndpointState::Suspended, [
             'consecutive_non_transient_failures' => 3,
@@ -326,8 +325,8 @@ class WebhookDispatchGateTest extends TestCase
         static::assertNotNull($store->markRunning($this->ids->get('evt-escape')));
         static::assertSame([], $store->fetchDue($partitionKey, $claimable, 10), 'one delivery, never a second claim');
 
-        // Its 401 result is ordinary evidence: the auth streak counts; the still-running cooldown
-        // means no ladder move (a straggler, not a released trial).
+        // Its 401 result is ordinary evidence: the auth streak counts, and the still-running
+        // cooldown means the ladder does not move.
         $health = static::getContainer()->get(WebhookHealthService::class);
         $result = $health->recordFailure($this->ids->get('wh-escape'), ErrorClassification::NonTransientAuth, 1);
 
@@ -342,10 +341,9 @@ class WebhookDispatchGateTest extends TestCase
     }
 
     /**
-     * Builds a WebhookManager wired with the REAL WebhookHealthService as endpointHealth (the gate the
-     * sibling WebhookManagerTest stubs out with null) and a fresh WebhookDeliveryService bound to the
-     * same bus + admin-worker flag — the Deliver lane delegates to it, and the container-wired service
-     * reads the test env's enabled admin worker, which would otherwise force inline sync delivery.
+     * Builds a WebhookManager with the REAL WebhookHealthService as its gate, plus a fresh
+     * WebhookDeliveryService on the same bus + admin-worker flag. The container-wired service would
+     * read the test env's enabled admin worker and force inline sync delivery.
      */
     private function getManager(bool $isAdminWorkerEnabled = false): WebhookManager
     {
@@ -407,9 +405,9 @@ class WebhookDispatchGateTest extends TestCase
     }
 
     /**
-     * One app (acl_role with empty privileges — fine for CustomerBeforeLoginEvent, whose available
-     * data is a single scalar, so HookableBusinessEvent::isAllowed passes) carrying the given
-     * webhooks on one shared event + URL. The fixture rows are tracked for tearDown.
+     * One app carrying the given webhooks on one shared event + URL. The empty acl_role privileges
+     * are fine for CustomerBeforeLoginEvent (a single scalar, so isAllowed passes). Fixture rows
+     * are tracked for tearDown.
      *
      * @param list<string> $webhookKeys
      */
@@ -488,8 +486,8 @@ class WebhookDispatchGateTest extends TestCase
     }
 
     /**
-     * Seeds the claimable webhook_event_log + webhook_delivery pair a racing gate leaves behind when
-     * its Deliver decision commits just after the suspension's pause sweep ran.
+     * Seeds the claimable row pair a racing gate leaves behind when its Deliver decision commits
+     * just after the suspension's pause sweep ran.
      */
     private function insertClaimableRow(string $eventKey, string $webhookKey): void
     {
@@ -544,7 +542,7 @@ class WebhookDispatchGateTest extends TestCase
     }
 
     /**
-     * Deletes exactly the app/acl_role/integration rows this test seeded (children first — app
+     * Deletes exactly the app/acl_role/integration rows this test seeded, children first (app
      * references both others). The webhook rows are already gone via cleanupWebhookTables.
      */
     private function cleanupAppFixtures(): void

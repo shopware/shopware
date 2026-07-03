@@ -5,11 +5,15 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Health;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
 use Shopware\Core\Framework\Webhook\Health\EndpointLifecycle;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
@@ -20,18 +24,17 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Drives the health tick's clocked duty — {@see EndpointLifecycle::tick()}, pulsed in production by
- * {@see \Shopware\Core\Framework\Webhook\Health\WebhookHealthTick} on the delivery worker's transport poll — against the real container
- * services, on the row-state contract of the half-open ladder (ADR §Half-open recovery):
- * per DEGRADED webhook with an elapsed cooldown, release the oldest held row as the one trial
- * (grace-age filtered), no-op while a release is in flight, and idle-promote when nothing is held
- * and nothing is in flight — keeping the failure streaks, because nothing was delivered to prove
- * health. Releasing never advances the ladder; the released trial's *result* does, which the
- * result-side {@see EndpointHealth} calls pin here end to end. The tick's candidate set is DEGRADED
- * only: a SUSPENDED webhook keeps its held backlog and state untouched (its new events are shed by
- * the dispatch gate — no row, no write).
- *
- * Deterministic clock: cooldowns and row ages are nudged via SQL, never slept on.
+ * Drives the health tick's clocked duties — {@see EndpointLifecycle::tick()}, pulsed in production
+ * by {@see \Shopware\Core\Framework\Webhook\Health\WebhookHealthTick} on the delivery worker's
+ * transport poll — against the real container services (ADR §Half-open recovery). Per
+ * DEGRADED/SUSPENDED webhook with an elapsed cooldown it releases the oldest held row as the one
+ * trial, no-ops while a release is still in flight, and promotes an idle DEGRADED webhook to
+ * HEALTHY (keeping the failure streaks, because nothing was delivered to prove health). SUSPENDED
+ * never idle-promotes ({@see SuspendedRecoveryTest}). Releasing never advances the ladder — only
+ * the trial's result does, which the {@see EndpointHealth} calls here pin end to end. The tick also
+ * retires webhooks suspended past 7 days (skipping deactivated apps, whose clock is paused),
+ * cancels surplus in-flight rows on SUSPENDED webhooks, and heals stale holds on HEALTHY ones.
+ * Cooldowns and row ages are rewritten via SQL, never slept on.
  *
  * @internal
  */
@@ -40,7 +43,7 @@ class WebhookHealthTickTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * Mirrors `shopware.webhook.health.cooldown_schedule_seconds[1]` — the tier a first failed
+     * Mirrors `shopware.webhook.health.cooldown_schedule_seconds[1]` — the tier the first failed
      * trial arms.
      */
     private const COOLDOWN_TIER_1 = 600;
@@ -68,7 +71,7 @@ class WebhookHealthTickTest extends TestCase
     {
         $this->createWebhook('wh-due');
         $this->insertHealth('wh-due', EndpointState::Degraded, cooldownUntil: new \DateTimeImmutable('-1 hour'), transientFailures: 5);
-        // Distinct rows inserted in ascending order → ascending auto-increment ids; oldest = lowest id.
+        // Rows get ascending auto-increment ids in insert order; oldest = lowest id.
         $this->createDelivery('evt-1', 'wh-due', WebhookEventLogDefinition::STATUS_PAUSED);
         $this->createDelivery('evt-2', 'wh-due', WebhookEventLogDefinition::STATUS_PAUSED);
         $this->createDelivery('evt-3', 'wh-due', WebhookEventLogDefinition::STATUS_PAUSED);
@@ -79,7 +82,7 @@ class WebhookHealthTickTest extends TestCase
 
         $this->lifecycle->tick();
 
-        // The oldest held row is the trial: claimable on both mirrored tables, due now.
+        // The oldest held row becomes the trial: claimable on both mirrored tables, due now.
         $this->assertDeliveryStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
         $this->assertNextRetryAtIsNow('evt-1');
@@ -105,8 +108,8 @@ class WebhookHealthTickTest extends TestCase
         $this->createDelivery('evt-trial-claimable', 'wh-claimable', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
         $this->createDelivery('evt-held-claimable', 'wh-claimable', WebhookEventLogDefinition::STATUS_PAUSED);
 
-        // …and one mid-HTTP: both count as in flight, because the ladder advances on the trial's
-        // result, not the wall clock — worker lag must not produce a second release.
+        // …and one mid-HTTP: both count as in flight. The ladder advances on the trial's result,
+        // not the wall clock, so a slow worker must not cause a second release.
         $this->createWebhook('wh-running');
         $this->insertHealth('wh-running', EndpointState::Degraded, cooldownUntil: new \DateTimeImmutable('-1 hour'), transientFailures: 5);
         $this->createDelivery('evt-trial-running', 'wh-running', WebhookEventLogDefinition::STATUS_RUNNING);
@@ -156,15 +159,15 @@ class WebhookHealthTickTest extends TestCase
         $this->lifecycle->tick();
 
         static::assertSame(EndpointState::Healthy->value, $this->fetchEndpointState('wh-1'));
-        // Nothing was delivered, so nothing proved health: the streaks survive the promotion —
-        // the first transient failure after traffic resumes re-degrades immediately.
+        // Nothing was delivered, so nothing proved health: the streaks survive the promotion and
+        // the first failure after traffic resumes re-degrades immediately.
         static::assertSame(7, $this->fetchTransientFailures('wh-1'));
         static::assertSame(1, $this->fetchNonTransientFailures('wh-1'));
         static::assertSame(0, $this->fetchDegradedCycleCount('wh-1'));
         static::assertNull($this->fetchHealthTimestamp('wh-1', 'cooldown_until'));
         static::assertNull($this->fetchHealthTimestamp('wh-1', 'suspended_since'), 'reaching HEALTHY ends the suspension episode');
 
-        // BC mirror: HEALTHY reads active = 1 / error_count = 0 while the kept streaks stay internal.
+        // BC mirror: HEALTHY reads active = 1 / error_count = 0; the kept streaks stay internal.
         static::assertTrue($this->fetchActive('wh-1'));
         static::assertSame(0, $this->fetchErrorCount('wh-1'));
 
@@ -231,15 +234,15 @@ class WebhookHealthTickTest extends TestCase
         $this->lifecycle->tick();
         $this->assertDeliveryStatus('evt-trial', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
 
-        // The trial's 2xx: DEGRADED → HEALTHY, and — unlike idle promotion — a real delivery proved
-        // health, so the streaks reset.
+        // The trial's 2xx promotes DEGRADED to HEALTHY. Unlike idle promotion, a real delivery
+        // proved health, so the streaks reset.
         $this->health->recordSuccess($this->ids->get('wh-1'));
 
         static::assertSame(EndpointState::Healthy->value, $this->fetchEndpointState('wh-1'));
         static::assertSame(0, $this->fetchTransientFailures('wh-1'));
         static::assertNull($this->fetchHealthTimestamp('wh-1', 'cooldown_until'));
 
-        // The held backlog resumes with the recovery: claimable on both mirrored tables, due now.
+        // The held backlog resumes: claimable on both mirrored tables, due now.
         $this->assertDeliveryStatus('evt-held', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
         $this->assertEventLogStatus('evt-held', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
         $this->assertNextRetryAtIsNow('evt-held');
@@ -259,8 +262,8 @@ class WebhookHealthTickTest extends TestCase
 
         $this->lifecycle->tick();
 
-        // A release is a redelivery point: the over-age oldest row is cancelled, never redelivered —
-        // delivery row gone, event log terminal with the cancel reason (payload retained for replay).
+        // The over-age oldest row is cancelled, never redelivered: delivery row gone, event log
+        // FAILED with the cancel reason, payload kept for replay.
         $this->assertDeliveryDeleted('evt-old');
         $this->assertEventLogStatus('evt-old', WebhookEventLogDefinition::STATUS_FAILED);
         $this->assertFailureReason('evt-old', WebhookOutboxStore::CANCEL_REASON_SUSPENDED);
@@ -270,30 +273,193 @@ class WebhookHealthTickTest extends TestCase
         $this->assertEventLogStatus('evt-fresh', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
     }
 
-    public function testTickLeavesSuspendedWebhooksUntouched(): void
+    public function testTickReleasesASuspendedWebhooksOldestHeldRowButNeverIdlePromotesIt(): void
     {
         $suspendedSince = new \DateTimeImmutable('-1 day');
         $this->createWebhook('wh-held', active: false, errorCount: 3);
         $this->insertHealth('wh-held', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('-1 hour'), nonTransientFailures: 3, suspendedSince: $suspendedSince);
-        $this->createDelivery('evt-held', 'wh-held', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-oldest', 'wh-held', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-younger', 'wh-held', WebhookEventLogDefinition::STATUS_PAUSED);
 
         $this->createWebhook('wh-idle', active: false, errorCount: 3);
         $this->insertHealth('wh-idle', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('-1 hour'), nonTransientFailures: 3, suspendedSince: $suspendedSince);
 
         $this->lifecycle->tick();
 
-        // SUSPENDED is not in the tick's candidate set: no trial release despite the elapsed
-        // cooldown, and never an idle promotion — the backlog stays held for a later recovery.
-        $this->assertDeliveryStatus('evt-held', WebhookEventLogDefinition::STATUS_PAUSED);
+        // SUSPENDED gets the same release as DEGRADED: the oldest held row becomes the one trial,
+        // the younger rows stay held, and the release itself moves nothing on the health row.
+        $this->assertDeliveryStatus('evt-oldest', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-oldest', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertNextRetryAtIsNow('evt-oldest');
+        $this->assertDeliveryStatus('evt-younger', WebhookEventLogDefinition::STATUS_PAUSED);
         static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-held'));
+        static::assertSame(0, $this->fetchDegradedCycleCount('wh-held'));
+
+        // But never an idle promotion: without a 2xx, SUSPENDED ends only via a reset or the
+        // 7-day bound. Its idle trial comes from the gate, not the tick.
         static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-idle'));
         static::assertNotNull($this->fetchHealthTimestamp('wh-idle', 'suspended_since'));
     }
 
+    public function testTickRetiresASuspendedWebhookPastTheBoundAndDropsItsWholeBacklog(): void
+    {
+        $this->createWebhook('wh-old', active: false, errorCount: 3);
+        $this->insertHealth('wh-old', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-8 days'));
+        $this->createDelivery('evt-held', 'wh-old', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-running', 'wh-old', WebhookEventLogDefinition::STATUS_RUNNING);
+
+        $this->createWebhook('wh-young', active: false, errorCount: 3);
+        $this->insertHealth('wh-young', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-6 days'));
+
+        $events = $this->captureDisabledEvents();
+
+        $this->lifecycle->tick();
+
+        // Past max_suspended_days (7) the webhook retires: DISABLED with origin escalation, no
+        // further releases, the BC mirror at active = 0.
+        static::assertSame(EndpointState::Disabled->value, $this->fetchEndpointState('wh-old'));
+        static::assertSame(DisabledOrigin::Escalation->value, $this->fetchDisabledOrigin('wh-old'));
+        static::assertNotNull($this->fetchHealthTimestamp('wh-old', 'disabled_since'));
+        static::assertNull($this->fetchHealthTimestamp('wh-old', 'cooldown_until'), 'retirement must clear the cooldown');
+        static::assertFalse($this->fetchActive('wh-old'));
+
+        // DISABLED drops everything still undelivered, the running row included, so crash recovery
+        // cannot resurrect a delivery onto the retired endpoint. Payloads stay replayable.
+        foreach (['evt-held', 'evt-running'] as $eventKey) {
+            $this->assertDeliveryDeleted($eventKey);
+            $this->assertEventLogStatus($eventKey, WebhookEventLogDefinition::STATUS_FAILED);
+            $this->assertFailureReason($eventKey, WebhookOutboxStore::DROP_REASON_DISABLED);
+        }
+
+        $disabled = $events();
+        static::assertCount(1, $disabled, 'retirement must dispatch exactly one WebhookDisabledEvent');
+        static::assertSame($this->ids->get('wh-old'), $disabled[0]->webhookId);
+        static::assertSame(EndpointState::Suspended, $disabled[0]->fromState);
+        static::assertSame(DisabledOrigin::Escalation, $disabled[0]->origin);
+
+        // Six days suspended is inside the bound — not retired.
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-young'));
+        static::assertNull($this->fetchHealthTimestamp('wh-young', 'disabled_since'));
+    }
+
+    public function testRetirementSweepSkipsWebhooksOfDeactivatedApps(): void
+    {
+        $appId = $this->createApp('SwagSkipApp', active: false);
+        $this->createWebhook('wh-1', active: false, errorCount: 3, appId: $appId);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-8 days'));
+
+        $this->lifecycle->tick();
+
+        // A deactivated app's webhook gets no trials, so its suspension clock is paused — retiring
+        // it would punish time during which it had no chance to recover.
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-1'));
+        static::assertNull($this->fetchHealthTimestamp('wh-1', 'disabled_since'));
+    }
+
+    public function testTickShiftsAPausedSuspensionClockSoDeactivatedTimeNeverRetires(): void
+    {
+        // Suspended five days before the app's deactivation; the pause lasted four days. The wall
+        // clock reads nine days — past the 7-day bound — but the effective age is five.
+        $appId = $this->createApp('SwagShiftApp', active: true);
+        $this->createWebhook('wh-1', active: false, errorCount: 3, appId: $appId);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-9 days'));
+
+        $this->connection->executeStatement('UPDATE app SET active = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
+        $this->lifecycle->pauseSuspensionClockForApp($appId);
+
+        // The pause stamps its cursor (updated_at) at the deactivation moment…
+        $cursor = $this->fetchHealthTimestamp('wh-1', 'updated_at');
+        static::assertIsString($cursor);
+        static::assertEqualsWithDelta((new \DateTimeImmutable())->getTimestamp(), (new \DateTimeImmutable($cursor))->getTimestamp(), 5);
+
+        // …then four days of deactivation pass (cursor backdated instead of waiting).
+        $this->connection->executeStatement(
+            'UPDATE webhook_health SET updated_at = :cursor WHERE webhook_id = :id',
+            [
+                'cursor' => (new \DateTimeImmutable('-4 days'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes('wh-1'),
+            ]
+        );
+
+        $this->lifecycle->tick();
+
+        // The tick shifts suspended_since forward by the paused time: the clock still reads its
+        // pre-pause age of five days, and the webhook is not retired.
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-1'));
+        $shifted = $this->fetchHealthTimestamp('wh-1', 'suspended_since');
+        static::assertIsString($shifted);
+        static::assertEqualsWithDelta(
+            (new \DateTimeImmutable('-5 days'))->getTimestamp(),
+            (new \DateTimeImmutable($shifted))->getTimestamp(),
+            90,
+            'the pause must shift suspended_since forward by the deactivated interval',
+        );
+
+        // After reactivation the sweep sees the shifted age, not the wall clock — no retirement.
+        $this->connection->executeStatement('UPDATE app SET active = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
+        $this->lifecycle->tick();
+
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-1'));
+        static::assertNull($this->fetchHealthTimestamp('wh-1', 'disabled_since'));
+    }
+
+    public function testTickCancelsClaimableRowsBeyondTheOldestOnASuspendedWebhook(): void
+    {
+        $this->createWebhook('wh-1', active: false, errorCount: 3);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-1 day'));
+        // Crash recovery brought two pre-suspension deliveries back as claimable.
+        $this->createDelivery('evt-oldest', 'wh-1', WebhookEventLogDefinition::STATUS_QUEUED);
+        $this->createDelivery('evt-surplus', 'wh-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+
+        $this->lifecycle->tick();
+
+        // Only one row may be in flight on a SUSPENDED webhook: the oldest claimable is kept and
+        // its result becomes the evidence…
+        $this->assertDeliveryStatus('evt-oldest', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        // …every claimable row beyond it is cancelled: event log FAILED with the cancel reason,
+        // payload kept for replay.
+        $this->assertDeliveryDeleted('evt-surplus');
+        $this->assertEventLogStatus('evt-surplus', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertFailureReason('evt-surplus', WebhookOutboxStore::CANCEL_REASON_SUSPENDED);
+    }
+
+    public function testTickCancelsAllClaimableRowsWhenARunningRowExistsOnASuspendedWebhook(): void
+    {
+        $this->createWebhook('wh-1', active: false, errorCount: 3);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-1 day'));
+        $this->createDelivery('evt-running', 'wh-1', WebhookEventLogDefinition::STATUS_RUNNING);
+        $this->createDelivery('evt-claimable', 'wh-1', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $this->lifecycle->tick();
+
+        // The running row is the in-flight one: it finishes and its result is the evidence…
+        $this->assertDeliveryStatus('evt-running', WebhookEventLogDefinition::STATUS_RUNNING);
+
+        // …so every claimable row is surplus and cancelled.
+        $this->assertDeliveryDeleted('evt-claimable');
+        $this->assertEventLogStatus('evt-claimable', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertFailureReason('evt-claimable', WebhookOutboxStore::CANCEL_REASON_SUSPENDED);
+    }
+
+    public function testTickResumesAPausedRowStrandedOnAHealthyWebhook(): void
+    {
+        // Leftover of a gate Hold that raced a recovery: a paused row on a HEALTHY webhook, which
+        // nothing else would ever release (resume only runs when the webhook reaches HEALTHY).
+        $this->createWebhook('wh-1');
+        $this->insertHealth('wh-1', EndpointState::Healthy);
+        $this->createDelivery('evt-stranded', 'wh-1', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        $this->lifecycle->tick();
+
+        $this->assertDeliveryStatus('evt-stranded', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-stranded', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertNextRetryAtIsNow('evt-stranded');
+    }
+
     /**
-     * Subscribes a collector to WebhookActivatedEvent and returns a callable that detaches the
-     * listener and yields the events captured so far. The dispatcher is the same `event_dispatcher`
-     * WebhookHealthService dispatches through, so this observes the real promotion side effect.
+     * Collects WebhookActivatedEvent dispatches; the returned closure detaches the listener and
+     * returns what was captured. Same dispatcher the service uses, so this sees the real side effect.
      *
      * @return \Closure(): list<WebhookActivatedEvent>
      */
@@ -313,13 +479,53 @@ class WebhookHealthTickTest extends TestCase
         };
     }
 
-    private function createWebhook(string $webhookKey, bool $active = true, int $errorCount = 0): void
+    /**
+     * Collects WebhookDisabledEvent dispatches; the returned closure detaches the listener and
+     * returns what was captured. Same dispatcher the service uses, so this sees the real side effect.
+     *
+     * @return \Closure(): list<WebhookDisabledEvent>
+     */
+    private function captureDisabledEvents(): \Closure
+    {
+        /** @var \ArrayObject<int, WebhookDisabledEvent> $captured */
+        $captured = new \ArrayObject();
+        $listener = static function (WebhookDisabledEvent $event) use ($captured): void {
+            $captured->append($event);
+        };
+        $this->eventDispatcher->addListener(WebhookDisabledEvent::class, $listener);
+
+        return function () use ($captured, $listener): array {
+            $this->eventDispatcher->removeListener(WebhookDisabledEvent::class, $listener);
+
+            return array_values($captured->getArrayCopy());
+        };
+    }
+
+    private function createApp(string $name, bool $active): string
+    {
+        $appId = Uuid::randomHex();
+        static::getContainer()->get('app.repository')->create([[
+            'id' => $appId,
+            'name' => $name,
+            'path' => 'custom/apps/' . $name,
+            'active' => $active,
+            'version' => '1.0.0',
+            'label' => $name,
+            'integration' => ['label' => $name, 'accessKey' => Uuid::randomHex(), 'secretAccessKey' => Uuid::randomHex()],
+            'aclRole' => ['name' => $name],
+        ]], Context::createDefaultContext());
+
+        return $appId;
+    }
+
+    private function createWebhook(string $webhookKey, bool $active = true, int $errorCount = 0, ?string $appId = null): void
     {
         $this->connection->insert('webhook', [
             'id' => $this->ids->getBytes($webhookKey),
             'name' => $webhookKey,
             'event_name' => 'product.written',
             'url' => 'https://example.com/webhook',
+            'app_id' => $appId !== null ? Uuid::fromHexToBytes($appId) : null,
             'active' => (int) $active,
             'error_count' => $errorCount,
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -348,9 +554,8 @@ class WebhookHealthTickTest extends TestCase
     }
 
     /**
-     * Seeds a webhook_event_log row and its mirrored webhook_delivery row (the UNIQUE 1:1 pair the
-     * outbox store works on). Inserting in call order yields ascending webhook_delivery.id
-     * (auto-increment), so callers can reason about "oldest = lowest id".
+     * Seeds a webhook_event_log row and its mirrored webhook_delivery row. Rows get ascending
+     * auto-increment ids in call order, so "oldest = lowest id".
      */
     private function createDelivery(string $eventKey, string $webhookKey, string $deliveryStatus): void
     {
@@ -377,8 +582,7 @@ class WebhookHealthTickTest extends TestCase
     }
 
     /**
-     * Deterministic clock control: backdates the delivery row's created_at (the grace-age input)
-     * instead of sleeping.
+     * Backdates the delivery row's created_at (the grace-age input) instead of sleeping.
      */
     private function ageDeliveryRow(string $eventKey, string $modifier): void
     {
@@ -493,8 +697,19 @@ class WebhookHealthTickTest extends TestCase
         );
     }
 
+    private function fetchDisabledOrigin(string $webhookKey): ?string
+    {
+        $value = $this->connection->fetchOne(
+            'SELECT disabled_origin FROM webhook_health WHERE webhook_id = :id',
+            ['id' => $this->ids->getBytes($webhookKey)]
+        );
+
+        return \is_string($value) ? $value : null;
+    }
+
     /**
-     * For the nullable timestamp columns (cooldown_until, suspended_since).
+     * For the nullable timestamp columns (cooldown_until, suspended_since, disabled_since,
+     * updated_at).
      */
     private function fetchHealthTimestamp(string $webhookKey, string $column): ?string
     {

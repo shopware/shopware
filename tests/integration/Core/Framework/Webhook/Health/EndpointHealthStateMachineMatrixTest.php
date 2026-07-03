@@ -19,18 +19,15 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
- * The flag-on circuit-breaker state machine: every classifier input from every state, asserted on the
- * `webhook_health` row AND the legacy `webhook.active`/`error_count` BC mirror (ADR §"Error classification",
- * §"Half-open recovery", §"SUSPENDED"). The matrix locks the contract: the transient threshold (5, first
- * attempts only) trips HEALTHY → DEGRADED; the auth streak (3 deliveries, reset by any 2xx, untouched by
- * transient failures) and a 410 trip → SUSPENDED; a 2xx climbs exactly one state; only a trial result with
- * an elapsed cooldown advances the shared ladder (a straggler during the cooldown is absorbed); both
- * non-HEALTHY trips hold the backlog as `paused` — nothing is dropped. The BC mirror derives `active` from
- * the state and `error_count` from the dominant streak (GREATEST), so an auth-suspended endpoint with zero
- * transient failures still reports a non-zero count. Guarded-transition ordering (threshold crosses once,
- * suspension wins over a racing transient, success wins) is exercised as ordered sequences — true parallel
- * threads aren't reproducible in one process, but the guards make the outcome interleaving-independent,
- * which the sequences pin.
+ * Locks down the flag-on circuit-breaker state machine: every classifier input from every state,
+ * asserted on the `webhook_health` row AND the legacy `webhook.active`/`error_count` mirror
+ * (ADR §"Error classification", §"Half-open recovery", §"SUSPENDED"). The core rules: 5 transient
+ * failures (first attempts only) degrade an endpoint; 3 auth failures in a row or a single 410
+ * suspend it; a 2xx climbs exactly one state back up; only a result landing after the cooldown
+ * elapsed moves the cooldown ladder; and a trip pauses the backlog — nothing is dropped. This
+ * matters because the dispatch gate and the legacy mirror both read these rows: a wrong transition
+ * silently kills or resurrects deliveries. Racy transitions are pinned as ordered call sequences —
+ * the guards make the outcome the same regardless of interleaving.
  *
  * @internal
  */
@@ -41,7 +38,7 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
     private const URL = 'https://endpoint.example.com/hook';
 
     /**
-     * Mirrors the shopware.webhook.health.* container parameters the service under test is wired with.
+     * Mirror the shopware.webhook.health.* container parameters the service is wired with.
      */
     private const DEGRADED_THRESHOLD = 5;
     private const NON_TRANSIENT_THRESHOLD = 3;
@@ -157,7 +154,7 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
         static::assertSame(EndpointState::Degraded, $result);
         $this->assertHealthTimestampAbout('wh', 'cooldown_until', self::COOLDOWN_TIER_0);
-        // The claimable backlog is held for the ladder, on both mirrored tables.
+        // The trip pauses the claimable backlog on both mirrored tables.
         $this->assertDeliveryStatus('evt-queued', WebhookEventLogDefinition::STATUS_PAUSED);
         $this->assertEventLogStatus('evt-queued', WebhookEventLogDefinition::STATUS_PAUSED);
         $this->assertDeliveryStatus('evt-pending', WebhookEventLogDefinition::STATUS_PAUSED);
@@ -166,8 +163,8 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
     public function testAuthStreakSuspendsOnlyAtThreeConsecutiveFailuresWithoutASuccessInBetween(): void
     {
-        // The spec sequence 401, 401, 2xx, 401, 401, 401: the 2xx resets the streak, so suspension
-        // happens at the third post-reset failure — not at the third 401 overall.
+        // Sequence 401, 401, 2xx, 401, 401, 401: the 2xx resets the streak, so suspension happens
+        // at the third failure after the reset — not at the third 401 overall.
         $this->seedWebhook('wh', active: true, errorCount: 0);
 
         $this->recordAuthFailures('wh', 2);
@@ -225,7 +222,7 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
         $this->service->recordSuccess($this->ids->get('wh'));
 
-        // One 2xx climbs exactly one state: DEGRADED at ladder tier 0 — HEALTHY is earned through the ladder.
+        // One 2xx climbs exactly one state: SUSPENDED becomes DEGRADED at tier 0, not HEALTHY.
         $this->assertState('wh', EndpointState::Degraded);
         static::assertSame(0, $this->fetchCycle('wh'));
         static::assertSame(0, $this->fetchCtf('wh'));
@@ -274,8 +271,8 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
     public function testRecordSuccessReconcilesAStaleLegacyErrorCountWithoutAHealthRow(): void
     {
-        // A webhook that accrued a legacy error_count before the flag, with no health row yet (fail-open
-        // HEALTHY): a 2xx must reconcile the BC column to 0, matching trunk's per-success reset.
+        // Legacy error_count from before the flag, no health row yet (reads as HEALTHY): a 2xx
+        // must reset the legacy column to 0, like trunk does on every success.
         $this->seedWebhook('wh', active: true, errorCount: 7);
 
         $this->service->recordSuccess($this->ids->get('wh'));
@@ -369,7 +366,7 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         static::assertSame(5, $this->fetchCtf('wh'), 'crossing increments the counter to the threshold exactly once');
         static::assertSame(0, $this->fetchCycle('wh'), 'crossing into DEGRADED does not also advance the cycle');
 
-        // A further transient lands while the fresh tier-0 cooldown still runs → a straggler, absorbed.
+        // The next failure lands while the fresh cooldown still runs, so it is absorbed.
         $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1);
         static::assertSame(5, $this->fetchCtf('wh'), 'consecutive_transient_failures does not keep climbing in DEGRADED');
         static::assertSame(0, $this->fetchCycle('wh'), 'a result inside the cooldown window cannot double-advance the ladder');
@@ -389,8 +386,8 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientAuth, 1);
         static::assertSame(EndpointState::Suspended, $result);
 
-        // The racing 503's result lands after the suspension committed: the transient arm matches no
-        // HEALTHY row and the fresh tier-0 cooldown absorbs it as a straggler — SUSPENDED wins.
+        // The racing 503 result lands after the suspension committed; the fresh cooldown absorbs
+        // it — SUSPENDED wins.
         $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1);
 
         static::assertSame(EndpointState::Suspended, $result);
@@ -421,6 +418,27 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         static::assertFalse(
             (bool) $this->connection->fetchOne('SELECT 1 FROM webhook_health WHERE webhook_id = :id', ['id' => $this->ids->getBytes('wh')]),
             'gateFor is a read — only a state-changing failure upserts the health row'
+        );
+    }
+
+    public function testSuspendedGateAdmitsExactlyOneNaturalTrialOnceTheCooldownElapsesWithNothingHeld(): void
+    {
+        // Half-open admission: with the cooldown elapsed, nothing held and nothing in flight, the
+        // gate lets the next natural event through as the trial. Admitting it re-arms the cooldown,
+        // so the rest of a burst is skipped — exactly one trial.
+        $this->seedWebhook('wh', active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, cycle: 1, cooldownUntil: self::past(), suspendedSince: self::past());
+
+        static::assertSame(
+            WebhookDispatchDecision::Deliver,
+            $this->service->gateFor($this->ids->get('wh')),
+            'an elapsed cooldown with nothing held and nothing in flight must admit the natural event as the trial'
+        );
+        static::assertSame(2, $this->fetchCycle('wh'), 'admission advances the ladder one tier so its own result lands as a straggler');
+        static::assertSame(
+            WebhookDispatchDecision::Skip,
+            $this->service->gateFor($this->ids->get('wh')),
+            'exactly one Deliver — the admission re-armed the cooldown, so the rest of the burst sheds'
         );
     }
 
@@ -464,8 +482,8 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
     public function testAuthSuspensionOfOneWebhookLeavesItsEventUrlSiblingUntouched(): void
     {
-        // The closed blast radius (ADR §"per-webhook isolation"): siblings sharing event_name + url are
-        // independent under the rework — suspending one must not touch the other.
+        // Per-webhook isolation (ADR §"per-webhook isolation"): suspending one webhook must not
+        // touch a sibling that shares the same event_name + url.
         $this->seedWebhook('broken', active: true, errorCount: 0);
         $this->seedWebhook('sibling', active: true, errorCount: 0);
 
@@ -474,7 +492,7 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         $this->assertState('broken', EndpointState::Suspended);
         static::assertFalse($this->fetchActive('broken'));
 
-        // The sibling never entered the model (no row = fail-open HEALTHY) and its BC mirror is untouched.
+        // The sibling never got a health row (no row reads as HEALTHY) and its mirror is untouched.
         static::assertFalse(
             (bool) $this->connection->fetchOne('SELECT 1 FROM webhook_health WHERE webhook_id = :id', ['id' => $this->ids->getBytes('sibling')]),
             'a sibling that never failed must not get a health row from its neighbour failing'
@@ -492,7 +510,7 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
     /**
      * The BC mirror formula (ADR BC table): HEALTHY mirrors 0; every other state mirrors the
-     * dominant streak — GREATEST(transient, non-transient).
+     * larger of the two streaks.
      */
     private function mirrorErrorCount(EndpointState $state, int $ctf, int $cnf): int
     {
@@ -546,8 +564,8 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
     }
 
     /**
-     * Seeds a webhook_event_log row and its mirrored webhook_delivery row (the UNIQUE 1:1 pair the
-     * outbox store works on), so transitions can prove the pause/resume flips on both tables.
+     * Seeds a webhook_event_log row and its mirrored webhook_delivery row, so tests can check the
+     * pause/resume flips on both tables.
      */
     private function createDelivery(string $eventKey, string $webhookKey, string $deliveryStatus): void
     {

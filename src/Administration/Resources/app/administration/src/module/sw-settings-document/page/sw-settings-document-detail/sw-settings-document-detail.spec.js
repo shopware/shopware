@@ -372,9 +372,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         }, [], true);
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__settings_card-company-options').exists()).toBe(true);
-        expect(wrapper.find('.sw-settings-document-detail__settings_card-display-company').exists()).toBe(true);
-        expect(wrapper.find('.sw-settings-document-detail__settings_card-display-return').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
     });
 
@@ -384,7 +383,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__settings_card-company-options').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(false);
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_company').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
     });

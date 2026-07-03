@@ -65,6 +65,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Core\\Framework\\DataAbstractionLayer\\',
         'Shopware\\Tests\\Unit\\Elasticsearch\\',
         'Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\App\\',
     ];
 
     public function getNodeType(): string

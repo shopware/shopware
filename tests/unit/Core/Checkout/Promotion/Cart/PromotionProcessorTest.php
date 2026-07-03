@@ -31,7 +31,7 @@ class PromotionProcessorTest extends TestCase
     public function testProcess(): void
     {
         $promotionCalculatorMock = $this->createMock(PromotionCalculator::class);
-        $groupBuilderMock = $this->createMock(LineItemGroupBuilder::class);
+        $groupBuilderMock = static::createStub(LineItemGroupBuilder::class);
 
         $promotionProcessor = new PromotionProcessor($promotionCalculatorMock, $groupBuilderMock);
 
@@ -41,7 +41,7 @@ class PromotionProcessorTest extends TestCase
         $toCalculateCart = new Cart('test');
         $toCalculateCart->setPrice(new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $data = new CartDataCollection();
@@ -69,7 +69,7 @@ class PromotionProcessorTest extends TestCase
     public function testProcessWithCartZeroPriceAndPromotionIsGlobal(): void
     {
         $promotionCalculatorMock = $this->createMock(PromotionCalculator::class);
-        $groupBuilderMock = $this->createMock(LineItemGroupBuilder::class);
+        $groupBuilderMock = static::createStub(LineItemGroupBuilder::class);
 
         $promotionProcessor = new PromotionProcessor($promotionCalculatorMock, $groupBuilderMock);
 
@@ -79,7 +79,7 @@ class PromotionProcessorTest extends TestCase
         $toCalculateCart = new Cart('test');
         $toCalculateCart->setPrice(new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $data = new CartDataCollection();
@@ -99,7 +99,7 @@ class PromotionProcessorTest extends TestCase
     public function testProcessWithCartZeroPriceAndPromotionIsNotGlobal(): void
     {
         $promotionCalculatorMock = $this->createMock(PromotionCalculator::class);
-        $groupBuilderMock = $this->createMock(LineItemGroupBuilder::class);
+        $groupBuilderMock = static::createStub(LineItemGroupBuilder::class);
 
         $promotionProcessor = new PromotionProcessor($promotionCalculatorMock, $groupBuilderMock);
 
@@ -109,7 +109,7 @@ class PromotionProcessorTest extends TestCase
         $toCalculateCart = new Cart('test');
         $toCalculateCart->setPrice(new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $data = new CartDataCollection();

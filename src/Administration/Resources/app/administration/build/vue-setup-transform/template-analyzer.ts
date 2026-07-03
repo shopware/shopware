@@ -116,8 +116,4 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     };
 }
 
-module.exports = {
-    analyzeBaseTemplate,
-};
-
 export { type TemplateAnalysis, analyzeBaseTemplate };

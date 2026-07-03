@@ -122,6 +122,7 @@
   "devDependencies": {
     "@babel/core": "7.29.7",
     "@babel/eslint-parser": "7.26.5",
+    "@babel/parser": "7.29.7",
     "@babel/plugin-proposal-decorators": "7.25.9",
     "@babel/plugin-proposal-export-namespace-from": "7.18.9",
     "@babel/plugin-proposal-function-sent": "7.25.9",
@@ -134,6 +135,7 @@
     "@babel/preset-env": "7.29.5",
     "@babel/preset-typescript": "7.28.5",
     "@babel/register": "7.25.9",
+    "@babel/types": "7.29.7",
     "@eslint/compat": "2.0.2",
     "@eslint/js": "9.39.3",
     "@lhci/cli": "0.15.1",

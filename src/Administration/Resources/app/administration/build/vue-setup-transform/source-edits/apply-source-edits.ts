@@ -62,8 +62,4 @@ function applySourceEdits(source: string, _filename: string, edits: SourceEdit[]
     };
 }
 
-module.exports = {
-    applySourceEdits,
-};
-
 export { type AppliedSourceEdits, type SourceEdit, applySourceEdits };

@@ -27,7 +27,7 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
 
     if (parsed.descriptor.script) {
         throw new ShopwareSetupTransformError(
-            'A Shopware setup block cannot be combined with another <script> block',
+            'A Shopware setup block cannot be combined with another <script> block.',
             parsed.descriptor.script.loc.start.offset,
         );
     }
@@ -43,9 +43,5 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
         filename,
     };
 }
-
-module.exports = {
-    parseShopwareSetupSfc,
-};
 
 export { parseShopwareSetupSfc };

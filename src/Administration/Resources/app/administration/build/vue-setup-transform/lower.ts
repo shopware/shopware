@@ -28,8 +28,4 @@ function lowerShopwareSetupBlock(
     };
 }
 
-module.exports = {
-    lowerShopwareSetupBlock,
-};
-
 export { type LoweredShopwareSetupBlock, lowerShopwareSetupBlock };

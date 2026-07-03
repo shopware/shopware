@@ -89,11 +89,6 @@ function normalizeShopwareSetupBlock(
     };
 }
 
-module.exports = {
-    inferShopwareSetupFromFilename,
-    normalizeShopwareSetupBlock,
-};
-
 export {
     type ShopwareSetupBlock,
     type ShopwareSetupMode,

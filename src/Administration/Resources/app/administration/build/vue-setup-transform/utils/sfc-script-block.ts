@@ -133,8 +133,4 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
     };
 }
 
-module.exports = {
-    toScriptBlock,
-};
-
 export { type ScriptBlock, toScriptBlock };

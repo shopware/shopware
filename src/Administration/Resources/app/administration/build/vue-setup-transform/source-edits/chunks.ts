@@ -60,11 +60,4 @@ function indent(chunks: SourceChunk[], spaces = 4): IndentChunk {
     };
 }
 
-module.exports = {
-    fromSource,
-    generated,
-    indent,
-    trim,
-};
-
 export { fromSource, generated, indent, trim };

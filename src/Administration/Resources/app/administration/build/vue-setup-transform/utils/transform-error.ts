@@ -15,8 +15,4 @@ class ShopwareSetupTransformError extends Error {
     }
 }
 
-module.exports = {
-    ShopwareSetupTransformError,
-};
-
 export { ShopwareSetupTransformError };

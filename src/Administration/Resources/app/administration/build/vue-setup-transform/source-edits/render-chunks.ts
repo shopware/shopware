@@ -147,9 +147,4 @@ function render(chunks: SourceChunk[], source: string, sourceOffset = 0): string
         .join('');
 }
 
-module.exports = {
-    render,
-    toFlatChunks,
-};
-
 export { render, toFlatChunks };

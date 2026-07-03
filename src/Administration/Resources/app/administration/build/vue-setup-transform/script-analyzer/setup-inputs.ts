@@ -342,10 +342,6 @@ function analyzeSetupInputs(
     };
 }
 
-module.exports = {
-    analyzeSetupInputs,
-};
-
 export {
     type AnalyzeSetupInputsResult,
     type DefineExposeStatement,

@@ -14,6 +14,7 @@ type ShopwareSetupTransformResult = {
     code: string;
     map: AppliedSourceEdits['map'];
     mode: 'base' | 'override';
+    componentName: string;
     filename: string;
 };
 
@@ -81,6 +82,10 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         code: transformed.code,
         map: transformed.map,
         mode: block.mode,
+        // Exposed so the build integration can maintain a per-compilation registry and reject two
+        // SFCs that resolve to the same extendable component name. Cross-file enforcement lives with
+        // the loader/compilation layer; this transform stays a pure per-file step.
+        componentName: block.componentName,
         filename,
     };
 }
@@ -91,12 +96,6 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): void {
     transformShopwareSetupSfc(source, filename);
 }
-
-module.exports = {
-    ShopwareSetupTransformError,
-    transformShopwareSetupSfc,
-    validateShopwareSetupSfc,
-};
 
 export {
     type ShopwareSetupTransformResult,

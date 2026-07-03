@@ -106,7 +106,29 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result).toContain('const count = props.initialCount ?? defaultCount;');
     });
 
-    it('replaces defineProps() destructuring inside the extendable setup callback', () => {
+    it('rejects destructured defineProps() because reactive props destructure is not lowered', () => {
+        // Since Vue 3.5 it allows to define default prop values through destructuring defineProps(...).
+        // To keep the reactivity intact the Vue compiler will then rewrite all references to make them reactive again.
+        // We would need to also build a rewrite pass. To not increase complexity, we explicitly don't want to support that.
+        const source = stripIndent`
+            <script setup lang="ts">
+            const { initialCount = 0 } = defineProps<{
+                initialCount?: number;
+            }>();
+            const count = initialCount;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-destructured-props.vue')).toThrow(
+            'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through destructuring',
+        );
+    });
+
+    it('rejects bare destructured defineProps() as well', () => {
         const source = stripIndent`
             <script setup>
             const { initialCount = 0 } = defineProps();
@@ -118,30 +140,9 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-destructured-props.vue').code;
-
-        expect(result).toContain('const props = defineProps();');
-        expect(result).toContain('const { initialCount = 0 } = (__shopwareProps);');
-        expect(result).toContain('private: {\n                initialCount,\n            }');
-    });
-
-    it('returns destructured defineProps() bindings for template access', () => {
-        const source = stripIndent`
-            <template><p>{{ initialCount }}</p></template>
-            <script setup>
-            const { initialCount = 0 } = defineProps();
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-destructured-props-template.vue').code;
-
-        expect(result).toContain('const { initialCount = 0 } = (__shopwareProps);');
-        expect(result).toContain('private: {\n                initialCount,\n            }');
+        expect(() => transformShopwareSetupSfc(source, 'base-destructured-bare-props.vue')).toThrow(
+            'Destructuring defineProps() is not supported in Shopware setup blocks: defaults declared through destructuring',
+        );
     });
 
     it('keeps bare defineProps() outside the callback when the generated props binding name is taken', () => {
@@ -230,7 +231,7 @@ describe('build/vue-setup-transform base props macros', () => {
         );
     });
 
-    it('replaces withDefaults() destructuring inside the extendable setup callback', () => {
+    it('rejects destructured withDefaults() with the generic props-object message', () => {
         const source = stripIndent`
             <script setup lang="ts">
             const { initialCount } = withDefaults(defineProps<{
@@ -246,40 +247,9 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-destructured-props-with-defaults.vue').code;
-
-        expect(result).toContain(`const props = withDefaults(defineProps<{
-    initialCount?: number;
-}>(), {
-    initialCount: 3,
-});`);
-        expect(result).toContain('const { initialCount } = (__shopwareProps);');
-        expect(result).toContain('private: {\n                initialCount,\n            }');
-        expect(result.match(/defineProps/g)).toHaveLength(1);
-        expect(result.match(/withDefaults/g)).toHaveLength(1);
-    });
-
-    it('returns destructured withDefaults() bindings for template access', () => {
-        const source = stripIndent`
-            <template><p>{{ initialCount }}</p></template>
-            <script setup lang="ts">
-            const { initialCount } = withDefaults(defineProps<{
-                initialCount?: number;
-            }>(), {
-                initialCount: 3,
-            });
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-destructured-with-defaults-template.vue').code;
-
-        expect(result).toContain('const { initialCount } = (__shopwareProps);');
-        expect(result).toContain('private: {\n                initialCount,\n            }');
+        expect(() => transformShopwareSetupSfc(source, 'base-destructured-props-with-defaults.vue')).toThrow(
+            'Destructuring the props object is not supported in Shopware setup blocks.',
+        );
     });
 
     it('supports defineProps() wrapped in a TypeScript as expression', () => {

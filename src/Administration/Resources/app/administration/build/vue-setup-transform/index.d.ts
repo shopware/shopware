@@ -12,6 +12,7 @@ export type ShopwareSetupTransformResult = {
     code: string;
     map: null;
     mode: ShopwareSetupTransformMode;
+    componentName: string;
     filename: string;
 };
 

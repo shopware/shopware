@@ -127,8 +127,4 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
     return chunks;
 }
 
-module.exports = {
-    buildBaseScript,
-};
-
 export { buildBaseScript };

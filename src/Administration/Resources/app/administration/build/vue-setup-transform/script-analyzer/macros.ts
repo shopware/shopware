@@ -208,19 +208,6 @@ function isWithDefaultsCall(node: BabelNode): node is CallExpression {
     return isCompilerMacroCall(node, 'withDefaults');
 }
 
-module.exports = {
-    RESERVED_OVERRIDE_STATE_NAME,
-    UNSUPPORTED_VUE_MACROS,
-    WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
-    WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
-    collectTopLevelSetupMacroCalls,
-    extractStaticObjectMarker,
-    getStatementCompilerMacroCall,
-    isCompilerMacroCall,
-    isStatementCompilerMacro,
-    isWithDefaultsCall,
-};
-
 export {
     type SetupMacroBuckets,
     type ShopwareSetupEntryType,

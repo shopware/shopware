@@ -51,6 +51,12 @@ async function loadShopwareSetupTransform(
  * ESLint, and editor tooling.
  */
 export default function ShopwareSetupPlugin(options: Options): Plugin {
+    // Component name -> file that first declared it as a base component. The name is derived from the
+    // filename and is the public override target, so two base components must not resolve to the same
+    // name. Overrides intentionally reuse the base name, so only base components are tracked. This is
+    // the per-compilation cross-file uniqueness check the transform's componentName seam enables.
+    const baseComponentFiles = new Map<string, string>();
+
     async function transformCode(
         code: string,
         fileName: string,
@@ -58,6 +64,24 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform(options.administrationRoot);
 
         return transformShopwareSetupSfc(code, fileName);
+    }
+
+    function assertUniqueBaseComponent(result: ShopwareSetupTransformResult, fileName: string): void {
+        if (result.mode !== 'base') {
+            return;
+        }
+
+        const existing = baseComponentFiles.get(result.componentName);
+
+        if (existing && existing !== fileName) {
+            throw new Error(
+                `Duplicate native setup base component name "${result.componentName}": "${existing}" and ` +
+                    `"${fileName}" resolve to the same extendable component. Component names are derived from ` +
+                    'filenames and must be unique.',
+            );
+        }
+
+        baseComponentFiles.set(result.componentName, fileName);
     }
 
     return {
@@ -76,6 +100,8 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
             if (!result) {
                 return null;
             }
+
+            assertUniqueBaseComponent(result, fileName);
 
             return {
                 code: result.code,

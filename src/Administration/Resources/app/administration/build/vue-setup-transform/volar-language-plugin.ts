@@ -222,10 +222,4 @@ function shopwareSetupVolarPlugin(): ShopwareSetupVolarPlugin {
     };
 }
 
-module.exports = shopwareSetupVolarPlugin;
-
-module.exports._private = {
-    collectShopwareSetupVolarDiagnostics,
-};
-
 export default shopwareSetupVolarPlugin;

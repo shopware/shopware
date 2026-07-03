@@ -96,7 +96,7 @@ class MailTemplateSendServiceTest extends TestCase
                 $context,
                 ['order' => $order]
             )
-            ->willReturn($this->createMock(Email::class));
+            ->willReturn(static::createStub(Email::class));
 
         $mailTemplateSendService = $this->createService();
 

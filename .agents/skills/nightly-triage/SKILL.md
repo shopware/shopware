@@ -49,7 +49,7 @@ a new set. Only file fresh issues for a first-of-its-kind run.
 job IDs and names. The job/shard names are the "job area" axis.
 
 **Step 2 — Extract failing tests per shard.** Download each failing job's
-`--log-failed`, extract `N) Shopware\Tests\...::method` entries, dedup.
+`--log-failed`, extract `N) Shopware\Tests\...::method` entries, dedupe.
 Exact commands and regexes: `references/PIPELINE.md`.
 
 **Step 3 — Resolve each test to a domain.** `#[Package]` marker on the test

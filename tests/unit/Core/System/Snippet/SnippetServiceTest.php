@@ -543,6 +543,7 @@ class SnippetServiceTest extends TestCase
             snippetSetRepository: $snippetSetRepository,
             client: static::createStub(ClientInterface::class),
             config: $config,
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

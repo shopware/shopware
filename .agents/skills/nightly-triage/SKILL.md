@@ -40,7 +40,7 @@ sweep (412 failing tests → 6 domain issues + 1 parent, ~9 root causes).
 
 ## Workflow
 
-**Step 0 — Dedup against previous nightlies.** `gh issue list --search
+**Step 0 — Dedupe against previous nightlies.** `gh issue list --search
 "[nightly]" --state open`. If tracking issues from a previous run exist,
 UPDATE those (comment with the new run, adjust test lists) instead of filing
 a new set. Only file fresh issues for a first-of-its-kind run.

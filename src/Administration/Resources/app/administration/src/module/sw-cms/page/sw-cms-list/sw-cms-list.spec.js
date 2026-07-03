@@ -1227,6 +1227,18 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(resetListSpy).toHaveBeenCalled();
     });
 
+    it('should call resetList when loadGridUserSettings fails', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockRejectedValue(new Error('Unable to load user settings'));
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetListSpy).toHaveBeenCalledTimes(1);
+    });
+
     it.each([
         [
             9,

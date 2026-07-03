@@ -179,7 +179,7 @@ export default {
             Shopware.Store.get('adminMenu').collapseSidebar();
 
             if (this.acl.can('user_config:read')) {
-                await this.loadGridUserSettings();
+                await this.loadGridUserSettings().catch(() => {});
             }
 
             if (this.acl.can('system_config:read')) {

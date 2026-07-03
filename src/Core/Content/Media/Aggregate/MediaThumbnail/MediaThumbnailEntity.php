@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -59,9 +61,7 @@ class MediaThumbnailEntity extends Entity
         $this->height = $height;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getUrl(): string
     {
         if ($this->url === null) {
@@ -103,9 +103,7 @@ class MediaThumbnailEntity extends Entity
         $this->media = $media;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be only string and condition will be removed
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getMediaThumbnailSizeId(): ?string
     {
         if (!isset($this->mediaThumbnailSizeId)) {

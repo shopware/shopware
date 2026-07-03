@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -338,9 +339,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -355,9 +354,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -382,9 +379,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function productNotFound(string $productId): self|ProductNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -399,9 +394,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingOption(string $option, string $constraint): self|MissingOptionsException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -416,9 +409,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unexpectedType(Constraint $constraint, string $class): self|UnexpectedTypeException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -433,9 +424,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidOption(string $option, string $type, string $constraint): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {

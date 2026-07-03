@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -36,10 +37,9 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be changed from `EntityCollection` to `CmsPageCollection`
-     *
      * @return CmsPageCollection
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'CmsPageCollection')]
     public function getResult(): EntityCollection /* CmsPageCollection */
     {
         return $this->result;

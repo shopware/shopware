@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -80,9 +81,7 @@ class MediaFolderEntity extends Entity
         $this->childCount = $childCount;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?MediaCollection')]
     public function getMedia(): MediaCollection
     {
         if ($this->media === null) {

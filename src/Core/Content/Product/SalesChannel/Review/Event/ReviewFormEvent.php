@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -97,9 +98,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
         return $this->productId;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return a non-nullable ProductEntity in v6.8.0.0
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'ProductEntity')]
     public function getProduct(): ?ProductEntity
     {
         return $this->product;

@@ -38,8 +38,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-interface',
         // Throwing deprecations in PHPStan rules would cause problems while executed
         'reason:remove-phpstan-rule',
-        // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:return-type-change',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
         // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently

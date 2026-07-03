@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
@@ -88,9 +89,7 @@ class TaxRuleEntity extends Entity
         $this->taxRuleTypeId = $taxRuleTypeId;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?TaxRuleTypeEntity')]
     public function getType(): TaxRuleTypeEntity
     {
         if ($this->type === null) {

@@ -45,7 +45,6 @@ class NoBCPlanningDeprecationRule implements Rule
      * is removed, this rule prevents it from being reintroduced.
      */
     private const MIGRATION_PENDING = [
-        'reason:return-type-change',
     ];
 
     /**

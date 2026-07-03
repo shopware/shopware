@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
@@ -34,10 +35,9 @@ class EntityWrittenContainerEvent extends NestedEvent
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return NestedEventCollection
-     *
      * @return NestedEventCollection<EntityWrittenEvent<IDStructure>>|null
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'NestedEventCollection')]
     public function getEvents(): ?NestedEventCollection
     {
         return $this->events;

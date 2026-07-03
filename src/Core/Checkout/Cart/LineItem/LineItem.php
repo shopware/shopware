@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -222,9 +223,8 @@ class LineItem extends Struct
 
     /**
      * @return mixed|null
-     *
-     * @deprecated tag:v6.8.0 - reason:return-type-change - will use "strong" return type `mixed`
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'mixed')]
     public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {

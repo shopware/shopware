@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendEx
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -932,10 +933,9 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function configNotFound(): self|ElasticsearchProductException
     {
         /** @phpstan-ignore phpat.restrictNamespacesInCore */
@@ -951,9 +951,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unmappedField(string $field, EntityDefinition $definition): self|UnmappedFieldException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -971,9 +969,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unexpectedFieldType(string $field, string $expectedField): self|\RuntimeException
     {
         return new self(
@@ -998,9 +994,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingVersionField(string $definitionClass): self|\RuntimeException
     {
         return new self(
@@ -1029,9 +1023,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function noTranslationDefinition(string $entityName): self|\RuntimeException
     {
         return new self(
@@ -1042,9 +1034,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingTranslatedStorageAwareProperty(string $propertyName, string $translationEntityName): self|\RuntimeException
     {
         return new self(
@@ -1055,9 +1045,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function primaryKeyNotStorageAware(): self|\RuntimeException
     {
         return new self(
@@ -1067,9 +1055,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function onlyStorageAwareFieldsInReadCondition(): self|\RuntimeException
     {
         return new self(
@@ -1079,9 +1065,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function onlyStorageAwareFieldsAsTranslated(): self|\RuntimeException
     {
         return new self(
@@ -1105,9 +1089,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function cannotBuildAccessor(string $propertyName, string $root): self|\RuntimeException
     {
         return new self(
@@ -1177,9 +1159,7 @@ class DataAbstractionLayerException extends HttpException
         return new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation($restrictions)]);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidSyncOperationException(string $message): self|InvalidSyncOperationException
     {
         if (!Feature::isActive('v6.8.0.0')) {

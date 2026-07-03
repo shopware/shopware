@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -131,10 +132,9 @@ class ThemeConfigField extends Struct
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Parameter will be natively typed
-     *
      * @return list<string>|string
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'list<string>|string')]
     public function getValue()
     {
         return $this->value;

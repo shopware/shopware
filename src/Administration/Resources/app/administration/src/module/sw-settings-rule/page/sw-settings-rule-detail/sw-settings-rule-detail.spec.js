@@ -1174,4 +1174,101 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
     });
+
+    it('does not flag date range conditions with empty bounds as invalid', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const errorStore = Shopware.Store.get('error');
+        errorStore.resetApiErrors();
+
+        const addApiErrorSpy = jest.spyOn(errorStore, 'addApiError');
+        ruleRepositoryMock.save.mockClear();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            conditionTree: [
+                {
+                    id: 'date-range-condition-empty',
+                    type: 'dateRange',
+                    value: { fromDate: null, toDate: null },
+                    children: [],
+                },
+                {
+                    id: 'date-range-condition-partial',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: null },
+                    children: [],
+                },
+            ],
+        });
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+
+        const dateRangeErrorCalls = addApiErrorSpy.mock.calls.filter(([call]) => call.error?.code === 'INVALID_DATE_RANGE');
+
+        expect(dateRangeErrorCalls).toHaveLength(0);
+
+        addApiErrorSpy.mockRestore();
+    });
+
+    it('attaches an API error to value.toDate of every reversed date range condition', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const errorStore = Shopware.Store.get('error');
+        errorStore.resetApiErrors();
+
+        const addApiErrorSpy = jest.spyOn(errorStore, 'addApiError');
+        ruleRepositoryMock.save.mockClear();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            conditionTree: [
+                {
+                    id: 'first-reversed',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
+                    children: [],
+                },
+                {
+                    id: 'second-reversed',
+                    type: 'dateRange',
+                    value: { fromDate: '2024-06-01', toDate: '2024-05-01' },
+                    children: [],
+                },
+                {
+                    id: 'valid',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
+                    children: [],
+                },
+            ],
+            conditions: [
+                { id: 'first-reversed' },
+                { id: 'second-reversed' },
+                { id: 'valid' },
+            ],
+        });
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(0);
+
+        const dateRangeCalls = addApiErrorSpy.mock.calls.filter(([call]) => call.error?.code === 'INVALID_DATE_RANGE');
+
+        expect(dateRangeCalls).toHaveLength(2);
+        expect(dateRangeCalls.map(([call]) => call.expression)).toEqual([
+            'rule_condition.first-reversed.value.toDate',
+            'rule_condition.second-reversed.value.toDate',
+        ]);
+
+        addApiErrorSpy.mockRestore();
+    });
 });

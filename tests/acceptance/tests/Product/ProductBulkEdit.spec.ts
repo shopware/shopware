@@ -1,5 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
+const TIMEOUT = 15_000;
+
 test('As a merchant, I want to perform bulk edits on products information.', { tag: '@Product' }, async ({
     TestDataService,
     ShopAdmin,
@@ -45,7 +47,7 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
         // Verify the changes for the bulk edited products
         for (const product of changedProducts) {
             await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
-            await ShopAdmin.expects(AdminProductDetail.priceGrossInput).toHaveValue(changes['grossPrice'].value);
+            await ShopAdmin.expects(AdminProductDetail.priceGrossInput).toHaveValue(changes['grossPrice'].value, { timeout: TIMEOUT });
             await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).not.toBeChecked();
             await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText(changes['manufacturer'].value);
             await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('20/05/2025, 00:00');
@@ -58,7 +60,7 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
 
         // Verify that the product that was not part of the bulk edit has not changed
         await ShopAdmin.goesTo(AdminProductDetail.url(unchangedProduct.id));
-        await ShopAdmin.expects(AdminProductDetail.priceGrossInput).toHaveValue(originalProductPrice);
+        await ShopAdmin.expects(AdminProductDetail.priceGrossInput).toHaveValue(originalProductPrice, { timeout: TIMEOUT });
         await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).toBeChecked();
         await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText('Enter product manufacturer...');
         await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('');

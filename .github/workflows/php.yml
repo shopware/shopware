@@ -15,10 +15,10 @@ jobs:
     name: "PHP lint"
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: 8.2
           extensions: ""
@@ -29,7 +29,7 @@ jobs:
           cat composer.json
           composer validate --no-check-publish --no-check-lock
 
-      - uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # 3.1.1
+      - uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v4.0.0
         with:
           custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
           working-directory: ""
@@ -41,7 +41,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache CS Fixer
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ./var/cache/cs_fixer
           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
@@ -71,7 +71,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: var/cache/phpstan
           key: "phpstan-result-cache-${{ github.run_id }}"
@@ -82,7 +82,7 @@ jobs:
         run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         if: always()
         with:
           path: var/cache/phpstan
@@ -93,13 +93,13 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: "0"
           fetch-tags: "1"
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: "8.2"
 
@@ -137,7 +137,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache npm packages
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ${{ github.workspace }}/var/cache/npm
           key: change-me-on-shopware-api-gen-update
@@ -159,7 +159,7 @@ jobs:
           api-gen loadSchema --apiType=store
 
       - name: Upload OpenApi StoreAPI schema
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: storeApiSchema.json
           path: ./api-types/storeApiSchema.json
@@ -167,7 +167,7 @@ jobs:
 
       - name: Run OpenAPI Snapshot Action
         if: github.repository == 'shopware/shopware'
-        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
+        uses: patzick/explore-openapi-snapshot@4cfd85875214ee1653e0680756b2dddaafde42f2 # v2.1.0
         with:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware/store-api"
@@ -186,7 +186,7 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: adminApiSchema.json
           path: ./api-types/adminApiSchema.json
@@ -194,7 +194,7 @@ jobs:
 
       - name: Run OpenAPI Snapshot Action for AdminAPI
         if: github.repository == 'shopware/shopware'
-        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
+        uses: patzick/explore-openapi-snapshot@4cfd85875214ee1653e0680756b2dddaafde42f2 # v2.1.0
         with:
           schema-file: "./api-types/adminApiSchema.json"
           project: "shopware/admin-api"
@@ -221,6 +221,7 @@ jobs:
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
 
     services:
       elasticsearch:
@@ -231,44 +232,30 @@ jobs:
           OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
+      database:
+        # Run the migration suite against MySQL 8.4, where restrict_fk_on_non_standard_key
+        # defaults to ON. This makes the install/migrate step reject any foreign key that
+        # references a non-unique key (the MySQL 8.4 disaster-recovery import failure),
+        # before tests even run. Other suites stay on MySQL 8.0.
+        image: ${{ matrix.suite == 'migration' && 'mysql:8.4' || 'mysql:8.0' }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
 
     steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: ./.github/actions/phpunit-run
         with:
-          php-version: 8.2
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          keep-composer-tools: true
-
-      - name: Start Webserver
-        run: symfony server:start -d
-
-      - name: Migration test suite setup
-        if: ${{ matrix.suite == 'migration' }}
-        run: |
-          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
-          echo "FEATURE_ALL=major" >> $GITHUB_ENV
-
-      - name: Install Shopware
-        run: php src/Core/TestBootstrap.php
-
-      - name: Run PHPUnit with coverage
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: coverage.xml
-          flags: phpunit-${{ matrix.suite }}
-
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          test-testsuite: ${{ matrix.suite }}
+          keep-composer-tools: "true"
+          coverage: "true"
+          coverage-flags: phpunit-${{ matrix.suite }}
+          migration-coverage: ${{ matrix.suite == 'migration' }}
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   license-check:
     runs-on: ubuntu-24.04
@@ -287,10 +274,10 @@ jobs:
     name: "composer audit"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: "8.2"
 

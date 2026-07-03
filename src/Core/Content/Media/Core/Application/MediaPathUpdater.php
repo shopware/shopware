@@ -37,7 +37,7 @@ class MediaPathUpdater
      */
     public function updateMedia(iterable $ids): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -68,7 +68,7 @@ class MediaPathUpdater
      */
     public function updateThumbnails(iterable $ids): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

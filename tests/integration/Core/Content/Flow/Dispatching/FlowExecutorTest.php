@@ -10,6 +10,11 @@ use Shopware\Core\Checkout\Cart\Rule\CartVolumeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
+use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -17,7 +22,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -35,6 +42,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -76,6 +84,13 @@ class FlowExecutorTest extends TestCase
 
     private OrderTransactionStateHandler $orderTransactionStateHandler;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
+    private EntityRepository $customerRepository;
+
+    private FlowDispatcher $flowDispatcher;
+
     private SalesChannelContext $salesChannelContext;
 
     private string $customerId;
@@ -89,6 +104,8 @@ class FlowExecutorTest extends TestCase
         $this->orderTransactionStateHandler = static::getContainer()->get(OrderTransactionStateHandler::class);
         $this->flowRepository = static::getContainer()->get('flow.repository');
         $this->tagRepository = static::getContainer()->get('tag.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->flowDispatcher = static::getContainer()->get(FlowDispatcher::class);
         $this->customerId = $this->createCustomer();
         $this->salesChannelContext = $this->createDefaultSalesChannelContext();
     }
@@ -131,6 +148,28 @@ class FlowExecutorTest extends TestCase
         static::assertInstanceOf(TagCollection::class, $order->getTags());
         static::assertContains($ids->get('tag-1'), $order->getTags()->getIds());
         static::assertContains($ids->get('tag-2'), $order->getTags()->getIds());
+    }
+
+    public function testCustomerAwareFlowExecutesWithIfSequencesEvaluated(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->createTags($ids);
+
+        $this->createCustomerAwareFlow($ids);
+
+        $this->dispatchCustomerDoubleOptInRegistrationEvent($ids);
+
+        $criteria = new Criteria([$ids->get('customer-1')]);
+        $criteria->addAssociation('tags');
+
+        $customer = $this->customerRepository
+            ->search($criteria, $this->salesChannelContext->getContext())
+            ->first();
+
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        static::assertInstanceOf(TagCollection::class, $customer->getTags());
+        static::assertContains($ids->get('tag-1'), $customer->getTags()->getIds());
     }
 
     private function placeOrder(IdsCollection $ids): void
@@ -327,9 +366,87 @@ class FlowExecutorTest extends TestCase
         return $cartService->add($cart, $product, $context);
     }
 
-    private function createDefaultSalesChannelContext(): SalesChannelContext
+    private function createCustomerAwareFlow(IdsCollection $idsCollection): void
+    {
+        $this->flowRepository->create([
+            [
+                'name' => 'On customer double opt in registration',
+                'eventName' => CustomerDoubleOptInRegistrationEvent::EVENT_NAME,
+                'priority' => 10,
+                'active' => true,
+                'sequences' => [
+                    [
+                        'id' => $idsCollection->get('sequence-1'),
+                        'parentId' => null,
+                        'actionName' => null,
+                        'config' => [],
+                        'position' => 1,
+                        'rule' => [
+                            'name' => 'Test customer requested group rule',
+                            'priority' => 1,
+                            'conditions' => [
+                                [
+                                    'type' => (new CustomerGroupRule())->getName(),
+                                    'value' => [
+                                        'customerGroupIds' => [$idsCollection->get('customer-group')],
+                                        'operator' => CustomerGroupRule::OPERATOR_EQ,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'parentId' => $idsCollection->get('sequence-1'),
+                        'ruleId' => null,
+                        'actionName' => AddCustomerTagAction::getName(),
+                        'config' => [
+                            'tagIds' => [$idsCollection->get('tag-1') => 'bar'],
+                            'entity' => CustomerDefinition::ENTITY_NAME,
+                        ],
+                        'position' => 1,
+                        'trueCase' => true,
+                    ],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+    }
+
+    private function dispatchCustomerDoubleOptInRegistrationEvent(IdsCollection $ids): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext(false);
+
+        static::assertNull($salesChannelContext->getCustomer());
+
+        $customer = (new CustomerBuilder(
+            $ids,
+            'customer-1'
+        ))->build();
+
+        $this->customerRepository->create([$customer], $salesChannelContext->getContext());
+
+        $customer = $this->customerRepository->search(
+            new Criteria([$ids->get('customer-1')]),
+            $salesChannelContext->getContext()
+        )->first();
+
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $event = new CustomerDoubleOptInRegistrationEvent(
+            $customer,
+            $salesChannelContext,
+            ''
+        );
+
+        $this->flowDispatcher->dispatch($event);
+    }
+
+    private function createDefaultSalesChannelContext(bool $withCustomer = true): SalesChannelContext
     {
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
+
+        if ($withCustomer === false) {
+            return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        }
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
     }

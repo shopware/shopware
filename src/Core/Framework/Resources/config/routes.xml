@@ -20,5 +20,4 @@
     <import resource="../../Mcp/Controller/*Controller.php" type="attribute" />
     <import resource="../../Validation/Api/*Controller.php" type="attribute" />
     <import resource="../../ContentSystem/Api/*Controller.php" type="attribute" />
-
 </routes>

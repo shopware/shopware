@@ -27,7 +27,6 @@
                             showOnDisabledElements: true
                         }"
                         size="small"
-                        ghost
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         variant="secondary"
@@ -255,7 +254,6 @@
                     showOnDisabledElements: true
                 }"
                 size="small"
-                ghost
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 variant="secondary"

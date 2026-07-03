@@ -136,7 +136,11 @@
                                     "maintenance": {
                                         "type": "boolean"
                                     },
+                                    "maintenanceIpAllowlist": {
+                                        "type": "string"
+                                    },
                                     "maintenanceIpWhitelist": {
+                                        "deprecated": true,
                                         "type": "string"
                                     },
                                     "mailHeaderFooterId": {
@@ -205,7 +209,11 @@
                                     "maintenance": {
                                         "type": "boolean"
                                     },
+                                    "maintenanceIpAllowlist": {
+                                        "type": "string"
+                                    },
                                     "maintenanceIpWhitelist": {
+                                        "deprecated": true,
                                         "type": "string"
                                     },
                                     "mailHeaderFooterId": {

@@ -24,6 +24,7 @@ use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -568,11 +569,12 @@ class PresignedMediaUploadServiceTest extends TestCase
             $repo,
             $this->presignedUrlGenerator,
             $this->eventDispatcher,
-            $this->createMock(TypeDetector::class),
+            static::createStub(TypeDetector::class),
             $this->mediaFileCleanup,
             $this->extensionValidator,
             $this->mediaPathStrategy,
             new NullLogger(),
+            new NativeClock()
         );
 
         return [$repo, $service];

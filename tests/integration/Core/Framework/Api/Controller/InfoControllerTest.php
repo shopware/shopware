@@ -137,6 +137,10 @@ class InfoControllerTest extends TestCase
             'inAppPurchases' => [],
         ];
 
+        if (Feature::isActive('v6.8.0.0')) {
+            unset($expected['adminWorker']['enableQueueStatsWorker']);
+        }
+
         $url = '/api/_info/config';
         $client = $this->getBrowser();
         $client->request(Request::METHOD_GET, $url);

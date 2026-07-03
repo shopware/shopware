@@ -20,11 +20,16 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver" class="Shopware\Storefront\Theme\BundleConfig\StorefrontBundleConfigStyleFileResolver">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ScssPhpCompiler" />
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="shopware.filesystem.temp"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.debug%</argument>

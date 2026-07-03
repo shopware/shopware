@@ -367,7 +367,7 @@ class ProductSerializer extends EntitySerializer
         $urls = [];
         $coverUrl = null;
 
-        if (!empty($productMedias) && !empty($entity['cover'])) {
+        if ($productMedias !== [] && !empty($entity['cover'])) {
             $coverMedia = $entity['cover'] instanceof ProductMediaEntity
                 ? $entity['cover']->jsonSerialize()
                 : $entity['cover'];

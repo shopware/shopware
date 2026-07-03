@@ -92,10 +92,11 @@
             <argument type="service" id="category.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface" />
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Validation\EntryPointValidator">

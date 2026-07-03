@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,11 +16,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - will be removed
  */
 class OrderDetailPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
 
     public function testItLoadsOrders(): void
     {

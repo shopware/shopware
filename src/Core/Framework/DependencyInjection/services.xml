@@ -300,6 +300,16 @@ frame-ancestors 'none';
             </call>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Api\TranslationController" public="true">
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationRemover"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

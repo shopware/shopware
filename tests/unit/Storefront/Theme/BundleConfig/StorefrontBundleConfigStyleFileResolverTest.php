@@ -20,7 +20,7 @@ class StorefrontBundleConfigStyleFileResolverTest extends TestCase
     #[TestDox('resolveStyleFiles() returns an empty array when the registry has no configuration for the technical name')]
     public function testResolveStyleFilesReturnsEmptyWhenConfigurationMissing(): void
     {
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
 
         $resolver = new StorefrontBundleConfigStyleFileResolver($registry);
@@ -37,7 +37,7 @@ class StorefrontBundleConfigStyleFileResolverTest extends TestCase
             'app/storefront/src/scss/overrides.scss',
         ]));
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn(new StorefrontPluginConfigurationCollection([$configuration]));
 

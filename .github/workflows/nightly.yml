@@ -48,6 +48,10 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
+  integration-major:
+    uses: ./.github/workflows/integration-major.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   acceptance:
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit

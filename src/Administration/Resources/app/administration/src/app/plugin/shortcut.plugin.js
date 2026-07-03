@@ -42,15 +42,15 @@ export default {
             }
 
             // check for editable elements
-            const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
+            const isEditableDiv = eventTarget?.tagName === 'DIV' && eventTarget.isContentEditable;
+            const restrictedTags = /INPUT|TEXTAREA|SELECT/;
+            const isRestrictedTag = eventTarget ? restrictedTags.test(eventTarget.tagName) : false;
+            const isAceEditorInput = eventTarget?.classList.contains('ace_text-input') ?? false;
             let shouldNotTrigger = false;
 
             // SYSTEMKEY shortcuts combinations should always trigger
             if (/SYSTEMKEY/.test(matchedShortcut.key) === false) {
                 // check for restricted elements
-                const restrictedTags = /INPUT|TEXTAREA|SELECT/;
-                const isRestrictedTag = restrictedTags.test(event.target.tagName);
-
                 shouldNotTrigger = isEditableDiv || isRestrictedTag;
             }
 
@@ -59,12 +59,13 @@ export default {
                 return;
             }
 
-            // blur rich text and code editor inputs on save shortcut to react on changes before saving
+            // blur editable fields on save shortcut to react on changes before saving
             if (
                 matchedShortcut.key === 'SYSTEMKEY+S' &&
-                (isEditableDiv || event.target.classList.contains('ace_text-input'))
+                (isEditableDiv || isRestrictedTag || isAceEditorInput) &&
+                typeof eventTarget?.blur === 'function'
             ) {
-                event.target.blur();
+                eventTarget.blur();
             }
 
             // check if function exists

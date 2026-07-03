@@ -35,8 +35,8 @@ class CriteriaFieldsResolverTest extends TestCase
                 TestDefinition::class,
                 RelatedTestDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

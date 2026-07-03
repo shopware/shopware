@@ -52,7 +52,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
             'cf_baz' => 'int',
         ]]);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $utils = new ElasticsearchIndexingUtils(
             $connection,
@@ -130,7 +130,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
         $dispatcher = new EventDispatcher();
         $parameterBag = new ParameterBag();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $utils = new ElasticsearchIndexingUtils(
             $connection,

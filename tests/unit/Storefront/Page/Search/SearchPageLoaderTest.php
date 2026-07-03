@@ -38,10 +38,10 @@ class SearchPageLoaderTest extends TestCase
             });
 
         $searchPageLoader = new SearchPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AbstractProductSearchRoute::class),
+            static::createStub(GenericPageLoader::class),
+            static::createStub(AbstractProductSearchRoute::class),
             $eventDispatcher,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $page = $searchPageLoader->load($request, $salesChannelContext);
@@ -66,10 +66,10 @@ class SearchPageLoaderTest extends TestCase
             });
 
         $searchPageLoader = new SearchPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(AbstractProductSearchRoute::class),
+            static::createStub(GenericPageLoader::class),
+            static::createStub(AbstractProductSearchRoute::class),
             $eventDispatcher,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $page = $searchPageLoader->load($request, $salesChannelContext);

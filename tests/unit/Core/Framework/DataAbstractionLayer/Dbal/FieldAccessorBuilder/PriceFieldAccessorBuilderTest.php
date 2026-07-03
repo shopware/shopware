@@ -23,7 +23,7 @@ class PriceFieldAccessorBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->builder = new PriceFieldAccessorBuilder(
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
     }
 

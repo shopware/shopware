@@ -53,9 +53,7 @@ jobs:
 
     services:
       elasticsearch:
-        # Only the Elasticsearch path shard needs OpenSearch (matches the "Wait for
-        # OpenSearch" gate below); every other shard uses the cheap alpine placeholder
-        # instead of pulling the full OpenSearch image it never uses.
+        # Only the Elasticsearch path shard needs OpenSearch every other shard uses the cheap alpine placeholder instead
         image: ${{ contains(matrix.test.path, 'Elasticsearch') && matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
@@ -76,50 +74,15 @@ jobs:
         ports:
           - "6379:6379"
     steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: ./.github/actions/phpunit-run
         with:
           php-version: ${{ matrix.php }}
-          mysql-version: "skip"
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-
-      - name: Wait for OpenSearch/Elasticsearch
-        if: ${{ contains(matrix.test.path, 'Elasticsearch') }}
-        run: |
-            # Wait for OpenSearch/Elasticsearch to be alive
-            max_tries=30
-            tries=0
-            until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
-                if [ $tries -ge $max_tries ]; then
-                    echo "Max tries waiting for OpenSearch/Elasticsearch to be ready exceeded."
-                    exit 1
-                fi
-
-                echo "Waiting for OpenSearch/Elasticsearch to be ready..."
-                sleep 2
-                tries=$((tries + 1))
-            done
-
-      - name: Start Webserver
-        run: symfony server:start -d
-
-      - name: Install Shopware
-        run: php src/Core/TestBootstrap.php
-
-      - name: Run PHPUnit testsuite
-        if: ${{ matrix.test.testsuite != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "${{ matrix.test.testsuite }}"
-
-      - name: Run PHPUnit path
-        if: ${{ matrix.test.path != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml -- tests/integration/${{ matrix.test.path }}
-
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          test-path: ${{ matrix.test.path }}
+          test-testsuite: ${{ matrix.test.testsuite }}
+          needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
 
   win-checkout:

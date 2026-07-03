@@ -28,7 +28,7 @@ class AnnotationTagTester
     /**
      * short names of all BC-change attributes, see Shopware\Core\Framework\Deprecation\BCChange
      */
-    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|NewOptionalParameter|ParameterNameChange|BecomesAbstract|BecomesInternal|BecomesFinal|ClassHierarchyChange|VisibilityChange';
+    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|NewOptionalParameter|ParameterNameChange|ParameterRemoval|ParameterBecomesRequired|BecomesAbstract|BecomesInternal|BecomesFinal|ClassHierarchyChange|VisibilityChange';
 
     public function __construct(
         private readonly string $shopwareVersion,

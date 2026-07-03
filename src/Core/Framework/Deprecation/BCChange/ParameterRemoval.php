@@ -1,0 +1,27 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Deprecation\BCChange;
+
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * Signals that a parameter of the method will be removed in the given version.
+ *
+ * Call sites passing the parameter must stop doing so before the change happens; the
+ * `$description` states the replacement (e.g. named arguments). Call sites not passing the
+ * parameter are not affected.
+ */
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+#[Package('framework')]
+final class ParameterRemoval implements CallSiteCompatibilityChange
+{
+    /**
+     * @param string $parameterName the name of the parameter, without the leading `$`
+     */
+    public function __construct(
+        public readonly string $version,
+        public readonly string $parameterName,
+        public readonly ?string $description = null,
+    ) {
+    }
+}

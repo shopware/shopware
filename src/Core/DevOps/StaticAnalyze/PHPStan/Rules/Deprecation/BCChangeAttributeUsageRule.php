@@ -21,7 +21,9 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
@@ -60,7 +62,9 @@ class BCChangeAttributeUsageRule implements Rule
 
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
+        ParameterBecomesRequired::class,
         ParameterNameChange::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
     ];

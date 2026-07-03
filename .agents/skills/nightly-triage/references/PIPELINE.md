@@ -82,6 +82,33 @@ Child issue layout (title:
 - `Tracking issue: #<parent>` (prepend after parent exists)
 - **Context** — run link, per-shard job links, count, grouping rule
   ("root-cause owner; confirmed collateral included here")
+- **Reproduce** — the standard block below, so each team can rerun its
+  failures without rediscovering the env:
+
+  ````markdown
+  ### Reproduce
+
+  **Run a failing test locally with major flags:**
+
+  ```bash
+  APP_ENV=test FEATURE_ALL=major BLUE_GREEN_DEPLOYMENT=1 vendor/bin/phpunit --testsuite integration --filter 'ClassTest::testMethod'
+  ```
+
+  Most failures reproduce with runtime flags alone against a normal test DB. If the test passes locally, the failure is schema-dependent — rebuild the test DB with major migrations first:
+
+  ```bash
+  APP_ENV=test FEATURE_ALL=major BLUE_GREEN_DEPLOYMENT=1 FORCE_INSTALL=true composer init:testdb
+  ```
+
+  then rerun the test (this matches the CI job env in [`.github/workflows/integration-major.yml`](https://github.com/shopware/shopware/blob/trunk/.github/workflows/integration-major.yml)).
+
+  Afterwards restore your test DB with `APP_ENV=test FORCE_INSTALL=true composer init:testdb`.
+
+  **Verify your fix in CI:** add the `major-tests` label to your PR — it runs the full `integration-major` matrix on the PR (same switch as the acceptance major arm).
+  ````
+
+  (Adapt the env block if the triaged workflow is not `integration-major` —
+  mirror whatever `env:` its job definition sets.)
 - **Failure clusters** — per cluster: `#### <title> — <n> test(s)`, root-cause
   paragraph (with `file:line` and repro status: reproduced / trace-confirmed /
   mechanism TBD) or sample error in a code fence, then

@@ -85,7 +85,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see UtilException} instead of {@see TableNotFoundException}
+     * Will throw {@see UtilException} instead of {@see TableNotFoundException} in v6.8.0.
      *
      * @param non-empty-string $table
      */

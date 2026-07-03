@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -70,9 +71,7 @@ class MediaThumbnailEntity extends Entity
         return $this->url;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-extension - parameter $url will be nullable
-     */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'url', newType: '?string')]
     public function setUrl(string $url): void
     {
         $this->url = $url;

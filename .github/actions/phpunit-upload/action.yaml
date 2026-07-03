@@ -26,8 +26,13 @@ runs:
         flags: ${{ inputs.coverage-flags }}
 
     - name: Upload test results to Codecov
-      # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics
+      # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics.
+      # files is explicit: the former test-results-action auto-discovery also picked up unrelated
+      # *_test.xml files (e.g. DI configs like services_test.xml).
       if: ${{ !cancelled() && inputs.codecov-token != '' }}
-      uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      env:
+        CODECOV_TOKEN: ${{ inputs.codecov-token }}
       with:
-        token: ${{ inputs.codecov-token }}
+        report_type: test_results
+        files: junit.xml

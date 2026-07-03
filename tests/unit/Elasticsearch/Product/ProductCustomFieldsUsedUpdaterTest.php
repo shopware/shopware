@@ -31,7 +31,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingNoActionWhenElasticsearchDisabled(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(false);
@@ -44,7 +44,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $writeResults = [
@@ -69,7 +69,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamNoActionWhenElasticsearchDisabled(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(false);
@@ -82,7 +82,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $writeResults = [
@@ -101,7 +101,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingWithCustomFieldTriggersIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -161,7 +161,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingWithoutFieldsInPayloadDoesNotTriggerIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -172,7 +172,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         // Payload without 'fields' - e.g., only updating priority
@@ -195,7 +195,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamFilterWithCustomFieldTriggersIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -245,7 +245,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testMultipleProductStreamFiltersAreProcessed(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -300,7 +300,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testNoCustomFieldsInSortingDoesNotTriggerIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -343,7 +343,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamFilterWithNoCustomFieldsDoesNotTriggerIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -382,7 +382,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testMultipleProductSortingsAreProcessed(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -457,7 +457,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingUpdateOperationTriggersIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -513,7 +513,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testCustomFieldNotFoundInDatabaseDoesNotTriggerIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -565,7 +565,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamFilterUpdateWithFieldChange(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -616,7 +616,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamWrittenWithNoCustomFieldFilters(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -654,7 +654,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingAndStreamEventsProcessedIndependently(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -723,7 +723,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testDuplicateCustomFieldsAreDeduplicatedInSorting(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -783,7 +783,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingWithFieldsTriggersIndexing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -841,7 +841,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingDeleteOperationIsProcessed(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -852,7 +852,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $writeResults = [
@@ -871,7 +871,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamFilterDeleteOperationIsSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -904,7 +904,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingWithEmptyWriteResults(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -915,7 +915,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, [], Context::createDefaultContext());
@@ -925,7 +925,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamWithEmptyWriteResults(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -936,7 +936,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, [], Context::createDefaultContext());
@@ -946,7 +946,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingWithMixedFieldTypes(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1020,7 +1020,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testOnlyProductSortingEventWithNoFilters(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1075,7 +1075,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testOnlyProductStreamEventWithNoSorting(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1122,7 +1122,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductSortingWithNonStringPrimaryKeyIsSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1133,7 +1133,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $writeResults = [
@@ -1156,7 +1156,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testProductStreamFilterWithNonStringPrimaryKeyIsSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1167,7 +1167,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $updater = new ProductCustomFieldsUsedUpdater(
             $elasticsearchHelper,
             $mappingHelper,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $writeResults = [
@@ -1186,7 +1186,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testSortingWithInvalidJsonFromDatabaseIsSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1243,7 +1243,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testSortingWithNonArrayJsonFromDatabaseIsSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1287,7 +1287,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testSortingFieldsWithoutFieldKeyAreSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);

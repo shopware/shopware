@@ -29,8 +29,8 @@ class ProductStreamBuilderTest extends TestCase
     public function testBuildFiltersThrowsWhenV68IsActive(): void
     {
         /** @var EntityRepository<ProductStreamCollection>&MockObject $repository */
-        $repository = $this->createMock(EntityRepository::class);
-        $builder = new ProductStreamBuilder($repository, $this->createMock(EntityDefinition::class));
+        $repository = static::createStub(EntityRepository::class);
+        $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
 
         $this->expectException(FeatureException::class);
 
@@ -47,7 +47,7 @@ class ProductStreamBuilderTest extends TestCase
     {
         /** @var StaticEntityRepository<ProductStreamCollection> $repository */
         $repository = new StaticEntityRepository([new ProductStreamCollection([])]);
-        $builder = new ProductStreamBuilder($repository, $this->createMock(EntityDefinition::class));
+        $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
 
         $this->expectException(EntityNotFoundException::class);
 

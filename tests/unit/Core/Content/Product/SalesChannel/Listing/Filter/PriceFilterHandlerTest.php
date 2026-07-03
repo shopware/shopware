@@ -25,7 +25,7 @@ class PriceFilterHandlerTest extends TestCase
         $request->setMethod($method);
 
         $handler = new PriceListingFilterHandler();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $result = $handler->create($request, $context);
 

@@ -194,10 +194,6 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertInstanceOf(McpToolsetSessionStorage::class, $toolsetSessionStorage);
 
         foreach ($toolsetRegistry->toolsets() as $toolset) {
-            if ($toolset['enabledByDefault']) {
-                continue;
-            }
-
             $toolsetSessionStorage->enable($sessionId, $toolset['name']);
         }
     }

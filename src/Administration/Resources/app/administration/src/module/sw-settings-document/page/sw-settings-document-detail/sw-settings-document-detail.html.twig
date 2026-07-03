@@ -289,23 +289,23 @@
                         {% endblock %}
 
                         {% block sw_settings_document_detail_content_field_display_company_address %}
-                            <mt-checkbox
-                                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
-                                v-model:checked="documentConfig.config.displayCompanyAddress"
-                                class="sw-settings-document-detail__field-display-company-address"
-                                :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
-                                :disabled="!acl.can('document.editor') || undefined"
-                            />
+                        <mt-checkbox
+                            v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                            v-model:checked="documentConfig.config.displayCompanyAddress"
+                            class="sw-settings-document-detail__field-display-company-address"
+                            :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
+                            :disabled="!acl.can('document.editor') || undefined"
+                        />
                         {% endblock %}
 
                         {% block sw_settings_document_detail_content_field_display_return_address %}
-                            <mt-checkbox
-                                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
-                                v-model:checked="documentConfig.config.displayReturnAddress"
-                                class="sw-settings-document-detail__field-display-return-address"
-                                :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
-                                :disabled="!acl.can('document.editor') || undefined"
-                            />
+                        <mt-checkbox
+                            v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                            v-model:checked="documentConfig.config.displayReturnAddress"
+                            class="sw-settings-document-detail__field-display-return-address"
+                            :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
+                            :disabled="!acl.can('document.editor') || undefined"
+                        />
                         {% endblock %}
                     </div>
                 </div>

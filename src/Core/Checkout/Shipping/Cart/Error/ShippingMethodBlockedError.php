@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Shipping\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterOrderChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
@@ -16,7 +15,6 @@ class ShippingMethodBlockedError extends Error
 
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
-    #[ParameterOrderChange(version: 'v6.8.0', newOrder: ['id', 'name', 'reason'])]
     public function __construct(
         protected readonly string $name,
         protected readonly ?string $id = null,

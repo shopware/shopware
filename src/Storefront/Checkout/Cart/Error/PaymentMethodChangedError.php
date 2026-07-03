@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterOrderChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
@@ -17,7 +16,6 @@ class PaymentMethodChangedError extends Error
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'newPaymentMethodId', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'oldPaymentMethodId', newType: 'string')]
-    #[ParameterOrderChange(version: 'v6.8.0', newOrder: ['oldPaymentMethodId', 'oldPaymentMethodName', 'newPaymentMethodId', 'newPaymentMethodName'])]
     public function __construct(
         protected readonly string $oldPaymentMethodName,
         protected readonly string $newPaymentMethodName,

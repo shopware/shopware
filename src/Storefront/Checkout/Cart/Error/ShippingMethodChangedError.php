@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterOrderChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
@@ -17,7 +16,6 @@ class ShippingMethodChangedError extends Error
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'newShippingMethodId', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'oldShippingMethodId', newType: 'string')]
-    #[ParameterOrderChange(version: 'v6.8.0', newOrder: ['oldShippingMethodId', 'oldShippingMethodName', 'newShippingMethodId', 'newShippingMethodName'])]
     public function __construct(
         protected readonly string $oldShippingMethodName,
         protected readonly string $newShippingMethodName,

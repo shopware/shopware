@@ -2,6 +2,10 @@
 
 ## Core
 
+### MCP clients are notified when app capabilities change
+
+The experimental MCP server now queues `notifications/*/list_changed` messages for active MCP sessions when app MCP tools, resources, or prompts change through app install, update, activation, deactivation, or deletion. MCP clients that support list-change notifications can refresh their discovered capabilities after these app lifecycle changes.
+
 ### Webhooks are signed with the current app secret after a secret rotation
 
 Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.

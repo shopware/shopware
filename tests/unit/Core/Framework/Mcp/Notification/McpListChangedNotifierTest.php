@@ -1,0 +1,107 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
+
+use Mcp\Server\Session\SessionStoreInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
+use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
+use Symfony\Component\Uid\Uuid;
+
+/**
+ * @internal
+ */
+#[CoversClass(McpListChangedNotifier::class)]
+#[CoversClass(McpListChangedNotificationSet::class)]
+#[CoversClass(McpSessionRegistry::class)]
+class McpListChangedNotifierTest extends TestCase
+{
+    public function testQueuesListChangedNotificationsForActiveSessions(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+        $registry = $this->registry();
+        $registry->register($sessionId);
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willReturn(true);
+        $store->method('read')->willReturn(Json::encode([
+            'initialized' => true,
+        ]));
+        $store->expects($this->once())
+            ->method('write')
+            ->with(
+                static::callback(static fn (Uuid $uuid): bool => $uuid->toRfc4122() === $sessionId),
+                static::callback(static function (string $payload): bool {
+                    $data = Json::decodeToArray($payload);
+
+                    $mcpData = $data['_mcp'] ?? null;
+                    static::assertIsArray($mcpData);
+
+                    $queue = $mcpData['outgoing_queue'] ?? null;
+                    static::assertIsArray($queue);
+                    static::assertCount(3, $queue);
+
+                    $messages = [];
+                    foreach ($queue as $queued) {
+                        static::assertIsArray($queued);
+                        static::assertIsString($queued['message'] ?? null);
+
+                        $messages[] = Json::decodeToArray($queued['message']);
+                    }
+
+                    static::assertSame([
+                        ['jsonrpc' => '2.0', 'method' => 'notifications/tools/list_changed'],
+                        ['jsonrpc' => '2.0', 'method' => 'notifications/resources/list_changed'],
+                        ['jsonrpc' => '2.0', 'method' => 'notifications/prompts/list_changed'],
+                    ], $messages);
+                    static::assertIsArray($queue[0]);
+                    static::assertSame(['type' => 'notification'], $queue[0]['context']);
+
+                    return true;
+                }),
+            )
+            ->willReturn(true);
+
+        $notifier = new McpListChangedNotifier($store, $registry, new NullLogger());
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: true, prompts: true));
+    }
+
+    public function testDoesNotWriteWhenNoNotificationTypesChanged(): void
+    {
+        $registry = $this->registry();
+        $registry->register(Uuid::v4()->toRfc4122());
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->expects($this->never())->method('write');
+
+        $notifier = new McpListChangedNotifier($store, $registry);
+        $notifier->notify(McpListChangedNotificationSet::none());
+    }
+
+    public function testRemovesStaleSessionsFromRegistry(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+        $registry = $this->registry();
+        $registry->register($sessionId);
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willReturn(false);
+        $store->expects($this->never())->method('write');
+
+        $notifier = new McpListChangedNotifier($store, $registry);
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+
+        static::assertSame([], $registry->all());
+    }
+
+    private function registry(): McpSessionRegistry
+    {
+        return new McpSessionRegistry(new Psr16Cache(new ArrayAdapter()));
+    }
+}

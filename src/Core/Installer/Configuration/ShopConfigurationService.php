@@ -13,14 +13,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
-use Shopware\Tests\Integration\Core\Installer\Configuration\ShopConfigurationServiceTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see ShopConfigurationServiceTest
+ * @see \Shopware\Tests\Integration\Core\Installer\Configuration\ShopConfigurationServiceTest
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */

@@ -1,6 +1,5 @@
 {%  block sw_customer_create %}
 <sw-page class="sw-customer-create">
-
     {% block sw_customer_create_header %}
     <template #smart-bar-header>
         <h2>{{ salutationFilter(customer, $t('sw-customer.general.newCustomer')) }}</h2>
@@ -18,6 +17,15 @@
 
     {% block sw_customer_create_actions %}
     <template #smart-bar-actions>
+        <mt-button
+            :disabled="isLoading"
+            variant="secondary"
+            size="default"
+            @click="$router.push({ name: 'sw.customer.index' })"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+
         <sw-button-process
             class="sw-customer-create__save-action"
             :is-loading="isLoading"

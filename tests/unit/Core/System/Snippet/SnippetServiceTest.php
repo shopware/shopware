@@ -39,7 +39,6 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogue;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -508,7 +507,7 @@ class SnippetServiceTest extends TestCase
 
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
-        $snippetFilterFactory = $snippetFilterFactory ?? $this->createMock(SnippetFilterFactory::class);
+        $snippetFilterFactory = $snippetFilterFactory ?? static::createStub(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
         /** @var EntityRepository<SnippetCollection> $snippetRepository */
@@ -542,9 +541,8 @@ class SnippetServiceTest extends TestCase
             languageRepository: $languageRepository,
             localeRepository: $localeRepository,
             snippetSetRepository: $snippetSetRepository,
-            client: $this->createMock(ClientInterface::class),
+            client: static::createStub(ClientInterface::class),
             config: $config,
-            validator: Validation::createValidator(),
         );
     }
 }

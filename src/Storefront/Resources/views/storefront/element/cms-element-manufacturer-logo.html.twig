@@ -1,5 +1,6 @@
 {% block element_manufacturer_logo %}
     {% set config = element.translated.config %}
+    {% set isCover = config.displayMode.value == 'cover' %}
 
     {% if element.data.manufacturer %}
         {% set manufacturer = {
@@ -17,9 +18,9 @@
         } %}
     {% endif %}
 
-    <div class="cms-element-image cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+    <div class="cms-element-image cms-element-{{ element.type }} is-{{ config.displayMode.value }}{% if config.verticalAlign.value and not isCover %} has-vertical-alignment{% endif %}{% if not isCover %}{% if config.horizontalAlign.value == "center" %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" %} justify-content-end{% elseif config.horizontalAlign.value %} justify-content-start{% endif %}{% endif %}">
         {% block element_manufacturer_logo_inner %}
-            {% if config.verticalAlign.value %}
+            {% if config.verticalAlign.value and not isCover %}
                 <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
@@ -35,8 +36,8 @@
                     <div class="cms-image-link product-detail-manufacturer-link">
                 {% endif %}
                 {% if manufacturer.media %}
-                    <div class="cms-image-container is-{{ config.displayMode.value }}"
-                        {% if config.minHeight.value and config.displayMode.value == "cover" %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
+                    <div class="w-100 cms-image-container is-{{ config.displayMode.value }}"
+                        {% if config.minHeight.value and isCover %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
 
                         {% block element_manufacturer_logo_image %}
                             {% set attributes = {
@@ -73,7 +74,7 @@
                 {% endif %}
             {% endblock %}
 
-            {% if config.verticalAlign.value %}
+            {% if config.verticalAlign.value and not isCover %}
                 </div>
             {% endif %}
         {% endblock %}

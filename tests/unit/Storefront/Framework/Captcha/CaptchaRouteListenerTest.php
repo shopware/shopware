@@ -38,16 +38,16 @@ class CaptchaRouteListenerTest extends TestCase
     public function testThrowsExceptionWhenValidationFails(): void
     {
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $captchas = $this->getCaptchas(true, false);
 
@@ -63,13 +63,13 @@ class CaptchaRouteListenerTest extends TestCase
     public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndNonXmlRequest(): void
     {
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -83,10 +83,10 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('getViolations')
             ->willReturn(new ConstraintViolationList());
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $this->expectExceptionObject(CaptchaException::invalid($captcha));
 
@@ -105,13 +105,13 @@ class CaptchaRouteListenerTest extends TestCase
         );
 
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -127,10 +127,10 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $listener = new CaptchaRouteListener(
             [$captcha],
@@ -171,13 +171,13 @@ class CaptchaRouteListenerTest extends TestCase
         );
 
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -202,10 +202,10 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $listener = new CaptchaRouteListener(
             [$captcha],
@@ -228,13 +228,13 @@ class CaptchaRouteListenerTest extends TestCase
         );
 
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -250,10 +250,10 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $listener = new CaptchaRouteListener(
             [$captcha],
@@ -277,7 +277,7 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $request = new Request();
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -286,7 +286,7 @@ class CaptchaRouteListenerTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('get');
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $listener = new CaptchaRouteListener(
             [],
@@ -306,7 +306,7 @@ class CaptchaRouteListenerTest extends TestCase
      */
     private function getCaptchas(bool $supports, bool $isValid): array
     {
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
 
         $captcha->expects($this->once())
             ->method('supports')

@@ -390,10 +390,11 @@ export default {
         },
 
         privilegeChipClass(chip) {
-            if (this.isAdmin || this.grantedPrivileges.length === 0 || chip.startsWith('<')) {
-                return '';
+            if (this.isAdmin || this.grantedPrivileges.length === 0 || typeof chip !== 'string' || chip.startsWith('<')) {
+                return 'neutral';
             }
-            return isPrivilegeGranted(chip, this.grantedPrivileges) ? 'is--granted' : 'is--missing';
+
+            return isPrivilegeGranted(chip, this.grantedPrivileges) ? 'positive' : 'critical';
         },
 
         privilegeChips(tool) {

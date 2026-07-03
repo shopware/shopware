@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -54,6 +55,55 @@ class ContextTest extends TestCase
         static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
     }
 
+    public function testScopeAddsTemporaryStatesAndRestoresThem(): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource('user-id'));
+
+        $result = $context->scope(Context::SYSTEM_SCOPE, static function (Context $context): string {
+            static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+            static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+
+            return 'done';
+        }, [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
+
+        static::assertSame('done', $result);
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+    }
+
+    public function testScopeKeepsExistingTemporaryState(): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource('user-id'));
+        $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context): void {
+            static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+            static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+        }, [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
+
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+    }
+
+    public function testExplicitSystemScopeInsideScopedStateSuppressesState(): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource('user-id'));
+
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context): void {
+            static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+
+            // This is expected: explicit system-scope opt-ins must not inherit temporary states from the surrounding scope.
+            $context->scope(Context::SYSTEM_SCOPE, static function (Context $context): void {
+                static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+            });
+
+            static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+        }, [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
+
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+    }
+
     public function testVersionChange(): void
     {
         $versionId = Uuid::randomHex();
@@ -95,8 +145,8 @@ class ContextTest extends TestCase
         static::assertInstanceOf(Context::class, $deserialized);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
-        static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());
-        static::assertEqualsCanonicalizing($context->getRounding(), $deserialized->getRounding());
+        static::assertEquals($context->getSource(), $deserialized->getSource());
+        static::assertEquals($context->getRounding(), $deserialized->getRounding());
         static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
         static::assertSame($context->getVersionId(), $deserialized->getVersionId());
         static::assertSame($context->getScope(), $deserialized->getScope());
@@ -117,8 +167,8 @@ class ContextTest extends TestCase
         $deserialized = Serialization::assertRoundTrip($context);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
-        static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());
-        static::assertEqualsCanonicalizing($context->getRounding(), $deserialized->getRounding());
+        static::assertEquals($context->getSource(), $deserialized->getSource());
+        static::assertEquals($context->getRounding(), $deserialized->getRounding());
         static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
         static::assertSame($context->getVersionId(), $deserialized->getVersionId());
         static::assertSame($context->getScope(), $deserialized->getScope());

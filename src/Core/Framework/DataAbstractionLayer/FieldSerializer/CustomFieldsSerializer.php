@@ -46,7 +46,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             return;
         }
 
-        if (empty($attributes)) {
+        if ($attributes === []) {
             yield $field->getStorageName() => '{}';
 
             return;

@@ -16,11 +16,11 @@ $sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
         border-radius: $sw-search-bar-item-border-radius;
         display: flex;
         text-decoration: none;
-        line-height: $line-height-sm;
+        line-height: var(--font-line-height-s);
 
         &:focus-visible {
             outline-offset: var(--scale-size-2);
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
         }
     }
 
@@ -31,7 +31,7 @@ $sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
 
     .sw-search-bar-item__label {
         color: $sw-search-bar-item-color-label;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -40,7 +40,7 @@ $sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
 
     .sw-search-bar-item__type {
         color: $sw-search-bar-item-color-type;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         margin-left: auto;
     }
 
@@ -83,7 +83,7 @@ $sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
 
             span {
                 padding: 0 4px;
-                font-size: $font-size-xxs;
+                font-size: var(--font-size-2xs);
             }
         }
 
@@ -98,7 +98,7 @@ $sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
         }
 
         .sw-highlight-text:not(:first-child) {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
         }
     }
 }

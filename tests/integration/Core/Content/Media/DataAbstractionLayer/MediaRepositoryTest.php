@@ -511,11 +511,14 @@ class MediaRepositoryTest extends TestCase
 
     public function testItDoesNotDeleteFilesIfMediaHasDeleteRestrictions(): void
     {
+        $cmsPageId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
+        $fileName = $mediaId . '-' . (new \DateTime())->getTimestamp();
 
         $cmsPageRepository = static::getContainer()->get('cms_page.repository');
 
         $cmsPageRepository->create([[
+            'id' => $cmsPageId,
             'name' => 'cms-page',
             'type' => 'page',
             'previewMedia' => [
@@ -523,7 +526,7 @@ class MediaRepositoryTest extends TestCase
                 'name' => 'test media',
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                'fileName' => $fileName,
             ],
         ]], $this->context);
 
@@ -540,8 +543,32 @@ class MediaRepositoryTest extends TestCase
         try {
             $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
             static::fail('asserted DeleteRestrictViolationException');
-        } catch (RestrictDeleteViolationException) {
-            // ignore asserted exception
+        } catch (RestrictDeleteViolationException $exception) {
+            static::assertSame(
+                [
+                    'entity' => 'media',
+                    'usagesString' => 'cms_page (1)',
+                    'usages' => [
+                        [
+                            'entityName' => 'cms_page',
+                            'count' => 1,
+                        ],
+                    ],
+                    'metaData' => [
+                        'cms_page' => [
+                            [
+                                'id' => $cmsPageId,
+                                'media' => [
+                                    'id' => $mediaId,
+                                    'fileExtension' => 'png',
+                                    'fileName' => $fileName,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                $exception->getParameters()
+            );
         }
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaUrl));

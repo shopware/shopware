@@ -5,16 +5,15 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Signals that the type of a parameter will be narrowed in the given version.
+ * Signals that the type of a parameter will be widened in the given version.
  *
- * Call sites passing values that are not covered by the announced type must adjust before the
- * change happens; call sites already passing the announced type are not affected. Overrides may
- * keep the wider parameter type (contravariance). Tooling (e.g. Rector) can add type guards or
- * casts at affected call sites by reading `$newType`.
+ * Call sites are not affected — every currently accepted value stays accepted. Classes overriding
+ * the method must widen the parameter type of their override to the announced type before the
+ * change happens, as a narrower parameter type in the override violates contravariance.
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
-final class ParameterTypeChange implements CallSiteCompatibilityChange
+final class ParameterTypeWidening implements ExtenderCompatibilityChange
 {
     /**
      * @param string $parameterName the name of the parameter, without the leading `$`

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
-final class ReturnTypeChange implements ExtenderCompatibilityChange
+final class ReturnTypeNarrowing implements ExtenderCompatibilityChange
 {
     public function __construct(
         public readonly string $version,

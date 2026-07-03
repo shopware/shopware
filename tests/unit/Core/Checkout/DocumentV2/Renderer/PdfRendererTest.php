@@ -135,6 +135,32 @@ class PdfRendererTest extends TestCase
         static::assertStringContainsString('Page 1 / 1', $text);
     }
 
+    public function testScreenHiddenContentRemainsVisibleInPdf(): void
+    {
+        $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
+
+        $raw = <<<'HTML'
+            <html><head>
+                <style media="screen">p { display: none; }</style>
+            </head><body>
+                <p>hidden on screen</p>
+            </body></html>
+            HTML;
+
+        $state = new RenderState();
+        $state->add($this->htmlResult($raw));
+
+        $result = $renderer->renderToString(
+            $this->createInput($this->createRenderData()),
+            $state,
+            Context::createDefaultContext(),
+        );
+
+        $text = (new Parser())->parseContent($result->content)->getText();
+
+        static::assertStringContainsString('hidden on screen', $text);
+    }
+
     private function htmlResult(string $content): RenderResult
     {
         return new RenderResult(

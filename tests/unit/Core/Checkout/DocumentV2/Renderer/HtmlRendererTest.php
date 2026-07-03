@@ -51,7 +51,7 @@ class HtmlRendererTest extends TestCase
         static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
     }
 
-    public function testRenderToStringPreviewMode(): void
+    public function testRenderToString(): void
     {
         $rendered = '<html>rendered</html>';
 
@@ -71,11 +71,10 @@ class HtmlRendererTest extends TestCase
             ->method('renderWithTimezoneOverride')
             ->with(
                 self::HTML_TEMPLATE_PATH,
-                static::callback(function (array $parameters): bool {
+                static::callback(function (array $parameters) use ($renderData): bool {
                     static::assertArrayHasKey('config', $parameters);
                     static::assertInstanceOf(TemplateContext::class, $parameters['config']);
-                    static::assertTrue($parameters['config']->preview);
-                    static::assertSame(1000, $parameters['config']->itemsPerPage);
+                    static::assertSame($renderData->config->itemsPerPage, $parameters['config']->itemsPerPage);
                     static::assertSame(['test' => 1], $parameters['config']->custom);
 
                     static::assertArrayHasKey('counter', $parameters);
@@ -92,7 +91,6 @@ class HtmlRendererTest extends TestCase
             $renderData->documentNumber,
             $this->createOrder(),
             [InvoiceDataProvider::KEY => $renderData],
-            preview: true,
         );
 
         $renderer = $this->createRenderer($finder, $env);
@@ -108,54 +106,6 @@ class HtmlRendererTest extends TestCase
         static::assertSame('html', $result->fileExtension);
         static::assertSame('text/html', $result->mimeType);
         static::assertSame('invoice_12345', $result->fileName);
-    }
-
-    public function testRenderToStringPrintModeUsesConfiguredItemsPerPage(): void
-    {
-        $renderData = $this->createRenderData();
-
-        $finder = $this->createMock(TemplateFinder::class);
-        $finder->expects($this->once())
-            ->method('find')
-            ->with(self::HTML_TEMPLATE_PATH)
-            ->willReturn(self::HTML_TEMPLATE_PATH);
-
-        $rendered = '<html>print</html>';
-
-        $env = $this->createMock(TwigEnvironment::class);
-        $env->expects($this->once())
-            ->method('renderWithTimezoneOverride')
-            ->with(
-                self::HTML_TEMPLATE_PATH,
-                static::callback(function (array $parameters) use ($renderData): bool {
-                    static::assertInstanceOf(TemplateContext::class, $parameters['config']);
-                    static::assertFalse($parameters['config']->preview);
-                    static::assertSame($renderData->config->itemsPerPage, $parameters['config']->itemsPerPage);
-
-                    return true;
-                }),
-                null,
-            )
-            ->willReturn($rendered);
-
-        $input = new RenderInput(
-            DocumentType::INVOICE->value,
-            $renderData->documentNumber,
-            $this->createOrder(),
-            [InvoiceDataProvider::KEY => $renderData],
-        );
-
-        $result = $this->createRenderer($finder, $env)->renderToString(
-            $input,
-            new RenderState(),
-            Context::createDefaultContext(),
-        );
-
-        static::assertSame(DocumentFormat::HTML->value, $result->format);
-        static::assertSame($rendered, $result->content);
-        static::assertSame('html', $result->fileExtension);
-        static::assertSame('text/html', $result->mimeType);
-        static::assertSame('12345', $result->fileName);
     }
 
     public function testShouldThrowIfRenderDataCantBeFound(): void

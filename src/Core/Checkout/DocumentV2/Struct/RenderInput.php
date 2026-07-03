@@ -25,7 +25,6 @@ final readonly class RenderInput
         public string $documentNumber,
         public OrderEntity $order,
         private array $data = [],
-        public bool $preview = false,
     ) {
     }
 

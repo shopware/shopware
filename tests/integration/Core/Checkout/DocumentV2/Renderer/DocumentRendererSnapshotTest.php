@@ -119,7 +119,6 @@ class DocumentRendererSnapshotTest extends TestCase
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
             data: [$dataProvider->getKey() => $this->buildRenderData($documentType, $order)],
-            preview: true,
         );
 
         $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
@@ -149,6 +148,38 @@ class DocumentRendererSnapshotTest extends TestCase
             DocumentType::INVOICE,
             InvoiceDataProvider::class,
         ];
+    }
+
+    public function testRenderPaginated(): void
+    {
+        $dataProvider = static::getContainer()->get(InvoiceDataProvider::class);
+
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19, 7]));
+        $this->enrichOrderForRendering($orderId);
+
+        $criteria = new Criteria([$orderId]);
+        $dataProvider->enrichOrderCriteria($criteria);
+
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $input = new RenderInput(
+            documentType: DocumentType::INVOICE->value,
+            documentNumber: self::DOCUMENT_NUMBER,
+            order: $order,
+            data: [
+                $dataProvider->getKey() => $this->buildRenderData(DocumentType::INVOICE, $order, itemsPerPage: 1),
+            ],
+        );
+
+        $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
+
+        $this->assertSnapshot('invoice_paginated', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $htmlResult->content,
+            ],
+        ]);
     }
 
     /**
@@ -199,7 +230,6 @@ class DocumentRendererSnapshotTest extends TestCase
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
             data: [$dataProvider->getKey() => $this->buildRenderData($documentType, $order, true)],
-            preview: true,
         );
 
         $result = $this->htmlRenderer->renderToString(
@@ -208,9 +238,16 @@ class DocumentRendererSnapshotTest extends TestCase
             $this->context,
         );
 
+        // the media attribute and the screen rules are intentionally v2-only
+        $content = (string) preg_replace(
+            ['/ media="screen"/', '/\s*(?<!\w)\.(page_break|letter-body:has)[^{}]*\{[^{}]*\}/'],
+            '',
+            $result->content,
+        );
+
         static::assertSame(
             self::normalizeHtml($legacyContent),
-            self::normalizeHtml($result->content),
+            self::normalizeHtml($content),
         );
     }
 
@@ -230,17 +267,21 @@ class DocumentRendererSnapshotTest extends TestCase
         DocumentType $documentType,
         OrderEntity $order,
         bool $withoutCompanyCountry = false,
+        ?int $itemsPerPage = null,
     ): AbstractRenderData {
         $companyCountry = $withoutCompanyCountry ? new CountryEntity() : $this->companyCountry;
 
         /** @phpstan-ignore match.unhandled */
         return match ($documentType) {
-            DocumentType::INVOICE => $this->buildInvoiceRenderData($companyCountry, $order),
+            DocumentType::INVOICE => $this->buildInvoiceRenderData($companyCountry, $order, $itemsPerPage),
         };
     }
 
-    private function buildInvoiceRenderData(CountryEntity $companyCountry, OrderEntity $order): InvoiceRenderData
-    {
+    private function buildInvoiceRenderData(
+        CountryEntity $companyCountry,
+        OrderEntity $order,
+        ?int $itemsPerPage = null,
+    ): InvoiceRenderData {
         $cfg = $this->getDemoInvoiceLegacyConfig();
 
         $displayOptions = new DocumentDisplayOptions(
@@ -259,7 +300,7 @@ class DocumentRendererSnapshotTest extends TestCase
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);
 
         return new InvoiceRenderData(
-            config: $this->buildDocumentConfig(),
+            config: $this->buildDocumentConfig($itemsPerPage),
             company: $this->buildDocumentCompanyInfo($companyCountry),
             display: $displayOptions,
             documentDate: $cfg['documentDate'],
@@ -282,14 +323,14 @@ class DocumentRendererSnapshotTest extends TestCase
         );
     }
 
-    private function buildDocumentConfig(): DocumentConfig
+    private function buildDocumentConfig(?int $itemsPerPage = null): DocumentConfig
     {
         $cfg = $this->getDemoInvoiceLegacyConfig();
 
         return new DocumentConfig(
             pageSize: $cfg['pageSize'],
             pageOrientation: $cfg['pageOrientation'],
-            itemsPerPage: $cfg['itemsPerPage'],
+            itemsPerPage: $itemsPerPage ?? $cfg['itemsPerPage'],
         );
     }
 

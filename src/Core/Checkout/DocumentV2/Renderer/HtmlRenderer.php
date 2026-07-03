@@ -18,13 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Renders the HTML representation of a document via {@see DocumentTemplateRenderer}.
  *
- * Output doubles as input for {@see PdfRenderer}, so the render mode is gated on
- * {@see RenderInput::$preview}:
- *  - `preview=true` keeps the legacy html-preview overrides (extra CSS via
- *    `style_base_html.css.twig`, `itemsPerPage=1000`) used by the browser-facing
- *    HTML document file.
- *  - `preview=false` produces print-styled HTML with the configured `itemsPerPage`
- *    so Dompdf can paginate naturally.
+ * The output doubles as the {@see PdfRenderer} Dompdf input, so browser-only styling
+ * is scoped to `media="screen"` in the templates.
  *
  * @internal
  */
@@ -32,8 +27,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class HtmlRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::HTML;
-
-    private const PREVIEW_ITEMS_PER_PAGE = 1000;
 
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
@@ -59,16 +52,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             InvoiceRenderData::class
         );
 
-        // Preview is one scrollable HTML page in the browser, so we collapse the per-page item
-        // limit onto a single logical page; print mode keeps the configured value so Dompdf
-        // can emit CSS page-break markers and paginate naturally.
-        $itemsPerPage = $input->preview ? self::PREVIEW_ITEMS_PER_PAGE : $renderData->config->itemsPerPage;
-
-        $configuration = new TemplateContext(
-            $renderData,
-            preview: $input->preview,
-            itemsPerPage: $itemsPerPage,
-        );
+        $configuration = new TemplateContext($renderData);
 
         $template = $renderData->templatePathFor(self::FORMAT->value);
 

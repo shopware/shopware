@@ -101,7 +101,6 @@ final readonly class DocumentGenerator
             documentNumber: $documentNumber,
             order: $order,
             data: $providerData,
-            preview: $generationRequest->preview,
         );
 
         foreach ($renderPlan as $format) {

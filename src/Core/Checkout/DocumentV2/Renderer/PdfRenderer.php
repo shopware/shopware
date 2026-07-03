@@ -64,7 +64,10 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
 
         $config = $renderData->config;
 
-        $dompdf = new Dompdf(new Options($this->dompdfOptions));
+        $options = new Options($this->dompdfOptions);
+        $options->setDefaultMediaType('print');
+
+        $dompdf = new Dompdf($options);
         $dompdf->setPaper($config->pageSize, $config->pageOrientation);
         $dompdf->loadHtml($html);
         $dompdf->render();

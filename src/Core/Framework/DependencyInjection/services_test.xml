@@ -23,6 +23,10 @@
             <tag name="content_system.type_loader"/>
         </service>
 
+        <service id="Shopware\Core\Test\Stub\ContentSystem\TestStyleOptionLoader">
+            <tag name="content_system.style_option_loader"/>
+        </service>
+
         <service id="Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method"/>

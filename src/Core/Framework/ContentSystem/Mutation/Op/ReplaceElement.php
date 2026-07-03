@@ -69,6 +69,8 @@ final class ReplaceElement extends AbstractLayoutMutation
             $this->carryProperties($node->getProperties(), $properties) + $this->primitiveDefaults($this->registry, $this->newType),
             $this->carrySlots($node),
             new ContextDefinitions($keptProviders, $keptConsumers),
+            // style is universal and type-independent, so it carries over unconditionally on a type swap
+            $node->getStyle(),
         );
 
         // Whole subtree, not just the replaced element: a kept descendant may re-resolve if the new type drops a provider it consumed.

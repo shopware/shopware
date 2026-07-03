@@ -199,6 +199,26 @@
             <tag name="shopware.app_manifest.validator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemStyleOptionPersister">
+            <argument type="service" id="app_content_system_style_option.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemStyleOptionLifecycleHandler">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemStyleOptionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-1401"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\ContentSystemStyleOptionAppValidator">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader"/>
+            <tag name="shopware.app_manifest.validator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\AppService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
@@ -686,6 +706,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 

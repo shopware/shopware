@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * properties or slot children in place. {@see snapshotTree()} captures the full structural state of an input
  * tree before `apply()` runs, and {@see assertInputTreeUnmutated()} re-captures it afterwards and asserts the
  * two are identical, covering every node's id, component, properties, data requirements, context definitions,
- * and slot children recursively. Leaf value objects are held by reference, so the strict comparison detects a
- * swapped object as well as a changed scalar.
+ * style, and slot children recursively. Leaf value objects are held by reference, so the strict comparison
+ * detects a swapped object as well as a changed scalar.
  *
  * @internal
  *
@@ -64,6 +64,7 @@ trait AssertsImmutableInput
             'contextDefinitions' => $element->getContextDefinitions(),
             'providesContext' => $element->getProvidesContext(),
             'acceptsContext' => $element->getAcceptsContext(),
+            'style' => $element->getStyle(),
             'slots' => $slots,
         ];
     }

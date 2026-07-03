@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -33,7 +34,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   data_requirements?: array<string, DataRequirementData>,
  *   slots?: array<string, list<array<string, mixed>>>,
  *   provides_context?: array<string, array<string, mixed>>,
- *   accepts_context?: array<string, ContextConsumerData>
+ *   accepts_context?: array<string, ContextConsumerData>,
+ *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>
  * }
  *
  * @internal
@@ -47,19 +49,16 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         private readonly DataRequirementsFieldSerializer $dataRequirementsSerializer,
         private readonly ContextProvidersFieldSerializer $contextProvidersSerializer,
         private readonly ContextConsumersFieldSerializer $contextConsumersSerializer,
-        private readonly ElementSlotsFieldSerializer $elementSlotsSerializer
+        private readonly ElementSlotsFieldSerializer $elementSlotsSerializer,
+        private readonly ElementStyleFieldSerializer $elementStyleSerializer
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
 
     /**
-     * Encodes a ContentElement for database storage.
-     *
-     * The serializer is format-agnostic — it serializes whatever properties are present on
-     * the element at call time. In the normal write path (Admin API saving a layout), the
-     * element has not been hydrated, so properties contain only static/config values.
-     * FQCN-typed values exist as instructions in data_requirements or accepts_context,
-     * and are materialized into properties only at hydration time.
+     * Encodes a ContentElement for database storage. Format-agnostic: it serializes whatever
+     * properties are present at call time (in the normal write path the element is unhydrated, so
+     * only static/config values).
      */
     public function encode(
         Field $field,
@@ -93,11 +92,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Decodes a ContentElement from database JSON.
-     *
-     * The returned element is in the "storage" lifecycle stage: properties contain only
-     * static/config values. FQCN-typed property values are not present — they exist as
-     * instructions in data_requirements and accepts_context, awaiting hydration.
+     * Decodes a ContentElement from database JSON. The result is in the storage stage: properties
+     * hold only static/config values, not yet-hydrated data.
      */
     public function decode(Field $field, mixed $value): ?ContentElement
     {
@@ -145,7 +141,6 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         $contextProvidersField = new ContextProvidersField('provides_context', 'providesContext');
         $contextConsumersField = new ContextConsumersField('accepts_context', 'acceptsContext');
 
-        // Null default matches decode() return type; ?? [] used below for type safety
         $providers = \array_key_exists('provides_context', $data) && \is_array($data['provides_context'])
             ? $this->contextProvidersSerializer->decode($contextProvidersField, $data['provides_context'])
             : null;
@@ -162,13 +157,19 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? [])
             : [];
 
+        // Read is registry-free: deserialize() keeps unknown options verbatim; the strict write rejects them
+        $style = \array_key_exists('style', $data) && \is_array($data['style'])
+            ? $this->elementStyleSerializer->deserialize($data['style'])
+            : new ElementStyle();
+
         return new ContentElement(
             $data['id'],
             $data['component'],
             $dataRequirements ?? [],
             $data['properties'] ?? [],
             $slots,
-            $contextDefinitions
+            $contextDefinitions,
+            $style
         );
     }
 
@@ -214,6 +215,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $array['accepts_context'] = $serializedConsumers;
         }
 
+        // Omitted when empty so it never encodes as an empty {} / [] in the stored JSON or the response
+        if (!$element->getStyle()->isEmpty()) {
+            $array['style'] = $element->getStyle()->toArray();
+        }
+
         return $array;
     }
 
@@ -251,6 +257,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? $acceptsContextConstraints
             : new Optional($acceptsContextConstraints);
 
+        $styleConstraints = $this->elementStyleSerializer->buildConstraints($nestedFields['style']);
+        $styleField = $nestedFields['style']->is(Required::class)
+            ? $styleConstraints
+            : new Optional($styleConstraints);
+
         $constraints = [
             new Type('array'),
             new Collection(
@@ -262,6 +273,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'slots' => $slotsField,
                     'provides_context' => $providesContextField,
                     'accepts_context' => $acceptsContextField,
+                    'style' => $styleField,
                 ],
                 allowExtraFields: false,
                 allowMissingFields: false

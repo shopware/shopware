@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefiniti
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
@@ -15,18 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Content element aggregate root with tree traversal.
- *
- * Lifecycle: ContentElement is a mutable object whose properties map changes between stages:
- *
- * - **Storage** (database JSON): properties contains only static/config values (scalars).
- *   FQCN-typed values are absent — their loading instructions live in $dataRequirements
- *   and $contextDefinitions.
- * - **Post-hydration** (runtime): properties contains static values AND loaded data merged.
- *   Data is written via setProperty($key, $data) using the data requirement's key.
- *   Context resolution writes via the same mechanism.
- * - **API output** (jsonSerialize): properties is serialized as a single merged map.
- *   Skeleton output strips properties entirely.
+ * Content element aggregate root with tree traversal. Mutable: its properties map is filled
+ * across the storage → post-hydration → output stages.
  *
  * @final
  */
@@ -54,7 +45,8 @@ class ContentElement extends Struct
         protected array $dataRequirements = [],
         array $properties = [],
         protected array $slots = [],
-        protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], [])
+        protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], []),
+        protected ElementStyle $style = new ElementStyle()
     ) {
         $this->setProperties($properties);
     }
@@ -75,9 +67,17 @@ class ContentElement extends Struct
         return $this->component;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getStyle(): ElementStyle
+    {
+        return $this->style;
+    }
+
     public function requiresData(): bool
     {
-        return \count($this->dataRequirements) !== 0;
+        return $this->dataRequirements !== [];
     }
 
     /**
@@ -176,7 +176,7 @@ class ContentElement extends Struct
      */
     public function hasSlots(): bool
     {
-        return \count($this->slots) !== 0;
+        return $this->slots !== [];
     }
 
     public function traverse(ElementVisitor $visitor): void
@@ -283,16 +283,22 @@ class ContentElement extends Struct
     {
         $data = parent::jsonSerialize();
 
-        // Remove internal property stores from output (should not be exposed via API)
+        // Remove internal property stores and the style object; both are re-emitted below in wire shape
         unset(
             $data['structProperties'],
             $data['nonStructProperties'],
+            $data['style'],
         );
 
         $data['properties'] = array_merge(
             $this->structProperties,
             $this->nonStructProperties
         );
+
+        // style is structural and omitted when empty, so it never serializes as an empty {} / []
+        if (!$this->style->isEmpty()) {
+            $data['style'] = $this->style->toArray();
+        }
 
         return $data;
     }

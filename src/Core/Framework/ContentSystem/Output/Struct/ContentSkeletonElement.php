@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Read-only projection of ContentElement for skeleton and decomposed output.
+ * Read-only projection of ContentElement for skeleton and decomposed output: properties stripped,
+ * universal style carried.
  *
  * @final
  */
@@ -21,6 +23,7 @@ class ContentSkeletonElement extends Struct
         public string $id,
         public string $component,
         public array $slots,
+        public ElementStyle $style = new ElementStyle(),
     ) {
     }
 
@@ -47,6 +50,23 @@ class ContentSkeletonElement extends Struct
         return 'content_skeleton_element';
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        // Re-emit style in wire shape; structural and omitted when empty, so it never serializes as an empty {} / []
+        unset($data['style']);
+
+        if (!$this->style->isEmpty()) {
+            $data['style'] = $this->style->toArray();
+        }
+
+        return $data;
+    }
+
     private static function fromElement(ContentElement $element): self
     {
         $slots = [];
@@ -58,6 +78,6 @@ class ContentSkeletonElement extends Struct
             $slots[$slotName] = $children;
         }
 
-        return new self($element->getId(), $element->getComponent(), $slots);
+        return new self($element->getId(), $element->getComponent(), $slots, $element->getStyle());
     }
 }

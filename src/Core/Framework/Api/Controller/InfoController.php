@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
@@ -41,6 +43,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type StyleOptionSchema from StyleOptionSpecification
+ */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class InfoController extends AbstractController
@@ -64,6 +69,7 @@ class InfoController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator,
         private readonly AbstractContentSystemElementTypeRegistry $elementTypeRegistry,
+        private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
     ) {
@@ -274,7 +280,27 @@ class InfoController extends AbstractController
             array_values($this->elementTypeRegistry->all())
         );
 
-        return new JsonResponse(['types' => $types]);
+        // styleOptions are universal (settable on every type), so they are folded in here as well as served standalone.
+        // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['types' => $types, 'styleOptions' => (object) $this->styleOptionSchemas()]);
+    }
+
+    #[Route(path: '/api/_info/content-system-style-options.json', name: 'api.info.content-system-style-options', methods: ['GET'])]
+    public function getContentSystemStyleOptions(): JsonResponse
+    {
+        // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['styleOptions' => (object) $this->styleOptionSchemas()]);
+    }
+
+    /**
+     * @return array<string, StyleOptionSchema> the registered style options keyed by their wire name
+     */
+    private function styleOptionSchemas(): array
+    {
+        return array_map(
+            static fn (StyleOptionSpecification $spec) => $spec->toSchema(),
+            $this->styleOptionRegistry->allResolved()
+        );
     }
 
     /**

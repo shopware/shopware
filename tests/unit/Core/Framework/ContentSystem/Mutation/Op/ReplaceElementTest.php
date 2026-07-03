@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -213,6 +214,17 @@ class ReplaceElementTest extends TestCase
 
         static::assertFalse($result[0]->hasSlots());
         static::assertSame(['child'], array_map(static fn (ContentElement $e): string => $e->getId(), $replace->orphaned()));
+    }
+
+    #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
+    public function testReplaceCarriesStyleUnconditionally(): void
+    {
+        $style = new ElementStyle(['col-span' => ['md' => 6], 'display' => ['xs' => false]]);
+        $tree = [new ContentElement('el', 'Sw:Old', [], [], [], new ContextDefinitions([], []), $style)];
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New'))->apply($tree);
+
+        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
     }
 
     #[TestDox('reports the replaced element and its kept descendants as affected')]

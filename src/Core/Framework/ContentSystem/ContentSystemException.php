@@ -59,6 +59,11 @@ class ContentSystemException extends HttpException
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
+    public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
+    public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
+    public const STYLE_OPTIONS_INVALID = 'CONTENT_SYSTEM__STYLE_OPTIONS_INVALID';
+    public const STYLE_OPTION_LOAD_FAILED = 'CONTENT_SYSTEM__STYLE_OPTION_LOAD_FAILED';
+    public const STYLE_OPTION_INVALID_FILENAME = 'CONTENT_SYSTEM__STYLE_OPTION_INVALID_FILENAME';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -564,6 +569,65 @@ class ContentSystemException extends HttpException
             self::ROOT_SOURCE_ASSIGNMENT_MISMATCH,
             'Cannot assign a "{{ assignmentType }}" entity to a content layout whose root source is "{{ rootSource }}".',
             ['rootSource' => $rootSource, 'assignmentType' => $assignmentType]
+        );
+    }
+
+    public static function styleOptionDuplicate(string $name, string $existingSource, string $newSource): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::STYLE_OPTION_DUPLICATE,
+            'Style option "{{ name }}" is already registered by "{{ existingSource }}", cannot register again from "{{ newSource }}"',
+            ['name' => $name, 'existingSource' => $existingSource, 'newSource' => $newSource]
+        );
+    }
+
+    public static function styleOptionsInvalid(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::STYLE_OPTIONS_INVALID,
+            'Style option validation failed: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
+        );
+    }
+
+    public static function styleOptionLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::STYLE_OPTION_LOAD_FAILED,
+            'Failed to load style option from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function styleOptionInvalidFilename(string $name, string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::STYLE_OPTION_INVALID_FILENAME,
+            'Invalid style option filename "{{ name }}" in file "{{ file }}". The option name must match [a-z0-9]+(-[a-z0-9]+)*',
+            ['name' => $name, 'file' => $file]
+        );
+    }
+
+    // The internal 500 fail-hard when StyleOptionConstraintDeriver is handed a value type whose primitive is not one
+    // of StyleOptionValueType::PRIMITIVE_TYPES. Unreachable in practice: every registered option passes the DTO's
+    // Choice/TypedStyleOption validation first, so reaching this is a programming error in a new, ungated caller.
+    public static function unsupportedStyleValueType(string $type): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_STYLE_VALUE_TYPE,
+            'Style option value type "{{ type }}" is not a supported primitive (string, integer, number, boolean).',
+            ['type' => $type]
         );
     }
 

@@ -1,0 +1,83 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Style Options",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-style-options.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system style options",
+                "description": "Get all registered universal content system style option specifications.",
+                "operationId": "content-system-style-options",
+                "responses": {
+                    "200": {
+                        "description": "Returns the registered universal style options keyed by their wire name.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["styleOptions"],
+                                    "properties": {
+                                        "styleOptions": {
+                                            "type": "object",
+                                            "description": "Map of style option wire name to its specification. Every option is settable on every element.",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "required": ["type", "enum", "range", "maxLength", "default", "adminUI", "breakpointAware"],
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "description": "Primitive value type: string, integer, number, or boolean."
+                                                    },
+                                                    "enum": {
+                                                        "type": ["array", "null"],
+                                                        "items": {
+                                                            "type": ["string", "integer", "number", "boolean"]
+                                                        },
+                                                        "description": "Allowed values, or null when unconstrained."
+                                                    },
+                                                    "range": {
+                                                        "type": ["object", "null"],
+                                                        "description": "Numeric bounds for integer and number options.",
+                                                        "properties": {
+                                                            "min": {
+                                                                "type": ["integer", "number"]
+                                                            },
+                                                            "max": {
+                                                                "type": ["integer", "number"]
+                                                            }
+                                                        }
+                                                    },
+                                                    "maxLength": {
+                                                        "type": ["integer", "null"],
+                                                        "description": "Maximum string length, or null for non-string options."
+                                                    },
+                                                    "default": {
+                                                        "type": ["string", "integer", "number", "boolean", "null"],
+                                                        "description": "Advisory default for admin pre-fill; not stored or applied at serve time."
+                                                    },
+                                                    "adminUI": {
+                                                        "type": ["object", "null"],
+                                                        "description": "Opaque admin UI hints passed through verbatim."
+                                                    },
+                                                    "breakpointAware": {
+                                                        "type": "boolean",
+                                                        "description": "Whether the option's value is set per breakpoint (an object keyed by xs, sm, md, lg, xl, xxl) or a single flat value."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

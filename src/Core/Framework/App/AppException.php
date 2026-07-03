@@ -71,6 +71,8 @@ class AppException extends HttpException
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
+    final public const CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED = 'FRAMEWORK__APP_STYLE_OPTION_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_STYLE_OPTION_DUPLICATE = 'FRAMEWORK__APP_STYLE_OPTION_DUPLICATE';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
 
     /**
@@ -592,6 +594,31 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED,
             'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    public static function contentSystemStyleOptionDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_STYLE_OPTION_DUPLICATE,
+            'Style option name collision while persisting options for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
+        );
+    }
+
+    public static function contentSystemStyleOptionLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED,
+            'Failed to load style option from "{{ file }}": {{ reason }}',
             ['file' => $file, 'reason' => $reason],
             $previous
         );

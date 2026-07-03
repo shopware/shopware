@@ -68,7 +68,7 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the eight draft mu
 - **Event/Listener/** - Pre/post hydration pipeline transformations
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
-- **Layout/** - Element tree, entities, field types, scaffolding, element type system
+- **Layout/** - Element tree, entities, field types, scaffolding, element type system, universal style options
 - **Mutation/** - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
 - **Output/** - Response formatting and partial rendering
 - **Resolution/** - Property-resolution kernel (element/context resolvers, resolution candidates)

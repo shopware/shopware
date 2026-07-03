@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
@@ -156,15 +157,19 @@ class ElementTreePrunerTest extends TestCase
         static::assertSame($targetId, $children[0]->getId());
     }
 
-    #[TestDox('reconstructs multi-level pruned tree when both target and parent consume context')]
+    #[TestDox('reconstructs multi-level pruned tree and preserves style on each reconstructed ancestor and the target')]
     public function testPruneMultiLevel(): void
     {
         $targetId = 'target-id';
         $parentId = 'parent-id';
         $grandparentId = 'grandparent-id';
 
+        $grandparentStyle = new ElementStyle(['col-span' => ['md' => 6]]);
+        $targetStyle = new ElementStyle(['display' => ['xs' => 'none']]);
+
         $target = ContentElementBuilder::create('target-component', $targetId)
             ->withConsumer('listing', ContextType::Single)
+            ->withStyle($targetStyle)
             ->build();
 
         $parent = ContentElementBuilder::create('parent-component', $parentId)
@@ -175,6 +180,7 @@ class ElementTreePrunerTest extends TestCase
         $grandparent = ContentElementBuilder::create('grandparent-component', $grandparentId)
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('default', [$parent])
+            ->withStyle($grandparentStyle)
             ->build();
 
         $root = ContentElementBuilder::create('root-component', 'root-id')
@@ -183,8 +189,10 @@ class ElementTreePrunerTest extends TestCase
 
         $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
-        // Grandparent is data root (provides context but doesn't consume)
+        // Grandparent is data root (provides context but doesn't consume); it is rebuilt through the
+        // ContentElement constructor, which carries its style.
         static::assertSame($grandparentId, $pruned->getId());
+        static::assertSame(['col-span' => ['md' => 6]], $pruned->getStyle()->toArray());
 
         // Grandparent → parent → target chain preserved
         $parentSlots = $pruned->getSlots();
@@ -196,6 +204,7 @@ class ElementTreePrunerTest extends TestCase
         static::assertCount(1, $targetSlots);
         $prunedTarget = $targetSlots['default']->getElements()[0];
         static::assertSame($targetId, $prunedTarget->getId());
+        static::assertSame(['display' => ['xs' => 'none']], $prunedTarget->getStyle()->toArray());
     }
 
     #[TestDox('preserves descendant elements below the target when target has children')]

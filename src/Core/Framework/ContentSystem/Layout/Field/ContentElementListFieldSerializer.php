@@ -128,7 +128,7 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
             return [];
         }
 
-        // Validate indexed array format (multi-root layout)
+        // Top-level is a list: each entry is an independent root element (multi-root layout)
         if (!\array_is_list($value)) {
             throw ContentSystemException::invalidFieldValueType(
                 $field->getStorageName(),
@@ -186,5 +186,15 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
     protected function getConstraints(Field $field): array
     {
         return $this->buildConstraints($field);
+    }
+
+    /**
+     * The composed style constraints derive from a runtime-mutable registry, so they must not be frozen
+     * process-wide as the inherited cache would. Building fresh runs once per content_layout write, and the
+     * All() wrapper still reuses that one built tree across every element in the write.
+     */
+    protected function getCachedConstraints(Field $field): array
+    {
+        return $this->getConstraints($field);
     }
 }

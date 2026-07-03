@@ -8,6 +8,7 @@ use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\UnableToReadFile;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Message\SendMailHandler;
@@ -21,11 +22,11 @@ use Symfony\Component\Mime\Email;
 #[CoversClass(SendMailHandler::class)]
 class SendMailHandlerTest extends TestCase
 {
-    private MockObject&TransportInterface $transport;
+    private TransportInterface&Stub $transport;
 
     private MockObject&FilesystemOperator $fileSystem;
 
-    private MockObject&LoggerInterface $logger;
+    private LoggerInterface&Stub $logger;
 
     private SendMailHandler $handler;
 
@@ -33,11 +34,11 @@ class SendMailHandlerTest extends TestCase
     {
         parent::setUp();
 
-        $this->transport = $this->createMock(TransportInterface::class);
+        $this->transport = static::createStub(TransportInterface::class);
         $this->fileSystem = $this->createMock(FilesystemOperator::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = static::createStub(LoggerInterface::class);
 
-        $this->handler = new SendMailHandler($this->transport, $this->fileSystem, $this->logger);
+        $this->handler = $this->createHandler();
     }
 
     public function testHandle(): void
@@ -51,7 +52,8 @@ class SendMailHandlerTest extends TestCase
             ->with('mail-data/test')
             ->willReturn(serialize($mail));
 
-        $this->transport->expects($this->once())
+        $transport = $this->createMock(TransportInterface::class);
+        $transport->expects($this->once())
             ->method('send')
             ->with($mail);
 
@@ -59,7 +61,7 @@ class SendMailHandlerTest extends TestCase
             ->method('delete')
             ->with('mail-data/test');
 
-        $this->handler->__invoke($message);
+        $this->createHandler(transport: $transport)->__invoke($message);
     }
 
     public function testHandleFileReadException(): void
@@ -94,11 +96,12 @@ class SendMailHandlerTest extends TestCase
             ->with('mail-data/test')
             ->willReturn(false);
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with('The mail data file does not exist. Mail could not be sent.', ['mailDataPath' => 'mail-data/test', 'exception' => '']);
 
-        $this->handler->__invoke($message);
+        $this->createHandler(logger: $logger)->__invoke($message);
     }
 
     public function testHandleInvalidMailData(): void
@@ -111,13 +114,15 @@ class SendMailHandlerTest extends TestCase
             ->willReturn(serialize('invalid-data'));
 
         $this->fileSystem->expects($this->never())->method('delete');
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with('The mail data file does not contain a valid email object. Mail could not be sent.', ['mailDataPath' => 'mail-data/test']);
 
-        $this->transport->expects($this->never())->method('send');
+        $transport = $this->createMock(TransportInterface::class);
+        $transport->expects($this->never())->method('send');
 
-        $this->handler->__invoke($message);
+        $this->createHandler(transport: $transport, logger: $logger)->__invoke($message);
     }
 
     public function testHandleInvalidMailDataDeleteException(): void
@@ -130,11 +135,12 @@ class SendMailHandlerTest extends TestCase
             ->willReturn(serialize('invalid-data'));
 
         $this->fileSystem->expects($this->never())->method('delete');
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with('The mail data file does not contain a valid email object. Mail could not be sent.', ['mailDataPath' => 'mail-data/test']);
 
-        $this->handler->__invoke($message);
+        $this->createHandler(logger: $logger)->__invoke($message);
     }
 
     public function testHandleDeleteException(): void
@@ -148,7 +154,8 @@ class SendMailHandlerTest extends TestCase
             ->with('mail-data/test')
             ->willReturn(serialize($mail));
 
-        $this->transport->expects($this->once())
+        $transport = $this->createMock(TransportInterface::class);
+        $transport->expects($this->once())
             ->method('send')
             ->with($mail);
 
@@ -157,10 +164,16 @@ class SendMailHandlerTest extends TestCase
             ->with('mail-data/test')
             ->willThrowException(new UnableToDeleteFile());
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with('Could not delete mail data file after sending mail.', ['mailDataPath' => 'mail-data/test', 'exception' => '']);
 
-        $this->handler->__invoke($message);
+        $this->createHandler(transport: $transport, logger: $logger)->__invoke($message);
+    }
+
+    private function createHandler(?TransportInterface $transport = null, ?LoggerInterface $logger = null): SendMailHandler
+    {
+        return new SendMailHandler($transport ?? $this->transport, $this->fileSystem, $logger ?? $this->logger);
     }
 }

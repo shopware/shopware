@@ -1,6 +1,6 @@
 name: Triage Result Processor
 
-# Post-run processor for the `triage` workflow. Downloads the triage artifacts,
+# Post-run processor for the `sw-triage` workflow. Downloads the triage artifacts,
 # validates the `triage-output.json` payload against the TriageOutput shape,
 # scans for accidental or prompt-injection-induced secret leakage (GitHub tokens,
 # Anthropic keys, long base64 blocks), and posts a formatted triage comment back
@@ -11,7 +11,7 @@ name: Triage Result Processor
 # staging artifact itself is left in place (deleting would need actions:write);
 # the failure is the signal.
 #
-# Validator is `.github/bin/js/validate-triage-output.ts` (run via Node native type-stripping), no deps.
+# Validator is `.github/bin/js/validate-sw-triage-output.ts` (run via Node native type-stripping), no deps.
 
 on:
   workflow_run:
@@ -24,7 +24,7 @@ permissions:
   issues: write       # post the validated triage result as an issue comment
 
 concurrency:
-  group: process-triage-result-${{ github.event.workflow_run.id }}
+  group: process-sw-triage-result-${{ github.event.workflow_run.id }}
   cancel-in-progress: false
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 24
+          node-version: lts/*
 
       - name: Download triage staging artifact
         id: download
@@ -104,7 +104,7 @@ jobs:
         if: steps.locate.outputs.found == 'true'
         env:
           TRIAGE_OUTPUT_FILE: ${{ steps.locate.outputs.file }}
-        run: node .github/bin/js/validate-triage-output.ts "${TRIAGE_OUTPUT_FILE}"
+        run: node .github/bin/js/validate-sw-triage-output.ts "${TRIAGE_OUTPUT_FILE}"
 
       - name: Download triage context artifact
         if: steps.locate.outputs.found == 'true'

@@ -30,7 +30,7 @@ class InstallTest extends TestCase
 
     public function testCommandWhenServicesAreDisabled(): void
     {
-        $manager = $this->createMock(LifecycleManager::class);
+        $manager = static::createStub(LifecycleManager::class);
         $manager->method('enabled')
             ->willReturn(false);
 

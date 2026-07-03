@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -29,32 +29,23 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(MailAttachmentsBuilder::class)]
 class MailAttachmentsBuilderTest extends TestCase
 {
-    private MockObject&MediaService $mediaService;
+    private MediaService&Stub $mediaService;
 
     /**
-     * @var MockObject&EntityRepository<MediaCollection>
+     * @var EntityRepository<MediaCollection>&Stub
      */
-    private MockObject&EntityRepository $mediaRepository;
+    private EntityRepository&Stub $mediaRepository;
 
-    private MockObject&DocumentGenerator $documentGenerator;
+    private DocumentGenerator&Stub $documentGenerator;
 
-    private Connection&MockObject $connection;
-
-    private MailAttachmentsBuilder $attachmentsBuilder;
+    private Connection&Stub $connection;
 
     protected function setUp(): void
     {
-        $this->mediaService = $this->createMock(MediaService::class);
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->documentGenerator = $this->createMock(DocumentGenerator::class);
-        $this->connection = $this->createMock(Connection::class);
-
-        $this->attachmentsBuilder = new MailAttachmentsBuilder(
-            $this->mediaService,
-            $this->mediaRepository,
-            $this->documentGenerator,
-            $this->connection
-        );
+        $this->mediaService = static::createStub(MediaService::class);
+        $this->mediaRepository = static::createStub(EntityRepository::class);
+        $this->documentGenerator = static::createStub(DocumentGenerator::class);
+        $this->connection = static::createStub(Connection::class);
     }
 
     public function testBuildTemplateMediaAttachments(): void
@@ -76,7 +67,8 @@ class MailAttachmentsBuilderTest extends TestCase
 
         $mailTemplate->setMedia(new MailTemplateMediaCollection([$mediaA, $mediaB, $mediaC]));
 
-        $this->mediaService
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService
             ->expects($this->exactly(2))
             ->method('getAttachment')
             ->willReturnOnConsecutiveCalls(
@@ -91,8 +83,9 @@ class MailAttachmentsBuilderTest extends TestCase
                     'mimeType' => 'bar',
                 ]
             );
+        $this->mediaService = $mediaService;
 
-        $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], Uuid::randomHex());
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, [], Uuid::randomHex());
 
         static::assertSame(
             [
@@ -125,7 +118,8 @@ class MailAttachmentsBuilderTest extends TestCase
         $eventConfig = ['documentTypeIds' => [$idA, $idB]];
         $orderId = Uuid::randomHex();
 
-        $this->connection
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->once())
             ->method('fetchAllAssociative')
             ->with(
@@ -140,13 +134,16 @@ class MailAttachmentsBuilderTest extends TestCase
                 ['doc_type' => 'foo', 'doc_id' => $idC],
                 ['doc_type' => 'bar', 'doc_id' => $idD],
             ]);
+        $this->connection = $connection;
 
         $document = new RenderedDocument();
         $document->setContent('');
-        $this->documentGenerator
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator
             ->expects($this->exactly(4))
             ->method('readDocument')
             ->willReturn($document);
+        $this->documentGenerator = $documentGenerator;
 
         $criteria = new Criteria($extension->getMediaIds());
         $criteria->setTitle('send-mail::load-media');
@@ -157,13 +154,16 @@ class MailAttachmentsBuilderTest extends TestCase
             return $media;
         }, $extension->getMediaIds());
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->with($criteria, $context)
             ->willReturn(new EntitySearchResult('media', 2, new MediaCollection($entities), null, $criteria, $context));
+        $this->mediaRepository = $mediaRepository;
 
-        $this->mediaService
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService
             ->expects($this->exactly(2))
             ->method('getAttachment')
             ->willReturnOnConsecutiveCalls(
@@ -180,8 +180,9 @@ class MailAttachmentsBuilderTest extends TestCase
                     'id' => $idF,
                 ]
             );
+        $this->mediaService = $mediaService;
 
-        $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
 
         static::assertEquals(
             [
@@ -238,17 +239,21 @@ class MailAttachmentsBuilderTest extends TestCase
         $document->setName('invoice.xml');
         $document->setContentType('application/xml');
 
-        $this->documentGenerator
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator
             ->expects($this->once())
             ->method('readDocument')
             ->with($xmlDocId, $context, '', null)
             ->willReturn($document);
+        $this->documentGenerator = $documentGenerator;
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->never())
             ->method('search');
+        $this->mediaRepository = $mediaRepository;
 
-        $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], null);
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, [], null);
 
         static::assertCount(1, $attachments);
         $attachment = $attachments[0];
@@ -257,5 +262,15 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame('<?xml version="1.0"?>', $attachment['content']);
         static::assertSame('invoice.xml', $attachment['fileName']);
         static::assertSame('application/xml', $attachment['mimeType']);
+    }
+
+    private function createBuilder(): MailAttachmentsBuilder
+    {
+        return new MailAttachmentsBuilder(
+            $this->mediaService,
+            $this->mediaRepository,
+            $this->documentGenerator,
+            $this->connection
+        );
     }
 }

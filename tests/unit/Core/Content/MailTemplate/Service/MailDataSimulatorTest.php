@@ -358,7 +358,7 @@ class MailDataSimulatorTest extends TestCase
 
         $definitions = [...$definitions, ...$additionalDefinitions];
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         foreach ($definitions as $definition) {
             $definition->compile($definitionRegistry);

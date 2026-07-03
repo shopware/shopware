@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
 use Shopware\Core\Content\ProductExport\ProductExportException;
@@ -24,23 +24,22 @@ class ProductExportGenerateCommandTest extends TestCase
 {
     private CommandTester $commandTester;
 
-    private ProductExporterInterface&MockObject $productExporter;
+    private ProductExporterInterface&Stub $productExporter;
 
-    private AbstractSalesChannelContextFactory&MockObject $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory&Stub $salesChannelContextFactory;
 
     protected function setUp(): void
     {
-        $this->salesChannelContextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
-        $this->productExporter = $this->createMock(ProductExporterInterface::class);
-        $command = new ProductExportGenerateCommand($this->salesChannelContextFactory, $this->productExporter);
-        $this->commandTester = new CommandTester($command);
+        $this->salesChannelContextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
+        $this->productExporter = static::createStub(ProductExporterInterface::class);
+        $this->commandTester = $this->createCommandTester();
     }
 
     public function testExecutionWithInvalidSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();
         $context = Context::createDefaultContext();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
 
         $salesChannelEntity = new SalesChannelEntity();
@@ -61,7 +60,7 @@ class ProductExportGenerateCommandTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
         $context = Context::createDefaultContext();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
 
         $salesChannelEntity = new SalesChannelEntity();
@@ -71,14 +70,23 @@ class ProductExportGenerateCommandTest extends TestCase
 
         $this->salesChannelContextFactory->method('create')->willReturn($salesChannelContext);
 
-        $this->productExporter->expects($this->once())->method('export');
+        $productExporter = $this->createMock(ProductExporterInterface::class);
+        $productExporter->expects($this->once())->method('export');
 
-        $this->commandTester->execute([
+        $commandTester = $this->createCommandTester($productExporter);
+        $commandTester->execute([
             'sales-channel-id' => $salesChannelId,
             '--force' => false,
             '--include-inactive' => true,
         ]);
 
-        static::assertSame(0, $this->commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
+    }
+
+    private function createCommandTester(?ProductExporterInterface $productExporter = null): CommandTester
+    {
+        $command = new ProductExportGenerateCommand($this->salesChannelContextFactory, $productExporter ?? $this->productExporter);
+
+        return new CommandTester($command);
     }
 }

@@ -20,7 +20,7 @@ class SitemapFileRouteTest extends TestCase
 {
     public function testExtension(): void
     {
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(new GetSitemapFileExample());
@@ -30,7 +30,7 @@ class SitemapFileRouteTest extends TestCase
         $route = new SitemapFileRoute($fileSystem, $extensionDispatcher);
 
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $filePath = 'test.xml.gz';
 
         $response = $route->getSitemapFile($request, $context, $filePath);

@@ -37,7 +37,7 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
 
     public function testIterateReturnsMessageWithFetchedIds(): void
     {
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('fetch')->willReturn(['id-1', 'id-2']);
         $query->method('getOffset')->willReturn(['offset' => 50]);
 
@@ -53,7 +53,7 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
 
     public function testIterateReturnsNullWhenNoMoreIds(): void
     {
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('fetch')->willReturn([]);
 
         $factory = $this->createMock(IteratorFactory::class);
@@ -139,7 +139,7 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
 
     public function testGetTotalCountsProducts(): void
     {
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('fetchCount')->willReturn(42);
 
         $factory = $this->createMock(IteratorFactory::class);
@@ -160,8 +160,8 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
         ?Connection $connection = null
     ): ProductDescriptionTeaserIndexer {
         return new ProductDescriptionTeaserIndexer(
-            $iteratorFactory ?? $this->createMock(IteratorFactory::class),
-            $connection ?? $this->createMock(Connection::class),
+            $iteratorFactory ?? static::createStub(IteratorFactory::class),
+            $connection ?? static::createStub(Connection::class),
             new ProductDescriptionTeaserBuilder(
                 new HtmlSanitizer(null, false, [], [ProductDescriptionTeaserBuilder::TEASER_FIELD => ['sets' => []]])
             )

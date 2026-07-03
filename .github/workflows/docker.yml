@@ -1,0 +1,108 @@
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+name: Run playwright in Docker
+
+on:
+  workflow_dispatch:
+    inputs:
+      update-snapshots:
+        description: "Update snapshots?"
+        type: boolean
+        default: false
+      filter:
+        description: "Filter passed to Playwright's --grep input."
+        type: string
+        default: ""
+
+jobs:
+   visual-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Define environment
+        shell: bash
+        run: |
+            echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+            echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
+            echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
+            echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
+            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
+            echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
+            echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+            env: prod
+            mysql-version: "builtin"
+            shopware-version: ${{ github.ref }}
+            shopware-repository: ${{ github.repository }}
+            install: true
+            install-admin: true
+            install-storefront: true
+
+      - name: Install Playwright dependencies
+        working-directory: tests/acceptance
+        run: |
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 20000
+          npm ci
+      - name: Run visual tests in Playwright container
+        working-directory: tests/acceptance
+        continue-on-error: true
+        env:
+          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots' || '' }}
+          FILTER: ${{ inputs.filter && format('--grep={0}', inputs.filter) || '' }}
+        run: |
+          docker run --rm \
+            --ipc=host \
+            --init \
+            --network=host \
+            -e APP_URL=http://localhost:8000 \
+            -e SHOPWARE_ADMIN_USERNAME=admin \
+            -e SHOPWARE_ADMIN_PASSWORD=shopware \
+            -v "$GITHUB_WORKSPACE:/app" \
+            -w /app/tests/acceptance \
+            mcr.microsoft.com/playwright:v1.58.1-noble \
+            npx playwright test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+      - name: Upload visual test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-visual-results
+          path: |
+            tests/acceptance/test-results/
+            tests/acceptance/playwright-report/
+          retention-days: 3
+      - name: Create token for PR
+        if: ${{ inputs.update-snapshots }}
+        uses: shopware/octo-sts-action@main
+        id: create-pr-token
+        with:
+          scope: shopware
+          identity: CreatePR
+        continue-on-error: true
+
+      - name: Check for snapshot changes
+        if: ${{ inputs.update-snapshots }}
+        id: diff
+        shell: bash
+        run: git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: ${{ inputs.update-snapshots && steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' }}
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          token: ${{ steps.create-pr-token.outputs.token }}
+          add-paths: |
+            .gitignore
+            tests/acceptance/tests/**/*-snapshots/*.png
+          branch: update-ats-snapshots-docker
+          branch-suffix: short-commit-hash
+          labels: |
+            domain/quality-ops
+          commit-message: "chore(ci): update acceptance test snapshots"
+          title: "chore(ci): update acceptance test snapshots (docker)"
+          body: "🤖 This PR updates acceptance test snapshots from the Docker run."
+        continue-on-error: true

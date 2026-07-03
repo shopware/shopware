@@ -256,6 +256,11 @@ jobs:
         with:
           test-testsuite: ${{ matrix.suite }}
           coverage: "true"
+      - uses: ./.github/actions/phpunit-upload
+        # !cancelled(): junit test results must upload even when the run failed
+        if: ${{ !cancelled() }}
+        with:
+          coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
 

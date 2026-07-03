@@ -1,5 +1,5 @@
 name: "PHPUnit run"
-description: "Run a PHPUnit suite (integration shard or unit/migration), optionally with coverage, then upload to Codecov. Requires ./.github/actions/phpunit-prepare to have run first."
+description: "Run a PHPUnit suite (integration shard or unit/migration), optionally producing a cobertura coverage report. Requires ./.github/actions/phpunit-prepare to have run first; Codecov uploads live in ./.github/actions/phpunit-upload."
 author: "shopware AG"
 
 inputs:
@@ -11,17 +11,12 @@ inputs:
     description: "PHPUnit testsuite to run (mutually exclusive with test-path)"
   coverage:
     default: "false"
-    description: "Run with cobertura coverage and upload it to Codecov"
-  coverage-flags:
-    default: ""
-    description: "Codecov coverage flags (e.g. phpunit-unit)"
-  codecov-token:
-    default: ""
-    description: "Codecov token. Empty on fork PRs (secrets unavailable) or for callers that opt out of Codecov uploads."
+    description: "Run with cobertura coverage (written to coverage.xml for ./.github/actions/phpunit-upload)"
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
 # inherit it, so this action stays flag-agnostic. Environment setup (PHP, database, webserver, test install)
-# lives in ./.github/actions/phpunit-prepare so the two phases get separate timings in the job UI.
+# lives in ./.github/actions/phpunit-prepare and the Codecov uploads in ./.github/actions/phpunit-upload,
+# so the three phases get separate timings in the job UI.
 runs:
   using: composite
   steps:
@@ -34,19 +29,3 @@ runs:
       if: ${{ inputs.test-path != '' }}
       shell: bash
       run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} -- tests/integration/${{ inputs.test-path }}
-
-    - name: Upload coverage to Codecov
-      if: ${{ inputs.coverage == 'true' && inputs.codecov-token != '' }}
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-      env:
-        CODECOV_TOKEN: ${{ inputs.codecov-token }}
-      with:
-        files: coverage.xml
-        flags: ${{ inputs.coverage-flags }}
-
-    - name: Upload test results to Codecov
-      # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics
-      if: ${{ !cancelled() && inputs.codecov-token != '' }}
-      uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
-      with:
-        token: ${{ inputs.codecov-token }}

@@ -508,6 +508,31 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('<entity>:read', $output);
     }
 
+    public function testListShowsGroupColumn(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
+            'Acme\\SearchTool',
+            true,
+        );
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            [],
+            [],
+            ['shopware-entity-search' => 'catalogue'],
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry, catalog: $catalog));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Group', $output);
+        static::assertStringContainsString('catalogue', $output);
+    }
+
     public function testResourceTemplatesAreRendered(): void
     {
         $registry = new Registry();

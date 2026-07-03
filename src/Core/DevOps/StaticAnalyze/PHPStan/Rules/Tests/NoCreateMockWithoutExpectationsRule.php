@@ -62,7 +62,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Core\\Content\\',
         'Shopware\\Tests\\Unit\\Core\\Framework\\Mcp\\',
         'Shopware\\Tests\\Unit\\Core\\Checkout\\Cart\\',
+        'Shopware\\Tests\\Unit\\Core\\Checkout\\Customer\\',
         'Shopware\\Tests\\Unit\\Core\\Checkout\\DependencyInjection\\',
+        'Shopware\\Tests\\Unit\\Core\\Checkout\\Rule\\',
+        'Shopware\\Tests\\Unit\\Core\\Checkout\\Validation\\',
         'Shopware\\Tests\\Unit\\Core\\Framework\\DataAbstractionLayer\\',
         'Shopware\\Tests\\Unit\\Elasticsearch\\',
     ];

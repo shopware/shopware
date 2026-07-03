@@ -46,6 +46,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';
+    private const TOOL_SEARCH = 'shopware-tool-search';
+    private const DEFAULT_ADVERTISED_TOOLS = [
+        self::TOOL_SEARCH,
+        'shopware-entity-schema',
+        'shopware-entity-search',
+    ];
 
     /**
      * @internal
@@ -144,6 +150,10 @@ class McpServerController
 
         if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
+            if ($toolName === self::TOOL_SEARCH) {
+                return null;
+            }
+
             if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist->tools)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
@@ -215,20 +225,35 @@ class McpServerController
 
     private function hasListFilter(?string $method, McpAllowlist $allowlist): bool
     {
-        return ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null)
+        return $method === ListToolsRequest::getMethod()
             || ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null)
             || ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null);
     }
 
     private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, McpAllowlist $allowlist): void
     {
-        if ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null) {
-            $response->filterTools($allowlist->tools);
+        if ($method === ListToolsRequest::getMethod()) {
+            $response->filterTools($this->advertisedTools($allowlist));
         } elseif ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null) {
             $response->filterResources($allowlist->resources);
         } elseif ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null) {
             $response->filterPrompts($allowlist->prompts);
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function advertisedTools(McpAllowlist $allowlist): array
+    {
+        if ($allowlist->tools === null) {
+            return self::DEFAULT_ADVERTISED_TOOLS;
+        }
+
+        return array_values(array_unique(array_merge(
+            [self::TOOL_SEARCH],
+            array_values(array_intersect(self::DEFAULT_ADVERTISED_TOOLS, $allowlist->tools)),
+        )));
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface

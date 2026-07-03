@@ -208,16 +208,16 @@ class McpServerControllerTest extends TestCase
     public static function toolsListFilterProvider(): iterable
     {
         yield 'restricted allowlist shows only allowed tool' => [
-            new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null),
-            ['tool-a'],
+            new McpAllowlist(tools: ['shopware-entity-schema', 'hidden-tool'], resources: null, prompts: null),
+            ['shopware-tool-search', 'shopware-entity-schema'],
         ];
-        yield 'null tools allowlist shows all tools' => [
+        yield 'null tools allowlist shows bounded default tools' => [
             new McpAllowlist(tools: null, resources: null, prompts: null),
-            ['tool-a', 'tool-b'],
+            ['shopware-tool-search', 'shopware-entity-schema', 'shopware-entity-search'],
         ];
-        yield 'empty tools allowlist hides all tools' => [
+        yield 'empty tools allowlist only shows discovery tool' => [
             new McpAllowlist(tools: [], resources: null, prompts: null),
-            [],
+            ['shopware-tool-search'],
         ];
     }
 
@@ -228,8 +228,10 @@ class McpServerControllerTest extends TestCase
     public function testToolsListIsFilteredByAllowlist(McpAllowlist $allowlist, array $expectedToolNames): void
     {
         $server = Server::builder()
-            ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
-            ->addTool(static fn (): string => '[]', name: 'tool-b', description: 'Tool B')
+            ->addTool(static fn (): string => '[]', name: 'shopware-tool-search', description: 'Search tools')
+            ->addTool(static fn (): string => '[]', name: 'shopware-entity-schema', description: 'Entity Schema')
+            ->addTool(static fn (): string => '[]', name: 'shopware-entity-search', description: 'Entity Search')
+            ->addTool(static fn (): string => '[]', name: 'hidden-tool', description: 'Hidden')
             ->build();
 
         $sessionId = $this->initializeMcpSession($server);
@@ -258,6 +260,29 @@ class McpServerControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         $toolNames = array_column($data['result']['tools'] ?? [], 'name');
         static::assertSame($expectedToolNames, array_values($toolNames));
+    }
+
+    public function testToolSearchCallIsAllowedEvenWhenToolAllowlistIsEmpty(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['name' => 'shopware-tool-search', 'arguments' => ['query' => 'entity']],
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
+
+        $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $response = $controller->handle($sfRequest);
+
+        static::assertStringNotContainsString('allowlist', (string) $response->getContent());
     }
 
     /**

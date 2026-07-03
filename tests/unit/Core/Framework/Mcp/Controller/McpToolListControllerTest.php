@@ -51,7 +51,7 @@ class McpToolListControllerTest extends TestCase
         static::assertCount(1, $data);
         static::assertSame('shopware-entity-search', $data[0]['name']);
         static::assertSame('Search entities', $data[0]['description']);
-        static::assertSame('shopware', $data[0]['group']);
+        static::assertSame('other', $data[0]['group']);
     }
 
     public function testListSortsToolsAlphabetically(): void

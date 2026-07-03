@@ -63,7 +63,7 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
      */
     private function userCredentialsChanged(array $payload): bool
     {
-        return isset($payload['password']);
+        return isset($payload['password']) || (\array_key_exists('active', $payload) && $payload['active'] === false);
     }
 
     private function updateLastUpdatedPasswordTimestamp(string $userId): void

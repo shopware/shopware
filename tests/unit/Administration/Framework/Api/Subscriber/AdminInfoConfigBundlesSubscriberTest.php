@@ -97,9 +97,8 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn(true);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')
-            ->with('administration.plugin.index', ['pluginName' => 'acme'])
             ->willReturn('/admin/acme/index.html');
 
         $bundles = $this->collectBundles(new StubKernel([$bundle]), router: $router, filesystem: $filesystem);

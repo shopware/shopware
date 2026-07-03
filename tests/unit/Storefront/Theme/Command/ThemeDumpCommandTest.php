@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -29,26 +29,26 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ThemeDumpCommand::class)]
 class ThemeDumpCommandTest extends TestCase
 {
-    private StorefrontPluginRegistry&MockObject $pluginRegistry;
+    private StorefrontPluginRegistry&Stub $pluginRegistry;
 
-    private ThemeFileResolver&MockObject $themeFileResolver;
+    private ThemeFileResolver&Stub $themeFileResolver;
 
     /**
-     * @var EntityRepository<ThemeCollection>&MockObject
+     * @var EntityRepository<ThemeCollection>&Stub
      */
-    private EntityRepository&MockObject $themeRepository;
+    private EntityRepository&Stub $themeRepository;
 
-    private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
+    private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
 
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
-        $this->pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
-        $this->themeFileResolver = $this->createMock(ThemeFileResolver::class);
-        $this->themeRepository = $this->createMock(EntityRepository::class);
-        $staticFileConfigDumper = $this->createMock(StaticFileConfigDumper::class);
-        $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $this->pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
+        $this->themeFileResolver = static::createStub(ThemeFileResolver::class);
+        $this->themeRepository = static::createStub(EntityRepository::class);
+        $staticFileConfigDumper = static::createStub(StaticFileConfigDumper::class);
+        $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
 
         $command = new ThemeDumpCommand(
             $this->pluginRegistry,
@@ -71,7 +71,7 @@ class ThemeDumpCommandTest extends TestCase
         $themeEntity->setTechnicalName('technical-name');
         $themeEntity->setName('Theme Name');
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
         $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
 
@@ -103,7 +103,7 @@ class ThemeDumpCommandTest extends TestCase
         $themeEntity->setTechnicalName('technical-name');
         $themeEntity->setName('Theme Name');
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
         $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
 
@@ -143,7 +143,7 @@ class ThemeDumpCommandTest extends TestCase
 
     public function testFailsWhenNoThemeFound(): void
     {
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(0);
 
         $this->themeRepository->method('search')->willReturn($searchResult);
@@ -163,7 +163,7 @@ class ThemeDumpCommandTest extends TestCase
         $themeEntity->setTechnicalName('technical-name');
         $themeEntity->setName('Theme Name');
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
         $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
 
@@ -177,7 +177,7 @@ class ThemeDumpCommandTest extends TestCase
 
         $this->themeFileResolver->method('resolveFiles')->willReturn(['resolved' => 'files']);
         $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(
-            $this->createMock(Filesystem::class)
+            static::createStub(Filesystem::class)
         );
 
         $this->commandTester->execute([

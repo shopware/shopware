@@ -145,13 +145,13 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     private function createResolverContext(): ResolverContext
     {
-        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        return new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
     }
 
     private function createResolverContextWithCategory(CategoryEntity $category): EntityResolverContext
     {
         return new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
             new CategoryDefinition(),
             $category

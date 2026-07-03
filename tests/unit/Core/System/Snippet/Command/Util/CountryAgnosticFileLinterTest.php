@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -34,27 +35,14 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public CountryAgnosticFileLinter $fileLinter;
 
-    private MockObject&Finder $finder;
-
-    /**
-     * @var MockObject&EntityRepository<PluginCollection>
-     */
-    private MockObject&EntityRepository $pluginRepository;
-
-    /**
-     * @var MockObject&EntityRepository<AppCollection>
-     */
-    private MockObject&EntityRepository $appRepository;
+    private Finder&Stub $finder;
 
     protected function setUp(): void
     {
-        // Mock Finder to avoid filesystem scanning
-        $this->finder = $this->createMock(Finder::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $this->pluginRepository = $this->createMock(EntityRepository::class);
-        $this->appRepository = $this->createMock(EntityRepository::class);
+        // Stub Finder to avoid filesystem scanning
+        $this->finder = static::createStub(Finder::class);
 
-        // Configure Finder mock to be chainable
+        // Configure Finder stub to be chainable
         $this->finder->method('files')->willReturnSelf();
         $this->finder->method('ignoreUnreadableDirs')->willReturnSelf();
         $this->finder->method('ignoreDotFiles')->willReturnSelf();
@@ -65,21 +53,21 @@ class CountryAgnosticFileLinterTest extends TestCase
         $this->finder->method('in')->willReturnSelf();
 
         $this->fileLinter = new CountryAgnosticFileLinter(
-            $filesystem,
-            $this->pluginRepository,
-            $this->appRepository,
+            static::createStub(Filesystem::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $this->finder,
         );
     }
 
     public function testCheckTranslationFiles(): void
     {
-        // Configure mock Finder to return fake translation files
+        // Configure Finder stub to return fake translation files
         $mockFiles = $this->createMockTranslationFiles();
         $this->finder->method('count')->willReturn(\count($mockFiles));
         $this->finder->method('getIterator')->willReturn(new \ArrayIterator($mockFiles));
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', false],
             ['all', false],
@@ -105,12 +93,12 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public function testFixFilenames(): void
     {
-        // Configure mock Finder to return fake translation files
+        // Configure Finder stub to return fake translation files
         $mockFiles = $this->createMockTranslationFiles();
         $this->finder->method('count')->willReturn(\count($mockFiles));
         $this->finder->method('getIterator')->willReturn(new \ArrayIterator($mockFiles));
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', true],
             ['all', false],
@@ -169,15 +157,17 @@ class CountryAgnosticFileLinterTest extends TestCase
     #[DataProvider('getFinderPathProvider')]
     public function testGetFinderWithDifferentPaths(string $dir, bool $isAll, array $expectedPaths, int $callCount): void
     {
-        $this->finder->expects($this->exactly($callCount))
+        $finder = $this->createMock(Finder::class);
+        $this->configureFinderChain($finder);
+        $finder->expects($this->exactly($callCount))
             ->method('in')
-            ->willReturnCallback(function ($path) use ($expectedPaths) {
+            ->willReturnCallback(function ($path) use ($expectedPaths, $finder) {
                 static::assertContains($path, $expectedPaths);
 
-                return $this->finder;
+                return $finder;
             });
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', false],
             ['all', $isAll],
@@ -188,11 +178,17 @@ class CountryAgnosticFileLinterTest extends TestCase
 
         $options = LintedTranslationFileOptions::fromInputInterface($input);
 
-        // Mock empty result
-        $this->finder->method('count')->willReturn(0);
-        $this->finder->method('getIterator')->willReturn(new \ArrayIterator([]));
+        // Stub empty result
+        $finder->method('count')->willReturn(0);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator([]));
 
-        $result = $this->fileLinter->checkTranslationFiles($options);
+        $fileLinter = new CountryAgnosticFileLinter(
+            static::createStub(Filesystem::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            $finder,
+        );
+        $result = $fileLinter->checkTranslationFiles($options);
 
         $this->assertEmptyResult($result);
     }
@@ -202,27 +198,37 @@ class CountryAgnosticFileLinterTest extends TestCase
         $pluginSearchResult = $this->createPluginSearchResult();
         $appSearchResult = $this->createAppSearchResult();
 
-        $this->pluginRepository->expects($this->once())->method('search')->willReturn($pluginSearchResult);
-        $this->appRepository->expects($this->once())->method('search')->willReturn($appSearchResult);
+        $pluginRepository = $this->createMock(EntityRepository::class);
+        $pluginRepository->expects($this->once())->method('search')->willReturn($pluginSearchResult);
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository->expects($this->once())->method('search')->willReturn($appSearchResult);
 
         // Verify that Finder->in() is called with an array containing both paths
         // The exact structure depends on entity IDs from map(), so we check values
-        $this->finder->expects($this->once())
+        $finder = $this->createMock(Finder::class);
+        $this->configureFinderChain($finder);
+        $finder->expects($this->once())
             ->method('in')
-            ->willReturnCallback(function ($paths) {
+            ->willReturnCallback(function ($paths) use ($finder) {
                 $pathValues = array_values($paths);
                 static::assertContains('/path/to/plugin1', $pathValues);
                 static::assertContains('/path/to/app1', $pathValues);
 
-                return $this->finder;
+                return $finder;
             });
 
         $options = $this->createOptionsWithExtensions();
 
-        $this->finder->method('count')->willReturn(0);
-        $this->finder->method('getIterator')->willReturn(new \ArrayIterator([]));
+        $finder->method('count')->willReturn(0);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator([]));
 
-        $result = $this->fileLinter->checkTranslationFiles($options);
+        $fileLinter = new CountryAgnosticFileLinter(
+            static::createStub(Filesystem::class),
+            $pluginRepository,
+            $appRepository,
+            $finder,
+        );
+        $result = $fileLinter->checkTranslationFiles($options);
         $this->assertEmptyResult($result);
     }
 
@@ -270,7 +276,7 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     private function createOptionsWithExtensions(): LintedTranslationFileOptions
     {
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', false],
             ['all', false],
@@ -298,6 +304,17 @@ class CountryAgnosticFileLinterTest extends TestCase
         }
 
         return $lintedFileStruct;
+    }
+
+    private function configureFinderChain(Finder&MockObject $finder): void
+    {
+        $finder->method('files')->willReturnSelf();
+        $finder->method('ignoreUnreadableDirs')->willReturnSelf();
+        $finder->method('ignoreDotFiles')->willReturnSelf();
+        $finder->method('ignoreVCS')->willReturnSelf();
+        $finder->method('exclude')->willReturnSelf();
+        $finder->method('name')->willReturnSelf();
+        $finder->method('sortByName')->willReturnSelf();
     }
 
     /**

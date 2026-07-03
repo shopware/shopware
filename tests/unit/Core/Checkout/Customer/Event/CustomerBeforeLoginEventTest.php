@@ -21,7 +21,7 @@ class CustomerBeforeLoginEventTest extends TestCase
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerBeforeLoginEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'my-email'
         );
 

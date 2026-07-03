@@ -24,12 +24,12 @@ class ThemeConfigValueAccessorTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -49,12 +49,12 @@ class ThemeConfigValueAccessorTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.8.0.0', $this);
 
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -67,7 +67,7 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetWithThemeId(): void
     {
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $configLoader->method('load')->willReturn([
             'sw-breakpoint-xs' => 0,
             'sw-breakpoint-sm' => 576,
@@ -82,7 +82,7 @@ class ThemeConfigValueAccessorTest extends TestCase
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -93,7 +93,7 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetWithThemeIdAndCustomBreakpoints(): void
     {
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $configLoader->method('load')->willReturn([
             'sw-breakpoint-xs' => 100,
             'sw-breakpoint-sm' => 600,
@@ -103,11 +103,11 @@ class ThemeConfigValueAccessorTest extends TestCase
             'sw-breakpoint-xxl' => 1500,
         ]);
 
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -122,16 +122,16 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetWithThemeIdAndMissingBreakpoints(): void
     {
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $configLoader->method('load')->willReturn([
             // No breakpoint configuration provided
         ]);
 
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -151,11 +151,11 @@ class ThemeConfigValueAccessorTest extends TestCase
             'sw-breakpoint-xs' => 0,
         ]);
 
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -170,14 +170,14 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetReturnsNullForNonExistentKey(): void
     {
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $configLoader->method('load')->willReturn([]);
 
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -188,14 +188,14 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetWithAssetsConfig(): void
     {
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $configLoader->method('load')->willReturn([]);
 
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $accessor = new ThemeConfigValueAccessor($configLoader, $cacheTagCollector);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 
@@ -212,9 +212,9 @@ class ThemeConfigValueAccessorTest extends TestCase
     public function testGetCssVarValuesReturnsEmptyWhenThemeIdMissing(): void
     {
         $accessor = new ThemeConfigValueAccessor(
-            $this->createMock(AbstractResolvedConfigLoader::class),
-            $this->createMock(CacheTagCollector::class),
-            $this->createMock(ThemeRuntimeConfigService::class),
+            static::createStub(AbstractResolvedConfigLoader::class),
+            static::createStub(CacheTagCollector::class),
+            static::createStub(ThemeRuntimeConfigService::class),
         );
 
         static::assertSame([], $accessor->getCssVarValues($this->createContext(), null));
@@ -224,8 +224,8 @@ class ThemeConfigValueAccessorTest extends TestCase
     {
         // Pre-v6.8 the service is nullable and resolves to [] when missing.
         $accessor = new ThemeConfigValueAccessor(
-            $this->createMock(AbstractResolvedConfigLoader::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(AbstractResolvedConfigLoader::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         static::assertSame([], $accessor->getCssVarValues($this->createContext(), 'theme-id'));
@@ -233,12 +233,12 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetCssVarValuesReturnsEmptyWhenRuntimeConfigMissing(): void
     {
-        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
         $runtimeConfigService->method('getRuntimeConfig')->willReturn(null);
 
         $accessor = new ThemeConfigValueAccessor(
-            $this->createMock(AbstractResolvedConfigLoader::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(AbstractResolvedConfigLoader::class),
+            static::createStub(CacheTagCollector::class),
             $runtimeConfigService,
         );
 
@@ -614,7 +614,7 @@ class ThemeConfigValueAccessorTest extends TestCase
      */
     private function createAccessorWithResolvedConfig(array $fields, array $resolvedValues): ThemeConfigValueAccessor
     {
-        $configLoader = $this->createMock(AbstractResolvedConfigLoader::class);
+        $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $configLoader->method('load')->willReturn($resolvedValues);
 
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
@@ -627,19 +627,19 @@ class ThemeConfigValueAccessorTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
         $runtimeConfigService->method('getRuntimeConfig')->willReturn($runtimeConfig);
 
         return new ThemeConfigValueAccessor(
             $configLoader,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             $runtimeConfigService,
         );
     }
 
     private function createContext(): SalesChannelContext
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn('sales-channel-id');
         $context->method('getDomainId')->willReturn('domain-id');
 

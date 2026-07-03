@@ -2,8 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures;
 
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -23,7 +24,7 @@ readonly class StaticRenderData extends AbstractRenderData
             10
         );
 
-        $company = new CompanyInfo(
+        $company = new DocumentCompanyInfo(
             'company',
             'street',
             '12345',
@@ -34,9 +35,11 @@ readonly class StaticRenderData extends AbstractRenderData
         parent::__construct(
             $config,
             $company,
+            new DocumentDisplayOptions(),
             'date',
             'number',
             null,
+            [],
         );
     }
 }

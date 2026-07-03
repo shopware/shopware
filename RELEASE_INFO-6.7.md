@@ -18,6 +18,10 @@ MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which brea
 **Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
 If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
 
+### Plugin activation rolls back when post-activation fails
+
+Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.
@@ -210,6 +214,24 @@ No adoption is required for normal write-event listeners; remove any extra API p
 Private media visibility is not implicitly widened by this change.
 During DAL write-event dispatch, Shopware marks the context with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` so private media searches still apply normal visibility restrictions.
 If a listener intentionally needs private media access, wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; explicit system-scope reads continue to opt in to private media visibility.
+
+### Manage translation downloads via the Admin API
+
+Translation management — previously only possible through the `translation:list`, `translation:install`, and `translation:update` CLI commands — is now available through the Admin API, so it can be driven from the Administration without shell access:
+
+- `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
+- `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped, unavailable }`, where `unavailable` lists requested locales that have no translation available.
+- `POST /api/_action/translation/update` — updates all installed translations. Returns `{ updated, skipped, unavailable }`.
+- `DELETE /api/_action/translation/{locale}` — removes the downloaded translation files and the metadata entry for a locale. The associated `language`, `locale`, and `snippet_set` records are left untouched and remain manageable through their regular entity endpoints.
+
+The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
+
+`install` and `update` process the requested locales synchronously during the request, downloading each locale's snippet files in turn. Installing many locales at once — in particular `all: true`, which covers every configured locale — can therefore take a while, and the operation is not atomic: if one locale fails, the locales processed before it remain installed.
+
+Two events are dispatched from the underlying services (so they fire for both the Admin API and the `translation:*` CLI commands), giving extensions a targeted hook instead of having to filter generic DAL write events:
+
+- `Shopware\Core\System\Snippet\Event\TranslationLoadedEvent` — after a locale's translations are downloaded and installed (carries the locale and the `Context`).
+- `Shopware\Core\System\Snippet\Event\TranslationRemovedEvent` — after a locale's downloaded files and metadata entry are removed (carries the locale).
 
 ## App System
 

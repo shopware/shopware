@@ -6,8 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 
 /**
- * Off-hot-path webhook-health orchestration: the clocked duties driven by the one WebhookHealthTask
- * tick, plus the app-install/update reset. The per-delivery transitions live on
+ * Off-hot-path webhook-health orchestration: the clocked duties driven by the transport-polled
+ * {@see WebhookHealthTick}, plus the app-install/update reset. The per-delivery transitions live on
  * {@see EndpointHealth}. Full ownership map:
  *
  *   HEALTHY  → DEGRADED            EndpointHealth::recordFailure  transient threshold crossed
@@ -25,7 +25,7 @@ use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 interface EndpointLifecycle
 {
     /**
-     * One scheduled tick over every DEGRADED/SUSPENDED webhook — five duties, each a cheap indexed
+     * One clocked tick over every DEGRADED/SUSPENDED webhook — five duties, each a cheap indexed
      * per-webhook check in its own short transaction, no HTTP:
      *
      *  1. Releases: per webhook with an elapsed cooldown and nothing in flight, flip the oldest

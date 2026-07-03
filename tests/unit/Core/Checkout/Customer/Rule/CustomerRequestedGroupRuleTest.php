@@ -68,7 +68,7 @@ class CustomerRequestedGroupRuleTest extends TestCase
                     ...RuleConfig::OPERATOR_SET_STRING,
                     Rule::OPERATOR_EMPTY,
                 ],
-                'isMatchAny' => true,
+                'isMatchAny' => false,
             ],
             'fields' => [
                 'customerGroupIds' => [

@@ -675,6 +675,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantsGenerator: {
                 ...wrapper.vm.variantsGenerator,
                 saveVariants: () => Promise.resolve(),
+                saveVariantRestrictions: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -716,6 +717,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantsGenerator: {
                 generateVariants: () => Promise.resolve(),
                 saveVariants: () => Promise.resolve(),
+                saveVariantRestrictions: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -1065,6 +1067,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
 
         const saveMock = jest.fn().mockReturnValueOnce(Promise.resolve({}));
+        const saveVariantRestrictionsMock = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({
             productRepository: {
@@ -1084,6 +1087,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
             variantsGenerator: {
                 saveVariants: () => Promise.resolve(),
+                saveVariantRestrictions: saveVariantRestrictionsMock,
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -1094,6 +1098,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         // productRepository.save should NOT be called - variants are saved via sync API
         // and swProductDetailLoadAll() reloads fresh data from server
         expect(saveMock).not.toHaveBeenCalled();
+        expect(saveVariantRestrictionsMock).toHaveBeenCalledTimes(1);
         // The event should still be emitted
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
     });

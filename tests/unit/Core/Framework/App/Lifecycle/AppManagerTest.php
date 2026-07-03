@@ -16,10 +16,10 @@ use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
@@ -192,7 +192,7 @@ class AppManagerTest extends TestCase
     {
         $app = AppFixture::createAppEntity(id: 'test-app', active: true);
         $appRepository = AppFixture::createAppRepository($app);
-        $persister = $this->createMock(PersisterInterface::class);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->never())->method('activate');
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->never())->method('reset');
@@ -211,10 +211,9 @@ class AppManagerTest extends TestCase
         $app = AppFixture::createAppEntity(id: 'test-app', active: false);
         $appRepository = AppFixture::createAppRepository($app);
 
-        $persister = $this->createMock(PersisterInterface::class);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('activate')
-            ->with($app, $context);
+            ->method('activate');
 
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->once())->method('reset');
@@ -238,7 +237,7 @@ class AppManagerTest extends TestCase
     {
         $app = AppFixture::createAppEntity(id: 'test-app', active: false);
         $appRepository = AppFixture::createAppRepository($app);
-        $persister = $this->createMock(PersisterInterface::class);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->never())->method('deactivate');
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->never())->method('reset');
@@ -257,10 +256,9 @@ class AppManagerTest extends TestCase
         $app = AppFixture::createAppEntity(id: 'test-app', active: true);
         $appRepository = AppFixture::createAppRepository($app);
 
-        $persister = $this->createMock(PersisterInterface::class);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('deactivate')
-            ->with($app, $context);
+            ->method('deactivate');
 
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->once())->method('reset');
@@ -290,16 +288,17 @@ class AppManagerTest extends TestCase
             ->deactivate($app, Context::createDefaultContext());
     }
 
-    public function testDeleteDeactivatesActiveAppBeforeRemovingData(): void
+    public function testUninstallDeactivatesActiveAppBeforeRemovingData(): void
     {
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(id: 'test-app', active: true, allowDisable: false);
         $appRepository = AppFixture::createAppRepository($app);
 
-        $persister = $this->createMock(PersisterInterface::class);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('deactivate')
-            ->with($app, $context);
+            ->method('deactivate');
+        $persister->expects($this->once())
+            ->method('uninstall');
 
         $this->customEntityLifecycleService = $this->createMock(CustomEntityLifecycleService::class);
         $this->customEntityLifecycleService->expects($this->once())
@@ -320,7 +319,7 @@ class AppManagerTest extends TestCase
         $this->createAppManager(
             $appRepository,
             persisters: [$persister],
-        )->delete($app, $context, true);
+        )->uninstall($app, $context, true);
 
         static::assertSame([
             ['id' => $app->getId(), 'active' => false],
@@ -333,6 +332,41 @@ class AppManagerTest extends TestCase
         static::assertCount(1, $integrationUpdates);
         static::assertSame($app->getIntegrationId(), $integrationUpdates[0]['id']);
         static::assertInstanceOf(\DateTimeImmutable::class, $integrationUpdates[0]['deletedAt']);
+    }
+
+    public function testDeleteRemovesAppLocallyWithoutLifecycleEvents(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(id: 'test-app', active: true, allowDisable: false);
+        $appRepository = AppFixture::createAppRepository($app);
+
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->once())
+            ->method('delete');
+        $persister->expects($this->never())->method('deactivate');
+
+        $this->integrationRepository = new StaticEntityRepository([]);
+        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
+        $this->permissionLifecycle->expects($this->once())->method('softDeleteRole')->with($app->getAclRoleId());
+
+        $this->assetService = $this->createMock(AssetService::class);
+        $this->assetService->expects($this->once())->method('removeAssets')->with($app->getName());
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->delete($app, $context);
+
+        // the app server is never informed: no deactivation, no app.deleted webhook
+        static::assertSame([], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeletedEvent::class));
+
+        static::assertSame([['id' => $app->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(PostAppDeletedEvent::class));
     }
 
     public function testDeleteRemovesConfigOnlyWhenUserDataIsNotKept(): void
@@ -375,7 +409,7 @@ XML,
 
     /**
      * @param StaticEntityRepository<AppCollection> $appRepository
-     * @param list<PersisterInterface> $persisters
+     * @param list<AbstractLifecycleHandler> $persisters
      */
     private function createAppManager(
         StaticEntityRepository $appRepository,

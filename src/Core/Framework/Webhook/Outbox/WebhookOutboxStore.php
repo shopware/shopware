@@ -12,14 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see WebhookOutboxStoreTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
  */
 #[Package('framework')]
 class WebhookOutboxStore

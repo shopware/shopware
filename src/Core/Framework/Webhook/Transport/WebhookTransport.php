@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Transport;
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
@@ -29,6 +30,7 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly TransportInterface $asyncTransport,
         private readonly MySQLWebhookReceiver $receiver,
+        private readonly WebhookHealthTick $healthTick,
     ) {
     }
 
@@ -65,6 +67,10 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         if (!$this->outboxOwnsLifecycle()) {
             return [];
         }
+
+        // The worker's poll doubles as the health model's clock — a debounced time pulse,
+        // not a health decision; the receiver below stays health-agnostic.
+        $this->healthTick->run();
 
         return $this->receiver->get();
     }

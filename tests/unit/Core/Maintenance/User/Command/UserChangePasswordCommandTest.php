@@ -69,7 +69,7 @@ class UserChangePasswordCommandTest extends TestCase
 
     public function testEmptyPasswordOption(): void
     {
-        $userRepo = $this->createMock(EntityRepository::class);
+        $userRepo = static::createStub(EntityRepository::class);
         $command = new UserChangePasswordCommand($userRepo);
 
         $commandTester = new CommandTester($command);

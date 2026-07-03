@@ -92,7 +92,7 @@ class ServiceException extends HttpException
 
         $message = 'Error performing request. Response code: ' . $response->getStatusCode();
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $message .= '. Errors: ' . json_encode($errors, \JSON_THROW_ON_ERROR);
         }
 

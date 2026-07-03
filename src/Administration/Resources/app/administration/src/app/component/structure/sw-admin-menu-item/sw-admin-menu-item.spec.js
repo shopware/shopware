@@ -10,28 +10,27 @@ import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
 async function createWrapper({ props = {}, privileges = [] } = {}) {
+    const collectRoutes = (entry) => {
+        if (!entry) {
+            return [];
+        }
+
+        return [
+            ...(entry.children ?? []).flatMap((child) => collectRoutes(child)),
+            entry,
+        ];
+    };
+
     const $router = {
-        resolve: ({ path }) => {
-            let match = props.entry;
-
-            const route = path.replace('/', '').replace(/\//g, '.');
-
-            const matchedChild = props.entry.children.find((child) => {
-                return child.path === route;
-            });
-
-            if (matchedChild) {
-                match = matchedChild;
-            }
-
-            return {
-                ...match,
-                privilege: undefined,
-                meta: {
-                    privilege: match.privilege,
-                },
-            };
-        },
+        getRoutes: () =>
+            collectRoutes(props.entry)
+                .filter((entry) => entry.path)
+                .map((entry) => ({
+                    name: entry.path,
+                    meta: {
+                        privilege: entry.privilege,
+                    },
+                })),
     };
 
     const can = (privilege) => {
@@ -64,10 +63,9 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
                 acl: {
                     can,
                     hasAccessToRoute: (path) => {
-                        const route = path.replace(/\./g, '/');
-                        const match = $router.resolve(route);
+                        const match = $router.getRoutes().find((route) => route.name === path);
 
-                        if (!match.meta) {
+                        if (!match?.meta) {
                             return true;
                         }
 
@@ -209,6 +207,30 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         expect(wrapper.html().length).toBeGreaterThan(1);
+    });
+
+    it('should check route access by exact route name', async () => {
+        const wrapper = await createWrapper({
+            privileges: [],
+            props: {
+                entry: {
+                    id: 'sw-extension',
+                    label: 'sw-extension.general.mainMenuItemGeneral',
+                    color: '#189EFF',
+                    path: 'sw.extension.my-extensions',
+                    icon: 'regular-plug',
+                    parent: null,
+                    privilege: 'system.plugin_maintain',
+                    position: 10,
+                    moduleType: 'core',
+                    level: 1,
+                    children: [],
+                },
+            },
+        });
+
+        expect(wrapper.vm.hasAccessToRoute('sw.extension.my-extensions')).toBe(false);
+        expect(wrapper.vm.hasAccessToRoute('sw.extension.my.extensions')).toBe(true);
     });
 
     it('should not show a link when the path goes to a route which needs a privilege which is not set', async () => {

@@ -15,6 +15,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -49,7 +50,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
      * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly ProductExportRendererInterface $productExportRender,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -103,17 +104,19 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $context->getContext()
         );
 
-        $filters = $this->productStreamBuilder->buildFilters(
-            $productExport->getProductStreamId(),
-            $context->getContext()
-        );
+        $criteria = new Criteria();
+
+        $productStreamBuilder = $this->productStreamBuilder;
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
+        } else {
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+        }
 
         $associations = $this->getAssociations($productExport, $context);
 
-        $criteria = new Criteria();
         $criteria
             ->setTitle('product-export::products')
-            ->addFilter(...$filters)
             ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize);
 

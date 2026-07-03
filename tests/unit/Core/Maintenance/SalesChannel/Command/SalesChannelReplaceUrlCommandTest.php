@@ -34,7 +34,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $domainEntity->setId($domainId);
         $domainEntity->setUrl($previousUrl);
 
-        $searchResultMock = $this->createMock(EntitySearchResult::class);
+        $searchResultMock = static::createStub(EntitySearchResult::class);
         $searchResultMock->method('first')
             ->willReturn($domainEntity);
 
@@ -82,7 +82,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $previousUrl = 'https://non-existent-domain.com';
         $newUrl = 'https://new-domain.com';
 
-        $searchResultMock = $this->createMock(EntitySearchResult::class);
+        $searchResultMock = static::createStub(EntitySearchResult::class);
         $searchResultMock->method('first')
             ->willReturn(null);
 
@@ -135,7 +135,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $domainEntity->setId($domainId);
         $domainEntity->setUrl($previousUrl);
 
-        $searchResultMock = $this->createMock(EntitySearchResult::class);
+        $searchResultMock = static::createStub(EntitySearchResult::class);
         $searchResultMock->method('first')
             ->willReturn($domainEntity);
 

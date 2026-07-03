@@ -190,7 +190,65 @@ class ResetPasswordRouteTest extends TestCase
         static::assertNull($customer->getLegacyPassword());
     }
 
-    private function createCustomer(string $password, ?string $email = null, bool $addLegacyPassword = false): string
+    public function testSuccessResetConfirmsUnconfirmedDoubleOptInCustomer(): void
+    {
+        $customerId = $this->createCustomer('shopware1234', 'double-opt-in@test.de', false, true);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/recovery-password',
+                [
+                    'email' => 'double-opt-in@test.de',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customerId', $customerId));
+
+        /** @var EntityRepository<CustomerRecoveryCollection> $repo */
+        $repo = static::getContainer()->get('customer_recovery.repository');
+
+        $recovery = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(CustomerRecoveryEntity::class, $recovery);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/recovery-password-confirm',
+                [
+                    'hash' => $recovery->getHash(),
+                    'newPassword' => 'password123456',
+                    'newPasswordConfirm' => 'password123456',
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $customer = $this->fetchCustomer($customerId);
+        static::assertNotNull($customer->getDoubleOptInConfirmDate());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => 'double-opt-in@test.de',
+                    'password' => 'password123456',
+                ]
+            );
+
+        $response = $this->browser->getResponse();
+
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+    }
+
+    private function createCustomer(string $password, ?string $email = null, bool $addLegacyPassword = false, bool $doubleOptInRegistration = false): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -213,6 +271,7 @@ class ResetPasswordRouteTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '12345',
+            'doubleOptInRegistration' => $doubleOptInRegistration,
         ];
 
         if ($addLegacyPassword) {
@@ -225,5 +284,15 @@ class ResetPasswordRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function fetchCustomer(string $customerId): CustomerEntity
+    {
+        $criteria = new Criteria([$customerId]);
+
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        return $customer;
     }
 }

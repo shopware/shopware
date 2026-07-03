@@ -337,7 +337,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             $salesChannel->setPaymentMethodId('default-payment-method-id');
         }
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getPaymentMethod')->willReturn($this->paymentMethodCollection->get('original-payment-method-id'));
@@ -347,17 +347,15 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
     private function getPaymentMethodRoute(bool $dontReturnAnyOtherPaymentMethod = false): PaymentMethodRoute
     {
-        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
+        $paymentMethodRoute = static::createStub(PaymentMethodRoute::class);
 
         if ($dontReturnAnyOtherPaymentMethod) {
             $paymentMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadPaymentMethodsForAllBlocked(...));
         } else {
             $paymentMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadPaymentMethods(...));
         }
 

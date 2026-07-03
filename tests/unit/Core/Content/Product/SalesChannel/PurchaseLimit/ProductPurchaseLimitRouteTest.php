@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\PurchaseLimit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductException;
@@ -26,23 +27,20 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductPurchaseLimitRouteTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
+     * @var Stub&SalesChannelRepository<SalesChannelProductCollection>
      */
-    private MockObject&SalesChannelRepository $productRepository;
+    private Stub&SalesChannelRepository $productRepository;
 
-    private MockObject&AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator;
+    private Stub&AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator;
 
     private ProductPurchaseLimitRoute $route;
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
-        $this->maxPurchaseCalculator = $this->createMock(AbstractProductMaxPurchaseCalculator::class);
+        $this->productRepository = static::createStub(SalesChannelRepository::class);
+        $this->maxPurchaseCalculator = static::createStub(AbstractProductMaxPurchaseCalculator::class);
 
-        $this->route = new ProductPurchaseLimitRoute(
-            $this->productRepository,
-            $this->maxPurchaseCalculator,
-        );
+        $this->route = $this->createRoute();
     }
 
     public function testLoadReturnsMultipleProductLimits(): void
@@ -137,16 +135,28 @@ class ProductPurchaseLimitRouteTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $this->productRepository->expects($this->never())->method('search');
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->never())->method('search');
 
         $this->expectException(ProductException::class);
 
-        $this->route->readProductsPurchaseLimit(new Request(), $context);
+        $this->createRoute($productRepository)->readProductsPurchaseLimit(new Request(), $context);
     }
 
     public function testGetDecoratedThrows(): void
     {
         $this->expectExceptionObject(new DecorationPatternException(ProductPurchaseLimitRoute::class));
         $this->route->getDecorated();
+    }
+
+    /**
+     * @param (SalesChannelRepository<SalesChannelProductCollection>&MockObject)|null $productRepository
+     */
+    private function createRoute(?SalesChannelRepository $productRepository = null): ProductPurchaseLimitRoute
+    {
+        return new ProductPurchaseLimitRoute(
+            $productRepository ?? $this->productRepository,
+            $this->maxPurchaseCalculator,
+        );
     }
 }

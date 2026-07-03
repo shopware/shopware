@@ -18,6 +18,10 @@
                     {# Disallow requests with GET parameters to be indexed #}
                     Disallow: /*?
 
+                    {# Allow product feed tracking URLs to be crawled so GMC can verify their landing pages.
+                       rel=canonical keeps the clean URL indexed #}
+                    Allow: /*referringSalesChannel=
+
                     {# Allow all theme files to be indexed, including the GET requests with the cache buster #}
                     Allow: /*theme/
 

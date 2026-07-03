@@ -128,7 +128,7 @@ class LifecycleManager
     public function disable(Context $context): void
     {
         foreach ($this->getAllServices($context) as $service) {
-            $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+            $this->appLifecycle->uninstall($service->getName(), ['id' => $service->getId()], $context);
         }
 
         $this->permissionsService->revoke($context);
@@ -157,7 +157,7 @@ class LifecycleManager
 
         foreach ($services as $service) {
             if (!isset($registryServiceNames[$service->getName()])) {
-                $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+                $this->appLifecycle->uninstall($service->getName(), ['id' => $service->getId()], $context);
             }
         }
     }

@@ -25,7 +25,7 @@ class LoadPreviewExtensionTest extends TestCase
 
         $extension = new LoadPreviewExtension(
             ['5441aebfd9d048338476f88ba7f07c76'],
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $result = (new ExtensionDispatcher($dispatcher))->publish(

@@ -129,7 +129,6 @@
         <mt-button
             class="sw-landing-page-tree__add-button-button"
             size="small"
-            ghost
             :disabled="disableContextMenu || !acl.can('landing_page.creator') || undefined"
             variant="secondary"
             @click="$router.push(newLandingPageUrl())"

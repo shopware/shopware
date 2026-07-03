@@ -19,9 +19,17 @@ import { runBundle } from './run-bundle.mjs';
  *
  * @example
  * const result = await pipeline({ target: 'reported', out: FILES.result, reset: true });
- * if (result.status === 'blocked') {
- *   return;
- * }
+ * // May return:
+ * // {
+ * //   target: 'reported',
+ * //   status: 'reproduced',
+ * //   assertion: { expect: '...', actual: '...', matched: false },
+ * //   evidence: { ... },
+ * //   blocked_reason: null,
+ * //   issue: 12345,
+ * //   version: '6.6.10.0',
+ * //   executor: 'playwright',
+ * // }
  */
 export async function pipeline({ target, out, reset: doReset }) {
   if (!appUrl()) {

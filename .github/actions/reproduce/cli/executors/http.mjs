@@ -33,9 +33,27 @@ const jqField = (filter, body) => (spawnSync('jq', ['-r', filter], { input: body
  *
  * @example
  * const result = await run({ plan, target: 'reported' });
- * if (result.status === 'inconclusive') {
- *   console.error(result.blocked_reason);
- * }
+ * // May return:
+ * // {
+ * //   target: 'reported',
+ * //   status: 'reproduced',
+ * //   assertion: {
+ * //     matched: false,
+ * //     checks: [{
+ * //       subject: 'response | .total',
+ * //       role: 'assert',
+ * //       op: 'equals',
+ * //       expected: '29.99',
+ * //       actual: '19.99',
+ * //       ok: false,
+ * //     }],
+ * //   },
+ * //   evidence: { ... },
+ * //   blocked_reason: null,
+ * //   issue: 12345,
+ * //   version: '6.6.10.0',
+ * //   executor: 'http',
+ * // }
  */
 export async function run({ plan, target }) {
   const requests = plan.requests || [plan.request];
@@ -102,9 +120,13 @@ async function resolveContext(plan, requests, assertions) {
  *
  * @example
  * const evaluation = await sendRequests(plan.requests, ids);
- * if (evaluation.blocked) {
- *   return { status: 'blocked', reporter: evaluation.blocked };
- * }
+ * // May return:
+ * // {
+ * //   code: '200',
+ * //   bodyText: '{"data":[...]}',
+ * //   blocked: '',
+ * //   script: 'curl -sS -X GET "$APP_URL/api/..."',
+ * // }
  */
 async function sendRequests(requests, ids) {
   let code = ''; let bodyText = ''; let blocked = ''; let script = '';
@@ -179,8 +201,20 @@ const OPS = {
  * fields on non-2xx responses stay inconclusive to avoid false positives.
  *
  * @example
- * const { status, checks, reporter } = classify(plan.assertions, evaluation);
- * const blockedReason = ['blocked', 'inconclusive'].includes(status) ? reporter : null;
+ * const result = classify(plan.assertions, evaluation);
+ * // May return:
+ * // {
+ * //   status: 'reproduced',
+ * //   checks: [{
+ * //     subject: 'response | .total',
+ * //     role: 'assert',
+ * //     op: 'equals',
+ * //     expected: '29.99',
+ * //     actual: '19.99',
+ * //     ok: false,
+ * //   }],
+ * //   reporter: 'assert response | .total equals 29.99 failed',
+ * // }
  */
 function classify(assertions, { code, bodyText, blocked }) {
   if (blocked) {

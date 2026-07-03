@@ -22,10 +22,22 @@ const stripAnsi = (s) => s.replace(/\[[0-9;]*m/g, '');
  * cannot influence the official status.
  *
  * @example
- * const result = await run({ plan, target: 'trunk' });
- * if (result.status === 'reproduced') {
- *   console.log(result.evidence.reporter_output);
- * }
+ * const result = await run({ plan, target: 'reported' });
+ * // May return:
+ * // {
+ * //   target: 'reported',
+ * //   status: 'reproduced',
+ * //   assertion: {
+ * //     expect: 'spec passes (healthy)',
+ * //     actual: 'Expected text to contain "29.99"',
+ * //     matched: false,
+ * //   },
+ * //   evidence: { ... },
+ * //   blocked_reason: null,
+ * //   issue: 12345,
+ * //   version: '6.6.10.0',
+ * //   executor: 'playwright',
+ * // }
  */
 export async function run({ plan, target }) {
   const specPath = plan.script_path || FILES.specTs;
@@ -93,9 +105,17 @@ function viewportEnv(v) {
  *
  * @example
  * const storage = prepareAuth({ layer: 'admin-ui' }, 'reported');
- * if (storage.blocked) {
- *   return storage.blocked;
- * }
+ * // May return:
+ * // {
+ * //   state: 'admin-state.json',
+ * // }
+ * // or:
+ * // {
+ * //   blocked: {
+ * //     status: 'blocked',
+ * //     blocked_reason: 'the harness could not log in to the admin ...',
+ * //   },
+ * // }
  */
 function prepareAuth(plan, target) {
   if (plan.layer === 'admin-ui') {
@@ -144,9 +164,11 @@ function prepareAuth(plan, target) {
  *
  * @example
  * const report = runSpec(cleanSpec, storage.state, { video: false, viewport });
- * if (!report) {
- *   return classify(plan, target, cleanSpec, report);
- * }
+ * // May return:
+ * // {
+ * //   stats: { expected: 1, unexpected: 0, skipped: 0 },
+ * //   suites: [...],
+ * // }
  */
 function runSpec(spec, storageState, { video, viewport }) {
   const suffix = video ? '-video' : '';
@@ -226,7 +248,17 @@ function findWebm(dir) {
  *
  * @example
  * const result = classify(plan, 'reported', cleanSpec, report);
- * const trusted = ['reproduced', 'not_reproduced'].includes(result.status);
+ * // May return:
+ * // {
+ * //   status: 'reproduced',
+ * //   assertion: {
+ * //     expect: 'spec passes (healthy)',
+ * //     actual: 'Expected text to contain "29.99"',
+ * //     matched: false,
+ * //   },
+ * //   evidence: { ... },
+ * //   blocked_reason: null,
+ * // }
  */
 function classify(plan, target, spec, report) {
   const build = (status, actual, reporter, reason = null) => makeResult({

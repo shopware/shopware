@@ -16,9 +16,21 @@ import { FILES, makeResult } from '../lib.mjs';
  *
  * @example
  * const result = run({ plan, target: 'reported' });
- * if (result.status === 'inconclusive') {
- *   console.error(result.blocked_reason);
- * }
+ * // May return:
+ * // {
+ * //   target: 'reported',
+ * //   status: 'reproduced',
+ * //   assertion: {
+ * //     expect: 'test passes (healthy)',
+ * //     actual: 'Failed asserting ...',
+ * //     matched: false,
+ * //   },
+ * //   evidence: { ... },
+ * //   blocked_reason: null,
+ * //   issue: 12345,
+ * //   version: '6.6.10.0',
+ * //   executor: 'direct',
+ * // }
  */
 export function run({ plan, target }) {
   const specPath = plan.script_path || FILES.testPhp;
@@ -49,7 +61,7 @@ export function run({ plan, target }) {
  * message while shortening paths so reviewers see why the direct repro failed.
  *
  * @example
- * // Returns:
+ * // May return:
  * // Failed asserting that false is true.
  * // ReproTest.php:186
  */
@@ -99,8 +111,14 @@ function runPhpunit(specPath, shop, plan, target) {
  * explicitly declares a `symptom_pattern` that makes the exception itself the reported bug.
  *
  * @example
- * const { status, reporter, reason } = classify(output, plan);
- * const blockedReason = status === 'inconclusive' ? reason : null;
+ * const result = classify(output, plan);
+ * // May return:
+ * // {
+ * //   status: 'reproduced',
+ * //   matched: false,
+ * //   reporter: 'Failed asserting ...',
+ * //   reason: null,
+ * // }
  */
 function classify(output, plan) {
   const firstError = failureBlock(output).replace(/\s+/g, ' ').slice(0, 700);

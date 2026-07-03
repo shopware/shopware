@@ -148,9 +148,17 @@ export async function salesChannelAccessKey() {
  *
  * @example
  * const result = await sync(toSyncOperations(fixtures));
- * if (!result.ok) {
- *   throw new SeedError(`sync HTTP ${result.status}: ${result.detail}`);
- * }
+ * // May return:
+ * // {
+ * //   ok: true,
+ * //   status: 204,
+ * // }
+ * // or:
+ * // {
+ * //   ok: false,
+ * //   status: 400,
+ * //   detail: 'Expected value for required field product.name',
+ * // }
  */
 export async function sync(operations) {
   const res = await fetch(`${base()}/api/_action/sync`, {

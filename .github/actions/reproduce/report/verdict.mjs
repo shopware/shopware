@@ -42,9 +42,13 @@ const oneLine = (s, max = 300) => String(s).replace(/[\r\n]+/g, ' ').replace(/\s
  *
  * @example
  * const result = computeVerdict('artifacts');
- * if (result.verdict === 'needs_human_review') {
- *   console.log(result.unsure_reason);
- * }
+ * // May return:
+ * // {
+ * //   reported: 'reproduced',
+ * //   trunk: 'not_reproduced',
+ * //   verdict: 'fixed_on_trunk',
+ * //   fix_candidate: '...',
+ * // }
  */
 export function computeVerdict(art = process.env.ART || 'artifacts') {
   const reportedLeg = readJson(`${art}/repro-reported/result.json`);

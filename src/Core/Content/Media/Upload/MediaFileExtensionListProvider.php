@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('discovery')]
-readonly class MediaFileExtensionWhitelistProvider
+readonly class MediaFileExtensionListProvider
 {
     /**
      * @param array<string> $allowedExtensions

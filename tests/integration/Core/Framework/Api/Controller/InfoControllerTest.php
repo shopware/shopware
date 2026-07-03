@@ -173,10 +173,10 @@ class InfoControllerTest extends TestCase
         static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
 
         $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
-            $whitelist = $event->getWhitelist();
-            $whitelist[] = 'epub';
+            $extensions = $event->getWhitelist();
+            $extensions[] = 'epub';
 
-            $event->setWhitelist($whitelist);
+            $event->setWhitelist($extensions);
         };
 
         $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);

@@ -129,12 +129,12 @@
               },
               "private_allowed_extensions": {
                 "type": "array",
-                "description": "Whitelisted file extensions for private filesystem uploads.",
+                "description": "Allowed file extensions for private filesystem uploads.",
                 "items": { "type": "string" }
               },
               "private_allowed_mime_types_by_extension": {
                 "type": "object",
-                "description": "Known MIME types for each whitelisted private filesystem upload extension.",
+                "description": "Known MIME types for each allowed private filesystem upload extension.",
                 "additionalProperties": {
                   "type": "array",
                   "items": { "type": "string" }

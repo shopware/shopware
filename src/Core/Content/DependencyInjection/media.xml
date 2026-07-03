@@ -342,14 +342,14 @@
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionWhitelistProvider">
+        <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider">
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.filesystem.allowed_extensions%</argument>
             <argument>%shopware.filesystem.private_allowed_extensions%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator">
-            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionWhitelistProvider"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Upload\PresignedMediaUploadService">

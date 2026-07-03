@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
-use Shopware\Core\Content\Media\Upload\MediaFileExtensionWhitelistProvider;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -14,43 +14,43 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(MediaFileExtensionWhitelistProvider::class)]
-class MediaFileExtensionWhitelistProviderTest extends TestCase
+#[CoversClass(MediaFileExtensionListProvider::class)]
+class MediaFileExtensionListProviderTest extends TestCase
 {
     public function testReturnsPublicAndPrivateExtensionsSeparately(): void
     {
-        $provider = new MediaFileExtensionWhitelistProvider(new EventDispatcher(), ['jpg', 'png'], ['pdf']);
+        $provider = new MediaFileExtensionListProvider(new EventDispatcher(), ['jpg', 'png'], ['pdf']);
         $context = Context::createDefaultContext();
 
         static::assertSame(['jpg', 'png'], $provider->getAllowedExtensions(false, $context));
         static::assertSame(['pdf'], $provider->getAllowedExtensions(true, $context));
     }
 
-    public function testReturnsExtensionsAddedByWhitelistEvent(): void
+    public function testReturnsExtensionsAddedByEvent(): void
     {
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
-            $whitelist = $event->getWhitelist();
-            $whitelist[] = 'epub';
+            $extensions = $event->getWhitelist();
+            $extensions[] = 'epub';
 
-            $event->setWhitelist($whitelist);
+            $event->setWhitelist($extensions);
         });
 
-        $provider = new MediaFileExtensionWhitelistProvider($eventDispatcher, ['jpg'], ['pdf']);
+        $provider = new MediaFileExtensionListProvider($eventDispatcher, ['jpg'], ['pdf']);
 
         static::assertSame(['pdf', 'epub'], $provider->getAllowedExtensions(true, Context::createDefaultContext()));
     }
 
     public function testNormalizesAndDeduplicatesExtensions(): void
     {
-        $provider = new MediaFileExtensionWhitelistProvider(new EventDispatcher(), [' JPG ', '.jpg', 'Pdf', '', '.EPUB'], []);
+        $provider = new MediaFileExtensionListProvider(new EventDispatcher(), [' JPG ', '.jpg', 'Pdf', '', '.EPUB'], []);
 
         static::assertSame(['jpg', 'pdf', 'epub'], $provider->getAllowedExtensions(false, Context::createDefaultContext()));
     }
 
     public function testResolvesMimeTypesByExtension(): void
     {
-        $provider = new MediaFileExtensionWhitelistProvider(new EventDispatcher(), [], ['epub']);
+        $provider = new MediaFileExtensionListProvider(new EventDispatcher(), [], ['epub']);
 
         static::assertSame(
             ['epub' => ['application/epub+zip']],
@@ -60,7 +60,7 @@ class MediaFileExtensionWhitelistProviderTest extends TestCase
 
     public function testUnknownExtensionsRemainAllowedWithoutMimeTypes(): void
     {
-        $provider = new MediaFileExtensionWhitelistProvider(new EventDispatcher(), [], ['unknown-shopware-extension']);
+        $provider = new MediaFileExtensionListProvider(new EventDispatcher(), [], ['unknown-shopware-extension']);
         $context = Context::createDefaultContext();
 
         static::assertSame(['unknown-shopware-extension'], $provider->getAllowedExtensions(true, $context));

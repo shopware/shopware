@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\AllowList;
 
 use Mcp\Capability\Registry;
+use Mcp\Capability\RegistryInterface;
 use Mcp\Exception\InvalidCursorException;
 use Mcp\Schema\ClientCapabilities;
 use Mcp\Schema\Implementation;
+use Mcp\Schema\Page;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\Request\InitializeRequest;
 use Mcp\Schema\Request\ListPromptsRequest;
@@ -83,6 +85,21 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertNull($secondResult->nextCursor);
     }
 
+    public function testToolsListIgnoresNonToolReferences(): void
+    {
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->method('getTools')->willReturn(new Page([
+            $this->tool('tool-a'),
+            $this->resource('resource-a'),
+        ], null));
+
+        $handler = $this->createHandler($registry, new McpAllowlist(tools: null, resources: [], prompts: []));
+
+        $result = $this->handleToolsList($handler, null);
+
+        static::assertSame(['tool-a'], array_map(static fn (Tool $tool): string => $tool->name, $result->tools));
+    }
+
     public function testResourcesListFiltersAllowlistBeforePaginationAndReturnsCursorRemainder(): void
     {
         $registry = new Registry();
@@ -139,6 +156,21 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertNull($secondResult->nextCursor);
     }
 
+    public function testResourcesListIgnoresNonResourceReferences(): void
+    {
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->method('getResources')->willReturn(new Page([
+            $this->resource('resource-a'),
+            $this->tool('tool-a'),
+        ], null));
+
+        $handler = $this->createHandler($registry, new McpAllowlist(tools: [], resources: null, prompts: []));
+
+        $result = $this->handleResourcesList($handler, null);
+
+        static::assertSame(['shopware://resource-a'], array_map(static fn (Resource $resource): string => $resource->uri, $result->resources));
+    }
+
     public function testPromptsListFiltersAllowlistBeforePaginationAndReturnsCursorRemainder(): void
     {
         $registry = new Registry();
@@ -183,6 +215,21 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertNull($secondResult->nextCursor);
     }
 
+    public function testPromptsListIgnoresNonPromptReferences(): void
+    {
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->method('getPrompts')->willReturn(new Page([
+            new Prompt('prompt-a'),
+            $this->tool('tool-a'),
+        ], null));
+
+        $handler = $this->createHandler($registry, new McpAllowlist(tools: [], resources: [], prompts: null));
+
+        $result = $this->handlePromptsList($handler, null);
+
+        static::assertSame(['prompt-a'], array_map(static fn (Prompt $prompt): string => $prompt->name, $result->prompts));
+    }
+
     public function testListWithMalformedCursorThrowsInvalidCursorException(): void
     {
         $registry = new Registry();
@@ -207,7 +254,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         $this->handleToolsList($handler, base64_encode('2'));
     }
 
-    private function createHandler(Registry $registry, McpAllowlist $allowlist): McpAllowlistListRequestHandler
+    private function createHandler(RegistryInterface $registry, McpAllowlist $allowlist): McpAllowlistListRequestHandler
     {
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn($allowlist);

@@ -15,7 +15,6 @@ use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
-use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
@@ -27,6 +26,10 @@ use Shopware\Core\Framework\Log\Package;
  * anticipated today (covariant narrower returns, contravariant wider parameters, extra
  * optional parameters, overriding a becoming-abstract method), the rule demands exactly
  * that, so the subclass is compatible with the current and the future declaration.
+ *
+ * ClassHierarchyChange is deliberately not reported: whether a subclass is affected
+ * depends on the free-text description, and most subclasses simply inherit the new
+ * chain - an error they cannot resolve would only end up in baselines.
  *
  * @implements Rule<InClassNode>
  *
@@ -77,13 +80,6 @@ class FutureExtensionRule implements Rule
                     $class->getDisplayName(),
                     $parent->getDisplayName(),
                     $version
-                ))],
-                ClassHierarchyChange::class => [$this->error(\sprintf(
-                    '"%s" extends "%s", whose class hierarchy will change in %s: %s',
-                    $class->getDisplayName(),
-                    $parent->getDisplayName(),
-                    $version,
-                    $this->argument($attribute, 'description', 1) ?? '?'
                 ))],
                 default => [],
             }];

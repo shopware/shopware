@@ -25,6 +25,8 @@ class HierarchyChanges
 {
 }
 
+// deliberately not reported: most subclasses simply inherit the new chain
+
 abstract class ExtensionPointBase
 {
     #[BecomesAbstract(version: 'v6.8.0')]

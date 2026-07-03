@@ -15,10 +15,10 @@ use Shopware\Core\Framework\Log\Package;
  * - {@see CallSiteCompatibilityChange} — code calling the symbol can be affected
  * - {@see ExtenderCompatibilityChange} — code extending or overriding the symbol can be affected
  *
- * These attributes replace the former `@deprecated tag:vX.Y.Z - reason:*` PHPDoc markers for such
- * changes, which incorrectly surfaced as deprecation errors in static analysis of third-party code.
- * Use `@deprecated` (together with `Feature::triggerDeprecationOrThrow()`) only when functionality
- * is removed or replaced and extension developers have to migrate.
+ * These attributes replace the former `reason:*` deprecation PHPDoc markers for such changes,
+ * which incorrectly surfaced as deprecation errors in static analysis of third-party code.
+ * Use a real deprecation annotation (together with `Feature::triggerDeprecationOrThrow()`) only
+ * when functionality is removed or replaced and extension developers have to migrate.
  *
  * Tooling can discover all BC-change attributes on a symbol via reflection:
  * `$reflection->getAttributes(BCChangeAttribute::class, \ReflectionAttribute::IS_INSTANCEOF)`

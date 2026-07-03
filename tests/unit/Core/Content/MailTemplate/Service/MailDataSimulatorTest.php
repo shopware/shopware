@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
-use Faker\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
@@ -16,18 +15,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
@@ -37,9 +36,6 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Clock\NativeClock;
@@ -180,7 +176,6 @@ class MailDataSimulatorTest extends TestCase
         static::assertSame('event-value', $result['testEntity']->get('customString'));
         static::assertInstanceOf(MailDataSimulatorFieldEvent::class, $capturedEvent);
         static::assertInstanceOf(CustomStringField::class, $capturedEvent->field);
-        static::assertSame($capturedEvent->faker::class, Generator::class);
     }
 
     public function testGenerateEventDataTypeDataStillSimulatesScalarFloat(): void
@@ -202,21 +197,12 @@ class MailDataSimulatorTest extends TestCase
             (new StringField('name', 'name'))->addFlags(new ApiAware()),
         ]));
 
-        $provider = new class($this->createStub(EventDispatcherInterface::class), $this->createStub(ContainerInterface::class)) extends AbstractProvider {
-            public bool $wasCalled = false;
-
-            public function getEntityName(): string
-            {
-                return TestMailTemplateEntityDefinition::ENTITY_NAME;
-            }
-
-            protected function constructCriteria(string $entityId): Criteria
-            {
-                $this->wasCalled = true;
-
-                return new Criteria([$entityId]);
-            }
-        };
+        $provider = new TestMailTemplateProvider(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
+            [],
+        );
+        $provider->wasCalled = false;
 
         $simulator = $this->createSimulator(
             [
@@ -308,6 +294,41 @@ class MailDataSimulatorTest extends TestCase
         );
     }
 
+    public function testMappingDefinitionDoesNotThrowException(): void
+    {
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new OneToManyAssociationField('mappingChildren', TestMappingDefinition::class, 'test_mail_template_entity_id'))->addFlags(new ApiAware()),
+        ]));
+
+        $provider = new TestMailTemplateProvider(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
+            ['mappingChildren'],
+        );
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition,
+            null,
+            [TestMailTemplateEntityDefinition::ENTITY_NAME => $provider],
+            [new TestMappingDefinition()]
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+
+        $mappingChildren = $result['testEntity']->get('mappingChildren');
+        static::assertInstanceOf(EntityCollection::class, $mappingChildren);
+        static::assertCount(1, $mappingChildren);
+        static::assertInstanceOf(Entity::class, $mappingChildren->first());
+    }
+
     /**
      * @param array<string, mixed> $eventData
      * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
@@ -320,25 +341,11 @@ class MailDataSimulatorTest extends TestCase
         iterable $dataProviders = [],
         array $additionalDefinitions = [],
     ): MailDataSimulator {
-        $context = Context::createDefaultContext();
         $response = new BusinessEventCollectorResponse();
         $response->set('test.flow', new BusinessEventDefinition('test.flow', TestMailAwareEvent::class, $eventData));
 
         $businessEventCollector = static::createStub(BusinessEventCollector::class);
         $businessEventCollector->method('collect')->willReturn($response);
-
-        $language = new LanguageEntity();
-        $language->setUniqueIdentifier($context->getLanguageId());
-
-        $languageRepository = $this->createMock(EntityRepository::class);
-        $languageRepository->method('search')->willReturn(new EntitySearchResult(
-            LanguageDefinition::ENTITY_NAME,
-            1,
-            new LanguageCollection([$language]),
-            null,
-            new Criteria(),
-            $context
-        ));
 
         $salesChannelDefinition = new TestSalesChannelDefinition();
         $definitions = [
@@ -351,7 +358,7 @@ class MailDataSimulatorTest extends TestCase
 
         $definitions = [...$definitions, ...$additionalDefinitions];
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         foreach ($definitions as $definition) {
             $definition->compile($definitionRegistry);
@@ -388,10 +395,9 @@ class MailDataSimulatorTest extends TestCase
         return new MailDataSimulator(
             $businessEventCollector,
             $definitionRegistry,
-            $languageRepository,
             $dispatcher ?? static::createStub(EventDispatcherInterface::class),
             $providerMap,
-            new NativeClock()
+            new NativeClock(),
         );
     }
 }
@@ -466,5 +472,63 @@ class TestSalesChannelDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractProvider<Entity, EntityCollection<Entity>>
+ */
+class TestMailTemplateProvider extends AbstractProvider
+{
+    public bool $wasCalled = false;
+
+    /**
+     * @param list<string> $associations
+     */
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ContainerInterface $container,
+        private readonly array $associations
+    ) {
+        parent::__construct($dispatcher, $container);
+    }
+
+    public function getEntityName(): string
+    {
+        return TestMailTemplateEntityDefinition::ENTITY_NAME;
+    }
+
+    protected function constructCriteria(string $entityId): Criteria
+    {
+        $this->wasCalled = true;
+
+        $criteria = new Criteria([$entityId]);
+
+        foreach ($this->associations as $association) {
+            $criteria->addAssociation($association);
+        }
+
+        return $criteria;
+    }
+}
+
+/**
+ * @internal
+ */
+class TestMappingDefinition extends MappingEntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'test_mapping';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+        ]);
     }
 }

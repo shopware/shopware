@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -72,7 +72,7 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
+    ): AppPersistContext {
         return UnitAppFixture::createInstallContext($app, $manifest, $appFilesystem, $defaultLocale);
     }
 
@@ -81,7 +81,7 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
+    ): AppPersistContext {
         return UnitAppFixture::createUpdateContext($app, $manifest, $appFilesystem, $defaultLocale);
     }
 

@@ -370,7 +370,7 @@ class HreflangLoaderTest extends TestCase
         ], $this->salesChannelContext->getContext());
 
         $links = $this->hreflangLoader->load(
-            new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
+            new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext, true)
         );
 
         static::assertCount(2, $links);
@@ -424,7 +424,7 @@ class HreflangLoaderTest extends TestCase
         ], $this->salesChannelContext->getContext());
 
         $links = $this->hreflangLoader->load(
-            new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
+            new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext, true)
         );
 
         static::assertCount(3, $links);

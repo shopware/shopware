@@ -238,8 +238,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')
@@ -261,8 +260,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')

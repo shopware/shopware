@@ -7,17 +7,19 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\PlatformRequest;
@@ -34,23 +36,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(McpAllowlistFilter::class)]
 class McpServerControllerTest extends TestCase
 {
-    private RateLimiter&MockObject $rateLimiter;
-
-    private McpServerController $controller;
-
     protected function setUp(): void
     {
         $_SERVER['MCP_SERVER'] = '1';
-        $this->rateLimiter = $this->createMock(RateLimiter::class);
-
-        $this->controller = new McpServerController(
-            Server::builder()->build(),
-            static::createStub(HttpMessageFactoryInterface::class),
-            static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(ResponseFactoryInterface::class),
-            static::createStub(StreamFactoryInterface::class),
-            $this->rateLimiter,
-        );
     }
 
     protected function tearDown(): void
@@ -79,6 +67,20 @@ class McpServerControllerTest extends TestCase
         $response = $controller->handle(new Request());
 
         static::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testMalformedSessionIdHeaderIsRejected(): void
+    {
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $controller = $this->controllerWithRateLimiter($rateLimiter);
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, 'not-a-uuid');
+
+        $this->expectExceptionObject(McpException::invalidSessionId());
+
+        $controller->handle($request);
     }
 
     public function testInitializeEnrichmentKeepsEmptyCapabilityObjects(): void
@@ -151,11 +153,7 @@ class McpServerControllerTest extends TestCase
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 400));
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => ['shopware-entity-search'],
-            'resources' => null,
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['shopware-entity-search'], resources: null, prompts: null));
 
         $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: 'not-json');
@@ -166,25 +164,22 @@ class McpServerControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}}>
+     * @return iterable<string, array{string, McpAllowlist}>
      */
     public static function allowedToolCallProvider(): iterable
     {
         yield 'tool explicitly in allowlist' => [
             'shopware-entity-search',
-            ['tools' => ['shopware-entity-search'], 'resources' => null, 'prompts' => null],
+            new McpAllowlist(tools: ['shopware-entity-search'], resources: null, prompts: null),
         ];
         yield 'null tools allows all tools' => [
             'any-tool',
-            ['tools' => null, 'resources' => null, 'prompts' => null],
+            new McpAllowlist(tools: null, resources: null, prompts: null),
         ];
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
     #[DataProvider('allowedToolCallProvider')]
-    public function testToolCallNotBlockedWhenAllowed(string $toolName, array $allowlist): void
+    public function testToolCallNotBlockedWhenAllowed(string $toolName, McpAllowlist $allowlist): void
     {
         $body = json_encode([
             'jsonrpc' => '2.0',
@@ -208,30 +203,29 @@ class McpServerControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}, list<string>}>
+     * @return iterable<string, array{McpAllowlist, list<string>}>
      */
     public static function toolsListFilterProvider(): iterable
     {
         yield 'restricted allowlist shows only allowed tool' => [
-            ['tools' => ['tool-a'], 'resources' => null, 'prompts' => null],
+            new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null),
             ['tool-a'],
         ];
         yield 'null tools allowlist shows all tools' => [
-            ['tools' => null, 'resources' => null, 'prompts' => null],
+            new McpAllowlist(tools: null, resources: null, prompts: null),
             ['tool-a', 'tool-b'],
         ];
         yield 'empty tools allowlist hides all tools' => [
-            ['tools' => [], 'resources' => null, 'prompts' => null],
+            new McpAllowlist(tools: [], resources: null, prompts: null),
             [],
         ];
     }
 
     /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
      * @param list<string> $expectedToolNames
      */
     #[DataProvider('toolsListFilterProvider')]
-    public function testToolsListIsFilteredByAllowlist(array $allowlist, array $expectedToolNames): void
+    public function testToolsListIsFilteredByAllowlist(McpAllowlist $allowlist, array $expectedToolNames): void
     {
         $server = Server::builder()
             ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
@@ -287,16 +281,18 @@ class McpServerControllerTest extends TestCase
             $request->attributes->set('oauth_access_token_id', $tokenId);
         }
 
-        $rateLimitException = new RateLimitExceededException(time() + 60);
+        $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
-        $this->rateLimiter->expects($this->once())
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
-            ->with(RateLimiter::MCP, $expectedKey)
+            ->with(RateLimiter::MCP_ADMIN_API, $expectedKey)
             ->willThrowException($rateLimitException);
+        $controller = $this->controllerWithRateLimiter($rateLimiter);
 
         $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
-        $this->controller->handle($request);
+        $controller->handle($request);
     }
 
     public function testToolCallBlockedWhenNotInAllowlist(): void
@@ -313,11 +309,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => ['shopware-entity-search'],
-            'resources' => null,
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['shopware-entity-search'], resources: null, prompts: null));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -341,11 +333,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => [],
-            'resources' => null,
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -367,11 +355,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => ['shopware://entities'],
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://entities'], prompts: null));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -397,11 +381,7 @@ class McpServerControllerTest extends TestCase
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => ['shopware://entities'],
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://entities'], prompts: null));
 
         $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -421,11 +401,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => null,
-            'prompts' => ['shopware-context'],
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['shopware-context']));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -451,11 +427,7 @@ class McpServerControllerTest extends TestCase
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => null,
-            'prompts' => ['shopware-context'],
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['shopware-context']));
 
         $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -475,11 +447,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => ['shopware-entity-search'],
-            'resources' => null,
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['shopware-entity-search'], resources: null, prompts: null));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -501,11 +469,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => ['shopware://entities'],
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://entities'], prompts: null));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -527,11 +491,7 @@ class McpServerControllerTest extends TestCase
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => null,
-            'prompts' => ['shopware-context'],
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['shopware-context']));
 
         $controller = $this->buildController($psrRequest, null, $allowlistProvider);
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
@@ -559,11 +519,7 @@ class McpServerControllerTest extends TestCase
         ], \JSON_THROW_ON_ERROR);
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => ['shopware://resource-a'],
-            'prompts' => null,
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://resource-a'], prompts: null));
 
         $psrRequest = new ServerRequest(
             'POST',
@@ -598,11 +554,7 @@ class McpServerControllerTest extends TestCase
         ], \JSON_THROW_ON_ERROR);
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn([
-            'tools' => null,
-            'resources' => null,
-            'prompts' => ['prompt-a'],
-        ]);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['prompt-a']));
 
         $psrRequest = new ServerRequest(
             'POST',
@@ -618,6 +570,41 @@ class McpServerControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         $names = array_column($data['result']['prompts'] ?? [], 'name');
         static::assertSame(['prompt-a'], array_values($names));
+    }
+
+    public function testListResponseIsPassedThroughWhenBodyCannotBeParsed(): void
+    {
+        // A tools/list request without a prior initialize handshake: the MCP server answers
+        // with a JSON-RPC error body (no "result"), which McpJsonRpcResponse::fromJson() cannot
+        // parse. filterListResponse() must then return the upstream response untouched.
+        $server = Server::builder()
+            ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
+            ->build();
+
+        $listBody = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'tools/list',
+            'params' => [],
+        ], \JSON_THROW_ON_ERROR);
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
+
+        $psrRequest = new ServerRequest(
+            'POST',
+            '/api/_mcp',
+            ['Content-Type' => 'application/json'],
+            $listBody,
+        );
+
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody);
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($data);
+        static::assertArrayNotHasKey('result', $data, 'Unparseable upstream body must be passed through unfiltered');
     }
 
     public function testHandleLogsRequestWhenLoggerIsProvided(): void
@@ -641,7 +628,8 @@ class McpServerControllerTest extends TestCase
             $httpFoundationFactory,
             $psr17,
             $psr17,
-            static::createStub(RateLimiter::class),
+            new McpRateLimiter(static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
             null,
             $logger,
             new McpAllowlistFilter(),
@@ -804,12 +792,26 @@ class McpServerControllerTest extends TestCase
             $nullArg === 'httpFoundationFactory' ? null : static::createStub(HttpFoundationFactoryInterface::class),
             $nullArg === 'responseFactory' ? null : $psr17,
             $nullArg === 'streamFactory' ? null : $psr17,
-            static::createStub(RateLimiter::class),
+            new McpRateLimiter(static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
         );
 
         $response = $controller->handle(new Request());
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
+    {
+        return new McpServerController(
+            Server::builder()->build(),
+            static::createStub(HttpMessageFactoryInterface::class),
+            static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
+            static::createStub(StreamFactoryInterface::class),
+            new McpRateLimiter($rateLimiter),
+            new McpSessionIdValidator(),
+        );
     }
 
     /**
@@ -841,7 +843,8 @@ class McpServerControllerTest extends TestCase
             new HttpFoundationFactory(),
             $psr17,
             $psr17,
-            static::createStub(RateLimiter::class),
+            new McpRateLimiter(static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
             allowlistFilter: new McpAllowlistFilter(),
         );
 
@@ -867,7 +870,8 @@ class McpServerControllerTest extends TestCase
             $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
             $psr17,
             $psr17,
-            $rateLimiter ?? static::createStub(RateLimiter::class),
+            new McpRateLimiter($rateLimiter ?? static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
         );

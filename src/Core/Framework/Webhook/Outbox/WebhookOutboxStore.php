@@ -16,7 +16,9 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
  */
 #[Package('framework')]
 class WebhookOutboxStore

@@ -155,4 +155,80 @@ describe('components/data-grid/sw-data-grid-settings', () => {
             'Address',
         ]);
     });
+
+    describe('getColumnLabel', () => {
+        const messages = {
+            'en-GB': { 'sw-grid.column.name': 'Name (EN)' },
+            'de-DE': { 'sw-grid.column.name': 'Name (DE)' },
+        };
+
+        async function createSettingsWrapper({ locale, $te, $t } = {}) {
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+
+            return mount(await wrapTestComponent('sw-data-grid-settings', { sync: true }), {
+                props: {
+                    columns: [{ property: 'name', label: 'Name' }],
+                    compact: true,
+                    previews: false,
+                    enablePreviews: true,
+                    disabled: false,
+                },
+                global: {
+                    renderStubDefaultSlot: true,
+                    mocks: {
+                        $te: $te ?? ((key, l) => Boolean(messages[l ?? locale]?.[key])),
+                        $t: $t ?? ((key, l) => messages[l ?? locale]?.[key] ?? key),
+                    },
+                    stubs: {
+                        'sw-context-button': true,
+                        'sw-context-menu-divider': true,
+                        'sw-button-group': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                        'sw-loader': true,
+                        'router-link': true,
+                    },
+                },
+            });
+        }
+
+        it('returns the translated label when the snippet exists in the current locale', async () => {
+            const settings = await createSettingsWrapper({ locale: 'de-DE' });
+
+            expect(settings.vm.getColumnLabel({ label: 'sw-grid.column.name' })).toBe('Name (DE)');
+        });
+
+        it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
+            const settings = await createSettingsWrapper({ locale: 'fr-FR' });
+
+            expect(settings.vm.getColumnLabel({ label: 'sw-grid.column.name' })).toBe('Name (EN)');
+        });
+
+        it('returns the raw label when neither current nor fallback locale has the snippet', async () => {
+            const settings = await createSettingsWrapper({ locale: 'fr-FR' });
+
+            expect(settings.vm.getColumnLabel({ label: 'Plain Text Label' })).toBe('Plain Text Label');
+        });
+
+        it('returns an empty string when the column has no label', async () => {
+            const settings = await createSettingsWrapper({ locale: 'en-GB' });
+
+            expect(settings.vm.getColumnLabel({})).toBe('');
+            expect(settings.vm.getColumnLabel({ label: '' })).toBe('');
+        });
+
+        it('does not consult the fallback locale when no fallbackLocale is configured', async () => {
+            const $te = jest.fn(() => false);
+            const $t = jest.fn((key) => key);
+            const settings = await createSettingsWrapper({ $te, $t });
+
+            Shopware.Context.app.fallbackLocale = '';
+            $te.mockClear();
+
+            expect(settings.vm.getColumnLabel({ label: 'sw-grid.column.name' })).toBe('sw-grid.column.name');
+            expect($te).toHaveBeenCalledTimes(1);
+            expect($te).toHaveBeenCalledWith('sw-grid.column.name');
+        });
+    });
 });

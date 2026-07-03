@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -203,14 +203,11 @@ class StoreControllerTest extends TestCase
     }
 
     /**
-     * @return StoreClient|MockObject
+     * @return StoreClient&Stub
      */
     private function getStoreClientMock(): StoreClient
     {
-        $storeClient = $this->getMockBuilder(StoreClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getDownloadDataForPlugin', 'userInfo'])
-            ->getMock();
+        $storeClient = static::createStub(StoreClient::class);
 
         $storeClient->method('getDownloadDataForPlugin')
             ->willReturn($this->getPluginDownloadDataStub());

@@ -222,6 +222,79 @@ describe('form-validation', () => {
         expect(validationErrors.length).toBe(0);
     });
 
+    test('validates required radio fields', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <fieldset class="form-radio-group">
+                    <legend>Choose a size</legend>
+
+                    <div class="form-check">
+                        <input type="radio" name="sizeChoice" id="sizeSmall" value="sm" data-validation="required" aria-describedby="sizeChoice-feedback">
+                        <label for="sizeSmall">Small</label>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="radio" name="sizeChoice" id="sizeMedium" value="md" data-validation="required" aria-describedby="sizeChoice-feedback">
+                        <label for="sizeMedium">Medium</label>
+                    </div>
+
+                    <div id="sizeChoice-feedback" class="form-field-feedback"></div>
+                </fieldset>
+
+                <fieldset class="form-radio-group">
+                    <legend>Choose a color</legend>
+
+                    <div class="form-check">
+                        <input type="radio" name="colorChoice" id="colorRed" value="red" data-validation="required" aria-describedby="colorChoice-feedback">
+                        <label for="colorRed">Red</label>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="radio" name="colorChoice" id="colorBlue" value="blue" data-validation="required" aria-describedby="colorChoice-feedback">
+                        <label for="colorBlue">Blue</label>
+                    </div>
+
+                    <div id="colorChoice-feedback" class="form-field-feedback"></div>
+                </fieldset>
+            </form>
+        `;
+
+        const form = document.getElementById('testForm');
+        const formFields = form.querySelectorAll('input');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        formFields.forEach((field) => {
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+        });
+
+        // No radio fields selected, all four required inputs are invalid.
+        let invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(4);
+
+        // Selecting one radio in the "sizeChoice" group satisfies the required rule for all radios with the same name.
+        const sizeSmallField = document.getElementById('sizeSmall');
+        sizeSmallField.checked = true;
+
+        let validationErrors = formValidation.validateField(sizeSmallField);
+        expect(validationErrors.length).toBe(0);
+
+        const sizeMediumField = document.getElementById('sizeMedium');
+        validationErrors = formValidation.validateField(sizeMediumField);
+        expect(validationErrors.length).toBe(0);
+
+        // The unrelated "colorChoice" group still fails its required validation.
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(2);
+        expect(invalidFields).toContain(document.getElementById('colorRed'));
+        expect(invalidFields).toContain(document.getElementById('colorBlue'));
+
+        // Selecting an option in the second group makes the whole form valid.
+        document.getElementById('colorBlue').checked = true;
+
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(0);
+    });
+
     test('should set field as required', () => {
         document.body.innerHTML = `
             <form id="testForm">

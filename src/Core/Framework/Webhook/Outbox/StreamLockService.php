@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
  * @internal
  *
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\StreamLockServiceTest
  */
 #[Package('framework')]
 class StreamLockService

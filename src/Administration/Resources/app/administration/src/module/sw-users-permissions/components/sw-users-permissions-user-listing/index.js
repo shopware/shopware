@@ -28,8 +28,8 @@ export default {
     ],
 
     created() {
-        this.ssoSettingsService.isSso().then((isSso) => {
-            this.isSso = isSso.isSso;
+        this.ssoSettingsService.isSso().then((response) => {
+            this.isSso = response.isSso;
         });
     },
 
@@ -125,6 +125,10 @@ export default {
                 {
                     property: 'email',
                     label: this.$t('sw-users-permissions.users.user-grid.labelEmail'),
+                },
+                {
+                    property: 'status',
+                    label: this.$t('sw-users-permissions.users.user-grid.status'),
                 },
             ];
         },

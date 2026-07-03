@@ -885,9 +885,9 @@ describe('runMigration — $el warning', () => {
         tmpDir = createTempDir();
         makeComponent(
             tmpDir,
-            'sw-composables',
-            readFixture('composables-component.index.js'),
-            readFixture('composables-component.html.twig'),
+            'sw-instance-api',
+            readFixture('instance-api-component.index.js'),
+            readFixture('instance-api-component.html.twig'),
         );
     });
 
@@ -920,9 +920,9 @@ describe('runMigration — $el warning', () => {
         expect(warnLine).toContain('$el usage detected');
     });
 
-    it('warning line appears after the fully-migrated line in the report', () => {
+    it('warning line appears after the partially-migrated line in the report', () => {
         const { report } = runMigration(tmpDir, { dryRun: true });
-        const migratedIdx = report.findIndex((l) => l.includes('fully-migrated'));
+        const migratedIdx = report.findIndex((l) => l.includes('partially-migrated'));
         const warnIdx = report.findIndex((l) => l.includes('⚠'));
         expect(migratedIdx).toBeGreaterThanOrEqual(0);
         expect(warnIdx).toBeGreaterThan(migratedIdx);

@@ -94,15 +94,17 @@ export function findComponentRegistration(sourceFile: SourceFile): ComponentRegi
     const parentComponentNameArg = args[1];
     const optionsArg = args[isExtend ? 2 : 1];
 
+    const componentNameIsLiteral = componentNameArg?.isKind(SyntaxKind.StringLiteral) ?? false;
+
     return {
         call,
         isExtend,
-        // TODO: Silent ignore: non-literal component names are rewritten to
-        // `unknown-component`; the migration should report this edge case
-        // instead of silently changing the registered component name.
-        componentName: componentNameArg?.isKind(SyntaxKind.StringLiteral)
+        // Non-literal names fall back to `unknown-component`; detectBlockers uses
+        // componentNameIsLiteral to report this instead of renaming silently.
+        componentName: componentNameIsLiteral
             ? componentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
             : 'unknown-component',
+        componentNameIsLiteral,
         // Example: the second argument in `Shopware.Component.register('sw-card', { props: {} })`.
         optionsObject: optionsArg?.asKind(SyntaxKind.ObjectLiteralExpression),
         parentComponentName:
@@ -110,6 +112,43 @@ export function findComponentRegistration(sourceFile: SourceFile): ComponentRegi
                 ? parentComponentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
                 : null,
     };
+}
+
+/**
+ * Names declared at module level (before the registration) that become
+ * `<script setup>` locals after migration. `defineProps`/`defineEmits` are
+ * hoisted above these locals, so a props/emits definition that references one
+ * cannot be emitted into a compiler macro. Imports are excluded because they
+ * stay hoist-safe.
+ */
+export function collectModuleLocalNames(sourceFile: SourceFile, registration: ComponentRegistration): Set<string> {
+    const registerPos = registration.call.getStart();
+    const names = new Set<string>();
+
+    for (const stmt of sourceFile.getStatements()) {
+        if (stmt.getStart() >= registerPos) break;
+
+        if (stmt.isKind(SyntaxKind.VariableStatement)) {
+            stmt.asKindOrThrow(SyntaxKind.VariableStatement)
+                .getDeclarationList()
+                .getDeclarations()
+                .forEach((declaration) => {
+                    const nameNode = declaration.getNameNode();
+                    if (Node.isIdentifier(nameNode)) {
+                        names.add(nameNode.getText());
+                    }
+                });
+        } else if (stmt.isKind(SyntaxKind.FunctionDeclaration) || stmt.isKind(SyntaxKind.ClassDeclaration)) {
+            const name =
+                stmt.asKind(SyntaxKind.FunctionDeclaration)?.getName() ??
+                stmt.asKind(SyntaxKind.ClassDeclaration)?.getName();
+            if (name) {
+                names.add(name);
+            }
+        }
+    }
+
+    return names;
 }
 
 export function extractModuleLevelCode(sourceFile: SourceFile, registration: ComponentRegistration): string {

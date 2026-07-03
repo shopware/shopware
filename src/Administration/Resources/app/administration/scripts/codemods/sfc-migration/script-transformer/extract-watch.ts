@@ -1,8 +1,46 @@
-import type { ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
+import type { MethodDeclaration, ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
 import { extractInlineFunctionHandler } from './extract-function-handler';
-import { getPropertyName, isDefined } from './helpers';
+import { getPropertyName, isDefined, isSimpleParameter } from './helpers';
 import type { ExtractWatchPropsResult, WatchProp } from './types';
+
+function hasUnsupportedWatchParameters(method: MethodDeclaration): boolean {
+    return method.getParameters().some((param) => !isSimpleParameter(param));
+}
+
+/**
+ * Watcher handlers whose parameters use destructuring, defaults, or rest syntax
+ * cannot be emitted as an equivalent arrow parameter list. Such a component must
+ * back off to the Options API rather than migrate the rest and corrupt the
+ * watcher signature.
+ */
+export function hasUnsupportedWatchParameterShape(optionsObj: ObjectLiteralExpression): boolean {
+    const watchProp = optionsObj.getProperty('watch');
+    const watchObj = watchProp?.isKind(SyntaxKind.PropertyAssignment)
+        ? watchProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializerIfKind(SyntaxKind.ObjectLiteralExpression)
+        : undefined;
+
+    if (!watchObj) {
+        return false;
+    }
+
+    return watchObj.getProperties().some((prop) => {
+        if (prop.isKind(SyntaxKind.MethodDeclaration)) {
+            return hasUnsupportedWatchParameters(prop.asKindOrThrow(SyntaxKind.MethodDeclaration));
+        }
+
+        const handler = prop.isKind(SyntaxKind.PropertyAssignment)
+            ? prop
+                  .asKindOrThrow(SyntaxKind.PropertyAssignment)
+                  .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression)
+                  ?.getProperty('handler')
+            : undefined;
+
+        return handler?.isKind(SyntaxKind.MethodDeclaration)
+            ? hasUnsupportedWatchParameters(handler.asKindOrThrow(SyntaxKind.MethodDeclaration))
+            : false;
+    });
+}
 
 function parseWatchBooleanOption(
     optionName: 'deep' | 'immediate',
@@ -33,10 +71,12 @@ function parseWatchBooleanOption(
 
 export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractWatchPropsResult {
     const watchProp = optionsObj.getProperty('watch');
-    // TODO: Silent ignore: shorthand/non-property `watch` declarations are
-    // treated as absent instead of being reported as unsupported.
-    if (!watchProp?.isKind(SyntaxKind.PropertyAssignment)) {
+    if (!watchProp) {
         return { watchProps: [], unsupportedEntries: [] };
+    }
+    // Shorthand or non-property `watch` cannot be read as an object literal.
+    if (!watchProp.isKind(SyntaxKind.PropertyAssignment)) {
+        return { watchProps: [], unsupportedEntries: ['watch must be an object literal'] };
     }
 
     const watchObj = watchProp
@@ -53,12 +93,18 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
         // Example: `{ watch: { productId(newId) { this.loadProduct(newId); } } }`
         if (p.isKind(SyntaxKind.MethodDeclaration)) {
             const method = p.asKindOrThrow(SyntaxKind.MethodDeclaration);
+
+            // getName() drops destructuring, defaults, and rest syntax, which
+            // would silently change the watcher signature.
+            if (hasUnsupportedWatchParameters(method)) {
+                unsupportedEntries.push(`${getPropertyName(method)}: watcher parameters must be migrated manually`);
+                continue;
+            }
+
             result.push({
                 name: getPropertyName(method),
                 paramsText: method
                     .getParameters()
-                    // TODO: Silent ignore: getName() drops destructuring,
-                    // default values, and rest syntax from watcher parameters.
                     .map((param) => param.getName())
                     .join(', '),
                 bodyText: method.getBodyText() ?? '',
@@ -117,11 +163,14 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
             // Example: `{ watch: { productId: { handler(newId) { this.loadProduct(newId); } } } }`
             if (handlerProp.isKind(SyntaxKind.MethodDeclaration)) {
                 const handler = handlerProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+
+                if (hasUnsupportedWatchParameters(handler)) {
+                    unsupportedEntries.push(`${name}: watcher parameters must be migrated manually`);
+                    continue;
+                }
+
                 watchEntry.paramsText = handler
                     .getParameters()
-                    // TODO: Silent ignore: getName() drops destructuring,
-                    // default values, and rest syntax from object-form watcher
-                    // handler parameters.
                     .map((param) => param.getName())
                     .join(', ');
                 watchEntry.bodyText = handler.getBodyText() ?? '';

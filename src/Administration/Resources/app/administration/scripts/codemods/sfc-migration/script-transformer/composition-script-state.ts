@@ -1,8 +1,10 @@
 import type { BindingName, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { extractModuleLevelCode } from './ast';
+import { collectModuleLocalNames, extractModuleLevelCode } from './ast';
 import { extractComputedProps } from './extract-computed';
 import {
+    analyzeEmitsShape,
+    analyzePropsShape,
     extractEmitsDefinition,
     extractInheritAttrs,
     extractPropNamesFromText,
@@ -10,7 +12,7 @@ import {
 } from './extract-component-options';
 import { extractDataProps } from './extract-data';
 import { extractInjectProps } from './extract-inject';
-import { extractLifecycleHooks } from './extract-lifecycle';
+import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks } from './extract-lifecycle';
 import { extractMethodProps } from './extract-methods';
 import { extractWatchProps } from './extract-watch';
 import { isDefined, isSafeIdentifier, sanitizeTodoCommentText } from './helpers';
@@ -18,6 +20,8 @@ import {
     collectEmittedEventNames,
     collectThisRefNames,
     detectUsedComposables,
+    findDataInitializerMethodCall,
+    findUnsupportedThisUsage,
     hasDirectThisPropertyUsage,
 } from './rewrite-this';
 import type {
@@ -90,13 +94,28 @@ export function collectCompositionScriptState(
     sourceFile: SourceFile,
 ): CompositionScriptState {
     const lifecycleHooks = extractLifecycleHooks(optionsObj);
-    const propsText = extractPropsText(optionsObj);
-    const emitsDefinition = extractEmitsDefinition(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
+    const moduleLocalNames = collectModuleLocalNames(sourceFile, registration);
 
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
+
+    // Unsupported props/emits shapes are suppressed to empty compiler macros so
+    // no non-equivalent defineProps/defineEmits leaks; methods that depended on
+    // the dropped members then surface as unresolved `this.<name>` follow-ups.
+    const propsIssue = analyzePropsShape(optionsObj, moduleLocalNames);
+    const propsText = propsIssue && !propsIssue.backoff ? null : extractPropsText(optionsObj);
+    if (propsIssue && !propsIssue.backoff) {
+        pushManualMigration(manualMigrationReasons, todoComments, 'props', propsIssue.reason);
+    }
+
+    const emitsIssue = analyzeEmitsShape(optionsObj, moduleLocalNames);
+    const emitsDefinition =
+        emitsIssue && !emitsIssue.backoff ? { keys: [], objectText: null } : extractEmitsDefinition(optionsObj);
+    if (emitsIssue && !emitsIssue.backoff) {
+        pushManualMigration(manualMigrationReasons, todoComments, 'emits', emitsIssue.reason);
+    }
 
     const supportedMembers = collectSupportedCompositionMembers(optionsObj, propsText);
     manualMigrationReasons.push(...supportedMembers.manualMigrationReasons);
@@ -124,14 +143,12 @@ export function collectCompositionScriptState(
     if (hasDirectThisPropertyUsage(allSnippets, '$store')) {
         manualMigrationReasons.push('$store usage requires manual migration to the appropriate Pinia store or composable');
     }
+    collectPlaceholderApiReasons(allSnippets, manualMigrationReasons, todoComments);
 
     const effectiveEmitsKeys =
         emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
             ? emitsDefinition.keys
-            : // TODO: Silent ignore: unsupported emits definitions can be
-              // replaced by inferred `$emit()` names instead of reporting the
-              // original `emits` shape as unsupported.
-              collectEmittedEventNames(allSnippets);
+            : collectEmittedEventNames(allSnippets);
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
     const vueImports = collectVueImports(supportedMembers, templateRefNames, usedComposables, regularHooks, allSnippets);
@@ -143,12 +160,25 @@ export function collectCompositionScriptState(
 
     manualMigrationReasons.push(...unsupportedWatchEntries.map((entry) => `watch: ${sanitizeTodoCommentText(entry)}`));
 
-    const componentNameValue = getComponentNameValue(optionsObj);
+    const { componentNameValue, isDynamic: hasDynamicName } = resolveComponentNameValue(optionsObj);
+    if (hasDynamicName) {
+        pushManualMigration(
+            manualMigrationReasons,
+            todoComments,
+            'name',
+            'name: dynamic component name option must be migrated manually',
+        );
+    }
+    if (hasDynamicInheritAttrs(optionsObj)) {
+        pushManualMigration(
+            manualMigrationReasons,
+            todoComments,
+            'inheritAttrs',
+            'inheritAttrs: dynamic inheritAttrs expression must be migrated manually',
+        );
+    }
 
     const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
-
-    // TODO: Silent ignore: duplicate public names across inject/data/computed/
-    // methods are not detected before generating duplicate setup declarations.
 
     return {
         registration,
@@ -202,7 +232,7 @@ function collectSupportedCompositionMembers(
     );
     collectUnsupportedEntries(unsupportedInjectEntries, 'inject', 'inject entry', manualMigrationReasons, todoComments);
 
-    const supportedDataProps = collectSupportedNamedProps(
+    const identifierSafeDataProps = collectSupportedNamedProps(
         dataProps,
         ({ name }) => name,
         'data',
@@ -228,7 +258,7 @@ function collectSupportedCompositionMembers(
         todoComments,
     );
 
-    const supportedMethodProps = collectSupportedNamedProps(
+    const identifierSafeMethodProps = collectSupportedNamedProps(
         methodProps,
         ({ name }) => name,
         'methods',
@@ -240,32 +270,66 @@ function collectSupportedCompositionMembers(
 
     const injectNames = new Set(supportedInjectProps.map((p) => p.localName));
     const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
-    const dataNames = new Set(supportedDataProps.map((p) => p.name));
     const computedNames = new Set(supportedComputedProps.map((p) => p.name));
-    const methodNames = new Set(supportedMethodProps.map((p) => p.name));
+
+    // `this.` accesses are validated against every identifier-safe member so a
+    // method referencing a sibling that is dropped later is not misreported as
+    // an unknown property.
+    const validationCtx: RewriteContext = {
+        propNames,
+        dataNames: new Set(identifierSafeDataProps.map((p) => p.name)),
+        computedNames,
+        methodNames: new Set(identifierSafeMethodProps.map((p) => p.name)),
+        injectNames,
+    };
+
+    const supportedDataProps = filterInstanceDependentData(
+        identifierSafeDataProps,
+        validationCtx,
+        manualMigrationReasons,
+        todoComments,
+    );
+    const supportedMethodProps = filterInstanceDependentMethods(
+        identifierSafeMethodProps,
+        validationCtx,
+        manualMigrationReasons,
+        todoComments,
+    );
+
+    const deduped = dropDuplicatePublicNames(
+        { supportedInjectProps, supportedDataProps, supportedComputedProps, supportedMethodProps },
+        manualMigrationReasons,
+        todoComments,
+    );
+
+    const dataNames = new Set(deduped.supportedDataProps.map((p) => p.name));
+    const methodNames = new Set(deduped.supportedMethodProps.map((p) => p.name));
+    const finalInjectNames = new Set(deduped.supportedInjectProps.map((p) => p.localName));
+    const finalComputedNames = new Set(deduped.supportedComputedProps.map((p) => p.name));
+
     const supportedWatchProps = collectSupportedWatchProps(
         watchProps,
         unsupportedWatchEntries,
         propNames,
         dataNames,
-        computedNames,
+        finalComputedNames,
         methodNames,
-        injectNames,
+        finalInjectNames,
     );
 
     return {
-        supportedInjectProps,
-        supportedDataProps,
-        supportedComputedProps,
-        supportedMethodProps,
+        supportedInjectProps: deduped.supportedInjectProps,
+        supportedDataProps: deduped.supportedDataProps,
+        supportedComputedProps: deduped.supportedComputedProps,
+        supportedMethodProps: deduped.supportedMethodProps,
         supportedWatchProps,
         watchProps,
         unsupportedWatchEntries,
         propNames,
         dataNames,
-        computedNames,
+        computedNames: finalComputedNames,
         methodNames,
-        injectNames,
+        injectNames: finalInjectNames,
         manualMigrationReasons,
         todoComments,
     };
@@ -294,21 +358,213 @@ function collectManualFollowUps(optionsObj: ObjectLiteralExpression): ManualMigr
         manualMigrationReasons.push('beforeCreate hook requires manual migration');
         todoComments.push('// TODO: `beforeCreate` was dropped — move logic to top of setup if needed');
     }
-    // TODO: Silent ignore: other runtime-relevant top-level options
-    // (route guards, metaInfo, shortcuts, errorCaptured, expose,
-    // extensionApiDevtoolInformation, saveFinish, root spreads, and dynamic
-    // option keys) are not surfaced as manual migration reasons.
+
+    // Runtime-relevant options that the codemod cannot translate and would
+    // otherwise drop silently while reporting a successful migration.
+    for (const option of UNSUPPORTED_TOP_LEVEL_OPTIONS) {
+        if (optionsObj.getProperty(option)) {
+            pushManualMigration(
+                manualMigrationReasons,
+                todoComments,
+                option,
+                `${option}: option is not supported by the SFC migration and requires manual migration`,
+            );
+        }
+    }
+
+    const injectProp = optionsObj.getProperty('inject');
+    if (injectProp && !injectProp.isKind(SyntaxKind.PropertyAssignment)) {
+        pushManualMigration(
+            manualMigrationReasons,
+            todoComments,
+            'inject',
+            'inject: shorthand inject declaration must be migrated manually',
+        );
+    }
+
+    analyzeUnsupportedLifecycleHooks(optionsObj).forEach((reason) => {
+        pushManualMigration(manualMigrationReasons, todoComments, 'lifecycle hook', reason);
+    });
 
     return { manualMigrationReasons, todoComments };
 }
 
-function getComponentNameValue(optionsObj: ObjectLiteralExpression): string | undefined {
-    const componentNameProp = optionsObj.getProperty('name');
-    // TODO: Silent ignore: dynamic component `name` options are passed to
-    // defineOptions instead of being reported as unsupported.
-    return componentNameProp?.isKind(SyntaxKind.PropertyAssignment)
-        ? componentNameProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText()
-        : undefined;
+const UNSUPPORTED_TOP_LEVEL_OPTIONS = [
+    'beforeRouteEnter',
+    'beforeRouteLeave',
+    'beforeRouteUpdate',
+    'metaInfo',
+    'shortcuts',
+    'errorCaptured',
+    'expose',
+    'extensionApiDevtoolInformation',
+    'saveFinish',
+];
+
+function pushManualMigration(reasons: string[], todoComments: string[], label: string, reason: string): void {
+    reasons.push(reason);
+    todoComments.push(`// TODO: migrate ${label} manually: ${sanitizeTodoCommentText(reason)}`);
+}
+
+function filterInstanceDependentData(
+    dataProps: DataProp[],
+    ctx: RewriteContext,
+    reasons: string[],
+    todoComments: string[],
+): DataProp[] {
+    return dataProps.filter(({ name, valueText }) => {
+        // Methods become `const` declarations emitted after the data refs, so a
+        // data initializer that calls one would hit a temporal-dead-zone error.
+        const calledMethod = findDataInitializerMethodCall(valueText, ctx.methodNames);
+        if (calledMethod) {
+            pushManualMigration(
+                reasons,
+                todoComments,
+                'data entry',
+                `data: ${name} initializer calls component method '${calledMethod}'`,
+            );
+            return false;
+        }
+
+        const unsupportedThis = findUnsupportedThisUsage({ text: valueText, kind: 'expression' }, ctx);
+        if (unsupportedThis) {
+            pushManualMigration(reasons, todoComments, 'data entry', `data: ${name} initializer uses ${unsupportedThis}`);
+            return false;
+        }
+
+        return true;
+    });
+}
+
+function filterInstanceDependentMethods(
+    methodProps: MethodProp[],
+    ctx: RewriteContext,
+    reasons: string[],
+    todoComments: string[],
+): MethodProp[] {
+    return methodProps.filter(({ name, bodyText, rawText }) => {
+        const unsupportedThis = findUnsupportedThisUsage(
+            { text: rawText ?? bodyText, kind: rawText === undefined ? 'body' : 'expression' },
+            ctx,
+        );
+        if (unsupportedThis) {
+            pushManualMigration(reasons, todoComments, 'method', `methods: ${name} uses ${unsupportedThis}`);
+            return false;
+        }
+
+        return true;
+    });
+}
+
+interface SupportedPublicMembers {
+    supportedInjectProps: InjectProp[];
+    supportedDataProps: DataProp[];
+    supportedComputedProps: ComputedProp[];
+    supportedMethodProps: MethodProp[];
+}
+
+/**
+ * inject/data/computed/methods share one setup scope, so a name declared by two
+ * of them would emit duplicate `const` declarations. Drop every member of a
+ * colliding name and report it instead.
+ */
+function dropDuplicatePublicNames(
+    members: SupportedPublicMembers,
+    reasons: string[],
+    todoComments: string[],
+): SupportedPublicMembers {
+    const counts = new Map<string, number>();
+    const record = (name: string): void => {
+        counts.set(name, (counts.get(name) ?? 0) + 1);
+    };
+    members.supportedInjectProps.forEach((p) => record(p.localName));
+    members.supportedDataProps.forEach((p) => record(p.name));
+    members.supportedComputedProps.forEach((p) => record(p.name));
+    members.supportedMethodProps.forEach((p) => record(p.name));
+
+    const duplicates = new Set(
+        [...counts]
+            .filter(
+                ([
+                    ,
+                    count,
+                ]) => count > 1,
+            )
+            .map(([name]) => name),
+    );
+    if (duplicates.size === 0) {
+        return members;
+    }
+
+    duplicates.forEach((name) => {
+        pushManualMigration(
+            reasons,
+            todoComments,
+            'setup binding',
+            `duplicate public name '${name}' across data, computed, methods, or inject`,
+        );
+    });
+
+    return {
+        supportedInjectProps: members.supportedInjectProps.filter((p) => !duplicates.has(p.localName)),
+        supportedDataProps: members.supportedDataProps.filter((p) => !duplicates.has(p.name)),
+        supportedComputedProps: members.supportedComputedProps.filter((p) => !duplicates.has(p.name)),
+        supportedMethodProps: members.supportedMethodProps.filter((p) => !duplicates.has(p.name)),
+    };
+}
+
+const PLACEHOLDER_INSTANCE_APIS = [
+    '$el',
+    '$parent',
+    '$root',
+    '$options',
+    '$forceUpdate',
+];
+
+/**
+ * These instance APIs are rewritten to transitional placeholders that change
+ * runtime behavior, so their usage keeps the migration partial.
+ */
+function collectPlaceholderApiReasons(snippets: CodeSnippet[], reasons: string[], todoComments: string[]): void {
+    for (const api of PLACEHOLDER_INSTANCE_APIS) {
+        if (hasDirectThisPropertyUsage(snippets, api)) {
+            pushManualMigration(
+                reasons,
+                todoComments,
+                api,
+                `${api}: instance API has no direct setup equivalent and requires manual migration`,
+            );
+        }
+    }
+}
+
+function resolveComponentNameValue(optionsObj: ObjectLiteralExpression): {
+    componentNameValue?: string;
+    isDynamic: boolean;
+} {
+    const nameProp = optionsObj.getProperty('name');
+    if (!nameProp?.isKind(SyntaxKind.PropertyAssignment)) {
+        return { isDynamic: false };
+    }
+
+    const initializer = nameProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
+    // Only string-literal names can be emitted into defineOptions; dynamic
+    // expressions would produce an invalid or non-equivalent option.
+    if (initializer?.isKind(SyntaxKind.StringLiteral)) {
+        return { componentNameValue: initializer.getText(), isDynamic: false };
+    }
+
+    return { isDynamic: true };
+}
+
+function hasDynamicInheritAttrs(optionsObj: ObjectLiteralExpression): boolean {
+    const prop = optionsObj.getProperty('inheritAttrs');
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) {
+        return false;
+    }
+
+    const text = prop.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText();
+    return text !== 'true' && text !== 'false';
 }
 
 function collectSupportedNamedProps<T>(

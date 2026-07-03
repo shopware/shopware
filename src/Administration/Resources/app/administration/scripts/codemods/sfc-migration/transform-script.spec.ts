@@ -342,7 +342,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    describe('composables-component: rewrites $router, $route, $slots, $nextTick, $t, $tc, and $el to their Composition API equivalents', () => {
+    describe('composables-component: rewrites $router, $route, $slots, $nextTick, $t, and $tc to their Composition API equivalents', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
@@ -390,18 +390,32 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain('useI18n()');
         });
 
-        it('rewrites this.$el → getCurrentInstance()?.proxy?.$el with a TODO comment', () => {
-            expect(result.script).toContain('/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
-            expect(result.script).not.toMatch(/\bthis\.\$el\b/);
-            expect(result.script).toMatch(/import\s*\{[^}]*getCurrentInstance[^}]*\}\s*from\s*['"]vue['"]/);
-        });
-
         it('does not contain any this. references', () => {
             expect(result.script).not.toMatch(/\bthis\./);
         });
 
         it('matches the complete converted script snapshot', () => {
             expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('instance-api-component: keeps $el as a placeholder and requires manual follow-up', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('instance-api-component.index.js'));
+        });
+
+        it('reports status partially-migratable with a $el blocker', () => {
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers.join('\n')).toContain('$el');
+        });
+
+        it('rewrites this.$el → getCurrentInstance()?.proxy?.$el with a TODO comment', () => {
+            expect(result.script).toContain('/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
+            expect(result.script).not.toMatch(/\bthis\.\$el\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*getCurrentInstance[^}]*\}\s*from\s*['"]vue['"]/);
         });
     });
 
@@ -687,9 +701,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         expect(result.status).toBe('partially-migratable');
         expect(result.blockers).toContain('methods: ...sharedMethods: spread method entries must be migrated manually');
-        expect(result.blockers).toContain(
-            'methods: shorthandMethod: shorthand method entries must be migrated manually',
-        );
+        expect(result.blockers).toContain('methods: shorthandMethod: shorthand method entries must be migrated manually');
         expect(result.script).toContain(
             'TODO: migrate method manually: methods: ...sharedMethods: spread method entries must be migrated manually',
         );

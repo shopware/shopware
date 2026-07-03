@@ -48,18 +48,12 @@ function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState):
     }
 
     if (propsText) {
-        // TODO: Silent ignore: props definitions that reference module-local
-        // declarations are emitted into defineProps even though script setup
-        // compiler macros are hoisted and cannot depend on setup locals.
         lines.push(`const props = defineProps(${propsText});`);
     } else {
         lines.push(`const props = defineProps({});`);
     }
 
     if (emitsDefinition.objectText !== null) {
-        // TODO: Silent ignore: emits validators that reference module-local
-        // declarations are emitted into defineEmits even though script setup
-        // compiler macros are hoisted and cannot depend on setup locals.
         lines.push(identTemplate`const ${emitIdent} = defineEmits(${emitsDefinition.objectText});`);
     } else if (effectiveEmitsKeys.length > 0) {
         const emitsList = effectiveEmitsKeys.map((k) => `'${k}'`).join(', ');

@@ -1,13 +1,16 @@
 import type { ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
 import { extractInlineFunctionHandler } from './extract-function-handler';
+import { isSimpleParameter } from './helpers';
 import type { ComputedProp, ExtractComputedPropsResult } from './types';
 
 export function extractComputedProps(optionsObj: ObjectLiteralExpression): ExtractComputedPropsResult {
     const computedProp = optionsObj.getProperty('computed');
-    // TODO: Silent ignore: shorthand/non-property `computed` declarations are
-    // treated as absent instead of being reported as unsupported.
-    if (!computedProp?.isKind(SyntaxKind.PropertyAssignment)) return { computedProps: [], unsupportedEntries: [] };
+    if (!computedProp) return { computedProps: [], unsupportedEntries: [] };
+    // Shorthand or non-property `computed` cannot be read as an object literal.
+    if (!computedProp.isKind(SyntaxKind.PropertyAssignment)) {
+        return { computedProps: [], unsupportedEntries: ['computed must be an object literal'] };
+    }
 
     const computedObj = computedProp
         .asKindOrThrow(SyntaxKind.PropertyAssignment)
@@ -53,14 +56,21 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
             if (getterProp?.isKind(SyntaxKind.MethodDeclaration) && setterProp?.isKind(SyntaxKind.MethodDeclaration)) {
                 const getter = getterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
                 const setter = setterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+                const setterParam = setter.getParameters()[0];
+
+                // getName() drops default values, rest syntax, and destructuring
+                // from the setter parameter, so those shapes must be migrated by
+                // hand instead of emitting a parameter list that changes meaning.
+                if (setterParam && !isSimpleParameter(setterParam)) {
+                    unsupportedEntries.push(`${pa.getName()}: computed setter parameter must be migrated manually`);
+                    continue;
+                }
 
                 result.push({
                     name: pa.getName(),
                     kind: 'getter-setter',
                     getterBodyText: getter.getBodyText() ?? '',
-                    // TODO: Silent ignore: getName() drops default/rest/
-                    // destructuring syntax from computed setter parameters.
-                    setterParam: setter.getParameters()[0]?.getName() ?? 'val',
+                    setterParam: setterParam?.getName() ?? 'val',
                     setterBodyText: setter.getBodyText() ?? '',
                 });
             } else if (getterProp?.isKind(SyntaxKind.MethodDeclaration)) {

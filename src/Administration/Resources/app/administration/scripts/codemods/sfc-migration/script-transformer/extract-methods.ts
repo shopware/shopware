@@ -42,11 +42,23 @@ export function extractMethodProps(optionsObj: ObjectLiteralExpression): Extract
             // Example: `{ methods: { save: async function () { await this.repository.save(); } } }`
             const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
             const name = pa.getName();
-            const initializerText = pa.getInitializer()?.getText() ?? '';
-            // TODO: Silent ignore: property-assignment methods can be external
-            // references or wrapper expressions that depend on Vue instance
-            // binding; they are emitted as setup constants without reporting
-            // whether that binding is still equivalent.
+            const initializer = pa.getInitializer();
+
+            // Only inline functions or wrapper calls (e.g. debounce(fn)) carry a
+            // body whose `this` we can rewrite. A bare external reference such as
+            // `save: externalSave` loses its Options API instance binding when
+            // emitted as `const save = externalSave;`, so it needs manual review.
+            const isSupportedMethodValue =
+                initializer?.isKind(SyntaxKind.FunctionExpression) ||
+                initializer?.isKind(SyntaxKind.ArrowFunction) ||
+                initializer?.isKind(SyntaxKind.CallExpression);
+
+            if (!isSupportedMethodValue) {
+                unsupportedEntries.push(`${name}: method value must be an inline function`);
+                continue;
+            }
+
+            const initializerText = initializer.getText();
             result.push({
                 name,
                 paramsText: '',

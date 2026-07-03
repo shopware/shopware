@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult.
+ * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult, but will keep extending Struct.
  *
  * @extends EntitySearchResult<ProductCollection>
  */

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 /**
  * @final
  *
- * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntityCollection.
+ * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntityCollection, but will keep extending Struct.
  *
  * @template TEntityCollection of EntityCollection
  *
@@ -145,7 +145,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
 
-        parent::set($entity->getUniqueIdentifier(), $entity);
+        Feature::silent('v6.8.0.0', fn () => parent::add($entity));
 
         $this->entities->add($entity);
     }
@@ -259,11 +259,11 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use getEntities()->count() or getTotal() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use getEntities()->count() instead.
      */
     public function count(): int
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->count() or getTotal()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->count()'));
 
         return parent::count();
     }
@@ -419,11 +419,17 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use getEntities()->assignRecursive() instead.
+     * @deprecated tag:v6.8.0 - Will no longer add entities to the result; the inherited Struct::assignRecursive() applies instead and has no effect on the readonly result. Use getEntities()->assignRecursive() instead.
      */
     public function assignRecursive(array $options): static
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0', 'getEntities()->assignRecursive()'));
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'Method "%s::assignRecursive()" is deprecated. As of v6.8.0.0 it will no longer add entities to the result, but fall back to "Struct::assignRecursive()", which has no effect on the readonly result. To add entities, use "getEntities()->assignRecursive()" instead.',
+                static::class
+            )
+        );
 
         return parent::assignRecursive($options);
     }

@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,12 +36,11 @@ class CustomerEmailUnique extends Constraint
     /**
      * @param array{salesChannelContext?: SalesChannelContext}|null $options
      *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext will be required and natively typed as constructor property promotion
-     *
      * @internal
      */
     #[HasNamedArguments]
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
+    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'salesChannelContext', description: 'Will be natively typed as promoted property.')]
     public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null, string $message = 'The email address {{ email }} is already in use.')
     {
         if ($options !== null || $salesChannelContext === null) {

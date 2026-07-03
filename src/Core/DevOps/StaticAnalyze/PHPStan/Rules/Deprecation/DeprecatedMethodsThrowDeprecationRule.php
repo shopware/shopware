@@ -40,8 +40,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-phpstan-rule',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
         'reason:becomes-internal',
-        // New function parameter will be added
-        'reason:new-optional-parameter',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
         // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.

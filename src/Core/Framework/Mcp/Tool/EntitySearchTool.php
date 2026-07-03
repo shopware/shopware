@@ -9,14 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: 'shopware-entity-search', title: 'Entity Search', description: 'Search and filter Shopware entities — use this to look up a product by its productNumber or any exact field value, including as the first step in Storefront cart/checkout workflows. For count/sum/average reporting, use shopware-entity-aggregate instead (the _meta.total here is pagination metadata, not a reporting count). Accepts Admin API criteria JSON. Returns {success, data: [...], _meta: {total, page, limit}}. Use shopware-entity-schema first if you need field names.')]
+#[McpTool(name: 'shopware-entity-search', title: 'Entity Search', description: 'Search and filter Shopware entities — use this to look up a product by its productNumber or any exact field value, including as the first step in Storefront cart/checkout workflows. For count/sum/average reporting, use shopware-entity-aggregate instead (the _meta.total here is pagination metadata, not a reporting count). Accepts Admin API criteria JSON. Returns {success, data: [...], _meta: {total, page, limit}}. Use shopware-entity-schema first if you need field names.', meta: ['deferred' => false])]
 #[McpToolDependsOn('shopware-entity-schema')]
+#[McpToolGroup('entity')]
 #[McpToolRequires(entityParam: 'entity', operations: ['read'])]
 #[Package('framework')]
 class EntitySearchTool extends McpToolResponse

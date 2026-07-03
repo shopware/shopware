@@ -23,18 +23,16 @@ class ToolsetsListToolTest extends TestCase
         $registry = static::createStub(McpToolsetRegistry::class);
         $registry->method('toolsets')->willReturn([
             [
-                'name' => 'default',
-                'title' => 'Default tools',
-                'description' => 'Default',
-                'tools' => ['shopware-toolsets-list'],
-                'enabledByDefault' => true,
-            ],
-            [
-                'name' => 'shopware-entity',
+                'name' => 'entity',
                 'title' => 'Entity tools',
                 'description' => 'Entity',
                 'tools' => ['shopware-entity-search'],
-                'enabledByDefault' => false,
+            ],
+            [
+                'name' => 'order',
+                'title' => 'Order tools',
+                'description' => 'Order',
+                'tools' => ['shopware-order-state'],
             ],
         ]);
 
@@ -42,7 +40,7 @@ class ToolsetsListToolTest extends TestCase
         $storage->expects($this->once())
             ->method('enabledToolsets')
             ->with('session-a')
-            ->willReturn(['shopware-entity']);
+            ->willReturn(['entity']);
 
         $requestStack = new RequestStack();
         $request = Request::create('/api/_mcp', 'POST');
@@ -54,8 +52,9 @@ class ToolsetsListToolTest extends TestCase
 
         static::assertTrue($result['success']);
         static::assertTrue($result['data']['toolsets'][0]['enabled']);
-        static::assertTrue($result['data']['toolsets'][1]['enabled']);
-        static::assertSame('prefix-fallback', $result['_meta']['taxonomy']);
+        static::assertFalse($result['data']['toolsets'][1]['enabled']);
+        static::assertSame('tool-groups', $result['_meta']['taxonomy']);
+        static::assertSame('Toolsets are derived from explicit MCP tool group metadata.', $result['_meta']['note']);
     }
 
     public function testListsToolsetsWithoutSessionState(): void
@@ -63,18 +62,10 @@ class ToolsetsListToolTest extends TestCase
         $registry = static::createStub(McpToolsetRegistry::class);
         $registry->method('toolsets')->willReturn([
             [
-                'name' => 'default',
-                'title' => 'Default tools',
-                'description' => 'Default',
-                'tools' => ['shopware-toolsets-list'],
-                'enabledByDefault' => true,
-            ],
-            [
-                'name' => 'shopware-entity',
+                'name' => 'entity',
                 'title' => 'Entity tools',
                 'description' => 'Entity',
                 'tools' => ['shopware-entity-search'],
-                'enabledByDefault' => false,
             ],
         ]);
 
@@ -85,7 +76,6 @@ class ToolsetsListToolTest extends TestCase
         $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($result['success']);
-        static::assertTrue($result['data']['toolsets'][0]['enabled']);
-        static::assertFalse($result['data']['toolsets'][1]['enabled']);
+        static::assertFalse($result['data']['toolsets'][0]['enabled']);
     }
 }

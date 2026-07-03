@@ -7,6 +7,22 @@
 The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
 
 Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
+### MCP clients are notified when app capabilities change
+
+The experimental MCP server now queues `notifications/*/list_changed` messages for active MCP sessions when app MCP tools, resources, or prompts change through app install, update, activation, deactivation, or deletion. MCP clients that support list-change notifications can refresh their discovered capabilities after these app lifecycle changes.
+### MCP tools can be discovered on demand
+
+The MCP server now advertises a bounded non-deferred tool surface and includes the `shopware-tool-search` meta-tool. MCP clients can call this tool with a free-text query to discover relevant tool definitions from the caller's allowlisted catalogue without loading every allowed tool into the initial `tools/list` response. Tools are deferred by default; tools that should be visible immediately opt out with `#[McpTool(..., meta: ['deferred' => false])]`.
+
+The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
+### MCP list responses apply allowlists before pagination
+
+MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the current integration allowlist before protocol pagination is calculated. Clients using `nextCursor` receive full pages of allowed capabilities instead of pages that may be partially or completely empty because hidden capabilities were filtered after paging.
+### MCP tools expose a group for operator-facing selection
+
+MCP tool metadata now includes a stable `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+
+Tools without an explicit group derive one from their name prefix, so existing core, plugin, and app tools continue to work.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 

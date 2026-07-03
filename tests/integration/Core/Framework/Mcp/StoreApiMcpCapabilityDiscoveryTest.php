@@ -82,6 +82,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
         $tools = array_column($response['result']['tools'] ?? [], 'name');
 
+        static::assertContains('shopware-tool-search', $tools);
         static::assertContains('shopware-store-api-context', $tools);
         static::assertNotContains('shopware-entity-search', $tools);
         static::assertNotContains('shopware-theme-config', $tools);

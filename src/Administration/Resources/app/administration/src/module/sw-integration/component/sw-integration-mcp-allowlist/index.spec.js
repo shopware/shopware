@@ -127,6 +127,37 @@ describe('sw-integration-mcp-allowlist', () => {
         expect(wrapper.vm.toolsAllowlist).toStrictEqual(['shopware-entity-search']);
     });
 
+    it('groups tools by backend group when present', async () => {
+        mcpToolService.getCapabilities.mockResolvedValue({
+            ...defaultCapabilities,
+            tools: [
+                {
+                    name: 'shopware-entity-search',
+                    group: 'catalogue',
+                    description: 'Search entities',
+                    dependencies: [],
+                    requiredPrivileges: [],
+                },
+                {
+                    name: 'swag-order-export',
+                    group: 'orders',
+                    description: 'Export orders',
+                    dependencies: [],
+                    requiredPrivileges: [],
+                },
+            ],
+        });
+
+        const wrapper = await createWrapper({ allowlist: { tools: null, resources: null, prompts: null } });
+        await flushPromises();
+
+        expect(Object.keys(wrapper.vm.toolGroups)).toStrictEqual([
+            'catalogue',
+            'orders',
+        ]);
+        expect(wrapper.vm.groupLabel('tools', 'catalogue')).toBe('Catalogue');
+    });
+
     it('resourcesAllowlist returns resources sub-array when allowlist is set', async () => {
         const wrapper = await createWrapper({
             allowlist: { tools: null, resources: ['shopware://entities'], prompts: null },

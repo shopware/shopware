@@ -20,6 +20,13 @@ class McpToolResponseTraitRuleTest extends RuleTestCase
         ], []);
     }
 
+    public function testToolExtendingAbstractMcpToolResponsePasses(): void
+    {
+        $this->analyse([
+            __DIR__ . '/data/McpToolResponseTraitRule/ToolWithAbstractResponse.php',
+        ], []);
+    }
+
     public function testToolWithoutExtendsFails(): void
     {
         $this->analyse([
@@ -39,6 +46,6 @@ class McpToolResponseTraitRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new McpToolResponseRule();
+        return new McpToolResponseRule(self::createReflectionProvider());
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -11,7 +12,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List MCP toolsets that can be enabled for the current session. Use this before enabling additional tools when only the default meta-tools are visible.')]
+#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List MCP toolsets that can be enabled for the current session. Use this before enabling additional tools when only the default meta-tools are visible.', meta: ['deferred' => false])]
+#[McpToolGroup('default')]
 #[Package('framework')]
 class ToolsetsListTool extends McpToolResponse
 {
@@ -33,13 +35,13 @@ class ToolsetsListTool extends McpToolResponse
             'toolsets' => array_map(
                 static fn (array $toolset): array => [
                     ...$toolset,
-                    'enabled' => $toolset['enabledByDefault'] || \in_array($toolset['name'], $enabledToolsets, true),
+                    'enabled' => \in_array($toolset['name'], $enabledToolsets, true),
                 ],
                 $this->toolsetRegistry->toolsets(),
             ),
         ], [
-            'taxonomy' => 'prefix-fallback',
-            'note' => 'Toolsets are inferred from tool name prefixes until curated toolset metadata is available.',
+            'taxonomy' => 'tool-groups',
+            'note' => 'Toolsets are derived from explicit MCP tool group metadata.',
         ]);
     }
 

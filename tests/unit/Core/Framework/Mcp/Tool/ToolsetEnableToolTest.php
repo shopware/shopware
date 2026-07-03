@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Mcp\McpToolListChangedNotifier;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,22 +25,23 @@ class ToolsetEnableToolTest extends TestCase
         $registry = $this->createMock(McpToolsetRegistry::class);
         $registry->expects($this->once())
             ->method('find')
-            ->with('shopware-entity')
+            ->with('entity')
             ->willReturn([
-                'name' => 'shopware-entity',
+                'name' => 'entity',
                 'title' => 'Entity tools',
                 'description' => 'Entity',
                 'tools' => ['shopware-entity-search'],
-                'enabledByDefault' => false,
             ]);
 
         $storage = $this->createMock(McpToolsetSessionStorage::class);
         $storage->expects($this->once())
             ->method('enable')
-            ->with('session-a', 'shopware-entity');
+            ->with('session-a', 'entity');
 
-        $notifier = $this->createMock(McpToolListChangedNotifier::class);
-        $notifier->expects($this->once())->method('notify');
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('notify')
+            ->with(static::callback(static fn (McpListChangedNotificationSet $notification): bool => $notification->tools && !$notification->resources && !$notification->prompts));
 
         $requestStack = new RequestStack();
         $request = Request::create('/api/_mcp', 'POST');
@@ -47,10 +49,10 @@ class ToolsetEnableToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new ToolsetEnableTool($registry, $storage, $notifier, $requestStack);
-        $result = json_decode($tool('shopware-entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($result['success']);
-        static::assertSame('shopware-entity', $result['data']['toolset']['name']);
+        static::assertSame('entity', $result['data']['toolset']['name']);
         static::assertTrue($result['_meta']['listChanged']);
     }
 
@@ -62,7 +64,7 @@ class ToolsetEnableToolTest extends TestCase
         $tool = new ToolsetEnableTool(
             $registry,
             static::createStub(McpToolsetSessionStorage::class),
-            static::createStub(McpToolListChangedNotifier::class),
+            static::createStub(McpListChangedNotifier::class),
             new RequestStack(),
         );
 
@@ -76,54 +78,23 @@ class ToolsetEnableToolTest extends TestCase
     {
         $registry = static::createStub(McpToolsetRegistry::class);
         $registry->method('find')->willReturn([
-            'name' => 'shopware-entity',
+            'name' => 'entity',
             'title' => 'Entity tools',
             'description' => 'Entity',
             'tools' => ['shopware-entity-search'],
-            'enabledByDefault' => false,
         ]);
 
         $storage = $this->createMock(McpToolsetSessionStorage::class);
         $storage->expects($this->never())->method('enable');
 
-        $notifier = $this->createMock(McpToolListChangedNotifier::class);
+        $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->never())->method('notify');
 
         $tool = new ToolsetEnableTool($registry, $storage, $notifier, new RequestStack());
 
-        $result = json_decode($tool('shopware-entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($result['success']);
         static::assertSame('Cannot enable an MCP toolset without an active MCP session.', $result['error']);
-    }
-
-    public function testDefaultToolsetDoesNotNeedSessionStorage(): void
-    {
-        $registry = static::createStub(McpToolsetRegistry::class);
-        $registry->method('find')->willReturn([
-            'name' => McpToolsetRegistry::DEFAULT_TOOLSET,
-            'title' => 'Default tools',
-            'description' => 'Default',
-            'tools' => ['shopware-toolsets-list'],
-            'enabledByDefault' => true,
-        ]);
-
-        $storage = $this->createMock(McpToolsetSessionStorage::class);
-        $storage->expects($this->never())->method('enable');
-
-        $notifier = $this->createMock(McpToolListChangedNotifier::class);
-        $notifier->expects($this->once())->method('notify');
-
-        $requestStack = new RequestStack();
-        $request = Request::create('/api/_mcp', 'POST');
-        $request->headers->set('Mcp-Session-Id', 'session-a');
-        $requestStack->push($request);
-
-        $tool = new ToolsetEnableTool($registry, $storage, $notifier, $requestStack);
-
-        $result = json_decode($tool(McpToolsetRegistry::DEFAULT_TOOLSET), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($result['success']);
-        static::assertTrue($result['data']['toolset']['enabled']);
     }
 }

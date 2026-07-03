@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Request\GetPromptRequest;
 use Mcp\Schema\Request\InitializeRequest;
-use Mcp\Schema\Request\ListPromptsRequest;
-use Mcp\Schema\Request\ListResourcesRequest;
-use Mcp\Schema\Request\ListToolsRequest;
 use Mcp\Schema\Request\ReadResourceRequest;
 use Mcp\Server;
 use Mcp\Server\Transport\StreamableHttpTransport;
@@ -23,8 +20,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
-use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
-use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -48,6 +44,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';
+    private const TOOL_SEARCH = 'shopware-tool-search';
 
     /**
      * @internal
@@ -67,8 +64,7 @@ class McpServerController
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
-        private readonly ?McpToolsetRegistry $toolsetRegistry = null,
-        private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
+        private readonly ?McpSessionRegistry $sessionRegistry = null,
     ) {
     }
 
@@ -122,10 +118,7 @@ class McpServerController
         );
 
         $psrResponse = $this->server->run($transport);
-
-        if ($request->getMethod() === 'POST') {
-            $psrResponse = $this->filterListResponse($request, $psrResponse, $allowlist);
-        }
+        $this->registerSession($psrResponse);
 
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
@@ -134,6 +127,20 @@ class McpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    private function registerSession(PsrResponseInterface $psrResponse): void
+    {
+        if ($this->sessionRegistry === null) {
+            return;
+        }
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->sessionRegistry->register($sessionId);
     }
 
     private function checkAllowlistEarlyReject(Request $request, McpAllowlist $allowlist): ?Response
@@ -148,6 +155,10 @@ class McpServerController
 
         if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
+            if ($toolName === self::TOOL_SEARCH) {
+                return null;
+            }
+
             if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist->tools)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
@@ -183,80 +194,6 @@ class McpServerController
         }
 
         return null;
-    }
-
-    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, ?McpAllowlist $allowlist): PsrResponseInterface
-    {
-        \assert($this->streamFactory !== null);
-
-        $body = $this->decodeJson($request->getContent());
-
-        if (!\is_array($body)) {
-            return $psrResponse;
-        }
-
-        $method = \is_string($body['method'] ?? null) ? $body['method'] : null;
-
-        if (!$this->hasListFilter($method, $allowlist)) {
-            return $psrResponse;
-        }
-
-        $response = McpJsonRpcResponse::fromJson((string) $psrResponse->getBody());
-
-        if ($response === null) {
-            return $psrResponse;
-        }
-
-        $this->applyAllowlistFilter($request, $response, $method, $allowlist);
-
-        $newBody = Json::encode($response);
-        $newStream = $this->streamFactory->createStream($newBody);
-
-        return $psrResponse
-            ->withBody($newStream)
-            ->withHeader('Content-Length', (string) \strlen($newBody));
-    }
-
-    private function hasListFilter(?string $method, ?McpAllowlist $allowlist): bool
-    {
-        return ($method === ListToolsRequest::getMethod() && ($allowlist?->tools !== null || $this->toolsetRegistry !== null))
-            || ($method === ListResourcesRequest::getMethod() && $allowlist?->resources !== null)
-            || ($method === ListPromptsRequest::getMethod() && $allowlist?->prompts !== null);
-    }
-
-    private function applyAllowlistFilter(Request $request, McpJsonRpcResponse $response, ?string $method, ?McpAllowlist $allowlist): void
-    {
-        if ($method === ListToolsRequest::getMethod()) {
-            if ($allowlist?->tools !== null) {
-                $response->filterTools($allowlist->tools);
-            }
-
-            $advertisedTools = $this->advertisedToolsForSession($request);
-            if ($advertisedTools !== null) {
-                $response->filterTools($advertisedTools);
-            }
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist?->resources !== null) {
-            $response->filterResources($allowlist->resources);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist?->prompts !== null) {
-            $response->filterPrompts($allowlist->prompts);
-        }
-    }
-
-    /**
-     * @return list<string>|null
-     */
-    private function advertisedToolsForSession(Request $request): ?array
-    {
-        if ($this->toolsetRegistry === null) {
-            return null;
-        }
-
-        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
-        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
-            return $this->toolsetRegistry->advertisedTools([]);
-        }
-
-        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface

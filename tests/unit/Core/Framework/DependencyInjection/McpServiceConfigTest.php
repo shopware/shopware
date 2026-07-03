@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
-use Shopware\Core\Framework\Mcp\McpToolListChangedNotifier;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
@@ -140,7 +139,6 @@ class McpServiceConfigTest extends TestCase
         yield McpCapabilityCatalog::class => [McpCapabilityCatalog::class];
         yield McpToolsetRegistry::class => [McpToolsetRegistry::class];
         yield McpToolsetSessionStorage::class => [McpToolsetSessionStorage::class];
-        yield McpToolListChangedNotifier::class => [McpToolListChangedNotifier::class];
     }
 
     /**

@@ -147,7 +147,7 @@ class DebugMcpCommand extends Command
     }
 
     /**
-     * @param array{name: string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null $toolData
+     * @param array{name: string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null $toolData
      * @param \Closure|array{0: object|string, 1: string}|string $handler
      */
     private function renderToolDetail(SymfonyStyle $io, Tool $tool, \Closure|array|string $handler, ?array $toolData): void
@@ -177,6 +177,7 @@ class DebugMcpCommand extends Command
         if ($tool->title !== null && $tool->title !== '') {
             $meta[] = ['Title' => $tool->title];
         }
+        $meta[] = ['Group' => $toolData['group'] ?? 'other'];
         $meta[] = ['Source' => $this->describeHandler($handler)];
         if ($deps !== []) {
             $meta[] = ['Dependencies' => implode(', ', $deps)];
@@ -301,6 +302,7 @@ class DebugMcpCommand extends Command
             $deps = $tool['dependencies'];
             $rows[] = [
                 $tool['name'],
+                $tool['group'],
                 $this->describeHandler($ref->handler),
                 $deps !== [] ? implode(', ', $deps) : '',
                 $this->formatPrivileges($tool['requiredPrivileges']),
@@ -308,7 +310,7 @@ class DebugMcpCommand extends Command
         }
 
         (new Table($io))
-            ->setHeaders(['Name', 'Source', 'Dependencies', 'Privileges'])
+            ->setHeaders(['Name', 'Group', 'Source', 'Dependencies', 'Privileges'])
             ->setRows($rows)
             ->render();
         $io->newLine();

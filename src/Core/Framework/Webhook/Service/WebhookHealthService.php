@@ -302,8 +302,17 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
                     return null;
                 }
                 $this->mirrorBcColumns($webhookId);
+                $ref = $this->webhookRefOf($webhookId);
 
-                return new WebhookDisabledEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Suspended, DisabledOrigin::Escalation);
+                return new WebhookDisabledEvent(
+                    $webhookId,
+                    $ref['appId'],
+                    EndpointState::Suspended,
+                    DisabledOrigin::Escalation,
+                    $ref['name'],
+                    $ref['eventName'],
+                    $this->clock->now(),
+                );
             });
 
             if ($event === null) {
@@ -591,8 +600,17 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
                 ]
             );
             $this->mirrorBcColumns($webhookId);
+            $ref = $this->webhookRefOf($webhookId);
 
-            return new WebhookDisabledEvent($webhookId, $this->appIdOf($webhookId), $fromState, DisabledOrigin::Operator);
+            return new WebhookDisabledEvent(
+                $webhookId,
+                $ref['appId'],
+                $fromState,
+                DisabledOrigin::Operator,
+                $ref['name'],
+                $ref['eventName'],
+                $this->clock->now(),
+            );
         });
 
         if ($event === null) {
@@ -1177,8 +1195,17 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         }
 
         $this->mirrorBcColumns($webhookId);
+        $ref = $this->webhookRefOf($webhookId);
 
-        return new WebhookDisabledEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Healthy, DisabledOrigin::Operator);
+        return new WebhookDisabledEvent(
+            $webhookId,
+            $ref['appId'],
+            EndpointState::Healthy,
+            DisabledOrigin::Operator,
+            $ref['name'],
+            $ref['eventName'],
+            $this->clock->now(),
+        );
     }
 
     /**

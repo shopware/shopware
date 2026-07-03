@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-experience-studio-sidebar-tree-node {
     --tree-indent: 12px;
 
@@ -48,7 +46,7 @@
         &.is--active {
             .sw-experience-studio-sidebar-tree-node__name {
                 color: var(--color-text-brand-default);
-                font-weight: $font-weight-semi-bold;
+                font-weight: var(--font-weight-semi-bold);
             }
 
             .sw-experience-studio-sidebar-tree-node__type-icon {
@@ -83,7 +81,7 @@
 
     &__name {
         min-width: 0;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         line-height: 20px;
         white-space: nowrap;
         overflow: hidden;
@@ -148,8 +146,8 @@
     }
 
     &__slot-name {
-        font-size: $font-size-xxs;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-xxs);
+        font-weight: var(--font-weight-semi-bold);
         color: var(--color-text-secondary-default);
         text-transform: uppercase;
         letter-spacing: 0.04em;

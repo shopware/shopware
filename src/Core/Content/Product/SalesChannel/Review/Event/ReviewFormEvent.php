@@ -7,7 +7,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -33,7 +33,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
      */
     private readonly array $reviewFormData;
 
-    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'product', description: 'Will be natively typed as non-nullable.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'product', newType: 'ProductEntity', description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         private readonly Context $context,
         private readonly string $salesChannelId,

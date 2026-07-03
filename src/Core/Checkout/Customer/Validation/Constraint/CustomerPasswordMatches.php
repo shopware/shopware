@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -44,7 +44,7 @@ class CustomerPasswordMatches extends Constraint
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the $salesChannelContext argument instead.')]
-    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'salesChannelContext', description: 'Will be natively typed as promoted property.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'salesChannelContext', newType: 'SalesChannelContext', description: 'The parameter loses its null default, becomes required and a promoted property.')]
     public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null, string $message = 'Your password is wrong')
     {
         if ($options !== null || $salesChannelContext === null) {

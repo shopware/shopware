@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
@@ -37,7 +37,7 @@ class CustomerVatIdentification extends Constraint
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
-    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'countryId', description: 'Will be natively typed as promoted property.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'countryId', newType: 'string', description: 'The parameter loses its null default, becomes required and a promoted property.')]
     public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.')
     {
         if ($options !== null || $countryId === null) {

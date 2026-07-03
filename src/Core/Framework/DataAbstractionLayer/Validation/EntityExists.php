@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterBecomesRequired;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
@@ -43,8 +43,8 @@ class EntityExists extends Constraint
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
-    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'entity')]
-    #[ParameterBecomesRequired(version: 'v6.8.0', parameterName: 'context')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'entity', newType: 'string', description: 'The parameter loses its null default and becomes required.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'context', newType: 'Context', description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         ?array $options = null,
         ?string $entity = null,

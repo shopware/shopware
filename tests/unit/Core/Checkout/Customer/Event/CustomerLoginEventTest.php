@@ -22,7 +22,7 @@ class CustomerLoginEventTest extends TestCase
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerLoginEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new CustomerEntity(),
             'context-token'
         );

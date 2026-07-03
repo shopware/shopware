@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -140,10 +141,9 @@ class ThemeConfigField extends Struct
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter will be natively typed
-     *
      * @param list<string>|string $value
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'list<string>|string')]
     public function setValue($value): void
     {
         $this->value = $value;

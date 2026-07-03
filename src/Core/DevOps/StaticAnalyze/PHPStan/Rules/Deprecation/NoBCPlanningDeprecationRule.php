@@ -48,7 +48,6 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:return-type-change',
         'reason:parameter-type-change',
         'reason:new-optional-parameter',
-        'reason:parameter-name-change',
         'reason:becomes-internal',
     ];
 

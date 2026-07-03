@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 
 #[Route(
     defaults: [
@@ -66,9 +67,7 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - The parameter `$requestDataBag` will be renamed to `$data` to align with abstract route
-     */
+    #[ParameterNameChange(version: 'v6.8.0', parameterName: 'requestDataBag', newName: 'data', description: 'Aligns with the abstract route.')]
     #[Route(
         path: '/store-api/account/login/imitate-customer',
         name: 'store-api.account.imitate-customer-login',

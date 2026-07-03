@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\Question;
 
 /**
  * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- * @deprecated tag:v6.8.0 - reason:parameter-name-change - alias 'snippets:validate' will be removed
+ * The command alias `snippets:validate` will be removed in v6.8.0.
  *
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */

@@ -188,7 +188,7 @@ function collectSupportedCompositionMembers(
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
     const { watchProps, unsupportedEntries } = extractWatchProps(optionsObj);
     const unsupportedWatchEntries = [...unsupportedEntries];
-    const methodProps = extractMethodProps(optionsObj);
+    const { methodProps, unsupportedEntries: unsupportedMethodEntries } = extractMethodProps(optionsObj);
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
 
@@ -236,6 +236,7 @@ function collectSupportedCompositionMembers(
         manualMigrationReasons,
         todoComments,
     );
+    collectUnsupportedEntries(unsupportedMethodEntries, 'methods', 'method', manualMigrationReasons, todoComments);
 
     const injectNames = new Set(supportedInjectProps.map((p) => p.localName));
     const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);

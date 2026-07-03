@@ -39,5 +39,9 @@ export async function mark(page, locator, label = '') {
       setTimeout(() => ring.remove(), 1400);
     }, { x: box.x, y: box.y, w: box.width, h: box.height }).catch(() => {});
   }
-  if (label) await narrate(page, label); else await page.waitForTimeout(DELAY);
+  if (label) {
+    await narrate(page, label);
+  } else {
+    await page.waitForTimeout(DELAY);
+  }
 }

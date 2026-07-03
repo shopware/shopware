@@ -11,7 +11,10 @@ import { resolvePlaceholders, sync, uploadMedia, refreshIndexes } from './admin-
 const snakeCase = (name) => name.replace(/-/g, '_');
 
 class SeedError extends Error {
-  constructor(message) { super(message); fs.writeFileSync(FILES.seedError, message.slice(0, 400)); }
+  constructor(message) {
+    super(message);
+    fs.writeFileSync(FILES.seedError, message.slice(0, 400));
+  }
 }
 
 // The Sync API needs an operation envelope per key: { entity, action, payload }. Forgive the two
@@ -19,7 +22,9 @@ class SeedError extends Error {
 function toSyncOperations(fixtures) {
   const operations = {};
   for (const [key, value] of Object.entries(fixtures)) {
-    if (key === '_repro_media_uploads') continue;
+    if (key === '_repro_media_uploads') {
+      continue;
+    }
     operations[key] = Array.isArray(value)
       ? { entity: snakeCase(key), action: 'upsert', payload: value }
       : { ...value, entity: snakeCase(value.entity || key) };
@@ -28,10 +33,17 @@ function toSyncOperations(fixtures) {
 }
 
 export async function seed({ fixturesPath = FILES.fixtures } = {}) {
-  if (!fs.existsSync(fixturesPath)) { console.log(`no fixtures (${fixturesPath}) — nothing to seed`); return; }
+  if (!fs.existsSync(fixturesPath)) {
+    console.log(`no fixtures (${fixturesPath}) — nothing to seed`);
+    return;
+  }
 
   let fixtures;
-  try { fixtures = readJson(fixturesPath); } catch { throw new SeedError('fixtures.json is not valid JSON'); }
+  try {
+    fixtures = readJson(fixturesPath);
+  } catch {
+    throw new SeedError('fixtures.json is not valid JSON');
+  }
 
   const operations = toSyncOperations(fixtures);
   const ids = await resolvePlaceholders();
@@ -42,7 +54,10 @@ export async function seed({ fixturesPath = FILES.fixtures } = {}) {
   for (const key of ENTITY_PLACEHOLDERS) {
     const value = ids[key];
     if (value && rawOperations.includes(value)) {
-      throw new SeedError(`fixtures hardcode the install {{${key}}} id (${value}); reference it with the placeholder — every provisioned shop generates different UUIDs`);
+      throw new SeedError(
+        `fixtures hardcode the install {{${key}}} id (${value}); `
+        + 'reference it with the placeholder — every provisioned shop generates different UUIDs',
+      );
     }
     if (rawOperations.includes(`{{${key}}}`) && !value) {
       throw new SeedError(`could not resolve {{${key}}} (admin search returned empty)`);
@@ -51,10 +66,14 @@ export async function seed({ fixturesPath = FILES.fixtures } = {}) {
 
   const resolved = JSON.parse(fillPlaceholders(rawOperations, ids));
   const leftover = unresolvedPlaceholders(JSON.stringify(resolved));
-  if (leftover.length) throw new SeedError(`unresolved placeholder(s) in fixtures: ${leftover.join(', ')}`);
+  if (leftover.length) {
+    throw new SeedError(`unresolved placeholder(s) in fixtures: ${leftover.join(', ')}`);
+  }
 
   const result = await sync(resolved);
-  if (!result.ok) throw new SeedError(`sync HTTP ${result.status}: ${result.detail || ''}`);
+  if (!result.ok) {
+    throw new SeedError(`sync HTTP ${result.status}: ${result.detail || ''}`);
+  }
   console.log(`seeded OK (sync HTTP ${result.status})`);
 
   await uploadFixtureMedia(fixtures._repro_media_uploads, ids);
@@ -63,15 +82,23 @@ export async function seed({ fixturesPath = FILES.fixtures } = {}) {
 }
 
 async function uploadFixtureMedia(uploads, ids) {
-  if (!Array.isArray(uploads) || uploads.length === 0) return;
+  if (!Array.isArray(uploads) || uploads.length === 0) {
+    return;
+  }
   console.log(`uploading ${uploads.length} fixture media file(s)…`);
   for (const raw of uploads) {
     const entry = JSON.parse(fillPlaceholders(JSON.stringify(raw), ids));
     for (const field of ['mediaId', 'path', 'extension', 'mimeType']) {
-      if (!entry[field]) throw new SeedError(`_repro_media_uploads entry requires ${field}`);
+      if (!entry[field]) {
+        throw new SeedError(`_repro_media_uploads entry requires ${field}`);
+      }
     }
-    if (!fs.existsSync(entry.path)) throw new SeedError(`_repro_media_uploads path does not exist: ${entry.path}`);
+    if (!fs.existsSync(entry.path)) {
+      throw new SeedError(`_repro_media_uploads path does not exist: ${entry.path}`);
+    }
     const result = await uploadMedia(entry);
-    if (!result.ok) throw new SeedError(`media upload HTTP ${result.status} for ${entry.mediaId}: ${result.detail || ''}`);
+    if (!result.ok) {
+      throw new SeedError(`media upload HTTP ${result.status} for ${entry.mediaId}: ${result.detail || ''}`);
+    }
   }
 }

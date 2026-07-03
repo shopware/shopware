@@ -22,9 +22,21 @@ export const LAYERS = ['storefront-ui', 'admin-ui', 'store-api', 'admin-api', 's
 // plans reference these by name so one bundle runs on any freshly-provisioned instance — a literal
 // UUID would seed on one shop and FK-fail on the next.
 export const ENTITY_PLACEHOLDERS = [
-  'SC', 'NAV_CAT', 'COUNTRY', 'SALUTATION', 'SALUTATION2', 'TAX', 'CURRENCY',
-  'LANGUAGE', 'SYSTEM_LANGUAGE', 'CUSTOMER_GROUP', 'PAYMENT_METHOD', 'SHIPPING_METHOD',
-  'ORDER_STATE_OPEN', 'ORDER_DELIVERY_STATE_OPEN', 'ORDER_TRANSACTION_STATE_OPEN',
+  'SC',
+  'NAV_CAT',
+  'COUNTRY',
+  'SALUTATION',
+  'SALUTATION2',
+  'TAX',
+  'CURRENCY',
+  'LANGUAGE',
+  'SYSTEM_LANGUAGE',
+  'CUSTOMER_GROUP',
+  'PAYMENT_METHOD',
+  'SHIPPING_METHOD',
+  'ORDER_STATE_OPEN',
+  'ORDER_DELIVERY_STATE_OPEN',
+  'ORDER_TRANSACTION_STATE_OPEN',
 ];
 
 export const appUrl = () => (process.env.APP_URL || '').replace(/\/$/, '');
@@ -36,7 +48,9 @@ export function readJson(path, fallback = undefined) {
   try {
     return JSON.parse(fs.readFileSync(path, 'utf8'));
   } catch (err) {
-    if (fallback !== undefined) return fallback;
+    if (fallback !== undefined) {
+      return fallback;
+    }
     throw err;
   }
 }
@@ -48,7 +62,9 @@ export const writeJson = (path, value) => fs.writeFileSync(path, `${JSON.stringi
 export function fillPlaceholders(text, ids) {
   const keys = Object.keys(ids).sort((a, b) => b.length - a.length);
   let out = String(text);
-  for (const key of keys) out = out.split(`{{${key}}}`).join(ids[key] ?? '');
+  for (const key of keys) {
+    out = out.split(`{{${key}}}`).join(ids[key] ?? '');
+  }
   return out;
 }
 
@@ -76,7 +92,14 @@ export function makeResult({ plan, target, status, assertion, evidence = {}, blo
 
 // A leg that could not run (bad env, seed failure) is `blocked`, never a fake pass/fail.
 export const blockedResult = (plan, target, reason) =>
-  makeResult({ plan, target, status: 'blocked', assertion: { expect: null, actual: null, matched: null }, evidence: { reporter_output: reason }, blockedReason: reason });
+  makeResult({
+    plan,
+    target,
+    status: 'blocked',
+    assertion: { expect: null, actual: null, matched: null },
+    evidence: { reporter_output: reason },
+    blockedReason: reason,
+  });
 
 export function die(message, code = 1) {
   console.error(`repro: ${message}`);

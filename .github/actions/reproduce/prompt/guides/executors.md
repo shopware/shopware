@@ -28,7 +28,9 @@ per-leg placeholders (`{{COUNTRY}}`, `{{SALUTATION}}`, `{{SALUTATION2}}`, `{{TAX
 `{{SYSTEM_LANGUAGE}}`, … — full list in [fixtures.md](fixtures.md)) in the path, body, **and** the
 assertion `expect`; the executor resolves each against the running leg's DB. If you need an entity
 that has no placeholder, seed it in `fixtures.json` with a stable id and reference that id.
-`repro validate` rejects bare install ids in an http plan.
+`repro validate` rejects bare install ids in an http plan. (It's fine to *create* an entity in a
+request body with your own literal `"id"` and reference that id later — you're setting it identically
+on both legs; the check only flags literals that point at pre-existing install entities.)
 
 Assertion fields are jq filters on the final response. Ops: `equals` (default), `contains`,
 `matches`, `present`, `absent`, `gt`, `lt`. `expect` is the **healthy** value. Mark setup checks

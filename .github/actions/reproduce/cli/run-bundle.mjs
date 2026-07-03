@@ -10,9 +10,14 @@ const EXECUTORS = { http: runHttp, playwright: runPlaywright, direct: runDirect 
 export async function runBundle({ target, out }) {
   const plan = readJson(FILES.plan);
   const executor = EXECUTORS[plan.executor];
-  const result = executor
-    ? await executor({ plan, target })
-    : makeResult({ plan, target, status: 'inconclusive', assertion: { matched: null }, evidence: { reporter_output: `unknown executor '${plan.executor}'` }, blockedReason: `plan.executor '${plan.executor}' is not one of playwright/http/direct` });
+  const result = executor ? await executor({ plan, target }) : makeResult({
+    plan,
+    target,
+    status: 'inconclusive',
+    assertion: { matched: null },
+    evidence: { reporter_output: `unknown executor '${plan.executor}'` },
+    blockedReason: `plan.executor '${plan.executor}' is not one of playwright/http/direct`,
+  });
   writeJson(out, result);
   console.log(`status=${result.status}  (${result.evidence.reporter_output})`);
   return result;

@@ -7,6 +7,8 @@ import { FILES, die } from './lib.mjs';
 import { pipeline } from './pipeline.mjs';
 
 export function verify() {
-  if (process.env.REPRO_ALLOW_VERIFY !== '1') die('verify is reserved for the deterministic post-step; the agent does not run it (use `try` for a preview)');
+  if (process.env.REPRO_ALLOW_VERIFY !== '1') {
+    die('verify is reserved for the deterministic post-step; the agent does not run it (use `try` for a preview)');
+  }
   return pipeline({ target: process.env.TARGET || 'reported', out: FILES.result, reset: true });
 }

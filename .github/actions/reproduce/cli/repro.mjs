@@ -18,12 +18,17 @@ const commands = {
   validate: async () => (await import('./validate.mjs')).validate(),
   reset: async () => (await import('./reset.mjs')).reset(),
   seed: async () => {
-    try { await (await import('./seed.mjs')).seed(); }
-    catch (err) { die(err.message); }
+    try {
+      await (await import('./seed.mjs')).seed();
+    } catch (err) {
+      die(err.message);
+    }
   },
   check: async () => {
     const { ok } = await (await import('./check.mjs')).check();
-    if (!ok) process.exit(1);
+    if (!ok) {
+      process.exit(1);
+    }
   },
   try: async () => (await import('./try.mjs')).tryBundle(),
   verify: async () => (await import('./verify.mjs')).verify(),

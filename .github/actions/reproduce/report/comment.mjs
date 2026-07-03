@@ -13,14 +13,27 @@ const templates = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 
 const DATA = JSON.parse(fs.readFileSync(path.join(templates, 'verdicts.json'), 'utf8'));
 const OUT = process.env.OUT || 'comment.md';
 
-const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } };
+const readJson = (p) => {
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch {
+    return null;
+  }
+};
 const fill = (str, vars) => String(str ?? '').replace(/{{(\w+)}}/g, (_, k) => vars[k] ?? '');
 
 // Read an extra file written by the agent job (agent-summary.md, workspace-edits.txt): from the
 // collected artifact dir first, then the working dir (where the incomplete path extracts it).
 function readExtra(name) {
   for (const p of [`${process.env.ART || 'artifacts'}/repro-plan/${name}`, name]) {
-    try { const t = fs.readFileSync(p, 'utf8').trim(); if (t) return t; } catch { /* next */ }
+    try {
+      const text = fs.readFileSync(p, 'utf8').trim();
+      if (text) {
+        return text;
+      }
+    } catch {
+      // Try the next candidate location.
+    }
   }
   return '';
 }
@@ -31,8 +44,15 @@ function readExtra(name) {
 function render(tpl, ctx) {
   // Resolve sections first, looping to handle nesting; then a single var pass (a substituted value
   // is inserted last, so it is never re-scanned for placeholders).
-  let out = tpl; let prev;
-  do { prev = out; out = out.replace(/{{#(\w+)}}\n?([\s\S]*?){{\/\1}}\n?/g, (_, key, inner) => (ctx[key] ? inner : '')); } while (out !== prev);
+  let out = tpl;
+  let prev;
+  const sectionPattern = /{{#(\w+)}}\n?([\s\S]*?){{\/\1}}\n?/g;
+
+  do {
+    prev = out;
+    out = out.replace(sectionPattern, (_, key, inner) => (ctx[key] ? inner : ''));
+  } while (out !== prev);
+
   return out.replace(/{{(\w+)}}/g, (_, key) => ctx[key] ?? '');
 }
 
@@ -50,7 +70,9 @@ const tidy = (md) => `${md.replace(/([^\n])\n(#{2,4} )/g, '$1\n\n$2').replace(/\
 function write(markdown) {
   const redacted = redact(tidy(markdown));
   fs.writeFileSync(OUT, redacted);
-  if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, redacted);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, redacted);
+  }
   process.stdout.write(redacted);
 }
 
@@ -105,16 +127,29 @@ function renderVerdict() {
     RV: rv,
     REPORTED_STATUS: legStatus(as),
     TRUNK_STATUS: legStatus(bs),
-    SURFACE_EXEC: `${p.surface[plan.layer] || plan.layer || 'unknown'} · ${p.executor[plan.executor] || plan.executor || 'unknown'}`,
+    SURFACE_EXEC: [
+      p.surface[plan.layer] || plan.layer || 'unknown',
+      p.executor[plan.executor] || plan.executor || 'unknown',
+    ].join(' · '),
     DATE: process.env.DATE || new Date().toISOString().slice(0, 10),
     FIX: fix,
     UNSURE: unsure,
     CALLOUT: fill(entry.callout, nhrVars),
     EDITS: readExtra('workspace-edits.txt'),
-    RESULT: resultSection({ legA, legB, as, bs, labels, explanation: agentExplanation(plan), evidence: readJson('evidence.json') }),
+    RESULT: resultSection({
+      legA,
+      legB,
+      as,
+      bs,
+      labels,
+      explanation: agentExplanation(plan),
+      evidence: readJson('evidence.json'),
+    }),
     SCENARIO: scenarioBlock(plan),
     AGENT_SUMMARY: agentSummary,
-    DETAILS_HEADING: (scenarioBlock(plan) || agentSummary || script || hasFixtures) ? '### Reproduction details' : '',
+    DETAILS_HEADING: scenarioBlock(plan) || agentSummary || script || hasFixtures
+      ? '### Reproduction details'
+      : '',
     TESTCASE: script,
     TESTCASE_LANG: specLeg?.evidence?.script_lang || 'sh',
     TESTCASE_TOOL: p.testcase_tool[plan.executor] || specLeg?.evidence?.script_lang || 'sh',
@@ -133,7 +168,9 @@ function scenarioBlock(plan) {
 
 function agentExplanation(plan) {
   const text = plan.agent_explanation || plan.confidence_reason;
-  if (!text || text === 'null') return '';
+  if (!text || text === 'null') {
+    return '';
+  }
   return String(text).replace(/\s+/g, ' ').trim();
 }
 
@@ -143,13 +180,24 @@ function agentExplanation(plan) {
 function resultSection({ legA, legB, as, bs, labels, explanation, evidence }) {
   const evFor = (name) => (evidence?.legs || []).find((l) => l.name === name) || {};
   const out = [];
-  if (explanation) out.push(`> ${explanation}`);
+  if (explanation) {
+    out.push(`> ${explanation}`);
+  }
   // Bold the leg label with <strong>, not markdown — GitHub doesn't render **…** inside <summary>.
   if (legA && legB && as === bs) {
-    out.push(legSpoiler(`<strong>Both versions</strong> — ${statusBadge(as)}`, legB || legA, evFor('trunk').png ? evFor('trunk') : evFor('reported')));
+    const evidenceForSharedStatus = evFor('trunk').png ? evFor('trunk') : evFor('reported');
+    out.push(legSpoiler(
+      `<strong>Both versions</strong> — ${statusBadge(as)}`,
+      legB || legA,
+      evidenceForSharedStatus,
+    ));
   } else {
-    if (legA) out.push(legSpoiler(`<strong>${labels.AL}</strong> — ${statusBadge(as)}`, legA, evFor('reported')));
-    if (legB) out.push(legSpoiler(`<strong>${labels.BL}</strong> — ${statusBadge(bs)}`, legB, evFor('trunk')));
+    if (legA) {
+      out.push(legSpoiler(`<strong>${labels.AL}</strong> — ${statusBadge(as)}`, legA, evFor('reported')));
+    }
+    if (legB) {
+      out.push(legSpoiler(`<strong>${labels.BL}</strong> — ${statusBadge(bs)}`, legB, evFor('trunk')));
+    }
   }
   return out.join('\n\n');
 }
@@ -160,23 +208,48 @@ function legSpoiler(summary, leg, ev) {
   // in the Reproduction test spoiler. Recording link goes above the screenshot (tall image).
   const reason = leg.blocked_reason && leg.blocked_reason !== 'null' ? leg.blocked_reason : '';
   const body = [resultChecks(leg), reason ? `→ ${reason}` : (DATA.phrases.gloss[leg.status] || '')];
-  if (ev.webm) body.push(`▶ [Watch the recording](${ev.webm})`);
-  if (ev.png) body.push(`![screenshot](${ev.png})`);
+  if (ev.webm) {
+    body.push(`▶ [Watch the recording](${ev.webm})`);
+  }
+  if (ev.png) {
+    body.push(`![screenshot](${ev.png})`);
+  }
   return spoiler(summary, body.filter(Boolean).join('\n\n'));
 }
 
-function statusBadge(s) { return DATA.phrases.status[s] || DATA.phrases.status.null; }
-function spoiler(summary, body) { return `<details><summary>${summary}</summary>\n\n${body}\n\n</details>`; }
+function statusBadge(s) {
+  return DATA.phrases.status[s] || DATA.phrases.status.null;
+}
 
-function qval(v) { return /^\d+$/.test(v) ? v : `'${v}'`; }
-function clean(s) { return String(s).replace(/\s+/g, ' ').replace(/\*\//g, '* /').trim(); }
+function spoiler(summary, body) {
+  return `<details><summary>${summary}</summary>\n\n${body}\n\n</details>`;
+}
+
+function qval(v) {
+  return /^\d+$/.test(v) ? v : `'${v}'`;
+}
+
+function clean(s) {
+  return String(s).replace(/\s+/g, ' ').replace(/\*\//g, '* /').trim();
+}
 
 // require*/assert* call for a check (require* = precondition, assert* = symptom).
 function callOf(c) {
-  const ops = { present: 'Present', absent: 'Absent', contains: 'Contains', matches: 'Matches', gt: 'GreaterThan', lt: 'LessThan', equals: 'Equals' };
+  const ops = {
+    present: 'Present',
+    absent: 'Absent',
+    contains: 'Contains',
+    matches: 'Matches',
+    gt: 'GreaterThan',
+    lt: 'LessThan',
+    equals: 'Equals',
+  };
   const verb = c.role === 'precondition' ? 'require' : 'assert';
   const name = ops[c.op] || 'Equals';
-  return ['present', 'absent'].includes(c.op) ? `${verb}${name}(${c.subject})` : `${verb}${name}(${c.subject}, ${qval(String(c.expected))})`;
+  if (['present', 'absent'].includes(c.op)) {
+    return `${verb}${name}(${c.subject})`;
+  }
+  return `${verb}${name}(${c.subject}, ${qval(String(c.expected))})`;
 }
 
 // What Result shows for a leg: only the failing checks (http), or the raw reporter (playwright/direct).
@@ -184,13 +257,20 @@ function resultChecks(leg) {
   const checks = leg.assertion?.checks;
   if (Array.isArray(checks) && checks.length) {
     const failed = checks.filter((c) => c.ok === false); // ok:null (not-run) checks are excluded
-    if (!failed.length) return '';
+    if (!failed.length) {
+      return '';
+    }
     const lines = ['```js'];
     for (const c of failed) {
-      if (c.label && c.label !== 'null') lines.push(`// failed: "${clean(c.label)}"`);
+      if (c.label && c.label !== 'null') {
+        lines.push(`// failed: "${clean(c.label)}"`);
+      }
       const actual = String(c.actual);
-      if (actual.includes('\n')) lines.push(`${callOf(c)} // ❌`, `/* got:\n${blockSafe(actual)}\n*/`);
-      else lines.push(`${callOf(c)} // ❌ got ${qval(actual)}`);
+      if (actual.includes('\n')) {
+        lines.push(`${callOf(c)} // ❌`, `/* got:\n${blockSafe(actual)}\n*/`);
+      } else {
+        lines.push(`${callOf(c)} // ❌ got ${qval(actual)}`);
+      }
     }
     lines.push('```');
     return lines.join('\n');
@@ -202,9 +282,13 @@ function resultChecks(leg) {
 
 // The full expectation list for the Reproduction test spoiler (definitions, no pass/fail).
 function assertionList(checks) {
-  if (!Array.isArray(checks) || !checks.length) return '';
+  if (!Array.isArray(checks) || !checks.length) {
+    return '';
+  }
   const lines = ['```js'];
-  for (const c of checks) lines.push(c.label && c.label !== 'null' ? `${callOf(c)} // ${clean(c.label)}` : callOf(c));
+  for (const c of checks) {
+    lines.push(c.label && c.label !== 'null' ? `${callOf(c)} // ${clean(c.label)}` : callOf(c));
+  }
   lines.push('```');
   return lines.join('\n');
 }

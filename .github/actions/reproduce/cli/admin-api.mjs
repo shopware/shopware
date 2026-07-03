@@ -9,31 +9,53 @@ import { adminPass, adminUser, appUrl } from './lib.mjs';
 
 const base = () => {
   const url = appUrl();
-  if (!url) throw new Error('APP_URL is required');
+  if (!url) {
+    throw new Error('APP_URL is required');
+  }
   return url;
 };
 
 let cachedToken = '';
 
 export async function token() {
-  if (cachedToken) return cachedToken;
+  if (cachedToken) {
+    return cachedToken;
+  }
   const res = await fetch(`${base()}/api/oauth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ grant_type: 'password', client_id: 'administration', username: adminUser(), password: adminPass(), scopes: 'write' }),
+    body: JSON.stringify({
+      grant_type: 'password',
+      client_id: 'administration',
+      username: adminUser(),
+      password: adminPass(),
+      scopes: 'write',
+    }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!data.access_token) throw new Error(`admin OAuth token request failed (HTTP ${res.status})`);
+  if (!data.access_token) {
+    throw new Error(`admin OAuth token request failed (HTTP ${res.status})`);
+  }
   cachedToken = data.access_token;
   return cachedToken;
 }
 
-const authHeaders = async () => ({ Authorization: `Bearer ${await token()}`, Accept: 'application/json', 'Content-Type': 'application/json' });
+const authHeaders = async () => ({
+  Authorization: `Bearer ${await token()}`,
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+});
 
 // POST /api/search/<entity> → flat search response.
 export async function search(entity, criteria) {
-  const res = await fetch(`${base()}/api/search/${entity}`, { method: 'POST', headers: await authHeaders(), body: JSON.stringify(criteria) });
-  if (!res.ok) throw new Error(`admin search ${entity} failed (HTTP ${res.status})`);
+  const res = await fetch(`${base()}/api/search/${entity}`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify(criteria),
+  });
+  if (!res.ok) {
+    throw new Error(`admin search ${entity} failed (HTTP ${res.status})`);
+  }
   return res.json();
 }
 
@@ -84,8 +106,14 @@ export async function salesChannelAccessKey() {
 
 // POST /api/_action/sync with the operation envelope. Returns { ok, status, detail }.
 export async function sync(operations) {
-  const res = await fetch(`${base()}/api/_action/sync`, { method: 'POST', headers: await authHeaders(), body: JSON.stringify(operations) });
-  if (res.status === 200 || res.status === 204) return { ok: true, status: res.status };
+  const res = await fetch(`${base()}/api/_action/sync`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify(operations),
+  });
+  if (res.status === 200 || res.status === 204) {
+    return { ok: true, status: res.status };
+  }
   const body = await res.json().catch(() => null);
   const detail = body?.errors?.map((e) => e.detail).filter(Boolean).join('; ') || (await res.text().catch(() => '')).slice(0, 300);
   return { ok: false, status: res.status, detail };
@@ -95,13 +123,17 @@ export async function sync(operations) {
 export async function uploadMedia({ mediaId, path, extension, mimeType, fileName }) {
   const fs = await import('node:fs');
   const query = new URLSearchParams({ extension });
-  if (fileName) query.set('fileName', fileName);
+  if (fileName) {
+    query.set('fileName', fileName);
+  }
   const res = await fetch(`${base()}/api/_action/media/${mediaId}/upload?${query}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${await token()}`, Accept: 'application/json', 'Content-Type': mimeType },
     body: fs.readFileSync(path),
   });
-  if ([200, 204, 302].includes(res.status)) return { ok: true };
+  if ([200, 204, 302].includes(res.status)) {
+    return { ok: true };
+  }
   const body = await res.json().catch(() => null);
   return { ok: false, status: res.status, detail: body?.errors?.map((e) => e.detail).join('; ') || '' };
 }
@@ -114,12 +146,23 @@ export async function refreshIndexes(indexers = ['category.indexer', 'product.in
   for (const indexer of indexers) {
     let offset = 0;
     for (let step = 0; step < 1000; step += 1) {
-      const res = await fetch(`${base()}/api/_action/indexing/${indexer}`, { method: 'POST', headers, body: JSON.stringify({ offset }) });
-      if (!res.ok) { console.warn(`::warning::indexer ${indexer} HTTP ${res.status}`); break; }
+      const res = await fetch(`${base()}/api/_action/indexing/${indexer}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ offset }),
+      });
+      if (!res.ok) {
+        console.warn(`::warning::indexer ${indexer} HTTP ${res.status}`);
+        break;
+      }
       const data = await res.json().catch(() => ({}));
-      if (data.finish === true) break;
+      if (data.finish === true) {
+        break;
+      }
       const next = data.offset?.offset ?? data.offset ?? null;
-      if (next === null) break;
+      if (next === null) {
+        break;
+      }
       offset = next;
     }
   }

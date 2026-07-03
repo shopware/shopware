@@ -12,27 +12,42 @@ import { runBundle } from './run-bundle.mjs';
 // lazily so an http/direct verify never needs Playwright.
 
 export async function pipeline({ target, out, reset: doReset }) {
-  if (!appUrl()) return fail(target, out, 'APP_URL is not set — the live shop coordinates were not exported');
-  if (!fs.existsSync(FILES.plan)) return fail(target, out, 'reproduction-plan.json not found — author the bundle before verifying');
+  if (!appUrl()) {
+    return fail(target, out, 'APP_URL is not set — the live shop coordinates were not exported');
+  }
+  if (!fs.existsSync(FILES.plan)) {
+    return fail(target, out, 'reproduction-plan.json not found — author the bundle before verifying');
+  }
   const plan = readJson(FILES.plan);
 
-  if (doReset) reset();
-  if (plan.fixtures?.demodata) generateDemodata();
+  if (doReset) {
+    reset();
+  }
+  if (plan.fixtures?.demodata) {
+    generateDemodata();
+  }
 
   if (fs.existsSync(FILES.fixtures)) {
-    try { await seed(); }
-    catch (err) { return fail(target, out, `seeding fixtures.json failed: ${err.message}`); }
+    try {
+      await seed();
+    } catch (err) {
+      return fail(target, out, `seeding fixtures.json failed: ${err.message}`);
+    }
 
     if (plan.executor === 'playwright') {
       const { check } = await import('./check.mjs');
       const readiness = await check({ plan });
-      if (!readiness.ok && !readiness.skipped) return fail(target, out, `seeded readiness precondition failed: ${(readiness.failures || []).join('; ').slice(0, 500)}`);
+      if (!readiness.ok && !readiness.skipped) {
+        return fail(target, out, `seeded readiness precondition failed: ${(readiness.failures || []).join('; ').slice(0, 500)}`);
+      }
     }
   }
 
   clearStaleArtifacts();
   const result = await runBundle({ target, out });
-  if (plan.executor === 'playwright') hintScreenshot();
+  if (plan.executor === 'playwright') {
+    hintScreenshot();
+  }
   return result;
 }
 
@@ -47,7 +62,18 @@ const fail = (target, out, reason) => {
 // provision action's generator so the trunk leg (which provisions demodata from the plan) matches.
 function generateDemodata() {
   const run = (args) => spawnSync('php', args, { cwd: shopDir(), stdio: 'inherit', env: { ...process.env, APP_ENV: 'prod' } });
-  if (run(['bin/console', 'framework:demodata', '--no-interaction', '--multiplier=0.1', '--products=80', '--orders=0', '--reviews=0', '--promotions=0']).status !== 0) {
+  const demodataArgs = [
+    'bin/console',
+    'framework:demodata',
+    '--no-interaction',
+    '--multiplier=0.1',
+    '--products=80',
+    '--orders=0',
+    '--reviews=0',
+    '--promotions=0',
+  ];
+
+  if (run(demodataArgs).status !== 0) {
     console.warn('::warning::framework:demodata failed — continuing without demo data');
   }
   run(['bin/console', 'dal:refresh:index', '--no-interaction']);
@@ -60,7 +86,9 @@ function clearStaleArtifacts() {
   fs.rmSync('phpunit-output.txt', { force: true });
   if (fs.existsSync('test-results')) {
     for (const entry of fs.readdirSync('test-results')) {
-      if (!/^seeded-readiness-.*\.png$/.test(entry)) fs.rmSync(`test-results/${entry}`, { recursive: true, force: true });
+      if (!/^seeded-readiness-.*\.png$/.test(entry)) {
+        fs.rmSync(`test-results/${entry}`, { recursive: true, force: true });
+      }
     }
   }
 }
@@ -68,5 +96,9 @@ function clearStaleArtifacts() {
 function hintScreenshot() {
   const dir = 'test-results';
   const shot = fs.existsSync(dir) ? fs.readdirSync(dir).find((f) => f.endsWith('.png')) : null;
-  console.log(shot ? `REVIEW THE SCREENSHOT before trusting the status — Read test-results/${shot}` : 'no screenshot captured — do not trust a status without visual evidence');
+  console.log(
+    shot
+      ? `REVIEW THE SCREENSHOT before trusting the status — Read test-results/${shot}`
+      : 'no screenshot captured — do not trust a status without visual evidence',
+  );
 }

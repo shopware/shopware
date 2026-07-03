@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch;
 
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
+use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -72,35 +73,34 @@ class FieldQueryBuilderTest extends TestCase
         static::assertInstanceOf(DisMaxQuery::class, $query);
     }
 
-    public function testMultiTokenTextFieldUsesAndLogic(): void
+    public function testPhraseConfigProducesOnlyMatchPhrasePrefix(): void
     {
+        // The builder is single-token; multi-word proximity is a dedicated phrase config
+        // ({@see SearchFieldConfig::withPhrase()}) that emits a single match_phrase_prefix
+        // with the configurable phrase boost folded into the field ranking (no DisMax wrapper).
         $builder = new FieldQueryBuilder();
         $field = new ResolvedField(new StringField('name', 'name'));
-        $config = new SearchFieldConfig('name', 500, false, true, true);
+        $config = (new SearchFieldConfig('name', 500, false, true, true))->withPhrase();
 
         $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
 
         static::assertNotNull($query);
+        static::assertInstanceOf(MatchPhrasePrefixQuery::class, $query);
         $array = $query->toArray();
-        $exactMatch = $array['dis_max']['queries'][0] ?? null;
-        static::assertNotNull($exactMatch);
-        static::assertArrayHasKey('bool', $exactMatch);
-        static::assertArrayHasKey('must', $exactMatch['bool']);
+        static::assertArrayHasKey('name.search', $array['match_phrase_prefix']);
+        static::assertSame('foo bar', $array['match_phrase_prefix']['name.search']['query']);
+        static::assertSame(4.0 * 500, $array['match_phrase_prefix']['name.search']['boost']);
     }
 
-    public function testMultiTokenTextFieldUsesOrLogic(): void
+    public function testPhraseConfigReturnsNullWhenPrefixMatchDisabled(): void
     {
         $builder = new FieldQueryBuilder();
         $field = new ResolvedField(new StringField('name', 'name'));
-        $config = new SearchFieldConfig('name', 500, false, false, true);
+        $config = (new SearchFieldConfig('name', 500, false, true, false))->withPhrase();
 
         $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
 
-        static::assertNotNull($query);
-        $array = $query->toArray();
-        $exactMatch = $array['dis_max']['queries'][0] ?? null;
-        static::assertNotNull($exactMatch);
-        static::assertArrayHasKey('terms', $exactMatch);
+        static::assertNull($query);
     }
 
     public function testSingleTokenExactMatchUsesExactSubfieldWhenConfigured(): void
@@ -138,28 +138,6 @@ class FieldQueryBuilderTest extends TestCase
         static::assertEquals(2.0, $exactMatch['match']['name.search']['boost']);
         static::assertSame(0, $exactMatch['match']['name.search']['fuzziness']);
         static::assertSame('and', $exactMatch['match']['name.search']['operator']);
-    }
-
-    public function testMultiTokenExactMatchDoesNotUseExactSubfieldWhenConfigured(): void
-    {
-        $builder = new FieldQueryBuilder();
-        $field = new ResolvedField(new StringField('name', 'name'));
-        $config = new SearchFieldConfig('name', 500, false, true, true, true);
-
-        $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
-
-        static::assertNotNull($query);
-        $array = $query->toArray();
-        $exactMatch = $array['dis_max']['queries'][0] ?? null;
-        static::assertNotNull($exactMatch);
-        static::assertStringNotContainsString(
-            '"name.exact"',
-            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
-        );
-        static::assertStringContainsString(
-            '"name"',
-            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
-        );
     }
 
     public function testNgramQueryIncludedForLongTokenizedTerm(): void

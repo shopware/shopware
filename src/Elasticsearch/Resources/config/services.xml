@@ -264,13 +264,17 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
             <argument type="service" id="Shopware\Elasticsearch\AbstractTokenQueryBuilder"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer"/>
-            <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\AbstractFieldQueryBuilder" class="Shopware\Elasticsearch\FieldQueryBuilder">
             <argument>%elasticsearch.analysis.filter.sw_ngram_filter.min_gram%</argument>
             <argument>%elasticsearch.use_language_analyzer%</argument>
             <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
+            <argument>%elasticsearch.search.boost.exact%</argument>
+            <argument>%elasticsearch.search.boost.phrase%</argument>
+            <argument>%elasticsearch.search.boost.fuzzy%</argument>
+            <argument>%elasticsearch.search.boost.prefix%</argument>
+            <argument>%elasticsearch.search.boost.partial%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\TranslatedFieldQueryBuilder"

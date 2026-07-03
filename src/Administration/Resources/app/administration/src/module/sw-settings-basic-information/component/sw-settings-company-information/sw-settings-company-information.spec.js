@@ -16,22 +16,48 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-company
                     'sw-media-compact-upload-v2': {
                         name: 'sw-media-compact-upload-v2',
                         template: '<div class="sw-media-compact-upload-v2" />',
-                        props: ['source', 'label', 'name'],
+                        props: [
+                            'source',
+                            'label',
+                            'name',
+                        ],
                     },
                     'sw-entity-single-select': {
                         name: 'sw-entity-single-select',
                         template: '<div class="sw-entity-single-select" />',
-                        props: ['value', 'disabled', 'label', 'placeholder', 'entity', 'required'],
+                        props: [
+                            'value',
+                            'disabled',
+                            'label',
+                            'placeholder',
+                            'entity',
+                            'required',
+                        ],
                     },
                     'mt-text-field': {
                         name: 'mt-text-field',
-                        template: '<input class="mt-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
-                        props: ['modelValue', 'disabled', 'label', 'placeholder', 'name', 'required'],
+                        template:
+                            '<input class="mt-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
+                        props: [
+                            'modelValue',
+                            'disabled',
+                            'label',
+                            'placeholder',
+                            'name',
+                            'required',
+                        ],
                     },
                     'mt-url-field': {
                         name: 'mt-url-field',
-                        template: '<input class="mt-url-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
-                        props: ['modelValue', 'disabled', 'label', 'placeholder', 'name'],
+                        template:
+                            '<input class="mt-url-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
+                        props: [
+                            'modelValue',
+                            'disabled',
+                            'label',
+                            'placeholder',
+                            'name',
+                        ],
                     },
                 },
                 mocks: {

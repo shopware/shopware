@@ -152,7 +152,11 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     'mt-banner': {
                         name: 'mt-banner',
                         template: '<div class="mt-banner"><slot /></div>',
-                        props: ['title', 'variant', 'closable'],
+                        props: [
+                            'title',
+                            'variant',
+                            'closable',
+                        ],
                     },
                     'sw-media-compact-upload-v2': {
                         template: '<div id="sw-media-compact-upload"/>',
@@ -346,9 +350,13 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should hide the company settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
-        const wrapper = await createWrapper({
-            props: { documentConfigId: 'documentConfigWithDocumentType' },
-        }, [], true);
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
@@ -356,9 +364,13 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should hide the moved company settings banner after closing it', async () => {
-        const wrapper = await createWrapper({
-            props: { documentConfigId: 'documentConfigWithDocumentType' },
-        }, [], true);
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
         await flushPromises();
 
         await wrapper.getComponent({ name: 'mt-banner' }).vm.$emit('close');
@@ -367,9 +379,13 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should show company address switches in the settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
-        const wrapper = await createWrapper({
-            props: { documentConfigId: 'documentConfigWithDocumentType' },
-        }, [], true);
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(true);

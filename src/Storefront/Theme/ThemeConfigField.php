@@ -146,6 +146,13 @@ class ThemeConfigField extends Struct
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'list<string>|string')]
     public function setValue($value): void
     {
+        if (!\is_string($value) && !\is_array($value)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing a value that is neither a string nor a list of strings is deprecated, the parameter will be natively typed.'
+            );
+        }
+
         $this->value = $value;
     }
 

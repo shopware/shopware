@@ -35,7 +35,10 @@ abstract class AbstractIncrementer
     #[BecomesAbstract(version: 'v6.8.0')]
     public function delete(string $cluster, array $keys = []): void
     {
-        Feature::throwException('v6.8.0.0', 'AbstractIncrementer::delete() is deprecated and will become abstract in v6.8.0.0. Please implement it in your incrementer class.');
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'AbstractIncrementer::delete() will become abstract in v6.8.0.0. Please implement it in your incrementer class.'
+        );
     }
 
     public function getPool(): string

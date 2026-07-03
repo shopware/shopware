@@ -56,6 +56,7 @@ class BCChangeAttributeUsageRule implements Rule
      */
     private const RUNTIME_DETECTABLE = [
         BecomesAbstract::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
     ];
 

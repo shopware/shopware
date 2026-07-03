@@ -2291,15 +2291,42 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it.each([
-            ['beforeRouteEnter', 'beforeRouteEnter(to, from, next) { next(); }'],
-            ['beforeRouteLeave', 'beforeRouteLeave(to, from, next) { next(); }'],
-            ['beforeRouteUpdate', 'beforeRouteUpdate(to, from, next) { next(); }'],
-            ['metaInfo', "metaInfo() { return { title: 'Title' }; }"],
-            ['shortcuts', "shortcuts: { 'SYSTEMKEY+S': 'save' }"],
-            ['errorCaptured', 'errorCaptured() { return false; }'],
-            ['expose', "expose: ['focus']"],
-            ['extensionApiDevtoolInformation', "extensionApiDevtoolInformation: { property: 'value' }"],
-            ['saveFinish', 'saveFinish() { return true; }'],
+            [
+                'beforeRouteEnter',
+                'beforeRouteEnter(to, from, next) { next(); }',
+            ],
+            [
+                'beforeRouteLeave',
+                'beforeRouteLeave(to, from, next) { next(); }',
+            ],
+            [
+                'beforeRouteUpdate',
+                'beforeRouteUpdate(to, from, next) { next(); }',
+            ],
+            [
+                'metaInfo',
+                "metaInfo() { return { title: 'Title' }; }",
+            ],
+            [
+                'shortcuts',
+                "shortcuts: { 'SYSTEMKEY+S': 'save' }",
+            ],
+            [
+                'errorCaptured',
+                'errorCaptured() { return false; }',
+            ],
+            [
+                'expose',
+                "expose: ['focus']",
+            ],
+            [
+                'extensionApiDevtoolInformation',
+                "extensionApiDevtoolInformation: { property: 'value' }",
+            ],
+            [
+                'saveFinish',
+                'saveFinish() { return true; }',
+            ],
         ])('marks unsupported top-level option %s as requiring manual migration', (optionName, optionSource) => {
             const js = `Shopware.Component.register('sw-test', {
                 ${optionSource},
@@ -2313,11 +2340,26 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it.each([
-            ['$el', 'return this.$el;'],
-            ['$parent', 'return this.$parent;'],
-            ['$root', 'return this.$root;'],
-            ['$options', 'return this.$options;'],
-            ['$forceUpdate', 'this.$forceUpdate();'],
+            [
+                '$el',
+                'return this.$el;',
+            ],
+            [
+                '$parent',
+                'return this.$parent;',
+            ],
+            [
+                '$root',
+                'return this.$root;',
+            ],
+            [
+                '$options',
+                'return this.$options;',
+            ],
+            [
+                '$forceUpdate',
+                'this.$forceUpdate();',
+            ],
         ])('marks placeholder rewrite for %s as requiring manual follow-up', (apiName, statement) => {
             const js = `Shopware.Component.register('sw-test', {
                 methods: {

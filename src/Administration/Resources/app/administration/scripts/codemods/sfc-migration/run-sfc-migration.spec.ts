@@ -829,7 +829,7 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         const { stats, report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
 
         expect(existsSync(join(mismatchedDir, 'index.js'))).toBe(true);
-        expect(readFileSync(join(mismatchedDir, 'index.js'), 'utf-8')).toContain("sw-registered-card");
+        expect(readFileSync(join(mismatchedDir, 'index.js'), 'utf-8')).toContain('sw-registered-card');
         expect(existsSync(join(mismatchedDir, 'sw-directory-card.html.twig'))).toBe(true);
         expect(stats.deletedOriginals).toBe(1);
         expect(report.join('\n')).toContain('component name');

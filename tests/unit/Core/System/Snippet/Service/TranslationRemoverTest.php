@@ -6,6 +6,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Event\TranslationRemovedEvent;
@@ -24,7 +25,7 @@ class TranslationRemoverTest extends TestCase
 {
     private Filesystem $filesystem;
 
-    private AbstractTranslationLoader&MockObject $translationLoader;
+    private AbstractTranslationLoader&Stub $translationLoader;
 
     private TranslationMetadataStore&MockObject $metadataStore;
 
@@ -35,7 +36,7 @@ class TranslationRemoverTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
-        $this->translationLoader = $this->createMock(AbstractTranslationLoader::class);
+        $this->translationLoader = static::createStub(AbstractTranslationLoader::class);
         $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
         $this->eventDispatcher = new EventDispatcher();
 
@@ -50,7 +51,7 @@ class TranslationRemoverTest extends TestCase
     public function testRemoveDeletesFilesAndMetadata(): void
     {
         $path = 'translation/locale/es-ES';
-        $this->translationLoader->method('getLocalePath')->with('es-ES')->willReturn($path);
+        $this->translationLoader->method('getLocalePath')->willReturn($path);
         $this->filesystem->write($path . '/Platform/messages.es-ES.base.json', '{}');
         static::assertTrue($this->filesystem->directoryExists($path));
 
@@ -63,7 +64,7 @@ class TranslationRemoverTest extends TestCase
 
     public function testRemoveStillDropsMetadataWhenNoFilesExist(): void
     {
-        $this->translationLoader->method('getLocalePath')->with('es-ES')->willReturn('translation/locale/es-ES');
+        $this->translationLoader->method('getLocalePath')->willReturn('translation/locale/es-ES');
         $this->metadataStore->expects($this->once())->method('remove')->with('es-ES');
 
         $this->remover->remove('es-ES');
@@ -83,7 +84,8 @@ class TranslationRemoverTest extends TestCase
 
     public function testRemoveDispatchesEvent(): void
     {
-        $this->translationLoader->method('getLocalePath')->with('es-ES')->willReturn('translation/locale/es-ES');
+        $this->translationLoader->method('getLocalePath')->willReturn('translation/locale/es-ES');
+        $this->metadataStore->expects($this->once())->method('remove')->with('es-ES');
 
         $dispatched = null;
         $this->eventDispatcher->addListener(

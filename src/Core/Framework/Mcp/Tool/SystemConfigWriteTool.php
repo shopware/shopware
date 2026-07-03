@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 #[McpTool(name: 'shopware-system-config-write', title: 'System Config Write', description: 'Modify or overwrite a Shopware system configuration value — use this whenever the user wants to change, set, or update a config key. Provide the full dotted key (e.g. \'core.basicInformation.shopName\') and the new value. dryRun=true (default) shows a before/after diff without saving; set dryRun=false to persist. Optionally scope to a sales channel.')]
 #[McpToolDependsOn('shopware-system-config-read')]
+#[McpToolGroup('system-config')]
 #[McpToolRequires('system_config:update')]
 #[Package('framework')]
 class SystemConfigWriteTool extends McpToolResponse

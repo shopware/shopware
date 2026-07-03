@@ -28,22 +28,29 @@ final class McpToolAttributeReader
         }
 
         $ref = new \ReflectionClass($class);
-        $extract = static function (array $attrs) use ($fields): ?array {
-            foreach ($attrs as $attr) {
-                /** @var \ReflectionAttribute<object> $attr */
-                $props = get_object_vars($attr->newInstance());
-                $result = [];
-                foreach ($fields as $field) {
-                    $result[$field] = $props[$field] ?? null;
-                }
 
-                return $result;
+        return self::extract($ref->getAttributes($attributeClass), $fields)
+            ?? ($ref->hasMethod('__invoke') ? self::extract($ref->getMethod('__invoke')->getAttributes($attributeClass), $fields) : null);
+    }
+
+    /**
+     * @param list<\ReflectionAttribute<object>> $attributes
+     * @param list<string> $fields
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function extract(array $attributes, array $fields): ?array
+    {
+        foreach ($attributes as $attribute) {
+            $props = get_object_vars($attribute->newInstance());
+            $result = [];
+            foreach ($fields as $field) {
+                $result[$field] = $props[$field] ?? null;
             }
 
-            return null;
-        };
+            return $result;
+        }
 
-        return $extract($ref->getAttributes($attributeClass))
-            ?? ($ref->hasMethod('__invoke') ? $extract($ref->getMethod('__invoke')->getAttributes($attributeClass)) : null);
+        return null;
     }
 }

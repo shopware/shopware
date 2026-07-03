@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  * End-to-end capability discovery test.
  *
  * Calls the live MCP HTTP endpoint (/api/_mcp) using the JSON-RPC protocol
- * and asserts that every expected tool, prompt, and resource name is present
- * in the server's response.
+ * and asserts that every expected default tool, prompt, and resource name is present
+ * in the server's response. Additional tools are discovered through shopware-tool-search.
  *
  * This validates the full discovery stack:
  *   Core tools:   mcp.yaml scan_dirs → #[McpTool] attribute → mcp.tool DI tag
@@ -80,15 +80,7 @@ class McpCapabilityDiscoveryTest extends TestCase
     {
         yield 'shopware-entity-schema' => ['shopware-entity-schema'];
         yield 'shopware-entity-search' => ['shopware-entity-search'];
-        yield 'shopware-entity-aggregate' => ['shopware-entity-aggregate'];
-        yield 'shopware-entity-read' => ['shopware-entity-read'];
-        yield 'shopware-entity-upsert' => ['shopware-entity-upsert'];
-        yield 'shopware-entity-delete' => ['shopware-entity-delete'];
-        yield 'shopware-system-config-read' => ['shopware-system-config-read'];
-        yield 'shopware-system-config-write' => ['shopware-system-config-write'];
-        yield 'shopware-order-state' => ['shopware-order-state'];
-        yield 'shopware-media-upload' => ['shopware-media-upload'];
-        yield 'shopware-theme-config' => ['shopware-theme-config'];
+        yield 'shopware-tool-search' => ['shopware-tool-search'];
     }
 
     /**

@@ -23,6 +23,8 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     {
         $container->setParameter('shopware.mcp.tool_dependencies', []);
         $container->setParameter('shopware.mcp.tool_privileges', []);
+        $container->setParameter('shopware.mcp.advertised_tools', []);
+        $container->setParameter('shopware.mcp.tool_groups', []);
 
         if (!$container->hasDefinition('mcp.server.builder')) {
             return;
@@ -46,6 +48,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
         $this->enforceToolAllowlist($container);
         $this->detectToolNameConflicts($container);
+        $this->buildAdvertisedTools($container);
     }
 
     /**
@@ -96,5 +99,28 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
             $toolNames[$toolInfo['name']] = $serviceId;
         }
+    }
+
+    private function buildAdvertisedTools(ContainerBuilder $container): void
+    {
+        $advertisedTools = [];
+
+        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass() ?? $serviceId;
+            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'meta']);
+
+            if ($toolInfo === null || !\is_string($toolInfo['name'] ?? null)) {
+                continue;
+            }
+
+            $meta = $toolInfo['meta'];
+
+            if (\is_array($meta) && ($meta['deferred'] ?? true) === false) {
+                $advertisedTools[] = $toolInfo['name'];
+            }
+        }
+
+        $container->setParameter('shopware.mcp.advertised_tools', array_values(array_unique($advertisedTools)));
     }
 }

@@ -46,9 +46,10 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
     }
 
     /**
-     * Ids and state only. Never the endpoint URL, headers, or a delivery payload.
-     * `suspendedSince` is the anchor the app vendor reconciles against (it also appears
-     * on `GET /state`).
+     * Ids, names, coarse state/cause enums, and timestamps only. Never the endpoint URL,
+     * headers, or a delivery payload. `suspendedSince` is the anchor the app vendor
+     * reconciles against (it also appears on `GET /state`); `webhookName` is the key into
+     * `GET /state` and `POST /reactivate`; `cause` names the remedy class.
      *
      * @return array<string, mixed>
      */
@@ -58,7 +59,16 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
             'webhookId' => $this->webhookId,
             'fromState' => $this->fromState->value,
             'suspendedSince' => $this->getSuspendedSince(),
+            'cause' => $this->cause->value,
+            'webhookName' => $this->webhookName,
+            'eventName' => $this->eventName,
+            'occurredAt' => $this->getOccurredAt(),
         ];
+    }
+
+    public function getCause(): string
+    {
+        return $this->cause->value;
     }
 
     public function getSuspendedSince(): string
@@ -71,6 +81,10 @@ final readonly class WebhookSuspendedEvent implements Hookable, FlowEventAware
         return (new EventDataCollection())
             ->add('webhookId', new ScalarValueType(ScalarValueType::TYPE_STRING))
             ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('suspendedSince', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('suspendedSince', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('cause', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('webhookName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('eventName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('occurredAt', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

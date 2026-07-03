@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\SuspensionCause;
+use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -65,18 +67,25 @@ class WebhookLifecycleEventsTest extends TestCase
         }
     }
 
-    public function testPayloadsCarryIdsAndStateOnlyNeverTheUrl(): void
+    public function testPayloadsCarryIdsNamesStateAndTimesOnlyNeverTheUrl(): void
     {
         $since = new \DateTimeImmutable('2026-06-01 12:00:00');
+        $occurredAt = new \DateTimeImmutable('2026-06-02 08:30:00');
         $payloads = [
-            (new WebhookActivatedEvent('wh-id', 'app-id', EndpointState::Degraded, WebhookActivationTrigger::Trial, $since))->getWebhookPayload(),
-            (new WebhookDegradedEvent('wh-id', 'app-id', EndpointState::Healthy))->getWebhookPayload(),
-            (new WebhookSuspendedEvent('wh-id', 'app-id', EndpointState::Healthy, $since))->getWebhookPayload(),
-            (new WebhookDisabledEvent('wh-id', 'app-id', EndpointState::Suspended, DisabledOrigin::Escalation))->getWebhookPayload(),
+            (new WebhookActivatedEvent('wh-id', 'app-id', EndpointState::Degraded, WebhookActivationTrigger::Trial, 'order-sync', 'checkout.order.placed', $occurredAt, $since))->getWebhookPayload(),
+            (new WebhookDegradedEvent('wh-id', 'app-id', EndpointState::Healthy, 'order-sync', 'checkout.order.placed', $occurredAt))->getWebhookPayload(),
+            (new WebhookSuspendedEvent('wh-id', 'app-id', EndpointState::Healthy, $since, SuspensionCause::AuthStreak, 'order-sync', 'checkout.order.placed', $occurredAt))->getWebhookPayload(),
+            (new WebhookDisabledEvent('wh-id', 'app-id', EndpointState::Suspended, DisabledOrigin::Escalation, 'order-sync', 'checkout.order.placed', $occurredAt))->getWebhookPayload(),
         ];
 
         foreach ($payloads as $payload) {
             static::assertSame('wh-id', $payload['webhookId']);
+            // The vendor's response surface (GET /state, POST /reactivate) is name-keyed, and the
+            // envelope timestamp is attempt-time — every payload must carry the identity the
+            // vendor can act on and the transition's own time.
+            static::assertSame('order-sync', $payload['webhookName']);
+            static::assertSame('checkout.order.placed', $payload['eventName']);
+            static::assertSame($occurredAt->format(\DateTimeInterface::ATOM), $payload['occurredAt']);
             static::assertArrayNotHasKey('url', $payload);
             foreach ($payload as $value) {
                 static::assertTrue($value === null || \is_string($value), 'payload values are scalar ids/state only');
@@ -85,39 +94,52 @@ class WebhookLifecycleEventsTest extends TestCase
 
         static::assertSame('trial', $payloads[0]['trigger']);
         static::assertSame($since->format(\DateTimeInterface::ATOM), $payloads[2]['suspendedSince']);
+        static::assertSame('auth_streak', $payloads[2]['cause']);
         static::assertSame('escalation', $payloads[3]['origin']);
     }
 
     public function testOnlyTheOwningAppMaySeeItsEndpointsHealth(): void
     {
-        $event = new WebhookSuspendedEvent('wh-id', 'owner-app', EndpointState::Healthy, new \DateTimeImmutable());
+        $event = $this->suspendedEvent('wh-id', 'owner-app');
         $permissions = new AclPrivilegeCollection([]);
 
         static::assertTrue($event->isAllowed('owner-app', $permissions));
         static::assertFalse($event->isAllowed('another-app', $permissions), 'one app must never see another app\'s failures');
 
-        $appless = new WebhookSuspendedEvent('wh-id', null, EndpointState::Healthy, new \DateTimeImmutable());
+        $appless = $this->suspendedEvent('wh-id', null);
         static::assertFalse($appless->isAllowed('any-app', $permissions), 'an app-less webhook\'s health is nobody\'s business event');
     }
 
     public function testASubscribedAppReceivesTheSuspendedEventAsAnOrdinaryWebhookDelivery(): void
     {
         $appId = $this->seedAppWithLifecycleSubscription();
+        // The raw-SQL seed bypasses the DAL cache invalidation; drop WebhookManager's memoized
+        // webhook list so this test doesn't depend on running before any flag-on dispatch.
+        static::getContainer()->get(WebhookManager::class)->reset();
 
         $before = $this->deliveryCount();
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($appId): void {
             // The decorated event_dispatcher routes hookable events into WebhookManager:
             // dispatching the lifecycle event IS the app delivery, no extra wiring.
-            static::getContainer()->get('event_dispatcher')->dispatch(new WebhookSuspendedEvent(
-                Uuid::randomHex(),
-                $appId,
-                EndpointState::Healthy,
-                new \DateTimeImmutable('2026-06-01 12:00:00'),
-            ));
+            static::getContainer()->get('event_dispatcher')->dispatch($this->suspendedEvent(Uuid::randomHex(), $appId));
         });
 
         static::assertSame($before + 1, $this->deliveryCount(), 'the owning app\'s subscribed webhook gets a claimable delivery row');
+    }
+
+    private function suspendedEvent(string $webhookId, ?string $appId): WebhookSuspendedEvent
+    {
+        return new WebhookSuspendedEvent(
+            $webhookId,
+            $appId,
+            EndpointState::Healthy,
+            new \DateTimeImmutable('2026-06-01 12:00:00'),
+            SuspensionCause::AuthStreak,
+            'order-sync',
+            'checkout.order.placed',
+            new \DateTimeImmutable('2026-06-01 12:00:00'),
+        );
     }
 
     private function seedAppWithLifecycleSubscription(): string

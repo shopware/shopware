@@ -56,6 +56,9 @@ final readonly class WebhookActivatedEvent implements Hookable, FlowEventAware
             'fromState' => $this->fromState->value,
             'trigger' => $this->trigger->value,
             'clearedSuspendedSince' => $this->getClearedSuspendedSince(),
+            'webhookName' => $this->webhookName,
+            'eventName' => $this->eventName,
+            'occurredAt' => $this->getOccurredAt(),
         ];
     }
 
@@ -75,6 +78,9 @@ final readonly class WebhookActivatedEvent implements Hookable, FlowEventAware
             ->add('webhookId', new ScalarValueType(ScalarValueType::TYPE_STRING))
             ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING))
             ->add('trigger', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('clearedSuspendedSince', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('clearedSuspendedSince', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('webhookName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('eventName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('occurredAt', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

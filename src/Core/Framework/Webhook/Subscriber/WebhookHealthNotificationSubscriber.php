@@ -60,7 +60,7 @@ class WebhookHealthNotificationSubscriber implements EventSubscriberInterface
             'warning',
             \sprintf(
                 'Webhook "%s" was suspended after repeated delivery failures. New events are not delivered; recovery is retried automatically.',
-                $this->webhookName($event->webhookId)
+                $event->webhookName ?? $event->webhookId
             )
         );
     }
@@ -72,10 +72,10 @@ class WebhookHealthNotificationSubscriber implements EventSubscriberInterface
         }
 
         $message = $event->origin === DisabledOrigin::Operator
-            ? \sprintf('Webhook "%s" was disabled by an operator.', $this->webhookName($event->webhookId))
+            ? \sprintf('Webhook "%s" was disabled by an operator.', $event->webhookName ?? $event->webhookId)
             : \sprintf(
                 'Webhook "%s" was disabled automatically after exceeding the suspension limit. It needs manual attention.',
-                $this->webhookName($event->webhookId)
+                $event->webhookName ?? $event->webhookId
             );
 
         $this->notify(Uuid::randomHex(), 'error', $message);
@@ -93,7 +93,7 @@ class WebhookHealthNotificationSubscriber implements EventSubscriberInterface
         $this->notify(
             $this->episodeNotificationId($event->webhookId, 'recovered', $event->clearedSuspendedSince),
             'positive',
-            \sprintf('Webhook "%s" recovered and is delivering again.', $this->webhookName($event->webhookId))
+            \sprintf('Webhook "%s" recovered and is delivering again.', $event->webhookName ?? $event->webhookId)
         );
     }
 
@@ -116,15 +116,5 @@ class WebhookHealthNotificationSubscriber implements EventSubscriberInterface
     private function episodeNotificationId(string $webhookId, string $kind, \DateTimeImmutable $episodeAnchor): string
     {
         return Hasher::hash(\sprintf('webhook-health-%s-%s-%d', $kind, $webhookId, $episodeAnchor->getTimestamp()), 'md5');
-    }
-
-    private function webhookName(string $webhookId): string
-    {
-        $name = $this->connection->fetchOne(
-            'SELECT name FROM webhook WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookId)]
-        );
-
-        return \is_string($name) ? $name : $webhookId;
     }
 }

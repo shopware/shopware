@@ -50,6 +50,9 @@ final readonly class WebhookDegradedEvent implements Hookable, FlowEventAware
         return [
             'webhookId' => $this->webhookId,
             'fromState' => $this->fromState->value,
+            'webhookName' => $this->webhookName,
+            'eventName' => $this->eventName,
+            'occurredAt' => $this->getOccurredAt(),
         ];
     }
 
@@ -57,6 +60,9 @@ final readonly class WebhookDegradedEvent implements Hookable, FlowEventAware
     {
         return (new EventDataCollection())
             ->add('webhookId', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('webhookName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('eventName', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('occurredAt', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

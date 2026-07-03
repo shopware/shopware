@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Request\GetPromptRequest;
 use Mcp\Schema\Request\InitializeRequest;
-use Mcp\Schema\Request\ListPromptsRequest;
-use Mcp\Schema\Request\ListResourcesRequest;
-use Mcp\Schema\Request\ListToolsRequest;
 use Mcp\Schema\Request\ReadResourceRequest;
 use Mcp\Server;
 use Mcp\Server\Transport\StreamableHttpTransport;
@@ -54,8 +51,6 @@ class McpServerController
      * The five PhpMcp bundle params below are nullable because they are injected via
      * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
      * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
-     *
-     * @param list<string> $advertisedTools
      */
     public function __construct(
         private readonly ?Server $server,
@@ -68,7 +63,6 @@ class McpServerController
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
-        private readonly array $advertisedTools = [self::TOOL_SEARCH],
     ) {
     }
 
@@ -122,10 +116,6 @@ class McpServerController
         );
 
         $psrResponse = $this->server->run($transport);
-
-        if ($allowlist !== null && $request->getMethod() === 'POST') {
-            $psrResponse = $this->filterListResponse($request, $psrResponse, $allowlist);
-        }
 
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
@@ -187,79 +177,6 @@ class McpServerController
         }
 
         return null;
-    }
-
-    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, McpAllowlist $allowlist): PsrResponseInterface
-    {
-        \assert($this->streamFactory !== null);
-
-        $body = $this->decodeJson($request->getContent());
-
-        if (!\is_array($body)) {
-            return $psrResponse;
-        }
-
-        $method = \is_string($body['method'] ?? null) ? $body['method'] : null;
-
-        if (!$this->hasListFilter($method, $allowlist)) {
-            return $psrResponse;
-        }
-
-        $response = McpJsonRpcResponse::fromJson((string) $psrResponse->getBody());
-
-        if ($response === null) {
-            return $psrResponse;
-        }
-
-        $this->applyAllowlistFilter($response, $method, $allowlist);
-
-        $newBody = Json::encode($response);
-        $newStream = $this->streamFactory->createStream($newBody);
-
-        return $psrResponse
-            ->withBody($newStream)
-            ->withHeader('Content-Length', (string) \strlen($newBody));
-    }
-
-    private function hasListFilter(?string $method, McpAllowlist $allowlist): bool
-    {
-        return $method === ListToolsRequest::getMethod()
-            || ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null)
-            || ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null);
-    }
-
-    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, McpAllowlist $allowlist): void
-    {
-        if ($method === ListToolsRequest::getMethod()) {
-            $response->filterTools($this->advertisedTools($allowlist));
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null) {
-            $response->filterResources($allowlist->resources);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null) {
-            $response->filterPrompts($allowlist->prompts);
-        }
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function advertisedTools(McpAllowlist $allowlist): array
-    {
-        $advertisedTools = $this->advertisedTools;
-
-        if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
-            array_unshift($advertisedTools, self::TOOL_SEARCH);
-        }
-
-        $advertisedTools = array_values(array_unique($advertisedTools));
-
-        if ($allowlist->tools === null) {
-            return $advertisedTools;
-        }
-
-        return array_values(array_unique(array_merge(
-            [self::TOOL_SEARCH],
-            array_values(array_intersect($advertisedTools, $allowlist->tools)),
-        )));
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface

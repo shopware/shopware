@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
 
 /**
@@ -11,7 +12,8 @@ use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
  *
  * @internal
  */
-#[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the Store API MCP tool catalogue by free-text query and return the most relevant tool definitions inline.')]
+#[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the Store API MCP tool catalogue by free-text query and return the most relevant tool definitions inline.', meta: ['deferred' => false])]
+#[McpToolGroup('store-api')]
 #[Package('framework')]
 class StoreApiToolSearchTool extends AbstractToolSearchTool
 {

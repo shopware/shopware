@@ -23,6 +23,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
@@ -101,6 +102,15 @@ return static function (ContainerConfigurator $container): void {
             param('shopware.mcp.tool_dependencies'),
         ]);
 
+    $services->set(McpAllowlistListRequestHandler::class)
+        ->args([
+            service('mcp.registry'),
+            service(McpAllowlistProvider::class),
+            param('mcp.pagination_limit'),
+            param('shopware.mcp.advertised_tools'),
+        ])
+        ->tag('mcp.request_handler');
+
     $services->set(McpAuthenticationListener::class)
         ->args([
             service(ClientRepository::class),
@@ -129,7 +139,6 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
-            param('shopware.mcp.advertised_tools'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -183,6 +192,7 @@ return static function (ContainerConfigurator $container): void {
             service(AppMcpPrivilegeProvider::class),
             param('shopware.mcp.tool_dependencies'),
             param('shopware.mcp.tool_privileges'),
+            param('shopware.mcp.tool_groups'),
         ]);
 
     $services->set(McpToolListController::class)

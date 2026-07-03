@@ -35,4 +35,24 @@ class McpSessionRegistryTest extends TestCase
 
         static::assertSame(['session-b'], $registry->all());
     }
+
+    public function testAllIgnoresMalformedCachedSessionIds(): void
+    {
+        $cache = new Psr16Cache(new ArrayAdapter());
+        $cache->set('shopware.mcp.active_session_ids', ['session-a', '', 42, 'session-b']);
+
+        $registry = new McpSessionRegistry($cache);
+
+        static::assertSame(['session-a', 'session-b'], $registry->all());
+    }
+
+    public function testAllReturnsEmptyListWhenCacheValueIsNotAnArray(): void
+    {
+        $cache = new Psr16Cache(new ArrayAdapter());
+        $cache->set('shopware.mcp.active_session_ids', 'broken');
+
+        $registry = new McpSessionRegistry($cache);
+
+        static::assertSame([], $registry->all());
+    }
 }

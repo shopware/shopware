@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 use Mcp\Server\Session\SessionStoreInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
@@ -84,6 +85,17 @@ class McpListChangedNotifierTest extends TestCase
         $notifier->notify(McpListChangedNotificationSet::none());
     }
 
+    public function testDoesNotWriteWhenSessionStoreIsUnavailable(): void
+    {
+        $registry = $this->registry();
+        $registry->register(Uuid::v4()->toRfc4122());
+
+        $notifier = new McpListChangedNotifier(null, $registry);
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+
+        static::assertNotSame([], $registry->all());
+    }
+
     public function testRemovesStaleSessionsFromRegistry(): void
     {
         $sessionId = Uuid::v4()->toRfc4122();
@@ -98,6 +110,70 @@ class McpListChangedNotifierTest extends TestCase
         $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
 
         static::assertSame([], $registry->all());
+    }
+
+    public function testRemovesInvalidSessionIdsFromRegistry(): void
+    {
+        $registry = $this->registry();
+        $registry->register('not-a-uuid');
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->expects($this->never())->method('exists');
+        $store->expects($this->never())->method('write');
+
+        $notifier = new McpListChangedNotifier($store, $registry);
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+
+        static::assertSame([], $registry->all());
+    }
+
+    public function testSkipsUnreadableSessionData(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+        $registry = $this->registry();
+        $registry->register($sessionId);
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willReturn(true);
+        $store->method('read')->willReturn('{broken');
+        $store->expects($this->never())->method('write');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+
+        $notifier = new McpListChangedNotifier($store, $registry, $logger);
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+    }
+
+    public function testNormalizesMalformedOutgoingQueueData(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+        $registry = $this->registry();
+        $registry->register($sessionId);
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willReturn(true);
+        $store->method('read')->willReturn(Json::encode([
+            '_mcp' => [
+                'outgoing_queue' => 'not-a-list',
+            ],
+        ]));
+        $store->expects($this->once())
+            ->method('write')
+            ->with(
+                static::anything(),
+                static::callback(static function (string $payload): bool {
+                    $data = Json::decodeToArray($payload);
+
+                    static::assertCount(1, $data['_mcp']['outgoing_queue']);
+
+                    return true;
+                }),
+            )
+            ->willReturn(true);
+
+        $notifier = new McpListChangedNotifier($store, $registry);
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
     private function registry(): McpSessionRegistry

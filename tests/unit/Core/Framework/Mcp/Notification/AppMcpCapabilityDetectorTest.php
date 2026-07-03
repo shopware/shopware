@@ -42,6 +42,14 @@ class AppMcpCapabilityDetectorTest extends TestCase
         static::assertTrue($capabilities->prompts);
     }
 
+    public function testNullMcpXmlHasNoCapabilities(): void
+    {
+        $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));
+        $capabilities = $detector->fromMcp(null);
+
+        static::assertFalse($capabilities->hasChanges());
+    }
+
     public function testEmptyMcpXmlHasNoCapabilities(): void
     {
         $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));

@@ -176,6 +176,35 @@ class McpListChangedNotifierTest extends TestCase
         $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
+    public function testNormalizesMalformedMcpSessionData(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+        $registry = $this->registry();
+        $registry->register($sessionId);
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willReturn(true);
+        $store->method('read')->willReturn(Json::encode([
+            '_mcp' => 'not-an-array',
+        ]));
+        $store->expects($this->once())
+            ->method('write')
+            ->with(
+                static::anything(),
+                static::callback(static function (string $payload): bool {
+                    $data = Json::decodeToArray($payload);
+
+                    static::assertCount(1, $data['_mcp']['outgoing_queue']);
+
+                    return true;
+                }),
+            )
+            ->willReturn(true);
+
+        $notifier = new McpListChangedNotifier($store, $registry);
+        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+    }
+
     private function registry(): McpSessionRegistry
     {
         return new McpSessionRegistry(new Psr16Cache(new ArrayAdapter()));

@@ -177,6 +177,26 @@ class McpServerControllerTest extends TestCase
         static::assertSame(405, $response->getStatusCode());
     }
 
+    public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
+    {
+        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
+        $sessionRegistry->expects($this->never())->method('register');
+
+        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $controller = $this->buildController(
+            $psrRequest,
+            $httpFoundationFactory,
+            sessionRegistry: $sessionRegistry,
+        );
+
+        $response = $controller->handle(new Request());
+
+        static::assertSame(405, $response->getStatusCode());
+    }
+
     public function testPostWithMalformedJsonBodyDoesNotSetJsonRpcAttributeAndPassesThrough(): void
     {
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], 'not-json');

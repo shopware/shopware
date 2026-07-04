@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Language\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -25,13 +25,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(LanguageDataLoader::class)]
 class LanguageDataLoaderTest extends TestCase
 {
-    private AbstractLanguageRoute&MockObject $languageRoute;
+    private AbstractLanguageRoute&Stub $languageRoute;
 
     private LanguageDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $this->languageRoute = static::createStub(AbstractLanguageRoute::class);
         $this->dataLoader = new LanguageDataLoader($this->languageRoute);
     }
 
@@ -88,7 +88,8 @@ class LanguageDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
-        $this->languageRoute
+        $languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $languageRoute
             ->expects($this->once())
             ->method('load')
             ->with(
@@ -103,7 +104,8 @@ class LanguageDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, $request);
+        $dataLoader = new LanguageDataLoader($languageRoute);
+        $dataLoader->load($element, $requirement, $context, $request);
     }
 
     #[TestDox('loads languages without associations when config is not a LanguageLoaderConfig instance')]

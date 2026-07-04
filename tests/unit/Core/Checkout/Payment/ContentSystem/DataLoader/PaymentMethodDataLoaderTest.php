@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodDataLoader;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfig;
@@ -25,13 +25,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(PaymentMethodDataLoader::class)]
 class PaymentMethodDataLoaderTest extends TestCase
 {
-    private AbstractPaymentMethodRoute&MockObject $paymentMethodRoute;
+    private AbstractPaymentMethodRoute&Stub $paymentMethodRoute;
 
     private PaymentMethodDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $this->paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
         $this->dataLoader = new PaymentMethodDataLoader($this->paymentMethodRoute);
     }
 
@@ -103,7 +103,8 @@ class PaymentMethodDataLoaderTest extends TestCase
         $config = new PaymentMethodLoaderConfig(associations: ['country', 'translations']);
         $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
 
-        $this->paymentMethodRoute
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
             ->expects($this->once())
             ->method('load')
             ->with(
@@ -118,7 +119,8 @@ class PaymentMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new PaymentMethodDataLoader($paymentMethodRoute);
+        $dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('sets onlyAvailable query parameter from config on cloned request')]
@@ -140,7 +142,8 @@ class PaymentMethodDataLoaderTest extends TestCase
         $config = new PaymentMethodLoaderConfig(onlyAvailable: false);
         $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
 
-        $this->paymentMethodRoute
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
             ->expects($this->once())
             ->method('load')
             ->with(
@@ -154,7 +157,8 @@ class PaymentMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new PaymentMethodDataLoader($paymentMethodRoute);
+        $dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('skips config-specific logic when config is not a PaymentMethodLoaderConfig instance')]

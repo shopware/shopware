@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfig;
@@ -25,13 +25,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductListingDataLoader::class)]
 class ProductListingDataLoaderTest extends TestCase
 {
-    private AbstractProductListingRoute&MockObject $listingRoute;
+    private AbstractProductListingRoute&Stub $listingRoute;
 
     private ProductListingDataLoader $loader;
 
     protected function setUp(): void
     {
-        $this->listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $this->listingRoute = static::createStub(AbstractProductListingRoute::class);
         $this->loader = new ProductListingDataLoader($this->listingRoute);
     }
 
@@ -69,12 +69,15 @@ class ProductListingDataLoaderTest extends TestCase
         $response = static::createStub(ProductListingRouteResponse::class);
         $response->method('getResult')->willReturn($listingResult);
 
-        $this->listingRoute
+        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute
+            ->expects($this->once())
             ->method('load')
             ->with($navigationId, $request, $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
 
-        $result = $this->loader->load($element, $requirement, $context, $request);
+        $loader = new ProductListingDataLoader($listingRoute);
+        $result = $loader->load($element, $requirement, $context, $request);
 
         static::assertSame($listingResult, $result->data);
         static::assertTrue($result->isCacheAware());
@@ -253,9 +256,11 @@ class ProductListingDataLoaderTest extends TestCase
         $element = ContentElementBuilder::create('product-listing')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->listingRoute->expects($this->never())->method('load');
+        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load($element, $requirement, $context, new Request());
+        $loader = new ProductListingDataLoader($listingRoute);
+        $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
@@ -273,9 +278,11 @@ class ProductListingDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->listingRoute->expects($this->never())->method('load');
+        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductListingDataLoader($listingRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('listing', 'product_listing', $config),
             $context,
@@ -296,9 +303,11 @@ class ProductListingDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->listingRoute->expects($this->never())->method('load');
+        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductListingDataLoader($listingRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('listing', 'product_listing', $config),
             $context,

@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
@@ -30,13 +30,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductReviewDataLoader::class)]
 class ProductReviewDataLoaderTest extends TestCase
 {
-    private AbstractProductReviewRoute&MockObject $productReviewRoute;
+    private AbstractProductReviewRoute&Stub $productReviewRoute;
 
     private ProductReviewDataLoader $loader;
 
     protected function setUp(): void
     {
-        $this->productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $this->productReviewRoute = static::createStub(AbstractProductReviewRoute::class);
         $this->loader = new ProductReviewDataLoader($this->productReviewRoute);
     }
 
@@ -74,12 +74,15 @@ class ProductReviewDataLoaderTest extends TestCase
         $response = static::createStub(ProductReviewRouteResponse::class);
         $response->method('getResult')->willReturn($reviewResult);
 
-        $this->productReviewRoute
+        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute
+            ->expects($this->once())
             ->method('load')
             ->with($productId, $request, $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
 
-        $result = $this->loader->load($element, $requirement, $context, $request);
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+        $result = $loader->load($element, $requirement, $context, $request);
 
         static::assertSame($reviewResult, $result->data);
         static::assertTrue($result->isCacheAware());
@@ -223,9 +226,11 @@ class ProductReviewDataLoaderTest extends TestCase
         $element = ContentElementBuilder::create('product-reviews')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->productReviewRoute->expects($this->never())->method('load');
+        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load($element, $requirement, $context, new Request());
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+        $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
@@ -239,9 +244,11 @@ class ProductReviewDataLoaderTest extends TestCase
         $config = new ProductReviewLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
-        $this->productReviewRoute->expects($this->never())->method('load');
+        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('reviews', 'product_review', $config),
             $context,

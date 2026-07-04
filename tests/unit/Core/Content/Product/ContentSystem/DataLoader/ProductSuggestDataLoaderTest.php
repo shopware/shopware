@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfig;
@@ -26,13 +26,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductSuggestDataLoader::class)]
 class ProductSuggestDataLoaderTest extends TestCase
 {
-    private AbstractProductSuggestRoute&MockObject $suggestRoute;
+    private AbstractProductSuggestRoute&Stub $suggestRoute;
 
     private ProductSuggestDataLoader $loader;
 
     protected function setUp(): void
     {
-        $this->suggestRoute = $this->createMock(AbstractProductSuggestRoute::class);
+        $this->suggestRoute = static::createStub(AbstractProductSuggestRoute::class);
         $this->loader = new ProductSuggestDataLoader($this->suggestRoute);
     }
 
@@ -245,9 +245,11 @@ class ProductSuggestDataLoaderTest extends TestCase
         $element = ContentElementBuilder::create('suggest')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->suggestRoute->expects($this->never())->method('load');
+        $suggestRoute = $this->createMock(AbstractProductSuggestRoute::class);
+        $suggestRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load($element, $requirement, $context, new Request());
+        $loader = new ProductSuggestDataLoader($suggestRoute);
+        $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
@@ -263,9 +265,11 @@ class ProductSuggestDataLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->suggestRoute->expects($this->never())->method('load');
+        $suggestRoute = $this->createMock(AbstractProductSuggestRoute::class);
+        $suggestRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductSuggestDataLoader($suggestRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('suggest', 'product_suggest', $config),
             $context,
@@ -283,9 +287,11 @@ class ProductSuggestDataLoaderTest extends TestCase
         $config = new ProductSuggestLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
-        $this->suggestRoute->expects($this->never())->method('load');
+        $suggestRoute = $this->createMock(AbstractProductSuggestRoute::class);
+        $suggestRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductSuggestDataLoader($suggestRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('suggest', 'product_suggest', $config),
             $context,

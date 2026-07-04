@@ -53,7 +53,6 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame(CategoryCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads service menu categories flattened from navigation tree')]

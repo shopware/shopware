@@ -55,7 +55,6 @@ class EntityLoaderTest extends TestCase
         static::assertCount(1, $capabilities);
         static::assertSame(SalesChannelProductEntity::class, $capabilities[0]->producedType);
         static::assertSame(['entity' => 'product'], $capabilities[0]->configTemplate);
-        static::assertSame(['property'], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('declares the base entity class for an entity without a sales-channel definition')]
@@ -72,7 +71,6 @@ class EntityLoaderTest extends TestCase
         static::assertCount(1, $capabilities);
         static::assertSame(MediaEntity::class, $capabilities[0]->producedType);
         static::assertSame(['entity' => 'media'], $capabilities[0]->configTemplate);
-        static::assertSame(['property'], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('skips ArrayEntity definitions but keeps enumerating the rest')]
@@ -169,8 +167,8 @@ class EntityLoaderTest extends TestCase
         $this->createMinimalLoader()->resolveProducedType(new StubLoaderConfig());
     }
 
-    #[TestDox('declares exactly the config keys the serializer requires to decode a config (drift guard)')]
-    public function testProducibleTypesConfigKeysMatchSerializerRequiredKeys(): void
+    #[TestDox('declares exactly the required config keys the serializer needs to decode a config (drift guard)')]
+    public function testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys(): void
     {
         $loader = new EntityLoader(
             $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
@@ -178,17 +176,16 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $capability = $loader->producibleTypes()[0];
-        $declaredKeys = [...array_keys($capability->configTemplate), ...$capability->requiredConfigKeys];
-        sort($declaredKeys);
+        $requiredKeys = $loader->configSpecification()->requiredKeys();
+        sort($requiredKeys);
 
-        static::assertSame(['entity', 'property'], $declaredKeys);
+        static::assertSame(['entity', 'property'], $requiredKeys);
 
-        // Drive decode() purely from the keys the capability declares: if the capability drops a key the
-        // serializer requires (or decode() gains a new required key), decode() throws and this fails.
+        // Drive decode() purely from the keys the specification declares required: if the specification drops a
+        // key the serializer requires (or decode() gains a new required key), decode() throws and this fails.
         // EntityLoaderConfigSerializerTest pins necessity (decode rejects either key's absence).
         $input = [];
-        foreach ($declaredKeys as $key) {
+        foreach ($requiredKeys as $key) {
             $input[$key] = 'product';
         }
 

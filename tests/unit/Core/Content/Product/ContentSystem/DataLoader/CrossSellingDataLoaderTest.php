@@ -52,7 +52,6 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame(CrossSellingElementCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns cross-selling collection as data and marks result as cache-aware with no tags')]

@@ -50,7 +50,6 @@ class PaymentMethodDataLoaderTest extends TestCase
         static::assertSame(PaymentMethodCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns cachedExternally result with payment method collection')]

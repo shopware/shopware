@@ -107,12 +107,12 @@
                     "source": {
                         "type": "string",
                         "minLength": 1,
-                        "description": "The data loader source. The valid values are registry-driven; fetch the live list from `GET /api/_info/content-system-data-loader-types.json` (the keys of `sources`).",
+                        "description": "The data loader source. The valid values are registry-driven; fetch the live list from `GET /api/_info/content-system-data-loaders.json` (the keys of `sources`).",
                         "example": "entity"
                     },
                     "config": {
                         "type": "object",
-                        "description": "Loader-specific configuration. The expected keys depend on `source`; the introspection endpoint reports each source's `configTemplate` and `requiredConfigKeys`. An empty config is serialized as `[]` (consistent with Shopware's JSON-map fields).",
+                        "description": "Loader-specific configuration. The expected keys depend on `source`; the introspection endpoint reports each source's `configKeys` (per-key name, kind, type, and requiredness) and, per producible type, a `configTemplate` of inferable values. The keys a caller must still supply are the required `configKeys` names minus the keys already covered by `configTemplate`. An empty config is serialized as `[]` (consistent with Shopware's JSON-map fields).",
                         "additionalProperties": true,
                         "example": { "entity": "product", "property": "product_id" }
                     }

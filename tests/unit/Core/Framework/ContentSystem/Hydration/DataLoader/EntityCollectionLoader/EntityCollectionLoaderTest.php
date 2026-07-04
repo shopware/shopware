@@ -55,7 +55,6 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame(SalesChannelProductCollection::class, $capabilities[0]->producedType);
         static::assertSame([SalesChannelProductEntity::class], $capabilities[0]->genericParameters);
         static::assertSame(['entity' => 'product'], $capabilities[0]->configTemplate);
-        static::assertSame(['property'], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('declares the base collection class for an entity without a sales-channel definition')]

@@ -50,7 +50,6 @@ class LanguageDataLoaderTest extends TestCase
         static::assertSame(LanguageCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads languages and returns cachedExternally result with correct request, context and empty criteria')]

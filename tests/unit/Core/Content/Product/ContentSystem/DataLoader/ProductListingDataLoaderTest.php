@@ -50,7 +50,6 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame(ProductListingResult::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns listing result as data and marks result as cache-aware with no tags')]

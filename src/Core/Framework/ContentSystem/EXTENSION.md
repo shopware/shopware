@@ -382,7 +382,7 @@ Reference: `Hydration/DataLoader/EntityLoader/`
 
 ### Discoverability
 
-A registered loader's `source` value and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loader-types.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live definition registry. See `ADMINISTRATION.md`.
+A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live definition registry. See `ADMINISTRATION.md`.
 
 ---
 
@@ -499,7 +499,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | Class                     | Purpose                                                                                |
 |---------------------------|----------------------------------------------------------------------------------------|
 | `ContentDataLoaderResult` | Loader return value with cache info                                                    |
-| `LoaderTypeCapability`    | One type a loader can produce: `producedType`, `configTemplate`, `requiredConfigKeys`, `genericParameters`; returned by `producibleTypes()` (construct directly when overriding it) |
+| `LoaderTypeCapability`    | One type a loader can produce: `producedType`, `configTemplate`, `genericParameters`; returned by `producibleTypes()` (construct directly when overriding it) |
 | `SpecificationData`       | Return type of `resolveSpecificationData()` (bundles data requirements + placeholders) |
 | `PlaceholderValues`       | Immutable placeholder map, created via `PlaceholderValues::from(array $values)`        |
 | `RenderingSpecification`  | Data requirements, placeholders, request, target element, cache tags                   |

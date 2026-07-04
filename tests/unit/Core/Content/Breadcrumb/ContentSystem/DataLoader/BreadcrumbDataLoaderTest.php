@@ -51,7 +51,6 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame(BreadcrumbCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns breadcrumb collection as data and marks result as cache-aware with no tags')]

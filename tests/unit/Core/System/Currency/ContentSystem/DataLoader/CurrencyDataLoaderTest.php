@@ -49,7 +49,6 @@ class CurrencyDataLoaderTest extends TestCase
         static::assertSame(CurrencyCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads currencies with default config and returns cachedExternally result')]

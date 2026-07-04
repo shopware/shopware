@@ -49,7 +49,6 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame(ShippingMethodCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads shipping methods and returns cachedExternally result with empty cache tags')]

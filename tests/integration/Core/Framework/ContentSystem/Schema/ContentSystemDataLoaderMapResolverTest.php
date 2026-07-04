@@ -9,9 +9,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-class ContentSystemDataLoaderTypeResolverTest extends TestCase
+class ContentSystemDataLoaderMapResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -52,18 +52,19 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
     #[TestDox('the entity capability for the product carries its config seed')]
     public function testCapabilityForEntityProductCarriesConfigSeed(): void
     {
-        $capability = $this->resolveMap()->capabilityFor(EntityLoader::SOURCE, SalesChannelProductEntity::class);
+        $map = $this->resolveMap();
+        $capability = $map->capabilityFor(EntityLoader::SOURCE, SalesChannelProductEntity::class);
 
         static::assertNotNull($capability);
         static::assertSame(['entity' => 'product'], $capability->configTemplate);
-        static::assertSame(['property'], $capability->requiredConfigKeys);
+        static::assertSame(['property'], $map->residualConfigKeysFor(EntityLoader::SOURCE, $capability));
     }
 
     #[TestDox('the schema endpoint exposes the capability shape per source')]
     public function testSchemaExposesCapabilityShape(): void
     {
-        $generator = static::getContainer()->get(ContentSystemDataLoaderTypeSchemaGenerator::class);
-        static::assertInstanceOf(ContentSystemDataLoaderTypeSchemaGenerator::class, $generator);
+        $generator = static::getContainer()->get(ContentSystemDataLoaderSchemaGenerator::class);
+        static::assertInstanceOf(ContentSystemDataLoaderSchemaGenerator::class, $generator);
 
         $schema = $generator->getSchema();
 
@@ -75,14 +76,13 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertArrayHasKey('producedType', $first);
         static::assertTrue(class_exists($first['producedType']), $first['producedType']);
         static::assertArrayHasKey('entity', $first['configTemplate']);
-        static::assertSame(['property'], $first['requiredConfigKeys']);
         static::assertArrayHasKey('genericParameters', $first);
     }
 
-    private function resolveMap(): ContentSystemDataLoaderTypeMap
+    private function resolveMap(): ContentSystemDataLoaderMap
     {
-        $resolver = static::getContainer()->get(ContentSystemDataLoaderTypeResolver::class);
-        static::assertInstanceOf(ContentSystemDataLoaderTypeResolver::class, $resolver);
+        $resolver = static::getContainer()->get(ContentSystemDataLoaderMapResolver::class);
+        static::assertInstanceOf(ContentSystemDataLoaderMapResolver::class, $resolver);
 
         return $resolver->resolve();
     }

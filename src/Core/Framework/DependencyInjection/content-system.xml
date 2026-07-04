@@ -241,12 +241,12 @@
         </service>
 
         <!-- Schema Services -->
-        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver">
+        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver"/>
+        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver"/>
         </service>
 
         <!-- Element Type System -->
@@ -394,7 +394,7 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider"/>
         </service>

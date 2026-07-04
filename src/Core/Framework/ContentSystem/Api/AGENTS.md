@@ -14,7 +14,7 @@
 - Preview resolution entry: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout(entityType, entityId, request, context)` — assignment-free, selects source by `supportsEntityType()`
 - Root-context selection (diagnose + draft mutation routes): the request `rootSource` is resolved through `Adapter/RootSourceRegistry::resolveGated($rootSource, $context)`, which routes to the matching source (`sourceFor()`: entity type, section key, or `none`) and returns its `providedRootContext()`. An empty/absent `rootSource` means intrinsic well-formedness only. It does NOT use `resolveWithoutLayout()` (that is the preview path)
 - Check: `DraftLayoutChecker` (module root) — preview-action draft check (intrinsic-subset diagnostics)
-- Introspection endpoints the admin UI pairs with this action: `Framework/Api/Controller/InfoController` (`content-system-element-types`, `content-system-data-loader-types`, `content-system-entity-types`, `content-system-style-options`, `content-system-binding-specifications`)
+- Introspection endpoints the admin UI pairs with this action: `Framework/Api/Controller/InfoController` (`content-system-element-types`, `content-system-data-loaders`, `content-system-entity-types`, `content-system-style-options`, `content-system-binding-specifications`)
 
 ## Constraints
 

@@ -52,7 +52,6 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame(Tree::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads navigation tree with explicit rootId from config')]

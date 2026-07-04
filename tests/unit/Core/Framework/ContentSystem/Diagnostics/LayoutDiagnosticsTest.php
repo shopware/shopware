@@ -16,8 +16,11 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -30,8 +33,8 @@ use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -283,10 +286,16 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $map = new ContentSystemDataLoaderTypeMap([
-            'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
-            'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
-        ]);
+        $map = new ContentSystemDataLoaderMap(
+            [
+                'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
+                'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
+            ],
+            [
+                'category_a' => new LoaderConfigSpecification([]),
+                'category_b' => new LoaderConfigSpecification([]),
+            ],
+        );
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
@@ -304,10 +313,23 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $map = new ContentSystemDataLoaderTypeMap([
-            'category_a' => [new LoaderTypeCapability(CategoryEntity::class, [], ['property'])],
-            'category_b' => [new LoaderTypeCapability(CategoryEntity::class, [], ['property'])],
+        // Each loader's specification requires a "property" config key its empty template does not fill, so the
+        // derived residual is non-empty and both candidates are incomplete (the reshaped equivalent of the
+        // former authored residual ['property']).
+        $requiresProperty = new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
         ]);
+
+        $map = new ContentSystemDataLoaderMap(
+            [
+                'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
+                'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
+            ],
+            [
+                'category_a' => $requiresProperty,
+                'category_b' => $requiresProperty,
+            ],
+        );
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
@@ -384,7 +406,10 @@ class LayoutDiagnosticsTest extends TestCase
                 'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
                 'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
             ],
-            new ContentSystemDataLoaderTypeMap(['product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)]]),
+            new ContentSystemDataLoaderMap(
+                ['product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)]],
+                ['product_loader' => new LoaderConfigSpecification([])],
+            ),
             $this->decodingSerializers(),
         )->analyze([$root], [])->report;
 
@@ -448,14 +473,14 @@ class LayoutDiagnosticsTest extends TestCase
      */
     private function diagnostics(
         array $specs,
-        ?ContentSystemDataLoaderTypeMap $map = null,
+        ?ContentSystemDataLoaderMap $map = null,
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
-        $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
-        $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderTypeMap([]));
+        $typeResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderMap([], []));
 
         // Share one loader provider between the resolver (stored-candidate) and the RootContextMapper
         // (mismatch check) so both resolve a stored requirement's produced type consistently.

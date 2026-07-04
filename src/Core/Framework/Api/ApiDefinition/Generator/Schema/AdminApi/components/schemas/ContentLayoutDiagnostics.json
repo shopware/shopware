@@ -186,7 +186,7 @@
                     },
                     "loaderSource": {
                         "type": ["string", "null"],
-                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loader-types.json`); `null` for a `parent` or `stored` candidate."
+                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loaders.json`); `null` for a `parent` or `stored` candidate."
                     },
                     "configTemplate": {
                         "type": ["object", "null"],

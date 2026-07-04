@@ -1,0 +1,124 @@
+{
+  "sw-settings-admin-auth": {
+    "general": {
+      "mainMenuItemGeneral": "Admin-Authentifizierung",
+      "description": "Verwalte Login-Methoden, die Mehr-Faktor-Richtlinie und OIDC-Provider für den Administrations-Login."
+    },
+    "tabs": {
+      "methods": "Methoden",
+      "providers": "Provider"
+    },
+    "methods": {
+      "cardTitle": "Login-Methoden",
+      "cardSubtitle": "Lege fest, welche Login-Methoden verfügbar sind und wie sie verwendet werden dürfen.",
+      "yamlGateHint": "Methoden, die in der shopware.admin_auth-Konfigurationsdatei deaktiviert sind, bleiben aus – unabhängig davon, was hier aktiviert wird.",
+      "enabled": "Aktiv",
+      "primary": "Primär",
+      "secondFactor": "Zweiter Faktor",
+      "fallback": "Fallback",
+      "types": {
+        "password": {
+          "name": "Passwort",
+          "description": "Klassische Anmeldung mit Benutzername und Passwort."
+        },
+        "webauthn": {
+          "name": "Passkey",
+          "description": "Passwortlose Anmeldung mit Passkey oder Sicherheitsschlüssel (WebAuthn)."
+        },
+        "totp": {
+          "name": "Authenticator-App (TOTP)",
+          "description": "Zeitbasierte Einmalcodes aus einer Authenticator-App, als zweiter Faktor."
+        },
+        "recovery_codes": {
+          "name": "Wiederherstellungscodes",
+          "description": "Einmalige Backup-Codes als Fallback-Zweitfaktor."
+        }
+      },
+      "loadError": "Die Login-Methoden konnten nicht geladen werden.",
+      "saveSuccess": "Login-Methoden gespeichert.",
+      "saveError": "Die Login-Methoden konnten nicht gespeichert werden."
+    },
+    "policy": {
+      "cardTitle": "Richtlinie für Mehr-Faktor-Authentifizierung",
+      "cardSubtitle": "Steuere, wie sich die Zweitfaktor-Abfrage beim Login verhält.",
+      "enforcementYamlHint": "Wer einen zweiten Faktor abschließen muss, wird über die shopware.admin_auth.mfa-Konfigurationsdatei festgelegt.",
+      "ttlLabel": "Gültigkeit der Challenge (Sekunden)",
+      "ttlHelp": "Wie lange eine ausstehende Zweitfaktor-Challenge gültig bleibt, bevor sie abläuft."
+    },
+    "list": {
+      "title": "OIDC-Provider",
+      "createButton": "Provider hinzufügen",
+      "emptyState": "Noch keine OIDC-Provider konfiguriert",
+      "emptySubline": "Füge einen OpenID-Connect-Provider hinzu, damit sich Admins über einen externen Identity-Provider anmelden können.",
+      "statusActive": "Aktiv",
+      "statusInactive": "Inaktiv",
+      "loadError": "Die Provider konnten nicht geladen werden.",
+      "columns": {
+        "name": "Name",
+        "active": "Status",
+        "priority": "Priorität"
+      }
+    },
+    "managed": {
+      "bannerTitle": "Über Konfigurationsdatei verwaltet",
+      "bannerText": "Die Provider sind in der shopware.admin_auth.providers-Konfigurationsdatei hinterlegt. Datenbank-Provider werden ignoriert und können hier nicht bearbeitet werden."
+    },
+    "detail": {
+      "title": "OIDC-Provider",
+      "newTitle": "Neuer OIDC-Provider",
+      "loadError": "Der Provider konnte nicht geladen werden.",
+      "saveError": "Der Provider konnte nicht gespeichert werden.",
+      "generalCard": "Allgemein",
+      "nameLabel": "Name",
+      "namePlaceholder": "z. B. Firmen-SSO",
+      "activeLabel": "Aktiv",
+      "activeHelp": "Inaktive Provider werden im Login ausgeblendet und können nicht verwendet werden.",
+      "priorityLabel": "Priorität",
+      "priorityHelp": "Höhere Zahlen erscheinen im Login weiter oben.",
+      "clientCard": "Client-Zugangsdaten",
+      "clientCardSubtitle": "Der bei Deinem Identity-Provider registrierte OAuth2-Client.",
+      "clientIdLabel": "Client-ID",
+      "clientIdPlaceholder": "Client-ID Deines Providers",
+      "clientSecretLabel": "Client-Secret",
+      "clientSecretPlaceholder": "Client-Secret einfügen",
+      "clientSecretKeepPlaceholder": "Leer lassen, um das gespeicherte Secret zu behalten",
+      "clientSecretHelpText": "Verschlüsselt gespeichert. Beim Bearbeiten leer lassen, um das aktuelle Secret zu behalten.",
+      "endpointsCard": "Provider-Endpunkte",
+      "endpointsCardSubtitle": "Wo Shopware mit Deinem Identity-Provider kommuniziert.",
+      "discoveryUrlLabel": "Discovery-URL",
+      "discoveryUrlPlaceholder": "https://idp.example.com/.well-known/openid-configuration",
+      "discoverButton": "Automatisch erkennen",
+      "discoverHint": "Gib die Issuer- oder Discovery-URL ein und klicke auf „Automatisch erkennen“, um die Endpunkte aus der OpenID-Konfiguration des Providers zu übernehmen.",
+      "discoverMissingUrl": "Gib zuerst die Discovery-URL des Providers ein.",
+      "discoverSuccess": "Endpunkte erkannt und ausgefüllt.",
+      "discoverError": "Die Provider-Konfiguration konnte nicht erkannt werden.",
+      "issuerLabel": "Issuer",
+      "issuerHelp": "Der issuer-Claim des id_token muss diesem Wert entsprechen.",
+      "authorizationEndpointLabel": "Authorization-Endpunkt",
+      "tokenEndpointLabel": "Token-Endpunkt",
+      "jwksUriLabel": "JWKS-URI",
+      "scopesLabel": "Scopes",
+      "scopesHelp": "Die OAuth2-Scopes, die beim Provider angefragt werden.",
+      "provisioningCard": "Provisionierung & Rollen",
+      "autoProvisionLabel": "Benutzer automatisch anlegen",
+      "autoProvisionHelp": "Lege automatisch einen neuen Admin-Benutzer an, wenn die verifizierte E-Mail keinem Benutzer zugeordnet ist.",
+      "autoProvisionWarning": "Jeder, der sich bei Deinem Identity-Provider mit verifizierter E-Mail anmelden kann, erhält ein Konto. Aktiviere dies nur für vertrauenswürdige, interne Provider.",
+      "groupsClaimLabel": "Groups-Claim",
+      "groupsClaimPlaceholder": "z. B. groups",
+      "groupsClaimHelp": "Der id_token-Claim, der die Gruppen des Benutzers enthält. Erforderlich für das Rollen-Mapping unten.",
+      "defaultRolesLabel": "Standardrollen",
+      "defaultRolesHelp": "Rollen, die jeder Benutzer dieses Providers beim Login erhält – unabhängig von seinen Gruppen.",
+      "adminPseudoRoleLabel": "Administrator (Admin-Recht)"
+    },
+    "roleMapping": {
+      "cardTitle": "Gruppen-zu-Rollen-Mapping",
+      "cardSubtitle": "Ordne Gruppen des Identity-Providers Shopware-ACL-Rollen zu.",
+      "authoritativeSyncHint": "Dieses Mapping wird bei jedem Login autoritativ synchronisiert: Rollen, die durch die Synchronisation vergeben wurden, werden wieder entfernt, wenn der Benutzer die Gruppe verliert. Manuell zugewiesene Rollen bleiben unberührt.",
+      "groupLabel": "Gruppe des Identity-Providers",
+      "groupPlaceholder": "z. B. idp-catalog",
+      "rolesLabel": "Shopware-Rollen",
+      "addRow": "Mapping hinzufügen",
+      "removeRow": "Mapping entfernen"
+    }
+  }
+}

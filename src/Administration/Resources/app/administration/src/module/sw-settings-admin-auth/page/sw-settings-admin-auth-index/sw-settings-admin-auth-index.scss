@@ -1,0 +1,56 @@
+.sw-settings-admin-auth-index {
+    &__method-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__method-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--color-border-primary-default);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &__method-info {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 4px;
+    }
+
+    &__method-name {
+        font-weight: 600;
+    }
+
+    &__method-description {
+        color: var(--color-text-tertiary-default);
+        font-size: 12px;
+    }
+
+    &__method-switches {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+
+    &__method-second-factor {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__fallback-badge {
+        background: var(--color-background-secondary-default);
+        border-radius: 4px;
+        color: var(--color-text-tertiary-default);
+        font-size: 11px;
+        padding: 2px 6px;
+        text-transform: uppercase;
+    }
+}

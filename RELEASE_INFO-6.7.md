@@ -1,5 +1,27 @@
 # 6.7.13.0 (upcoming)
 
+## Features
+
+### Experimental: Native admin authentication (`ADMIN_AUTH`)
+
+Shopware now ships a native, experimental authentication stack for the Administration login under `Shopware\Core\Framework\AdminAuth`, replacing the removed experimental admin SSO:
+
+- **OIDC single sign-on** with providers managed in the Administration (*Settings > System > Admin authentication*) or declared in the new `shopware.admin_auth` configuration section, including automatic endpoint discovery and optional user auto-provisioning.
+- **Group-to-role mapping**: IdP groups are synced to Shopware ACL roles on every login. Roles granted by the sync are revoked when the user loses the group; manually assigned roles are never touched.
+- **Passkeys (WebAuthn)** for passwordless login, and **TOTP authenticator apps and recovery codes** as second factors with a configurable MFA policy. Admins enroll their factors self-service in the profile's new "Security" tab.
+
+The feature is disabled by default and gated behind the major feature flag `ADMIN_AUTH` (set `ADMIN_AUTH=1` in the environment). While the feature is experimental the whole `AdminAuth` namespace is `@internal`; the verifier interfaces `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\PrimaryVerifierInterface` / `SecondFactorVerifierInterface` (container tags `shopware.admin_auth.primary_verifier` / `shopware.admin_auth.second_factor_verifier`) are planned to become the public extension surface for custom factors once the feature stabilizes.
+
+See "New experimental admin authentication (`ADMIN_AUTH`)" in `UPGRADE-6.8.md` for the full configuration reference and behavior notes.
+
+## Storefront
+
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
 ## Core
 
 ### Webhooks are signed with the current app secret after a secret rotation

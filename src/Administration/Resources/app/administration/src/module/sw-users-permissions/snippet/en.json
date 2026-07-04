@@ -5,33 +5,12 @@
         },
         "permissions": {},
         "sso": {
-            "inviteButtonLabel": "Invite user",
-            "invitationNotYetAccepted": "This user hasn't accepted your invitation yet. As soon as they do, any missing information will be filled in automatically.",
-            "error": {
-                "cannotInviteUser": "User could not be invited."
-            },
             "user-listing": {
                 "status-label": {
                     "invited": "invited",
                     "active": "active",
                     "inactive": "deactivated"
                 }
-            },
-            "user-detail": {
-                "cards-title": {
-                    "information": "Information",
-                    "userinterface": "User interface",
-                    "rolesAndPermission": "Roles & permissions"
-                }
-            },
-            "modal": {
-                "title": "Send an invitation to a user",
-                "labelEmail": "Email",
-                "placeholderEmail": "Enter email...",
-                "labelLanguage": "User interface language",
-                "placeholderLanguage": "Choose a language...",
-                "labelButtonInvite": "Invite user",
-                "accountPermissionHint": "Make sure that the user also belongs to your company in the Shopware Account so that they can use the Administration of this shop without restrictions."
             }
         },
         "roles": {
@@ -223,6 +202,12 @@
                     "duplicateEmailErrorMessage": "This email address has been registered already."
                 }
             }
+        },
+        "ssoManaged": {
+            "banner": "This user is provisioned by {providers}. Roles managed by the identity provider are re-applied on every login and cannot be edited here.",
+            "fallbackProvider": "an external identity provider",
+            "rolesLabel": "Managed by SSO",
+            "adminBadge": "Administrator"
         }
     },
     "sw-privileges": {

@@ -58,10 +58,10 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
-                ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
+                ->append($this->createAdminAuthSection())
             ->end();
 
         return $treeBuilder;
@@ -1600,31 +1600,6 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
-    private function createSsoLoginSection(): ArrayNodeDefinition
-    {
-        $treeBuilder = new TreeBuilder('admin_login');
-        $rootNode = $treeBuilder->getRootNode();
-        $rootNode->addDefaultsIfNotSet()
-            ->children()
-                ->booleanNode('use_default')->defaultTrue()->end();
-
-        $rootNode
-            ->children()
-                ->booleanNode('use_default')->isRequired()->end()
-                ->scalarNode('client_id')->isRequired()->end()
-                ->scalarNode('client_secret')->isRequired()->end()
-                ->scalarNode('redirect_uri')->isRequired()->end()
-                ->scalarNode('base_url')->isRequired()->end()
-                ->scalarNode('authorize_path')->isRequired()->end()
-                ->scalarNode('token_path')->isRequired()->end()
-                ->scalarNode('jwks_path')->isRequired()->end()
-                ->scalarNode('scope')->isRequired()->end()
-                ->scalarNode('register_url')->isRequired()->end()
-            ->end();
-
-        return $rootNode;
-    }
-
     private function createWebhookSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('webhook');
@@ -1636,6 +1611,76 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createAdminAuthSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('admin_auth'))->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('admin_ui')
+                    ->info('@experimental stableVersion:v6.9.0 feature:ADMIN_AUTH If false, the provider management UI in the administration is hidden/read-only.')
+                    ->defaultTrue()
+                ->end()
+                ->booleanNode('password_login')
+                    ->info('@experimental stableVersion:v6.9.0 feature:ADMIN_AUTH If false, the classic username/password login is disabled.')
+                    ->defaultTrue()
+                ->end()
+                ->arrayNode('mfa')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('required')
+                            ->info('@experimental stableVersion:v6.9.0 feature:ADMIN_AUTH Which users must provide a second factor to log in.')
+                            ->values(['none', 'admins', 'all'])
+                            ->defaultValue('none')
+                        ->end()
+                        ->arrayNode('methods')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->booleanNode('totp')->defaultTrue()->end()
+                                ->booleanNode('webauthn')->defaultTrue()->end()
+                                ->booleanNode('recovery_codes')->defaultTrue()->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('providers')
+                    ->info('@experimental stableVersion:v6.9.0 feature:ADMIN_AUTH YAML-declared OIDC providers. If non-empty, database providers are ignored and the admin UI becomes read-only.')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('label')->isRequired()->end()
+                            ->scalarNode('client_id')->isRequired()->end()
+                            ->scalarNode('client_secret')->isRequired()->end()
+                            ->scalarNode('discovery_url')->defaultNull()->end()
+                            ->scalarNode('issuer')->defaultNull()->end()
+                            ->scalarNode('authorization_endpoint')->defaultNull()->end()
+                            ->scalarNode('token_endpoint')->defaultNull()->end()
+                            ->scalarNode('jwks_uri')->defaultNull()->end()
+                            ->arrayNode('scopes')
+                                ->scalarPrototype()->end()
+                                ->defaultValue(['openid', 'profile', 'email'])
+                            ->end()
+                            ->booleanNode('auto_provision')->defaultFalse()->end()
+                            ->scalarNode('groups_claim')->defaultNull()->end()
+                            ->arrayNode('role_mapping')
+                                ->info('Maps an IdP group to a list of acl role names. The pseudo-role "admin" grants the user admin flag.')
+                                ->useAttributeAsKey('group')
+                                ->arrayPrototype()
+                                    ->scalarPrototype()->end()
+                                ->end()
+                            ->end()
+                            ->arrayNode('default_roles')
+                                ->scalarPrototype()->end()
+                                ->defaultValue([])
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

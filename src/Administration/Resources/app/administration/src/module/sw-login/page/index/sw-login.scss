@@ -234,6 +234,16 @@
         }
     }
 
+    .sw-login__alternative-methods {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-16);
+
+        .sw-login__sso-divider {
+            margin-bottom: 0;
+        }
+    }
+
     .sw-login__sso {
         &-divider {
             display: flex;

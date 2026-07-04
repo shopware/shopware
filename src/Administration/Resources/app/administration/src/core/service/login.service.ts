@@ -6,6 +6,8 @@ import { CookieStorage } from 'cookie-storage';
 import type { CookieOptions } from 'cookie-storage/lib/cookie-options';
 import type { Router } from 'vue-router';
 import type { ContextStore } from '../../app/store/context.store';
+import { getAssertion } from '../helper/webauthn.helper';
+import type { PublicKeyCredentialRequestOptionsJson } from '../helper/webauthn.helper';
 
 /** @private */
 export interface AuthObject {
@@ -14,16 +16,134 @@ export interface AuthObject {
     expiry: number;
 }
 
-/** @private */
-export interface LoginConfig {
-    useDefault: boolean;
-    url: string;
-}
-
 interface TokenResponse {
     access_token: string;
     refresh_token: string;
     expires_in: number;
+}
+
+/**
+ * A primary login method advertised by `/_action/admin-auth/methods` (feature flag ADMIN_AUTH).
+ *
+ * @private
+ */
+export interface AdminAuthMethod {
+    id: string;
+    type: 'password' | 'webauthn' | 'oidc';
+    label: string | null;
+    startUrl: string | null;
+}
+
+interface AdminAuthMethodsResponse {
+    methods: AdminAuthMethod[];
+    managedByConfig: boolean;
+    adminUiEnabled: boolean;
+}
+
+/**
+ * Result of a primary login (`admin_primary` grant). Either the login completed (`auth` is set) or
+ * a second factor is required (`mfaRequired`) and the pending token is held inside the service.
+ *
+ * @private
+ */
+export interface PrimaryLoginResult {
+    mfaRequired: boolean;
+    methods: string[];
+    auth: AuthObject | null;
+}
+
+interface WebAuthnLoginOptionsResponse {
+    options: PublicKeyCredentialRequestOptionsJson;
+    challengeToken: string;
+}
+
+/**
+ * Scope identifier carried by a "MFA pending" access token issued between the first and second
+ * factor (see `Shopware\Core\Framework\AdminAuth\OAuth\Scope\MfaPendingScope`).
+ */
+const MFA_PENDING_SCOPE = 'admin-mfa-pending';
+
+/**
+ * Marker scope prefix advertising the allowed second-factor methods, e.g.
+ * `admin-mfa-methods:totp,webauthn` (see `AdminPrimaryGrant::METHODS_SCOPE_PREFIX`).
+ */
+const MFA_METHODS_SCOPE_PREFIX = 'admin-mfa-methods:';
+
+/**
+ * Decode the payload (middle segment) of a JWT without any dependency.
+ * Returns an empty object when the token cannot be decoded.
+ */
+function decodeJwtPayload(token: string): Record<string, unknown> {
+    if (typeof token !== 'string') {
+        return {};
+    }
+
+    const parts = token.split('.');
+    if (parts.length < 2) {
+        return {};
+    }
+
+    try {
+        let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4 !== 0) {
+            base64 += '=';
+        }
+
+        const json = decodeURIComponent(
+            window
+                .atob(base64)
+                .split('')
+                .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
+                .join(''),
+        );
+
+        return JSON.parse(json) as Record<string, unknown>;
+    } catch {
+        return {};
+    }
+}
+
+/**
+ * Read the scopes from a decoded JWT payload, tolerant to both `scopes` (array) and `scope`
+ * (space/comma separated string).
+ */
+function extractScopes(payload: Record<string, unknown>): string[] {
+    const scopes = payload.scopes ?? payload.scope;
+
+    if (Array.isArray(scopes)) {
+        return scopes.map((scope) => String(scope));
+    }
+
+    if (typeof scopes === 'string') {
+        return scopes.split(/[ ,]+/).filter((scope) => scope.length > 0);
+    }
+
+    return [];
+}
+
+/**
+ * Whether the access token is a powerless "MFA pending" token that must never be persisted.
+ */
+function isPendingToken(accessToken: string): boolean {
+    return extractScopes(decodeJwtPayload(accessToken)).includes(MFA_PENDING_SCOPE);
+}
+
+/**
+ * Extract the available second-factor method types from a pending token, e.g. `['totp']`.
+ */
+function extractMfaMethods(accessToken: string): string[] {
+    const scopes = extractScopes(decodeJwtPayload(accessToken));
+    const marker = scopes.find((scope) => scope.startsWith(MFA_METHODS_SCOPE_PREFIX));
+
+    if (!marker) {
+        return [];
+    }
+
+    return marker
+        .slice(MFA_METHODS_SCOPE_PREFIX.length)
+        .split(',')
+        .map((method) => method.trim())
+        .filter((method) => method.length > 0);
 }
 
 interface RetryBackoffOptions {
@@ -35,6 +155,13 @@ interface RetryBackoffOptions {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
+    getAvailableAuthMethods: () => Promise<AdminAuthMethod[]>;
+    loginPrimary: (user: string, pass: string) => Promise<PrimaryLoginResult>;
+    loginWithPasskey: () => Promise<PrimaryLoginResult>;
+    verifySecondFactor: (method: 'totp' | 'recovery_codes', code: string) => Promise<AuthObject>;
+    verifySecondFactorWebauthn: () => Promise<AuthObject>;
+    clearPendingMfa: () => void;
+    hasPendingMfa: () => boolean;
     verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>;
     refreshToken: () => Promise<AuthObject['access']>;
     getToken: () => string;
@@ -42,7 +169,6 @@ export interface LoginService {
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
     restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
-    logoutSso: () => Promise<void>;
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
     isLoggedIn: () => boolean;
     addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void;
@@ -53,11 +179,8 @@ export interface LoginService {
     verifyUserToken: (password: string) => Promise<string>;
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
-    getLoginTemplateConfig: () => Promise<LoginConfig>;
     subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
     isRefreshing: () => Promise<boolean>;
-    /** @internal */
-    _navigateTo: (url: string) => void;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -85,15 +208,21 @@ export default function createLoginService(
     const refreshSubscribers: Array<(token: string) => void> = [];
     const refreshErrorSubscribers: Array<(error: Error) => void> = [];
 
-    // Wraps window.location.href assignment to enable test mocking (JSDOM
-    // marks window.location as non-configurable). Mirrors the upstream
-    // _navigateTo pattern used in sw-login-login component.
-    let navigateToFn = (url: string): void => {
-        window.location.href = url;
-    };
+    /**
+     * Pending MFA token issued by the `admin_primary` grant, kept IN MEMORY ONLY. It must never be
+     * persisted (no cookie / storage) and never be handed out to callers.
+     */
+    let pendingMfaToken: string | null = null;
 
     return {
         loginByUsername,
+        getAvailableAuthMethods,
+        loginPrimary,
+        loginWithPasskey,
+        verifySecondFactor,
+        verifySecondFactorWebauthn,
+        clearPendingMfa,
+        hasPendingMfa,
         verifyUserByUsername,
         refreshToken,
         getToken,
@@ -101,7 +230,6 @@ export default function createLoginService(
         setBearerAuthentication,
         restartAutoTokenRefresh,
         logout,
-        logoutSso,
         forwardLogout,
         isLoggedIn,
         addOnTokenChangedListener,
@@ -112,17 +240,8 @@ export default function createLoginService(
         verifyUserToken,
         getStorage,
         setRememberMe,
-        getLoginTemplateConfig,
         subscribeToTokenRefresh,
         isRefreshing,
-
-        /** @internal */
-        get _navigateTo() {
-            return navigateToFn;
-        },
-        set _navigateTo(fn: (url: string) => void) {
-            navigateToFn = fn;
-        },
     };
 
     /**
@@ -160,19 +279,223 @@ export default function createLoginService(
                     baseURL: context.apiPath!,
                 },
             )
-            .then((response) => {
-                Shopware.Service('userActivityService').updateLastUserActivity();
+            .then((response) => applyFullToken(response.data));
+    }
 
-                const auth = setBearerAuthentication({
-                    access: response.data.access_token,
-                    refresh: response.data.refresh_token,
-                    expiry: response.data.expires_in,
-                });
+    /**
+     * Persist a full token response exactly like a classic password login and signal a successful
+     * login to the app.
+     */
+    function applyFullToken(data: TokenResponse): AuthObject {
+        Shopware.Service('userActivityService').updateLastUserActivity();
 
-                sessionStorage.setItem('redirectFromLogin', 'true');
+        const auth = setBearerAuthentication({
+            access: data.access_token,
+            refresh: data.refresh_token,
+            expiry: data.expires_in,
+        });
 
-                return auth;
+        sessionStorage.setItem('redirectFromLogin', 'true');
+
+        return auth;
+    }
+
+    /**
+     * Lists the available primary login methods for the (unauthenticated) admin login screen.
+     * Only meaningful when the ADMIN_AUTH feature is active.
+     */
+    function getAvailableAuthMethods(): Promise<AdminAuthMethod[]> {
+        return httpClient
+            .get<AdminAuthMethodsResponse>('/_action/admin-auth/methods', {
+                baseURL: context.apiPath!,
+            })
+            .then((response) => (Array.isArray(response.data.methods) ? response.data.methods : []));
+    }
+
+    /**
+     * Turn an `admin_primary` token response into a {@link PrimaryLoginResult}: a full token is
+     * persisted like a classic login, a pending token is kept in memory only and the caller is
+     * asked for a second factor.
+     */
+    function handlePrimaryTokenResponse(data: TokenResponse): PrimaryLoginResult {
+        if (isPendingToken(data.access_token)) {
+            // Keep the pending token in memory only - it must never reach the auth cookie.
+            pendingMfaToken = data.access_token;
+
+            return {
+                mfaRequired: true,
+                methods: extractMfaMethods(data.access_token),
+                auth: null,
+            };
+        }
+
+        return {
+            mfaRequired: false,
+            methods: [],
+            auth: applyFullToken(data),
+        };
+    }
+
+    /**
+     * First login leg via the `admin_primary` grant with the classic username/password method.
+     * Only meaningful when the ADMIN_AUTH feature is active.
+     */
+    function loginPrimary(user: string, pass: string): Promise<PrimaryLoginResult> {
+        pendingMfaToken = null;
+
+        return httpClient
+            .post<TokenResponse>(
+                '/oauth/token',
+                {
+                    grant_type: 'admin_primary',
+                    client_id: 'administration',
+                    scope: 'write',
+                    method: 'password',
+                    username: user,
+                    password: pass,
+                },
+                {
+                    baseURL: context.apiPath!,
+                },
+            )
+            .then((response) => handlePrimaryTokenResponse(response.data));
+    }
+
+    /**
+     * Fetch WebAuthn request options from the backend, run the assertion ceremony and return the
+     * serialized assertion together with the signed challenge token that must be echoed back.
+     */
+    function fetchLoginAssertion(): Promise<{ assertion: string; challengeToken: string }> {
+        return httpClient
+            .post<WebAuthnLoginOptionsResponse>(
+                '/_action/admin-auth/webauthn/login-options',
+                {},
+                {
+                    baseURL: context.apiPath!,
+                },
+            )
+            .then(async (response) => {
+                const assertion = await getAssertion(response.data.options);
+
+                return {
+                    assertion: JSON.stringify(assertion),
+                    challengeToken: response.data.challengeToken,
+                };
             });
+    }
+
+    /**
+     * Passwordless primary login with a passkey via the `admin_primary` grant (`webauthn` method).
+     * Behaves exactly like {@link loginPrimary}: returns either the full auth object or the
+     * pending-MFA descriptor so the login screen's MFA step can take over.
+     */
+    function loginWithPasskey(): Promise<PrimaryLoginResult> {
+        pendingMfaToken = null;
+
+        return fetchLoginAssertion()
+            .then(({ assertion, challengeToken }) =>
+                httpClient.post<TokenResponse>(
+                    '/oauth/token',
+                    {
+                        grant_type: 'admin_primary',
+                        client_id: 'administration',
+                        scope: 'write',
+                        method: 'webauthn',
+                        assertion,
+                        challengeToken,
+                    },
+                    {
+                        baseURL: context.apiPath!,
+                    },
+                ),
+            )
+            .then((response) => handlePrimaryTokenResponse(response.data));
+    }
+
+    /**
+     * Complete an MFA token response: persist the full token and drop the pending token.
+     */
+    function completeSecondFactor(data: TokenResponse): AuthObject {
+        const auth = applyFullToken(data);
+        pendingMfaToken = null;
+
+        return auth;
+    }
+
+    /**
+     * Second login leg: verify a TOTP or recovery code via the `admin_second_factor` grant with the
+     * in-memory pending token as Bearer. On success the full token is persisted exactly like a
+     * classic login.
+     */
+    function verifySecondFactor(method: 'totp' | 'recovery_codes', code: string): Promise<AuthObject> {
+        if (!pendingMfaToken) {
+            return Promise.reject(new Error('No pending MFA login available.'));
+        }
+
+        return httpClient
+            .post<TokenResponse>(
+                '/oauth/token',
+                {
+                    grant_type: 'admin_second_factor',
+                    client_id: 'administration',
+                    method,
+                    code,
+                },
+                {
+                    baseURL: context.apiPath!,
+                    headers: {
+                        Authorization: `Bearer ${pendingMfaToken}`,
+                    },
+                },
+            )
+            .then((response) => completeSecondFactor(response.data));
+    }
+
+    /**
+     * Second login leg with a passkey: runs the WebAuthn assertion ceremony and verifies it via the
+     * `admin_second_factor` grant with the in-memory pending token as Bearer.
+     */
+    function verifySecondFactorWebauthn(): Promise<AuthObject> {
+        const pendingToken = pendingMfaToken;
+
+        if (!pendingToken) {
+            return Promise.reject(new Error('No pending MFA login available.'));
+        }
+
+        return fetchLoginAssertion()
+            .then(({ assertion, challengeToken }) =>
+                httpClient.post<TokenResponse>(
+                    '/oauth/token',
+                    {
+                        grant_type: 'admin_second_factor',
+                        client_id: 'administration',
+                        method: 'webauthn',
+                        assertion,
+                        challengeToken,
+                    },
+                    {
+                        baseURL: context.apiPath!,
+                        headers: {
+                            Authorization: `Bearer ${pendingToken}`,
+                        },
+                    },
+                ),
+            )
+            .then((response) => completeSecondFactor(response.data));
+    }
+
+    /**
+     * Drop the in-memory pending MFA token (e.g. when the user cancels the second-factor step).
+     */
+    function clearPendingMfa(): void {
+        pendingMfaToken = null;
+    }
+
+    /**
+     * Whether a second factor is currently pending.
+     */
+    function hasPendingMfa(): boolean {
+        return pendingMfaToken !== null;
     }
 
     /**
@@ -573,7 +896,7 @@ export default function createLoginService(
 
     /**
      * Clears local authentication state: cookies, context token, bearer cache,
-     * remember-me flag, and auto-refresh timer. Shared by logout() and logoutSso().
+     * remember-me flag, and auto-refresh timer.
      */
     function clearAuthState(): void {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
@@ -599,56 +922,6 @@ export default function createLoginService(
         forwardLogout(isInactivityLogout, shouldRedirect);
 
         return true;
-    }
-
-    /**
-     * Revokes server-side tokens, clears local auth state, and navigates
-     * to the appropriate login surface:
-     * - SSO sessions → full-page redirect to the SSO provider (prompt=login)
-     * - Non-SSO sessions → standard logout via {@link forwardLogout}
-     *
-     * Falls back to regular logout if the SSO configuration cannot be loaded.
-     */
-    async function logoutSso(): Promise<void> {
-        let loginConfig: LoginConfig;
-
-        try {
-            loginConfig = await getLoginTemplateConfig();
-        } catch {
-            logout();
-            return;
-        }
-
-        if (!loginConfig.url) {
-            logout();
-            return;
-        }
-
-        const token = getToken();
-
-        try {
-            // Use native fetch to bypass Axios interceptors — the refresh-token
-            // interceptor would otherwise attempt a token refresh during logout.
-            await fetch(`${context.apiPath}/_action/user/logout`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-        } catch {
-            // Best-effort: continue even if server-side revocation fails
-        }
-
-        const isSsoSession = !!sessionStorage.getItem('sw-sso-session');
-
-        if (!loginConfig.useDefault || isSsoSession) {
-            clearAuthState();
-            notifyOnLogoutListener();
-            sessionStorage.setItem('sw-sso-session', 'true');
-            navigateToFn(`${loginConfig.url}&usePromptLogin=1`);
-            return;
-        }
-
-        sessionStorage.removeItem('sw-sso-session');
-        logout();
     }
 
     /**
@@ -779,13 +1052,5 @@ export default function createLoginService(
      */
     function getStorage(): CookieStorage {
         return cookieStorage;
-    }
-
-    function getLoginTemplateConfig(): Promise<LoginConfig> {
-        return httpClient
-            .get<LoginConfig>('/oauth/sso/config', {
-                baseURL: context.apiPath!,
-            })
-            .then((response) => response.data);
     }
 }

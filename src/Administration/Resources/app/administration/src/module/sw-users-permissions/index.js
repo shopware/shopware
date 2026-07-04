@@ -49,21 +49,22 @@ Shopware.Component.register(
     () => import('./view/sw-users-permissions-role-view-detailed'),
 );
 Shopware.Component.register(
-    'sw-sso-users-permission-user-detail',
-    () => import('./page/sw-sso-users-permission-user-detail'),
-);
-Shopware.Component.register('sw-user-sso-invitation-modal', () => import('./components/sw-user-sso-invitation-modal'));
-Shopware.Component.register('sw-user-sso-status-label', () => import('./components/sw-user-sso-status-label'));
-Shopware.Component.register(
-    'sw-user-sso-access-key-create-modal',
-    () => import('./components/sw-user-sso-access-key-create-modal'),
-);
-Shopware.Component.register(
     'sw-users-permissions-role-mcp-reference-modal',
     () => import('./component/sw-users-permissions-role-mcp-reference-modal'),
 );
+Shopware.Component.register('sw-user-sso-status-label', () => import('./components/sw-user-sso-status-label'));
 
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
+
+if (Shopware.Feature.isActive('ADMIN_AUTH')) {
+    /**
+     * @private
+     */
+    Shopware.Component.register(
+        'sw-users-permissions-user-sso-managed-roles',
+        () => import('./components/sw-users-permissions-user-sso-managed-roles'),
+    );
+}
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-users-permissions', {
@@ -90,14 +91,6 @@ Shopware.Module.register('sw-users-permissions', {
         'user.detail': {
             component: 'sw-users-permissions-user-detail',
             path: 'user.detail/:id?',
-            meta: {
-                parentPath: 'sw.users.permissions.index',
-                privilege: 'users_and_permissions.viewer',
-            },
-        },
-        'user.sso.detail': {
-            component: 'sw-sso-users-permission-user-detail',
-            path: 'user.sso.detail/:id?',
             meta: {
                 parentPath: 'sw.users.permissions.index',
                 privilege: 'users_and_permissions.viewer',

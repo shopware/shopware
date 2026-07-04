@@ -14,6 +14,7 @@ import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
+import type AdminAuthApiService from 'src/core/service/api/admin-auth.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
@@ -136,8 +137,6 @@ import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-pr
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
-import type SsoSettingsService from './core/service/api/sso-settings.service';
-import type SsoInvitationService from './core/service/api/sso-invitation.service';
 import type CMSConstant from './module/sw-cms/constant/sw-cms.constant';
 import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.constant';
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
@@ -237,6 +236,7 @@ declare global {
      */
     interface ServiceContainer extends SubContainer<'service'> {
         acl: AclService;
+        adminAuthService: AdminAuthApiService;
         appAclService: $TSFixMe;
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
@@ -293,8 +293,6 @@ declare global {
         userService: UserApiService;
         userConfigService: UserConfigService;
         validationService: $TSFixMe;
-        ssoSettingsService: SsoSettingsService;
-        ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
         productTypeService: ProductTypeApiService;
         consentApiService: ConsentApiService;

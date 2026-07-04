@@ -165,6 +165,21 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
+## Removal of the experimental admin SSO
+
+The experimental single sign-on login for the Administration (`Shopware\Core\Framework\Sso`, all `@internal`) has been removed. This affects you only if you configured the `shopware.admin_login` section in your `shopware.yaml` — remove that section, it is no longer recognized.
+
+Removed surface:
+
+- API routes `/api/oauth/sso/config`, `/api/oauth/sso/auth`, `/api/oauth/sso/code`, `/api/_action/sso/invite-user` and `/api/_info/is-sso`.
+- The OAuth grant type `shopware_grant` on `/api/oauth/token`; the `password`, `refresh_token` and `client_credentials` grants are unaffected.
+- The `oauth_user` table (dropped with the destructive migration phase).
+- Administration: the `sw-sso-error` module, the SSO user detail page and invitation components, the `ssoSettingsService`/`ssoInvitationService` services, and `loginService.logoutSso()`/`loginService.getLoginTemplateConfig()`.
+
+Admin users log in with username and password again. Users that were provisioned through SSO keep working, as they are regular admin users; set a password for them via the password recovery flow if needed.
+
+A replacement providing OIDC single sign-on with configurable group-to-role mapping, passkeys (WebAuthn) and multi-factor authentication is available behind the `ADMIN_AUTH` feature flag — see "New experimental admin authentication (`ADMIN_AUTH`)" in the Core section.
+
 ## Reference-based Admin API detail routes use one-to-one associations
 
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
@@ -175,6 +190,54 @@ Previously, these routes could return unrelated records or fail because the unde
 # Core
 
 <details>
+
+## New experimental admin authentication (`ADMIN_AUTH`)
+
+Shopware now ships a native, experimental authentication stack for the Administration under `Shopware\Core\Framework\AdminAuth`: OIDC single sign-on with configurable group-to-role mapping, passkeys (WebAuthn), TOTP and recovery codes with a multi-factor policy. It replaces the removed experimental admin SSO (see "Removal of the experimental admin SSO" in the API section).
+
+The feature is disabled by default. Enable it by setting the major feature flag in the environment of your installation:
+
+```bash
+ADMIN_AUTH=1
+```
+
+With the flag active:
+
+- Admins enroll authenticator apps, passkeys and recovery codes in their profile ("Security" tab). Once a second factor is enrolled, the admin login shows a two-factor step.
+- OIDC providers are managed under *Settings > System > Admin authentication*, or declared in the new `shopware.admin_auth` configuration section:
+
+```yaml
+shopware:
+    admin_auth:
+        admin_ui: true                 # false hides the provider management UI entirely
+        password_login: true           # false disables the classic username/password login
+        mfa:
+            required: 'none'           # 'none' | 'admins' | 'all'
+            methods:
+                totp: true
+                webauthn: true
+                recovery_codes: true
+        providers:                     # non-empty: YAML wins, database providers are ignored
+            corp_okta:
+                label: 'Corporate SSO'
+                client_id: '%env(OKTA_CLIENT_ID)%'
+                client_secret: '%env(OKTA_CLIENT_SECRET)%'
+                discovery_url: 'https://idp.example.com/.well-known/openid-configuration'
+                # or explicit endpoints: issuer / authorization_endpoint / token_endpoint / jwks_uri
+                scopes: ['openid', 'profile', 'email']
+                auto_provision: false
+                groups_claim: 'groups'
+                role_mapping:          # IdP group => list of acl_role names
+                    idp-admins: ['admin']
+                    idp-catalog: ['catalog-editor']
+                default_roles: []
+```
+
+- The group-to-role mapping is synced authoritatively on every login: roles granted by the sync are revoked again when the user loses the IdP group; manually assigned roles are never touched. The reserved pseudo-role `admin` toggles the `user.admin` flag (a manually set admin flag is never revoked).
+- As soon as at least one provider is declared in YAML, database providers are ignored, the settings UI becomes read-only and API writes to `admin_auth_provider` are rejected. `admin_ui: false` additionally removes the module from the settings overview.
+- `password_login: false` disables the username/password login — set up a working SSO provider or passkeys first.
+
+Extension points: custom first and second factors will be supported by implementing `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\PrimaryVerifierInterface` or `Shopware\Core\Framework\AdminAuth\OAuth\Verifier\SecondFactorVerifierInterface` and tagging the service with `shopware.admin_auth.primary_verifier` or `shopware.admin_auth.second_factor_verifier`. While the feature is experimental the whole namespace, including these interfaces, is `@internal`; the verifier interfaces are planned to become the public extension surface when the feature stabilizes.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 

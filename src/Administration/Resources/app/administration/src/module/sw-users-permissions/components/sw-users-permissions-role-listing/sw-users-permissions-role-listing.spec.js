@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
+async function createWrapper(privileges = [], deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-role-listing', {
             sync: true,
@@ -30,11 +30,6 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                     searchRankingService: {
                         isValidTerm: (term) => {
                             return term && term.trim().length >= 1;
-                        },
-                    },
-                    ssoSettingsService: {
-                        isSso: () => {
-                            return Promise.resolve(isSso);
                         },
                     },
                 },
@@ -164,7 +159,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
                 'users_and_permissions.deleter',
                 'users_and_permissions.editor',
             ],
-            { isSso: false },
             deleteFunction,
         );
 
@@ -189,38 +183,5 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
         expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeTruthy();
         expect(deleteFunction).not.toHaveBeenCalled();
-    });
-
-    it('should delete role without pw confirmation', async () => {
-        const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
-        wrapper = await createWrapper(
-            [
-                'users_and_permissions.deleter',
-                'users_and_permissions.editor',
-            ],
-            { isSso: true },
-            deleteFunction,
-        );
-
-        await wrapper.setData({
-            roles: [
-                {
-                    id: 'anyId',
-                    name: 'anyName',
-                },
-            ],
-        });
-
-        await flushPromises();
-
-        const contextMenuItemDelete = wrapper.find('.sw-users-permissions-role-listing__context-menu-delete');
-        await contextMenuItemDelete.trigger('click');
-        await flushPromises();
-
-        const confirmButton = wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button');
-        await confirmButton.trigger('click');
-        await flushPromises();
-
-        expect(deleteFunction).toHaveBeenCalled();
     });
 });

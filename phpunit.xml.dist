@@ -141,6 +141,7 @@
             <file>tests/integration/Core/Framework/ApiRoutesHaveASchemaTest.php</file>
             <file>tests/integration/Core/Framework/KernelTest.php</file>
             <directory>tests/integration/Core/Framework/Adapter</directory>
+            <directory>tests/integration/Core/Framework/AdminAuth</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
@@ -167,7 +168,6 @@
             <directory>tests/integration/Core/Framework/Rule</directory>
             <directory>tests/integration/Core/Framework/Script</directory>
             <directory>tests/integration/Core/Framework/Seo</directory>
-            <directory>tests/integration/Core/Framework/Sso</directory>
             <directory>tests/integration/Core/Framework/Store</directory>
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>

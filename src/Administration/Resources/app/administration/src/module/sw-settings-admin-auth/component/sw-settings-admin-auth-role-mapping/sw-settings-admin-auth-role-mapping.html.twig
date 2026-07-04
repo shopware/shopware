@@ -1,0 +1,70 @@
+{% block sw_settings_admin_auth_role_mapping %}
+<div class="sw-settings-admin-auth-role-mapping">
+    {% block sw_settings_admin_auth_role_mapping_sync_banner %}
+    <mt-banner
+        class="sw-settings-admin-auth-role-mapping__sync-banner"
+        variant="attention"
+    >
+        {{ $tc('sw-settings-admin-auth.roleMapping.authoritativeSyncHint') }}
+    </mt-banner>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_role_mapping_rows %}
+    <div
+        v-for="row in rows"
+        :key="row.id"
+        class="sw-settings-admin-auth-role-mapping__row"
+    >
+        {% block sw_settings_admin_auth_role_mapping_row_group %}
+        <mt-text-field
+            class="sw-settings-admin-auth-role-mapping__group"
+            :model-value="row.group"
+            :label="$t('sw-settings-admin-auth.roleMapping.groupLabel')"
+            :placeholder="$t('sw-settings-admin-auth.roleMapping.groupPlaceholder')"
+            :disabled="disabled"
+            @update:model-value="onGroupChange(row, $event)"
+        />
+        {% endblock %}
+
+        {% block sw_settings_admin_auth_role_mapping_row_roles %}
+        <sw-multi-select
+            class="sw-settings-admin-auth-role-mapping__roles"
+            :value="row.roles"
+            :options="roleOptions"
+            :label="$t('sw-settings-admin-auth.roleMapping.rolesLabel')"
+            :disabled="disabled"
+            @update:value="onRolesChange(row, $event)"
+        />
+        {% endblock %}
+
+        {% block sw_settings_admin_auth_role_mapping_row_remove %}
+        <mt-button
+            class="sw-settings-admin-auth-role-mapping__remove-action"
+            variant="critical"
+            ghost
+            square
+            :disabled="disabled"
+            :aria-label="$t('sw-settings-admin-auth.roleMapping.removeRow')"
+            @click="onRemoveRow(row.id)"
+        >
+            <mt-icon
+                name="regular-trash"
+                size="16px"
+            />
+        </mt-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_role_mapping_add %}
+    <mt-button
+        class="sw-settings-admin-auth-role-mapping__add-action"
+        variant="secondary"
+        :disabled="disabled"
+        @click="onAddRow"
+    >
+        {{ $tc('sw-settings-admin-auth.roleMapping.addRow') }}
+    </mt-button>
+    {% endblock %}
+</div>
+{% endblock %}

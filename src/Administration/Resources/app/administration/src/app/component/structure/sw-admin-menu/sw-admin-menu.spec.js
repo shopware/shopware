@@ -630,15 +630,24 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.find('.sw-admin-menu_flyout-holder').exists()).toBe(true);
     });
 
-    it('should call logoutSso and clear stores on logout', async () => {
+    it('should call logout and clear stores on logout', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.loginService.logoutSso = jest.fn().mockResolvedValue(undefined);
+        const originalFetch = global.fetch;
+        global.fetch = jest.fn().mockResolvedValue({ ok: true });
+        wrapper.vm.loginService.getToken = jest.fn().mockReturnValue('aCcEsS_tOkEn');
+        wrapper.vm.loginService.logout = jest.fn();
 
         await wrapper.vm.onLogoutUser();
 
-        expect(wrapper.vm.loginService.logoutSso).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith(
+            expect.stringContaining('/_action/user/logout'),
+            expect.objectContaining({ method: 'POST' }),
+        );
+        expect(wrapper.vm.loginService.logout).toHaveBeenCalledTimes(1);
+
+        global.fetch = originalFetch;
     });
 
     it('should not show icons in flyout menu items', async () => {

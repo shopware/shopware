@@ -119,6 +119,11 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('minSearchTermLength', $settings);
         static::assertSame(2, $settings['minSearchTermLength']);
 
+        if (Feature::isActive('ADMIN_AUTH')) {
+            static::assertArrayHasKey('adminAuth', $settings);
+            static::assertSame(['managedByConfig' => false, 'adminUiDisabled' => false], $settings['adminAuth']);
+        }
+
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
         static::assertIsArray($inAppPurchases);
@@ -165,6 +170,49 @@ class InfoControllerTest extends TestCase
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertSame(['webhook', 'async', 'low_priority'], $data['adminWorker']['transports']);
+    }
+
+    public function testConfigExposesYamlManagedAdminAuthProviders(): void
+    {
+        $content = $this->createController(adminAuthProviders: ['corp_okta' => ['label' => 'Corporate SSO']])
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+            ->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertSame(
+            ['managedByConfig' => true, 'adminUiDisabled' => true],
+            $data['settings']['adminAuth'] ?? null
+        );
+    }
+
+    public function testConfigExposesDisabledAdminAuthUi(): void
+    {
+        $content = $this->createController(adminAuthUi: false)
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+            ->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertSame(
+            ['managedByConfig' => false, 'adminUiDisabled' => true],
+            $data['settings']['adminAuth'] ?? null
+        );
+    }
+
+    #[DisabledFeatures(['ADMIN_AUTH'])]
+    public function testConfigOmitsAdminAuthWhenTheFeatureIsInactive(): void
+    {
+        $content = $this->createController()
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+            ->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayNotHasKey('adminAuth', $data['settings']);
     }
 
     public function testConfigExtension(): void
@@ -249,9 +297,13 @@ class InfoControllerTest extends TestCase
 
     /**
      * @param list<string> $adminWorkerTransports
+     * @param array<string, array<string, mixed>> $adminAuthProviders
      */
-    private function createController(array $adminWorkerTransports = ['slow']): InfoController
-    {
+    private function createController(
+        array $adminWorkerTransports = ['slow'],
+        array $adminAuthProviders = [],
+        bool $adminAuthUi = true,
+    ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
             'shopware.filesystem.private_allowed_extensions' => false,
@@ -264,6 +316,8 @@ class InfoControllerTest extends TestCase
             'shopware.media.enable_url_upload_feature' => true,
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
+            'shopware.admin_auth.providers' => $adminAuthProviders,
+            'shopware.admin_auth.admin_ui' => $adminAuthUi,
         ]);
 
         return new InfoController(

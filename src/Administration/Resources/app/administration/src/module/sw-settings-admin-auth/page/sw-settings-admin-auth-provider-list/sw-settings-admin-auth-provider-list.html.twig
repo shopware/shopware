@@ -1,0 +1,109 @@
+{% block sw_settings_admin_auth_provider_list %}
+<sw-page class="sw-settings-admin-auth-provider-list">
+    {% block sw_settings_admin_auth_provider_list_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings-admin-auth.list.title') }}
+            <span
+                v-if="!isLoading && providers"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ providers.total }})
+            </span>
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_provider_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <mt-button
+            v-if="!managedByConfig"
+            v-tooltip="{
+                message: $t('sw-privileges.tooltip.warning'),
+                disabled: acl.can('admin_auth.creator'),
+                showOnDisabledElements: true,
+            }"
+            class="sw-settings-admin-auth-provider-list__create-action"
+            variant="primary"
+            :disabled="!acl.can('admin_auth.creator')"
+            @click="$router.push({ name: 'sw.settings.admin.auth.create' })"
+        >
+            {{ $tc('sw-settings-admin-auth.list.createButton') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_admin_auth_provider_list_content %}
+    <template #content>
+        {% block sw_settings_admin_auth_provider_list_tabs %}
+        <sw-tabs
+            class="sw-settings-admin-auth-provider-list__tabs"
+            position-identifier="sw-settings-admin-auth"
+        >
+            <sw-tabs-item :route="{ name: 'sw.settings.admin.auth.index' }">
+                {{ $tc('sw-settings-admin-auth.tabs.methods') }}
+            </sw-tabs-item>
+            <sw-tabs-item :route="{ name: 'sw.settings.admin.auth.providers' }">
+                {{ $tc('sw-settings-admin-auth.tabs.providers') }}
+            </sw-tabs-item>
+        </sw-tabs>
+        {% endblock %}
+
+        <div class="sw-settings-admin-auth-provider-list__content">
+            {% block sw_settings_admin_auth_provider_list_managed_banner %}
+            <mt-banner
+                v-if="managedByConfig"
+                class="sw-settings-admin-auth-provider-list__managed-banner"
+                variant="info"
+                :title="$t('sw-settings-admin-auth.managed.bannerTitle')"
+            >
+                {{ $tc('sw-settings-admin-auth.managed.bannerText') }}
+            </mt-banner>
+            {% endblock %}
+
+            <template v-if="!managedByConfig">
+                {% block sw_settings_admin_auth_provider_list_empty_state %}
+                <sw-empty-state
+                    v-if="!isLoading && (!providers || providers.total === 0)"
+                    :title="$t('sw-settings-admin-auth.list.emptyState')"
+                    :subline="$t('sw-settings-admin-auth.list.emptySubline')"
+                    icon="regular-lock"
+                />
+                {% endblock %}
+
+                {% block sw_settings_admin_auth_provider_list_grid %}
+                <sw-entity-listing
+                    v-else
+                    class="sw-settings-admin-auth-provider-list__grid"
+                    :repository="providerRepository"
+                    :data-source="providers"
+                    :columns="columns"
+                    :is-loading="isLoading"
+                    :allow-edit="acl.can('admin_auth.editor')"
+                    :allow-delete="acl.can('admin_auth.deleter')"
+                    :allow-inline-edit="false"
+                    :disable-data-fetching="true"
+                    :sort-by="sortBy"
+                    :sort-direction="sortDirection"
+                    detail-route="sw.settings.admin.auth.detail"
+                    @delete-item-finish="loadProviders"
+                >
+                    {% block sw_settings_admin_auth_provider_list_column_active %}
+                    <template #column-active="{ item }">
+                        <span
+                            class="sw-settings-admin-auth-provider-list__status"
+                        >
+                            {{ item.active
+                            ? $tc('sw-settings-admin-auth.list.statusActive')
+                            : $tc('sw-settings-admin-auth.list.statusInactive') }}
+                        </span>
+                    </template>
+                    {% endblock %}
+                </sw-entity-listing>
+                {% endblock %}
+            </template>
+        </div>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

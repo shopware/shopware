@@ -106,3 +106,8 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      - name: ADMIN_AUTH
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental: Native admin authentication — OIDC SSO with group-to-role mapping, passkeys (WebAuthn), TOTP and recovery codes with MFA policies. Replaces the removed experimental SSO."

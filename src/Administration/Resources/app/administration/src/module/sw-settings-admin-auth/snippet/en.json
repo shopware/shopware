@@ -1,0 +1,124 @@
+{
+  "sw-settings-admin-auth": {
+    "general": {
+      "mainMenuItemGeneral": "Admin authentication",
+      "description": "Manage login methods, the multi-factor policy and OIDC providers for the administration login."
+    },
+    "tabs": {
+      "methods": "Methods",
+      "providers": "Providers"
+    },
+    "methods": {
+      "cardTitle": "Login methods",
+      "cardSubtitle": "Control which login methods are available and how they may be used.",
+      "yamlGateHint": "Methods disabled in the shopware.admin_auth configuration file stay off no matter what is enabled here.",
+      "enabled": "Enabled",
+      "primary": "Primary",
+      "secondFactor": "Second factor",
+      "fallback": "Fallback",
+      "types": {
+        "password": {
+          "name": "Password",
+          "description": "Classic username and password sign-in."
+        },
+        "webauthn": {
+          "name": "Passkey",
+          "description": "Passwordless sign-in with a passkey or security key (WebAuthn)."
+        },
+        "totp": {
+          "name": "Authenticator app (TOTP)",
+          "description": "Time-based one-time codes from an authenticator app, used as a second factor."
+        },
+        "recovery_codes": {
+          "name": "Recovery codes",
+          "description": "One-time backup codes used as a fallback second factor."
+        }
+      },
+      "loadError": "Could not load the login methods.",
+      "saveSuccess": "Login methods saved.",
+      "saveError": "Could not save the login methods."
+    },
+    "policy": {
+      "cardTitle": "Multi-factor authentication policy",
+      "cardSubtitle": "Control how the second-factor challenge behaves during login.",
+      "enforcementYamlHint": "Who has to complete a second factor is enforced via the shopware.admin_auth.mfa configuration file.",
+      "ttlLabel": "Challenge lifetime (seconds)",
+      "ttlHelp": "How long a pending second-factor challenge stays valid before it expires."
+    },
+    "list": {
+      "title": "OIDC providers",
+      "createButton": "Add provider",
+      "emptyState": "No OIDC providers configured yet",
+      "emptySubline": "Add an OpenID Connect provider to let admins sign in with an external identity provider.",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "loadError": "Could not load the providers.",
+      "columns": {
+        "name": "Name",
+        "active": "Status",
+        "priority": "Priority"
+      }
+    },
+    "managed": {
+      "bannerTitle": "Managed via configuration file",
+      "bannerText": "Providers are declared in the shopware.admin_auth.providers configuration file. Database providers are ignored and cannot be edited here."
+    },
+    "detail": {
+      "title": "OIDC provider",
+      "newTitle": "New OIDC provider",
+      "loadError": "Could not load the provider.",
+      "saveError": "Could not save the provider.",
+      "generalCard": "General",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Company SSO",
+      "activeLabel": "Active",
+      "activeHelp": "Inactive providers are hidden from the login screen and cannot be used.",
+      "priorityLabel": "Priority",
+      "priorityHelp": "Higher numbers appear first on the login screen.",
+      "clientCard": "Client credentials",
+      "clientCardSubtitle": "The OAuth2 client registered with your identity provider.",
+      "clientIdLabel": "Client ID",
+      "clientIdPlaceholder": "Client ID from your provider",
+      "clientSecretLabel": "Client secret",
+      "clientSecretPlaceholder": "Paste the client secret",
+      "clientSecretKeepPlaceholder": "Leave empty to keep the stored secret",
+      "clientSecretHelpText": "Stored encrypted. Leave empty when editing to keep the current secret.",
+      "endpointsCard": "Provider endpoints",
+      "endpointsCardSubtitle": "Where Shopware talks to your identity provider.",
+      "discoveryUrlLabel": "Discovery URL",
+      "discoveryUrlPlaceholder": "https://idp.example.com/.well-known/openid-configuration",
+      "discoverButton": "Auto-discover",
+      "discoverHint": "Enter the issuer or discovery URL and click Auto-discover to fill the endpoints from the provider's OpenID configuration.",
+      "discoverMissingUrl": "Enter the provider's discovery URL first.",
+      "discoverSuccess": "Endpoints discovered and filled in.",
+      "discoverError": "Could not discover the provider configuration.",
+      "issuerLabel": "Issuer",
+      "issuerHelp": "The id_token issuer claim must match this value.",
+      "authorizationEndpointLabel": "Authorization endpoint",
+      "tokenEndpointLabel": "Token endpoint",
+      "jwksUriLabel": "JWKS URI",
+      "scopesLabel": "Scopes",
+      "scopesHelp": "The OAuth2 scopes requested from the provider.",
+      "provisioningCard": "Provisioning & roles",
+      "autoProvisionLabel": "Auto-provision users",
+      "autoProvisionHelp": "Create a new admin user automatically when the verified email has no match.",
+      "autoProvisionWarning": "Anyone who can sign in to your identity provider with a verified email will get an account. Only enable this for trusted, internal providers.",
+      "groupsClaimLabel": "Groups claim",
+      "groupsClaimPlaceholder": "e.g. groups",
+      "groupsClaimHelp": "The id_token claim that contains the user's groups. Required for the role mapping below.",
+      "defaultRolesLabel": "Default roles",
+      "defaultRolesHelp": "Roles every user of this provider receives on login, regardless of their groups.",
+      "adminPseudoRoleLabel": "Administrator (admin flag)"
+    },
+    "roleMapping": {
+      "cardTitle": "Group to role mapping",
+      "cardSubtitle": "Map identity provider groups to Shopware ACL roles.",
+      "authoritativeSyncHint": "This mapping is synced authoritatively on every login: roles granted by the sync are removed again when the user loses the group. Manually assigned roles are never touched.",
+      "groupLabel": "Identity provider group",
+      "groupPlaceholder": "e.g. idp-catalog",
+      "rolesLabel": "Shopware roles",
+      "addRow": "Add mapping",
+      "removeRow": "Remove mapping"
+    }
+  }
+}

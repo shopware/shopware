@@ -58,6 +58,17 @@
                 >
                     {{ $t('sw-profile.tabPrivacyPreferences.title') }}
                 </sw-tabs-item>
+
+                {% block sw_profile_index_tabs_item_security %}
+                <sw-tabs-item
+                    v-if="showSecurityTab"
+                    class="sw-profile-index__tab-security"
+                    :route="{ name: 'sw.profile.index.security' }"
+                    :title="$t('sw-profile.tabSecurity.title')"
+                >
+                    {{ $t('sw-profile.tabSecurity.title') }}
+                </sw-tabs-item>
+                {% endblock %}
             </sw-tabs>
             {% endblock %}
 

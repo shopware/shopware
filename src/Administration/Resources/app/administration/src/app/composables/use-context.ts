@@ -37,6 +37,10 @@ export interface ContextState {
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;
                 minSearchTermLength: number;
+                adminAuth?: {
+                    managedByConfig: boolean;
+                    adminUiDisabled: boolean;
+                };
             };
             version: null | string;
             versionRevision: null | string;

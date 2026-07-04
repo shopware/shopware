@@ -49,6 +49,16 @@
                     :title="$t('sw-users-permissions.users.user-detail.labelCard')"
                     :is-loading="isLoading"
                 >
+                    {% block sw_settings_user_detail_content_sso_managed %}
+                    <sw-users-permissions-user-sso-managed-roles
+                        v-if="ssoProvisioned"
+                        class="sw-settings-user-detail__sso-managed"
+                        :provider-labels="ssoState.providerLabels"
+                        :roles="ssoManagedRoles"
+                        :sso-managed-admin="ssoState.ssoManagedAdmin"
+                    />
+                    {% endblock %}
+
                     {% block sw_settings_user_detail_content_grid %}
                     <div
                         v-if="user"
@@ -110,7 +120,7 @@
                             class="sw-settings-user-detail__grid-password"
                             :model-value="user.password"
                             name="sw-field--user-password"
-                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                            :disabled="ssoProvisioned || !acl.can('users_and_permissions.editor') || undefined"
                             :label="$t('sw-users-permissions.users.user-detail.labelPassword')"
                             :error="userPasswordError"
                             autocomplete="new-password"
@@ -208,7 +218,7 @@
                     >
                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                         <sw-entity-multi-select
-                            v-model:entity-collection="user.aclRoles"
+                            v-model:entity-collection="editableAclRoles"
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $t('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),

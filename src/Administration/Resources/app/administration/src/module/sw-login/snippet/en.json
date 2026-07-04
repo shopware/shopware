@@ -14,7 +14,6 @@
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
-      "buttonSsoLogin": "Log in with Shopware",
       "messageUnsupportedGrantType": "Authorisation grant type not supported by authorisation server.",
       "messageInvalidRequest": "Invalid request.",
       "messageInvalidClient": "Client authentication failed.",
@@ -26,7 +25,26 @@
       "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
       "messageAuthThrottled": "Too many login attempts. Please wait {seconds} seconds before trying to log in again.",
       "forgottenPasswordLink": "Forgot your password?",
-      "orContinueWith": "Or continue with"
+      "orContinueWith": "Or continue with",
+      "buttonPasskeyLogin": "Sign in with passkey",
+      "passkeyError": "Passkey sign-in failed. Please try again.",
+      "ssoErrorGeneric": "Single sign-on failed. Please try again or use a different login method.",
+      "ssoErrorInvalidState": "The single sign-on request could not be validated. Please try again.",
+      "ssoErrorMfaRequired": "Your account requires a second factor. Please log in with your username and password to complete two-factor authentication."
+    },
+    "mfa": {
+      "headline": "Two-factor authentication",
+      "hint": "Enter the 6-digit code from your authenticator app to finish signing in.",
+      "codeLabel": "Authentication code",
+      "codePlaceholder": "123456",
+      "recoveryCodeLabel": "Recovery code",
+      "recoveryCodePlaceholder": "XXXX-XXXX",
+      "verifyButton": "Verify",
+      "cancelButton": "Back to login",
+      "useRecoveryCode": "Use a recovery code instead",
+      "useAuthenticatorApp": "Use authenticator app instead",
+      "usePasskeyButton": "Use passkey",
+      "invalidCode": "The code is invalid or has expired. Please try again."
     },
     "recovery" : {
       "info": {

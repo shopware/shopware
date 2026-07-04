@@ -30,7 +30,6 @@ async function createWrapper(
     options = {
         isNew: false,
     },
-    isSso = { isSso: false },
     roleSaveFunction = jest.fn(() => Promise.resolve()),
 ) {
     privilegeMappingEntries.forEach((mappingEntry) => privilegesService.addPrivilegeMappingEntry(mappingEntry));
@@ -99,11 +98,6 @@ async function createWrapper(
                     userService: {},
                     privileges: privilegesService,
                     appAclService: appAclService,
-                    ssoSettingsService: {
-                        isSso: () => {
-                            return Promise.resolve(isSso);
-                        },
-                    },
                 },
             },
         },
@@ -666,7 +660,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     isNew: true,
                 },
             },
-            { isSso: false },
             saveFunction,
         );
         await flushPromises();
@@ -682,28 +675,5 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         expect(passwordConfirmModal.exists()).toBeTruthy();
         expect(saveFunction).not.toHaveBeenCalled();
-    });
-
-    it('should save role without pw confirmation', async () => {
-        const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
-        wrapper = await createWrapper(
-            {
-                aclPrivileges: ['users_and_permissions.editor'],
-            },
-            {
-                options: {
-                    isNew: true,
-                },
-            },
-            { isSso: true },
-            saveFunction,
-        );
-        await flushPromises();
-
-        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
-        await saveButton.trigger('click');
-        await flushPromises();
-
-        expect(saveFunction).toHaveBeenCalled();
     });
 });

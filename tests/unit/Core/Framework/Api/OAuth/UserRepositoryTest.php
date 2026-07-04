@@ -8,10 +8,9 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\UserRepository;
-use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
-use Symfony\Component\Routing\RouterInterface;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(UserRepository::class)]
 class UserRepositoryTest extends TestCase
 {
-    public function testLoginWithDefaultLoginEnabledAndCorrectCredentials(): void
+    public function testLoginWithCorrectCredentials(): void
     {
         $username = 'my_username';
         $password = 'secure-test';
@@ -43,7 +42,7 @@ class UserRepositoryTest extends TestCase
         static::assertNotNull($response);
     }
 
-    public function testLoginWithDefaultLoginEnabledAndWrongPassword(): void
+    public function testLoginWithWrongPassword(): void
     {
         $username = 'my_username';
         $password = 'secure-test';
@@ -67,7 +66,7 @@ class UserRepositoryTest extends TestCase
         static::assertNull($response);
     }
 
-    public function testLoginWithDefaultLoginEnabledAndNoUserFound(): void
+    public function testLoginWithNoUserFound(): void
     {
         $username = 'my_username';
         $password = 'secure-test';
@@ -85,31 +84,7 @@ class UserRepositoryTest extends TestCase
         static::assertNull($response);
     }
 
-    public function testLoginWithDefaultLoginDisabled(): void
-    {
-        $username = 'my_username';
-        $password = 'secure-test';
-
-        $user = new UserEntity();
-        $user->setId(Uuid::randomBytes());
-        $user->setUsername($username);
-        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
-        $user->setActive(true);
-
-        $userRepository = $this->createUserRepository($user, false);
-
-        $clientEntity = $this->createMock(ClientEntityInterface::class);
-        $response = $userRepository->getUserEntityByUserCredentials(
-            $username,
-            $password,
-            'password',
-            $clientEntity
-        );
-
-        static::assertNull($response);
-    }
-
-    public function testLoginWithDefaultLoginEnabledAndInactiveUser(): void
+    public function testLoginWithInactiveUser(): void
     {
         $username = 'my_username';
         $password = 'secure-test';
@@ -133,7 +108,54 @@ class UserRepositoryTest extends TestCase
         static::assertNull($response);
     }
 
-    protected function createUserRepository(?UserEntity $user, bool $useDefault = true): UserRepository
+    public function testLoginIsRejectedWhenPasswordLoginIsDisabled(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user, passwordLoginEnabled: false);
+
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $this->createMock(ClientEntityInterface::class)
+        );
+
+        static::assertNull($response, 'password login must be rejected even with correct credentials');
+    }
+
+    #[DisabledFeatures(['ADMIN_AUTH'])]
+    public function testPasswordLoginConfigIsIgnoredWhenFeatureIsInactive(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
+
+        $userRepository = $this->createUserRepository($user, passwordLoginEnabled: false);
+
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $this->createMock(ClientEntityInterface::class)
+        );
+
+        static::assertNotNull($response, 'without the ADMIN_AUTH feature the config must have no effect');
+    }
+
+    protected function createUserRepository(?UserEntity $user, bool $passwordLoginEnabled = true): UserRepository
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $queryBuilder->method('select')->willReturnSelf();
@@ -151,22 +173,6 @@ class UserRepositoryTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        $loginConfigService = new LoginConfigService(
-            [
-                'use_default' => $useDefault,
-                'client_id' => 'client_id',
-                'client_secret' => 'client_secret',
-                'redirect_uri' => 'http://redirect.uri',
-                'base_url' => 'http://base.uri',
-                'authorize_path' => '/authorize',
-                'token_path' => '/token',
-                'jwks_path' => '/jwks.json',
-                'scope' => 'scope',
-                'register_url' => 'https://register.url',
-            ],
-            $this->createMock(RouterInterface::class)
-        );
-
-        return new UserRepository($connection, $loginConfigService);
+        return new UserRepository($connection, $passwordLoginEnabled);
     }
 }

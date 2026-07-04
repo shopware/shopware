@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\AdminAuth\Entity\OauthIdentity\AdminAuthOauthIdentityDefinition;
+use Shopware\Core\Framework\AdminAuth\Entity\UserMethod\AdminAuthUserMethodDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition;
 use Shopware\Core\Framework\Context;
@@ -108,6 +110,8 @@ class UserDefinition extends EntityDefinition
             new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, AclUserRoleDefinition::class, 'user_id', 'acl_role_id'),
             new OneToOneAssociationField('recoveryUser', 'id', 'user_id', UserRecoveryDefinition::class, false),
             (new StringField('store_token', 'storeToken'))->removeFlag(ApiAware::class),
+            (new OneToManyAssociationField('adminAuthOauthIdentities', AdminAuthOauthIdentityDefinition::class, 'user_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('adminAuthMethods', AdminAuthUserMethodDefinition::class, 'user_id', 'id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('createdOrders', OrderDefinition::class, 'created_by_id', 'id'),
             new OneToManyAssociationField('updatedOrders', OrderDefinition::class, 'updated_by_id', 'id'),
             new OneToManyAssociationField('createdCustomers', CustomerDefinition::class, 'created_by_id', 'id'),

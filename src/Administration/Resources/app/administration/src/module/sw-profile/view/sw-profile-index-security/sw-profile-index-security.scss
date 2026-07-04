@@ -1,0 +1,80 @@
+.sw-profile-index-security {
+    &__method {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--color-border-primary-default);
+
+        &:last-of-type {
+            border-bottom: 0 none;
+        }
+    }
+
+    &__method-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__method-label {
+        font-weight: 600;
+    }
+
+    &__method-meta {
+        color: var(--color-text-tertiary-default);
+        font-size: 12px;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    &__enroll-hint,
+    &__recovery-description {
+        margin-bottom: 16px;
+    }
+
+    &__qr {
+        margin-bottom: 16px;
+    }
+
+    &__qr-image {
+        width: 180px;
+        height: 180px;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 4px;
+    }
+
+    &__secret {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    &__secret-label {
+        color: var(--color-text-tertiary-default);
+        font-size: 12px;
+    }
+
+    &__secret-value {
+        word-break: break-all;
+    }
+
+    &__recovery-codes {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 8px;
+        margin: 16px 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__recovery-saved {
+        margin-top: 16px;
+    }
+}

@@ -5,33 +5,12 @@
         },
         "permissions": {},
         "sso": {
-            "inviteButtonLabel": "Benutzer einladen",
-            "invitationNotYetAccepted": "Dieser Benutzer hat Ihre Einladung noch nicht angenommen. Sobald er dies tut, werden die fehlenden Informationen automatisch ergänzt.",
-            "error": {
-                "cannotInviteUser": "Benutzer konnte nicht eingeladen werden."
-            },
             "user-listing": {
                 "status-label": {
                     "invited": "eingeladen",
                     "active": "aktiv",
                     "inactive": "deaktiviert"
                 }
-            },
-            "user-detail": {
-                "cards-title": {
-                    "information": "Informationen",
-                    "userinterface": "Benutzeroberfläche",
-                    "rolesAndPermission": "Rollen & Benutzerrechte"
-                }
-            },
-            "modal": {
-                "title": "Sende eine Einladung an einen Benutzer",
-                "labelEmail": "E-Mail",
-                "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
-                "labelLanguage": "Sprache der Benutzeroberfläche",
-                "placeholderLanguage": "Wähle eine Sprache aus ...",
-                "labelButtonInvite": "Benutzer einladen",
-                "accountPermissionHint": "Achte darauf, dass der Benutzer auch im Shopware Account zu Deinem Unternehmen gehört, damit er die Administration dieses Shops uneingeschränkt nutzen kann."
             }
         },
         "roles": {
@@ -223,6 +202,12 @@
                     "duplicateEmailErrorMessage": "Diese E-Mail-Adresse wird bereits verwendet."
                 }
             }
+        },
+        "ssoManaged": {
+            "banner": "Dieser Benutzer wird durch {providers} bereitgestellt. Vom Identity-Provider verwaltete Rollen werden bei jeder Anmeldung neu angewendet und können hier nicht bearbeitet werden.",
+            "fallbackProvider": "einen externen Identity-Provider",
+            "rolesLabel": "Über SSO verwaltet",
+            "adminBadge": "Administrator"
         }
     },
     "sw-privileges": {

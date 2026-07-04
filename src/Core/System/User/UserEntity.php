@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\AdminAuth\Entity\OauthIdentity\AdminAuthOauthIdentityCollection;
+use Shopware\Core\Framework\AdminAuth\Entity\UserMethod\AdminAuthUserMethodCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -84,6 +86,10 @@ class UserEntity extends Entity
     protected ?CustomerCollection $createdCustomers = null;
 
     protected ?CustomerCollection $updatedCustomers = null;
+
+    protected ?AdminAuthOauthIdentityCollection $adminAuthOauthIdentities = null;
+
+    protected ?AdminAuthUserMethodCollection $adminAuthMethods = null;
 
     protected string $timeZone;
 
@@ -357,6 +363,26 @@ class UserEntity extends Entity
     public function setUpdatedCustomers(CustomerCollection $updatedCustomers): void
     {
         $this->updatedCustomers = $updatedCustomers;
+    }
+
+    public function getAdminAuthOauthIdentities(): ?AdminAuthOauthIdentityCollection
+    {
+        return $this->adminAuthOauthIdentities;
+    }
+
+    public function setAdminAuthOauthIdentities(AdminAuthOauthIdentityCollection $adminAuthOauthIdentities): void
+    {
+        $this->adminAuthOauthIdentities = $adminAuthOauthIdentities;
+    }
+
+    public function getAdminAuthMethods(): ?AdminAuthUserMethodCollection
+    {
+        return $this->adminAuthMethods;
+    }
+
+    public function setAdminAuthMethods(AdminAuthUserMethodCollection $adminAuthMethods): void
+    {
+        $this->adminAuthMethods = $adminAuthMethods;
     }
 
     public function getLastUpdatedPasswordAt(): ?\DateTimeInterface

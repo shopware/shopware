@@ -14,7 +14,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'ssoSettingsService',
     ],
 
     emits: ['get-list'],
@@ -126,20 +125,9 @@ export default {
         },
 
         onConfirmDelete() {
-            this.isLoading = true;
             this.onCloseDeleteModal();
 
-            this.ssoSettingsService.isSso().then((response) => {
-                this.isLoading = false;
-
-                if (response.isSso) {
-                    this.deleteRole({ ...Shopware.Context.api });
-
-                    return;
-                }
-
-                this.isConfirmingPasswordModalOpen = true;
-            });
+            this.isConfirmingPasswordModalOpen = true;
         },
 
         deleteRole(context) {

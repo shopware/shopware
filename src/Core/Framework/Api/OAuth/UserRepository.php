@@ -7,8 +7,8 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('framework')]
@@ -24,7 +24,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly LoginConfigService $loginConfigService,
+        private readonly bool $passwordLoginEnabled = true,
     ) {
     }
 
@@ -35,8 +35,10 @@ class UserRepository implements UserRepositoryInterface
         string $grantType,
         ClientEntityInterface $clientEntity
     ): ?UserEntityInterface {
-        if ($this->loginConfigService->getConfig()?->useDefault === false) {
-            // never allow login via password if the default login is disabled (e.g. using SSO only)
+        if (!$this->passwordLoginEnabled && Feature::isActive('ADMIN_AUTH')) {
+            // With `shopware.admin_auth.password_login: false` the only password-based login is the
+            // admin_primary grant, which always consults the MFA policy. Rejecting the raw password
+            // grant here closes a second-factor bypass.
             return null;
         }
 

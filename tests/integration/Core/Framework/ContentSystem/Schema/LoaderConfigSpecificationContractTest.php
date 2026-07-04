@@ -20,15 +20,21 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  * registers ({@see DataLoaderProvider::getSources()}), never a hardcoded list, so a loader added without
  * a specification is caught here automatically.
  *
- * Three contract points (§7 of the introspection-reshape spec):
- * 1. the specification is well-formed (the §6 key rules, asserted directly — cheap, redundant with the
- *    build-time compiler pass);
+ * Contract points:
+ * 1. the specification is well-formed (asserted directly; cheap, and unlike the build-time compiler pass
+ *    it checks the container-built instance, not a constructor-less dry-run);
  * 2. a config assembled from the specification decodes through the source's serializer without a
  *    client-defect {@see ContentSystemException} (the `isConfigComplete()` mirror);
- * 3. every key the decoded config's `jsonSerialize()` emits is declared in the specification.
+ * 3. every key the decoded config's `jsonSerialize()` emits is declared in the specification;
+ * 4. every declared key fed a non-default value survives the decode/serialize round-trip, so a
+ *    specification key the serializer does not actually read fails here;
+ * 5. an undeclared probe key does not survive the round-trip, so no serializer passes unknown input
+ *    through into the config it serializes.
  *
- * A loader added without a specification, or a serializer key added without a specification entry, fails
- * here instead of silently degrading the introspection the endpoint serves.
+ * Known blind spot: a serializer key that is missing from the specification stays invisible here as long
+ * as the config omits it at its default value (the module convention), because a config assembled from
+ * the specification can only ever feed declared keys. That direction is guarded by the per-loader
+ * configSpecification() declarations, not by this test.
  *
  * @internal
  */
@@ -131,6 +137,67 @@ class LoaderConfigSpecificationContractTest extends TestCase
         }
     }
 
+    #[TestDox('every declared config key fed a non-default value survives the serializer round-trip')]
+    public function testEveryDeclaredConfigKeySurvivesTheSerializerRoundTrip(): void
+    {
+        $sources = $this->dataLoaderProvider()->getSources();
+        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+
+        $serializerProvider = $this->serializerProvider();
+
+        foreach ($sources as $source) {
+            $spec = $this->specificationFor($source);
+            $config = $this->assembleFullyPopulatedConfig($spec, $source);
+
+            $decoded = $serializerProvider->decode($source, $config);
+
+            $missing = array_values(array_diff(array_keys($config), array_keys($decoded->jsonSerialize())));
+
+            static::assertSame(
+                [],
+                $missing,
+                \sprintf(
+                    'Source "%s" declares config key(s) its serializer does not read back: %s',
+                    $source,
+                    implode(', ', $missing),
+                ),
+            );
+        }
+    }
+
+    #[TestDox('no source passes an undeclared config key through its serializer')]
+    public function testNoSourcePassesAnUndeclaredConfigKeyThroughItsSerializer(): void
+    {
+        $sources = $this->dataLoaderProvider()->getSources();
+        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+
+        $serializerProvider = $this->serializerProvider();
+
+        foreach ($sources as $source) {
+            $spec = $this->specificationFor($source);
+            $config = $this->assembleFullyPopulatedConfig($spec, $source);
+            $config['contractUnknownProbe'] = 'contract-probe-value';
+
+            try {
+                $decoded = $serializerProvider->decode($source, $config);
+            } catch (ContentSystemException $e) {
+                // Rejecting the unknown key outright also proves it is not passed through.
+                static::assertTrue(
+                    ContentSystemException::isClientDefect($e),
+                    \sprintf('Source "%s" failed on an unknown config key with a non-client-defect exception: %s', $source, $e->getMessage()),
+                );
+
+                continue;
+            }
+
+            static::assertArrayNotHasKey(
+                'contractUnknownProbe',
+                $decoded->jsonSerialize(),
+                \sprintf('Source "%s" passes an undeclared input key through its serializer.', $source),
+            );
+        }
+    }
+
     /**
      * The `isConfigComplete()` mirror: each required key filled with a type-appropriate dummy, plus each
      * key that declares a default set to that default. A null default is applied as absence, not a literal
@@ -163,7 +230,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
      * A fully-populated config: required keys with a dummy, plus every optional key with a decodable
      * NON-default value, so each config's `jsonSerialize()` actually emits the key (a config omits a key
      * whose value equals its default). This forces the widest set of serialized keys for the
-     * subset-of-specification check.
+     * subset-of-specification and round-trip-survival checks.
      *
      * @return array<string, mixed>
      */

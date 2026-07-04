@@ -134,6 +134,52 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         (new ContentSystemDataLoaderCompilerPass())->process($container);
     }
 
+    #[TestDox('throws when a config key declares a type outside the declarable set')]
+    public function testProcessThrowsForUnknownKeyType(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(UnknownKeyTypeLoader::class, $this->taggedLoader(UnknownKeyTypeLoader::class));
+
+        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyUnknownType(
+            UnknownKeyTypeLoader::class,
+            'payload',
+            'json',
+            ConfigKeySpecification::TYPES
+        ));
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('throws when a required config key declares a default')]
+    public function testProcessThrowsForRequiredKeyWithDefault(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(RequiredKeyWithDefaultLoader::class, $this->taggedLoader(RequiredKeyWithDefaultLoader::class));
+
+        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
+            RequiredKeyWithDefaultLoader::class,
+            'property',
+            'a required key must not declare a default (required means: no default and the loader cannot produce without it)'
+        ));
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('throws when a list<string> default contains a non-string element')]
+    public function testProcessThrowsForMixedListDefault(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(MixedListDefaultLoader::class, $this->taggedLoader(MixedListDefaultLoader::class));
+
+        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
+            MixedListDefaultLoader::class,
+            'associations',
+            'the default value of PHP type "array" does not match the declared type "list<string>"'
+        ));
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
     #[TestDox('throws when a config key declares a default while hasDefault is false')]
     public function testProcessThrowsForDefaultWithoutHasDefault(): void
     {
@@ -325,6 +371,81 @@ class NonStringPropertyReferenceLoader extends AbstractContentDataLoader
     {
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'integer', required: true),
+        ]);
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class UnknownKeyTypeLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_unknown_key_type';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('payload', ConfigKeyKind::Literal, 'json', required: false),
+        ]);
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class RequiredKeyWithDefaultLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_required_key_with_default';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true, hasDefault: true, default: 'cover'),
+        ]);
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class MixedListDefaultLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_mixed_list_default';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: ['media', 42]),
         ]);
     }
 

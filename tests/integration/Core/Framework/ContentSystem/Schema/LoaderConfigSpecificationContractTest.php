@@ -64,6 +64,15 @@ class LoaderConfigSpecificationContractTest extends TestCase
 
                 static::assertNotSame('loader', $key->name, \sprintf('Reserved key name "loader" used in %s.', $label));
                 static::assertNotSame('config', $key->name, \sprintf('Reserved key name "config" used in %s.', $label));
+                static::assertContains(
+                    $key->type,
+                    ConfigKeySpecification::TYPES,
+                    \sprintf('Unknown declared type "%s" in %s.', $key->type, $label),
+                );
+                static::assertFalse(
+                    $key->required && $key->hasDefault,
+                    \sprintf('A required key must not declare a default in %s.', $label),
+                );
                 static::assertTrue(
                     $this->kindImpliesStringType($key),
                     \sprintf('A propertyReference/entityName key must be typed "string" in %s.', $label),

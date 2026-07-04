@@ -14,8 +14,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Fails the container build when a tagged data loader cannot satisfy the introspection contract: the class must
  * extend AbstractContentDataLoader with a resolvable `@extends` annotation, its source name must not be reserved
- * (`loader`/`config`), and its declared configSpecification() must have unique, coherently kinded/typed keys with
- * coherent defaults and no reserved key name.
+ * (`loader`/`config`), and its declared configSpecification() must have unique keys, types from the
+ * ConfigKeySpecification::TYPES set, string-typed reference kinds, coherent defaults (never on a required key),
+ * and no reserved key name.
  *
  * @internal
  */
@@ -87,9 +88,22 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
                 throw DependencyInjectionException::dataLoaderReservedConfigKey($class, $key->name);
             }
 
+            $this->validateKeyType($class, $key);
             $this->validateKeyKindType($class, $key);
             $this->validateKeyDefault($class, $key);
         }
+    }
+
+    /**
+     * @param class-string<AbstractContentDataLoader<Struct>> $class
+     */
+    private function validateKeyType(string $class, ConfigKeySpecification $key): void
+    {
+        if (\in_array($key->type, ConfigKeySpecification::TYPES, true)) {
+            return;
+        }
+
+        throw DependencyInjectionException::dataLoaderConfigKeyUnknownType($class, $key->name, $key->type, ConfigKeySpecification::TYPES);
     }
 
     /**
@@ -113,6 +127,10 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
      */
     private function validateKeyDefault(string $class, ConfigKeySpecification $key): void
     {
+        if ($key->required && $key->hasDefault) {
+            throw DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch($class, $key->name, 'a required key must not declare a default (required means: no default and the loader cannot produce without it)');
+        }
+
         if (!$key->hasDefault && $key->default !== null) {
             throw DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch($class, $key->name, 'a key without a declared default (hasDefault: false) must not carry a default value');
         }

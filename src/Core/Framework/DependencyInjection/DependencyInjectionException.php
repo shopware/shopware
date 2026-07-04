@@ -19,6 +19,7 @@ class DependencyInjectionException extends HttpException
     public const DATA_LOADER_RESERVED_SOURCE = 'FRAMEWORK__DATA_LOADER_RESERVED_SOURCE';
     public const DATA_LOADER_CONFIG_KEY_DUPLICATE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_DUPLICATE';
     public const DATA_LOADER_CONFIG_KEY_INVALID_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_TYPE';
+    public const DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE';
     public const DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH';
     public const DATA_LOADER_RESERVED_CONFIG_KEY = 'FRAMEWORK__DATA_LOADER_RESERVED_CONFIG_KEY';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
@@ -106,6 +107,24 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DATA_LOADER_CONFIG_KEY_INVALID_TYPE,
             \sprintf('Config key "%s" of data loader "%s" has kind "%s", which requires type "string", got "%s".', $key, $loaderClass, $kind, $type)
+        );
+    }
+
+    /**
+     * @param list<string> $declarableTypes
+     */
+    public static function dataLoaderConfigKeyUnknownType(string $loaderClass, string $key, string $type, array $declarableTypes): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE,
+            \sprintf(
+                'Config key "%s" of data loader "%s" declares the unknown type "%s". Declarable types: "%s".',
+                $key,
+                $loaderClass,
+                $type,
+                implode('", "', $declarableTypes)
+            )
         );
     }
 

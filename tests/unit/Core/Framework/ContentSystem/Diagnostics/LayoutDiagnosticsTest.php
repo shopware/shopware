@@ -195,8 +195,7 @@ class LayoutDiagnosticsTest extends TestCase
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
         // Each loader's specification requires a "property" config key its empty template does not fill, so the
-        // derived residual is non-empty and both candidates are incomplete (the reshaped equivalent of the
-        // former authored residual ['property']).
+        // derived residual is non-empty and both candidates are incomplete.
         $requiresProperty = new LoaderConfigSpecification([
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
         ]);

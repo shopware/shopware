@@ -19,11 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Loads navigation tree data via NavigationLoaderInterface.
  *
- * Config:
- * - rootId: Navigation root ID or alias (main-navigation, service-navigation, footer-navigation)
- * - depth: Navigation tree depth (default: 2)
- * - activeProperty: Element property name to read active category ID from (default: activeId)
- *
  * @internal
  *
  * @final

@@ -27,7 +27,7 @@ final readonly class ConfigKeySpecification
         public ConfigKeyKind $kind,
         public string $type,             // one of self::TYPES
         public bool $required,           // required means: no default AND the loader cannot produce without it
-        public bool $hasDefault = false, // presence modeled explicitly: "no default" is distinct from "defaults to null"
+        public bool $hasDefault = false,
         public mixed $default = null,    // meaningful only when hasDefault is true
         public ?array $adminUI = null,   // same hint shape as element-type property adminUI
     ) {

@@ -19,10 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Loads available payment methods via AbstractPaymentMethodRoute.
  *
- * Config:
- * - associations: Additional associations to load
- * - onlyAvailable: Only return available payment methods (default: true)
- *
  * @internal
  *
  * @final

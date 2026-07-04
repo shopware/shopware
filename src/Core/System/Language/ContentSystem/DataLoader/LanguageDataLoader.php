@@ -19,9 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Loads available languages via AbstractLanguageRoute.
  *
- * Config:
- * - associations: Additional associations to load
- *
  * @internal
  *
  * @final

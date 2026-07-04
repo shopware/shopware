@@ -19,10 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Loads available shipping methods via AbstractShippingMethodRoute.
  *
- * Config:
- * - associations: Additional associations to load
- * - onlyAvailable: Only return available shipping methods (default: true)
- *
  * @internal
  *
  * @final

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
@@ -70,7 +70,7 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator,
+        private readonly ContentSystemDataLoaderSchemaGenerator $dataLoaderSchemaGenerator,
         private readonly AbstractContentSystemElementTypeRegistry $elementTypeRegistry,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly RootSourceRegistry $rootSourceRegistry,
@@ -156,10 +156,10 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/api/_info/content-system-data-loader-types.json', name: 'api.info.content-system-data-loader-types', methods: ['GET'])]
-    public function contentSystemDataLoaderTypes(): JsonResponse
+    #[Route(path: '/api/_info/content-system-data-loaders.json', name: 'api.info.content-system-data-loaders', methods: ['GET'])]
+    public function contentSystemDataLoaders(): JsonResponse
     {
-        return new JsonResponse($this->dataLoaderTypeSchemaGenerator->getSchema());
+        return new JsonResponse($this->dataLoaderSchemaGenerator->getSchema());
     }
 
     #[Route(path: '/api/_info/content-system-entity-types.json', name: 'api.info.content-system-entity-types', methods: ['GET'])]

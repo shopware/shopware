@@ -11,7 +11,7 @@ graph LR
     subgraph INTRO["1 · Introspect &nbsp;(GET)"]
         direction TB
         E1(["element-types"])
-        E2(["data-loader-types"])
+        E2(["data-loaders"])
         E3(["entity-types"])
     end
 
@@ -92,11 +92,11 @@ Full field-level schema: [content-system-element-types.json](../Api/ApiDefinitio
 
 A custom element type registered by a plugin or app ([EXTENSION.md → Custom Element Types](EXTENSION.md#custom-element-types)) appears here once registered.
 
-### Data loader types
+### Data loaders
 
-`GET /api/_info/content-system-data-loader-types.json`
+`GET /api/_info/content-system-data-loaders.json`
 
-The data sources a `dataRequirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each mapped to the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderTypeSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderTypeResolver` from each loader's `producibleTypes()`.
+The data sources a `dataRequirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each with its declared config keys and the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderMapResolver` from each loader's `configSpecification()` and `producibleTypes()`.
 
 Response:
 
@@ -104,11 +104,15 @@ Response:
 {
   "sources": {
     "<source>": {
+      "configKeys": [
+        { "name": "entity", "kind": "entityName", "type": "string", "required": true },
+        { "name": "property", "kind": "propertyReference", "type": "string", "required": true },
+        { "name": "associations", "kind": "literal", "type": "list<string>", "required": false, "default": [] }
+      ],
       "types": [
         {
           "producedType": "<FQCN>",
           "configTemplate": { "entity": "product" },
-          "requiredConfigKeys": ["property"],
           "genericParameters": ["<FQCN>"]
         }
       ]
@@ -117,9 +121,9 @@ Response:
 }
 ```
 
-`<source>` is the `dataRequirements` source value (`entity`, `product_listing`, …); each entry pairs the produced type (the sales-channel class where one exists) with the config seed needed to produce it — `configTemplate` carries the inferable keys, `requiredConfigKeys` lists the keys the caller must still supply.
+`<source>` is the `dataRequirements` source value (`entity`, `product_listing`, …). `configKeys` is the source's declared `LoaderConfigSpecification`, in declaration order: `kind` names what the stored value means (`literal`, `propertyReference`, an element property whose stored value feeds the loader, or `entityName`, a registered DAL entity), `required` is intrinsic requiredness, and `default` is present only when the key declares one (a declared default may itself be `null`, distinct from no default at all). `types` pairs each produced type (the sales-channel class where one exists) with the `configTemplate` needed to produce it — the inferable config keys. The keys a caller must still supply for a given capability (the completion residue) are the required `configKeys` names minus the keys already covered by that capability's `configTemplate`; a client derives this the same way `ContentSystemDataLoaderMap::residualConfigKeysFor()` does on the kernel side, not carried directly in this response.
 
-Full field-level schema: [content-system-data-loader-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-data-loader-types.json).
+Full field-level schema: [content-system-data-loaders.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-data-loaders.json).
 
 A custom data loader ([EXTENSION.md → Custom Data Loaders](EXTENSION.md#custom-data-loaders)) appears here. Wildcard loaders (`entity`, `entity_collection`) enumerate the live definition registry inside `producibleTypes()`.
 

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Resolution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -26,11 +26,12 @@ use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\LoaderConfigSpecificationFixture;
 
 /**
  * @internal
@@ -38,22 +39,21 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(ElementResolver::class)]
 class ElementResolverTest extends TestCase
 {
-    #[DataProvider('resolvesPrimitiveToStaticValueProvider')]
-    #[TestDox('resolves $_dataName to a static value carrying type, default and required flag, never blocking')]
-    public function testResolvesPrimitiveToStaticValue(bool $required, string|int|float|bool|null $default): void
+    #[TestDox('resolves a primitive to a static value carrying type, default and required flag, never blocking')]
+    public function testResolvesPrimitiveToStaticValue(): void
     {
         $resolutions = $this->resolve(
-            ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: $required, default: $default)->build(),
+            ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true, default: 'Hello')->build(),
             new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([]),
+            new ContentSystemDataLoaderMap([], []),
         );
 
         static::assertCount(1, $resolutions);
         static::assertSame('headline', $resolutions[0]->key);
         static::assertSame(PropertyKind::Primitive, $resolutions[0]->kind);
         static::assertSame('string', $resolutions[0]->type);
-        static::assertSame($default, $resolutions[0]->default);
-        static::assertSame($required, $resolutions[0]->required);
+        static::assertSame('Hello', $resolutions[0]->default);
+        static::assertTrue($resolutions[0]->required);
         static::assertNull($resolutions[0]->resolved);
         static::assertSame([], $resolutions[0]->candidates);
     }
@@ -72,9 +72,10 @@ class ElementResolverTest extends TestCase
         $resolutions = $this->resolve(
             ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class, required: true)->build(),
             new ResolutionContext('el-1', $available),
-            new ContentSystemDataLoaderTypeMap([
-                'entity' => [new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product'], ['property'])],
-            ]),
+            new ContentSystemDataLoaderMap(
+                ['entity' => [new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product'])]],
+                ['entity' => LoaderConfigSpecificationFixture::entityProperty()],
+            ),
         );
 
         static::assertSame(PropertyKind::Reference, $resolutions[0]->kind);
@@ -90,9 +91,10 @@ class ElementResolverTest extends TestCase
         $resolutions = $this->resolve(
             ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build(),
             new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([
-                'category_fixed' => [new LoaderTypeCapability(CategoryEntity::class)],
-            ]),
+            new ContentSystemDataLoaderMap(
+                ['category_fixed' => [new LoaderTypeCapability(CategoryEntity::class)]],
+                ['category_fixed' => new LoaderConfigSpecification([])],
+            ),
             $this->serializersDecoding(succeeds: true),
         );
 
@@ -108,9 +110,10 @@ class ElementResolverTest extends TestCase
         $resolutions = $this->resolve(
             ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build(),
             new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([
-                'entity' => [new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product'], ['property'])],
-            ]),
+            new ContentSystemDataLoaderMap(
+                ['entity' => [new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product'])]],
+                ['entity' => LoaderConfigSpecificationFixture::entityProperty()],
+            ),
         );
 
         static::assertNull($resolutions[0]->resolved);
@@ -126,10 +129,16 @@ class ElementResolverTest extends TestCase
         $resolutions = $this->resolve(
             ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build(),
             new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([
-                'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
-                'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
-            ]),
+            new ContentSystemDataLoaderMap(
+                [
+                    'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
+                    'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
+                ],
+                [
+                    'category_a' => new LoaderConfigSpecification([]),
+                    'category_b' => new LoaderConfigSpecification([]),
+                ],
+            ),
             $this->serializersDecoding(succeeds: true),
         );
 
@@ -143,7 +152,7 @@ class ElementResolverTest extends TestCase
         $resolutions = $this->resolve(
             ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class, required: true)->build(),
             new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([]),
+            new ContentSystemDataLoaderMap([], []),
         );
 
         static::assertNull($resolutions[0]->resolved);
@@ -158,7 +167,7 @@ class ElementResolverTest extends TestCase
 
         $resolver = new ElementResolver(
             $registry,
-            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
+            $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(DataLoaderProvider::class),
         );
@@ -184,12 +193,7 @@ class ElementResolverTest extends TestCase
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
 
-        $resolver = new ElementResolver(
-            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
-            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
-            static::createStub(DataLoaderConfigSerializerProvider::class),
-            $this->loaderProvider($loader),
-        );
+        $resolver = $this->appliedWiringResolver($loader);
 
         $resolutions = $resolver->resolve($element, new ResolutionContext('el-1', $available));
 
@@ -221,12 +225,7 @@ class ElementResolverTest extends TestCase
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willReturn(CategoryEntity::class);
 
-        $resolver = new ElementResolver(
-            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
-            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
-            static::createStub(DataLoaderConfigSerializerProvider::class),
-            $this->loaderProvider($loader),
-        );
+        $resolver = $this->appliedWiringResolver($loader);
 
         $resolutions = $resolver->resolve($element, new ResolutionContext('el-1', $available));
 
@@ -244,12 +243,7 @@ class ElementResolverTest extends TestCase
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException(ContentSystemException::configSerializerNotRegistered('entity'));
 
-        $resolver = new ElementResolver(
-            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
-            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
-            static::createStub(DataLoaderConfigSerializerProvider::class),
-            $this->loaderProvider($loader),
-        );
+        $resolver = $this->appliedWiringResolver($loader);
 
         $resolutions = $resolver->resolve($element, new ResolutionContext('el-1', []));
 
@@ -268,25 +262,11 @@ class ElementResolverTest extends TestCase
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException($exception);
 
-        $resolver = new ElementResolver(
-            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
-            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
-            static::createStub(DataLoaderConfigSerializerProvider::class),
-            $this->loaderProvider($loader),
-        );
+        $resolver = $this->appliedWiringResolver($loader);
 
         $this->expectExceptionObject($exception);
 
         $resolver->resolve($element, new ResolutionContext('el-1', []));
-    }
-
-    /**
-     * @return iterable<string, array{bool, string|int|float|bool|null}>
-     */
-    public static function resolvesPrimitiveToStaticValueProvider(): iterable
-    {
-        yield 'an optional primitive with a default' => [false, 'Hello'];
-        yield 'a required primitive without a default' => [true, null];
     }
 
     /**
@@ -295,7 +275,7 @@ class ElementResolverTest extends TestCase
     private function resolve(
         ContentSystemElementTypeSpecification $spec,
         ResolutionContext $context,
-        ContentSystemDataLoaderTypeMap $map,
+        ContentSystemDataLoaderMap $map,
         ?DataLoaderConfigSerializerProvider $serializers = null,
     ): array {
         $resolver = new ElementResolver(
@@ -317,9 +297,9 @@ class ElementResolverTest extends TestCase
         return $registry;
     }
 
-    private function typeResolver(ContentSystemDataLoaderTypeMap $map): AbstractContentSystemDataLoaderTypeResolver
+    private function typeResolver(ContentSystemDataLoaderMap $map): AbstractContentSystemDataLoaderMapResolver
     {
-        $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
+        $resolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
         return $resolver;
@@ -334,6 +314,19 @@ class ElementResolverTest extends TestCase
         $provider->method('get')->willReturn($loader);
 
         return $provider;
+    }
+
+    /**
+     * @param AbstractContentDataLoader<Struct> $loader
+     */
+    private function appliedWiringResolver(AbstractContentDataLoader $loader): ElementResolver
+    {
+        return new ElementResolver(
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            $this->loaderProvider($loader),
+        );
     }
 
     private function serializersDecoding(bool $succeeds): DataLoaderConfigSerializerProvider

@@ -30,12 +30,12 @@ The type spec declares WHAT properties exist and their types. The element instan
 
 ### Type-to-Loader Bridge
 
-`ContentSystemDataLoaderTypeMap` connects type spec FQCNs to data loader capabilities:
+`ContentSystemDataLoaderMap` connects type spec FQCNs to data loader capabilities:
 
 - Forward: given a loader source (e.g., `"entity"`), what types can it produce?
 - Reverse: given a FQCN (e.g., `SalesChannelProductEntity`), which loaders can produce it?
 
-`ContentSystemDataLoaderTypeResolver` assembles and memoizes this bridge lazily on its first runtime lookup; `ContentSystemDataLoaderTypeCompilerPass` builds no map — at compile time it only validates each tagged loader's `@extends` annotation (`extendsDescriptor()`). Currently consumed by the Schema API endpoint; designed to also serve future layout validation.
+`ContentSystemDataLoaderMapResolver` assembles and memoizes this bridge lazily on its first runtime lookup; `ContentSystemDataLoaderCompilerPass` builds no map — at compile time it only validates each tagged loader: the `@extends` annotation (`extendsDescriptor()`), the source name, and the declared `configSpecification()` (failure conditions in `Hydration/DataLoader/AGENTS.md`). Currently consumed by the Schema API endpoint; designed to also serve future layout validation.
 
 ## Architecture
 

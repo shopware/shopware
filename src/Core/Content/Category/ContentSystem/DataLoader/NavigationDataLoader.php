@@ -6,7 +6,10 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
@@ -15,11 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Loads navigation tree data via NavigationLoaderInterface.
- *
- * Config:
- * - rootId: Navigation root ID or alias (main-navigation, service-navigation, footer-navigation)
- * - depth: Navigation tree depth (default: 2)
- * - activeProperty: Element property name to read active category ID from (default: activeId)
  *
  * @internal
  *
@@ -41,6 +39,15 @@ class NavigationDataLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     {
         return self::SOURCE;
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null),
+            new ConfigKeySpecification('depth', ConfigKeyKind::Literal, 'integer', required: false, hasDefault: true, default: NavigationLoaderConfig::DEFAULT_DEPTH),
+            new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'activeId'),
+        ]);
     }
 
     public function load(

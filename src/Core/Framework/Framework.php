@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompil
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentLayoutAssignableCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemBindingSpecificationCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemStyleOptionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
@@ -144,7 +144,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new ContentRouteCompilerPass());
-        $container->addCompilerPass(new ContentSystemDataLoaderTypeCompilerPass());
+        $container->addCompilerPass(new ContentSystemDataLoaderCompilerPass());
         $container->addCompilerPass(new ContentSystemElementTypeCompilerPass());
         $container->addCompilerPass(new ContentSystemStyleOptionCompilerPass());
         $container->addCompilerPass(new ContentSystemBindingSpecificationCompilerPass());

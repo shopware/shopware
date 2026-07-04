@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfig;
@@ -27,13 +27,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CrossSellingDataLoader::class)]
 class CrossSellingDataLoaderTest extends TestCase
 {
-    private AbstractProductCrossSellingRoute&MockObject $crossSellingRoute;
+    private AbstractProductCrossSellingRoute&Stub $crossSellingRoute;
 
     private CrossSellingDataLoader $loader;
 
     protected function setUp(): void
     {
-        $this->crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $this->crossSellingRoute = static::createStub(AbstractProductCrossSellingRoute::class);
         $this->loader = new CrossSellingDataLoader($this->crossSellingRoute);
     }
 
@@ -52,7 +52,6 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame(CrossSellingElementCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns cross-selling collection as data and marks result as cache-aware with no tags')]
@@ -72,12 +71,15 @@ class CrossSellingDataLoaderTest extends TestCase
         $response = static::createStub(ProductCrossSellingRouteResponse::class);
         $response->method('getResult')->willReturn($crossSellingCollection);
 
-        $this->crossSellingRoute
+        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute
+            ->expects($this->once())
             ->method('load')
             ->with($productId, $request, $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
 
-        $result = $this->loader->load($element, $requirement, $context, $request);
+        $loader = new CrossSellingDataLoader($crossSellingRoute);
+        $result = $loader->load($element, $requirement, $context, $request);
 
         static::assertSame($crossSellingCollection, $result->data);
         static::assertTrue($result->isCacheAware());
@@ -221,9 +223,11 @@ class CrossSellingDataLoaderTest extends TestCase
         $element = ContentElementBuilder::create('cross-selling')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->crossSellingRoute->expects($this->never())->method('load');
+        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load($element, $requirement, $context, new Request());
+        $loader = new CrossSellingDataLoader($crossSellingRoute);
+        $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
@@ -237,9 +241,11 @@ class CrossSellingDataLoaderTest extends TestCase
         $config = new CrossSellingLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
-        $this->crossSellingRoute->expects($this->never())->method('load');
+        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new CrossSellingDataLoader($crossSellingRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('cross-selling', 'cross_selling', $config),
             $context,

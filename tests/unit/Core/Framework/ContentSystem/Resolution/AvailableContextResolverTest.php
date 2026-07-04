@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -27,8 +28,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 
 /**
  * @internal
@@ -176,6 +177,25 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame([], $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext()));
     }
 
+    #[TestDox('does not re-expose incoming context through a consumer that does not redistribute')]
+    public function testNonRedistributingConsumerDoesNotReExposeIncomingContext(): void
+    {
+        $child = new ContentElement('child-1', 'Sw:Block');
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$child])],
+            new ContextDefinitions(
+                [],
+                ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: false)],
+            ),
+        );
+
+        static::assertSame([], $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext()));
+    }
+
     #[TestDox('accumulates redistributed context across multiple intermediates down to a deep descendant')]
     public function testRedistributeChainsAcrossMultipleLevels(): void
     {
@@ -262,10 +282,11 @@ class AvailableContextResolverTest extends TestCase
 
         // A single complete loader backs the provider's own `product` property, so its declared provider
         // resolves on its element (Level 2) and is exposed to descendants.
-        $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
-        $typeResolver->method('resolve')->willReturn(new ContentSystemDataLoaderTypeMap([
-            'product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)],
-        ]));
+        $typeResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $typeResolver->method('resolve')->willReturn(new ContentSystemDataLoaderMap(
+            ['product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)]],
+            ['product_loader' => new LoaderConfigSpecification([])],
+        ));
 
         $configSerializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $configSerializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));

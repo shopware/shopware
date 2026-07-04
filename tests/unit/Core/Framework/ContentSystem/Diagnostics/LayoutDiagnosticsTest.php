@@ -16,8 +16,11 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -30,8 +33,8 @@ use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -143,26 +146,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['el-1'][0]->resolved->origin);
     }
 
-    #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
-    public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
-    {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willReturn(CategoryEntity::class);
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
-            loaderProvider: $this->loaderProvider($loader),
-        )->analyze([$element], [])->report;
-
-        static::assertFalse($report->isWellFormed());
-        static::assertSame(ViolationCode::MismatchedReferenceType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
     #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
     public function testAppliedWiringBacksDeclaredProviderAndSatisfiesDescendantChain(): void
     {
@@ -204,6 +187,89 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertTrue($report->isWellFormed());
         $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
         static::assertSame('root-1', $warning->elementId);
+    }
+
+    #[TestDox('reports a required reference whose only candidates are incomplete loaders as unresolved_required, not ambiguous_required')]
+    public function testIncompleteLoaderCandidatesAreUnresolvedNotAmbiguous(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block')];
+
+        // Each loader's specification requires a "property" config key its empty template does not fill, so the
+        // derived residual is non-empty and both candidates are incomplete.
+        $requiresProperty = new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+        ]);
+
+        $map = new ContentSystemDataLoaderMap(
+            [
+                'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
+                'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
+            ],
+            [
+                'category_a' => $requiresProperty,
+                'category_b' => $requiresProperty,
+            ],
+        );
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
+            $map,
+        )->analyze($tree, [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('flags a deep required consumer reached only through a non-redistributing intermediate as broken_required_chain at that consumer, leaving the intermediate satisfied')]
+    public function testNonRedistributingIntermediateBreaksDeepRequiredChain(): void
+    {
+        $level3 = ContentElementBuilder::create('Sw:Block', 'level-3')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->withSlot('content', [$level3])
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$level2])
+            ->build();
+
+        $report = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            new ContentSystemDataLoaderMap(
+                ['product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)]],
+                ['product_loader' => new LoaderConfigSpecification([])],
+            ),
+            $this->decodingSerializers(),
+        )->analyze([$root], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('level-3', $error->elementId);
+    }
+
+    #[TestDox('flags a descendant requiring a declared provider whose own property does not resolve on the providing element as broken_required_chain')]
+    public function testUnbackedDeclaredProviderBreaksDescendantChain(): void
+    {
+        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$child])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+            'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+        ])->analyze([$root], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('child-1', $error->elementId);
     }
 
     #[TestDox('reports a duplicate element id across roots as an intrinsic error')]
@@ -283,10 +349,16 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $map = new ContentSystemDataLoaderTypeMap([
-            'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
-            'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
-        ]);
+        $map = new ContentSystemDataLoaderMap(
+            [
+                'category_a' => [new LoaderTypeCapability(CategoryEntity::class)],
+                'category_b' => [new LoaderTypeCapability(CategoryEntity::class)],
+            ],
+            [
+                'category_a' => new LoaderConfigSpecification([]),
+                'category_b' => new LoaderConfigSpecification([]),
+            ],
+        );
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
@@ -299,21 +371,23 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
-    #[TestDox('reports a required reference whose only candidates are incomplete loaders as unresolved_required, not ambiguous_required')]
-    public function testIncompleteLoaderCandidatesAreUnresolvedNotAmbiguous(): void
+    #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
+    public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
 
-        $map = new ContentSystemDataLoaderTypeMap([
-            'category_a' => [new LoaderTypeCapability(CategoryEntity::class, [], ['property'])],
-            'category_b' => [new LoaderTypeCapability(CategoryEntity::class, [], ['property'])],
-        ]);
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(CategoryEntity::class);
 
         $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
-            $map,
-        )->analyze($tree, [])->report;
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], [])->report;
 
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::MismatchedReferenceType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
@@ -330,15 +404,6 @@ class LayoutDiagnosticsTest extends TestCase
             ->analyze($tree, [])->report;
 
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function producesUnresolvedRequiredPrimitiveProvider(): iterable
-    {
-        yield 'no stored value' => [[]];
-        yield 'stored explicit null counts as no value' => [['headline' => null]];
     }
 
     #[TestDox('reports a required primitive carrying a type default but no authored value as unresolved_required')]
@@ -364,56 +429,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::BrokenRequiredChain, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('flags a deep required consumer reached only through a non-redistributing intermediate as broken_required_chain at that consumer, leaving the intermediate satisfied')]
-    public function testNonRedistributingIntermediateBreaksDeepRequiredChain(): void
-    {
-        $level3 = ContentElementBuilder::create('Sw:Block', 'level-3')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->build();
-        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->withSlot('content', [$level3])
-            ->build();
-        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('content', [$level2])
-            ->build();
-
-        $report = $this->diagnostics(
-            [
-                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
-                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
-            ],
-            new ContentSystemDataLoaderTypeMap(['product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)]]),
-            $this->decodingSerializers(),
-        )->analyze([$root], [])->report;
-
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
-        static::assertSame('level-3', $error->elementId);
-    }
-
-    #[TestDox('flags a descendant requiring a declared provider whose own property does not resolve on the providing element as broken_required_chain')]
-    public function testUnbackedDeclaredProviderBreaksDescendantChain(): void
-    {
-        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->build();
-        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('content', [$child])
-            ->build();
-
-        $report = $this->diagnostics([
-            'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
-            'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
-        ])->analyze([$root], [])->report;
-
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
-        static::assertSame('child-1', $error->elementId);
-    }
-
     #[TestDox('propagates a non-client-defect exception during config resolution instead of converting it to invalid_config')]
     public function testInternalFaultPropagates(): void
     {
@@ -429,6 +444,15 @@ class LayoutDiagnosticsTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
 
         $diagnostics->analyze([$element], null);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function producesUnresolvedRequiredPrimitiveProvider(): iterable
+    {
+        yield 'no stored value' => [[]];
+        yield 'stored explicit null counts as no value' => [['headline' => null]];
     }
 
     /**
@@ -448,14 +472,14 @@ class LayoutDiagnosticsTest extends TestCase
      */
     private function diagnostics(
         array $specs,
-        ?ContentSystemDataLoaderTypeMap $map = null,
+        ?ContentSystemDataLoaderMap $map = null,
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
-        $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
-        $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderTypeMap([]));
+        $typeResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderMap([], []));
 
         // Share one loader provider between the resolver (stored-candidate) and the RootContextMapper
         // (mismatch check) so both resolve a stored requirement's produced type consistently.

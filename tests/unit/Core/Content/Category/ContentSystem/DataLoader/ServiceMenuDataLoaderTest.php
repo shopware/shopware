@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -28,13 +28,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ServiceMenuDataLoader::class)]
 class ServiceMenuDataLoaderTest extends TestCase
 {
-    private NavigationLoaderInterface&MockObject $navigationLoader;
+    private NavigationLoaderInterface&Stub $navigationLoader;
 
     private ServiceMenuDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $this->navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $this->dataLoader = new ServiceMenuDataLoader($this->navigationLoader, new NavigationAliasResolver());
     }
 
@@ -53,7 +53,6 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame(CategoryCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads service menu categories flattened from navigation tree')]
@@ -78,12 +77,15 @@ class ServiceMenuDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($serviceCategoryId, $context, $serviceCategoryId, 1)
             ->willReturn($tree);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -107,12 +109,15 @@ class ServiceMenuDataLoaderTest extends TestCase
         $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($rootId, $context, $rootId, 1)
             ->willReturn($tree);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -150,9 +155,11 @@ class ServiceMenuDataLoaderTest extends TestCase
         $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader->expects($this->never())->method('load');
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -169,9 +176,11 @@ class ServiceMenuDataLoaderTest extends TestCase
         $requirement = new DataRequirement('serviceMenu', 'service_menu', $wrongConfig);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader->expects($this->never())->method('load');
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());

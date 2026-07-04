@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfig;
@@ -24,13 +24,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ShippingMethodDataLoader::class)]
 class ShippingMethodDataLoaderTest extends TestCase
 {
-    private AbstractShippingMethodRoute&MockObject $shippingMethodRoute;
+    private AbstractShippingMethodRoute&Stub $shippingMethodRoute;
 
     private ShippingMethodDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $this->shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
         $this->dataLoader = new ShippingMethodDataLoader($this->shippingMethodRoute);
     }
 
@@ -49,7 +49,6 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame(ShippingMethodCollection::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads shipping methods and returns cachedExternally result with empty cache tags')]
@@ -84,7 +83,8 @@ class ShippingMethodDataLoaderTest extends TestCase
         $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->shippingMethodRoute
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
             ->expects($this->atLeastOnce())
             ->method('load')
             ->with(
@@ -98,7 +98,8 @@ class ShippingMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('adds associations from ShippingMethodLoaderConfig to criteria')]
@@ -112,7 +113,8 @@ class ShippingMethodDataLoaderTest extends TestCase
         $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->shippingMethodRoute
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
             ->expects($this->once())
             ->method('load')
             ->with(
@@ -127,7 +129,8 @@ class ShippingMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('sets onlyAvailable false on cloned request when config has onlyAvailable false')]
@@ -142,7 +145,8 @@ class ShippingMethodDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $originalRequest = new Request();
 
-        $this->shippingMethodRoute
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
             ->expects($this->once())
             ->method('load')
             ->with(
@@ -157,7 +161,8 @@ class ShippingMethodDataLoaderTest extends TestCase
             )
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, $originalRequest);
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $dataLoader->load($element, $requirement, $context, $originalRequest);
     }
 
     #[TestDox('loads shipping methods without associations and defaults onlyAvailable to true when config is not a ShippingMethodLoaderConfig instance')]

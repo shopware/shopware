@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(NavigationDataLoader::class)]
 class NavigationDataLoaderTest extends TestCase
 {
-    private NavigationLoaderInterface&MockObject $navigationLoader;
+    private NavigationLoaderInterface&Stub $navigationLoader;
 
     private NavigationAliasResolver $aliasResolver;
 
@@ -32,7 +32,7 @@ class NavigationDataLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $this->navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $this->aliasResolver = new NavigationAliasResolver();
         $this->dataLoader = new NavigationDataLoader($this->navigationLoader, $this->aliasResolver);
     }
@@ -52,7 +52,6 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame(Tree::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads navigation tree with explicit rootId from config')]
@@ -67,12 +66,15 @@ class NavigationDataLoaderTest extends TestCase
         $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($activeId, $context, $rootId, 2)
             ->willReturn($tree);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -91,12 +93,15 @@ class NavigationDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($navCategoryId);
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($activeId, $context, $navCategoryId, 2)
             ->willReturn($tree);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -114,12 +119,15 @@ class NavigationDataLoaderTest extends TestCase
         $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($activeId, $context, $rootId, 2)
             ->willReturn($tree);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -155,13 +163,15 @@ class NavigationDataLoaderTest extends TestCase
         $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
             ->expects($this->once())
             ->method('load')
             ->with($rootId, $context, $rootId, 5)
             ->willReturn($tree);
 
-        $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('defaults to main-navigation alias when rootId is null in config')]
@@ -178,12 +188,15 @@ class NavigationDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($navCategoryId);
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($activeId, $context, $navCategoryId, 3)
             ->willReturn($tree);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -200,12 +213,15 @@ class NavigationDataLoaderTest extends TestCase
 
         $elementMissing = new ContentElement(id: Uuid::randomHex(), component: 'test');
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($rootId, $context, $rootId, 2)
             ->willReturn($tree);
 
-        $resultMissing = $this->dataLoader->load($elementMissing, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $resultMissing = $dataLoader->load($elementMissing, $requirement, $context, new Request());
 
         static::assertTrue($resultMissing->hasData());
         static::assertSame($tree, $resultMissing->data);
@@ -222,12 +238,15 @@ class NavigationDataLoaderTest extends TestCase
 
         $elementEmpty = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => '']);
 
-        $this->navigationLoader
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
             ->method('load')
             ->with($rootId, $context, $rootId, 2)
             ->willReturn($tree);
 
-        $resultEmpty = $this->dataLoader->load($elementEmpty, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $resultEmpty = $dataLoader->load($elementEmpty, $requirement, $context, new Request());
 
         static::assertTrue($resultEmpty->hasData());
         static::assertSame($tree, $resultEmpty->data);
@@ -241,9 +260,11 @@ class NavigationDataLoaderTest extends TestCase
         $requirement = new DataRequirement('navKey', 'navigation', $wrongConfig);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader->expects($this->never())->method('load');
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
 
         static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());

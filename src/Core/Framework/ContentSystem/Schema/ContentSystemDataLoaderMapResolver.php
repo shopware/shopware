@@ -13,26 +13,29 @@ use Shopware\Core\Framework\Log\Package;
  * @final
  */
 #[Package('framework')]
-class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoaderTypeResolver
+class ContentSystemDataLoaderMapResolver extends AbstractContentSystemDataLoaderMapResolver
 {
-    private ?ContentSystemDataLoaderTypeMap $map = null;
+    private ?ContentSystemDataLoaderMap $map = null;
 
     public function __construct(
         private readonly DataLoaderProvider $dataLoaderProvider,
     ) {
     }
 
-    public function resolve(): ContentSystemDataLoaderTypeMap
+    public function resolve(): ContentSystemDataLoaderMap
     {
         if ($this->map !== null) {
             return $this->map;
         }
 
         $sourceToCapabilities = [];
+        $sourceToConfigSpecifications = [];
         foreach ($this->dataLoaderProvider->getSources() as $source) {
-            $sourceToCapabilities[$source] = $this->dataLoaderProvider->get($source)->producibleTypes();
+            $loader = $this->dataLoaderProvider->get($source);
+            $sourceToCapabilities[$source] = $loader->producibleTypes();
+            $sourceToConfigSpecifications[$source] = $loader->configSpecification();
         }
 
-        return $this->map = new ContentSystemDataLoaderTypeMap($sourceToCapabilities);
+        return $this->map = new ContentSystemDataLoaderMap($sourceToCapabilities, $sourceToConfigSpecifications);
     }
 }

@@ -6,7 +6,10 @@ use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -71,7 +74,7 @@ class EntityLoader extends AbstractContentDataLoader
                 ? $salesChannelDefinitions[$entityName]->getEntityClass()
                 : $definition->getEntityClass();
 
-            $capabilities[] = new LoaderTypeCapability($producedType, ['entity' => $entityName], ['property']);
+            $capabilities[] = new LoaderTypeCapability($producedType, ['entity' => $entityName]);
         }
 
         return $capabilities;
@@ -92,6 +95,15 @@ class EntityLoader extends AbstractContentDataLoader
         } catch (DefinitionNotFoundException) {
             throw ContentSystemException::unknownLoaderEntity($config->entity);
         }
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+        ]);
     }
 
     public function load(

@@ -9,7 +9,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapabil
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -23,7 +24,7 @@ class ElementResolver
      */
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly AbstractContentSystemDataLoaderTypeResolver $typeResolver,
+        private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly DataLoaderProvider $dataLoaderProvider,
     ) {
@@ -144,7 +145,7 @@ class ElementResolver
      */
     private function loaderCandidates(string $fqcn): array
     {
-        $map = $this->typeResolver->resolve();
+        $map = $this->mapResolver->resolve();
 
         $candidates = [];
 
@@ -159,16 +160,16 @@ class ElementResolver
                 origin: CandidateOrigin::Loader,
                 loaderSource: $source,
                 configTemplate: $capability->configTemplate,
-                configComplete: $this->isConfigComplete($source, $capability),
+                configComplete: $this->isConfigComplete($source, $capability, $map),
             );
         }
 
         return $candidates;
     }
 
-    private function isConfigComplete(string $source, LoaderTypeCapability $capability): bool
+    private function isConfigComplete(string $source, LoaderTypeCapability $capability, ContentSystemDataLoaderMap $map): bool
     {
-        if ($capability->requiredConfigKeys !== []) {
+        if ($map->residualConfigKeysFor($source, $capability) !== []) {
             return false;
         }
 

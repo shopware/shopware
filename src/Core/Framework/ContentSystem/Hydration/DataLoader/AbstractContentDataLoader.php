@@ -41,7 +41,7 @@ abstract class AbstractContentDataLoader
      * The types this loader can produce, each with the config seed needed to produce it.
      *
      * Default: one capability derived from the `@extends AbstractContentDataLoader<T>` PHPDoc,
-     * carrying the produced class and its generic parameters, with empty template and no required keys.
+     * carrying the produced class and its generic parameters, with an empty config template.
      * Wildcard loaders (entity, entity_collection) override this to enumerate the live definition registry.
      *
      * @return list<LoaderTypeCapability>
@@ -63,12 +63,25 @@ abstract class AbstractContentDataLoader
     }
 
     /**
+     * The declared config contract of this loader: the kind, type, and default of each config key.
+     *
+     * Default: an empty specification, legitimate for config-less loaders. Every loader whose config
+     * serializer accepts keys overrides this to declare them. This is the same override surface as
+     * producibleTypes(): the specification is metadata about the config, while the config serializer
+     * stays the decoding authority.
+     */
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([]);
+    }
+
+    /**
      * Resolves the single type capability declared via the `@extends AbstractContentDataLoader<T>` PHPDoc.
      *
      * 1. phpstan/phpdoc-parser extracts the `@extends` tag and provides the type AST
      * 2. symfony/type-info's TypeContext resolves short class names to FQCNs
      *
-     * Dry-run by ContentSystemDataLoaderTypeCompilerPass at container build time so a missing or
+     * Dry-run by ContentSystemDataLoaderCompilerPass at container build time so a missing or
      * unresolvable `@extends` annotation fails the build.
      *
      * Must stay public static: the compiler pass invokes it as `$class::extendsDescriptor()` on a bare
@@ -123,7 +136,7 @@ abstract class AbstractContentDataLoader
                 $genericParameters[] = $resolved;
             }
 
-            return new LoaderTypeCapability($className, [], [], $genericParameters);
+            return new LoaderTypeCapability($className, [], $genericParameters);
         }
 
         if ($dataTypeNode instanceof IdentifierTypeNode) {

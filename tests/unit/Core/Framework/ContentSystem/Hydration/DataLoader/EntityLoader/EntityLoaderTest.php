@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -41,38 +42,30 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityLoader::class)]
 class EntityLoaderTest extends TestCase
 {
-    #[TestDox('declares the sales-channel entity class for an entity that has a sales-channel definition')]
-    public function testProducibleTypesDeclaresSalesChannelClassForEntityWithVariant(): void
-    {
+    /**
+     * @param list<EntityDefinition> $salesChannelDefinitions
+     * @param class-string $expectedProducedType
+     * @param array<string, mixed> $expectedConfigTemplate
+     */
+    #[DataProvider('declaresProducibleTypeProvider')]
+    #[TestDox('declares the producible type for $_dataName')]
+    public function testProducibleTypesDeclaresExpectedProducedType(
+        array $salesChannelDefinitions,
+        EntityDefinition $definition,
+        string $expectedProducedType,
+        array $expectedConfigTemplate,
+    ): void {
         $loader = new EntityLoader(
-            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
-            $this->createDefinitionRegistry(new ProductDefinition()),
+            $this->createSalesChannelDefinitionRegistry(...$salesChannelDefinitions),
+            $this->createDefinitionRegistry($definition),
             static::createStub(EntityCacheTagResolver::class),
         );
 
         $capabilities = $loader->producibleTypes();
 
         static::assertCount(1, $capabilities);
-        static::assertSame(SalesChannelProductEntity::class, $capabilities[0]->producedType);
-        static::assertSame(['entity' => 'product'], $capabilities[0]->configTemplate);
-        static::assertSame(['property'], $capabilities[0]->requiredConfigKeys);
-    }
-
-    #[TestDox('declares the base entity class for an entity without a sales-channel definition')]
-    public function testProducibleTypesDeclaresBaseClassForEntityWithoutVariant(): void
-    {
-        $loader = new EntityLoader(
-            $this->createSalesChannelDefinitionRegistry(),
-            $this->createDefinitionRegistry(new MediaDefinition()),
-            static::createStub(EntityCacheTagResolver::class),
-        );
-
-        $capabilities = $loader->producibleTypes();
-
-        static::assertCount(1, $capabilities);
-        static::assertSame(MediaEntity::class, $capabilities[0]->producedType);
-        static::assertSame(['entity' => 'media'], $capabilities[0]->configTemplate);
-        static::assertSame(['property'], $capabilities[0]->requiredConfigKeys);
+        static::assertSame($expectedProducedType, $capabilities[0]->producedType);
+        static::assertSame($expectedConfigTemplate, $capabilities[0]->configTemplate);
     }
 
     #[TestDox('skips ArrayEntity definitions but keeps enumerating the rest')]
@@ -118,11 +111,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('resolves the sales-channel entity class for a config naming an entity with a variant')]
     public function testResolveProducedTypeReturnsSalesChannelClass(): void
     {
-        $loader = new EntityLoader(
-            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
-            $this->createDefinitionRegistry(new ProductDefinition()),
-            static::createStub(EntityCacheTagResolver::class),
-        );
+        $loader = $this->productEntityLoader();
 
         static::assertSame(
             SalesChannelProductEntity::class,
@@ -169,30 +158,25 @@ class EntityLoaderTest extends TestCase
         $this->createMinimalLoader()->resolveProducedType(new StubLoaderConfig());
     }
 
-    #[TestDox('declares exactly the config keys the serializer requires to decode a config (drift guard)')]
-    public function testProducibleTypesConfigKeysMatchSerializerRequiredKeys(): void
+    #[TestDox('declares exactly the required config keys the serializer needs to decode a config (drift guard)')]
+    public function testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys(): void
     {
-        $loader = new EntityLoader(
-            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
-            $this->createDefinitionRegistry(new ProductDefinition()),
-            static::createStub(EntityCacheTagResolver::class),
-        );
+        $loader = $this->productEntityLoader();
 
-        $capability = $loader->producibleTypes()[0];
-        $declaredKeys = [...array_keys($capability->configTemplate), ...$capability->requiredConfigKeys];
-        sort($declaredKeys);
+        $requiredKeys = $loader->configSpecification()->requiredKeys();
+        sort($requiredKeys);
 
-        static::assertSame(['entity', 'property'], $declaredKeys);
+        static::assertSame(['entity', 'property'], $requiredKeys);
 
-        // Drive decode() purely from the keys the capability declares: if the capability drops a key the
-        // serializer requires (or decode() gains a new required key), decode() throws and this fails.
+        // Drive decode() purely from the keys the specification declares required: if the specification drops a
+        // key the serializer requires (or decode() gains a new required key), decode() throws and this fails.
         // EntityLoaderConfigSerializerTest pins necessity (decode rejects either key's absence).
         $input = [];
-        foreach ($declaredKeys as $key) {
+        foreach ($requiredKeys as $key) {
             $input[$key] = 'product';
         }
 
-        static::assertInstanceOf(EntityLoaderConfig::class, (new EntityLoaderConfigSerializer())->decode($input));
+        (new EntityLoaderConfigSerializer())->decode($input);
     }
 
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]
@@ -381,6 +365,15 @@ class EntityLoaderTest extends TestCase
         $this->assertNotFoundResult($result);
     }
 
+    /**
+     * @return iterable<string, array{list<EntityDefinition>, EntityDefinition, class-string, array<string, mixed>}>
+     */
+    public static function declaresProducibleTypeProvider(): iterable
+    {
+        yield 'an entity with a sales-channel variant' => [[new SalesChannelProductDefinition()], new ProductDefinition(), SalesChannelProductEntity::class, ['entity' => 'product']];
+        yield 'an entity without a sales-channel variant' => [[], new MediaDefinition(), MediaEntity::class, ['entity' => 'media']];
+    }
+
     private function assertNotFoundResult(ContentDataLoaderResult $result): void
     {
         static::assertNull($result->data);
@@ -478,6 +471,15 @@ class EntityLoaderTest extends TestCase
         }
 
         return $registry;
+    }
+
+    private function productEntityLoader(): EntityLoader
+    {
+        return new EntityLoader(
+            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
+            $this->createDefinitionRegistry(new ProductDefinition()),
+            static::createStub(EntityCacheTagResolver::class),
+        );
     }
 
     /**

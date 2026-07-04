@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfig;
@@ -26,13 +26,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductSearchDataLoader::class)]
 class ProductSearchDataLoaderTest extends TestCase
 {
-    private AbstractProductSearchRoute&MockObject $searchRoute;
+    private AbstractProductSearchRoute&Stub $searchRoute;
 
     private ProductSearchDataLoader $loader;
 
     protected function setUp(): void
     {
-        $this->searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $this->searchRoute = static::createStub(AbstractProductSearchRoute::class);
         $this->loader = new ProductSearchDataLoader($this->searchRoute);
     }
 
@@ -51,7 +51,6 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertSame(ProductListingResult::class, $capabilities[0]->producedType);
         static::assertSame([], $capabilities[0]->genericParameters);
         static::assertSame([], $capabilities[0]->configTemplate);
-        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns search listing result as data and marks result as cache-aware with no tags')]
@@ -246,9 +245,11 @@ class ProductSearchDataLoaderTest extends TestCase
         $element = ContentElementBuilder::create('search')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->searchRoute->expects($this->never())->method('load');
+        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load($element, $requirement, $context, new Request());
+        $loader = new ProductSearchDataLoader($searchRoute);
+        $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
@@ -264,9 +265,11 @@ class ProductSearchDataLoaderTest extends TestCase
             ->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->searchRoute->expects($this->never())->method('load');
+        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductSearchDataLoader($searchRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('search', 'product_search', $config),
             $context,
@@ -284,9 +287,11 @@ class ProductSearchDataLoaderTest extends TestCase
         $config = new ProductSearchLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
-        $this->searchRoute->expects($this->never())->method('load');
+        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute->expects($this->never())->method('load');
 
-        $result = $this->loader->load(
+        $loader = new ProductSearchDataLoader($searchRoute);
+        $result = $loader->load(
             $element,
             new DataRequirement('search', 'product_search', $config),
             $context,

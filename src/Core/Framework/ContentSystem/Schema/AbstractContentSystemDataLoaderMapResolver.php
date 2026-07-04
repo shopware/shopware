@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-abstract class AbstractContentSystemDataLoaderTypeResolver
+abstract class AbstractContentSystemDataLoaderMapResolver
 {
-    abstract public function resolve(): ContentSystemDataLoaderTypeMap;
+    abstract public function resolve(): ContentSystemDataLoaderMap;
 }

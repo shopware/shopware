@@ -6,8 +6,11 @@ use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -76,7 +79,6 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             $capabilities[] = new LoaderTypeCapability(
                 $collectionClass,
                 ['entity' => $entityName],
-                ['property'],
                 [$producedDefinition->getEntityClass()],
             );
         }
@@ -94,6 +96,15 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $collectionClass = $this->resolveDefinition($config->entity)->getCollectionClass();
 
         return $collectionClass;
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+        ]);
     }
 
     public function load(

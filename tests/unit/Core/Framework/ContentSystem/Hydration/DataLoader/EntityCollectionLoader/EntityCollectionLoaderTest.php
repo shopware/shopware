@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -202,31 +204,6 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertCount(2, $result->getCacheTags());
     }
 
-    #[TestDox('returns uncacheable result when cache tag resolver returns null for an entity')]
-    public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
-    {
-        $productId = 'uncacheable-product';
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn(null);
-
-        $loader = $this->createLoaderWithSalesChannelRepo(
-            'product',
-            new EntityCollection([$this->createEntityWithId($productId)]),
-            $cacheTagResolver,
-        );
-
-        $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertFalse($result->isCacheAware());
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-    }
-
     #[TestDox('falls back to plain repository when sales channel repository is not found')]
     public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
     {
@@ -355,14 +332,38 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns null data when config is not EntityLoaderConfig')]
-    public function testLoadReturnsNullDataWhenConfigIsWrongType(): void
+    #[TestDox('returns uncacheable result when cache tag resolver returns null for an entity')]
+    public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
     {
-        $requirement = new DataRequirement('products', 'entity_collection', new StubLoaderConfig());
-        $element = ContentElementBuilder::create('product-grid')->build();
+        $productId = 'uncacheable-product';
+
+        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
+        $cacheTagResolver->method('resolve')->willReturn(null);
+
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([$this->createEntityWithId($productId)]),
+            $cacheTagResolver,
+        );
+
+        $result = $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertFalse($result->isCacheAware());
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+    }
+
+    #[DataProvider('returnsNullDataProvider')]
+    #[TestDox('returns null data when $_dataName')]
+    public function testLoadReturnsNullData(DataRequirement $requirement, ContentElement $element): void
+    {
+        $loader = $this->createMinimalLoader();
         $context = Generator::generateSalesChannelContext();
 
-        $loader = $this->createMinimalLoader();
         $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
@@ -393,22 +394,20 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns null data when property value is not an array')]
-    public function testLoadReturnsNullDataWhenPropertyIsNotArray(): void
+    /**
+     * @return iterable<string, array{DataRequirement, ContentElement}>
+     */
+    public static function returnsNullDataProvider(): iterable
     {
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', 'not-an-array')
-            ->build();
-        $context = Generator::generateSalesChannelContext();
+        yield 'config is not an EntityLoaderConfig' => [
+            new DataRequirement('products', 'entity_collection', new StubLoaderConfig()),
+            ContentElementBuilder::create('product-grid')->build(),
+        ];
 
-        $loader = $this->createMinimalLoader();
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        yield 'property value is not an array' => [
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            ContentElementBuilder::create('product-grid')->withProperty('productIds', 'not-an-array')->build(),
+        ];
     }
 
     /**

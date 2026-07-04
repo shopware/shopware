@@ -37,7 +37,7 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $container->setDefinition(NavigationDataLoader::class, $this->taggedLoader(NavigationDataLoader::class));
         $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
 
-        static::expectNotToPerformAssertions();
+        $this->expectNotToPerformAssertions();
 
         $pass = new ContentSystemDataLoaderCompilerPass();
         $pass->process($container);
@@ -49,7 +49,7 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setDefinition(ValidSpecificationLoader::class, $this->taggedLoader(ValidSpecificationLoader::class));
 
-        static::expectNotToPerformAssertions();
+        $this->expectNotToPerformAssertions();
 
         (new ContentSystemDataLoaderCompilerPass())->process($container);
     }
@@ -62,150 +62,23 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $definition->addTag('content_system.data_loader');
         $container->setDefinition('app.null_class_loader', $definition);
 
-        static::expectNotToPerformAssertions();
+        $this->expectNotToPerformAssertions();
 
         $pass = new ContentSystemDataLoaderCompilerPass();
         $pass->process($container);
     }
 
-    #[TestDox('throws when tagged service does not extend AbstractContentDataLoader')]
-    public function testProcessThrowsForNonContentDataLoaderSubclass(): void
+    /**
+     * @param class-string $loaderClass
+     */
+    #[DataProvider('throwsForInvalidLoaderClassProvider')]
+    #[TestDox('throws when a tagged loader class fails structural validation: $_dataName')]
+    public function testProcessThrowsForInvalidLoaderClass(string $serviceId, string $loaderClass, \Exception $expected): void
     {
         $container = new ContainerBuilder();
-        $container->setDefinition('app.wrong_class_loader', $this->taggedLoader(\stdClass::class));
+        $container->setDefinition($serviceId, $this->taggedLoader($loaderClass));
 
-        $this->expectExceptionObject(DependencyInjectionException::taggedServiceHasWrongType('app.wrong_class_loader', 'content_system.data_loader', AbstractContentDataLoader::class));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when loader has no docblock')]
-    public function testProcessThrowsForMissingDocblock(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(NoDocblockStubLoader::class, $this->taggedLoader(NoDocblockStubLoader::class));
-
-        $this->expectExceptionObject(ContentSystemException::missingExtendsAnnotation(NoDocblockStubLoader::class));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when loader docblock has no @extends tag')]
-    public function testProcessThrowsForMissingExtendsAnnotation(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(MissingAnnotationStubLoader::class, $this->taggedLoader(MissingAnnotationStubLoader::class));
-
-        $this->expectExceptionObject(ContentSystemException::missingExtendsAnnotation(MissingAnnotationStubLoader::class));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when @extends type parameter is not a Struct subclass')]
-    public function testProcessThrowsForNonStructType(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(NonStructTypeStubLoader::class, $this->taggedLoader(NonStructTypeStubLoader::class));
-
-        $this->expectExceptionObject(ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeStubLoader::class));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a specification declares a duplicate config key')]
-    public function testProcessThrowsForDuplicateConfigKey(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(DuplicateKeyLoader::class, $this->taggedLoader(DuplicateKeyLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDuplicate(DuplicateKeyLoader::class, 'property'));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a propertyReference config key is not string-typed')]
-    public function testProcessThrowsForNonStringPropertyReferenceKey(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(NonStringPropertyReferenceLoader::class, $this->taggedLoader(NonStringPropertyReferenceLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyInvalidType(NonStringPropertyReferenceLoader::class, 'property', 'propertyReference', 'integer'));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a config key declares a type outside the declarable set')]
-    public function testProcessThrowsForUnknownKeyType(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(UnknownKeyTypeLoader::class, $this->taggedLoader(UnknownKeyTypeLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyUnknownType(
-            UnknownKeyTypeLoader::class,
-            'payload',
-            'json',
-            ConfigKeySpecification::TYPES
-        ));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a required config key declares a default')]
-    public function testProcessThrowsForRequiredKeyWithDefault(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(RequiredKeyWithDefaultLoader::class, $this->taggedLoader(RequiredKeyWithDefaultLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
-            RequiredKeyWithDefaultLoader::class,
-            'property',
-            'a required key must not declare a default (required means: no default and the loader cannot produce without it)'
-        ));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a list<string> default contains a non-string element')]
-    public function testProcessThrowsForMixedListDefault(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(MixedListDefaultLoader::class, $this->taggedLoader(MixedListDefaultLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
-            MixedListDefaultLoader::class,
-            'associations',
-            'the default value of PHP type "array" does not match the declared type "list<string>"'
-        ));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a config key declares a default while hasDefault is false')]
-    public function testProcessThrowsForDefaultWithoutHasDefault(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(DefaultWithoutHasDefaultLoader::class, $this->taggedLoader(DefaultWithoutHasDefaultLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
-            DefaultWithoutHasDefaultLoader::class,
-            'limit',
-            'a key without a declared default (hasDefault: false) must not carry a default value'
-        ));
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
-    #[TestDox('throws when a config key\'s default type does not match the declared type')]
-    public function testProcessThrowsForMismatchedDefaultType(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(MismatchedDefaultTypeLoader::class, $this->taggedLoader(MismatchedDefaultTypeLoader::class));
-
-        $this->expectExceptionObject(DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
-            MismatchedDefaultTypeLoader::class,
-            'limit',
-            'the default value of PHP type "string" does not match the declared type "integer"'
-        ));
+        $this->expectExceptionObject($expected);
 
         (new ContentSystemDataLoaderCompilerPass())->process($container);
     }
@@ -213,7 +86,22 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
     /**
      * @param class-string $loaderClass
      */
-    #[DataProvider('reservedNameProvider')]
+    #[DataProvider('throwsForInvalidConfigSpecificationProvider')]
+    #[TestDox('throws when a loader\'s config specification is invalid: $_dataName')]
+    public function testProcessThrowsForInvalidConfigSpecification(string $loaderClass, DependencyInjectionException $expected): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition($loaderClass, $this->taggedLoader($loaderClass));
+
+        $this->expectExceptionObject($expected);
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    /**
+     * @param class-string $loaderClass
+     */
+    #[DataProvider('throwsForReservedNamesProvider')]
     #[TestDox('throws when a loader uses a reserved source or config key name')]
     public function testProcessThrowsForReservedNames(string $loaderClass, DependencyInjectionException $expected): void
     {
@@ -226,9 +114,101 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string, class-string, \Exception}>
+     */
+    public static function throwsForInvalidLoaderClassProvider(): iterable
+    {
+        yield 'non-subclass of AbstractContentDataLoader' => [
+            'app.wrong_class_loader',
+            \stdClass::class,
+            DependencyInjectionException::taggedServiceHasWrongType('app.wrong_class_loader', 'content_system.data_loader', AbstractContentDataLoader::class),
+        ];
+
+        yield 'missing docblock' => [
+            NoDocblockStubLoader::class,
+            NoDocblockStubLoader::class,
+            ContentSystemException::missingExtendsAnnotation(NoDocblockStubLoader::class),
+        ];
+
+        yield 'docblock has no @extends tag' => [
+            MissingAnnotationStubLoader::class,
+            MissingAnnotationStubLoader::class,
+            ContentSystemException::missingExtendsAnnotation(MissingAnnotationStubLoader::class),
+        ];
+
+        yield '@extends type parameter is not a Struct subclass' => [
+            NonStructTypeStubLoader::class,
+            NonStructTypeStubLoader::class,
+            ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeStubLoader::class),
+        ];
+    }
+
+    /**
      * @return iterable<string, array{class-string, DependencyInjectionException}>
      */
-    public static function reservedNameProvider(): iterable
+    public static function throwsForInvalidConfigSpecificationProvider(): iterable
+    {
+        yield 'duplicate config key' => [
+            DuplicateKeyLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyDuplicate(DuplicateKeyLoader::class, 'property'),
+        ];
+
+        yield 'propertyReference config key is not string-typed' => [
+            NonStringPropertyReferenceLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidType(NonStringPropertyReferenceLoader::class, 'property', 'propertyReference', 'integer'),
+        ];
+
+        yield 'config key declares a type outside the declarable set' => [
+            UnknownKeyTypeLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyUnknownType(
+                UnknownKeyTypeLoader::class,
+                'payload',
+                'json',
+                ConfigKeySpecification::TYPES
+            ),
+        ];
+
+        yield 'required config key declares a default' => [
+            RequiredKeyWithDefaultLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
+                RequiredKeyWithDefaultLoader::class,
+                'property',
+                'a required key must not declare a default (required means: no default and the loader cannot produce without it)'
+            ),
+        ];
+
+        yield 'list<string> default contains a non-string element' => [
+            MixedListDefaultLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
+                MixedListDefaultLoader::class,
+                'associations',
+                'the default value of PHP type "array" does not match the declared type "list<string>"'
+            ),
+        ];
+
+        yield 'config key declares a default while hasDefault is false' => [
+            DefaultWithoutHasDefaultLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
+                DefaultWithoutHasDefaultLoader::class,
+                'limit',
+                'a key without a declared default (hasDefault: false) must not carry a default value'
+            ),
+        ];
+
+        yield 'config key\'s default type does not match the declared type' => [
+            MismatchedDefaultTypeLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyDefaultMismatch(
+                MismatchedDefaultTypeLoader::class,
+                'limit',
+                'the default value of PHP type "string" does not match the declared type "integer"'
+            ),
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{class-string, DependencyInjectionException}>
+     */
+    public static function throwsForReservedNamesProvider(): iterable
     {
         yield 'source named loader' => [
             ReservedLoaderSourceLoader::class,

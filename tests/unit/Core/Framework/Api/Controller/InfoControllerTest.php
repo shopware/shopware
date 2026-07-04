@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
@@ -30,7 +29,6 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGe
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
@@ -48,13 +46,12 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    private ShopIdProvider&MockObject $shopIdProvider;
+    private ShopIdProvider&Stub $shopIdProvider;
 
     private StatsService&Stub $statsService;
 
@@ -65,7 +62,7 @@ class InfoControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
         $this->eventDispatcher = new EventDispatcher();
@@ -74,6 +71,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider->method('getShopId')->willReturn($shopId);
     }
 
+    #[TestDox('returns the complete admin config payload with all expected keys and values')]
     public function testConfig(): void
     {
         $this->setEnvVars([
@@ -134,6 +132,107 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
     }
 
+    #[TestDox('returns content system element types as JSON')]
+    public function testContentSystemElementTypes(): void
+    {
+        $spec = new ContentSystemElementTypeSpecification(
+            name: 'Sw:Alert',
+            label: 'Alert',
+            description: 'Alert component',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecification('Alert summary', []),
+            properties: [],
+            slots: [],
+            source: 'core',
+        );
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('types', $data);
+        static::assertCount(1, $data['types']);
+        static::assertSame('Sw:Alert', $data['types'][0]['name']);
+        static::assertSame('core', $data['types'][0]['source']);
+    }
+
+    #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
+    public function testContentSystemStyleOptionsReturnsRegisteredOptionsKeyedByWireName(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
+
+        $controller = $this->createController(styleOptionRegistry: $registry);
+        $response = $controller->getContentSystemStyleOptions();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'col-span' => [
+                'type' => 'integer',
+                'enum' => null,
+                'range' => ['min' => 1, 'max' => 12],
+                'maxLength' => null,
+                'default' => null,
+                'breakpointAware' => true,
+                'adminUI' => null,
+            ],
+        ], $data['styleOptions']);
+    }
+
+    #[TestDox('returns the registered binding specifications keyed by source-qualified id with their derived schema')]
+    public function testContentSystemBindingSpecificationsReturnsRegisteredSpecificationsKeyedByQualifiedId(): void
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification()]);
+
+        $controller = $this->createController(bindingSpecificationRegistry: $registry);
+        $response = $controller->getContentSystemBindingSpecifications();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'core:from-media-library' => [
+                'id' => 'from-media-library',
+                'type' => 'media-gallery',
+                'label' => 'From Media Library',
+                'resolves' => [],
+                'inputs' => [],
+            ],
+        ], $data['bindingSpecifications']);
+    }
+
+    #[TestDox('returns content system entity types as JSON')]
+    public function testContentSystemEntityTypes(): void
+    {
+        $expected = ['entityTypes' => ['product', 'category', 'landing_page']];
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('entityRootSources')->willReturn(['product', 'category', 'landing_page']);
+
+        $controller = $this->createController(rootSourceRegistry: $rootSourceRegistry);
+        $response = $controller->contentSystemEntityTypes();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
         $this->shopIdProvider
@@ -146,6 +245,47 @@ class InfoControllerTest extends TestCase
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('shopId', $data);
         static::assertSame('current-shop-id', $data['shopId']);
+    }
+
+    #[TestDox('folds the registered style options into the element types response')]
+    public function testContentSystemElementTypesFoldsInStyleOptions(): void
+    {
+        $styleOptionRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $styleOptionRegistry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
+
+        $controller = $this->createController(styleOptionRegistry: $styleOptionRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('styleOptions', $data);
+        // The folded section must carry the derived toSchema() shape, not raw option values
+        static::assertSame('integer', $data['styleOptions']['col-span']['type']);
+        static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
+        static::assertTrue($data['styleOptions']['col-span']['breakpointAware']);
+    }
+
+    #[TestDox('preserves floating-point precision in message stats response')]
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime('2024-01-15 10:00:00'), 1.00, new MessageTypeStatsCollection())
+            )
+        );
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
     }
 
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
@@ -199,15 +339,6 @@ class InfoControllerTest extends TestCase
         static::assertSame($expected, $data['settings']['firstMigrationDate']);
     }
 
-    /**
-     * @return iterable<string, array{string|null, string|null}>
-     */
-    public static function returnsFirstMigrationDateProvider(): iterable
-    {
-        yield 'null when migration info returns null' => [null, null];
-        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
-    }
-
     #[DisabledFeatures(['v6.8.0.0'])]
     #[TestDox('includes queue stats worker flag when legacy feature is inactive')]
     public function testConfigIncludesQueueStatsWorkerWhenLegacyFlagInactive(): void
@@ -230,79 +361,6 @@ class InfoControllerTest extends TestCase
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertFalse($data['enabled']);
         static::assertNull($data['stats']);
-    }
-
-    #[TestDox('preserves floating-point precision in message stats response')]
-    public function testMessageStatsPreservesFloatingPointPrecision(): void
-    {
-        $this->statsService->method('getStats')->willReturn(
-            new MessageStatsResponseEntity(
-                true,
-                new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
-            )
-        );
-        $content = $this->createController()->messageStats()->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertArrayHasKey('stats', $data);
-        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
-
-        // Check that the floating point precision is preserved for zero-padded decimal values
-        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
-    }
-
-    #[TestDox('returns content system element types as JSON')]
-    public function testContentSystemElementTypes(): void
-    {
-        $spec = new ContentSystemElementTypeSpecification(
-            name: 'Sw:Alert',
-            label: 'Alert',
-            description: 'Alert component',
-            icon: null,
-            category: null,
-            copilot: new CopilotSpecification('Alert summary', []),
-            properties: [],
-            slots: [],
-            source: 'core',
-        );
-
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
-
-        $controller = $this->createController(elementTypeRegistry: $registry);
-        $response = $controller->getContentSystemElementTypes();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('types', $data);
-        static::assertCount(1, $data['types']);
-        static::assertSame('Sw:Alert', $data['types'][0]['name']);
-        static::assertSame('core', $data['types'][0]['source']);
-    }
-
-    #[TestDox('folds the registered style options into the element types response')]
-    public function testContentSystemElementTypesFoldsInStyleOptions(): void
-    {
-        $styleOptionRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $styleOptionRegistry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
-
-        $controller = $this->createController(styleOptionRegistry: $styleOptionRegistry);
-        $response = $controller->getContentSystemElementTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('styleOptions', $data);
-        // The folded section must carry the derived toSchema() shape, not raw option values
-        static::assertSame('integer', $data['styleOptions']['col-span']['type']);
-        static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
-        static::assertTrue($data['styleOptions']['col-span']['breakpointAware']);
     }
 
     #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
@@ -336,33 +394,6 @@ class InfoControllerTest extends TestCase
         static::assertSame([], $data['types']);
     }
 
-    #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
-    public function testContentSystemStyleOptionsReturnsRegisteredOptionsKeyedByWireName(): void
-    {
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
-
-        $controller = $this->createController(styleOptionRegistry: $registry);
-        $response = $controller->getContentSystemStyleOptions();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([
-            'col-span' => [
-                'type' => 'integer',
-                'enum' => null,
-                'range' => ['min' => 1, 'max' => 12],
-                'maxLength' => null,
-                'default' => null,
-                'breakpointAware' => true,
-                'adminUI' => null,
-            ],
-        ], $data['styleOptions']);
-    }
-
     #[TestDox('encodes an empty style option set as a JSON object, not an array')]
     public function testContentSystemStyleOptionsEncodesEmptySetAsObject(): void
     {
@@ -376,31 +407,6 @@ class InfoControllerTest extends TestCase
         static::assertIsString($content);
         // Assert the raw encoding: json_decode would erase the {} vs [] distinction
         static::assertStringContainsString('"styleOptions":{}', $content);
-    }
-
-    #[TestDox('returns the registered binding specifications keyed by source-qualified id with their derived schema')]
-    public function testContentSystemBindingSpecificationsReturnsRegisteredSpecificationsKeyedByQualifiedId(): void
-    {
-        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification()]);
-
-        $controller = $this->createController(bindingSpecificationRegistry: $registry);
-        $response = $controller->getContentSystemBindingSpecifications();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([
-            'core:from-media-library' => [
-                'id' => 'from-media-library',
-                'type' => 'media-gallery',
-                'label' => 'From Media Library',
-                'resolves' => [],
-                'inputs' => [],
-            ],
-        ], $data['bindingSpecifications']);
     }
 
     #[TestDox('encodes an empty binding specification catalog as a JSON object, not an array')]
@@ -418,21 +424,13 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
-    #[TestDox('returns content system entity types as JSON')]
-    public function testContentSystemEntityTypes(): void
+    /**
+     * @return iterable<string, array{string|null, string|null}>
+     */
+    public static function returnsFirstMigrationDateProvider(): iterable
     {
-        $expected = ['entityTypes' => ['product', 'category', 'landing_page']];
-
-        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
-        $rootSourceRegistry->method('entityRootSources')->willReturn(['product', 'category', 'landing_page']);
-
-        $controller = $this->createController(rootSourceRegistry: $rootSourceRegistry);
-        $response = $controller->contentSystemEntityTypes();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-        static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        yield 'null when migration info returns null' => [null, null];
+        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
     }
 
     private function bindingSpecification(): BindingSpecification

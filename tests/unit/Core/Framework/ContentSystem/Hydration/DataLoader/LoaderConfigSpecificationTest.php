@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpeci
 #[CoversClass(LoaderConfigSpecification::class)]
 class LoaderConfigSpecificationTest extends TestCase
 {
-    #[TestDox('every helper yields nothing for an empty specification')]
+    #[TestDox('yields empty results from every helper for an empty specification')]
     public function testEmptySpecificationYieldsNothing(): void
     {
         $specification = new LoaderConfigSpecification([]);
@@ -50,24 +51,27 @@ class LoaderConfigSpecificationTest extends TestCase
         static::assertSame([$rootId, $associations], $specification->keysOfKind(ConfigKeyKind::Literal));
     }
 
-    #[TestDox('get returns null for a name that no key carries')]
-    public function testGetReturnsNullForUnknownName(): void
+    /**
+     * @param list<ConfigKeySpecification> $keys
+     */
+    #[DataProvider('looksUpByNameProvider')]
+    #[TestDox('looks up a key by name: $_dataName')]
+    public function testGetLooksUpKeyByName(array $keys, string $name, ?ConfigKeySpecification $expected): void
     {
-        $specification = new LoaderConfigSpecification([
-            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', true),
-        ]);
+        $specification = new LoaderConfigSpecification($keys);
 
-        static::assertNull($specification->get('property'));
+        static::assertSame($expected, $specification->get($name));
     }
 
-    #[TestDox('get returns the exact key instance carrying the given name')]
-    public function testGetReturnsExactInstanceForKnownName(): void
+    /**
+     * @return iterable<string, array{list<ConfigKeySpecification>, string, ConfigKeySpecification|null}>
+     */
+    public static function looksUpByNameProvider(): iterable
     {
         $entity = new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', true);
         $property = new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', true);
 
-        $specification = new LoaderConfigSpecification([$entity, $property]);
-
-        static::assertSame($property, $specification->get('property'));
+        yield 'returns the exact instance for a known name' => [[$entity, $property], 'property', $property];
+        yield 'returns null for an unknown name' => [[$entity], 'property', null];
     }
 }

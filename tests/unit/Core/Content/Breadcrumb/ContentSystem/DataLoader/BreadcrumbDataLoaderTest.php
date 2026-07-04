@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Breadcrumb\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\ContentSystem\DataLoader\BreadcrumbDataLoader;
 use Shopware\Core\Content\Breadcrumb\ContentSystem\DataLoader\BreadcrumbLoaderConfig;
@@ -26,13 +26,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(BreadcrumbDataLoader::class)]
 class BreadcrumbDataLoaderTest extends TestCase
 {
-    private AbstractBreadcrumbRoute&MockObject $breadcrumbRoute;
+    private AbstractBreadcrumbRoute&Stub $breadcrumbRoute;
 
     private BreadcrumbDataLoader $loader;
 
     protected function setUp(): void
     {
-        $this->breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
+        $this->breadcrumbRoute = static::createStub(AbstractBreadcrumbRoute::class);
         $this->loader = new BreadcrumbDataLoader($this->breadcrumbRoute);
     }
 
@@ -43,7 +43,7 @@ class BreadcrumbDataLoaderTest extends TestCase
     }
 
     #[TestDox('declares BreadcrumbCollection as its single producible type')]
-    public function testProducibleTypesDeclaresExtendsType(): void
+    public function testProducibleTypesReturnsSingleBreadcrumbCapability(): void
     {
         $capabilities = $this->loader->producibleTypes();
 
@@ -250,9 +250,11 @@ class BreadcrumbDataLoaderTest extends TestCase
         $element = ContentElementBuilder::create('breadcrumb')->build();
         $context = Generator::generateSalesChannelContext();
 
-        $this->breadcrumbRoute->expects($this->never())->method('load');
+        $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
+        $breadcrumbRoute->expects($this->never())->method('load');
+        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
 
-        $result = $this->loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
@@ -266,9 +268,11 @@ class BreadcrumbDataLoaderTest extends TestCase
         $config = new BreadcrumbLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
-        $this->breadcrumbRoute->expects($this->never())->method('load');
+        $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
+        $breadcrumbRoute->expects($this->never())->method('load');
+        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
 
-        $result = $this->loader->load(
+        $result = $loader->load(
             $element,
             new DataRequirement('breadcrumb', 'breadcrumb', $config),
             $context,

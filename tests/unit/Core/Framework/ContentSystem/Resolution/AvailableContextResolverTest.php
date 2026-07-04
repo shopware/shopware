@@ -177,6 +177,25 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame([], $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext()));
     }
 
+    #[TestDox('does not re-expose incoming context through a consumer that does not redistribute')]
+    public function testNonRedistributingConsumerDoesNotReExposeIncomingContext(): void
+    {
+        $child = new ContentElement('child-1', 'Sw:Block');
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$child])],
+            new ContextDefinitions(
+                [],
+                ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: false)],
+            ),
+        );
+
+        static::assertSame([], $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext()));
+    }
+
     #[TestDox('accumulates redistributed context across multiple intermediates down to a deep descendant')]
     public function testRedistributeChainsAcrossMultipleLevels(): void
     {

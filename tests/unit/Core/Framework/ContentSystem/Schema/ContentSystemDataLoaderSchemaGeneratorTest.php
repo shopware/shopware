@@ -98,23 +98,10 @@ class ContentSystemDataLoaderSchemaGeneratorTest extends TestCase
         static::assertSame(['configKeys', 'types'], array_keys($schema['sources']['entity']));
     }
 
-    public function testGetSchemaEmitsEmptyConfigKeysForAConfigLessSpecification(): void
-    {
-        $map = new ContentSystemDataLoaderMap(
-            ['language' => [new LoaderTypeCapability(Tree::class)]],
-            ['language' => new LoaderConfigSpecification([])],
-        );
-        $generator = new ContentSystemDataLoaderSchemaGenerator($this->resolverReturning($map));
-
-        $schema = $generator->getSchema();
-
-        static::assertSame([], $schema['sources']['language']['configKeys']);
-    }
-
     /**
      * @param list<array{name: string, kind: string, type: string, required: bool, default?: mixed, adminUI?: array<string, mixed>}> $expectedConfigKeys
      */
-    #[DataProvider('configKeyEntryProvider')]
+    #[DataProvider('buildsConfigKeyEntryProvider')]
     #[TestDox('builds config key entry for $_dataName')]
     public function testGetSchemaBuildsConfigKeyEntry(ConfigKeySpecification $key, array $expectedConfigKeys): void
     {
@@ -132,7 +119,7 @@ class ContentSystemDataLoaderSchemaGeneratorTest extends TestCase
     /**
      * @return iterable<string, array{ConfigKeySpecification, list<array{name: string, kind: string, type: string, required: bool, default?: mixed, adminUI?: array<string, mixed>}>}>
      */
-    public static function configKeyEntryProvider(): iterable
+    public static function buildsConfigKeyEntryProvider(): iterable
     {
         yield 'a required entityName key with no default' => [
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
@@ -160,50 +147,6 @@ class ContentSystemDataLoaderSchemaGeneratorTest extends TestCase
         ];
     }
 
-    public function testGetSchemaOmitsDefaultKeyWhenKeyDeclaresNoDefault(): void
-    {
-        $key = new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true);
-        $map = new ContentSystemDataLoaderMap(['entity' => []], ['entity' => new LoaderConfigSpecification([$key])]);
-        $generator = new ContentSystemDataLoaderSchemaGenerator($this->resolverReturning($map));
-
-        $schema = $generator->getSchema();
-
-        static::assertArrayNotHasKey('default', $schema['sources']['entity']['configKeys'][0]);
-    }
-
-    public function testGetSchemaHasDefaultKeyWhenKeyDeclaresANullDefault(): void
-    {
-        $key = new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null);
-        $map = new ContentSystemDataLoaderMap(['navigation' => []], ['navigation' => new LoaderConfigSpecification([$key])]);
-        $generator = new ContentSystemDataLoaderSchemaGenerator($this->resolverReturning($map));
-
-        $schema = $generator->getSchema();
-
-        static::assertArrayHasKey('default', $schema['sources']['navigation']['configKeys'][0]);
-    }
-
-    public function testGetSchemaOmitsAdminUiKeyWhenKeyDeclaresNone(): void
-    {
-        $key = new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true);
-        $map = new ContentSystemDataLoaderMap(['entity' => []], ['entity' => new LoaderConfigSpecification([$key])]);
-        $generator = new ContentSystemDataLoaderSchemaGenerator($this->resolverReturning($map));
-
-        $schema = $generator->getSchema();
-
-        static::assertArrayNotHasKey('adminUI', $schema['sources']['entity']['configKeys'][0]);
-    }
-
-    public function testGetSchemaHasAdminUiKeyWhenKeyDeclaresOne(): void
-    {
-        $key = new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null, adminUI: ['component' => 'select']);
-        $map = new ContentSystemDataLoaderMap(['navigation' => []], ['navigation' => new LoaderConfigSpecification([$key])]);
-        $generator = new ContentSystemDataLoaderSchemaGenerator($this->resolverReturning($map));
-
-        $schema = $generator->getSchema();
-
-        static::assertArrayHasKey('adminUI', $schema['sources']['navigation']['configKeys'][0]);
-    }
-
     public function testGetSchemaPreservesConfigKeyDeclarationOrder(): void
     {
         $keys = [
@@ -217,6 +160,19 @@ class ContentSystemDataLoaderSchemaGeneratorTest extends TestCase
         $schema = $generator->getSchema();
 
         static::assertSame(['entity', 'property', 'associations'], array_column($schema['sources']['entity']['configKeys'], 'name'));
+    }
+
+    public function testGetSchemaEmitsEmptyConfigKeysForAConfigLessSpecification(): void
+    {
+        $map = new ContentSystemDataLoaderMap(
+            ['language' => [new LoaderTypeCapability(Tree::class)]],
+            ['language' => new LoaderConfigSpecification([])],
+        );
+        $generator = new ContentSystemDataLoaderSchemaGenerator($this->resolverReturning($map));
+
+        $schema = $generator->getSchema();
+
+        static::assertSame([], $schema['sources']['language']['configKeys']);
     }
 
     private function resolverReturning(ContentSystemDataLoaderMap $map): AbstractContentSystemDataLoaderMapResolver

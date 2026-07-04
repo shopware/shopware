@@ -8,12 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\LoaderConfigSpecificationFixture;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
@@ -57,10 +56,7 @@ class ContentSystemDataLoaderMapResolverTest extends TestCase
         $navigation->method('producibleTypes')->willReturn([new LoaderTypeCapability(Tree::class)]);
         $navigation->method('configSpecification')->willReturn($navigationSpecification);
 
-        $entitySpecification = new LoaderConfigSpecification([
-            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-        ]);
+        $entitySpecification = LoaderConfigSpecificationFixture::entityProperty();
         $entity = static::createStub(AbstractContentDataLoader::class);
         $entity->method('producibleTypes')->willReturn([
             new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product']),
@@ -78,12 +74,12 @@ class ContentSystemDataLoaderMapResolverTest extends TestCase
         static::assertSame($entitySpecification, $map->configSpecificationFor('entity'));
     }
 
-    #[TestDox('memoizes the assembled map so each loader is read only once per runtime')]
+    #[TestDox('memoizes the assembled map and reads each loader only once per runtime')]
     public function testMemoizesAssembledMap(): void
     {
-        $loader = $this->createMock(AbstractContentDataLoader::class);
-        $loader->expects($this->once())->method('producibleTypes')->willReturn([new LoaderTypeCapability(Tree::class)]);
-        $loader->expects($this->once())->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('producibleTypes')->willReturn([new LoaderTypeCapability(Tree::class)]);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
 
         $resolver = new ContentSystemDataLoaderMapResolver(new DataLoaderProvider(new ServiceLocator([
             'navigation' => static fn (): AbstractContentDataLoader => $loader,
@@ -115,5 +111,13 @@ class ContentSystemDataLoaderMapResolverTest extends TestCase
 
         $second = (new ContentSystemDataLoaderMapResolver($provider))->resolve();
         static::assertCount(2, $second->sourceToCapabilities['navigation']);
+    }
+
+    #[TestDox('resolves an empty map when no loader is registered')]
+    public function testResolveWithoutRegisteredLoadersYieldsEmptyMap(): void
+    {
+        $resolver = new ContentSystemDataLoaderMapResolver(new DataLoaderProvider(new ServiceLocator([])));
+
+        static::assertSame([], $resolver->resolve()->sourceToCapabilities);
     }
 }

@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Core\System\Currency\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,13 +25,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CurrencyDataLoader::class)]
 class CurrencyDataLoaderTest extends TestCase
 {
-    private AbstractCurrencyRoute&MockObject $currencyRoute;
+    private AbstractCurrencyRoute&Stub $currencyRoute;
 
     private CurrencyDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
+        $this->currencyRoute = static::createStub(AbstractCurrencyRoute::class);
         $this->dataLoader = new CurrencyDataLoader($this->currencyRoute);
     }
 
@@ -47,8 +48,21 @@ class CurrencyDataLoaderTest extends TestCase
 
         static::assertCount(1, $capabilities);
         static::assertSame(CurrencyCollection::class, $capabilities[0]->producedType);
-        static::assertSame([], $capabilities[0]->genericParameters);
-        static::assertSame([], $capabilities[0]->configTemplate);
+    }
+
+    #[TestDox('declares a single optional associations config key defaulting to an empty list')]
+    public function testConfigSpecificationDeclaresOptionalAssociationsKey(): void
+    {
+        $specification = $this->dataLoader->configSpecification();
+
+        static::assertCount(1, $specification->keys);
+        $key = $specification->keys[0];
+        static::assertSame('associations', $key->name);
+        static::assertSame(ConfigKeyKind::Literal, $key->kind);
+        static::assertSame('list<string>', $key->type);
+        static::assertFalse($key->required);
+        static::assertTrue($key->hasDefault);
+        static::assertSame([], $key->default);
     }
 
     #[TestDox('loads currencies with default config and returns cachedExternally result')]
@@ -84,7 +98,8 @@ class CurrencyDataLoaderTest extends TestCase
         $requirement = new DataRequirement('currencyKey', 'currency', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->currencyRoute
+        $currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
+        $currencyRoute
             ->expects($this->once())
             ->method('load')
             ->with(
@@ -98,8 +113,9 @@ class CurrencyDataLoaderTest extends TestCase
                 })
             )
             ->willReturn($response);
+        $dataLoader = new CurrencyDataLoader($currencyRoute);
 
-        $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader->load($element, $requirement, $context, new Request());
     }
 
     #[TestDox('loads currencies without associations when config is not a CurrencyLoaderConfig instance')]

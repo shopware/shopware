@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecific
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\LoaderConfigSpecificationFixture;
 
 /**
  * @internal
@@ -33,17 +34,6 @@ class ContentSystemDataLoaderMapTest extends TestCase
         static::assertSame($expected, $this->map()->getSourcesFor($className));
     }
 
-    /**
-     * @return iterable<string, array{string, list<string>}>
-     */
-    public static function scansSubtypesProvider(): iterable
-    {
-        yield 'a base property via a sales-channel subclass producer' => [ProductEntity::class, ['entity']];
-        yield 'a sales-channel property via an equal sales-channel producer' => [SalesChannelProductEntity::class, ['entity']];
-        yield 'a base property via an equal base producer (no sales-channel variant)' => [MediaEntity::class, ['media']];
-        yield 'no source for an unrelated type' => [CategoryEntity::class, []];
-    }
-
     #[TestDox('capabilityFor returns the matching capability for a producible class')]
     public function testCapabilityForReturnsMatch(): void
     {
@@ -52,18 +42,6 @@ class ContentSystemDataLoaderMapTest extends TestCase
         static::assertInstanceOf(LoaderTypeCapability::class, $capability);
         static::assertSame(SalesChannelProductEntity::class, $capability->producedType);
         static::assertSame(['entity' => 'product'], $capability->configTemplate);
-    }
-
-    #[TestDox('capabilityFor returns null when the source cannot produce the class')]
-    public function testCapabilityForReturnsNullWhenSourceCannotProduce(): void
-    {
-        static::assertNull($this->map()->capabilityFor('entity', MediaEntity::class));
-    }
-
-    #[TestDox('capabilityFor returns null for an unknown source')]
-    public function testCapabilityForReturnsNullForUnknownSource(): void
-    {
-        static::assertNull($this->map()->capabilityFor('unknown', ProductEntity::class));
     }
 
     #[TestDox('configSpecificationFor returns the registered specification for a known source')]
@@ -76,6 +54,36 @@ class ContentSystemDataLoaderMapTest extends TestCase
         $map = new ContentSystemDataLoaderMap(['entity' => []], ['entity' => $specification]);
 
         static::assertSame($specification, $map->configSpecificationFor('entity'));
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('derivesResidualConfigKeysProvider')]
+    #[TestDox('residualConfigKeysFor derives $_dataName')]
+    public function testResidualConfigKeysFor(
+        LoaderConfigSpecification $specification,
+        LoaderTypeCapability $capability,
+        array $expected,
+    ): void {
+        $map = new ContentSystemDataLoaderMap(
+            ['source' => [$capability]],
+            ['source' => $specification],
+        );
+
+        static::assertSame($expected, $map->residualConfigKeysFor('source', $capability));
+    }
+
+    #[TestDox('capabilityFor returns null when the source cannot produce the class')]
+    public function testCapabilityForReturnsNullWhenSourceCannotProduce(): void
+    {
+        static::assertNull($this->map()->capabilityFor('entity', MediaEntity::class));
+    }
+
+    #[TestDox('capabilityFor returns null for an unknown source')]
+    public function testCapabilityForReturnsNullForUnknownSource(): void
+    {
+        static::assertNull($this->map()->capabilityFor('unknown', ProductEntity::class));
     }
 
     #[TestDox('configSpecificationFor throws data-loader-not-registered for an unknown source instead of returning an empty specification')]
@@ -92,33 +100,23 @@ class ContentSystemDataLoaderMapTest extends TestCase
     }
 
     /**
-     * @param list<string> $expected
+     * @return iterable<string, array{string, list<string>}>
      */
-    #[DataProvider('residualConfigKeysProvider')]
-    #[TestDox('residualConfigKeysFor derives $_dataName')]
-    public function testResidualConfigKeysFor(
-        LoaderConfigSpecification $specification,
-        LoaderTypeCapability $capability,
-        array $expected,
-    ): void {
-        $map = new ContentSystemDataLoaderMap(
-            ['source' => [$capability]],
-            ['source' => $specification],
-        );
-
-        static::assertSame($expected, $map->residualConfigKeysFor('source', $capability));
+    public static function scansSubtypesProvider(): iterable
+    {
+        yield 'a base property via a sales-channel subclass producer' => [ProductEntity::class, ['entity']];
+        yield 'a sales-channel property via an equal sales-channel producer' => [SalesChannelProductEntity::class, ['entity']];
+        yield 'a base property via an equal base producer (no sales-channel variant)' => [MediaEntity::class, ['media']];
+        yield 'no source for an unrelated type' => [CategoryEntity::class, []];
     }
 
     /**
      * @return iterable<string, array{LoaderConfigSpecification, LoaderTypeCapability, list<string>}>
      */
-    public static function residualConfigKeysProvider(): iterable
+    public static function derivesResidualConfigKeysProvider(): iterable
     {
         yield 'a required key the template does not fill as the residual' => [
-            new LoaderConfigSpecification([
-                new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
-                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            ]),
+            LoaderConfigSpecificationFixture::entityProperty(),
             new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product']),
             ['property'],
         ];
@@ -161,10 +159,7 @@ class ContentSystemDataLoaderMapTest extends TestCase
                 'media' => [new LoaderTypeCapability(MediaEntity::class)],
             ],
             [
-                'entity' => new LoaderConfigSpecification([
-                    new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
-                    new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-                ]),
+                'entity' => LoaderConfigSpecificationFixture::entityProperty(),
                 'media' => new LoaderConfigSpecification([]),
             ],
         );

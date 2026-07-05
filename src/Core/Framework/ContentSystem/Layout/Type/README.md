@@ -49,6 +49,10 @@ The type spec declares WHAT properties exist and their types. The element instan
 
 5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation). App activation state is not denormalized onto the type rows — `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its types from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update).
 
+## Inline `bindings:` Sections
+
+A type YAML file may carry a top-level `bindings:` key declaring binding specifications for its type inline (`Definitions/media/image.yaml` does). The key is reserved for the binding system and invisible to this pipeline: `ElementTypeSpecificationSerializer::denormalize()` reads only `meta`, `properties`, and `slots`, and `Binding/Loader/YamlBindingSpecificationLoader` scans the same type directories for the inline sections independently. Inline bindings depend on the serializer staying lenient about unknown top-level keys; do not add strict top-level key validation here. See `../../Binding/README.md`.
+
 ## Subdirectories
 
 - **Definitions/** - Core YAML type definitions, organized into category subdirectories

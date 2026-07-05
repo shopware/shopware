@@ -6,9 +6,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
+use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
@@ -22,6 +25,8 @@ use Symfony\Component\Yaml\Yaml;
 class TypeConsistentBindingSpecificationValidationTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    private const ID = 'binding';
 
     #[TestDox('accepts a binding whose resolves/inputs are consistent with the declared element type')]
     public function testValidBindingProducesNoViolations(): void
@@ -37,7 +42,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             ],
         );
 
-        $violations = $this->validator()->validate($dto);
+        $violations = $this->validator()->validate(new BindingSpecificationDtoCollection([self::ID => $dto]));
 
         static::assertCount(0, $violations);
     }
@@ -52,7 +57,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     {
         $dto = new BindingSpecificationDto($type, 'invalid binding', $resolves, $inputs);
 
-        $violations = $this->validator()->validate($dto);
+        $violations = $this->validator()->validate(new BindingSpecificationDtoCollection([self::ID => $dto]));
 
         static::assertGreaterThan(0, $violations->count(), 'Expected at least one violation.');
 
@@ -61,7 +66,8 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             $paths[] = $violation->getPropertyPath();
         }
 
-        static::assertContains($expectedPath, $paths);
+        // The semantic constraint now runs on the collection, so violation paths are keyed on the binding id.
+        static::assertContains('bindings[' . self::ID . '].' . $expectedPath, $paths);
     }
 
     /**
@@ -177,7 +183,9 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             $loader = new YamlBindingSpecificationLoader(
                 [],
                 new BindingSpecificationSerializer(),
+                $this->canonicalizer(),
                 $this->validator(),
+                new ElementTypeNameResolver(),
             );
 
             try {
@@ -198,5 +206,13 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
         static::assertInstanceOf(ValidatorInterface::class, $validator);
 
         return $validator;
+    }
+
+    private function canonicalizer(): BindingSpecificationCanonicalizer
+    {
+        $canonicalizer = $this->getContainer()->get(BindingSpecificationCanonicalizer::class);
+        static::assertInstanceOf(BindingSpecificationCanonicalizer::class, $canonicalizer);
+
+        return $canonicalizer;
     }
 }

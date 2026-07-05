@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
@@ -48,7 +48,7 @@ class LayoutMutationController
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly ContentElementFieldSerializer $elementSerializer,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
-        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
+        private readonly BindingApplicator $bindingApplicator,
     ) {
     }
 
@@ -58,7 +58,7 @@ class LayoutMutationController
         InsertElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new InsertElement($this->registry, $payload->type, $payload->parentElementId, $payload->slot, $payload->index);
+        $mutation = new InsertElement($this->registry, $payload->type, $payload->parentElementId, $payload->slot, $payload->index, $this->bindingRegistry, $payload->bindingSpecificationId, $this->bindingApplicator);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
@@ -140,7 +140,7 @@ class LayoutMutationController
         BindElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->configSerializerProvider);
+        $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->bindingApplicator);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

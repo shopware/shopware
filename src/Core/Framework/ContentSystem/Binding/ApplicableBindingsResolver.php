@@ -68,7 +68,7 @@ class ApplicableBindingsResolver
     private function qualifiedIds(string $type): array
     {
         return array_map(
-            static fn (BindingSpecification $specification): string => $specification->source() . ':' . $specification->id(),
+            static fn (BindingSpecification $specification): string => $specification->qualifiedId(),
             $this->registry->byType($type),
         );
     }

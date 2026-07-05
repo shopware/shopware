@@ -86,7 +86,7 @@ Response:
 }
 ```
 
-`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data.
+`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data. Each entry additionally carries the folded `styleOptions` and `bindingSpecifications` catalogs, omitted from the example above for brevity — see [Style options](#style-options) and [Binding specifications](#binding-specifications).
 
 Full field-level schema: [content-system-element-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 
@@ -177,7 +177,7 @@ Full field-level schema: [content-system-style-options.json](../Api/ApiDefinitio
 
 `GET /api/_info/content-system-binding-specifications.json`
 
-The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — keyed by their source-qualified id (`source:id`). Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the same ids reported per element in the `applicableBindings` field of the mutation, persisted mutation, and diagnose responses (see below), and what a client passes back as `bindingSpecificationId` to the bind-element actions.
+The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — keyed by their source-qualified id (`source:id`). Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the same ids reported per element in the `applicableBindings` field of the mutation, persisted mutation, and diagnose responses (see below), and what a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions. The specifications for each type are also folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](#element-types).
 
 Response:
 
@@ -188,18 +188,19 @@ Response:
       "id": "from-media-library",
       "type": "Sw:Media:Image",
       "label": "From media library",
+      "promoted": true,
       "resolves": {
         "media": { "loader": "entity", "config": { "entity": "media", "property": "mediaId" } }
       },
       "inputs": {
-        "mediaId": []
+        "mediaId": { "required": true }
       }
     }
   }
 }
 ```
 
-`source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none.
+`source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none. Every `inputs` entry always carries a `required` flag — derived by the server from the specification's wiring, never authorable — marking a property the wired loader reads through a required config key.
 
 Full field-level schema: [content-system-binding-specifications.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-binding-specifications.json).
 
@@ -435,7 +436,7 @@ Every action shares one envelope and adds its own operation fields. Shared field
 
 | Endpoint            | Operation fields                                                                                                                                                                                    |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `insert-element`    | `type` (required); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional)                                                                    |
+| `insert-element`    | `type` (required); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional); `bindingSpecificationId` (optional, source-qualified id `source:id` — applies the named specification onto the inserted element atomically after scaffold, see below)                                                                    |
 | `remove-element`    | `elementId` (required)                                                                                                                                                                              |
 | `move-element`      | `elementId` (required); `newParentId` (optional, root when omitted); `newSlot` (required unless a same-parent move reuses the current slot); `index` (optional)                                     |
 | `replace-element`   | `elementId` (required); `newType` (required)                                                                                                                                                        |
@@ -450,6 +451,8 @@ Every action shares one envelope and adds its own operation fields. Shared field
 `attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
 
 `bind-element` applies `bindingSpecificationId`'s wiring onto `elementId`: each `resolves` entry becomes a data requirement, merged into the element's existing wiring and overwriting the same key (re-applying a binding over an already-bound key replaces its wiring, it does not fail); each `inputs` entry with a default seeds that primitive property only into a key the element does not already carry; every wired key's attribution is recorded (see the [Binding/](Binding/README.md) module). Adds wiring only — it never detaches or drops anything.
+
+`insert-element` accepts the same optional `bindingSpecificationId`: when given, the named specification's wiring is applied onto the freshly scaffolded element atomically after scaffold, by the same `Binding/BindingApplicator` merge as `bind-element`, in one edit. The specification is resolved before any tree change — an unregistered id (`bindingSpecificationNotFound`) or a specification whose declared `type` does not match the inserted `type` (`bindingTypeMismatch`) is rejected with `400` and nothing is inserted.
 
 Example (`insert-element`):
 
@@ -529,6 +532,8 @@ The persisted counterpart to the mutation endpoints above, for agents and automa
 
 Unlike the stateless mutation endpoints, these load the tree from storage (so there is no `layout` field in the body) and derive binding-scope diagnostics from the layout's own immutable `root_source` (so there is no `rootSource` hint in the body).
 
+A persisted `insert-element` whose `bindingSpecificationId` names a specification with a required input and no default (for example `core:from-media-library`, whose wiring reads `mediaId`) is always rejected: the request carries no `properties` field, so the freshly scaffolded element cannot hold the input's value and the committing gate raises `UnfilledRequiredInput` (400). This is served-implies-resolvable by design — assemble such an element on the stateless draft route and persist the finished tree once its required inputs carry values.
+
 > **Concurrency:** `expectedVersion` is a pragmatic interim token built on the row's `updatedAt`, compared at millisecond precision (the storage precision). On its own it is not a compare-and-swap, so the lost-update window it would otherwise leave open is closed by serializing concurrent writers: `PersistedLayoutMutator::mutate()` holds a named lock keyed by layout id across the load → version-check → commit span. A second writer that started from the same revision blocks on that lock, then re-reads the now-bumped `updatedAt`, fails the version check, and gets a `409` instead of clobbering the first edit. A real layout versioning system (draft/published revisions with explicit version identifiers) is still planned and will supersede this interim token with richer version identifiers.
 
 ### Request
@@ -538,7 +543,7 @@ The layout is named in the path. Every body carries the operation's fields (iden
 | Field             | Required       | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |-------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `expectedVersion` | yes (nullable) | Optimistic-concurrency token: the layout's `updatedAt` as last read. `null` for a never-updated layout. A mismatch is a `409`, an unparseable token a `400`, and nothing is written in either case.                                                                                                                                                                                                                                                                                                         |
-| operation fields  | per op         | `insert-element`: `type` (+ `parentElementId`, `slot`, `index`); `remove-element`: `elementId`; `move-element`: `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element`: `elementId`, `newType`; `duplicate-element`: `elementId` (+ `index`); `wrap-elements`: `elementIds`, `containerType`, `slot`; `unwrap-element`: `containerElementId`; `attach-element`: `element` (a raw subtree, ids reminted) (+ `parentElementId`, `slot`, `index`); `bind-element`: `elementId`, `bindingSpecificationId`. |
+| operation fields  | per op         | `insert-element`: `type` (+ `parentElementId`, `slot`, `index`, `bindingSpecificationId`); `remove-element`: `elementId`; `move-element`: `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element`: `elementId`, `newType`; `duplicate-element`: `elementId` (+ `index`); `wrap-elements`: `elementIds`, `containerType`, `slot`; `unwrap-element`: `containerElementId`; `attach-element`: `element` (a raw subtree, ids reminted) (+ `parentElementId`, `slot`, `index`); `bind-element`: `elementId`, `bindingSpecificationId`. |
 
 Example (`replace-element`):
 

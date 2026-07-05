@@ -13,8 +13,9 @@ use Shopware\Core\Framework\Log\Package;
  *     id: string,
  *     type: string,
  *     label: string,
+ *     promoted: bool,
  *     resolves: array<string, array{loader: string, config: array<string, mixed>}>,
- *     inputs: array<string, array{default?: mixed}>
+ *     inputs: array<string, array{default?: mixed, required: bool}>
  * }
  */
 #[Package('framework')]
@@ -23,6 +24,9 @@ final readonly class BindingSpecification
     /**
      * @param array<string, LoaderBinding> $resolves keyed by reference property key
      * @param array<string, BindingInput> $inputs keyed by primitive property key
+     *
+     * `$promoted` trails `$source` (rather than sitting in first-use order) so that existing positional
+     * constructions passing `$source` as the sixth argument keep binding it to source, not promoted.
      */
     public function __construct(
         private string $id,
@@ -31,6 +35,7 @@ final readonly class BindingSpecification
         private array $resolves,
         private array $inputs,
         private string $source = '',
+        private bool $promoted = false,
     ) {
     }
 
@@ -71,6 +76,33 @@ final readonly class BindingSpecification
     }
 
     /**
+     * The source-qualified id (`source:id`): the registry key, the wire identifier a client passes back as
+     * `bindingSpecificationId`, and the unique form of an id two sources may legitimately share bare.
+     */
+    public function qualifiedId(): string
+    {
+        return $this->source . ':' . $this->id;
+    }
+
+    /**
+     * Pure catalog metadata: the author promotes this specification for its type. No server behavior reads
+     * it: the scaffold never auto-applies it, the gate never consults it, `bind-element` ignores it.
+     */
+    public function isPromoted(): bool
+    {
+        return $this->promoted;
+    }
+
+    /**
+     * A demoted copy of this specification (`promoted: false`), used by the aggregation backstop to keep exactly
+     * one promoted specification per type when more than one survives to the merge.
+     */
+    public function withoutPromotion(): self
+    {
+        return new self($this->id, $this->type, $this->label, $this->resolves, $this->inputs, $this->source, false);
+    }
+
+    /**
      * @return BindingSpecificationSchema
      */
     public function toSchema(): array
@@ -85,19 +117,21 @@ final readonly class BindingSpecification
 
         $inputs = [];
         foreach ($this->inputs as $key => $input) {
-            if (!$input->hasDefault) {
-                $inputs[$key] = [];
+            $entry = [];
 
-                continue;
+            if ($input->hasDefault) {
+                $entry['default'] = $input->default;
             }
 
-            $inputs[$key] = ['default' => $input->default];
+            $entry['required'] = $input->required;
+            $inputs[$key] = $entry;
         }
 
         return [
             'id' => $this->id,
             'type' => $this->type,
             'label' => $this->label,
+            'promoted' => $this->promoted,
             'resolves' => $resolves,
             'inputs' => $inputs,
         ];

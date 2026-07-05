@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
@@ -220,7 +221,8 @@ class LayoutMutationControllerTest extends TestCase
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementSerializer(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            static::createStub(DataLoaderConfigSerializerProvider::class),
+            // BindingApplicator is final: a real instance over a stubbed serializer provider.
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
         );
     }
 

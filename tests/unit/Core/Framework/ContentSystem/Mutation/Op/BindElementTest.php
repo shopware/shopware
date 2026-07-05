@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -31,7 +32,7 @@ class BindElementTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $tree = [new ContentElement('el', 'Sw:Product')];
 
-        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
+        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->applicator($config)))->apply($tree);
 
         static::assertEquals(['product' => new DataRequirement('product', 'entity', $config)], $result[0]->getDataRequirements());
         static::assertSame('123', $result[0]->getProperty('mediaId'));
@@ -44,7 +45,7 @@ class BindElementTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $tree = [new ContentElement('el', 'Sw:Product')];
 
-        $result = (new BindElement($this->registryWithoutInputDefault($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
+        $result = (new BindElement($this->registryWithoutInputDefault($config), 'spec-1', 'el', $this->applicator($config)))->apply($tree);
 
         static::assertFalse($result[0]->hasProperty('mediaId'));
     }
@@ -55,7 +56,7 @@ class BindElementTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $old = ContentElementBuilder::create('Sw:Product', 'el')->withProperty('mediaId', 'authored')->build();
 
-        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply([$old]);
+        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->applicator($config)))->apply([$old]);
 
         static::assertSame('authored', $result[0]->getProperty('mediaId'));
     }
@@ -71,7 +72,7 @@ class BindElementTest extends TestCase
             ->withProperty('mediaId', 'user-filled')
             ->build();
 
-        $result = (new BindElement($this->registry($newConfig), 'spec-1', 'el', $this->serializers($newConfig)))->apply([$old]);
+        $result = (new BindElement($this->registry($newConfig), 'spec-1', 'el', $this->applicator($newConfig)))->apply([$old]);
 
         static::assertEquals(['product' => new DataRequirement('product', 'entity', $newConfig)], $result[0]->getDataRequirements());
         static::assertSame(['product' => 'spec-1'], $result[0]->getAttributedSpecifications());
@@ -94,7 +95,7 @@ class BindElementTest extends TestCase
             ->withAttributedSpecification('5', 'spec-old')
             ->build();
 
-        $result = (new BindElement($this->registry($newConfig), 'spec-1', 'el', $this->serializers($newConfig)))->apply([$old]);
+        $result = (new BindElement($this->registry($newConfig), 'spec-1', 'el', $this->applicator($newConfig)))->apply([$old]);
 
         static::assertEquals(
             ['5' => new DataRequirement('5', 'entity', $oldConfig), 'product' => new DataRequirement('product', 'entity', $newConfig)],
@@ -113,7 +114,7 @@ class BindElementTest extends TestCase
         $tree = [new ContentElement('el', 'Sw:Product')];
         $before = $this->snapshotTree($tree);
 
-        (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
+        (new BindElement($this->registry($config), 'spec-1', 'el', $this->applicator($config)))->apply($tree);
 
         $this->assertInputTreeUnmutated($before, $tree);
     }
@@ -122,7 +123,7 @@ class BindElementTest extends TestCase
     public function testReportsAffectedElementAndNoDetachment(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config));
+        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->applicator($config));
 
         $bind->apply([new ContentElement('el', 'Sw:Product')]);
 
@@ -138,7 +139,7 @@ class BindElementTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $old = ContentElementBuilder::create('Sw:Product', 'el')->withProperty('mediaId', null)->build();
 
-        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config)))->apply([$old]);
+        $result = (new BindElement($this->registry($config), 'spec-1', 'el', $this->applicator($config)))->apply([$old]);
 
         static::assertTrue($result[0]->hasProperty('mediaId'));
         static::assertNull($result[0]->getProperty('mediaId'));
@@ -148,7 +149,7 @@ class BindElementTest extends TestCase
     public function testBindTypeMismatchRejected(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config));
+        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->applicator($config));
 
         try {
             $bind->apply([new ContentElement('el', 'Sw:Other')]);
@@ -163,7 +164,7 @@ class BindElementTest extends TestCase
     {
         $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
         $registry->method('all')->willReturn([]);
-        $bind = new BindElement($registry, 'ghost', 'el', $this->serializers(static::createStub(AbstractContentDataLoaderConfig::class)));
+        $bind = new BindElement($registry, 'ghost', 'el', $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
 
         try {
             $bind->apply([new ContentElement('el', 'Sw:Product')]);
@@ -177,7 +178,7 @@ class BindElementTest extends TestCase
     public function testBindMissingElementRejected(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $bind = new BindElement($this->registry($config), 'spec-1', 'ghost', $this->serializers($config));
+        $bind = new BindElement($this->registry($config), 'spec-1', 'ghost', $this->applicator($config));
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $bind->apply([new ContentElement('el', 'Sw:Product')]);
@@ -217,11 +218,11 @@ class BindElementTest extends TestCase
         return $registry;
     }
 
-    private function serializers(AbstractContentDataLoaderConfig $config): DataLoaderConfigSerializerProvider
+    private function applicator(AbstractContentDataLoaderConfig $config): BindingApplicator
     {
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return $serializers;
+        return new BindingApplicator($serializers);
     }
 }

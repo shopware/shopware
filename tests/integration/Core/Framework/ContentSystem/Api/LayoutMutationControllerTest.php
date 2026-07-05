@@ -290,6 +290,39 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame('stored', $mediaResolution['resolved']['origin']);
     }
 
+    #[TestDox('applies the core from-media-library specification atomically when inserting a fresh image on the draft route')]
+    public function testInsertElementAppliesCoreBindingWiringAndAttribution(): void
+    {
+        $body = $this->mutate('insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Media:Image',
+            'bindingSpecificationId' => self::CORE_MEDIA_BINDING_ID,
+        ]);
+
+        $inserted = $body['layout'][0];
+        static::assertSame(
+            ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $inserted['dataRequirements']['media']
+        );
+        static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $inserted['attributedSpecifications']);
+    }
+
+    #[TestDox('rejects an insert whose bindingSpecificationId type does not match the inserted type with a 400 bindingTypeMismatch')]
+    public function testInsertElementRejectsMismatchedBindingType(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Content:Text',
+            'bindingSpecificationId' => self::CORE_MEDIA_BINDING_ID,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
+    }
+
     #[TestDox('carries an applicableBindings key per element in every mutation response body')]
     public function testMutationResponseCarriesApplicableBindingsKeyPerElement(): void
     {

@@ -110,6 +110,30 @@ class BindingSpecificationDtoTest extends TestCase
         static::assertNull($input->default);
     }
 
+    /**
+     * @param array<string, mixed> $entry
+     */
+    #[DataProvider('inputRequiredProvider')]
+    #[TestDox('sets BindingInput::required to $expected when the inputs entry $_dataName')]
+    public function testInputsEntryRequiredFlag(array $entry, bool $expected): void
+    {
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry]);
+
+        static::assertSame($expected, $dto->toBindingSpecification('id', 'core')->inputs()['alt']->required);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, bool}>
+     */
+    public static function inputRequiredProvider(): iterable
+    {
+        yield 'carries required:true' => [['required' => true], true];
+        yield 'carries required:false' => [['required' => false], false];
+        yield 'has no required key' => [[], false];
+        // Load-bearing: buildInputs() passes required only on a strict === true, never coercing a truthy value.
+        yield 'carries a non-boolean truthy required' => [['required' => 1], false];
+    }
+
     #[TestDox('drops an inputs entry that is not an array')]
     public function testDropsInputsEntryThatIsNotAnArray(): void
     {
@@ -142,5 +166,37 @@ class BindingSpecificationDtoTest extends TestCase
         $dto = new BindingSpecificationDto('media-gallery', false, [], []);
 
         static::assertSame('', $dto->toBindingSpecification('id', 'core')->label());
+    }
+
+    /**
+     * @param mixed $promoted the raw promoted facet as carried from the declaration
+     */
+    #[DataProvider('promotedProvider')]
+    #[TestDox('maps isPromoted() to $expected when the raw promoted facet $_dataName')]
+    public function testMapsPromotedFacet(mixed $promoted, bool $expected): void
+    {
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], [], $promoted);
+
+        static::assertSame($expected, $dto->toBindingSpecification('id', 'core')->isPromoted());
+    }
+
+    /**
+     * @return iterable<string, array{mixed, bool}>
+     */
+    public static function promotedProvider(): iterable
+    {
+        yield 'is true' => [true, true];
+        yield 'is false' => [false, false];
+        yield 'is absent (defaulted null)' => [null, false];
+        // Load-bearing: toBindingSpecification() maps on a strict === true, never coercing a truthy value.
+        yield 'is a truthy non-boolean' => [1, false];
+    }
+
+    #[TestDox('defaults isPromoted() to false when the promoted facet is omitted from the constructor')]
+    public function testDefaultsPromotedToFalseWhenOmitted(): void
+    {
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], []);
+
+        static::assertFalse($dto->toBindingSpecification('id', 'core')->isPromoted());
     }
 }

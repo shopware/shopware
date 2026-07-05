@@ -27,7 +27,7 @@
                                             "description": "Map of source-qualified binding specification id (`source:id`) to its specification. The same id a client receives from an element's `applicableBindings` entry and passes back as `bindingSpecificationId` to the bind-element actions.",
                                             "additionalProperties": {
                                                 "type": "object",
-                                                "required": ["id", "type", "label", "resolves", "inputs"],
+                                                "required": ["id", "type", "label", "promoted", "resolves", "inputs"],
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
@@ -40,6 +40,10 @@
                                                     "label": {
                                                         "type": "string",
                                                         "description": "Human-readable label for the specification."
+                                                    },
+                                                    "promoted": {
+                                                        "type": "boolean",
+                                                        "description": "Pure catalog metadata: whether the author promotes this specification as the primary choice for its type. No server behavior reads it; at most one specification is promoted per type across the aggregated registry."
                                                     },
                                                     "resolves": {
                                                         "type": ["object", "array"],
@@ -62,10 +66,15 @@
                                                     },
                                                     "inputs": {
                                                         "type": ["object", "array"],
-                                                        "description": "Map of primitive property key to its residual input declaration. Encodes as `[]` when the specification declares no residual input. An entry without a `default` key encodes as `[]` — presence of the key, not its value, distinguishes \"no default\" from \"default is null\".",
+                                                        "description": "Map of primitive property key to its residual input declaration. Encodes as `[]` when the specification declares no residual input. Each entry always carries `required`; `default` is present only when the specification declares one — presence of the key, not its value, distinguishes \"no default\" from \"default is null\".",
                                                         "additionalProperties": {
-                                                            "type": ["object", "array"],
+                                                            "type": "object",
+                                                            "required": ["required"],
                                                             "properties": {
+                                                                "required": {
+                                                                    "type": "boolean",
+                                                                    "description": "Whether the target element must carry a value for this property: derived from a specification-required propertyReference config key whose target reference property is declared required:true on the type. Not authorable directly."
+                                                                },
                                                                 "default": {
                                                                     "description": "The property's seeded default value, applied only when the target element does not already carry the key."
                                                                 }

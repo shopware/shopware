@@ -75,6 +75,23 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
     }
 
     /**
+     * The directory's types keyed by resolved type name: the per-load overlay shape the app binding persister
+     * and validator build from an inactive app's own types (not yet in the element-type registry) and thread
+     * into binding canonicalization and validation.
+     *
+     * @return array<string, ContentSystemElementTypeSpecification>
+     */
+    public function loadOverlayFromDirectory(string $directory, string $source, string $prefix): array
+    {
+        $overlay = [];
+        foreach ($this->loadFromDirectory($directory, $source, $prefix) as $specification) {
+            $overlay[$specification->name()] = $specification;
+        }
+
+        return $overlay;
+    }
+
+    /**
      * Validated and deduplicated within a single directory. Cross-directory
      * deduplication is the caller's responsibility (load() handles it for the standard path).
      *

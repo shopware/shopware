@@ -37,6 +37,10 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
         yield 'empty resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', [], [])];
         yield 'null resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', null, null)];
         yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]])];
+        yield 'an inputs entry with a boolean required flag' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => true]])];
+        yield 'a true promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], true)];
+        yield 'a false promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], false)];
+        yield 'an absent promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], null)];
     }
 
     #[DataProvider('rejectsMalformedDeclarationProvider')]
@@ -126,6 +130,24 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
             'inputs[alt].default',
             'default" must be a scalar or null',
         ];
+
+        yield 'inputs entry required is non-boolean' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => 'yes']]),
+            'inputs[alt].required',
+            'required" must be a boolean',
+        ];
+
+        yield 'promoted is a non-boolean string' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], [], 'yes'),
+            'promoted',
+            'promoted must be a boolean',
+        ];
+
+        yield 'promoted is a truthy integer' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], [], 1),
+            'promoted',
+            'promoted must be a boolean',
+        ];
     }
 
     #[TestDox('throws UnexpectedTypeException when the constraint type is wrong')]
@@ -150,10 +172,9 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
 
     private function validate(BindingSpecificationDto $dto): ConstraintViolationListInterface
     {
-        // Validate against the explicit structural constraint only, NOT via attribute mapping: the DTO also
-        // carries the dep-injected TypeConsistentBindingSpecification, whose validator the default (no-arg)
-        // constraint-validator factory here cannot construct. This isolates the structural rule under test;
-        // the semantic constraint is covered by its own container-based integration test.
+        // Validate against the explicit structural constraint only, NOT via attribute mapping. This isolates the
+        // structural rule under test; the semantic TypeConsistentBindingSpecification, now carried by the DTO
+        // collection, not the DTO, is covered by its own dedicated test.
         return Validation::createValidatorBuilder()
             ->getValidator()
             ->validate($dto, new WellFormedBindingSpecification());

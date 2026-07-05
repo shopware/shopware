@@ -50,6 +50,7 @@ class ContentSystemException extends HttpException
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
+    public const MUTATION_BINDING_COLLABORATORS_MISSING = 'CONTENT_SYSTEM__MUTATION_BINDING_COLLABORATORS_MISSING';
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
@@ -69,6 +70,9 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATIONS_INVALID = 'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID';
     public const BINDING_SPECIFICATION_NOT_FOUND = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND';
     public const BINDING_TYPE_MISMATCH = 'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH';
+    public const BINDING_SPECIFICATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE';
+    public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
+    public const BINDING_SPECIFICATION_PROMOTED_DUPLICATE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_PROMOTED_DUPLICATE';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -480,6 +484,18 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // A construction defect, not a client error: the op was built with a bindingSpecificationId but without
+    // the binding registry and applicator that applying it requires. 500: the request was valid, the
+    // constructing caller wired the op wrong.
+    public static function mutationBindingCollaboratorsMissing(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MUTATION_BINDING_COLLABORATORS_MISSING,
+            'A bindingSpecificationId was supplied without the binding registry and applicator; the constructing caller must supply both.'
+        );
+    }
+
     public static function layoutVersionConflict(string $layoutId): self
     {
         return new self(
@@ -541,7 +557,7 @@ class ContentSystemException extends HttpException
 
     // The client-facing 400 for a written root source that is not a member of the registry. Distinct from
     // rootSourceResolutionUnsupported(): membership is gated with this 400 before resolve()/sourceFor() is ever
-    // reached — on both the create and edit content_layout write paths, and the diagnose/mutation routes.
+    // reached, on both the create and edit content_layout write paths, and the diagnose/mutation routes.
     public static function unknownRootSource(string $rootSource): self
     {
         return new self(
@@ -657,6 +673,20 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // The authored-artifact 409 for the promoted-uniqueness invariant: at most one promoted specification per
+    // element type. The YAML loader throws this when two specifications in its loaded set (standalone or inline, any
+    // source) promote the same type, a bug in authored core/bundle/plugin (and, in dev, app) files, hard by design.
+    // The app-validator (soft) and the aggregation backstop (demote-and-warn) cover the paths this hard throw cannot.
+    public static function bindingSpecificationPromotedDuplicate(string $type, string $firstQualifiedId, string $secondQualifiedId): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::BINDING_SPECIFICATION_PROMOTED_DUPLICATE,
+            'Element type "{{ type }}" has more than one promoted binding specification ("{{ firstQualifiedId }}" and "{{ secondQualifiedId }}"), but at most one specification may be promoted per type.',
+            ['type' => $type, 'firstQualifiedId' => $firstQualifiedId, 'secondQualifiedId' => $secondQualifiedId]
+        );
+    }
+
     public static function bindingSpecificationLoadFailed(string $path, string $reason, ?\Throwable $previous = null): self
     {
         return new self(
@@ -680,6 +710,35 @@ class ContentSystemException extends HttpException
             self::BINDING_SPECIFICATIONS_INVALID,
             'Binding specification validation failed: {{ reason }}',
             ['reason' => implode('; ', $messages)]
+        );
+    }
+
+    // The load-time 400 for a specification whose declared (or inline-implicit) type is not a registered element
+    // type. The canonicalizer needs the type for every specification it processes (sugared or canonical), so an
+    // unknown type is rejected here rather than deferred to TypeConsistentBindingSpecification. Deliberately not
+    // a CLIENT_DEFECT_CODE: that list is only for element-tree config defects the diagnostics kernel catches, not
+    // authored-artifact load errors (matching bindingSpecificationNotFound/bindingTypeMismatch).
+    public static function bindingSpecificationUnknownType(string $id, string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_SPECIFICATION_UNKNOWN_TYPE,
+            'Binding specification "{{ id }}" declares the unknown element type "{{ type }}".',
+            ['id' => $id, 'type' => $type]
+        );
+    }
+
+    // The load-time 400 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
+    // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
+    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not a
+    // CLIENT_DEFECT_CODE, for the same reason as bindingSpecificationUnknownType.
+    public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_SPECIFICATION_CANONICALIZATION_FAILED,
+            'Cannot canonicalize binding specification "{{ id }}": {{ reason }}',
+            ['id' => $id, 'reason' => $reason]
         );
     }
 

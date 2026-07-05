@@ -69,6 +69,12 @@
                                 "minimum": 0,
                                 "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
                                 "default": null
+                            },
+                            "bindingSpecificationId": {
+                                "type": ["string", "null"],
+                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit. A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or an element's `applicableBindings` entry. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`, and nothing is inserted on either failure.",
+                                "default": null,
+                                "example": "core:from-media-library"
                             }
                         }
                     }
@@ -319,6 +325,12 @@
                                 "minimum": 0,
                                 "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
                                 "default": null
+                            },
+                            "bindingSpecificationId": {
+                                "type": ["string", "null"],
+                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold, in the same committed edit. A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or an element's `applicableBindings` entry. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`. The op throws before the repository write, so nothing is persisted on either failure.",
+                                "default": null,
+                                "example": "core:from-media-library"
                             }
                         }
                     }

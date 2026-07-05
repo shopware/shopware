@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
+use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,7 +34,9 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     public function __construct(
         private readonly array $directories,
         private readonly BindingSpecificationSerializer $serializer,
+        private readonly BindingSpecificationCanonicalizer $canonicalizer,
         private readonly ValidatorInterface $validator,
+        private readonly ElementTypeNameResolver $nameResolver,
     ) {
     }
 
@@ -42,9 +47,14 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     {
         $all = [];
         $seenQualifiedIds = [];
+        $promotedByType = [];
 
         foreach ($this->directories as $sourceDir) {
-            $resolvedSpecificationDtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source);
+            // A null prefix is a standalone binding-specification directory (one specification per file); a
+            // non-null prefix is an element-type directory scanned for inline `bindings` sections.
+            $resolvedSpecificationDtos = $sourceDir->prefix === null
+                ? $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source)
+                : $this->loadInlineDtosFromTypeDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
 
             // Cross-directory dedup is by source-qualified id, so two sources can each ship the same bare
             // id (within-directory dedup by bare id happens in loadDtosFromDirectory).
@@ -59,7 +69,23 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
                     );
                 }
                 $seenQualifiedIds[$qualifiedId] = $resolvedSpecificationDto->source;
-                $all[] = $resolvedSpecificationDto->toSpecification();
+
+                $specification = $resolvedSpecificationDto->toSpecification();
+
+                // Promoted uniqueness is per element type across ALL of this loader's directories (standalone and
+                // inline, every source): two promoted specifications for one type is an authored bug, hard by
+                // design. The built specification carries the type; the raw dto only carries it untyped.
+                if ($specification->isPromoted()) {
+                    $type = $specification->type();
+
+                    if (isset($promotedByType[$type])) {
+                        throw ContentSystemException::bindingSpecificationPromotedDuplicate($type, $promotedByType[$type], $qualifiedId);
+                    }
+
+                    $promotedByType[$type] = $qualifiedId;
+                }
+
+                $all[] = $specification;
             }
         }
 
@@ -69,9 +95,13 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     /**
      * Validated and deduplicated within a single directory (by bare id).
      *
+     * @param array<string, ContentSystemElementTypeSpecification> $typeOverlay type-name → spec for types not yet
+     *                                                                          in the registry (an app's own types at install/validate time); consulted before the registry, empty for
+     *                                                                          every non-app path
+     *
      * @return list<ResolvedBindingSpecificationDto>
      */
-    public function loadDtosFromDirectory(string $directory, string $source): array
+    public function loadDtosFromDirectory(string $directory, string $source, array $typeOverlay = []): array
     {
         $filesystem = new Filesystem($directory);
 
@@ -94,7 +124,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
         foreach ($files as $fileInfo) {
             $data = $this->parseFile($filesystem, $fileInfo->getRelativePathname());
             $id = $this->resolveId($data, $filesystem->path($fileInfo->getRelativePathname()));
-            $dto = $this->serializer->denormalize($data);
+            $dto = $this->canonicalizer->canonicalize($this->serializer->denormalize($data), $id, $typeOverlay);
 
             if (isset($seenIds[$id])) {
                 throw ContentSystemException::bindingSpecificationDuplicate($id, $seenIds[$id], $fileInfo->getFilename());
@@ -109,7 +139,96 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
             $specificationDtos[$resolvedSpecificationDto->id] = $resolvedSpecificationDto->dto;
         }
 
-        $violations = $this->validator->validate(new BindingSpecificationDtoCollection($specificationDtos));
+        $violations = $this->validator->validate(new BindingSpecificationDtoCollection($specificationDtos, $typeOverlay));
+        if ($violations->count() > 0) {
+            throw ContentSystemException::bindingSpecificationsInvalid($violations);
+        }
+
+        return $resolvedSpecificationDtos;
+    }
+
+    /**
+     * Validated and deduplicated within a single element-type directory (by bare id). Scans each `*.yaml`/`*.yml`
+     * file exactly like the standalone scan, reads the optional top-level `bindings` map, and loads each entry as
+     * a specification whose type is implicit, resolved from the file path plus the directory prefix via the same
+     * {@see ElementTypeNameResolver} the type loader uses. Files without a `bindings` key are skipped.
+     *
+     * @param array<string, ContentSystemElementTypeSpecification> $typeOverlay type-name → spec for types not yet
+     *                                                                          in the registry; consulted before the registry so an app's own inline binding resolves against its own
+     *                                                                          co-loaded type at install/validate time, empty for every non-app path
+     *
+     * @return list<ResolvedBindingSpecificationDto>
+     */
+    public function loadInlineDtosFromTypeDirectory(string $directory, string $source, string $prefix, array $typeOverlay = []): array
+    {
+        $filesystem = new Filesystem($directory);
+
+        if (!$filesystem->has()) {
+            return [];
+        }
+
+        $files = array_merge(
+            $filesystem->findFiles('*.yaml', '.'),
+            $filesystem->findFiles('*.yml', '.'),
+        );
+
+        if ($files === []) {
+            return [];
+        }
+
+        $resolvedSpecificationDtos = [];
+        $seenIds = [];
+
+        foreach ($files as $fileInfo) {
+            $relativePath = $fileInfo->getRelativePathname();
+            $data = $this->parseFile($filesystem, $relativePath);
+
+            $bindings = $data['bindings'] ?? null;
+            if ($bindings === null) {
+                continue;
+            }
+
+            $path = $filesystem->path($relativePath);
+            if (!\is_array($bindings)) {
+                throw ContentSystemException::bindingSpecificationLoadFailed($path, 'the "bindings" section must be a map of specification id to entry, got ' . get_debug_type($bindings));
+            }
+
+            $implicitType = $this->nameResolver->resolve($relativePath, $prefix);
+
+            foreach ($bindings as $bareId => $entryData) {
+                $id = $this->assertValidId($bareId, $path);
+
+                if (!\is_array($entryData)) {
+                    throw ContentSystemException::bindingSpecificationLoadFailed($path, \sprintf('the "bindings" entry "%s" must be a map, got %s', $id, get_debug_type($entryData)));
+                }
+
+                $this->rejectAuthoredTypeOrId($entryData, $id);
+
+                // The implicit type is injected; every other facet is authored inline and passes through
+                // unchanged, so an inline entry travels the same denormalize path as a standalone file. Keys are
+                // string-cast because a map value carries array-key keys and the serializer reads named keys.
+                $specificationData = ['type' => $implicitType];
+                foreach ($entryData as $facetKey => $facetValue) {
+                    $specificationData[(string) $facetKey] = $facetValue;
+                }
+
+                $dto = $this->canonicalizer->canonicalize($this->serializer->denormalize($specificationData), $id, $typeOverlay);
+
+                if (isset($seenIds[$id])) {
+                    throw ContentSystemException::bindingSpecificationDuplicate($id, $seenIds[$id], $fileInfo->getFilename());
+                }
+
+                $seenIds[$id] = $fileInfo->getFilename();
+                $resolvedSpecificationDtos[] = new ResolvedBindingSpecificationDto($id, $source, $dto);
+            }
+        }
+
+        $specificationDtos = [];
+        foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
+            $specificationDtos[$resolvedSpecificationDto->id] = $resolvedSpecificationDto->dto;
+        }
+
+        $violations = $this->validator->validate(new BindingSpecificationDtoCollection($specificationDtos, $typeOverlay));
         if ($violations->count() > 0) {
             throw ContentSystemException::bindingSpecificationsInvalid($violations);
         }
@@ -122,8 +241,15 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
      */
     private function resolveId(array $data, string $path): string
     {
-        $id = $data['id'] ?? null;
+        return $this->assertValidId($data['id'] ?? null, $path);
+    }
 
+    /**
+     * The single definition of the id constraints (non-empty string, at most MAX_ID_LENGTH chars), shared by the
+     * standalone body-`id` path and the inline map-key path so the two never drift.
+     */
+    private function assertValidId(mixed $id, string $path): string
+    {
         if (!\is_string($id) || $id === '') {
             throw ContentSystemException::bindingSpecificationLoadFailed($path, 'missing or empty "id"');
         }
@@ -133,6 +259,25 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
         }
 
         return $id;
+    }
+
+    /**
+     * An inline entry's type is implicit (the containing file's type) and its id is the map key. An authored
+     * `type` or `id` inside the entry would silently drift from those, so both are hard load-time errors. Runs
+     * before denormalization so the guard is never bypassed by the `['type' => …] + $entry`
+     * union that would otherwise let an inner `type` be overridden and an inner `id` be dropped unnoticed.
+     *
+     * @param array<array-key, mixed> $entryData
+     */
+    private function rejectAuthoredTypeOrId(array $entryData, string $id): void
+    {
+        if (\array_key_exists('type', $entryData)) {
+            throw ContentSystemException::bindingSpecificationCanonicalizationFailed($id, 'an inline binding entry must not declare "type"; the type is implicit from the containing element-type file.');
+        }
+
+        if (\array_key_exists('id', $entryData)) {
+            throw ContentSystemException::bindingSpecificationCanonicalizationFailed($id, 'an inline binding entry must not declare "id"; the map key is the id.');
+        }
     }
 
     /**

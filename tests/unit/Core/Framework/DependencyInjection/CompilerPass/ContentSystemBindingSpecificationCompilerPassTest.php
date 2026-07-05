@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemBindingSpecificationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Plugin;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -59,19 +60,115 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
     #[TestDox('labels a bundle that is an active plugin with the plugin prefix, sharing the fixed directory')]
     public function testLabelsActivePluginBundleAsPlugin(): void
     {
+        // The plugin class must exist: the element-type directory set narrows kernel.active_plugins with
+        // class_exists (getActivePluginClasses), so a fake class string would fail the build.
         $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', ['MyPlugin' => ['path' => '/plugins/my-plugin']]);
+        $container->setParameter('kernel.bundles_metadata', ['BindingFixturePlugin' => ['path' => '/plugins/my-plugin']]);
         $container->setParameter('kernel.active_plugins', [
-            'My\\Plugin\\MyPlugin' => ['name' => 'MyPlugin', 'path' => '/plugins/my-plugin', 'class' => 'My\\Plugin\\MyPlugin'],
+            BindingFixturePlugin::class => ['name' => 'BindingFixturePlugin', 'path' => '/plugins/my-plugin', 'class' => BindingFixturePlugin::class],
         ]);
 
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        $pluginDir = $this->findBySource($directories, 'plugin:MyPlugin');
+        // findBySource returns the first match; the standalone binding-specifications directory is added before
+        // the element-type set, so this resolves the standalone plugin directory.
+        $pluginDir = $this->findBySource($directories, 'plugin:BindingFixturePlugin');
         static::assertNotNull($pluginDir);
         static::assertSame('/plugins/my-plugin' . self::BINDING_DIR, $this->path($pluginDir));
-        static::assertNull($this->findBySource($directories, 'bundle:MyPlugin'));
+        static::assertNull($this->findBySource($directories, 'bundle:BindingFixturePlugin'));
+    }
+
+    #[TestDox('injects the core element-type definitions directory with the Sw prefix for inline scanning')]
+    public function testInjectsCoreTypeDefinitionsDirectoryWithSwPrefix(): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', []);
+        $container->setParameter('kernel.active_plugins', []);
+
+        $this->pass->process($container);
+
+        $typeCoreDir = $this->findBySourcePrefix($this->extractDirectories($container), 'core', 'Sw');
+        static::assertNotNull($typeCoreDir);
+        static::assertStringEndsWith('ContentSystem/Layout/Type/Definitions', $this->path($typeCoreDir));
+    }
+
+    #[TestDox('keeps the standalone core directory at a null prefix')]
+    public function testStandaloneCoreDirectoryCarriesNullPrefix(): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', []);
+        $container->setParameter('kernel.active_plugins', []);
+
+        $this->pass->process($container);
+
+        $standaloneCoreDir = $this->findBySourcePrefix($this->extractDirectories($container), 'core', null);
+        static::assertNotNull($standaloneCoreDir);
+        static::assertNull($standaloneCoreDir->getArgument(2));
+        static::assertStringEndsWith('ContentSystem/Binding/Definitions', $this->path($standaloneCoreDir));
+    }
+
+    #[TestDox('scans a non-plugin bundle type directory with the Sw prefix alongside its standalone directory')]
+    public function testScansBundleTypeDirectoryWithSwPrefix(): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', ['BundleA' => ['path' => '/bundles/bundle-a']]);
+        $container->setParameter('kernel.active_plugins', []);
+
+        $this->pass->process($container);
+
+        $directories = $this->extractDirectories($container);
+
+        $bundleTypeDir = $this->findBySourcePrefix($directories, 'bundle:BundleA', 'Sw');
+        static::assertNotNull($bundleTypeDir);
+        static::assertSame('/bundles/bundle-a/Resources/content-system/types', $this->path($bundleTypeDir));
+
+        $bundleStandaloneDir = $this->findBySourcePrefix($directories, 'bundle:BundleA', null);
+        static::assertNotNull($bundleStandaloneDir);
+        static::assertSame('/bundles/bundle-a' . self::BINDING_DIR, $this->path($bundleStandaloneDir));
+    }
+
+    #[TestDox('scans an active plugin content-type directory with the plugin-name prefix, honoring getContentTypeDirectory')]
+    public function testScansPluginContentTypeDirectoryWithPluginNamePrefix(): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', []);
+        $container->setParameter('kernel.active_plugins', [
+            BindingFixturePluginWithCustomTypeDir::class => [
+                'name' => 'BindingFixturePluginWithCustomTypeDir',
+                'path' => '/plugins/fixture',
+                'class' => BindingFixturePluginWithCustomTypeDir::class,
+            ],
+        ]);
+
+        $this->pass->process($container);
+
+        $pluginTypeDir = $this->findBySourcePrefix(
+            $this->extractDirectories($container),
+            'plugin:BindingFixturePluginWithCustomTypeDir',
+            'BindingFixturePluginWithCustomTypeDir',
+        );
+        static::assertNotNull($pluginTypeDir);
+        static::assertSame('/plugins/fixture/custom-content-types', $this->path($pluginTypeDir));
+    }
+
+    #[TestDox('registers the app element-type directory with the app-name prefix in dev')]
+    public function testRegistersAppTypeDirectoryWithAppNamePrefixInDev(): void
+    {
+        $container = $this->buildContainer('dev');
+        $container->setParameter('kernel.bundles_metadata', []);
+        $container->setParameter('kernel.active_plugins', []);
+        $container->setParameter('kernel.project_dir', '/project');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['path' => 'custom/apps/TestApp', 'name' => 'TestApp']]);
+        $container->set(Connection::class, $connection);
+
+        $this->pass->process($container);
+
+        $appTypeDir = $this->findBySourcePrefix($this->extractDirectories($container), 'app:TestApp', 'TestApp');
+        static::assertNotNull($appTypeDir);
+        static::assertSame('/project/custom/apps/TestApp/Resources/content-system/types', $this->path($appTypeDir));
     }
 
     #[TestDox('registers app directories from the filesystem in dev')]
@@ -215,11 +312,47 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
         return null;
     }
 
+    /**
+     * Both directory sets can carry the same source label (a standalone binding-specifications directory and an
+     * element-type directory for the same source), so tests over the element-type set discriminate by prefix:
+     * null for standalone, the resolver prefix for the element-type set.
+     *
+     * @param list<Definition> $directories
+     */
+    private function findBySourcePrefix(array $directories, string $source, ?string $prefix): ?Definition
+    {
+        foreach ($directories as $dir) {
+            if ($dir->getArgument(0) === $source && $dir->getArgument(2) === $prefix) {
+                return $dir;
+            }
+        }
+
+        return null;
+    }
+
     private function path(Definition $directory): string
     {
         $path = $directory->getArgument(1);
         static::assertIsString($path);
 
         return $path;
+    }
+}
+
+/**
+ * @internal
+ */
+class BindingFixturePlugin extends Plugin
+{
+}
+
+/**
+ * @internal
+ */
+class BindingFixturePluginWithCustomTypeDir extends Plugin
+{
+    public static function getContentTypeDirectory(): string
+    {
+        return 'custom-content-types';
     }
 }

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -15,12 +17,13 @@ use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
- * root context. The analysis never reads sales-channel state — a plain {@see Context} suffices.
+ * root context. The analysis never reads sales-channel state; a plain {@see Context} suffices.
  *
  * @final
  */
@@ -35,6 +38,8 @@ class LayoutDiagnostics
         private readonly ElementResolver $elementResolver,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly RootContextMapper $rootContextMapper,
+        private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
+        private readonly DataLoaderConfigSerializerProvider $configSerializers,
     ) {
     }
 
@@ -245,6 +250,10 @@ class LayoutDiagnostics
             if ($violation !== null) {
                 $violations[] = $violation;
             }
+
+            foreach ($this->unfilledRequiredInputViolations($element, $resolution) as $unfilled) {
+                $violations[] = $unfilled;
+            }
         }
 
         return [...$violations, ...$this->brokenChainViolations($element, $available)];
@@ -295,6 +304,112 @@ class LayoutDiagnostics
         }
 
         return null;
+    }
+
+    /**
+     * A required reference satisfied by its own stored wiring (a {@see CandidateOrigin::Stored} pick) is
+     * resolvable, but the loader still needs a value for each element property its config references. Every
+     * required propertyReference config key whose configured property holds no value would serve an empty
+     * element; each is one unfilled required input. Only a Stored resolution reaches this rule: a reference
+     * satisfied by parent context or picked from a loader candidate never does, so those never gate, and an
+     * optional or defaulted reference never gates either.
+     *
+     * @return list<Violation>
+     */
+    private function unfilledRequiredInputViolations(ContentElement $element, PropertyResolution $resolution): array
+    {
+        if ($resolution->kind !== PropertyKind::Reference || !$resolution->required) {
+            return [];
+        }
+
+        $resolved = $resolution->resolved;
+
+        if ($resolved === null || $resolved->origin !== CandidateOrigin::Stored) {
+            return [];
+        }
+
+        // A Stored resolution forms only when ElementResolver::storedCandidate() found a stored requirement for
+        // this key and its registered loader resolved the produced type (Resolution/ElementResolver::resolveReference),
+        // so the requirement is present and its loader, hence its config specification, is registered here. The
+        // `?? null` keeps that invariant explicit and narrows the offset for static analysis.
+        $requirement = $element->getDataRequirements()[$resolution->key] ?? null;
+
+        if ($requirement === null) {
+            return [];
+        }
+
+        $specification = $this->mapResolver->resolve()->configSpecificationFor($requirement->source);
+        // encode() cannot throw a client-defect here: the requirement's config object exists only by having been
+        // decoded through this same source's serializer, and DI registration is static, so the serializer is
+        // registered and round-trips a decoded object. A genuine encode failure is an internal fault that must
+        // surface, so there is no client-defect catch (it would be unreachable).
+        $config = $this->configSerializers->encode($requirement->source, $requirement->config);
+
+        $violations = [];
+
+        foreach ($specification->keysOfKind(ConfigKeyKind::PropertyReference) as $configKey) {
+            if (!$configKey->required) {
+                continue;
+            }
+
+            $configured = $config[$configKey->name] ?? null;
+
+            if (!\is_string($configured)) {
+                continue;
+            }
+
+            $violation = $this->unfilledInputViolation($element, $resolution->key, $configured);
+
+            if ($violation !== null) {
+                $violations[] = $violation;
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * One unfilled required input. Keyed on the input property the Admin highlights when the configured name is
+     * a value-bearing (declared primitive) property; otherwise (the stored wiring is never property-name
+     * validated) keyed on the reference property that does exist, with the bogus configured key named in the
+     * message. A stored explicit null counts as no value, mirroring the strict primitive rule above.
+     */
+    private function unfilledInputViolation(ContentElement $element, string $referenceKey, string $configuredProperty): ?Violation
+    {
+        if ($element->getProperty($configuredProperty) !== null) {
+            return null;
+        }
+
+        if ($this->isDeclaredPrimitiveProperty($element->getComponent(), $configuredProperty)) {
+            return new Violation(
+                ViolationCode::UnfilledRequiredInput,
+                $element->getId(),
+                $configuredProperty,
+                \sprintf('Required property "%s" is wired from "%s", which has no value.', $referenceKey, $configuredProperty),
+            );
+        }
+
+        return new Violation(
+            ViolationCode::UnfilledRequiredInput,
+            $element->getId(),
+            $referenceKey,
+            \sprintf('Required property "%s" is wired from "%s", which is not a value-bearing property of this element.', $referenceKey, $configuredProperty),
+        );
+    }
+
+    private function isDeclaredPrimitiveProperty(string $component, string $key): bool
+    {
+        if (!$this->registry->has($component)) {
+            return false;
+        }
+
+        $property = $this->registry->get($component)->properties()[$key] ?? null;
+
+        if (!$property instanceof PropertySpecification) {
+            return false;
+        }
+
+        return $property->type()->isPrimitive();
     }
 
     /**

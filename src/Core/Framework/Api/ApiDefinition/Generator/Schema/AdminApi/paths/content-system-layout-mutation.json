@@ -7,7 +7,7 @@
                 "tags": ["Content System"],
                 "summary": "Insert an element into a draft layout",
                 "operationId": "contentSystemLayoutInsertElement",
-                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus a diagnostics report, without persisting. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index` (a null, negative, or out-of-range index appends). The optional `rootSource` resolves the draft against a root source's context so resolvability is evaluated; with it unset, only intrinsic well-formedness is checked. Requires the `content_layout:read` privilege. Structural impossibilities (`mutationSlotRequired`, `mutationUnknownType`, a malformed layout) are rejected with `400`; resolvability problems are reported in the `diagnostics` body at `200`, not as errors. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus a diagnostics report, without persisting. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index` (a null, negative, or out-of-range index appends). When the optional `bindingSpecificationId` is given, the named binding specification's wiring is applied onto the fresh element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit; an unregistered id is rejected with `400` (`bindingSpecificationNotFound`) and a specification whose declared `type` does not match the inserted `type` with `400` (`bindingTypeMismatch`), and nothing is inserted on either failure. The optional `rootSource` resolves the draft against a root source's context so resolvability is evaluated; with it unset, only intrinsic well-formedness is checked. Requires the `content_layout:read` privilege. Structural impossibilities (`mutationSlotRequired`, `mutationUnknownType`, a malformed layout) are rejected with `400`; resolvability problems are reported in the `diagnostics` body at `200`, not as errors. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -29,6 +29,13 @@
                                         "slot": "content",
                                         "index": 0,
                                         "rootSource": "product"
+                                    }
+                                },
+                                "withBinding": {
+                                    "summary": "Insert an image and apply a binding specification atomically",
+                                    "value": {
+                                        "type": "Sw:Media:Image",
+                                        "bindingSpecificationId": "core:from-media-library"
                                     }
                                 }
                             }

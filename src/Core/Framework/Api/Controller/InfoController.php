@@ -280,7 +280,7 @@ class InfoController extends AbstractController
     public function getContentSystemElementTypes(): JsonResponse
     {
         $types = array_map(
-            static fn (ContentSystemElementTypeSpecification $def) => $def->toSchema(),
+            fn (ContentSystemElementTypeSpecification $def) => $this->elementTypeSchema($def),
             array_values($this->elementTypeRegistry->all())
         );
 
@@ -304,6 +304,20 @@ class InfoController extends AbstractController
     }
 
     /**
+     * bindingSpecifications are folded into each type entry (mirrors the styleOptions precedent), keyed by
+     * source-qualified id. Cast to an object so a type with none serializes {} (the OpenAPI type: object), not [].
+     *
+     * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications object
+     */
+    private function elementTypeSchema(ContentSystemElementTypeSpecification $def): array
+    {
+        $schema = $def->toSchema();
+        $schema['bindingSpecifications'] = (object) $this->bindingSpecificationSchemasForType($def->name());
+
+        return $schema;
+    }
+
+    /**
      * @return array<string, StyleOptionSchema> the registered style options keyed by their wire name
      */
     private function styleOptionSchemas(): array
@@ -323,6 +337,20 @@ class InfoController extends AbstractController
             static fn (BindingSpecification $specification) => $specification->toSchema(),
             $this->bindingSpecificationRegistry->all()
         );
+    }
+
+    /**
+     * @return array<string, BindingSpecificationSchema> keyed by qualified id ("source:id"), filtered to the given type
+     */
+    private function bindingSpecificationSchemasForType(string $type): array
+    {
+        $schemas = [];
+
+        foreach ($this->bindingSpecificationRegistry->byType($type) as $specification) {
+            $schemas[$specification->qualifiedId()] = $specification->toSchema();
+        }
+
+        return $schemas;
     }
 
     /**

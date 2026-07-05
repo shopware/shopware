@@ -7,7 +7,7 @@
                 "tags": ["Content System"],
                 "summary": "Insert an element into a stored layout",
                 "operationId": "contentSystemLayoutPersistedInsertElement",
-                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index`. The committing write runs the resolvability gates, so a binding-breaking edit is rejected and nothing is written. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege. Response diagnostics are derived from the layout's real source bindings, not a request hint.",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index`. When the optional `bindingSpecificationId` is given, the named binding specification's wiring is applied onto the fresh element atomically after scaffold, in the same committed edit; an unregistered id is rejected with `400` (`bindingSpecificationNotFound`) and a specification whose declared `type` does not match the inserted `type` with `400` (`bindingTypeMismatch`) — the mutation throws before the repository write, so nothing is persisted on either failure. The committing write runs the resolvability gates, so a binding-breaking edit is rejected and nothing is written. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege. Response diagnostics are derived from the layout's real source bindings, not a request hint.",
                 "parameters": [
                     {
                         "name": "layoutId",
@@ -36,6 +36,14 @@
                                         "parentElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
                                         "slot": "content",
                                         "index": 0
+                                    }
+                                },
+                                "withBinding": {
+                                    "summary": "Insert an image and apply a binding specification atomically",
+                                    "value": {
+                                        "type": "Sw:Media:Image",
+                                        "bindingSpecificationId": "core:from-media-library",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
                                     }
                                 }
                             }

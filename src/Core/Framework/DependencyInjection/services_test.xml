@@ -27,6 +27,22 @@
             <tag name="content_system.style_option_loader"/>
         </service>
 
+        <service id="Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader">
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoader">
+            <tag name="content_system.data_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfigSerializer">
+            <tag name="content_system.config_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method"/>

@@ -258,11 +258,12 @@ class BindingAttributionPersistenceTest extends TestCase
     }
 
     /**
-     * A Sw:Media:Image element wired and attributed to core:from-media-library. mediaId is always filled
-     * (the type declares it required with no default) so the element stays resolvable and the write is
-     * never rejected by the resolvability gate; $property lets a caller edit the wiring away from what the
-     * specification produces while keeping the attribution entry stale; $specificationId lets a caller
-     * attribute the (still-matching) wiring to a specification id that does not resolve from the registry.
+     * A Sw:Media:Image element wired and attributed to core:from-media-library. mediaId is always filled so
+     * the wired `media` reference resolves (Stored) and the derived-required `mediaId` input is never
+     * unfilled, so the element stays resolvable and the write is never rejected by the resolvability gate;
+     * $property lets a caller edit the wiring away from what the specification produces while keeping the
+     * attribution entry stale; $specificationId lets a caller attribute the (still-matching) wiring to a
+     * specification id that does not resolve from the registry.
      *
      * @return array<string, mixed>
      */
@@ -271,7 +272,9 @@ class BindingAttributionPersistenceTest extends TestCase
         return [
             'id' => $id,
             'component' => 'Sw:Media:Image',
-            'properties' => ['mediaId' => 'a-media-id'],
+            // The wired property always carries a value: `media` is a required reference, so a wired-but-unfilled
+            // input would be rejected at the write gate (unfilled_required_input) before reconciliation is observable.
+            'properties' => ['mediaId' => 'a-media-id', $property => 'a-media-id'],
             'dataRequirements' => [
                 'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => $property]],
             ],

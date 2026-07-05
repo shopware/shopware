@@ -19,6 +19,7 @@ final class ContentLayoutInsertRequest
         public readonly ?string $parentElementId = null,
         public readonly ?string $slot = null,
         public readonly ?int $index = null,
+        public readonly ?string $bindingSpecificationId = null,
     ) {
     }
 }

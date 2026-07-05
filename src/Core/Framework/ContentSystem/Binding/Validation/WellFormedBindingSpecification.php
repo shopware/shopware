@@ -19,6 +19,8 @@ final class WellFormedBindingSpecification extends Constraint
 
     public string $labelBlankMessage = 'label must not be blank';
 
+    public string $promotedBoolMessage = 'promoted must be a boolean';
+
     public string $resolvesArrayMessage = 'resolves must be an array';
 
     public string $resolvesEntryArrayMessage = 'resolves entry "{{ key }}" must be an array';
@@ -32,6 +34,8 @@ final class WellFormedBindingSpecification extends Constraint
     public string $inputsEntryArrayMessage = 'inputs entry "{{ key }}" must be an array';
 
     public string $inputsEntryDefaultMessage = 'inputs entry "{{ key }}" "default" must be a scalar or null';
+
+    public string $inputsEntryRequiredMessage = 'inputs entry "{{ key }}" "required" must be a boolean';
 
     public function getTargets(): string
     {

@@ -24,6 +24,7 @@ final class InsertElementRequest
         public readonly ?string $slot = null,
         public readonly ?int $index = null,
         public readonly ?string $rootSource = null,
+        public readonly ?string $bindingSpecificationId = null,
     ) {
     }
 }

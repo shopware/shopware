@@ -29,6 +29,7 @@ class BindingSpecificationSerializer
             label: $data['label'] ?? null,
             resolves: $data['resolves'] ?? null,
             inputs: $data['inputs'] ?? null,
+            promoted: $data['promoted'] ?? null,
         );
     }
 
@@ -40,6 +41,7 @@ class BindingSpecificationSerializer
         return [
             'type' => $dto->type,
             'label' => $dto->label,
+            'promoted' => $dto->promoted,
             'resolves' => $dto->resolves,
             'inputs' => $dto->inputs,
         ];

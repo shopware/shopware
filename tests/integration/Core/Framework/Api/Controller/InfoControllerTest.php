@@ -589,22 +589,70 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('bindingSpecifications', $data);
         static::assertIsArray($data['bindingSpecifications']);
 
-        // The core catalog ships one specification (Binding/Definitions/media/image/from-media-library.yaml),
-        // keyed by its source-qualified id. It sources the Image element's `media` reference from the entity
-        // loader against its own `mediaId` and lists `mediaId` as a residual input with no default.
+        // The core catalog ships one specification, authored inline in the `bindings:` section of
+        // Layout/Type/Definitions/media/image.yaml, keyed by its source-qualified id. It sources the Image
+        // element's `media` reference from the entity loader against its own `mediaId`, which is synthesized
+        // as an input with no default and a derived required: true (the `media` reference is declared
+        // required on the Image type).
         static::assertArrayHasKey('core:from-media-library', $data['bindingSpecifications']);
         static::assertSame(
             [
                 'id' => 'from-media-library',
                 'type' => 'Sw:Media:Image',
                 'label' => 'From media library',
+                'promoted' => true,
                 'resolves' => [
                     'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
                 ],
-                'inputs' => ['mediaId' => []],
+                'inputs' => ['mediaId' => ['required' => true]],
             ],
             $data['bindingSpecifications']['core:from-media-library'],
         );
+    }
+
+    public function testContentSystemElementTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertArrayHasKey('bindingSpecifications', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        // The Image type carries the core catalog's one inline specification (see
+        // testContentSystemBindingSpecifications), folded in and keyed by its source-qualified id.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertSame(
+            [
+                'id' => 'from-media-library',
+                'type' => 'Sw:Media:Image',
+                'label' => 'From media library',
+                'promoted' => true,
+                'resolves' => [
+                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'inputs' => ['mediaId' => ['required' => true]],
+            ],
+            $typesByName['Sw:Media:Image']['bindingSpecifications']['core:from-media-library'],
+        );
+
+        // A type with no registered specification carries an empty map, encoded as {} on the wire.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        static::assertSame([], $typesByName['Sw:Content:Text']['bindingSpecifications']);
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
     public function testFetchMessageStats(): void

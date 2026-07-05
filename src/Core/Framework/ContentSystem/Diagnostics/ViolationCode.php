@@ -22,6 +22,7 @@ enum ViolationCode: string
     case BrokenRequiredChain = 'broken_required_chain';
     case UnresolvedOptional = 'unresolved_optional';
     case OrphanedProvider = 'orphaned_provider';
+    case UnfilledRequiredInput = 'unfilled_required_input';
 
     public function scope(): ViolationScope
     {
@@ -34,7 +35,8 @@ enum ViolationCode: string
             self::UnresolvedRequired,
             self::AmbiguousRequired,
             self::BrokenRequiredChain,
-            self::UnresolvedOptional => ViolationScope::Binding,
+            self::UnresolvedOptional,
+            self::UnfilledRequiredInput => ViolationScope::Binding,
         };
     }
 
@@ -47,7 +49,8 @@ enum ViolationCode: string
             self::MismatchedReferenceType,
             self::UnresolvedRequired,
             self::AmbiguousRequired,
-            self::BrokenRequiredChain => ViolationSeverity::Error,
+            self::BrokenRequiredChain,
+            self::UnfilledRequiredInput => ViolationSeverity::Error,
             self::UnresolvedOptional,
             self::OrphanedProvider => ViolationSeverity::Warning,
         };

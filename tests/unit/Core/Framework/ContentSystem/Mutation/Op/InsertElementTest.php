@@ -3,11 +3,20 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -135,9 +144,147 @@ class InsertElementTest extends TestCase
         $this->assertInputTreeUnmutated($before, $tree);
     }
 
+    #[TestDox('applies the binding specification onto the freshly scaffolded element with its wiring, seeded input default, and attribution')]
+    public function testInsertAppliesBindingWiringSeededDefaultAndAttribution(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $spec = new BindingSpecification(
+            'from-media-library',
+            'Sw:Media:Image',
+            'From media library',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            ['mediaId' => new BindingInput(true, 'seeded')],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            null,
+            null,
+            null,
+            $this->bindingRegistry(['core:from-media-library' => $spec]),
+            'core:from-media-library',
+            $this->applicator($config),
+        );
+        $result = $insert->apply([]);
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result[0]->getDataRequirements());
+        static::assertSame('seeded', $result[0]->getProperty('mediaId'));
+        static::assertSame(['media' => 'core:from-media-library'], $result[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('rejects an unknown bindingSpecificationId with a 400 before any tree change')]
+    public function testInsertUnknownBindingRejectedTreeUntouched(): void
+    {
+        $tree = [new ContentElement('existing', 'Sw:Block')];
+        $before = $this->snapshotTree($tree);
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            null,
+            null,
+            null,
+            $this->bindingRegistry([]),
+            'core:ghost',
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+        );
+
+        try {
+            $insert->apply($tree);
+            static::fail('Expected ContentSystemException was not thrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, $e->getErrorCode());
+        }
+
+        $this->assertInputTreeUnmutated($before, $tree);
+    }
+
+    #[TestDox('rejects a binding specification whose type does not match the inserted type with a 400 before any tree change')]
+    public function testInsertMismatchedBindingTypeRejectedTreeUntouched(): void
+    {
+        $tree = [new ContentElement('existing', 'Sw:Block')];
+        $before = $this->snapshotTree($tree);
+
+        $spec = new BindingSpecification('from-media-library', 'Sw:Other', 'label', ['media' => new LoaderBinding('entity', [])], [], 'core');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            null,
+            null,
+            null,
+            $this->bindingRegistry(['core:from-media-library' => $spec]),
+            'core:from-media-library',
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+        );
+
+        try {
+            $insert->apply($tree);
+            static::fail('Expected ContentSystemException was not thrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::BINDING_TYPE_MISMATCH, $e->getErrorCode());
+        }
+
+        $this->assertInputTreeUnmutated($before, $tree);
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool}>
+     */
+    public static function missingCollaboratorProvider(): iterable
+    {
+        yield 'both collaborators missing' => [false, false];
+        yield 'applicator missing' => [true, false];
+        yield 'registry missing' => [false, true];
+    }
+
+    #[DataProvider('missingCollaboratorProvider')]
+    #[TestDox('throws a construction-defect exception, never a silent bindingless insert, when a bindingSpecificationId is given without both collaborators')]
+    public function testInsertWithBindingIdButMissingCollaboratorsThrows(bool $withRegistry, bool $withApplicator): void
+    {
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            null,
+            null,
+            null,
+            $withRegistry ? $this->bindingRegistry([]) : null,
+            'core:from-media-library',
+            $withApplicator ? $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)) : null,
+        );
+
+        try {
+            $insert->apply([]);
+            static::fail('Expected ContentSystemException was not thrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::MUTATION_BINDING_COLLABORATORS_MISSING, $e->getErrorCode());
+        }
+    }
+
     private function registryWith(string $type): AbstractContentSystemElementTypeRegistry
     {
         return $this->registry([$type => $this->spec($type, [])]);
+    }
+
+    /**
+     * @param array<string, BindingSpecification> $specs
+     */
+    private function bindingRegistry(array $specs): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn($specs);
+
+        return $registry;
+    }
+
+    private function applicator(AbstractContentDataLoaderConfig $config): BindingApplicator
+    {
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('decode')->willReturn($config);
+
+        return new BindingApplicator($serializers);
     }
 
     /**

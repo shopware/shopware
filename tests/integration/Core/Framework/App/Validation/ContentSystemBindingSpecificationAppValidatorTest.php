@@ -50,4 +50,20 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 
         static::assertCount(0, $errors->getElements());
     }
+
+    #[TestDox('rejects an inline binding that declares an explicit type, through the real app manifest validation flow')]
+    public function testRejectsInlineBindingDeclaringExplicitType(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/binding-specification-inline-invalid/manifest.xml');
+
+        $validator = static::getContainer()->get(ContentSystemBindingSpecificationAppValidator::class);
+        static::assertInstanceOf(ContentSystemBindingSpecificationAppValidator::class, $validator);
+
+        $errors = $validator->validate($manifest, Context::createDefaultContext());
+
+        static::assertCount(1, $errors->getElements());
+        $error = $errors->first();
+        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
+        static::assertStringContainsString('must not declare "type"', $error->getMessage());
+    }
 }

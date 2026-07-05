@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
-use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSpecification;
 use Shopware\Core\Framework\Log\Package;
 
@@ -13,11 +12,14 @@ use Shopware\Core\Framework\Log\Package;
  * The id is not carried here — it comes from the YAML body's "id" key and is supplied to
  * {@see self::toBindingSpecification()} by the loader.
  *
+ * Carries only the structural WellFormedBindingSpecification constraint. The semantic
+ * TypeConsistentBindingSpecification constraint lives on {@see BindingSpecificationDtoCollection} so a per-load
+ * type overlay can reach its validator.
+ *
  * @internal
  */
 #[Package('framework')]
 #[WellFormedBindingSpecification]
-#[TypeConsistentBindingSpecification]
 final readonly class BindingSpecificationDto
 {
     /**
@@ -31,6 +33,7 @@ final readonly class BindingSpecificationDto
         public mixed $label,
         public mixed $resolves,
         public mixed $inputs,
+        public mixed $promoted = null,
     ) {
     }
 
@@ -43,6 +46,7 @@ final readonly class BindingSpecificationDto
             $this->buildResolves(),
             $this->buildInputs(),
             $source,
+            $this->promoted === true,
         );
     }
 
@@ -88,7 +92,11 @@ final readonly class BindingSpecificationDto
                 continue;
             }
 
-            $inputs[(string) $key] = new BindingInput(\array_key_exists('default', $entry), $entry['default'] ?? null);
+            $inputs[(string) $key] = new BindingInput(
+                \array_key_exists('default', $entry),
+                $entry['default'] ?? null,
+                ($entry['required'] ?? false) === true,
+            );
         }
 
         return $inputs;

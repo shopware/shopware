@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader;
+use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader;
+use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoader;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
@@ -147,6 +149,14 @@ class DataLoaderConfigSerializerContractTest extends TestCase
             EntityCollectionLoader::SOURCE => [
                 'source' => EntityCollectionLoader::SOURCE,
                 'config' => ['entity' => 'product', 'property' => 'name', 'associations' => ['manufacturer']],
+            ],
+            TestMultiReferenceGatingLoader::SOURCE => [
+                'source' => TestMultiReferenceGatingLoader::SOURCE,
+                'config' => ['entity' => 'media', 'property' => 'mediaId', 'secondProperty' => 'captionMediaId', 'activeProperty' => 'activeId'],
+            ],
+            TestNavigationShapedLoader::SOURCE => [
+                'source' => TestNavigationShapedLoader::SOURCE,
+                'config' => ['entity' => 'media', 'activeProperty' => 'activeId'],
             ],
         ];
     }

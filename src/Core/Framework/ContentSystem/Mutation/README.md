@@ -44,7 +44,7 @@ The contract is that no structural edit silently loses content or wiring: anythi
 
 All nine live in `Op/` and extend `AbstractLayoutMutation`:
 
-- **InsertElement** - inserts a fresh element of a given type (primitive defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root.
+- **InsertElement** - inserts a fresh element of a given type (primitive defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root; given a `bindingSpecificationId`, the named specification's wiring is applied onto the fresh element atomically after scaffold (the specification is resolved before any tree change).
 - **RemoveElement** - deletes an element and its whole subtree.
 - **MoveElement** - relocates an element and its subtree under a new parent slot (or to the root), rejecting a move onto itself or a descendant as a cycle.
 - **ReplaceElement** - swaps an element's component to a new type, keeping the same id and carrying over matching properties, wiring, and slot children, then seeding the new type's primitive defaults for any keys it does not carry (a carried or authored value wins); anything the new type cannot hold is surfaced via `orphaned`/`droppedWiring`/`droppedProperties`.

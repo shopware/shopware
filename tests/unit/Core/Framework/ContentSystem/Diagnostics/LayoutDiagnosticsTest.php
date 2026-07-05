@@ -137,6 +137,9 @@ class LayoutDiagnosticsTest extends TestCase
 
         $analysis = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
+            // A Stored resolution implies a registered loader, so the map must carry the source's config
+            // specification (here: no propertyReference keys, so unfilled_required_input never fires).
+            map: $this->loaderConfigMap('entity', new LoaderConfigSpecification([])),
             loaderProvider: $this->loaderProvider($loader),
         )->analyze([$element], []);
 
@@ -447,6 +450,222 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $properties
+     */
+    #[DataProvider('unfilledRequiredInputProvider')]
+    #[TestDox('emits one unfilled_required_input keyed on the input property, naming both keys, when a required reference is stored-wired to a value-less property')]
+    public function testStoredRequiredReferenceWithUnfilledInputGates(array $properties): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperties($properties)
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertFalse($report->isResolvable());
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    #[DataProvider('filledInputValueProvider')]
+    #[TestDox('emits no unfilled_required_input, and stays resolvable, when the stored-wired input property carries a value')]
+    public function testStoredRequiredReferenceWithFilledInputIsResolvable(string $storedValue): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperty('productId', $storedValue)
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertTrue($report->isResolvable());
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits no unfilled_required_input when a required reference is satisfied by parent context instead of stored wiring')]
+    public function testParentContextSatisfiedReferenceDoesNotGateOnUnfilledInput(): void
+    {
+        $element = new ContentElement('root-1', 'Sw:Block');
+
+        $rootContext = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+            ->reference('product', SalesChannelProductEntity::class, required: true)
+            ->primitive('productId', 'string')
+            ->build()])
+            ->analyze([$element], $rootContext)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits no unfilled_required_input for an optional reference resolved by stored wiring even when its input property is empty')]
+    public function testOptionalStoredReferenceDoesNotGateOnUnfilledInput(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: false)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('does not gate a required reference whose loader declares only a defaulted propertyReference key (the navigation shape)')]
+    public function testDefaultedPropertyReferenceKeyNeverGates(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('tree', 'navigation_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('tree', SalesChannelProductEntity::class, required: true)
+                ->primitive('activeProperty', 'string')
+                ->build()],
+            $this->loaderConfigMap('navigation_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true),
+            ])),
+            $this->encodingSerializers(['activeProperty' => 'activeProperty']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits one unfilled_required_input per unfilled required propertyReference key for a multi-reference loader')]
+    public function testMultiReferenceLoaderEmitsOneViolationPerUnfilledInput(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'pair_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->primitive('productSku', 'string')
+                ->build()],
+            $this->loaderConfigMap('pair_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('idProperty', ConfigKeyKind::PropertyReference, 'string', required: true),
+                new ConfigKeySpecification('skuProperty', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['idProperty' => 'productId', 'skuProperty' => 'productSku']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        $errors = $report->bindingErrors();
+        static::assertCount(2, $errors);
+        static::assertCount(2, array_filter($errors, static fn (Violation $v): bool => $v->code === ViolationCode::UnfilledRequiredInput));
+        static::assertEqualsCanonicalizing(
+            ['productId', 'productSku'],
+            array_map(static fn (Violation $v): ?string => $v->key, $errors),
+        );
+    }
+
+    #[TestDox('keys the violation on the reference property and names the configured key when the wired property is not declared on the type')]
+    public function testUnfilledInputKeysOnReferenceWhenConfiguredPropertyUndeclared(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'ghostProperty']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('product', $error->key);
+        static::assertSame('Required property "product" is wired from "ghostProperty", which is not a value-bearing property of this element.', $error->message);
+    }
+
+    #[TestDox('emits no unfilled_required_input when a required propertyReference config value is not a string')]
+    public function testNonStringConfiguredPropertyReferenceDoesNotGate(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => ['not', 'a', 'string']]),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unfilledRequiredInputProvider(): iterable
+    {
+        yield 'no stored value' => [[]];
+        yield 'stored explicit null counts as no value' => [['productId' => null]];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function filledInputValueProvider(): iterable
+    {
+        yield 'non-empty stored value' => ['a-product-id'];
+        yield 'empty string counts as filled (null is the sole empty sentinel)' => [''];
+    }
+
+    /**
      * @return iterable<string, array{array<string, mixed>}>
      */
     public static function producesUnresolvedRequiredPrimitiveProvider(): iterable
@@ -484,11 +703,12 @@ class LayoutDiagnosticsTest extends TestCase
         // Share one loader provider between the resolver (stored-candidate) and the RootContextMapper
         // (mismatch check) so both resolve a stored requirement's produced type consistently.
         $loaderProvider ??= static::createStub(DataLoaderProvider::class);
+        $serializers ??= static::createStub(DataLoaderConfigSerializerProvider::class);
 
         $elementResolver = new ElementResolver(
             $registry,
             $typeResolver,
-            $serializers ?? static::createStub(DataLoaderConfigSerializerProvider::class),
+            $serializers,
             $loaderProvider,
         );
 
@@ -497,6 +717,8 @@ class LayoutDiagnosticsTest extends TestCase
             $elementResolver,
             $registry,
             new RootContextMapper($loaderProvider),
+            $typeResolver,
+            $serializers,
         );
     }
 
@@ -517,6 +739,30 @@ class LayoutDiagnosticsTest extends TestCase
         $serializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
         return $serializers;
+    }
+
+    /**
+     * @param array<string, mixed> $encoded
+     */
+    private function encodingSerializers(array $encoded): DataLoaderConfigSerializerProvider
+    {
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('encode')->willReturn($encoded);
+
+        return $serializers;
+    }
+
+    private function loaderConfigMap(string $source, LoaderConfigSpecification $specification): ContentSystemDataLoaderMap
+    {
+        return new ContentSystemDataLoaderMap([], [$source => $specification]);
+    }
+
+    private function storedLoaderProvider(string $producedType): DataLoaderProvider
+    {
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn($producedType);
+
+        return $this->loaderProvider($loader);
     }
 
     /**

@@ -17,16 +17,26 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\ResolvedBindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Lock\LockFactory;
@@ -58,7 +68,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         // (and whose validator the default no-arg factory cannot build). Validation has its own tests.
         $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
-        $this->loader = new YamlBindingSpecificationLoader([], $this->serializer, $validator);
+        $this->loader = new YamlBindingSpecificationLoader([], $this->serializer, $this->canonicalizer(), $validator, new ElementTypeNameResolver());
     }
 
     #[TestDox('inserts a new binding, writing the serialized schema and content hash as the payload')]
@@ -80,6 +90,50 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertIsString($payload['id']);
         static::assertSame($normalized, $payload['schema']);
         static::assertSame(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)), $payload['hash']);
+    }
+
+    #[TestDox('persists inline bindings from the types directory alongside standalone binding files')]
+    public function testPersistsInlineAndStandaloneBindings(): void
+    {
+        $standalone = new ResolvedBindingSpecificationDto('standalone-binding', 'app:DemoApp', new BindingSpecificationDto('media-gallery', 'Standalone', null, null));
+        $inline = new ResolvedBindingSpecificationDto('inline-binding', 'app:DemoApp', new BindingSpecificationDto('media-gallery', 'Inline', null, null));
+
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$standalone]);
+        $loader->method('loadInlineDtosFromTypeDirectory')->willReturn([$inline]);
+
+        $repo = $this->createEmptyRepository();
+        $persister = $this->buildPersister($repo, loader: $loader);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        $names = array_column($repo->upserts[0], 'name');
+        static::assertContains('standalone-binding', $names);
+        static::assertContains('inline-binding', $names);
+    }
+
+    #[TestDox('throws when an inline binding and a standalone binding within the app share a bare id')]
+    public function testThrowsOnCrossFormIdCollision(): void
+    {
+        $standalone = new ResolvedBindingSpecificationDto('shared-id', 'app:DemoApp', new BindingSpecificationDto('media-gallery', 'Standalone', null, null));
+        $inline = new ResolvedBindingSpecificationDto('shared-id', 'app:DemoApp', new BindingSpecificationDto('media-gallery', 'Inline', null, null));
+
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$standalone]);
+        $loader->method('loadInlineDtosFromTypeDirectory')->willReturn([$inline]);
+
+        $repo = $this->createEmptyRepository();
+        $persister = $this->buildPersister($repo, loader: $loader);
+
+        try {
+            $persister->persist($this->buildContext());
+            static::fail('Expected AppException was not thrown');
+        } catch (AppException $e) {
+            static::assertSame(AppException::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED, $e->getErrorCode());
+            static::assertStringContainsString('shared-id', $e->getMessage());
+        }
+
+        static::assertSame([], $repo->upserts);
     }
 
     #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash')]
@@ -351,6 +405,35 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $persister->persist($this->buildContext());
     }
 
+    private function canonicalizer(): BindingSpecificationCanonicalizer
+    {
+        // The fixtures carry no sugared resolves, so canonicalization is a no-op past its registered-type gate;
+        // the stubbed type registry accepts the fixture type and the map resolver / DAL registries are never
+        // reached. Canonicalization proper is covered by the canonicalizer's own test.
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willReturn(true);
+        $typeRegistry->method('get')->willReturn(new ContentSystemElementTypeSpecification(
+            'media-gallery',
+            'Media gallery',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            [],
+            [],
+        ));
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
+
+        return new BindingSpecificationCanonicalizer(
+            $typeRegistry,
+            $mapResolver,
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+        );
+    }
+
     private function buildExistingEntity(string $idKey, string $name): AppContentSystemBindingSpecificationEntity
     {
         $entity = new AppContentSystemBindingSpecificationEntity();
@@ -377,12 +460,25 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
 
         return new ContentSystemBindingSpecificationPersister(
             $loader ?? $this->loader,
+            $this->typeLoader(),
             $repo,
             $this->serializer,
             $connection ?? $this->runTransactionStub(),
             $registry,
             $lockFactory ?? new LockFactory(new InMemoryStore()),
         );
+    }
+
+    /**
+     * The fixtures ship no `Resources/content-system/types` directory, so the overlay is empty and the inline
+     * scan yields nothing; the stub returns [] for that missing directory.
+     */
+    private function typeLoader(): YamlTypeLoader
+    {
+        $typeLoader = static::createStub(YamlTypeLoader::class);
+        $typeLoader->method('loadOverlayFromDirectory')->willReturn([]);
+
+        return $typeLoader;
     }
 
     /**
@@ -398,6 +494,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     ): ContentSystemBindingSpecificationPersister {
         return new ContentSystemBindingSpecificationPersister(
             $loader,
+            $this->typeLoader(),
             $repo,
             $this->serializer,
             $this->runTransactionStub(),

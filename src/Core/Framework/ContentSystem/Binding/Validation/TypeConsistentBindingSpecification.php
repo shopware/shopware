@@ -6,8 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Class-level semantic constraint: validates a binding specification against the live element-type
- * registry and data-loader config serializers.
+ * Class-level semantic constraint on BindingSpecificationDtoCollection: validates each binding specification
+ * against the live element-type registry (overlaid by the collection's per-load type overlay) and the
+ * data-loader config serializers.
  *
  * @internal
  */
@@ -25,7 +26,7 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $resolvesEntryNotAssignableMessage = 'resolves entry "{{ key }}" loader produces "{{ producedType }}", which is not assignable to the declared property type "{{ declaredType }}"';
 
-    public string $resolvesEntryEntityPropertyNotPrimitiveMessage = 'resolves entry "{{ key }}" entity loader "property" must name a primitive property of type "{{ type }}"';
+    public string $resolvesEntryPropertyReferenceNotPrimitiveMessage = 'resolves config key "{{ configKey }}" must name a primitive property of type "{{ type }}", but "{{ property }}" is not';
 
     public string $resolvesEntryContextFormMessage = 'resolves entry "{{ key }}" uses the "context" form, which is not yet supported';
 

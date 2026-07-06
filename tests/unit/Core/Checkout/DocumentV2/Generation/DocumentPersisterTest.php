@@ -224,7 +224,7 @@ class DocumentPersisterTest extends TestCase
             },
         ], new DocumentTypeDefinition());
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
 
         return [

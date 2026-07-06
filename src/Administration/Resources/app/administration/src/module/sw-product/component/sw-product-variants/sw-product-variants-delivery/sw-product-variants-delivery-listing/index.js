@@ -34,11 +34,11 @@ export default {
             return [
                 {
                     value: 'single',
-                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeSingle'),
+                    name: this.$t('sw-product.variations.deliveryModal.listingLabelModeSingle'),
                 },
                 {
                     value: 'expanded',
-                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeExpanded'),
+                    name: this.$t('sw-product.variations.deliveryModal.listingLabelModeExpanded'),
                 },
             ];
         },
@@ -51,11 +51,11 @@ export default {
             return [
                 {
                     value: true,
-                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeDisplayParent'),
+                    name: this.$t('sw-product.variations.deliveryModal.listingLabelModeDisplayParent'),
                 },
                 {
                     value: false,
-                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelMainVariant'),
+                    name: this.$t('sw-product.variations.deliveryModal.listingLabelMainVariant'),
                 },
             ];
         },

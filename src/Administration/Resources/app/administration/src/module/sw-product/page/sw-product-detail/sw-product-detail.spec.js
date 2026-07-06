@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package inventory
  */
@@ -72,6 +74,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         params: {
                             id: productId,
                         },
+                    },
+                    $router: {
+                        push: jest.fn(),
                     },
                 },
                 provide: {
@@ -215,6 +220,44 @@ describe('module/sw-product/page/sw-product-detail', () => {
         tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
+    });
+
+    it('should redirect to product listing when product no longer exists', async () => {
+        await wrapper.unmount();
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve(null),
+        );
+
+        await wrapper.setProps({
+            productId: 'missing-product-id',
+        });
+        await flushPromises();
+
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.$router.push.mockClear();
+
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'stale-product-id',
+            parentId: 'stale-parent-id',
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'stale-parent-id',
+        };
+
+        await wrapper.vm.loadProduct();
+        await nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-product.detail.messageProductNotFound',
+        });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.product.index',
+        });
+        expect(Shopware.Store.get('swProductDetail').product).toEqual({});
+        expect(Shopware.Store.get('swProductDetail').parentProduct).toEqual({});
+        expect(wrapper.find('.sw-card-view').exists()).toBe(false);
     });
 
     it('should show item tabs when advanced mode deactivate', async () => {
@@ -859,6 +902,152 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
+    it('should not overwrite purchase price for variant products with parentId when null', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: null,
+                    purchasePrices: null,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+    });
+
+    it('should not overwrite purchase price for variant products with parentId when undefined', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: null,
+                    purchasePrices: undefined,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+    });
+
+    it('should keep existing purchase price for variant products with their own values', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: [
+                        {
+                            currencyId: undefined,
+                            net: 10,
+                            gross: 12,
+                            linked: true,
+                        },
+                    ],
+                    purchasePrices: [
+                        {
+                            currencyId: undefined,
+                            net: 5,
+                            gross: 6,
+                            linked: true,
+                        },
+                    ],
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 5, linked: true, gross: 6 }]);
+    });
+
+    it('should sync purchasePrices to null when price is inherited but purchasePrices is not', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: null,
+                    purchasePrices: [
+                        {
+                            currencyId: undefined,
+                            net: 5,
+                            gross: 6,
+                            linked: true,
+                        },
+                    ],
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+    });
+
+    it('should sync purchasePrices from parent when price is not inherited but purchasePrices is', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            (id) => {
+                if (id === 'parent-id') {
+                    return Promise.resolve({
+                        id: 'parent-id',
+                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                        purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                    });
+                }
+
+                return Promise.resolve({
+                    id: 'variant-id',
+                    parentId: 'parent-id',
+                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                    purchasePrices: null,
+                });
+            },
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.purchasePrices).toEqual([
+            { currencyId: undefined, gross: 50, net: 42, linked: true },
+        ]);
+    });
+
     it('should ignore purchase price if its set', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
@@ -965,5 +1154,26 @@ describe('module/sw-product/page/sw-product-detail', () => {
             'essential_characteristics',
             'custom_fields',
         ]);
+    });
+
+    it('should clear stale variant data when opening create page after viewing a variant product', async () => {
+        await wrapper.unmount();
+
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            id: 'variant-123',
+            parentId: 'parent-456',
+            variation: [],
+        };
+        store.parentProduct = { id: 'parent-456', name: 'Parent Product' };
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({ variation: [] }),
+            null,
+        );
+
+        await flushPromises();
+        expect(store.parentProduct).toEqual({});
     });
 });

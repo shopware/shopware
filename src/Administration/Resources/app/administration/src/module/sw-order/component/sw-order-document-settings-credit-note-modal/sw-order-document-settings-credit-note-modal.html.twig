@@ -7,7 +7,7 @@
     <mt-text-field
         v-model="documentNumber"
         class="sw-order-document-settings-credit-note-modal__document-number"
-        :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+        :label="$t('sw-order.documentModal.labelDocumentNumber')"
         :error="documentNumberErrorMessage"
         required
     />
@@ -17,8 +17,8 @@
     <mt-select
         v-model="documentConfig.custom.invoiceNumber"
         class="sw-order-document-settings-credit-note-modal__invoice-select"
-        :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
-        :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
+        :label="$t('sw-order.documentModal.labelInvoiceNumber')"
+        :placeholder="$t('sw-order.documentModal.selectInvoiceNumber')"
         :options="invoiceNumberOptions"
         required
     />
@@ -31,8 +31,8 @@
         date-type="date"
         required
         hide-hint
-        :label="$tc('sw-order.documentModal.labelDocumentDate')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-order.documentModal.labelDocumentDate')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 </sw-container>

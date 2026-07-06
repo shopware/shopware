@@ -44,8 +44,8 @@ class CustomFieldUpdaterTest extends TestCase
 
         $customFieldUpdater = new CustomFieldUpdater(
             $elasticsearchHelper,
-            $this->createMock(CustomFieldSetGateway::class),
-            $this->createMock(ElasticsearchCustomFieldsMappingHelper::class)
+            static::createStub(CustomFieldSetGateway::class),
+            static::createStub(ElasticsearchCustomFieldsMappingHelper::class)
         );
 
         $containerEvent = new EntityWrittenContainerEvent(
@@ -59,7 +59,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testElasticsearchDisabled(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(false);
@@ -71,7 +71,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $customFieldUpdater = new CustomFieldUpdater(
             $elasticsearchHelper,
-            $this->createMock(CustomFieldSetGateway::class),
+            static::createStub(CustomFieldSetGateway::class),
             $mappingHelper
         );
 
@@ -88,7 +88,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldUpdatedChangesNothing(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -100,7 +100,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $customFieldUpdater = new CustomFieldUpdater(
             $elasticsearchHelper,
-            $this->createMock(CustomFieldSetGateway::class),
+            static::createStub(CustomFieldSetGateway::class),
             $mappingHelper
         );
 
@@ -121,7 +121,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldCreationDoesCreateThemInES(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -150,7 +150,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['test']) && $fields['test']['type'] === 'keyword';
             }));
 
@@ -177,12 +177,12 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsAreNotIndexedWhenNonProductAssociationIsAddedToFieldSet(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $customFieldSetRelationId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
@@ -218,7 +218,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsAreIndexedWhenProductAssociationIsAddedToFieldSet(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -239,7 +239,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['field2']) && $fields['field2']['type'] === 'keyword';
             }));
 
@@ -271,7 +271,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testOnlyProductCustomFieldsAreCreatedInES(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -305,7 +305,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 // Only field2 should be indexed (product-related, includeInSearch)
                 return isset($fields['field2'])
                     && !isset($fields['field1'])
@@ -336,7 +336,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testNonSearchableCustomFieldsAreNotIndexedWhenCreated(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -387,7 +387,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testSearchableCustomFieldsAreIndexedWhenCreated(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -416,7 +416,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
             }));
 
@@ -443,12 +443,12 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testNonSearchableCustomFieldsAreNotIndexedWhenUpdated(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $customFieldId = Uuid::randomHex();
 
@@ -479,7 +479,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testSearchableCustomFieldsAreIndexedWhenUpdated(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -510,7 +510,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
             }));
 
@@ -537,7 +537,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testAppOwnedCustomFieldsAreIndexedWhenCreated(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -566,7 +566,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['appField']) && $fields['appField']['type'] === 'keyword';
             }));
 
@@ -594,12 +594,12 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testExistingRelationIsSkipped(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');
@@ -637,7 +637,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldRelationWithNoIncludeInSearchFieldsReturnsEmpty(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -686,7 +686,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldRelationCallsFetchCustomFieldsForSets(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -732,7 +732,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldCreatedWithNoSetIdMapping(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -782,7 +782,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldCreatedWithoutIncludeInSearchKey(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -833,12 +833,12 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsUpdatedWithNoPropertyChange(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $customFieldId = Uuid::randomHex();
 
@@ -872,12 +872,12 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsUpdatedWithKeyNotInCustomFieldIds(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $customFieldId1 = Uuid::randomHex();
         $customFieldId2 = Uuid::randomHex();
@@ -899,9 +899,9 @@ class CustomFieldUpdaterTest extends TestCase
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
         // Different ID in propertyChange
-        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent = static::createStub(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -916,7 +916,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsUpdatedWithNewRecord(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -958,9 +958,9 @@ class CustomFieldUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent = static::createStub(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -975,7 +975,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsUpdatedWithEmptyFieldSetIds(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1007,9 +1007,9 @@ class CustomFieldUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent = static::createStub(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -1024,7 +1024,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCustomFieldsUpdatedNotRelatedToProduct(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);
@@ -1068,9 +1068,9 @@ class CustomFieldUpdaterTest extends TestCase
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
 
-        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent = static::createStub(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -1085,7 +1085,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testBothCustomFieldAndRelationEventsProcessed(): void
     {
-        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper = static::createStub(ElasticsearchHelper::class);
         $elasticsearchHelper
             ->method('allowIndexing')
             ->willReturn(true);

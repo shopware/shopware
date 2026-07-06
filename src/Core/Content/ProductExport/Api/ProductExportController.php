@@ -55,7 +55,7 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    fn (Error $error) => $error->getErrorMessages(),
+                    static fn (Error $error) => $error->getErrorMessages(),
                     $errors
                 )
             );
@@ -84,7 +84,7 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    fn (Error $error) => $error->getErrorMessages(),
+                    static fn (Error $error) => $error->getErrorMessages(),
                     $errors
                 )
             );
@@ -106,7 +106,7 @@ class ProductExportController extends AbstractController
     {
         $entity = new ProductExportEntity();
 
-        $entity->setId('');
+        $entity->setId($dataBag->get('id') ?? '');
         $entity->setHeaderTemplate($dataBag->get('headerTemplate') ?? '');
         $entity->setBodyTemplate($dataBag->get('bodyTemplate') ?? '');
         $entity->setFooterTemplate($dataBag->get('footerTemplate') ?? '');
@@ -116,6 +116,8 @@ class ProductExportController extends AbstractController
         $entity->setFileFormat($dataBag->get('fileFormat'));
         $entity->setFileName($dataBag->get('fileName'));
         $entity->setAccessKey($dataBag->get('accessKey'));
+        $entity->setProvider($dataBag->get('provider'));
+        $entity->setFeedLabel($dataBag->get('feedLabel'));
         $entity->setSalesChannelId($dataBag->get('salesChannelId'));
         $entity->setSalesChannelDomainId($dataBag->get('salesChannelDomainId'));
         $entity->setCurrencyId($dataBag->get('currencyId'));

@@ -18,12 +18,13 @@ jobs:
         uses: shopware/setup-shopware@main
         with:
           mysql-version: skip
+          npm-version: 11.8.0
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -36,19 +37,45 @@ jobs:
           npm run lint:js
           npm run lint:scss
 
+  lint-admin-modules:
+    name: "Storefront admin-modules ESLint"
+    runs-on: ubuntu-24.04
+    env:
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          mysql-version: skip
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install-admin: true
+
+      - name: Cache ESLint
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: |
+            src/Storefront/Resources/app/administration/.eslintcache
+          key: storefront-admin-modules-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.mjs') }}
+
+      - name: Lint
+        run: composer eslint:storefront:admin-modules
+
   twig-lint-storefront:
     name: Twig Lint (Storefront)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Install ludtwig
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download v0.11.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
@@ -83,6 +110,7 @@ jobs:
         uses: shopware/setup-shopware@main
         with:
           mysql-version: skip
+          npm-version: 11.8.0
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-storefront: true
@@ -92,12 +120,48 @@ jobs:
         run: npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: build/artifacts/jest/cobertura-coverage.xml
           flags: jest-storefront
+
+  vitest:
+    name: "Vitest Storefront Components"
+    runs-on: ubuntu-24.04
+    env:
+      APP_ENV: prod
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: elasticsearch:9200
+      ADMIN_OPENSEARCH_URL: elasticsearch:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          mysql-version: skip
+          npm-version: 11.8.0
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install-storefront: true
+
+      - name: Run Vitest Storefront components with coverage
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npm run build:components
+          npm run unit:components:coverage -- --coverage.reporter=cobertura --coverage.reportsDirectory=build/artifacts/vitest
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: build/artifacts/vitest/cobertura-coverage.xml
+          flags: vitest-storefront-components
 
   license-check:
     runs-on: ubuntu-24.04
@@ -106,21 +170,27 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 22
+          node-version: lts/*
+      - name: Install npm
+        run: npm install -g npm@11.8.0
       - name: Cache npm packages
-        uses: actions/cache@v5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
-          path: src/Storefront/Resources/app/storefront/node_modules
+          # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
+          # offline (see prefer-offline below), which keeps retries off the network.
+          path: |
+            src/Storefront/Resources/app/storefront/node_modules
+            ~/.npm
           key: ${{ runner.os }}-storefront-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-storefront-
       - name: install packages
-        working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
+        uses: shopware/github-actions/npm-ci-retry@main
+        with:
+          working-directory: src/Storefront/Resources/app/storefront
       - name: Check license
         working-directory: src/Storefront/Resources/app/storefront
         run: |
@@ -133,7 +203,9 @@ jobs:
       if: always()
       needs:
       - lint
+      - lint-admin-modules
       - jest
+      - vitest
       - license-check
       - twig-lint-storefront
 

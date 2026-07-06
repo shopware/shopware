@@ -58,7 +58,6 @@ export default {
 
             const allowedAware = this.triggerEvent.aware ?? [];
             const properties = [];
-            // eslint-disable-next-line max-len
             return this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
         },
 

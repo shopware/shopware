@@ -28,7 +28,7 @@ class ScriptRule extends Rule
     protected string $script = '';
 
     /**
-     * @var array<string, Constraint[]>
+     * @var array<string, list<Constraint>>
      */
     protected array $constraints = [];
 
@@ -88,16 +88,13 @@ class ScriptRule extends Rule
         }
     }
 
-    /**
-     * @return array<string, Constraint[]>
-     */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
     /**
-     * @param array<string, Constraint[]> $constraints
+     * @param array<string, list<Constraint>> $constraints
      */
     public function setConstraints(array $constraints): void
     {
@@ -144,7 +141,7 @@ class ScriptRule extends Rule
         }
 
         $match = false;
-        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $name, $context, &$match): void {
+        $this->traces->trace($hook, $script, static function (Debug $debug) use ($twig, $name, $context, &$match): void {
             $twig->addGlobal('debug', $debug);
 
             $rendered = $twig->render($name, $context);

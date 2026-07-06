@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\System\SalesChannel\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber;
 use Shopware\Core\Framework\Context;
@@ -25,14 +26,16 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 #[CoversClass(SalesChannelUserConfigSubscriber::class)]
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<UserConfigCollection> */
-    private MockObject&EntityRepository $userConfigRepository;
+    /**
+     * @var Stub&EntityRepository<UserConfigCollection>
+     */
+    private Stub&EntityRepository $userConfigRepository;
 
     private SalesChannelUserConfigSubscriber $salesChannelUserConfigSubscriber;
 
     protected function setUp(): void
     {
-        $this->userConfigRepository = $this->createMock(EntityRepository::class);
+        $this->userConfigRepository = static::createStub(EntityRepository::class);
         $this->salesChannelUserConfigSubscriber = new SalesChannelUserConfigSubscriber($this->userConfigRepository);
     }
 
@@ -48,7 +51,8 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('search')
                 ->willReturn(new EntitySearchResult(
                     UserConfigDefinition::ENTITY_NAME,
@@ -59,10 +63,10 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                     $context
                 ));
 
-        $this->userConfigRepository->expects($this->once())
+        $repository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
-        $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
+        $this->createSubscriber($repository)->onSalesChannelDeleted($event);
     }
 
     public function testOnSalesChannelDeletedUpsertWithNoSalesChannelId(): void
@@ -73,7 +77,8 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -84,10 +89,10 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects($this->once())
+        $repository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
-        $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
+        $this->createSubscriber($repository)->onSalesChannelDeleted($event);
     }
 
     public function testOnSalesChannelDeletedUpsertWithNoMatchingId(): void
@@ -98,7 +103,8 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -109,11 +115,11 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects($this->once())
+        $repository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
 
-        $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
+        $this->createSubscriber($repository)->onSalesChannelDeleted($event);
     }
 
     public function testOnSalesChannelDeletedUpsertWithMatchingId(): void
@@ -135,7 +141,8 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
             $context
         );
 
-        $this->userConfigRepository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -146,9 +153,17 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects($this->once())
+        $repository->expects($this->once())
             ->method('upsert')
             ->with([['id' => 'test-deleted', 'value' => []]], $context);
-        $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
+        $this->createSubscriber($repository)->onSalesChannelDeleted($event);
+    }
+
+    /**
+     * @param MockObject&EntityRepository<UserConfigCollection> $repository
+     */
+    private function createSubscriber(MockObject&EntityRepository $repository): SalesChannelUserConfigSubscriber
+    {
+        return new SalesChannelUserConfigSubscriber($repository);
     }
 }

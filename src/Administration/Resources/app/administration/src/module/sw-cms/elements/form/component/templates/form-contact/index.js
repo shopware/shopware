@@ -15,7 +15,7 @@ export default {
                     id: 1,
                     value: 'default',
                     disabled: true,
-                    label: this.$tc('sw-cms.elements.form.element.label.salutationUndisclosed'),
+                    label: this.$t('sw-cms.elements.form.element.label.salutationUndisclosed'),
                 },
             ];
         },

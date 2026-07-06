@@ -11,7 +11,7 @@ import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 export {};
 
 /* Mixin uses many untyped dependencies */
-/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
  * @private
@@ -115,7 +115,14 @@ export default Shopware.Mixin.register(
             }
         },
 
-        beforeRouteLeave() {
+        beforeRouteLeave(to) {
+            const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
+
+            // Routes from the `sw-bulk-edit` module are generated under `sw.bulk.edit.*`.
+            if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
+                return;
+            }
+
             Shopware.Store.get('shopwareApps').selectedIds = [];
             Shopware.Store.get('swBulkEdit').selectedIds = [];
         },
@@ -139,7 +146,7 @@ export default Shopware.Mixin.register(
                 this.updateData(query);
 
                 // @ts-expect-error - properties are defined in base component
-                if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
+                if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria?.length) {
                     // @ts-expect-error - filterCriteria is defined in base component
                     this.filterCriteria = [];
                     return;
@@ -155,9 +162,7 @@ export default Shopware.Mixin.register(
             },
 
             term(newValue) {
-                if (newValue && newValue.length) {
-                    this.freshSearchTerm = true;
-                }
+                this.freshSearchTerm = !!newValue?.length;
             },
 
             sortBy() {

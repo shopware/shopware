@@ -21,15 +21,15 @@ class NodeExtensionTest extends TestCase
     public function testGetTokenParsers(): void
     {
         $extension = new NodeExtension(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TemplateScopeDetector::class),
         );
         static::assertCount(3, $extension->getTokenParsers());
         static::assertSame([
             ExtendsTokenParser::class,
             IncludeTokenParser::class,
             ReturnNodeTokenParser::class,
-        ], array_map(fn (TokenParserInterface $parser) => $parser::class, $extension->getTokenParsers()));
+        ], array_map(static fn (TokenParserInterface $parser) => $parser::class, $extension->getTokenParsers()));
     }
 
     public function testGetFinder(): void
@@ -37,7 +37,7 @@ class NodeExtensionTest extends TestCase
         $finder = $this->createMock(TemplateFinder::class);
         $extension = new NodeExtension(
             $finder,
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateScopeDetector::class),
         );
         static::assertSame($finder, $extension->getFinder());
     }
@@ -45,8 +45,8 @@ class NodeExtensionTest extends TestCase
     public function testEmptyExtensions(): void
     {
         $extension = new NodeExtension(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TemplateScopeDetector::class),
         );
 
         static::assertSame([], $extension->getFunctions());

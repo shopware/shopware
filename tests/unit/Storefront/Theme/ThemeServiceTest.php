@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -29,6 +30,7 @@ use Shopware\Storefront\Theme\Exception\ThemeConfigException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -47,73 +49,66 @@ use Symfony\Component\Messenger\MessageBus;
 #[CoversClass(ThemeService::class)]
 class ThemeServiceTest extends TestCase
 {
-    private Connection&MockObject $connectionMock;
+    private Connection&Stub $connectionMock;
 
-    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
+    private StorefrontPluginRegistry&Stub $storefrontPluginRegistryMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
-    private EntityRepository&MockObject $themeRepositoryMock;
+    /**
+     * @var EntityRepository<ThemeCollection>&Stub
+     */
+    private EntityRepository&Stub $themeRepositoryMock;
 
-    /** @var EntityRepository<EntityCollection<Entity>>&MockObject */
-    private EntityRepository&MockObject $themeSalesChannelRepositoryMock;
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>&Stub
+     */
+    private EntityRepository&Stub $themeSalesChannelRepositoryMock;
 
-    private ThemeCompiler&MockObject $themeCompilerMock;
+    private ThemeCompiler&Stub $themeCompilerMock;
 
-    private EventDispatcher&MockObject $eventDispatcherMock;
+    private EventDispatcher&Stub $eventDispatcherMock;
 
-    private ThemeMergedConfigBuilder&MockObject $mergedConfigBuilderMock;
+    private ThemeMergedConfigBuilder&Stub $mergedConfigBuilderMock;
 
-    private ThemeService $themeService;
+    private DatabaseConfigLoader&Stub $databaseConfigLoaderMock;
+
+    private ThemeRuntimeConfigService&Stub $runtimeConfigServiceMock;
 
     private Context $context;
 
-    private SystemConfigService&MockObject $systemConfigMock;
+    private SystemConfigService&Stub $systemConfigMock;
 
-    private MessageBus&MockObject $messageBusMock;
+    private MessageBus&Stub $messageBusMock;
 
-    private ScssPhpCompiler&MockObject $scssCompilerMock;
+    private ScssPhpCompiler&Stub $scssCompilerMock;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
-        $this->storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
-        $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->themeSalesChannelRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->themeCompilerMock = $this->createMock(ThemeCompiler::class);
-        $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
+        $this->connectionMock = static::createStub(Connection::class);
+        $this->storefrontPluginRegistryMock = static::createStub(StorefrontPluginRegistry::class);
+        $this->themeRepositoryMock = static::createStub(EntityRepository::class);
+        $this->themeSalesChannelRepositoryMock = static::createStub(EntityRepository::class);
+        $this->themeCompilerMock = static::createStub(ThemeCompiler::class);
+        $this->eventDispatcherMock = static::createStub(EventDispatcher::class);
+        $this->databaseConfigLoaderMock = static::createStub(DatabaseConfigLoader::class);
         $this->context = Context::createDefaultContext();
-        $this->systemConfigMock = $this->createMock(SystemConfigService::class);
-        $this->messageBusMock = $this->createMock(MessageBus::class);
-        $this->mergedConfigBuilderMock = $this->createMock(ThemeMergedConfigBuilder::class);
-        $this->scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
-
-        $this->themeService = new ThemeService(
-            $this->storefrontPluginRegistryMock,
-            $this->themeRepositoryMock,
-            $this->themeSalesChannelRepositoryMock,
-            $this->themeCompilerMock,
-            $this->scssCompilerMock,
-            $this->eventDispatcherMock,
-            $databaseConfigLoaderMock,
-            $this->connectionMock,
-            $this->systemConfigMock,
-            $this->messageBusMock,
-            $this->createMock(NotificationService::class),
-            $this->mergedConfigBuilderMock,
-            $this->createMock(ThemeRuntimeConfigService::class),
-        );
+        $this->systemConfigMock = static::createStub(SystemConfigService::class);
+        $this->messageBusMock = static::createStub(MessageBus::class);
+        $this->mergedConfigBuilderMock = static::createStub(ThemeMergedConfigBuilder::class);
+        $this->scssCompilerMock = static::createStub(ScssPhpCompiler::class);
+        $this->runtimeConfigServiceMock = static::createStub(ThemeRuntimeConfigService::class);
     }
 
     public function testAssignTheme(): void
     {
         $themeId = Uuid::randomHex();
 
-        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('transactional')->willReturnCallback(static function (callable $callback): void {
             $callback();
         });
 
-        $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
+        $themeSalesChannelRepository = $this->createMock(EntityRepository::class);
+        $themeSalesChannelRepository->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -121,11 +116,13 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL, $this->context)
         );
 
-        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -134,20 +131,29 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $assigned = $this->themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
+        $themeService = $this->getThemeService(
+            themeSalesChannelRepository: $themeSalesChannelRepository,
+            themeCompiler: $themeCompiler,
+            eventDispatcher: $eventDispatcher,
+            connection: $connection,
+        );
+
+        $assigned = $themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
 
         static::assertTrue($assigned);
     }
 
     public function testAssignThemeSkipCompile(): void
     {
-        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('transactional')->willReturnCallback(static function (callable $callback): void {
             $callback();
         });
 
         $themeId = Uuid::randomHex();
 
-        $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
+        $themeSalesChannelRepository = $this->createMock(EntityRepository::class);
+        $themeSalesChannelRepository->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -155,13 +161,22 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL, $this->context)
         );
 
-        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('compileTheme');
 
-        $assigned = $this->themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context, true);
+        $themeService = $this->getThemeService(
+            themeSalesChannelRepository: $themeSalesChannelRepository,
+            themeCompiler: $themeCompiler,
+            eventDispatcher: $eventDispatcher,
+            connection: $connection,
+        );
+
+        $assigned = $themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context, true);
 
         static::assertTrue($assigned);
     }
@@ -170,7 +185,8 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -179,7 +195,7 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
     public function testCompileThemeAsyncSkipHeader(): void
@@ -188,9 +204,11 @@ class ThemeServiceTest extends TestCase
 
         $this->context->addState(ThemeService::STATE_NO_QUEUE);
 
-        $this->messageBusMock->expects($this->never())->method('dispatch');
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -199,20 +217,22 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->systemConfigMock->method('get')->with(ThemeService::CONFIG_THEME_COMPILE_ASYNC)->willReturn(true);
+        $this->systemConfigMock->method('get')->willReturn(true);
 
-        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler, messageBus: $messageBus)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
     public function testCompileThemeAsyncSetting(): void
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('compileTheme');
 
         $context = $this->context;
-        $this->messageBusMock->expects($this->once())->method('dispatch')
-            ->willReturnCallback(function () use ($themeId, $context): Envelope {
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->once())->method('dispatch')
+            ->willReturnCallback(static function () use ($themeId, $context): Envelope {
                 return new Envelope(
                     new CompileThemeMessage(
                         TestDefaults::SALES_CHANNEL,
@@ -223,9 +243,9 @@ class ThemeServiceTest extends TestCase
                 );
             });
 
-        $this->systemConfigMock->method('get')->with(ThemeService::CONFIG_THEME_COMPILE_ASYNC)->willReturn(true);
+        $this->systemConfigMock->method('get')->willReturn(true);
 
-        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler, messageBus: $messageBus)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
     public function testCompileThemeGivenConf(): void
@@ -234,7 +254,8 @@ class ThemeServiceTest extends TestCase
 
         $confCollection = new StorefrontPluginConfigurationCollection();
 
-        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -243,14 +264,15 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, $confCollection);
+        $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, $confCollection);
     }
 
     public function testCompileThemeWithAssets(): void
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
@@ -259,7 +281,185 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, false);
+        $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, false);
+    }
+
+    public function testRefreshThemeImportMap(): void
+    {
+        $themeId = Uuid::randomHex();
+        $storefrontConfig = new StorefrontPluginConfiguration('Storefront');
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+        $importMap = ['imports' => ['shopware' => '/theme/shopware.js']];
+
+        $databaseConfigLoader = $this->createMock(DatabaseConfigLoader::class);
+        $databaseConfigLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($themeId, $this->context)
+            ->willReturn($storefrontConfig);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler
+            ->expects($this->once())
+            ->method('buildComponentImportMap')
+            ->with($configurationCollection)
+            ->willReturn($importMap);
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService
+            ->expects($this->once())
+            ->method('refreshRuntimeConfig')
+            ->with(
+                $themeId,
+                $storefrontConfig,
+                $this->context,
+                false,
+                $configurationCollection,
+                $importMap
+            );
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $databaseConfigLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->refreshThemeImportMap(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            $this->context,
+            $configurationCollection
+        );
+    }
+
+    public function testCompileThemePassesEmptyImportMapWhenBuildReturnsNull(): void
+    {
+        $themeId = Uuid::randomHex();
+        $storefrontConfig = new StorefrontPluginConfiguration('Storefront');
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+
+        $databaseConfigLoader = $this->createMock(DatabaseConfigLoader::class);
+        $databaseConfigLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($themeId, $this->context)
+            ->willReturn($storefrontConfig);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler
+            ->expects($this->once())
+            ->method('compileTheme')
+            ->with(
+                TestDefaults::SALES_CHANNEL,
+                $themeId,
+                $storefrontConfig,
+                $configurationCollection,
+                true,
+                $this->context
+            );
+
+        $themeCompiler
+            ->expects($this->once())
+            ->method('buildComponentImportMap')
+            ->with($configurationCollection)
+            ->willReturn(null);
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService
+            ->expects($this->once())
+            ->method('refreshRuntimeConfig')
+            ->with(
+                $themeId,
+                $storefrontConfig,
+                $this->context,
+                true,
+                $configurationCollection,
+                ['imports' => []]
+            );
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $databaseConfigLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            $this->context,
+            $configurationCollection
+        );
+    }
+
+    public function testRefreshThemeImportMapPassesEmptyImportMapWhenBuildReturnsNull(): void
+    {
+        $themeId = Uuid::randomHex();
+        $storefrontConfig = new StorefrontPluginConfiguration('Storefront');
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+
+        $databaseConfigLoader = $this->createMock(DatabaseConfigLoader::class);
+        $databaseConfigLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($themeId, $this->context)
+            ->willReturn($storefrontConfig);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler
+            ->expects($this->once())
+            ->method('buildComponentImportMap')
+            ->with($configurationCollection)
+            ->willReturn(null);
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService
+            ->expects($this->once())
+            ->method('refreshRuntimeConfig')
+            ->with(
+                $themeId,
+                $storefrontConfig,
+                $this->context,
+                false,
+                $configurationCollection,
+                ['imports' => []]
+            );
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $databaseConfigLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->refreshThemeImportMap(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            $this->context,
+            $configurationCollection
+        );
+    }
+
+    public function testRefreshThemeImportMapReturnsEarlyWithStaticFileConfigLoader(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(\sprintf('theme-config/%s.json', $themeId), json_encode([
+            'styleFiles' => [],
+            'scriptFiles' => [],
+        ], \JSON_THROW_ON_ERROR));
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+
+        $themeService = $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $configLoader,
+            runtimeConfigService: $runtimeConfigService,
+        );
+
+        $themeService->refreshThemeImportMap(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            $this->context,
+            new StorefrontPluginConfigurationCollection()
+        );
     }
 
     public function testCompileThemeById(): void
@@ -280,14 +480,15 @@ class ThemeServiceTest extends TestCase
 
         $parameters = [];
 
-        $this->themeCompilerMock
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler
             ->expects($this->exactly(2))
             ->method('compileTheme')
-            ->willReturnCallback(function ($salesChannelId, $themeId) use (&$parameters): void {
+            ->willReturnCallback(static function ($salesChannelId, $themeId) use (&$parameters): void {
                 $parameters[] = [$salesChannelId, $themeId];
             });
 
-        $this->themeService->compileThemeById($themeId, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler)->compileThemeById($themeId, $this->context);
 
         static::assertSame([
             [
@@ -299,27 +500,6 @@ class ThemeServiceTest extends TestCase
                 $dependentThemeId,
             ],
         ], $parameters);
-    }
-
-    public function testUpdateThemeNoTheme(): void
-    {
-        $themeId = Uuid::randomHex();
-
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                new ThemeCollection([]),
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
-
-        $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
 
     public function testUpdateTheme(): void
@@ -360,14 +540,14 @@ class ThemeServiceTest extends TestCase
 
         // Mock the getPlainThemeConfiguration method to return an empty configuration structure.
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
-            ->with($themeId, $this->context)
             ->willReturn([
                 'fields' => [],
             ]);
 
-        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->exactly(2))->method('compileTheme');
 
-        $this->themeService->updateTheme($themeId, null, null, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler)->updateTheme($themeId, null, null, $this->context);
     }
 
     public function testUpdateThemeWithConfig(): void
@@ -420,7 +600,6 @@ class ThemeServiceTest extends TestCase
 
         // Mock the getPlainThemeConfiguration method to return the expected configuration structure.
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
-            ->with($themeId, $this->context)
             ->willReturn([
                 'fields' => [
                     'test' => [
@@ -430,13 +609,15 @@ class ThemeServiceTest extends TestCase
                 ],
             ]);
 
-        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]], $this->context)
         );
 
-        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->exactly(2))->method('compileTheme');
 
-        $this->themeService->updateTheme($themeId, ['test' => ['value' => ['test']]], $parentThemeId, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler, eventDispatcher: $eventDispatcher)->updateTheme($themeId, ['test' => ['value' => ['test']]], $parentThemeId, $this->context);
     }
 
     public function testUpdateThemeWithConfigAndRemovedField(): void
@@ -495,7 +676,6 @@ class ThemeServiceTest extends TestCase
 
         // Mock the getPlainThemeConfiguration method to return the expected configuration structure.
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
-            ->with($themeId, $this->context)
             ->willReturn([
                 'fields' => [
                     'test' => [
@@ -505,13 +685,15 @@ class ThemeServiceTest extends TestCase
                 ],
             ]);
 
-        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]], $this->context)
         );
 
-        $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->exactly(2))->method('compileTheme');
 
-        $this->themeService->updateTheme($themeId, $config, $parentThemeId, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler, eventDispatcher: $eventDispatcher)->updateTheme($themeId, $config, $parentThemeId, $this->context);
     }
 
     public function testUpdateThemeNoSalesChannelAssigned(): void
@@ -539,21 +721,42 @@ class ThemeServiceTest extends TestCase
 
         // Mock the getPlainThemeConfiguration method to return an empty configuration structure.
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')
-            ->with($themeId, $this->context)
             ->willReturn([
                 'fields' => [],
             ]);
 
-        $this->themeCompilerMock->expects($this->never())->method('compileTheme');
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('compileTheme');
 
-        $this->themeService->updateTheme($themeId, null, null, $this->context);
+        $this->getThemeService(themeCompiler: $themeCompiler)->updateTheme($themeId, null, null, $this->context);
+    }
+
+    public function testUpdateThemeNoTheme(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->themeRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'theme',
+                1,
+                new ThemeCollection([]),
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
+
+        $this->getThemeService()->updateTheme($themeId, null, null, $this->context);
     }
 
     public function testResetTheme(): void
     {
         $themeId = Uuid::randomHex();
 
-        $this->themeRepositoryMock->method('search')->willReturn(
+        $themeRepository = $this->createMock(EntityRepository::class);
+        $themeRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'theme',
                 1,
@@ -572,11 +775,12 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeConfigResetEvent($themeId)
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            new ThemeConfigResetEvent($themeId, $this->context)
         );
 
-        $this->themeRepositoryMock->expects($this->once())->method('update')->with(
+        $themeRepository->expects($this->once())->method('update')->with(
             [
                 [
                     'id' => $themeId,
@@ -586,7 +790,7 @@ class ThemeServiceTest extends TestCase
             $this->context
         );
 
-        $this->themeService->resetTheme($themeId, $this->context);
+        $this->getThemeService(themeRepository: $themeRepository, eventDispatcher: $eventDispatcher)->resetTheme($themeId, $this->context);
     }
 
     public function testResetThemeNoTheme(): void
@@ -604,9 +808,8 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
-        $this->themeService->resetTheme($themeId, $this->context);
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
+        $this->getThemeService()->resetTheme($themeId, $this->context);
     }
 
     public function testAsyncCompilationIsSkippedWhenUsingStaticConfigLoader(): void
@@ -619,32 +822,27 @@ class ThemeServiceTest extends TestCase
         ], \JSON_THROW_ON_ERROR));
         $configLoader = new StaticFileConfigLoader($fs);
 
-        $themeService = new ThemeService(
-            $this->storefrontPluginRegistryMock,
-            $this->themeRepositoryMock,
-            $this->themeSalesChannelRepositoryMock,
-            $this->themeCompilerMock,
-            $this->scssCompilerMock,
-            $this->eventDispatcherMock,
-            $configLoader,
-            $this->connectionMock,
-            $this->systemConfigMock,
-            $this->messageBusMock,
-            $this->createMock(NotificationService::class),
-            $this->mergedConfigBuilderMock,
-            $this->createMock(ThemeRuntimeConfigService::class),
-        );
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->expects($this->never())->method('get');
 
-        $this->systemConfigMock->expects($this->never())->method('get');
-        $this->messageBusMock->expects($this->never())->method('dispatch');
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
             static::anything(),
             true,
             $this->context
+        );
+
+        $themeService = $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $configLoader,
+            systemConfig: $systemConfig,
+            messageBus: $messageBus,
         );
 
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
@@ -690,7 +888,7 @@ class ThemeServiceTest extends TestCase
 
         $this->scssCompilerMock->method('compileString')->willReturn('body{background-color:#ff0000;color:darken(#ff0000, 10%)}');
 
-        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+        $result = $this->getThemeService()->validateThemeConfig($themeId, $config, $this->context);
 
         static::assertEquals($config, $result);
     }
@@ -724,7 +922,7 @@ class ThemeServiceTest extends TestCase
 
         $this->expectException(ThemeConfigException::class);
 
-        $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+        $this->getThemeService()->validateThemeConfig($themeId, $config, $this->context);
     }
 
     public function testValidateThemeConfigWithSanitize(): void
@@ -753,7 +951,7 @@ class ThemeServiceTest extends TestCase
         $this->scssCompilerMock->method('compileString')
             ->willThrowException(new \Exception('Invalid SCSS compilation'));
 
-        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context, [], true);
+        $result = $this->getThemeService()->validateThemeConfig($themeId, $config, $this->context, [], true);
 
         static::assertEquals([
             'sw-color-brand-primary' => [
@@ -785,7 +983,7 @@ class ThemeServiceTest extends TestCase
 
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
 
-        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+        $result = $this->getThemeService()->validateThemeConfig($themeId, $config, $this->context);
 
         static::assertEquals($config, $result);
     }
@@ -816,7 +1014,7 @@ class ThemeServiceTest extends TestCase
         $this->scssCompilerMock->method('compileString')
             ->willThrowException(new \Exception('Invalid SCSS compilation'));
 
-        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+        $result = $this->getThemeService()->validateThemeConfig($themeId, $config, $this->context);
 
         static::assertEquals($config, $result);
     }
@@ -844,7 +1042,7 @@ class ThemeServiceTest extends TestCase
 
         $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn($baseConfig);
 
-        $result = $this->themeService->validateThemeConfig($themeId, $config, $this->context);
+        $result = $this->getThemeService()->validateThemeConfig($themeId, $config, $this->context);
 
         static::assertEquals($config, $result);
     }
@@ -855,12 +1053,10 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['key' => 'value'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getPlainThemeConfiguration')
-            ->with($themeId, $this->context)
             ->willReturn($expectedConfig);
 
-        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context);
+        $result = $this->getThemeService()->getPlainThemeConfiguration($themeId, $this->context);
 
         static::assertSame($expectedConfig, $result);
     }
@@ -875,12 +1071,10 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['key' => 'value'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getPlainThemeConfiguration')
-            ->with($themeId, $this->context, true)
             ->willReturn($expectedConfig);
 
-        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context, true);
+        $result = $this->getThemeService()->getPlainThemeConfiguration($themeId, $this->context, true);
 
         static::assertSame($expectedConfig, $result);
     }
@@ -891,12 +1085,10 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['structuredKey' => 'structuredValue'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getThemeConfigurationFieldStructure')
-            ->with($themeId, $this->context)
             ->willReturn($expectedConfig);
 
-        $result = $this->themeService->getThemeConfigurationFieldStructure($themeId, $this->context);
+        $result = $this->getThemeService()->getThemeConfigurationFieldStructure($themeId, $this->context);
 
         static::assertSame($expectedConfig, $result);
     }
@@ -911,13 +1103,50 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['structuredKey' => 'structuredValue'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getThemeConfigurationFieldStructure')
-            ->with($themeId, $this->context, true)
             ->willReturn($expectedConfig);
 
-        $result = $this->themeService->getThemeConfigurationFieldStructure($themeId, $this->context, true);
+        $result = $this->getThemeService()->getThemeConfigurationFieldStructure($themeId, $this->context, true);
 
         static::assertSame($expectedConfig, $result);
+    }
+
+    /**
+     * Builds the subject under test. Every collaborator defaults to the shared stub created in setUp; a test
+     * that needs to set call expectations passes a local createMock(...) double in for just that collaborator.
+     *
+     * @param EntityRepository<ThemeCollection>|null $themeRepository
+     * @param EntityRepository<EntityCollection<Entity>>|null $themeSalesChannelRepository
+     */
+    private function getThemeService(
+        ?StorefrontPluginRegistry $storefrontPluginRegistry = null,
+        ?EntityRepository $themeRepository = null,
+        ?EntityRepository $themeSalesChannelRepository = null,
+        ?ThemeCompiler $themeCompiler = null,
+        ?ScssPhpCompiler $scssCompiler = null,
+        ?EventDispatcher $eventDispatcher = null,
+        ?AbstractConfigLoader $configLoader = null,
+        ?Connection $connection = null,
+        ?SystemConfigService $systemConfig = null,
+        ?MessageBus $messageBus = null,
+        ?NotificationService $notificationService = null,
+        ?ThemeMergedConfigBuilder $mergedConfigBuilder = null,
+        ?ThemeRuntimeConfigService $runtimeConfigService = null,
+    ): ThemeService {
+        return new ThemeService(
+            $storefrontPluginRegistry ?? $this->storefrontPluginRegistryMock,
+            $themeRepository ?? $this->themeRepositoryMock,
+            $themeSalesChannelRepository ?? $this->themeSalesChannelRepositoryMock,
+            $themeCompiler ?? $this->themeCompilerMock,
+            $scssCompiler ?? $this->scssCompilerMock,
+            $eventDispatcher ?? $this->eventDispatcherMock,
+            $configLoader ?? $this->databaseConfigLoaderMock,
+            $connection ?? $this->connectionMock,
+            $systemConfig ?? $this->systemConfigMock,
+            $messageBus ?? $this->messageBusMock,
+            $notificationService ?? static::createStub(NotificationService::class),
+            $mergedConfigBuilder ?? $this->mergedConfigBuilderMock,
+            $runtimeConfigService ?? $this->runtimeConfigServiceMock,
+        );
     }
 }

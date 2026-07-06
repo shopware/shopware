@@ -3,18 +3,24 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailData;
 use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -37,13 +43,25 @@ class MediaUploadServiceTest extends TestCase
      */
     private StaticEntityRepository $mediaRepository;
 
-    private FileFetcher&MockObject $fileFetcher;
+    /**
+     * @var StaticEntityRepository<MediaThumbnailCollection>
+     */
+    private StaticEntityRepository $mediaThumbnailRepository;
 
-    private FileSaver&MockObject $fileSaver;
+    /**
+     * @var StaticEntityRepository<MediaThumbnailSizeCollection>
+     */
+    private StaticEntityRepository $mediaThumbnailSizeRepository;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
+    private FileFetcher&Stub $fileFetcher;
 
-    private HttpClientInterface&MockObject $httpClient;
+    private FileSaver&Stub $fileSaver;
+
+    private EventDispatcherInterface&Stub $eventDispatcher;
+
+    private HttpClientInterface&Stub $httpClient;
+
+    private FileUrlValidatorInterface&Stub $fileUrlValidator;
 
     private MediaUploadService $mediaUploadService;
 
@@ -52,18 +70,16 @@ class MediaUploadServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->mediaRepository = new StaticEntityRepository([]);
-        $this->fileFetcher = $this->createMock(FileFetcher::class);
-        $this->fileSaver = $this->createMock(FileSaver::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->httpClient = $this->createMock(HttpClientInterface::class);
+        $this->mediaThumbnailRepository = new StaticEntityRepository([]);
+        $this->mediaThumbnailSizeRepository = new StaticEntityRepository([]);
+        $this->fileFetcher = static::createStub(FileFetcher::class);
+        $this->fileSaver = static::createStub(FileSaver::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->httpClient = static::createStub(HttpClientInterface::class);
+        $this->fileUrlValidator = static::createStub(FileUrlValidatorInterface::class);
+        $this->fileUrlValidator->method('isValid')->willReturn(true);
 
-        $this->mediaUploadService = new MediaUploadService(
-            $this->mediaRepository,
-            $this->fileFetcher,
-            $this->fileSaver,
-            $this->eventDispatcher,
-            $this->httpClient
-        );
+        $this->mediaUploadService = $this->buildService();
 
         $this->context = Context::createDefaultContext();
     }
@@ -75,7 +91,8 @@ class MediaUploadServiceTest extends TestCase
 
         (new Filesystem())->dumpFile($filePath, 'test content');
 
-        $this->fileSaver
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver
             ->expects($this->once())
             ->method('persistFileToMedia')
             ->with(
@@ -85,12 +102,15 @@ class MediaUploadServiceTest extends TestCase
                 $this->context
             );
 
-        $this->eventDispatcher
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MediaUploadedEvent::class));
 
-        $result = $this->mediaUploadService->uploadFromLocalPath($filePath, $this->context, $params);
+        $service = $this->buildService(fileSaver: $fileSaver, eventDispatcher: $eventDispatcher);
+
+        $result = $service->uploadFromLocalPath($filePath, $this->context, $params);
 
         static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
@@ -129,16 +149,20 @@ class MediaUploadServiceTest extends TestCase
 
         $params = new MediaUploadParameters();
 
-        $this->fileSaver
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver
             ->expects($this->once())
             ->method('persistFileToMedia');
 
-        $this->eventDispatcher
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MediaUploadedEvent::class));
 
-        $result = $this->mediaUploadService->uploadFromRequest($request, $this->context, $params);
+        $service = $this->buildService(fileSaver: $fileSaver, eventDispatcher: $eventDispatcher);
+
+        $result = $service->uploadFromRequest($request, $this->context, $params);
 
         static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
@@ -173,7 +197,8 @@ class MediaUploadServiceTest extends TestCase
         $tmpDir = sys_get_temp_dir();
         static::assertNotEmpty($tmpDir);
 
-        $this->fileFetcher
+        $fileFetcher = $this->createMock(FileFetcher::class);
+        $fileFetcher
             ->expects($this->once())
             ->method('fetchFromURL')
             ->with(
@@ -182,16 +207,20 @@ class MediaUploadServiceTest extends TestCase
             )
             ->willReturn($mediaFile);
 
-        $this->fileSaver
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver
             ->expects($this->once())
             ->method('persistFileToMedia');
 
-        $this->eventDispatcher
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MediaUploadedEvent::class));
 
-        $result = $this->mediaUploadService->uploadFromURL($url, $this->context, $params);
+        $service = $this->buildService(fileFetcher: $fileFetcher, fileSaver: $fileSaver, eventDispatcher: $eventDispatcher);
+
+        $result = $service->uploadFromURL($url, $this->context, $params);
 
         static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
@@ -206,18 +235,21 @@ class MediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg'
         );
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getHeaders')->willReturn([
             'content-length' => ['1024'],
         ]);
 
-        $this->httpClient
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
             ->expects($this->once())
             ->method('request')
-            ->with('HEAD', $url)
+            ->with('HEAD', $url, ['max_redirects' => 0])
             ->willReturn($response);
 
-        $result = $this->mediaUploadService->linkURL($url, $this->context, $params);
+        $service = $this->buildService(httpClient: $httpClient);
+
+        $result = $service->linkURL($url, $this->context, $params);
 
         static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
@@ -249,18 +281,21 @@ class MediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg'
         );
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getHeaders')->willReturn([]);
 
-        $this->httpClient
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
             ->expects($this->once())
             ->method('request')
-            ->with('HEAD', $url)
+            ->with('HEAD', $url, ['max_redirects' => 0])
             ->willReturn($response);
+
+        $service = $this->buildService(httpClient: $httpClient);
 
         $this->expectException(MediaException::class);
 
-        $this->mediaUploadService->linkURL($url, $this->context, $params);
+        $service->linkURL($url, $this->context, $params);
     }
 
     public function testLinkURLWithDeduplication(): void
@@ -276,9 +311,12 @@ class MediaUploadServiceTest extends TestCase
         // Setup the repository to return an existing media ID for deduplication
         $this->mediaRepository->addSearch([$existingMediaId]);
 
-        $this->httpClient->expects($this->never())->method('request');
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
 
-        $result = $this->mediaUploadService->linkURL($url, $this->context, $params);
+        $service = $this->buildService(httpClient: $httpClient);
+
+        $result = $service->linkURL($url, $this->context, $params);
 
         static::assertSame($existingMediaId, $result);
         static::assertCount(0, $this->mediaRepository->creates);
@@ -293,22 +331,25 @@ class MediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg'
         );
 
-        $adminSource = $this->createMock(AdminApiSource::class);
+        $adminSource = static::createStub(AdminApiSource::class);
         $adminSource->method('getUserId')->willReturn($userId);
 
         $adminContext = Context::createDefaultContext($adminSource);
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getHeaders')->willReturn([
             'content-length' => ['1024'],
         ]);
 
-        $this->httpClient
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
             ->expects($this->once())
             ->method('request')
             ->willReturn($response);
 
-        $this->mediaUploadService->linkURL($url, $adminContext, $params);
+        $service = $this->buildService(httpClient: $httpClient);
+
+        $service->linkURL($url, $adminContext, $params);
 
         static::assertCount(1, $this->mediaRepository->creates);
         static::assertSame($userId, $this->mediaRepository->creates[0][0]['userId']);
@@ -325,10 +366,13 @@ class MediaUploadServiceTest extends TestCase
         // Setup the repository to return an existing media ID for deduplication
         $this->mediaRepository->addSearch([$existingMediaId]);
 
-        $this->fileSaver->expects($this->never())->method('persistFileToMedia');
-        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->expects($this->never())->method('persistFileToMedia');
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
 
-        $result = $this->mediaUploadService->uploadFromLocalPath($filePath, $this->context, $params);
+        $result = $this->buildService(fileSaver: $fileSaver, eventDispatcher: $eventDispatcher)
+            ->uploadFromLocalPath($filePath, $this->context, $params);
 
         static::assertSame($existingMediaId, $result);
         static::assertCount(0, $this->mediaRepository->creates);
@@ -343,18 +387,20 @@ class MediaUploadServiceTest extends TestCase
 
         (new Filesystem())->dumpFile($filePath, 'test content');
 
-        $this->fileSaver
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver
             ->expects($this->once())
             ->method('persistFileToMedia')
             ->willThrowException(new \Exception('Upload failed'));
 
-        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Upload failed');
+        $this->expectExceptionObject(new \Exception('Upload failed'));
 
         try {
-            $this->mediaUploadService->uploadFromLocalPath($filePath, $this->context, $params);
+            $this->buildService(fileSaver: $fileSaver, eventDispatcher: $eventDispatcher)
+                ->uploadFromLocalPath($filePath, $this->context, $params);
         } finally {
             // Verify that the media was created and then deleted due to error
             static::assertCount(1, $this->mediaRepository->creates);
@@ -379,7 +425,8 @@ class MediaUploadServiceTest extends TestCase
         // Create test file
         file_put_contents($filePath, 'test content');
 
-        $this->fileSaver
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver
             ->expects($this->once())
             ->method('persistFileToMedia')
             ->with(
@@ -389,11 +436,13 @@ class MediaUploadServiceTest extends TestCase
                 $this->context
             );
 
-        $this->eventDispatcher
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
             ->expects($this->once())
             ->method('dispatch');
 
-        $result = $this->mediaUploadService->uploadFromLocalPath($filePath, $this->context, $params);
+        $result = $this->buildService(fileSaver: $fileSaver, eventDispatcher: $eventDispatcher)
+            ->uploadFromLocalPath($filePath, $this->context, $params);
 
         static::assertSame($customId, $result);
         static::assertCount(1, $this->mediaRepository->creates);
@@ -404,6 +453,295 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
 
         (new Filesystem())->remove($filePath);
+    }
+
+    public function testAddExternalThumbnailsToMedia(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $collection = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('https://localhost:8000/thumb-200.jpg', 200, 200),
+            new ExternalThumbnailData('https://localhost:8000/thumb-400.jpg', 400, 400),
+        ]);
+
+        $this->mediaThumbnailSizeRepository->addSearch([], []);
+
+        $this->mediaUploadService->addExternalThumbnailsToMedia($mediaId, $collection, $this->context);
+
+        static::assertCount(2, $this->mediaThumbnailSizeRepository->creates);
+        static::assertCount(1, $this->mediaThumbnailSizeRepository->creates[0]);
+        static::assertCount(1, $this->mediaThumbnailSizeRepository->creates[1]);
+
+        static::assertCount(1, $this->mediaThumbnailRepository->creates);
+        $createdThumbnails = $this->mediaThumbnailRepository->creates[0];
+        static::assertCount(2, $createdThumbnails);
+
+        static::assertSame($mediaId, $createdThumbnails[0]['mediaId']);
+        static::assertSame('https://localhost:8000/thumb-200.jpg', $createdThumbnails[0]['path']);
+        static::assertSame(200, $createdThumbnails[0]['width']);
+        static::assertSame(200, $createdThumbnails[0]['height']);
+
+        static::assertSame($mediaId, $createdThumbnails[1]['mediaId']);
+        static::assertSame('https://localhost:8000/thumb-400.jpg', $createdThumbnails[1]['path']);
+        static::assertSame(400, $createdThumbnails[1]['width']);
+        static::assertSame(400, $createdThumbnails[1]['height']);
+    }
+
+    public function testDeleteAllExternalThumbnailsSkipsMediaWithZeroThumbnails(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaThumbnailRepository->addSearch([]);
+        $this->mediaUploadService->deleteAllExternalThumbnails($mediaId, $this->context);
+
+        static::assertCount(0, $this->mediaThumbnailRepository->deletes);
+    }
+
+    public function testLinkURLWithThumbnails(): void
+    {
+        $url = 'https://localhost:8000/image.jpg';
+        $thumbnails = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('https://localhost:8000/thumb-200.jpg', 200, 200),
+        ]);
+        $params = new MediaUploadParameters(
+            fileName: 'test.jpg',
+            mimeType: 'image/jpeg',
+            thumbnails: $thumbnails
+        );
+
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getHeaders')->willReturn(['content-length' => ['1024']]);
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
+            ->expects($this->once())
+            ->method('request')
+            ->with('HEAD', $url, ['max_redirects' => 0])
+            ->willReturn($response);
+
+        $this->mediaThumbnailSizeRepository->addSearch([]);
+
+        $result = $this->buildService(httpClient: $httpClient)->linkURL($url, $this->context, $params);
+
+        static::assertIsString($result);
+        static::assertCount(1, $this->mediaRepository->creates);
+        static::assertCount(1, $this->mediaThumbnailRepository->creates);
+        static::assertSame('https://localhost:8000/thumb-200.jpg', $this->mediaThumbnailRepository->creates[0][0]['path']);
+    }
+
+    public function testGetOrCreateThumbnailSizeReuseExistingSize(): void
+    {
+        $existingSizeId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $collection = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('https://localhost:8000/thumb.jpg', 300, 300),
+        ]);
+
+        $this->mediaThumbnailSizeRepository->addSearch([$existingSizeId]);
+
+        $this->mediaUploadService->addExternalThumbnailsToMedia($mediaId, $collection, $this->context);
+
+        static::assertCount(0, $this->mediaThumbnailSizeRepository->creates);
+
+        static::assertCount(1, $this->mediaThumbnailRepository->creates);
+        static::assertSame($existingSizeId, $this->mediaThumbnailRepository->creates[0][0]['mediaThumbnailSizeId']);
+    }
+
+    public function testDeleteAllExternalThumbnailsDeletesFoundThumbnails(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $thumbnailId1 = Uuid::randomHex();
+        $thumbnailId2 = Uuid::randomHex();
+
+        $this->mediaThumbnailRepository->addSearch([$thumbnailId1, $thumbnailId2]);
+
+        $this->mediaUploadService->deleteAllExternalThumbnails($mediaId, $this->context);
+
+        static::assertCount(1, $this->mediaThumbnailRepository->deletes);
+        static::assertCount(2, $this->mediaThumbnailRepository->deletes[0]);
+        static::assertSame(
+            [$thumbnailId1, $thumbnailId2],
+            array_column($this->mediaThumbnailRepository->deletes[0], 'id'),
+        );
+    }
+
+    public function testValidateExternalUrlThrowsForInvalidFormat(): void
+    {
+        $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
+
+        $this->mediaUploadService->assertValidExternalUrl('not-a-valid-url');
+    }
+
+    public function testValidateExternalUrlThrowsForPrivateIpUrl(): void
+    {
+        $validator = static::createStub(FileUrlValidatorInterface::class);
+        $validator->method('isValid')->willReturn(false);
+
+        $service = new MediaUploadService(
+            $this->mediaRepository,
+            $this->fileFetcher,
+            $this->fileSaver,
+            $this->eventDispatcher,
+            $this->httpClient,
+            $this->mediaThumbnailRepository,
+            $this->mediaThumbnailSizeRepository,
+            $validator,
+        );
+
+        $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/image.jpg'));
+
+        $service->assertValidExternalUrl('http://10.0.0.1/image.jpg');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove this test when validateExternalUrl() is removed
+     */
+    public function testDeprecatedValidateExternalUrlThrowsForInvalidFormat(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
+
+        MediaUploadService::validateExternalUrl('not-a-valid-url');
+    }
+
+    public function testLinkUrlRejectsPrivateIpUrl(): void
+    {
+        $validator = static::createStub(FileUrlValidatorInterface::class);
+        $validator->method('isValid')->willReturn(false);
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $service = $this->buildService(httpClient: $httpClient, fileUrlValidator: $validator);
+
+        $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/image.jpg'));
+
+        $params = new MediaUploadParameters();
+        $params->mimeType = 'image/jpeg';
+
+        $service->linkURL('http://10.0.0.1/image.jpg', $this->context, $params);
+    }
+
+    public function testLinkUrlDisablesRedirects(): void
+    {
+        $capturedOptions = [];
+
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getHeaders')->willReturn(['content-length' => ['12345']]);
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
+            ->expects($this->once())
+            ->method('request')
+            ->willReturnCallback(function (string $method, string $url, array $options) use (&$capturedOptions, $response) {
+                $capturedOptions = $options;
+
+                return $response;
+            });
+
+        $params = new MediaUploadParameters();
+        $params->mimeType = 'image/jpeg';
+
+        $this->buildService(httpClient: $httpClient)->linkURL('https://example.com/image.jpg', $this->context, $params);
+
+        static::assertArrayHasKey('max_redirects', $capturedOptions);
+        static::assertSame(0, $capturedOptions['max_redirects']);
+    }
+
+    public function testLinkUrlSkipsIpValidationWhenValidationDisabled(): void
+    {
+        $fileUrlValidator = $this->createMock(FileUrlValidatorInterface::class);
+        $fileUrlValidator->expects($this->never())->method('isValid');
+
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getHeaders')->willReturn(['content-length' => ['12345']]);
+        $httpClient = static::createStub(HttpClientInterface::class);
+        $httpClient->method('request')->willReturn($response);
+
+        $service = new MediaUploadService(
+            $this->mediaRepository,
+            $this->fileFetcher,
+            $this->fileSaver,
+            $this->eventDispatcher,
+            $httpClient,
+            $this->mediaThumbnailRepository,
+            $this->mediaThumbnailSizeRepository,
+            $fileUrlValidator,
+            false,
+        );
+
+        $params = new MediaUploadParameters();
+        $params->mimeType = 'image/jpeg';
+
+        $service->linkURL('http://10.0.0.1/image.jpg', $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+    }
+
+    public function testAddExternalThumbnailsRejectsPrivateIpUrl(): void
+    {
+        $validator = static::createStub(FileUrlValidatorInterface::class);
+        $validator->method('isValid')->willReturn(false);
+
+        $service = new MediaUploadService(
+            $this->mediaRepository,
+            $this->fileFetcher,
+            $this->fileSaver,
+            $this->eventDispatcher,
+            $this->httpClient,
+            $this->mediaThumbnailRepository,
+            $this->mediaThumbnailSizeRepository,
+            $validator,
+        );
+
+        $thumbnails = new ExternalThumbnailCollection([
+            new ExternalThumbnailData('http://10.0.0.1/thumb.jpg', 100, 100),
+        ]);
+
+        $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/thumb.jpg'));
+
+        $service->addExternalThumbnailsToMedia(Uuid::randomHex(), $thumbnails, $this->context);
+    }
+
+    public function testCreateExternalThumbnailsSkipsCreateWhenCollectionIsEmpty(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $collection = new ExternalThumbnailCollection([]);
+
+        $this->mediaUploadService->addExternalThumbnailsToMedia($mediaId, $collection, $this->context);
+
+        static::assertCount(0, $this->mediaThumbnailRepository->creates);
+    }
+
+    public function testIsExternalUrl(): void
+    {
+        static::assertTrue(MediaUploadService::isExternalUrl('http://localhost:8000/image.jpg'));
+        static::assertTrue(MediaUploadService::isExternalUrl('https://localhost:8000/image.jpg'));
+        static::assertFalse(MediaUploadService::isExternalUrl('file:///image.jpg'));
+        static::assertFalse(MediaUploadService::isExternalUrl('/image.jpg'));
+    }
+
+    private function buildService(
+        ?FileFetcher $fileFetcher = null,
+        ?FileSaver $fileSaver = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?HttpClientInterface $httpClient = null,
+        ?FileUrlValidatorInterface $fileUrlValidator = null,
+    ): MediaUploadService {
+        $service = new MediaUploadService(
+            $this->mediaRepository,
+            $fileFetcher ?? $this->fileFetcher,
+            $fileSaver ?? $this->fileSaver,
+            $eventDispatcher ?? $this->eventDispatcher,
+            $httpClient ?? $this->httpClient,
+            $this->mediaThumbnailRepository,
+            $this->mediaThumbnailSizeRepository,
+            $fileUrlValidator ?? $this->fileUrlValidator,
+        );
+
+        $this->mediaUploadService = $service;
+
+        return $service;
     }
 }
 

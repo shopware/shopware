@@ -23,6 +23,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -34,16 +35,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class RegisterConfirmRouteTest extends TestCase
 {
-    protected SalesChannelContext&MockObject $context;
+    protected SalesChannelContext&Stub $context;
 
-    protected EventDispatcherInterface&MockObject $eventDispatcher;
+    protected EventDispatcherInterface&Stub $eventDispatcher;
 
-    /** @var EntityRepository<CustomerCollection>&MockObject */
+    /**
+     * @var EntityRepository<CustomerCollection>&MockObject
+     */
     protected EntityRepository&MockObject $customerRepository;
 
-    protected DataValidator&MockObject $validator;
+    protected DataValidator&Stub $validator;
 
-    protected SalesChannelContextPersister&MockObject $salesChannelContextPersister;
+    protected SalesChannelContextPersister&Stub $salesChannelContextPersister;
 
     protected SalesChannelContextServiceInterface&Stub $salesChannelContextService;
 
@@ -52,13 +55,13 @@ class RegisterConfirmRouteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->context = $this->createMock(SalesChannelContext::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->context = static::createStub(SalesChannelContext::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $this->customerRepository = $this->createMock(EntityRepository::class);
-        $this->validator = $this->createMock(DataValidator::class);
-        $this->salesChannelContextPersister = $this->createMock(SalesChannelContextPersister::class);
+        $this->validator = static::createStub(DataValidator::class);
+        $this->salesChannelContextPersister = static::createStub(SalesChannelContextPersister::class);
 
-        $newSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $newSalesChannelContext = static::createStub(SalesChannelContext::class);
         $newSalesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->salesChannelContextService = static::createStub(SalesChannelContextServiceInterface::class);
@@ -66,13 +69,7 @@ class RegisterConfirmRouteTest extends TestCase
             ->method('get')
             ->willReturn($newSalesChannelContext);
 
-        $this->route = new RegisterConfirmRoute(
-            $this->customerRepository,
-            $this->eventDispatcher,
-            $this->validator,
-            $this->salesChannelContextPersister,
-            $this->salesChannelContextService
-        );
+        $this->route = $this->createRoute();
     }
 
     public function testConfirmCustomer(): void
@@ -115,9 +112,10 @@ class RegisterConfirmRouteTest extends TestCase
                 )
             );
 
-        $this->validator->expects($this->once())
+        $validator = $this->createMock(DataValidator::class);
+        $validator->expects($this->once())
             ->method('validate')
-            ->willReturnCallback(function (array $data, DataValidationDefinition $definition): void {
+            ->willReturnCallback(static function (array $data, DataValidationDefinition $definition): void {
                 $properties = $definition->getProperties();
                 static::assertArrayHasKey('doubleOptInRegistration', $properties);
                 static::assertContainsOnlyInstancesOf(IsTrue::class, $properties['doubleOptInRegistration']);
@@ -127,8 +125,10 @@ class RegisterConfirmRouteTest extends TestCase
                 throw new ConstraintViolationException(new ConstraintViolationList(), $data);
             });
 
+        $route = $this->createRoute($validator);
+
         static::expectException(ConstraintViolationException::class);
-        $this->route->confirm($this->mockRequestDataBag(), $this->context);
+        $route->confirm($this->mockRequestDataBag(), $this->context);
     }
 
     public function testConfirmActivatedCustomer(): void
@@ -196,5 +196,17 @@ class RegisterConfirmRouteTest extends TestCase
             'hash' => 'hash',
             'em' => Hasher::hash('test@test.test', 'sha1'),
         ]);
+    }
+
+    private function createRoute(?DataValidator $validator = null): RegisterConfirmRoute
+    {
+        return new RegisterConfirmRoute(
+            $this->customerRepository,
+            $this->eventDispatcher,
+            $validator ?? $this->validator,
+            $this->salesChannelContextPersister,
+            $this->salesChannelContextService,
+            new NativeClock()
+        );
     }
 }

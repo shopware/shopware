@@ -1,0 +1,99 @@
+<mt-card
+    v-if="salesChannel"
+    position-identifier="sw-sales-channel-detail-agentic-files"
+    class="sw-sales-channel-detail-agentic-files"
+    :is-loading="isLoading || undefined"
+>
+    <template #title>
+        <div class="sw-sales-channel-detail-agentic-files__title">
+            <h3 class="sw-sales-channel-detail-agentic-files__headline">
+                {{ $t('sw-sales-channel.detail.agenticFiles.cardTitle') }}
+            </h3>
+
+            <p class="sw-sales-channel-detail-agentic-files__description">
+                {{ $t('sw-sales-channel.detail.agenticFiles.description') }}
+            </p>
+        </div>
+    </template>
+
+    <template #grid>
+        <sw-data-grid
+            v-if="files.length > 0 || isLoading"
+            identifier="sw-sales-channel-detail-agentic-files-list"
+            :data-source="paginatedFiles"
+            :columns="columns"
+            :show-selection="false"
+            :show-actions="true"
+            :plain-appearance="true"
+            :is-loading="isLoading"
+        >
+            <template #column-fileName="{ item }">
+                <router-link
+                    class="sw-sales-channel-detail-agentic-files__file-link"
+                    :to="getDetailRoute(item)"
+                >
+                    <span class="sw-sales-channel-detail-agentic-files__file-text">
+                        <span class="sw-sales-channel-detail-agentic-files__file-name">
+                            {{ getDisplayFileName(item) }}
+                        </span>
+
+                        <span class="sw-sales-channel-detail-agentic-files__public-path">
+                            {{ getPublicPath(item) }}
+                        </span>
+                    </span>
+                </router-link>
+            </template>
+
+            <template #column-enabled="{ item }">
+                <sw-label
+                    appearance="pill"
+                    size="small"
+                    :variant="getEnabledVariant(item)"
+                >
+                    {{ getEnabledLabel(item) }}
+                </sw-label>
+
+                <sw-label
+                    v-if="hasTemplateOverrides(item)"
+                    appearance="pill"
+                    size="small"
+                    variant="info"
+                >
+                    {{ $t('sw-sales-channel.detail.agenticFiles.enabledState.custom') }}
+                </sw-label>
+            </template>
+
+            <template #column-description="{ item }">
+                <span class="sw-sales-channel-detail-agentic-files__description-cell">
+                    {{ getDescription(item) }}
+                </span>
+            </template>
+
+            <template #actions="{ item }">
+                <sw-context-menu-item :router-link="getDetailRoute(item)">
+                    {{ $t('sw-sales-channel.detail.agenticFiles.actionEdit') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item @click="onToggleEnabled(item)">
+                    {{ getToggleLabel(item) }}
+                </sw-context-menu-item>
+            </template>
+
+            <template #pagination>
+                <sw-pagination
+                    v-bind="{ page, limit, total }"
+                    :steps="paginationSteps"
+                    :total-visible="5"
+                    :auto-hide="false"
+                    @page-change="onChangePage"
+                />
+            </template>
+        </sw-data-grid>
+
+        <mt-empty-state
+            v-else
+            icon="regular-file"
+            :headline="$t('sw-sales-channel.detail.agenticFiles.emptyState')"
+        />
+    </template>
+</mt-card>

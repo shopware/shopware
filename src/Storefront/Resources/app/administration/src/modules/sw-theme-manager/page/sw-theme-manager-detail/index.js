@@ -1,16 +1,17 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
-/**
- * @package discovery
- */
-
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
+const { mapInheritanceSlotPropsToMeteorProps } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
-Component.register('sw-theme-manager-detail', {
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ * @sw-package discovery
+ */
+export default {
     template,
 
     inject: ['acl', 'feature'],
@@ -319,7 +320,10 @@ Component.register('sw-theme-manager-detail', {
             this.currentThemeConfigInitial[field].value = false;
         },
 
-        restoreMediaInheritance(currentValue, value) {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        restoreMediaInheritance(currentValue) {
             return currentValue;
         },
 
@@ -439,7 +443,10 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
+            // Sequential to ensure config is persisted and avoid race condition
+            return this.saveThemeConfig(clean).then(() => {
+                return this.saveSalesChannels();
+            }).then(() => {
                 this.getTheme();
                 this.themeConfigErrors = {};
             }).catch((error) => {
@@ -691,7 +698,7 @@ Component.register('sw-theme-manager-detail', {
          *      config: anything else from field, including field.custom
          *  }
          */
-        getBind(field) {
+        getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
             if (!this.isFieldHandlingLabelAndHelpText(field)) {
@@ -716,7 +723,23 @@ Component.register('sw-theme-manager-detail', {
                 delete config.custom;
             }
 
+            if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
+                Object.assign(config, mapInheritanceSlotPropsToMeteorProps(inheritance, inheritedValue));
+                config.mapInheritance = inheritance;
+            }
+
             return { type: field.type, config };
+        },
+
+        getElementEventListeners(field, inheritance = null) {
+            if (!inheritance || !this.isFieldHandlingLabelAndHelpText(field)) {
+                return {};
+            }
+
+            return {
+                'inheritance-remove': inheritance.removeInheritance,
+                'inheritance-restore': inheritance.restoreInheritance,
+            };
         },
 
         /**
@@ -834,6 +857,6 @@ Component.register('sw-theme-manager-detail', {
             }
 
             this.onAddMediaToTheme(items[0], this.currentThemeConfig[this.activeMediaField]);
-        }
-    }
-});
+        },
+    },
+};

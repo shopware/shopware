@@ -13,7 +13,7 @@
 
             {% block sw_notification_center_item_header_title %}
             <p class="sw-notification-center-item__title">
-                {{ $te(notification.title) ? $tc(notification.title) : notification.title }}
+                {{ $te(notification.title) ? $t(notification.title) : notification.title }}
             </p>
             {% endblock %}
         </div>
@@ -45,7 +45,7 @@
         {% block sw_notification_center_item_content_message %}
         <p
             class="sw-notification-center-item__message"
-            v-html="$sanitize($te(notification.message) ? $tc(notification.message) : notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+            v-html="$sanitize($te(notification.message) ? $t(notification.message) : notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
         ></p>
         {% endblock %}
 

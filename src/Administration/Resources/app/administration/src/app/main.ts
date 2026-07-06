@@ -46,7 +46,6 @@ import RecentlySearchService from 'src/app/service/recently-search.service';
 import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
-import addUsageDataConsentListener from 'src/core/service/usage-data-consent-listener.service';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 /** Import Feature */
@@ -56,8 +55,9 @@ import Feature from 'src/core/feature';
 import 'src/app/decorator';
 
 /** Import Meteor Component Library styles */
-// eslint-disable-next-line import/no-unresolved
 import '@shopware-ag/meteor-component-library/styles.css';
+import '@shopware-ag/meteor-component-library/font.css';
+import './assets/scss/all.scss';
 
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';
@@ -128,7 +128,6 @@ Application.addServiceProvider('feature', () => {
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);
         addCustomerGroupRegistrationListener(loginService);
-        addUsageDataConsentListener(loginService, serviceContainer);
 
         return loginService;
     })
@@ -140,7 +139,6 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('entityValidationService', () => {
         return new EntityValidationService(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             Application.getContainer('factory').entityDefinition,
             new ChangesetGenerator(),
             new ErrorResolver(),
@@ -165,7 +163,6 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
         });
     })
@@ -195,9 +192,7 @@ Application.addServiceProvider('feature', () => {
         return new LocaleHelperService({
             Shopware: Shopware,
             localeRepository: Shopware.Service('repositoryFactory').create('locale'),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             snippetService: Shopware.Service('snippetService'),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             localeFactory: Application.getContainer('factory').locale,
         });
     })
@@ -211,7 +206,6 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('appAclService', () => {
         return new AppAclService({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             privileges: Shopware.Service('privileges'),
             appRepository: Shopware.Service('repositoryFactory').create('app'),
         });

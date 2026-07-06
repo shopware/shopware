@@ -167,7 +167,7 @@ class EntitySearchResult extends EntityCollection
      */
     protected function createNew(iterable $elements = []): static
     {
-        if (!($elements instanceof EntityCollection)) {
+        if (!$elements instanceof EntityCollection) {
             $elements = new EntityCollection($elements);
         }
 

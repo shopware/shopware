@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Api\FirstRunWizardController;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginRecommendationCollection;
 use Shopware\Core\Framework\Store\Struct\PluginRegionCollection;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
@@ -66,8 +66,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->frwStart($this->createContext());
     }
 
@@ -148,8 +147,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('getLanguagePlugins')
             ->willThrowException($this->createClientException($exceptionMessage));
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->getLanguagePluginList($context);
     }
 
@@ -230,8 +228,7 @@ class FirstRunWizardControllerTest extends TestCase
             $appRepository,
         );
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->getDemoDataPluginList($context);
     }
 
@@ -259,8 +256,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->getRecommendationRegions($this->createContext());
     }
 
@@ -341,8 +337,7 @@ class FirstRunWizardControllerTest extends TestCase
             $appRepository,
         );
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->getRecommendations(new SymfonyRequest(), $context);
     }
 
@@ -374,7 +369,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 
@@ -389,7 +384,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 
@@ -407,8 +402,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 
@@ -435,8 +429,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->getDomainList($this->createContext());
     }
 
@@ -513,8 +506,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreApiException::class);
-        static::expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new StoreApiException($this->createClientException($exceptionMessage)));
         $frwController->verifyDomain(new QueryDataBag([
             'domain' => 'test-domain.com',
             'testEnvironment' => 'false',

@@ -49,7 +49,7 @@ export default {
 
     methods: {
         userDisplayName(user) {
-            return `${this.$tc('sw-order.stateCard.labelLastEditedBy')} ${user.username}`;
+            return `${this.$t('sw-order.stateCard.labelLastEditedBy')} ${user.username}`;
         },
 
         integrationDisplayName(integration) {
@@ -63,7 +63,7 @@ export default {
             if (historyEntry.integration !== null) {
                 return this.integrationDisplayName(historyEntry.integration);
             }
-            return this.$tc('sw-order.stateCard.labelSystemUser');
+            return this.$t('sw-order.stateCard.labelSystemUser');
         },
 
         getIconFromState(stateName) {

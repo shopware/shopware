@@ -1,0 +1,245 @@
+{% set title = product.translated.name|default(product.name)|default('')|trim %}
+{% set description = product.translated.description|default(title)|default('')|striptags|trim %}
+{% set price = product.calculatedPrice %}
+{% if product.calculatedPrices.count > 0 %}
+    {% set price = product.calculatedPrices.last %}
+{% endif %}
+{% set unitPrice = price.unitPrice %}
+{% set regularPriceValue = unitPrice %}
+{% set salePriceValue = null %}
+{% if price.listPrice is defined and price.listPrice %}
+    {% set regularPriceValue = price.listPrice.price %}
+    {% if price.listPrice.price > unitPrice %}
+        {% set salePriceValue = unitPrice %}
+    {% endif %}
+{% endif %}
+{% set imageUrl = '' %}
+{% if product.cover is defined and product.cover and product.cover.media is defined and product.cover.media %}
+    {% set imageUrl = product.cover.media.url %}
+{% endif %}
+{% set additionalImageUrls = [] %}
+{% if product.media is defined and product.media %}
+    {% for productMedia in product.media %}
+        {% if productMedia.media is defined and productMedia.media and productMedia.media.url and productMedia.id != product.coverId %}
+            {% set additionalImageUrls = additionalImageUrls|merge([productMedia.media.url]) %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% set hasVariantListing = productExport.includeVariants and (product.parentId or product.childCount > 0) %}
+{% set productUrl = seoUrl('frontend.detail.page', {'productId': product.id}) ~ '?referringSalesChannel=' ~ provider.referringSalesChannel %}
+{% if provider.affiliateCode %}
+    {% set productUrl = productUrl ~ '&affiliateCode=' ~ provider.affiliateCode|url_encode %}
+{% endif %}
+{% if provider.campaignCode %}
+    {% set productUrl = productUrl ~ '&campaignCode=' ~ provider.campaignCode|url_encode %}
+{% endif %}
+{% set feedRow = {
+    'is_eligible_search': provider.isEligibleSearch,
+    'is_eligible_checkout': provider.isEligibleCheckout,
+    'item_id': product.productNumber ? product.productNumber : product.id,
+    'title': title,
+    'description': description,
+    'url': productUrl,
+    'image_url': imageUrl,
+    'price': (regularPriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode,
+    'availability': product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'),
+    'brand': (product.manufacturer is defined and product.manufacturer) ? product.manufacturer.translated.name : provider.sellerName,
+    'seller_name': provider.sellerName,
+    'seller_url': provider.sellerUrl,
+    'return_policy': provider.returnPolicyUrl,
+    'store_country': provider.storeCountry,
+    'gtin': product.ean|default(''),
+    'mpn': product.manufacturerNumber|default(''),
+    'is_digital': product.downloads is defined and product.downloads|length > 0
+} %}
+{% if provider.targetCountries is not empty %}
+    {% set feedRow = feedRow|merge({
+        'target_countries': provider.targetCountries
+    }) %}
+{% endif %}
+{% if additionalImageUrls is not empty %}
+    {% set feedRow = feedRow|merge({
+        'additional_image_urls': additionalImageUrls|join(',')
+    }) %}
+{% endif %}
+{% if salePriceValue is not null %}
+    {% set feedRow = feedRow|merge({
+        'sale_price': (salePriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode
+    }) %}
+{% endif %}
+{% set feedRow = feedRow|merge({
+    'listing_has_variations': hasVariantListing
+}) %}
+{% if hasVariantListing %}
+    {% set offerId = 'SKU-' ~ (product.productNumber ? product.productNumber : product.id) ~ '-' ~ (regularPriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) %}
+    {% set feedRow = feedRow|merge({
+        'offer_id': offerId,
+        'group_id': product.parentId ? product.parentId : product.id,
+        'item_group_title': title
+    }) %}
+
+    {# Collect resolved variant output fields and the final OpenAI variant_dict payload #}
+    {% set mappedVariantOptions = {} %}
+    {% set variantDict = {} %}
+    {% set customVariantEntries = [] %}
+
+    {# Property groups used by specific mappings (color/size/...) are excluded from custom variants #}
+    {% set reservedCustomGroupIds = [] %}
+    {% if provider.variantMapping is defined and provider.variantMapping %}
+        {% for mappingProperty, propertyGroupIds in provider.variantMapping %}
+            {% if mappingProperty != 'custom_variants' and propertyGroupIds %}
+                {% for propertyGroupId in propertyGroupIds %}
+                    {% if propertyGroupId and propertyGroupId not in reservedCustomGroupIds %}
+                        {% set reservedCustomGroupIds = reservedCustomGroupIds|merge([propertyGroupId]) %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if provider.variantMapping is defined and provider.variantMapping %}
+        {% for mappingProperty, propertyGroupIds in provider.variantMapping %}
+            {% if propertyGroupIds %}
+                {% if mappingProperty == 'custom_variants' %}
+                    {# Resolve up to 3 custom variant entries: category (group name) + option (selected value) #}
+                    {% for customPropertyGroupId in propertyGroupIds %}
+                        {% if customVariantEntries|length < 3 and customPropertyGroupId not in reservedCustomGroupIds %}
+                            {% set customOptionName = null %}
+                            {% set customCategoryName = null %}
+
+                            {# Try to resolve custom category and option from direct product options first #}
+                            {% if product.options is defined and product.options %}
+                                {% for option in product.options %}
+                                    {% if customOptionName is null and option.groupId and option.groupId == customPropertyGroupId %}
+                                        {% set optionName = option.translated.name|default(option.name)|default('') %}
+                                        {% if optionName %}
+                                            {% set customOptionName = optionName %}
+                                        {% endif %}
+
+                                        {% if option.group is defined and option.group %}
+                                            {% set groupName = option.group.translated.name|default(option.group.name)|default('') %}
+                                            {% if groupName %}
+                                                {% set customCategoryName = groupName %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+
+                            {# Fallback to sortedProperties when category or option is still missing #}
+                            {% if (customOptionName is null or customCategoryName is null) and product.sortedProperties is defined and product.sortedProperties %}
+                                {% for group in product.sortedProperties %}
+                                    {% if group.id and group.id == customPropertyGroupId %}
+                                        {% if customCategoryName is null %}
+                                            {% set groupName = group.translated.name|default(group.name)|default('') %}
+                                            {% if groupName %}
+                                                {% set customCategoryName = groupName %}
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {# Pick the first option value from the matched custom property group #}
+                                        {% if customOptionName is null and group.options is defined and group.options %}
+                                            {% for option in group.options %}
+                                                {% if customOptionName is null %}
+                                                    {% set optionName = option.translated.name|default(option.name)|default('') %}
+                                                    {% if optionName %}
+                                                        {% set customOptionName = optionName %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+
+                            {# Add custom variant entry when both category and option were resolved #}
+                            {% if customCategoryName and customOptionName %}
+                                {% set customVariantEntries = customVariantEntries|merge([{
+                                    'category': customCategoryName,
+                                    'option': customOptionName
+                                }]) %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {# Resolve standard mappings (color/size/size_system/gender/material): first matching option wins #}
+                    {% set variantPropertyOptionName = null %}
+
+                    {# Check direct variant options on the product first #}
+                    {% if product.options is defined and product.options %}
+                        {% for option in product.options %}
+                            {% if variantPropertyOptionName is null and option.groupId and option.groupId in propertyGroupIds %}
+                                {% set optionName = option.translated.name|default(option.name)|default('') %}
+                                {% if optionName %}
+                                    {% set variantPropertyOptionName = optionName %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {# Fallback to sortedProperties when no direct option matches #}
+                    {% if variantPropertyOptionName is null and product.sortedProperties is defined and product.sortedProperties %}
+                        {% for group in product.sortedProperties %}
+                            {% if variantPropertyOptionName is null and group.id and group.id in propertyGroupIds and group.options is defined and group.options %}
+                                {% for option in group.options %}
+                                    {% if variantPropertyOptionName is null %}
+                                        {% set optionName = option.translated.name|default(option.name)|default('') %}
+                                        {% if optionName %}
+                                            {% set variantPropertyOptionName = optionName %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {# Add resolved standard variant value for the mapped OpenAI field #}
+                    {% if variantPropertyOptionName is not null %}
+                        {% set mappedVariantOptions = mappedVariantOptions|merge({
+                            (mappingProperty): variantPropertyOptionName
+                        }) %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if mappedVariantOptions is not empty %}
+        {# Standard mapped fields are emitted as top-level fields and mirrored into variant_dict #}
+        {% for variantKey, variantValue in mappedVariantOptions %}
+            {% if variantValue %}
+                {% set variantDict = variantDict|merge({
+                    (variantKey): variantValue
+                }) %}
+            {% endif %}
+        {% endfor %}
+        {% set feedRow = feedRow|merge(mappedVariantOptions) %}
+    {% endif %}
+
+    {% if customVariantEntries is not empty %}
+        {# Emit custom variants as custom_variant1..3_(category|option) and mirror into variant_dict #}
+        {% for customEntry in customVariantEntries %}
+            {% set customIndex = loop.index %}
+            {% if customIndex <= 3 %}
+                {% set feedRow = feedRow|merge({
+                    ('custom_variant' ~ customIndex ~ '_category'): customEntry.category,
+                    ('custom_variant' ~ customIndex ~ '_option'): customEntry.option
+                }) %}
+                {% set variantDict = variantDict|merge({
+                    (customEntry.category): customEntry.option
+                }) %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if variantDict is not empty %}
+        {# Attaching OpenAI variants object for this exported item #}
+        {% set feedRow = feedRow|merge({
+            'variant_dict': variantDict
+        }) %}
+    {% endif %}
+{% endif %}
+
+{# Skip rows that are missing core required feed data and would be invalid for OpenAI. #}
+{% if title and imageUrl and price %}
+    {{ feedRow|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
+{% endif %}

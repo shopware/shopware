@@ -1,6 +1,6 @@
 {% block sw_order_address_modal %}
 <sw-modal
-    :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
+    :title="$t('sw-order.addressSelection.modalTitleEditAddress')"
     :is-loading="isLoading"
     @modal-close="onClose"
 >
@@ -18,7 +18,7 @@
                 name="edit"
                 :active-tab="active"
             >
-                {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
+                {{ $t('sw-order.addressSelection.headlineTabEditAddress') }}
             </sw-tabs-item>
             {%  endblock %}
             {% block sw_order_address_modal_tab_select_address %}
@@ -26,7 +26,7 @@
                 name="addresses"
                 :active-tab="active"
             >
-                {{ $tc('sw-order.addressSelection.headlineTabSelectAddress') }}
+                {{ $t('sw-order.addressSelection.headlineTabSelectAddress') }}
             </sw-tabs-item>
             {% endblock %}
             {% endblock %}
@@ -40,11 +40,13 @@
                     :address="address"
                     :customer="orderCustomer"
                     :countries="countries"
+                    :disabled="!acl.can('order.editor')"
                 />
                 <sw-custom-field-set-renderer
                     :entity="address"
                     variant="tabs"
                     :sets="addressCustomFieldSets"
+                    :disabled="!acl.can('order.editor')"
                 />
                 {% endblock %}
             </div>
@@ -81,7 +83,7 @@
             data-analytics-id="sw-order-address-modal.cancel"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -90,13 +92,13 @@
             variant="primary"
             size="small"
             data-analytics-id="sw-order-address-modal.save"
+            :disabled="!acl.can('order.editor')"
             @click="onSave"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
 </sw-modal>
 {% endblock %}
-

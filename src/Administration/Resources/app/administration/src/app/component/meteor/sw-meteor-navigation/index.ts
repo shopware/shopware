@@ -28,10 +28,8 @@ export default Shopware.Component.wrapComponentConfig({
                 return this.fromLink;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (typeof this.$route?.meta?.parentPath === 'string') {
                 return {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     name: this.$route.meta.parentPath,
                 };
             }

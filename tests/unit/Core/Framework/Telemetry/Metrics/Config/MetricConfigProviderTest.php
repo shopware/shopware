@@ -38,7 +38,7 @@ class MetricConfigProviderTest extends TestCase
         static::assertSame(Type::COUNTER, $metricConfig->type);
         static::assertTrue($metricConfig->enabled);
         static::assertArrayHasKey('sale_channel', $metricConfig->labels);
-        static::assertSame(['web', 'mobile', 'api'], $metricConfig->labels['sale_channel']['allowed_values']);
+        static::assertSame(['web', 'mobile', 'api'], $metricConfig->labels['sale_channel']->allowedValues);
     }
 
     public function testGetReturnsNullForUnknownMetric(): void

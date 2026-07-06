@@ -1,6 +1,12 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Visual: Storefront CMS sliders with vertical alignment', { tag: '@Visual' }, async ({
+test('Visual: Storefront CMS sliders with vertical alignment', { 
+    tag: '@Visual',
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/15253',
+  }, 
+}, async ({
     ShopCustomer,
     TestDataService,
     IdProvider,
@@ -8,8 +14,8 @@ test('Visual: Storefront CMS sliders with vertical alignment', { tag: '@Visual' 
 }) => {
     await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
-    const firstMedia = await TestDataService.createMediaPNG(1200, 800);
-    const secondMedia = await TestDataService.createMediaPNG(1000, 700);
+    const firstMedia = await TestDataService.createMediaPNGSolid(1200, 800, [255, 0, 0]);
+    const secondMedia = await TestDataService.createMediaPNGSolid(1000, 700, [0, 150, 255]);
 
     const imageSliderBlockId = IdProvider.getIdPair().uuid;
     const imageGalleryBlockId = IdProvider.getIdPair().uuid;
@@ -18,7 +24,8 @@ test('Visual: Storefront CMS sliders with vertical alignment', { tag: '@Visual' 
         name: 'Visual Slider Layout',
         sections: [
             {
-                type: 'full_width',
+                type: 'default',
+                sizingMode: 'full_width',
                 position: 0,
                 blocks: [
                     {

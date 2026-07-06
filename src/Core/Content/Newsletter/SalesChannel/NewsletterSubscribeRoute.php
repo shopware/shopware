@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
@@ -130,6 +129,10 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
+        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+            $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
+        }
+
         $doubleOptInDomain = $this->systemConfigService->getString(
             'core.newsletter.doubleOptInDomain',
             $context->getSalesChannelId()
@@ -144,14 +147,6 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
 
         $this->validator->validate($dataBag->all(), $validator);
-
-        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
-            try {
-                $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
-            } catch (RateLimitExceededException $e) {
-                throw NewsletterException::newsletterThrottled($e->getWaitTime());
-            }
-        }
 
         $data = $dataBag->only(
             'email',
@@ -260,11 +255,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $definition->add('email', new NotBlank(), new Email())
             ->add('option', new NotBlank(), new Choice(choices: array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
-        if (!empty($dataBag->get('firstName'))) {
+        if ($dataBag->get('firstName') !== null && $dataBag->get('firstName') !== '') {
             $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
         }
 
-        if (!empty($dataBag->get('lastName'))) {
+        if ($dataBag->get('lastName') !== null && $dataBag->get('lastName') !== '') {
             $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
         }
 

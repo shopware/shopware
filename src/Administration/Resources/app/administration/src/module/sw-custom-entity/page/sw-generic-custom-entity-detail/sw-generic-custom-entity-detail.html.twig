@@ -5,7 +5,7 @@
 >
     <template #smart-bar-header>
         <h2 class="sw-generic-custom-entity-detail__title">
-            {{ placeholder(customEntityData, titlePropertyName, $tc(`${customEntityName}.moduleTitle`)) }}
+            {{ placeholder(customEntityData, titlePropertyName, $t(`${customEntityName}.moduleTitle`)) }}
         </h2>
     </template>
 
@@ -19,7 +19,7 @@
             @update:process-success="saveFinish"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
     </template>
 
@@ -53,7 +53,7 @@
                         name="cms-aware-tab-layout"
                         :active-tab="active"
                     >
-                        {{ $tc('sw-custom-entity.detail.tabs.layout') }}
+                        {{ $t('sw-custom-entity.detail.tabs.layout') }}
                     </sw-tabs-item>
 
                     <sw-tabs-item
@@ -62,7 +62,7 @@
                         name="cms-aware-tab-seo"
                         :active-tab="active"
                     >
-                        {{ $tc('sw-custom-entity.detail.tabs.seo') }}
+                        {{ $t('sw-custom-entity.detail.tabs.seo') }}
                     </sw-tabs-item>
                 </template>
 

@@ -35,7 +35,7 @@ class IndexerQueuer
         }
 
         // Upgrade possible old format to empty array
-        return array_map(function ($options) {
+        return array_map(static function ($options) {
             return \is_array($options) ? $options : [];
         }, $indexers);
     }

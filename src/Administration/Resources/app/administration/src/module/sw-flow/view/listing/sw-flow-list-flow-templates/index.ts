@@ -60,7 +60,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo() {
         return {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             title: this.$createTitle(),
         };
     },
@@ -90,13 +89,13 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: this.$tc('sw-flow.list.labelColumnName'),
+                    label: this.$t('sw-flow.list.labelColumnName'),
                     allowResize: false,
                     align: 'left',
                 },
                 {
                     property: 'config.description',
-                    label: this.$tc('sw-flow.list.labelColumnDescription'),
+                    label: this.$t('sw-flow.list.labelColumnDescription'),
                     allowResize: false,
                     sortable: false,
                     align: 'left',
@@ -126,26 +125,21 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created(): void {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.createComponent();
     },
 
     methods: {
         createComponent(): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.getList();
         },
 
         getList(): void {
             this.isLoading = true;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             void this.flowTemplateRepository
                 .search(this.flowTemplateCriteria)
                 .then((data: EntityCollection<'flow_template'>) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     this.total = data.total as number;
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     this.flowTemplates = data;
                 })
                 .finally(() => {
@@ -161,7 +155,6 @@ export default Shopware.Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.$router.push({
                 name: 'sw.flow.detail',
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 params: { id: item.id },
                 query: { type: 'template' },
             });

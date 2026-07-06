@@ -56,6 +56,32 @@ class IncrementSqlStorageTest extends TestCase
         static::assertSame(12, $this->storage->reserve($config));
     }
 
+    public function testReserveReturnsWithZeroStartValues(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        $this->storage->set($config['id'], 0);
+
+        static::assertSame(1, $this->storage->reserve($config));
+        static::assertSame(2, $this->storage->reserve($config));
+    }
+
+    public function testReserveReturnsWithZeroStartValuesAndNoValueStored(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        static::assertSame(0, $this->storage->reserve($config));
+        static::assertSame(1, $this->storage->reserve($config));
+    }
+
     public function testReserveReturnsWithoutStartAndUnset(): void
     {
         $config = [
@@ -116,6 +142,32 @@ class IncrementSqlStorageTest extends TestCase
 
         static::assertSame(10, $this->storage->preview($config));
         static::assertSame(10, $this->storage->preview($config));
+    }
+
+    public function testPreviewReturnsWithZeroStartValues(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        $this->storage->set($config['id'], 0);
+
+        static::assertSame(1, $this->storage->preview($config));
+        static::assertSame(1, $this->storage->preview($config));
+    }
+
+    public function testPreviewReturnsWithZeroStartValuesAndNoValueStored(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        static::assertSame(0, $this->storage->preview($config));
+        static::assertSame(0, $this->storage->preview($config));
     }
 
     public function testPreviewWillReturnStartValueIfItHigherThanCurrentIncrementValue(): void

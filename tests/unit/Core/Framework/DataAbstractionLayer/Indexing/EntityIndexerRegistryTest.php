@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -23,35 +23,30 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(EntityIndexerRegistry::class)]
 class EntityIndexerRegistryTest extends TestCase
 {
-    private MessageBusInterface&MockObject $messageBusMock;
+    private MessageBusInterface&Stub $messageBusMock;
 
-    private EventDispatcherInterface&MockObject $dispatcherMock;
+    private EventDispatcherInterface&Stub $dispatcherMock;
 
-    private EntityIndexer&MockObject $indexerMock1;
+    private EntityIndexer&Stub $indexerMock1;
 
-    private EntityIndexer&MockObject $indexerMock2;
-
-    private EntityIndexerRegistry $registry;
+    private EntityIndexer&Stub $indexerMock2;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->messageBusMock = $this->createMock(MessageBusInterface::class);
-        $this->dispatcherMock = $this->createMock(EventDispatcherInterface::class);
-        $this->indexerMock1 = $this->createMock(EntityIndexer::class);
-        $this->indexerMock2 = $this->createMock(EntityIndexer::class);
-
-        $indexers = [$this->indexerMock1, $this->indexerMock2];
-
-        $this->registry = new EntityIndexerRegistry($indexers, $this->messageBusMock, $this->dispatcherMock);
+        $this->messageBusMock = static::createStub(MessageBusInterface::class);
+        $this->dispatcherMock = static::createStub(EventDispatcherInterface::class);
+        $this->indexerMock1 = static::createStub(EntityIndexer::class);
+        $this->indexerMock2 = static::createStub(EntityIndexer::class);
     }
 
     public function testIndexSuccessful(): void
     {
-        $this->dispatcherMock->expects($this->exactly(4))
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(4))
             ->method('dispatch')
-            ->willReturnCallback(function ($event) {
+            ->willReturnCallback(static function ($event) {
                 if ($event instanceof ProgressStartedEvent || $event instanceof ProgressFinishedEvent) {
                     return $event;
                 }
@@ -59,7 +54,8 @@ class EntityIndexerRegistryTest extends TestCase
                 return null;
             });
 
-        $this->registry->index(false);
+        $registry = new EntityIndexerRegistry([$this->indexerMock1, $this->indexerMock2], $this->messageBusMock, $dispatcher);
+        $registry->index(false);
     }
 
     public function testIndexSuccessfulFullEntity(): void
@@ -96,13 +92,16 @@ class EntityIndexerRegistryTest extends TestCase
         $skip = ['indexer1'];
         $only = ['indexer2'];
 
-        $this->indexerMock1->method('getName')->willReturn('indexer1');
-        $this->indexerMock2->method('getName')->willReturn('indexer2');
+        $indexer1 = $this->createMock(EntityIndexer::class);
+        $indexer1->method('getName')->willReturn('indexer1');
+        $indexer2 = $this->createMock(EntityIndexer::class);
+        $indexer2->method('getName')->willReturn('indexer2');
 
-        $this->indexerMock1->expects($this->never())->method('iterate');
-        $this->indexerMock2->expects($this->atLeastOnce())->method('iterate');
+        $indexer1->expects($this->never())->method('iterate');
+        $indexer2->expects($this->atLeastOnce())->method('iterate');
 
-        $this->registry->index(false, $skip, $only);
+        $registry = new EntityIndexerRegistry([$indexer1, $indexer2], $this->messageBusMock, $this->dispatcherMock);
+        $registry->index(false, $skip, $only);
     }
 
     public function testRefreshMethod(): void
@@ -113,8 +112,9 @@ class EntityIndexerRegistryTest extends TestCase
         $onlyEntity = new ArrayEntity(['onlies' => ['skip1', 'skip3', 'skip4']]);
         $messageMock = $this->createMock(EntityIndexingMessage::class);
 
-        $this->indexerMock1->method('getName')->willReturn('indexer1');
-        $this->indexerMock1->method('getOptions')->willReturn(['skip1', 'skip2', 'skip3', 'skip4', 'skip5']);
+        $indexer1 = $this->createMock(EntityIndexer::class);
+        $indexer1->method('getName')->willReturn('indexer1');
+        $indexer1->method('getOptions')->willReturn(['skip1', 'skip2', 'skip3', 'skip4', 'skip5']);
         $this->indexerMock2->method('getName')->willReturn('indexer2');
 
         $eventMock->expects($this->once())
@@ -124,7 +124,7 @@ class EntityIndexerRegistryTest extends TestCase
         $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, $skipEntity);
         $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_ONLY, $onlyEntity);
 
-        $this->indexerMock1->expects($this->once())
+        $indexer1->expects($this->once())
             ->method('update')
             ->with($eventMock)
             ->willReturn($messageMock);
@@ -147,7 +147,8 @@ class EntityIndexerRegistryTest extends TestCase
             ->method('addSkip')
             ->with('skip1', 'skip2');
 
-        $this->registry->refresh($eventMock);
+        $registry = new EntityIndexerRegistry([$indexer1, $this->indexerMock2], $this->messageBusMock, $this->dispatcherMock);
+        $registry->refresh($eventMock);
     }
 
     public function testAddOnliesAddsCorrectSkips(): void

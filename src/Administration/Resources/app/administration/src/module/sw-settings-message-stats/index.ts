@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-message-stats', () => import('./page/sw-settings-message-stats/index'));
 
 Shopware.Module.register('sw-settings-message-stats', {

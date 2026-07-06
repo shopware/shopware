@@ -81,6 +81,7 @@
         "ext-simplexml": "*",
         "ext-sodium": "*",
         "ext-xml": "*",
+        "ext-xmlreader": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",
@@ -106,7 +107,7 @@
         "meyfa/php-svg": "^0.16.1",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
-        "opensearch-project/opensearch-php": "^2.3.1",
+        "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
@@ -119,11 +120,11 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.0",
-        "shyim/opensearch-php-dsl": "^1.0.5",
+        "shopware/conflicts": "0.6.1",
+        "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
-        "symfony/cache": "~7.4.0",
+        "symfony/cache": "~7.4.12",
         "symfony/cache-contracts": "~3.6.0",
         "symfony/clock": "~7.4.0",
         "symfony/config": "~7.4.0",
@@ -142,42 +143,45 @@
         "symfony/http-client": "~7.4.0",
         "symfony/http-client-contracts": "~3.6.0",
         "symfony/http-foundation": "~7.4.0",
-        "symfony/http-kernel": "~7.4.0",
+        "symfony/http-kernel": "~7.4.12",
         "symfony/intl": "~7.4.0",
         "symfony/lock": "~7.4.0",
-        "symfony/mailer": "~7.4.0",
-        "symfony/messenger": "~7.4.0",
-        "symfony/mime": "~7.4.0",
-        "symfony/monolog-bridge": "~7.4.0",
+        "symfony/mailer": "~7.4.12",
+        "symfony/mcp-bundle": "~0.9.0",
+        "symfony/messenger": "~7.4.12",
+        "symfony/mime": "~7.4.12",
+        "symfony/monolog-bridge": "~7.4.12",
         "symfony/monolog-bundle": "~3.11.0",
         "symfony/options-resolver": "~7.4.0",
-        "symfony/polyfill-php83": ">=1.31.0",
-        "symfony/polyfill-php84": ">=1.31.0",
-        "symfony/polyfill-php85": ">=1.33.0",
+        "symfony/polyfill-php83": ">=1.34.0",
+        "symfony/polyfill-php84": ">=1.34.0",
+        "symfony/polyfill-php85": ">=1.34.0",
+        "symfony/polyfill-php86": ">=1.34.0",
         "symfony/process": "~7.4.0",
         "symfony/property-access": "~7.4.0",
         "symfony/property-info": "~7.4.0",
         "symfony/proxy-manager-bridge": "~6.4.8",
         "symfony/psr-http-message-bridge": "~7.4.0",
         "symfony/rate-limiter": "~7.4.0",
-        "symfony/routing": "~7.4.0",
-        "symfony/runtime": "~7.4.0",
+        "symfony/routing": "~7.4.12",
+        "symfony/runtime": "~7.4.12",
         "symfony/scheduler": "~7.4.0",
-        "symfony/security-core": "~7.4.0",
+        "symfony/security-core": "~7.4.12",
         "symfony/serializer": "~7.4.0",
         "symfony/service-contracts": "~3.6.0",
         "symfony/stopwatch": "~7.4.0",
         "symfony/string": "~7.4.0",
         "symfony/translation": "~7.4.0",
         "symfony/translation-contracts": "~3.6.0",
-        "symfony/twig-bridge": "~7.4.0",
+        "symfony/twig-bridge": "~7.4.12",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
-        "symfony/yaml": "~7.4.0",
-        "twig/intl-extra": "^3.10.0",
-        "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.21.1",
+        "symfony/yaml": "~7.4.12",
+        "twig/intl-extra": "^3.26.0",
+        "twig/string-extra": "^3.24.0",
+        "twig/twig": "^3.26.0",
         "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {
@@ -186,36 +190,36 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.91.2",
+        "friendsofphp/php-cs-fixer": "3.95.8",
         "jdorn/sql-formatter": "^1.2.17",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
-        "phpat/phpat": "0.12.0",
-        "phpbench/phpbench": "^1.2.15",
+        "phpat/phpat": "0.12.4",
+        "phpbench/phpbench": "^1.6.1",
         "phpdocumentor/reflection-docblock": "^5.6.4",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",
-        "phpstan/phpstan": "2.1.31",
-        "phpstan/phpstan-deprecation-rules": "2.0.3",
-        "phpstan/phpstan-phpunit": "2.0.7",
-        "phpstan/phpstan-strict-rules": "2.0.7",
-        "phpstan/phpstan-symfony": "2.0.9",
+        "phpstan/phpstan": "2.1.43",
+        "phpstan/phpstan-deprecation-rules": "2.0.4",
+        "phpstan/phpstan-phpunit": "2.0.16",
+        "phpstan/phpstan-strict-rules": "2.0.10",
+        "phpstan/phpstan-symfony": "2.0.15",
         "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
-        "rector/type-perfect": "2.1.1",
+        "rector/type-perfect": "2.1.2",
         "shopware/dev-tools": "^1.3",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.4.0",
         "symfony/css-selector": "~7.4.0",
-        "symfony/dom-crawler": "~7.4.0",
+        "symfony/dom-crawler": "~7.4.12",
         "symfony/expression-language": "~7.4.0",
         "symfony/phpunit-bridge": "~7.4.0",
         "symfony/var-dumper": "~7.4.0",
-        "symfony/web-profiler-bundle": "~7.4.0",
-        "symplify/phpstan-rules": "14.8.0"
+        "symfony/web-profiler-bundle": "~7.4.12",
+        "symplify/phpstan-rules": "14.9.11"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -236,6 +240,10 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "composer",
+            "url": "https://shopware.github.io/conflicts/"
         }
     ],
     "scripts-descriptions": {
@@ -253,13 +261,17 @@
         "build:js:component-library": "Builds the component library",
         "build:js:storefront": "Builds the Storefront's JavaScript",
         "check:license": "Check thrid-party dependency licenses",
-        "ecs": "Checks all files regarding the PHP-CS-Fixer",
-        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
+        "ecs": "Checks all files regarding the PHP-CS-Fixer. Deprecated! Use 'cs' instead",
+        "cs": "Checks all files regarding the PHP-CS-Fixer",
+        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible. Deprecated! Use 'cs-fix' instead",
+        "cs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
         "eslint": "Codestyle checks all (Administration/Storefront) JS/TS files",
         "eslint:admin": "Codestyle checks Administration JS/TS files",
         "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
         "eslint:storefront": "Codestyle checks all Storefront JS/TS files",
         "eslint:storefront:fix": "Codestyle checks all Storefront JS/TS files and fixes them if possible",
+        "eslint:storefront:admin-modules": "Codestyle checks the Storefront's admin-modules JS files",
+        "eslint:storefront:admin-modules:fix": "Codestyle checks the Storefront's admin-modules JS files and fixes them if possible",
         "format:admin": "Dry run Prettier for the Administration",
         "format:admin:fix": "Format the Administration with Prettier",
         "framework:schema:dump": " ",
@@ -270,7 +282,7 @@
         "init:db": " ",
         "init:js": " ",
         "init:testdb": "Initializes the test database",
-        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs' and 'translation:lint'",
+        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
@@ -281,6 +293,8 @@
         "npm:component-library": " ",
         "npm:component-library:bin": " ",
         "npm:storefront": " ",
+        "npm:storefront:admin-modules": " ",
+        "npm:storefront:admin-modules:bin": " ",
         "npm:storefront:bin": " ",
         "npm:storefront:check-license": "Check thrid-party dependency licenses for storefront",
         "phpbench": " ",
@@ -294,6 +308,10 @@
         "static-analyze": "Launches the PHP Stan static analysis tool",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
+        "storefront:components:unit": "Launches the Vitest unit test-suite for Storefront components",
+        "storefront:components:unit:watch": "Launches the interactive Vitest unit test-suite watcher for Storefront components",
+        "storefront:dev-server": "Starts the Vite dev server for the Storefront (port 5175 by default, override with STOREFRONT_VITE_PORT)",
+        "storefront:storybook": "Runs the Storybook development server for the Storefront component library",
         "stylelint": "Codestyle checks all SCSS files of Administration and Storefront",
         "stylelint:admin": "Code Style checks for all Admin SCSS files",
         "stylelint:admin:fix": "Code Style checks for all Admin SCSS files and fixes them if possible",
@@ -305,7 +323,7 @@
         "translation:lint": "Validates existence of snippets in all core-supported languages",
         "translation:update": "Updates all installed translations from the translations GitHub repository",
         "watch:admin": "Enables hot module reloading for the Admin",
-        "watch:storefront": "Enables hot module reloading for the Storefront"
+        "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead."
     },
     "scripts": {
         "admin:code-mods": "@npm:admin run code-mods --",
@@ -356,20 +374,31 @@
             "@php bin/console feature:dump",
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
-            "@php bin/console theme:compile --sync || true",
-            "@php bin/console assets:install"
+            "@php bin/console assets:install",
+            "@php bin/console theme:compile --sync || true"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": "php-cs-fixer fix -v",
+        "ecs": [
+            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": [
+            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
+            "php-cs-fixer fix -v"
+        ],
+        "cs-fix": "php-cs-fixer fix -v",
         "eslint": [
             "@eslint:admin",
-            "@eslint:storefront"
+            "@eslint:storefront",
+            "@eslint:storefront:admin-modules"
         ],
         "eslint:admin": "@npm:admin run lint:all",
         "eslint:admin:fix": "@npm:admin run lint:fix",
         "eslint:storefront": "@npm:storefront run lint:js",
         "eslint:storefront:fix": "@npm:storefront run lint:js:fix",
+        "eslint:storefront:admin-modules": "@npm:storefront:admin-modules run lint",
+        "eslint:storefront:admin-modules:fix": "@npm:storefront:admin-modules run lint:fix",
         "format:admin": "@npm:admin run format",
         "format:admin:fix": "@npm:admin run format:fix",
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
@@ -415,13 +444,15 @@
         "npm:component-library": "@npm:component-library:bin npm",
         "npm:component-library:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration/build/nuxt-component-library; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront": "@npm:storefront:bin npm",
+        "npm:storefront:admin-modules": "@npm:storefront:admin-modules:bin npm",
+        "npm:storefront:admin-modules:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/administration; export PATH=\"$PROJECT_ROOT\"/src/Administration/Resources/app/administration/node_modules/.bin/:\"$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "phpbench": "phpbench run --report=compressed",
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
-            "phpstan analyze --memory-limit=2G -vv"
+            "phpstan analyze --memory-limit=4G -vv"
         ],
         "phpstan-errors-by-area": [
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
@@ -446,8 +477,7 @@
         "reset": [
             "@init:db",
             "@build:js",
-            "@php bin/console theme:change --sync --all Storefront",
-            "@php bin/console assets:install"
+            "@php bin/console theme:change --sync --all Storefront"
         ],
         "setup": [
             "@composer install -o",
@@ -455,8 +485,7 @@
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:change --sync --all Storefront",
-            "@php bin/console assets:install"
+            "@php bin/console theme:change --sync --all Storefront"
         ],
         "static-analyze": [
             "@phpstan src/"
@@ -467,6 +496,24 @@
         "storefront:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
             "@npm:storefront run unit-watch"
+        ],
+        "storefront:components:unit": [
+            "@npm:storefront run unit:components"
+        ],
+        "storefront:components:unit:watch": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run unit:components:watch"
+        ],
+        "storefront:dev-server": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/console bundle:dump",
+            "@php bin/console feature:dump",
+            "@php bin/console theme:dump",
+            "@npm:storefront run dev:server"
+        ],
+        "storefront:storybook": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run storybook"
         ],
         "stylelint": [
             "@stylelint:admin src/**/*.scss",
@@ -498,14 +545,16 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "src/Core/Framework/Adapter/Database/Mysql.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"
         },
         "exclude-from-classmap": [
-            "tests/"
+            "tests/",
+            "src/Storefront/Resources/app/storefront/node_modules/",
+            "src/Administration/Resources/app/administration/node_modules/",
+            "src/Core/Framework/Adapter/Doctrine/Patch/"
         ]
     },
     "autoload-dev": {

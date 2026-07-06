@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';
 import 'src/app/component/base/sw-highlight-text';

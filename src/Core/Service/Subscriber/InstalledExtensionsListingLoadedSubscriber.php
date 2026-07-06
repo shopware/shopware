@@ -44,10 +44,10 @@ class InstalledExtensionsListingLoadedSubscriber implements EventSubscriberInter
             $event->context
         )->getEntities();
 
-        $names = array_values($existingServices->map(fn (AppEntity $app) => $app->getName()));
+        $names = array_values($existingServices->map(static fn (AppEntity $app) => $app->getName()));
 
         $event->extensionCollection = $event->extensionCollection->filter(
-            fn (ExtensionStruct $ext) => !\in_array($ext->getName(), $names, true)
+            static fn (ExtensionStruct $ext) => !\in_array($ext->getName(), $names, true)
         );
     }
 }

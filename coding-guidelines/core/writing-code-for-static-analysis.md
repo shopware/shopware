@@ -3,6 +3,8 @@
 We rely heavily on static analysis (read PHPStan) to ensure the quality of our code and enforce coding guidelines and best practices.
 For static analysis to work properly, it is important that the code is written in a way that is understandable by static analysis tools, this mostly means that the code uses static types where possible, to catch a bunch of possible errors.
 
+Related ADR: [Remove static analysis with Psalm](../../adr/2022-05-12-remove-static-analysis-with-psalm.md).
+
 A main challenge is to narrow down the types when part of the code is implemented in a generic way and uses the dynamics that PHP offers.
 This document will explain some of the approaches that can be used in those cases. They are presented in the order in which they should be used, the first one being the preferred one.
 
@@ -145,3 +147,32 @@ This mainly includes:
 * special PHPStan types e.g. [class-string](https://phpstan.org/writing-php-code/phpdoc-types#class-string), [integer ranges](https://phpstan.org/writing-php-code/phpdoc-types#integer-ranges), etc
 
 Note that `Intersection & Union Types` are not covered here, as they are now a native language feature and the language feature should be used instead.
+
+## Prefer `list<T>` over `array<T>` for value collections
+
+When a collection is a sequential value list (without semantic keys), always prefer `list<T>` instead of `array<T>`.
+
+Using `list<T>` communicates the intended data shape more precisely and allows static analysis to catch accidental associative arrays early.
+
+**Examples:**
+```php
+/**
+ * @return list<string|bool|int|float>
+ */
+public function getChoices(): array
+{
+    return ['a', 'b', 'c'];
+}
+```
+
+```php
+/**
+ * @return list<string|bool|int|float>
+ */
+public function getEnumValues(): array
+{
+    return array_values(array_unique($values));
+}
+```
+
+When combining arrays from multiple sources, normalize back to list shape with `array_values(...)` after operations like `array_merge(...)` or `array_unique(...)`.

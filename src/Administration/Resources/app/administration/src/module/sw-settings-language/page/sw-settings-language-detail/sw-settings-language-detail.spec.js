@@ -11,7 +11,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
         global: {
             renderStubDefaultSlot: true,
             mocks: {
-                $tc(translationKey) {
+                $t(translationKey) {
                     return translationKey;
                 },
             },

@@ -6,9 +6,9 @@ export default {
     data() {
         return {
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
-                placeholder: this.$tc('sw-settings-custom-field.customField.detail.labelPlaceholder'),
-                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
+                label: this.$t('sw-settings-custom-field.customField.detail.labelLabel'),
+                placeholder: this.$t('sw-settings-custom-field.customField.detail.labelPlaceholder'),
+                helpText: this.$t('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
         };
     },

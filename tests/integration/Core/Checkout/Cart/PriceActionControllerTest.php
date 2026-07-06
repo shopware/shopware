@@ -1402,9 +1402,9 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
+                array_map(static fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
+            new TaxRuleCollection(array_map(static fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
             $data['quantity']
         );
     }
@@ -1435,9 +1435,9 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
+                array_map(static fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
+            new TaxRuleCollection(array_map(static fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
             $data['quantity']
         );
     }

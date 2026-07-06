@@ -8,6 +8,7 @@ use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -66,7 +66,7 @@ class LandingPageUrlProviderTest extends TestCase
 
         static::assertCount(10, $urlResult->getUrls());
 
-        $invalidUrl = array_filter($urlResult->getUrls(), function (Url $url) {
+        $invalidUrl = array_filter($urlResult->getUrls(), static function (Url $url) {
             return \in_array($url->getLoc(), [
                 '/landing-page-11',
                 '/landing-page-12',
@@ -122,7 +122,7 @@ class LandingPageUrlProviderTest extends TestCase
         $landingPageUrlProvider = new LandingPageUrlProvider(
             $configHandler,
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(EntityRouteResolver::class),
             static::getContainer()->get('event_dispatcher'),
         );
 

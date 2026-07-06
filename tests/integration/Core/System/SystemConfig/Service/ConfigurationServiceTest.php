@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
@@ -20,7 +20,6 @@ use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\ValidC
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -75,7 +74,7 @@ class ConfigurationServiceTest extends TestCase
     }
 
     /**
-     * @param list<\Shopware\Core\Framework\Plugin> $plugins
+     * @param list<Plugin> $plugins
      */
     private function createConfigurationService(array $plugins): ConfigurationService
     {

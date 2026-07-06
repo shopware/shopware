@@ -36,6 +36,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -125,6 +126,99 @@ class RecalculationServiceTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
+    }
+
+    public function testCreateVersionSucceedsForOrderWithUnregisteredRuleConditionInPriceDefinition(): void
+    {
+        // Simulates an order whose price-definition filter references a rule condition contributed by a
+        // plugin that has since been uninstalled. Opening such an order in the Administration creates an
+        // order version (a clone), which re-encodes the price definition - this must not fail.
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        // stable serialized values; avoids importing the rule/price-definition classes just for the test
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => '='];
+        $priceDefinition = ['type' => 'percentage', 'percentage' => -20, 'filter' => $originalFilter];
+
+        $connection = static::getContainer()->get(Connection::class);
+        $lineItemId = $connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM order_line_item WHERE order_id = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($orderId)]
+        );
+        static::assertIsString($lineItemId);
+
+        $connection->update(
+            'order_line_item',
+            ['price_definition' => json_encode($priceDefinition, \JSON_THROW_ON_ERROR)],
+            ['id' => Uuid::fromHexToBytes($lineItemId)]
+        );
+
+        // the order must still be readable (decode no longer throws)
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
+        static::assertNotNull($order);
+
+        // this is what the order detail page triggers on load; createVersionedOrder() asserts HTTP 200
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // the unresolvable filter round-trips losslessly into the cloned version
+        $stored = $connection->fetchOne(
+            'SELECT price_definition FROM order_line_item WHERE id = :id AND version_id = :version',
+            ['id' => Uuid::fromHexToBytes($lineItemId), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+        static::assertIsString($stored);
+        $decoded = json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($originalFilter, $decoded['filter']);
+    }
+
+    public function testRecalculateSucceedsForOrderWithUnregisteredRuleConditionInPromotionFilter(): void
+    {
+        // A promotion discount whose "consider" rule was contributed by a now-uninstalled plugin: the
+        // filter inside the discount line item's price definition references a rule that is no longer
+        // registered. Recalculating the order must complete (products keep their normal price definition).
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // attach a real automatic percentage promotion -> creates a genuine promotion discount line item
+        $promotionId = $this->createPromotion(10.0, null, PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
+
+        // simulate the plugin being uninstalled: point the discount's price-definition filter at an
+        // unregistered rule condition. Only the filter is touched; the rest of the discount is untouched.
+        $connection = static::getContainer()->get(Connection::class);
+        $row = $connection->fetchAssociative(
+            'SELECT id, price_definition FROM order_line_item WHERE order_id = :oid AND version_id = :vid AND type = :type LIMIT 1',
+            ['oid' => Uuid::fromHexToBytes($orderId), 'vid' => Uuid::fromHexToBytes($versionId), 'type' => PromotionProcessor::LINE_ITEM_TYPE]
+        );
+        static::assertIsArray($row);
+        $priceDefinition = json_decode((string) $row['price_definition'], true, 512, \JSON_THROW_ON_ERROR);
+        $priceDefinition['filter'] = ['_name' => 'unknownPluginRule', 'operator' => '='];
+        $connection->update(
+            'order_line_item',
+            ['price_definition' => json_encode($priceDefinition, \JSON_THROW_ON_ERROR)],
+            ['id' => $row['id'], 'version_id' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        // recalculation must complete without throwing
+        $versionContext = $this->context->createWithVersionId($versionId);
+        $errors = static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        // dropping the discount must be surfaced as a warning instead of happening silently
+        $unknownConditionErrors = $errors->filterInstance(PromotionDiscountUnknownConditionError::class);
+        static::assertCount(1, $unknownConditionErrors);
+        $unknownConditionError = $unknownConditionErrors->first();
+        static::assertInstanceOf(PromotionDiscountUnknownConditionError::class, $unknownConditionError);
+        static::assertSame('unknownPluginRule', $unknownConditionError->getOriginalConditionName());
+
+        // order is still intact: products survive, and the now-unmatchable discount is dropped (fail-closed)
+        $order = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addAssociation('lineItems'),
+            $versionContext
+        )->getEntities()->first();
+        static::assertNotNull($order);
+        static::assertNotNull($order->getLineItems());
+        static::assertGreaterThan(0, $order->getLineItems()->filterByType(LineItem::PRODUCT_LINE_ITEM_TYPE)->count());
+        static::assertCount(0, $order->getLineItems()->filterByType(PromotionProcessor::LINE_ITEM_TYPE));
     }
 
     #[DataProvider('customLineItemProvider')]
@@ -385,8 +479,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
-        static::expectException(OrderException::class);
-        static::expectExceptionMessage("Order with id $orderId can not be recalculated because it is in the live version. Please create a new version");
+        $this->expectExceptionObject(OrderException::canNotRecalculateLiveVersion($orderId));
 
         $service = static::getContainer()->get(RecalculationService::class);
 
@@ -1350,7 +1443,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($order->getLineItems()->count(), 2);
 
         // delete all line items
-        $ids = $order->getLineItems()->fmap(fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
+        $ids = $order->getLineItems()->fmap(static fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
         static::getContainer()->get('order_line_item.repository')->delete(array_values($ids), $versionContext);
 
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);

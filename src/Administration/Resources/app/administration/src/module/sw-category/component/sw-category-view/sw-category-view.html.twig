@@ -5,7 +5,7 @@
 >
     {% block sw_category_view_language_info %}
     <sw-language-info
-        :entity-description="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
+        :entity-description="placeholder(category, 'name', $t('sw-manufacturer.detail.textHeadline'))"
     />
     {% endblock %}
 
@@ -16,10 +16,10 @@
         variant="info"
     >
         <div class="swag-category-view__column-info-header">
-            {{ $tc('sw-category.view.columnInfoHeader') }}
+            {{ $t('sw-category.view.columnInfoHeader') }}
         </div>
         <div class="swag-category-view__column-info-content">
-            {{ $tc('sw-category.view.columnInfo') }}
+            {{ $t('sw-category.view.columnInfo') }}
         </div>
     </mt-banner>
     {% endblock %}
@@ -34,10 +34,10 @@
         <sw-tabs-item
             class="sw-category-detail__tab-base"
             :route="{ name: 'sw.category.detail.base' }"
-            :title="$tc('sw-category.view.general')"
+            :title="$t('sw-category.view.general')"
             :has-error="swCategoryViewError"
         >
-            {{ $tc('sw-category.view.general') }}
+            {{ $t('sw-category.view.general') }}
         </sw-tabs-item>
         {% endblock %}
 
@@ -46,9 +46,9 @@
             v-show="isPage && !isCustomEntity"
             class="sw-category-detail__tab-products"
             :route="{ name: 'sw.category.detail.products' }"
-            :title="$tc('sw-category.view.products')"
+            :title="$t('sw-category.view.products')"
         >
-            {{ $tc('sw-category.view.products') }}
+            {{ $t('sw-category.view.products') }}
         </sw-tabs-item>
         {% endblock %}
 
@@ -56,9 +56,9 @@
             v-show="isCustomEntity"
             class="sw-category-detail__tab-custom-entity"
             :route="{ name: 'sw.category.detail.customEntity' }"
-            :title="$tc('sw-category.view.customEntity')"
+            :title="$t('sw-category.view.customEntity')"
         >
-            {{ $tc('sw-category.view.customEntity') }}
+            {{ $t('sw-category.view.customEntity') }}
         </sw-tabs-item>
 
         {% block sw_category_view_tabs_cms %}
@@ -66,9 +66,9 @@
             v-show="cmsPage || isPage"
             class="sw-category-detail__tab-cms"
             :route="{ name: 'sw.category.detail.cms' }"
-            :title="$tc('sw-category.view.cms')"
+            :title="$t('sw-category.view.cms')"
         >
-            {{ $tc('sw-category.view.cms') }}
+            {{ $t('sw-category.view.cms') }}
         </sw-tabs-item>
         {% endblock %}
 
@@ -77,9 +77,9 @@
             v-show="isPage"
             class="sw-category-detail__tab-seo"
             :route="{ name: 'sw.category.detail.seo' }"
-            :title="$tc('sw-category.view.seo')"
+            :title="$t('sw-category.view.seo')"
         >
-            {{ $tc('sw-category.view.seo') }}
+            {{ $t('sw-category.view.seo') }}
         </sw-tabs-item>
         {% endblock %}
     </sw-tabs>

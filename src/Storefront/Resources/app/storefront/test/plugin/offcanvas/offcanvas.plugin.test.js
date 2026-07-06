@@ -9,6 +9,9 @@ describe('OffCanvas tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
     });
 
@@ -224,7 +227,7 @@ describe('OffCanvas tests', () => {
                 true,
                 { foo: 'Not allowed' } // Cause some trouble
             )
-        }).toThrowError('The type "object" is not supported. Please pass an array or a string.');
+        }).toThrow('The type "object" is not supported. Please pass an array or a string.');
     });
 
     it('should add aria-labelledby attribute to the OffCanvas', () => {

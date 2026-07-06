@@ -100,17 +100,17 @@ export default {
                 {
                     property: 'label',
                     routerLink: 'sw.settings.listing.edit',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.name'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.name'),
                 },
                 {
                     property: 'criteria',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.criteria'),
                     multiLine: true,
                 },
                 {
                     property: 'priority',
                     inlineEdit: 'number',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.priority'),
                 },
             ];
         },
@@ -221,7 +221,7 @@ export default {
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
+                        message: this.$t('sw-settings-listing.general.messageSaveSuccess'),
                     });
                 })
                 .catch((e) => {
@@ -229,7 +229,7 @@ export default {
                         message: e?.response?.data?.errors[0]?.detail || e?.message || 'Unknown error',
                     };
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.general.messageSaveError', options),
+                        message: this.$t('sw-settings-listing.general.messageSaveError', options),
                     });
                 })
                 .finally(() => {
@@ -275,7 +275,7 @@ export default {
                 .delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError'),
+                        message: this.$t('sw-settings-listing.index.productSorting.messageDeleteError'),
                     });
                 })
                 .finally(() => {
@@ -324,9 +324,7 @@ export default {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
 
-                return this.$tc(
-                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
-                );
+                return this.$t(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`);
             });
 
             return labels.join(', ');

@@ -4,16 +4,14 @@
 import ImageDeprecationPlugin from './index';
 
 describe('build/vite-plugins/image-deprecation', () => {
-    beforeAll(() => {
+    beforeEach(() => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
         jest.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
-    afterAll(() => {
-        console.warn.mockRestore();
-    });
-
     afterEach(() => {
-        console.warn.mockClear();
+        console.warn.mockRestore();
     });
 
     it('should be a function with 2 arguments', () => {

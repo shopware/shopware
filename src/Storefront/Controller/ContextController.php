@@ -71,7 +71,11 @@ class ContextController extends StorefrontController
 
         $params = $request->request->all()['redirectParameters'] ?? '[]';
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            try {
+                $params = json_decode($params, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $params = [];
+            }
         }
 
         $languageCode = $request->request->get('languageCode_' . $languageId);
@@ -123,7 +127,7 @@ class ContextController extends StorefrontController
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
-        $routerContext->setHost($parsedUrl['host']);
+        $routerContext->setHost($parsedUrl['host'] ?? '');
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
         if ($this->requestStack->getMainRequest()) {

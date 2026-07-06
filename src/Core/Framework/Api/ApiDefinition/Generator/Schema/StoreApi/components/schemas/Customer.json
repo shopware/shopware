@@ -108,7 +108,7 @@
                         "format": "date-time"
                     },
                     "hash": {
-                        "description": "Password hash for customer recovery.",
+                        "description": "Customer registration double opt-in hash for confirming the customer account.",
                         "type": "string"
                     },
                     "guest": {
@@ -163,6 +163,11 @@
                             "pattern": "^[0-9a-f]{32}$"
                         },
                         "readOnly": true
+                    },
+                    "requestedGroupId": {
+                        "description": "Unique identity of requested group.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
                     },
                     "createdById": {
                         "type": "string",

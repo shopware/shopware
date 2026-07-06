@@ -14,7 +14,7 @@
     {% block sw_order_state_change_modal_attach_documents_internal_comment %}
     <mt-textarea
         v-model="internalComment"
-        :label="$tc('sw-order.stateCard.labelInternalComment')"
+        :label="$t('sw-order.stateCard.labelInternalComment')"
         :is-loading="isLoading"
     />
     {% endblock %}
@@ -27,7 +27,7 @@
             <mt-switch
                 v-model="sendMail"
                 class="sw-order-state-change-modal-attach-documents__switch"
-                :label="$tc('sw-order.stateCard.labelSendMailSwitch')"
+                :label="$t('sw-order.stateCard.labelSendMailSwitch')"
             />
             {% endblock %}
         </div>
@@ -40,7 +40,7 @@
             data-analytics-id="sw-order-state-change-modal-attach-documents.confirm"
             @click="onConfirm"
         >
-            {{ $tc('sw-order.stateCard.labelSelectStateButton') }}
+            {{ $t('sw-order.stateCard.labelSelectStateButton') }}
         </mt-button>
         {% endblock %}
     </div>

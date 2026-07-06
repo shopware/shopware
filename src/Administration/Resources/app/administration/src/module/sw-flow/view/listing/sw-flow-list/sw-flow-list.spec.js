@@ -110,7 +110,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                         limit: 25,
                     },
                 },
-                $tc: (key) => {
+                $t: (key) => {
                     if (key === 'global.businessEvents.checkout_order_placed' && !hasSnippetFromApp) {
                         return 'Check order place';
                     }

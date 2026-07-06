@@ -6,8 +6,8 @@
         label-property="translated.name"
         value-property="id"
         show-clearable-button
-        :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
-        :label="overwriteLabel ? undefined : $tc('sw-seo-url.labelMainCategory')"
+        :placeholder="$t('sw-seo-url.placeholderMainCategory')"
+        :label="overwriteLabel ? undefined : $t('sw-seo-url.labelMainCategory')"
         :value="selectedCategory"
         :disabled="currentSalesChannelId === null || !allowEdit"
         @update:value="onMainCategorySelected"

@@ -16,13 +16,13 @@
                 right: 0;
                 bottom: 0;
                 left: 0;
-                background: var(--color-background-primary-disabled);
+                background: var(--color-background-tertiary-default);
                 mix-blend-mode: multiply;
             }
 
             .sw-data-grid {
-                border-bottom-left-radius: $border-radius-lg;
-                border-bottom-right-radius: $border-radius-lg;
+                border-bottom-left-radius: var(--border-radius-card);
+                border-bottom-right-radius: var(--border-radius-card);
             }
         }
     }
@@ -32,6 +32,6 @@
     }
 
     .sw-empty-state {
-        padding: 30px;
+        padding: var(--scale-size-30);
     }
 }

@@ -52,7 +52,8 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             array_pop($parts);
         }
 
-        if (array_last($parts) === 'percentage') {
+        $isPercentageAccessor = array_last($parts) === 'percentage';
+        if ($isPercentageAccessor) {
             $jsonAccessor = 'percentage.' . $jsonAccessor;
             array_pop($parts);
         }
@@ -124,7 +125,16 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $template = str_replace(array_keys($variables), array_values($variables), '(ROUND(#accessor# * #multiplier#, 0) / #multiplier#)');
         }
 
-        return \sprintf($template, implode(',', $select));
+        $result = \sprintf($template, implode(',', $select));
+
+        // The DB stores the discount percentage (e.g. 25 for "25% off"), but the API
+        // exposes the price-to-list-price ratio (e.g. 75 for "pay 75% of list price").
+        // Invert here so filters/sorts operate on the intuitive ratio scale.
+        if ($isPercentageAccessor) {
+            return \sprintf('(100 - %s)', $result);
+        }
+
+        return $result;
     }
 
     private function useCashRounding(Context $context): bool

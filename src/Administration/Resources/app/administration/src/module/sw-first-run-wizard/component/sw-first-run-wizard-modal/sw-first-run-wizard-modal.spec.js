@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package fundamentals@after-sales
  */
@@ -116,11 +118,6 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
     beforeEach(() => {
         Shopware.Context.app.firstRunWizard = false;
-
-        Object.defineProperty(window, 'location', {
-            writable: true,
-            value: { reload: jest.fn() },
-        });
     });
 
     it('stepper has less steps with disabled extension management', async () => {
@@ -441,12 +438,13 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
         wrapper.vm.onExtensionActivated();
         const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
 
         jest.spyOn(wrapper.vm.$router, 'push');
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
         expect(wrapper.vm.$router.push).not.toHaveBeenCalled();
 
         await closeButton.trigger('click');
@@ -455,7 +453,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.settings.index.system',
         });
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).toHaveBeenCalled();
     });
 
     it('should not reload after push route to settings page when getting closed and no extension was activated', async () => {
@@ -464,6 +462,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
         const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
 
         jest.spyOn(wrapper.vm.$router, 'push');
@@ -476,7 +475,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.settings.index.system',
         });
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
     });
 
     it('should contain all required frw steps', async () => {

@@ -30,12 +30,20 @@ class StateValidator
             $request->getSession()->get(self::SESSION_KEY),
         );
 
+        $request->getSession()->remove(self::SESSION_KEY);
+
         $request->request->set('grant_type', 'shopware_grant');
         $request->request->set('code', $request->query->get('code'));
     }
 
     public function createRandom(Request $request): string
     {
+        $existing = $request->getSession()->get(self::SESSION_KEY);
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
         $random = ByteString::fromRandom(self::RANDOM_LENGTH)->toString();
 
         $request->getSession()->set(self::SESSION_KEY, $random);

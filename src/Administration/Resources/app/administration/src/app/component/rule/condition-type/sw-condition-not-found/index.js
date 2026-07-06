@@ -36,7 +36,7 @@ export default {
             set: debounce(function updateValue(value) {
                 try {
                     this.condition.value = JSON.parse(value);
-                } catch (e) {
+                } catch (_e) {
                     /* eslint-ignore-line */
                 }
             }, 300),

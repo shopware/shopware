@@ -9,6 +9,9 @@ describe('HtmlOffcanvas tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
     });
 
@@ -32,6 +35,6 @@ describe('HtmlOffcanvas tests', () => {
     it('should error when element cannot be found by selector', () => {
         expect(() => {
             HtmlOffcanvas.open('.not-exist', 'start');
-        }).toThrowError('Parent element does not exist!');
+        }).toThrow('Parent element does not exist!');
     });
 });

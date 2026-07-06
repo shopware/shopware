@@ -15,7 +15,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
             default: null,
@@ -25,7 +24,6 @@ export default {
             required: true,
             default: 'text',
         },
-        // eslint-disable-next-line vue/require-prop-types
         placeholder: {
             required: false,
             default: null,
@@ -33,7 +31,6 @@ export default {
         editable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

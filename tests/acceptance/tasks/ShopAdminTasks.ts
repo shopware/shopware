@@ -34,12 +34,11 @@ import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGrou
  * Orders
  */
 import { AddCreditItem } from '@tasks/ShopAdmin/Orders/AddCreditItemViaAPI';
-import { CreateInvoice } from '@tasks/ShopAdmin/Orders/CreateInvoiceViaAPI';
+import { CreateDocument } from '@tasks/ShopAdmin/Orders/CreateDocumentViaAPI';
 
 /**
  * Rules
  */
-import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
 import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleBillingCountry';
 
 /**
@@ -55,8 +54,7 @@ export const test = mergeTests(
     CreateLandingPage,
     CustomerGroupActivation,
     AddCreditItem,
-    CreateInvoice,
-    CreateRule,
+    CreateDocument,
     CreateRuleBillingCountry,
     CreateFlowForValidation,
 );

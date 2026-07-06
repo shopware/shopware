@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
-use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -32,11 +32,11 @@ class ReinstallAppsStrategy extends AbstractShopIdChangeStrategy
     public function __construct(
         SourceResolver $sourceResolver,
         EntityRepository $appRepository,
-        AppRegistrationService $registrationService,
+        AppSecretRotationService $appSecretRotationService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        parent::__construct($sourceResolver, $appRepository, $registrationService);
+        parent::__construct($sourceResolver, $appRepository, $appSecretRotationService);
     }
 
     public function getDecorated(): AbstractShopIdChangeStrategy

@@ -441,7 +441,8 @@ export default class MagnifierPlugin extends Plugin {
         }
 
         const html = `<div class="magnifier-overlay  ${this.options.overlayClass}">&nbsp;</div>`;
-        this._overlay = container.insertAdjacentHTML('beforeend', html);
+        container.insertAdjacentHTML('beforeend', html);
+        this._overlay = container.querySelector(`.${this.options.overlayClass}`);
 
         this.$emitter.publish('createOverlay');
 
@@ -476,7 +477,8 @@ export default class MagnifierPlugin extends Plugin {
 
         this._zoomImageContainer.style.position = 'relative';
         const html = `<div class="magnifier-zoom-image  ${this.options.zoomImageClass}">&nbsp;</div>`;
-        this._zoomImage = this._zoomImageContainer.insertAdjacentHTML('beforeend', html);
+        this._zoomImageContainer.insertAdjacentHTML('beforeend', html);
+        this._zoomImage = this._zoomImageContainer.querySelector(`.${this.options.zoomImageClass}`);
 
         this.$emitter.publish('createZoomImage');
 

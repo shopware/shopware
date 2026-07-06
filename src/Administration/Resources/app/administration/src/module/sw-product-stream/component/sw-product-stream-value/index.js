@@ -1,12 +1,10 @@
-/*
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
 const { Criteria } = Shopware.Data;
-/*
+
+/**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -17,7 +15,6 @@ export default {
         'conditionDataProviderService',
         'productCustomFields',
         'productTypes',
-        'acl',
         'feature',
     ],
 
@@ -54,7 +51,6 @@ export default {
     data() {
         return {
             value: null,
-            childComponentsCount: null,
             searchTerm: '',
         };
     },
@@ -69,14 +65,7 @@ export default {
         },
 
         componentClasses() {
-            return [
-                this.growthClass,
-                this.disabledClass,
-            ];
-        },
-
-        growthClass() {
-            return `sw-product-stream-value--grow-${this.childComponentsCount}`;
+            return [this.disabledClass];
         },
 
         disabledClass() {
@@ -142,7 +131,7 @@ export default {
             }
             return this.conditionDataProviderService.getOperatorSet(this.fieldType).map((operator) => {
                 return {
-                    label: this.$tc(operator.label),
+                    label: this.$t(operator.label),
                     value: operator.identifier,
                 };
             });
@@ -155,7 +144,7 @@ export default {
                 const secondLevelOperator = this.conditionDataProviderService.getOperator(operator);
 
                 return {
-                    label: this.$tc(secondLevelOperator.label),
+                    label: this.$t(secondLevelOperator.label),
                     value: secondLevelOperator.identifier,
                 };
             });
@@ -235,15 +224,15 @@ export default {
 
         booleanOptions() {
             return [
-                { label: this.$tc('global.default.yes'), value: '1' },
-                { label: this.$tc('global.default.no'), value: '0' },
+                { label: this.$t('global.default.yes'), value: '1' },
+                { label: this.$t('global.default.no'), value: '0' },
             ];
         },
 
         reversedEmptyOptions() {
             return [
-                { label: this.$tc('global.default.yes'), value: false },
-                { label: this.$tc('global.default.no'), value: true },
+                { label: this.$t('global.default.yes'), value: false },
+                { label: this.$t('global.default.no'), value: true },
             ];
         },
 
@@ -437,13 +426,6 @@ export default {
         isProductEntity() {
             return this.getCustomFieldEntityName(this.fieldName) === 'product';
         },
-    },
-
-    mounted() {
-        // Wait for all child components to be mounted. $nextTick is not enough here.
-        setTimeout(() => {
-            this.childComponentsCount = Object.keys(this.$refs ?? {}).length;
-        });
     },
 
     methods: {

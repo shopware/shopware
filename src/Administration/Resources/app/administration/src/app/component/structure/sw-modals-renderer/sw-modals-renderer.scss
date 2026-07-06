@@ -1,0 +1,5 @@
+.sw-modals-renderer__modal.has-iframe {
+    .sw-modal__body.has--no-footer {
+        border-radius: 0 0 var(--border-radius-card) var(--border-radius-card);
+    }
+}

@@ -193,7 +193,7 @@ class PaymentMethodIndexerTest extends TestCase
 
         $paymentMethodId = Uuid::randomHex();
 
-        $this->context->state(function (Context $context) use ($paymentRepository, $paymentMethodId): void {
+        $this->context->state(static function (Context $context) use ($paymentRepository, $paymentMethodId): void {
             $paymentRepository->create(
                 [
                     [

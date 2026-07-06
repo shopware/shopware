@@ -1,7 +1,7 @@
 {% block sw_flow_set_order_state_modal %}
 <sw-modal
     class="sw-flow-set-order-state-modal"
-    :title="$tc('sw-flow.modals.status.titleSetStatus')"
+    :title="$t('sw-flow.modals.status.titleSetStatus')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -21,8 +21,8 @@
         name="sw-field--config-order_transaction"
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
-        :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
-        :placeholder="$tc('sw-flow.modals.status.placeholderPaymentStatus')"
+        :label="$t('sw-flow.modals.status.labelPaymentStatus')"
+        :placeholder="$t('sw-flow.modals.status.placeholderPaymentStatus')"
     />
     {% endblock %}
 
@@ -32,8 +32,8 @@
         name="sw-field--config-order_delivery"
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
-        :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
-        :placeholder="$tc('sw-flow.modals.status.placeholderDeliveryStatus')"
+        :label="$t('sw-flow.modals.status.labelDeliveryStatus')"
+        :placeholder="$t('sw-flow.modals.status.placeholderDeliveryStatus')"
     />
     {% endblock %}
 
@@ -43,8 +43,8 @@
         name="sw-field--config-order"
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
-        :label="$tc('sw-flow.modals.status.labelOrderStatus')"
-        :placeholder="$tc('sw-flow.modals.status.placeholderOrderStatus')"
+        :label="$t('sw-flow.modals.status.labelOrderStatus')"
+        :placeholder="$t('sw-flow.modals.status.placeholderOrderStatus')"
     />
     {% endblock %}
 
@@ -53,8 +53,8 @@
         v-model:checked="config.force_transition"
         name="sw-field--config-force_transition"
         class="sw-flow-set-order-state-modal__force-transition"
-        :label="$tc('sw-flow.modals.status.forceTransition')"
-        :help-text="$tc('sw-flow.modals.status.forceTransitionHelpText')"
+        :label="$t('sw-flow.modals.status.forceTransition')"
+        :help-text="$t('sw-flow.modals.status.forceTransitionHelpText')"
     />
     {% endblock %}
     {% endblock %}
@@ -68,7 +68,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -79,7 +79,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -59,7 +59,10 @@
 
                         {% block component_product_quickview_minimal_product_manufacturer %}
                             {% if manufacturer %}
-                                <a href="{{ manufacturer.translated.link }}"
+                                {% set manufacturerLink = manufacturer.translated.link %}
+                                {% set manufacturerLinkHasScheme = manufacturerLink matches '/^[a-zA-Z][a-zA-Z0-9+.-]*:/' or manufacturerLink starts with '//' %}
+                                {% set manufacturerLinkHref = manufacturerLink ? (manufacturerLinkHasScheme ? manufacturerLink : 'https://' ~ manufacturerLink) : '' %}
+                                <a href="{{ manufacturerLinkHref }}"
                                    target="_blank"
                                    rel="noopener"
                                    title="{{ manufacturer.translated.name }}"

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
 /**
  * @internal
@@ -32,9 +33,10 @@ class PromotionAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new PromotionAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -42,9 +44,10 @@ class PromotionAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new PromotionAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -82,7 +85,7 @@ class PromotionAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $promotion = new PromotionEntity();
         $promotion->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -97,9 +100,10 @@ class PromotionAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new PromotionAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -121,8 +125,9 @@ class PromotionAdminSearchIndexerTest extends TestCase
 
         $indexer = new PromotionAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -131,21 +136,34 @@ class PromotionAdminSearchIndexerTest extends TestCase
 
         static::assertArrayHasKey($id, $documents);
 
+        /** @var array<string, mixed> $document */
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 promotion', $document['text']);
+        static::assertSame('promotion summer10 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('SUMMER10', $document['code']);
+        static::assertTrue($document['active']);
+        static::assertIsArray($document['name']);
     }
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
+        $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Promotion',
+                    'translatedNames' => json_encode([
+                        ['languageId' => $languageId, 'name' => 'Promotion'],
+                    ]),
+                    'code' => 'SUMMER10',
+                    'active' => 1,
+                    'validFrom' => '2024-01-01 00:00:00.000',
+                    'validUntil' => '2025-01-01 00:00:00.000',
+                    'createdAt' => '2024-01-01 00:00:00.000',
                 ],
             ],
         );

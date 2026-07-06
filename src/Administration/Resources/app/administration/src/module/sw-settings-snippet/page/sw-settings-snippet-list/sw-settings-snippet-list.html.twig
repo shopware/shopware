@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="snippet"
-            :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSnippets')"
+            :placeholder="$t('sw-settings-snippet.general.placeholderSearchBarSnippets')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -23,7 +23,7 @@
         >
             {% block sw_settings_snippet_list_smart_bar_header_title_text %}
             <span class="sw-settings_snippet_list__smart-bar-title-text">
-                {{ $tc('sw-settings-snippet.list.textSnippetList', { setName: metaName }, snippetSets.length) }}
+                {{ $t('sw-settings-snippet.list.textSnippetList', { setName: metaName }, snippetSets.length) }}
             </span>
             {% endblock %}
 
@@ -47,7 +47,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } })"
         >
-            {{ $tc('sw-settings-snippet.list.buttonAdd') }}
+            {{ $t('sw-settings-snippet.list.buttonAdd') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -114,7 +114,7 @@
                     <template v-if="isInlineEdit">
                         <mt-text-field
                             v-model="item[set.id].value"
-                            :placeholder="item[set.id].origin || $tc('sw-settings-snippet.general.placeholderValue')"
+                            :placeholder="item[set.id].origin || $t('sw-settings-snippet.general.placeholderValue')"
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>
@@ -203,7 +203,7 @@
                             >
                                 {% block sw_settings_snippet_list_delete_modal_grid_name %}
                                 <sw-grid-column
-                                    :label="$tc('sw-settings-snippet.list.columnHeaderGridColumnTitleSet')"
+                                    :label="$t('sw-settings-snippet.list.columnHeaderGridColumnTitleSet')"
                                     flex="minmax(150px, 1fr)"
                                 >
                                     {{ item.setName }}
@@ -212,7 +212,7 @@
 
                                 {% block sw_settings_snippet_list_delete_modal_grid_value %}
                                 <sw-grid-column
-                                    :label="$tc('sw-settings-snippet.list.columnValue')"
+                                    :label="$t('sw-settings-snippet.list.columnValue')"
                                     flex="minmax(50px,1fr)"
                                 >
                                     {{ item.value }}
@@ -221,7 +221,7 @@
 
                                 {% block sw_settings_snippet_list_delete_modal_grid_origin %}
                                 <sw-grid-column
-                                    :label="$tc('sw-settings-snippet.list.columnHeaderResetTo')"
+                                    :label="$t('sw-settings-snippet.list.columnHeaderResetTo')"
                                     flex="minmax(50px,1fr)"
                                 >
                                     {{ item.origin }}
@@ -248,7 +248,7 @@
                                 variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
                             {% endblock %}
 
@@ -259,7 +259,7 @@
                                 size="small"
                                 @click="onConfirmReset(item)"
                             >
-                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet ? 1 : 0) }}
+                                {{ $t('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet ? 1 : 0) }}
                             </mt-button>
                             {% endblock %}
                         </template>

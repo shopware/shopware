@@ -8,7 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Command\StoreLoginCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -22,8 +26,8 @@ class StoreLoginCommandTest extends TestCase
     {
         $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('The password cannot be empty');
+        $violations = Validation::createValidator()->validate('', new NotBlank(message: 'The password cannot be empty'));
+        $this->expectExceptionObject(new ValidationFailedException('', $violations));
 
         $commandTester->setInputs(['', '', '']);
         $commandTester->execute([
@@ -36,13 +40,13 @@ class StoreLoginCommandTest extends TestCase
     {
         $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('User not found');
-
         $commandTester->setInputs(['non-empty-password']);
         $commandTester->execute([
             '--shopwareId' => 'no-reply@shopware.de',
             '--user' => 'missing_user',
         ]);
+
+        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertStringContainsString('User not found', $commandTester->getDisplay());
     }
 }

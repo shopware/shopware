@@ -8,14 +8,7 @@
                 "type": "object",
                 "properties": {
                     "status": {
-                        "type": "string",
-                        "enum": [
-                            "undefined",
-                            "notSet",
-                            "direct",
-                            "optIn",
-                            "optOut"
-                        ]
+                        "$ref": "#/components/schemas/NewsletterStatus"
                     },
                     "apiAlias": {
                         "type": "string",

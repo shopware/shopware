@@ -460,4 +460,47 @@ class DocumentRouteTest extends TestCase
             $salesChannelContext,
         );
     }
+
+    public function testDownloadShouldThrowExceptionWithDeletedCustomer(): void
+    {
+        $orderCustomerId = $this->ids->get('customerToBeDeleted');
+
+        $this->createCustomer(null, false, ['id' => $orderCustomerId]);
+
+        $this->createOrder($orderCustomerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $orderCustomerId,
+        ]);
+
+        $customerRepository = static::getContainer()->get('customer.repository');
+        $customerRepository->delete([['id' => $orderCustomerId]], Context::createDefaultContext());
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $deepLinkCode = '';
+
+        $request = new Request();
+
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+
+        $this->expectExceptionObject(
+            DocumentException::customerNotLoggedIn()
+        );
+
+        $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+            $deepLinkCode
+        );
+    }
 }

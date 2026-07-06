@@ -142,9 +142,6 @@
                                 },
                                 "readOnly": true
                             },
-                            "purchasePrices": {
-                                "type": "string"
-                            },
                             "releaseDate": {
                                 "type": "string",
                                 "format": "date-time"
@@ -215,7 +212,16 @@
                     },
                     "type": {
                         "description": "Type refers to the entity type of an item whether it is product or promotion for instance.",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "product",
+                            "credit",
+                            "custom",
+                            "promotion",
+                            "container",
+                            "discount",
+                            "quantity"
+                        ]
                     },
                     "customFields": {
                         "type": "object"

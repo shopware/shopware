@@ -7,7 +7,7 @@
             class="sw-import-export-importer__variants-warning"
         >
             {% block sw_import_export_importer_product_variants_warning_text %}
-            <span>{{ $tc('sw-import-export.importer.variantsWarning') }}</span>
+            <span>{{ $t('sw-import-export.importer.variantsWarning') }}</span>
 
             <div class="sw-import-export-importer__variants-warning-links">
                 <mt-link
@@ -15,7 +15,7 @@
                     class="sw-import-export-importer__link"
                     @click="setImportModalProfile('product_configurator_setting')"
                 >
-                    {{ $tc('sw-import-export.importer.directImportVariantsLabel') }}
+                    {{ $t('sw-import-export.importer.directImportVariantsLabel') }}
                 </mt-link>
 
                 <mt-link
@@ -23,7 +23,7 @@
                     class="sw-import-export-importer__link"
                     @click="setImportModalProfile('property_group_option')"
                 >
-                    {{ $tc('sw-import-export.importer.directImportPropertiesLabel') }}
+                    {{ $t('sw-import-export.importer.directImportPropertiesLabel') }}
                 </mt-link>
             </div>
             {% endblock %}
@@ -33,13 +33,13 @@
 
     {% block sw_import_export_importer_upload_csv_label %}
     <span class="sw-import-export-importer__title">
-        {{ $tc('sw-import-export.importer.uploadCsvLabel') }}
+        {{ $t('sw-import-export.importer.uploadCsvLabel') }}
     </span>
     {% endblock %}
 
     {% block sw_import_export_importer_warning_block %}
     <p class="sw-import-export-importer__text">
-        {{ $tc('sw-import-export.importer.warningBlock') }}
+        {{ $t('sw-import-export.importer.warningBlock') }}
     </p>
     {% endblock %}
 
@@ -49,7 +49,7 @@
         v-model:value="importFile"
     >
         <template #caption-label>
-            {{ $tc('sw-import-export.importer.labelUploadCaption') }}
+            {{ $t('sw-import-export.importer.labelUploadCaption') }}
         </template>
     </sw-file-input>
     {% endblock %}
@@ -60,7 +60,7 @@
     <sw-entity-single-select
         class="sw-import-export-importer__profile-select"
         :disabled="isLoading"
-        :label="$tc('sw-import-export.importer.profileLabel')"
+        :label="$t('sw-import-export.importer.profileLabel')"
         entity="import_export_profile"
         label-property="technicalName"
         :criteria="profileCriteria"
@@ -75,7 +75,7 @@
         <mt-switch
             v-model="config.includeVariants"
             class="sw-import-export-importer__variants-switch-field"
-            :label="$tc('sw-import-export.importer.importVariants')"
+            :label="$t('sw-import-export.importer.importVariants')"
         />
         {% endblock %}
     </template>
@@ -83,7 +83,7 @@
     {% block sw_import_export_importer_modal %}
     <sw-modal
         v-if="importModalProfile"
-        :title="$tc('sw-import-export.importer.importLabel')"
+        :title="$t('sw-import-export.importer.importLabel')"
         @modal-close="setImportModalProfile(null)"
     >
         {% block sw_import_export_importer_modal_exporter %}
@@ -100,7 +100,7 @@
                 variant="secondary"
                 @click="setImportModalProfile(null)"
             >
-                {{ $tc('sw-import-export.importer.close') }}
+                {{ $t('sw-import-export.importer.close') }}
             </mt-button>
             {% endblock %}
         </template>

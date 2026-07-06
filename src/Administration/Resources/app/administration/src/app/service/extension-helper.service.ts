@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-len
 import type {
     ExtensionStoreActionService,
     ExtensionType,

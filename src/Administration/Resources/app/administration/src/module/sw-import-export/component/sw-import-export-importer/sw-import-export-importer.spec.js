@@ -97,7 +97,6 @@ async function createWrapper() {
                             return Promise.resolve();
                         }
 
-                        // eslint-disable-next-line prefer-promise-reject-errors
                         return Promise.reject({
                             response: {
                                 data: {

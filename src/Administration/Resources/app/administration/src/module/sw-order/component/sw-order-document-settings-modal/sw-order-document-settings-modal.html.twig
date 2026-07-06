@@ -14,7 +14,7 @@
         <mt-text-field
             v-model="documentNumber"
             class="sw-order-document-settings-modal__document-number"
-            :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+            :label="$t('sw-order.documentModal.labelDocumentNumber')"
             :error="documentNumberErrorMessage"
             required
         />
@@ -26,8 +26,8 @@
             date-type="date"
             required
             hide-hint
-            :label="$tc('sw-order.documentModal.labelDocumentDate')"
-            :placeholder="$tc('sw-datepicker.date.placeholder')"
+            :label="$t('sw-order.documentModal.labelDocumentDate')"
+            :placeholder="$t('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
     </sw-container>
@@ -40,7 +40,7 @@
         v-model="uploadDocument"
         name="sw-field--uploadDocument"
         class="sw-order-document-settings-modal__file-toggle"
-        :label="$tc('sw-order.documentModal.fileInputLabel')"
+        :label="$t('sw-order.documentModal.fileInputLabel')"
     />
     {% endblock %}
 
@@ -87,7 +87,7 @@
         v-model="documentConfig.documentComment"
         name="sw-field--documentConfig-documentComment"
         class="sw-order-document-settings-modal__comment"
-        :label="$tc('sw-order.documentModal.labelDocumentComment')"
+        :label="$t('sw-order.documentModal.labelDocumentComment')"
     />
     {% endblock %}
 
@@ -104,7 +104,7 @@
                 data-analytics-id="sw-order-document-settings-modal.preview"
                 @click="onPreview()"
             >
-                {{ $tc('sw-order.documentModal.labelPreview') }}
+                {{ $t('sw-order.documentModal.labelPreview') }}
             </mt-button>
             {% endblock %}
 
@@ -134,7 +134,7 @@
                     data-analytics-id="sw-order-document-settings-modal.preview-html"
                     @click="onPreview('html')"
                 >
-                    {{ $tc('sw-order.documentModal.labelPreviewOnlyHtml') }}
+                    {{ $t('sw-order.documentModal.labelPreviewOnlyHtml') }}
                 </sw-context-menu-item>
             </sw-context-button>
         </sw-button-group>
@@ -148,7 +148,7 @@
                 data-analytics-id="sw-order-document-settings-modal.cancel-and-close-modal"
                 @click="onCancel"
             >
-                {{ $tc('sw-order.documentModal.labelCancel') }}
+                {{ $t('sw-order.documentModal.labelCancel') }}
             </mt-button>
             {% endblock %}
 
@@ -164,7 +164,7 @@
                     data-analytics-id="sw-order-document-settings-modal.create-document"
                     @click="onCreateDocument"
                 >
-                    {{ $tc('sw-order.documentModal.labelCreate') }}
+                    {{ $t('sw-order.documentModal.labelCreate') }}
                 </mt-button>
                 {% endblock %}
 
@@ -196,7 +196,7 @@
                         data-analytics-id="sw-order-document-settings-modal.create-document-and-send"
                         @click="onCreateDocument('send')"
                     >
-                        {{ $tc('sw-order.documentModal.labelCreateSend') }}
+                        {{ $t('sw-order.documentModal.labelCreateSend') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -206,7 +206,7 @@
                         data-analytics-id="sw-order-document-settings-modal.create-document-and-download-pdf"
                         @click="onCreateDocument('download')"
                     >
-                        {{ $tc('sw-order.documentModal.labelCreateDownloadPdf') }}
+                        {{ $t('sw-order.documentModal.labelCreateDownload') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>

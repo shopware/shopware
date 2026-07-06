@@ -21,7 +21,7 @@ class CacheTelemetrySubscriberTest extends TestCase
         $meter = $this->createMock(Meter::class);
         $meter->expects($this->once())
             ->method('emit')
-            ->with(static::callback(function (ConfiguredMetric $metric) {
+            ->with(static::callback(static function (ConfiguredMetric $metric) {
                 return $metric->name === 'cache.invalidate.count' && $metric->value === 1;
             }));
 

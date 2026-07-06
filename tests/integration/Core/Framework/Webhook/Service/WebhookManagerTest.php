@@ -7,9 +7,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -22,7 +22,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -34,10 +34,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Kernel;
@@ -52,7 +57,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[CoversClass(WebhookManager::class)]
 class WebhookManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -172,7 +176,7 @@ class WebhookManagerTest extends TestCase
         static::assertSame('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId'], $data['source']['sequence']);
         static::assertSame([
             'data' => [
                 'payload' => [
@@ -182,7 +186,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -251,7 +255,7 @@ class WebhookManagerTest extends TestCase
         $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
-        unset($payload['timestamp'], $payload['source']['eventId']);
+        unset($payload['timestamp'], $payload['source']['eventId'], $payload['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -294,7 +298,7 @@ class WebhookManagerTest extends TestCase
             $payload = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('timestamp', $payload);
             static::assertArrayHasKey('eventId', $payload['source']);
-            unset($payload['timestamp'], $payload['source']['eventId']);
+            unset($payload['timestamp'], $payload['source']['eventId'], $payload['source']['sequence']);
 
             static::assertSame(
                 [
@@ -376,7 +380,7 @@ class WebhookManagerTest extends TestCase
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
         static::assertArrayHasKey('timestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
-        unset($payload['data']['payload'][0]['updatedFields'], $payload['timestamp'], $payload['source']['eventId']);
+        unset($payload['data']['payload'][0]['updatedFields'], $payload['timestamp'], $payload['source']['eventId'], $payload['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -457,10 +461,12 @@ class WebhookManagerTest extends TestCase
 
         $event = new AppDeletedEvent($appId, Context::createDefaultContext());
 
-        $this->getManager(adminWorkerEnabled: false)->dispatch($event);
-
-        $this->createMock(MessageBusInterface::class)->expects($this->never())
+        // App lifecycle events must always use sync path, even with admin worker disabled.
+        // The bus mock must never be called — sync path bypasses the message bus entirely.
+        $this->bus->expects($this->never())
             ->method('dispatch');
+
+        $this->getManager(adminWorkerEnabled: false)->dispatch($event);
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -472,7 +478,7 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId'], $data['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -481,7 +487,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -525,7 +531,7 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId'], $data['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -534,7 +540,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -569,7 +575,8 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->createMock(MessageBusInterface::class)->expects($this->never())
+        $this->bus
+            ->expects($this->never())
             ->method('dispatch');
 
         $this->getManager($client)->dispatch($event);
@@ -673,7 +680,7 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId'], $data['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -684,7 +691,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -713,14 +720,14 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['read'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
+        $permissionLifecycle->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
 
         $this->appendNewResponse(new Response(200));
 
@@ -739,7 +746,7 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId'], $data['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -755,7 +762,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -796,7 +803,7 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId'], $data['source']['sequence']);
 
         static::assertSame([
             'data' => [
@@ -805,7 +812,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -861,7 +868,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -873,10 +880,10 @@ class WebhookManagerTest extends TestCase
 
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
-                unset($actualPayload['source']['eventId']);
+                unset($actualPayload['source']['eventId'], $actualPayload['source']['sequence']);
                 static::assertSame($payload, $actualPayload);
                 static::assertSame($appId, $message->getAppId());
                 static::assertSame($webhookId, $message->getWebhookId());
@@ -925,10 +932,10 @@ class WebhookManagerTest extends TestCase
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
                 static::assertArrayHasKey('eventId', $actualPayload['source']);
-                unset($actualPayload['source']['eventId']);
+                unset($actualPayload['source']['eventId'], $actualPayload['source']['sequence']);
                 static::assertSame($payload, $actualPayload);
                 static::assertSame($webhookId, $message->getWebhookId());
                 static::assertSame($shopwareVersion, $message->getShopwareVersion());
@@ -942,6 +949,522 @@ class WebhookManagerTest extends TestCase
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $this->getManager($client, false)->dispatch($event);
+    }
+
+    public function testAsyncDispatchCreatesWebhookEventLogEntry(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+                    'url' => 'https://test.com',
+                ],
+            ],
+            permissions: ['product' => ['read']]
+        );
+
+        $entityId = Uuid::randomHex();
+        $event = $this->getEntityWrittenEvent($entityId);
+
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
+
+        $expectedPayload = [
+            'data' => [
+                'payload' => [
+                    [
+                        'entity' => 'product',
+                        'operation' => 'delete',
+                        'primaryKey' => $entityId,
+                        'updatedFields' => ['id'],
+                    ],
+                ],
+                'event' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+            ],
+            'source' => [
+                'url' => $this->shopUrl,
+                'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
+            ],
+        ];
+
+        $this->bus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($appId, $webhookId, $expectedPayload) {
+                static::assertSame($appId, $message->getAppId());
+                static::assertSame($webhookId, $message->getWebhookId());
+                static::assertSame($appId, $message->getPartitionKey());
+                static::assertSame('https://test.com', $message->getUrl());
+
+                $actualPayload = $message->getPayload();
+                static::assertArrayHasKey('eventId', $actualPayload['source']);
+                static::assertArrayHasKey('shopId', $actualPayload['source']);
+                unset($actualPayload['source']['eventId'], $actualPayload['source']['shopId']);
+                static::assertSame($expectedPayload, $actualPayload);
+
+                return true;
+            }))
+            ->willReturnCallback(static function (WebhookEventMessage $message) {
+                return new Envelope($message);
+            });
+
+        $this->getManager($client, false)->dispatch($event);
+    }
+
+    public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook('hook1', ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com', null, $webhookId);
+
+        $entityId = Uuid::randomHex();
+        $event = $this->getEntityWrittenEvent($entityId);
+
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
+
+        $this->bus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static function (WebhookEventMessage $message) {
+                static::assertSame(WebhookEventMessage::DEFAULT_PARTITION_KEY, $message->getPartitionKey());
+
+                return true;
+            }))
+            ->willReturnCallback(static function (WebhookEventMessage $message) {
+                return new Envelope($message);
+            });
+
+        $this->getManager($client, false)->dispatch($event);
+    }
+
+    public function testSyncDispatchCreatesOutboxEntriesAndDelivers(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        // Verify HTTP request was made
+        $request = $this->getLastRequest();
+        static::assertNotNull($request);
+        static::assertSame('POST', $request->getMethod());
+
+        // Verify webhook_event_log row was created and marked as success
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, webhook_name, event_name, url FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLog['delivery_status']);
+        static::assertSame('hook1', $eventLog['webhook_name']);
+        static::assertSame(CustomerBeforeLoginEvent::EVENT_NAME, $eventLog['event_name']);
+        static::assertSame('https://test.com', $eventLog['url']);
+
+        // Verify webhook_delivery row was cleaned up after successful delivery
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_id = :webhookId',
+            ['webhookId' => Uuid::fromHexToBytes($webhookId)]
+        );
+
+        static::assertSame(0, $deliveryCount, 'Delivery row should be removed after successful delivery');
+    }
+
+    public function testSyncDispatchMarksFailedAndCleansUpDeliveryOnServerError(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        // Even on failure, the event log should exist and show failed status
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+
+        // Verify webhook_delivery row is also cleaned up on failure (terminal state)
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $eventLog['id']]
+        );
+
+        static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+    }
+
+    public function testSyncDispatchWithMultipleWebhooksCreatesMultipleOutboxEntries(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId1 = Uuid::randomHex();
+        $webhookId2 = Uuid::randomHex();
+
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId1,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test1.com',
+                ],
+                [
+                    'id' => $webhookId2,
+                    'name' => 'hook2',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test2.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(200));
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        // Verify both HTTP requests were made
+        $history = $this->guzzleHistory->getHistory();
+        static::assertCount(2, $history);
+
+        // Verify both event log entries were created and marked success
+        $eventLogs = $this->connection->fetchAllAssociative(
+            'SELECT webhook_name, delivery_status FROM webhook_event_log WHERE event_name = :eventName ORDER BY webhook_name',
+            ['eventName' => CustomerBeforeLoginEvent::EVENT_NAME]
+        );
+
+        static::assertCount(2, $eventLogs);
+        static::assertSame('hook1', $eventLogs[0]['webhook_name']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLogs[0]['delivery_status']);
+        static::assertSame('hook2', $eventLogs[1]['webhook_name']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLogs[1]['delivery_status']);
+    }
+
+    public function testSyncDispatchRecordsEventLogResponseOnSuccess(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, response_status_code, processing_time, request_content FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLog['delivery_status']);
+        static::assertSame(200, (int) $eventLog['response_status_code']);
+        static::assertNotNull($eventLog['processing_time']);
+        static::assertNotNull($eventLog['request_content']);
+    }
+
+    public function testSyncDispatchRecordsEventLogResponseOnFailure(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(500, [], '{"error": "internal"}'));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, response_status_code, response_reason_phrase FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+        static::assertSame(500, (int) $eventLog['response_status_code']);
+    }
+
+    public function testSyncDispatchDoesNotCallMessageBus(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        // Sync path (adminWorkerEnabled=true) must never dispatch to the message bus
+        $this->bus->expects($this->never())
+            ->method('dispatch');
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request);
+        static::assertSame('POST', $request->getMethod());
+    }
+
+    public function testSyncPathMarksPendingRetryWhenFlagOn(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
+
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
+
+            static::assertIsArray($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+            static::assertNotNull($delivery['next_retry_at']);
+        });
+    }
+
+    public function testSyncPathMarksPendingRetryForAppLifecycleEventsWithFlagOn(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createApp(appId: $appId, aclRoleId: $aclRoleId, webhooks: [
+            [
+                'name' => 'hook1',
+                'event_name' => AppDeletedEvent::NAME,
+                'url' => 'https://test.com',
+            ],
+        ]);
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new AppDeletedEvent($appId, Context::createDefaultContext());
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
+
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
+
+            static::assertIsArray($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+            static::assertNotNull($delivery['next_retry_at']);
+        });
+    }
+
+    public function testSyncPathMarksFailedWhenFlagOff(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
+
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+
+            $deliveryCount = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
+
+            static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+        });
+    }
+
+    public function testSyncDispatchWithNonAppWebhookCreatesOutboxEntry(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook('hook1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com', null, $webhookId);
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        // Sync path should not use bus
+        $this->bus->expects($this->never())
+            ->method('dispatch');
+
+        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request);
+
+        // Verify event log was created for non-app webhook
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, webhook_name, event_name, app_name FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLog['delivery_status']);
+        static::assertSame('hook1', $eventLog['webhook_name']);
+        static::assertSame(CustomerBeforeLoginEvent::EVENT_NAME, $eventLog['event_name']);
+        // Non-app webhook has no app_name
+        static::assertNull($eventLog['app_name']);
     }
 
     private function createWebhook(string $name, string $eventName, string $url, ?string $appId = null, ?string $webhookId = null): void
@@ -1012,12 +1535,12 @@ class WebhookManagerTest extends TestCase
         }
 
         if ($permissions !== null && $appId !== null) {
-            $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+            $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
             $permissions = Permissions::fromArray([
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $appId, true, $context);
+            $permissionLifecycle->updatePrivileges($permissions, $appId, true, $context);
         }
     }
 
@@ -1055,20 +1578,23 @@ class WebhookManagerTest extends TestCase
 
     private function getManager(
         ?Client $client = null,
-        bool $adminWorkerEnabled = true
+        bool $adminWorkerEnabled = true,
     ): WebhookManager {
+        $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
+
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
             static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get(Connection::class),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            $client ?? static::getContainer()->get('shopware.app_system.guzzle'),
+            new WebhookClient($guzzle, static::getContainer()->get(ClockInterface::class)),
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $adminWorkerEnabled
+            $adminWorkerEnabled,
+            static::getContainer()->get(WebhookDeliveryService::class),
+            static::getContainer()->get(WebhookOutboxStore::class),
         );
     }
 

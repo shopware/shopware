@@ -47,7 +47,7 @@ export default {
     computed: {
         ratingTooltip() {
             return {
-                message: this.$tc(
+                message: this.$t(
                     'sw-rating-stars.ratingTooltipText',
                     {
                         actual: this.cappedValue,

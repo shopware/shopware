@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
@@ -16,6 +17,7 @@ class WebhookCacheClearerTest extends TestCase
     public function testGetSubscribedEvents(): void
     {
         static::assertSame([
+            AppEvents::APP_WRITTEN_EVENT => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ], WebhookCacheClearer::getSubscribedEvents());
     }

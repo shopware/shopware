@@ -53,7 +53,7 @@ test('Customer should be able to see a new property displayed on the product det
             name: 'Color',
             description: 'Color Description',
             options: [
-                { name: 'Red', colorHexCode: '#bf0f2a', },
+                { name: 'Red', colorHexCode: '#bf0f2a' },
             ],
         }
     );

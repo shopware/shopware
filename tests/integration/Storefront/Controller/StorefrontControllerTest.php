@@ -101,6 +101,7 @@ class StorefrontControllerTest extends TestCase
         );
 
         preg_match('/window\.activeRouteParameters = \'([^\']*)\';/', $content, $matches);
+        static::assertArrayHasKey(1, $matches);
         $escapedJson = $matches[1];
 
         // Verify dangerous characters are properly escaped

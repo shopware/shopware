@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -24,7 +23,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CustomFieldsUnusedMediaSubscriber::class)]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -59,7 +57,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
     {
         $mediaIds = array_values($this->createMedia(10)->all());
 
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new CustomFieldsUnusedMediaSubscriber(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class)
@@ -73,7 +71,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
     public function testMediaIdsFromAllPossibleLocationsAreRemovedFromEvent(): void
     {
         $mediaIds = $this->createContent();
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new CustomFieldsUnusedMediaSubscriber(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class)
@@ -89,7 +87,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $unusedMediaIds = array_values($this->createMedia(5, 10)->all());
 
-        $event = new UnusedMediaSearchEvent([...$mediaIds, ...$unusedMediaIds]);
+        $event = new UnusedMediaSearchEvent([...$mediaIds, ...$unusedMediaIds], Context::createDefaultContext());
         $listener = new CustomFieldsUnusedMediaSubscriber(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class)

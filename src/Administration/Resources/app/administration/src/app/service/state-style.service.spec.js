@@ -42,8 +42,10 @@ describe('src/app/service/state-style.service.ts', () => {
         expect(placeholder.selectBackgroundStyle).toBe('sw-order-state__bg-neutral-select');
         expect(placeholder.hasOwnProperty('variant')).toBe(true);
         expect(placeholder.variant).toBe('neutral');
+        expect(placeholder.hasOwnProperty('meteorVariant')).toBe(true);
+        expect(placeholder.meteorVariant).toBe('neutral');
         expect(placeholder.hasOwnProperty('colorCode')).toBe(true);
-        expect(placeholder.colorCode).toBe('#94a6b8');
+        expect(placeholder.colorCode).toBe('var(--color-icon-secondary-default)');
     });
 
     it('should return placeholder for non existing state', async () => {
@@ -76,11 +78,11 @@ describe('src/app/service/state-style.service.ts', () => {
         const stateStyleService = new StateStyleService();
         const stateMachineForTesting = 'test-state-machine';
         const colorCodeMapping = {
-            neutral: '#94a6b8',
-            progress: '#189eff',
-            done: '#37d046',
-            warning: '#ffab22',
-            danger: '#de294c',
+            neutral: 'var(--color-icon-secondary-default)',
+            progress: 'var(--color-icon-brand-default)',
+            done: 'var(--color-icon-positive-default)',
+            warning: 'var(--color-icon-attention-default)',
+            danger: 'var(--color-icon-critical-default)',
         };
 
         const colorMapping = {
@@ -107,6 +109,14 @@ describe('src/app/service/state-style.service.ts', () => {
             danger: 'danger',
         };
 
+        const meteorVariantMapping = {
+            neutral: 'neutral',
+            progress: 'info',
+            done: 'positive',
+            warning: 'attention',
+            danger: 'critical',
+        };
+
         Object.keys(variantMapping).forEach((key) => {
             stateStyleService.addStyle(stateMachineForTesting, key, {
                 icon: key,
@@ -129,6 +139,8 @@ describe('src/app/service/state-style.service.ts', () => {
             expect(style.selectBackgroundStyle).toBe(`sw-order-state__${colorMapping[key]}-select`);
             expect(style.hasOwnProperty('variant')).toBe(true);
             expect(style.variant).toEqual(variantMapping[key]);
+            expect(style.hasOwnProperty('meteorVariant')).toBe(true);
+            expect(style.meteorVariant).toEqual(meteorVariantMapping[key]);
             expect(style.hasOwnProperty('colorCode')).toBe(true);
             expect(style.colorCode).toEqual(colorCodeMapping[key]);
         });

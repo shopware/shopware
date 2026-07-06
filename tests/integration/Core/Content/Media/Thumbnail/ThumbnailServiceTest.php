@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\UnableToReadFile;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +35,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Group('slow')]
-#[CoversClass(ThumbnailService::class)]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -117,7 +115,7 @@ class ThumbnailServiceTest extends TestCase
             static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
 
             $filtered = $sizes->filter(
-                fn (MediaThumbnailSizeEntity $size) => $size->getId() === $thumbnail->getMediaThumbnailSizeId()
+                static fn (MediaThumbnailSizeEntity $size) => $size->getId() === $thumbnail->getMediaThumbnailSizeId()
             );
 
             static::assertCount(1, $filtered);
@@ -155,8 +153,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->write($filePath, 'this is the content of the file, which is not a image');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailNotSupported($media->getId())->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailNotSupported($media->getId()));
         $this->thumbnailService->updateThumbnails(
             $media,
             $this->context,
@@ -432,7 +429,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertCount(2, $thumbnails);
 
         // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
-        $filteredThumbnails = $thumbnails->filter(fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+        $filteredThumbnails = $thumbnails->filter(static fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
             || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80));
 
         static::assertCount(2, $filteredThumbnails);
@@ -583,7 +580,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertCount(2, $thumbnails);
 
         // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
-        $filteredThumbnails = $thumbnails->filter(fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+        $filteredThumbnails = $thumbnails->filter(static fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
             || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80));
 
         static::assertCount(2, $filteredThumbnails);
@@ -599,11 +596,12 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function strictModeConditionsProvider(): array
+    public static function strictModeConditionsProvider(): iterable
     {
-        return [[true], [false]];
+        yield 'strict mode conditions true' => [true];
+        yield 'strict mode conditions false' => [false];
     }
 
     #[DataProvider('strictModeConditionsProvider')]

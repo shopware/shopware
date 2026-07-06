@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Service;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 #[Package('checkout')]
 class PromotionDateTimeService implements PromotionDateTimeServiceInterface
@@ -16,9 +17,6 @@ class PromotionDateTimeService implements PromotionDateTimeServiceInterface
      */
     public function getNow(): string
     {
-        $now = new \DateTime();
-        $now->setTimezone(new \DateTimeZone('UTC'));
-
-        return $now->format(Defaults::STORAGE_DATE_FORMAT);
+        return Clock::get()->now()->setTimezone(new \DateTimeZone('UTC'))->format(Defaults::STORAGE_DATE_FORMAT);
     }
 }

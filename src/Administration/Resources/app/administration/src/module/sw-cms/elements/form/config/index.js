@@ -29,19 +29,32 @@ export default {
                 {
                     id: 1,
                     value: '',
-                    label: this.$tc('sw-cms.elements.form.config.label.type'),
+                    label: this.$t('sw-cms.elements.form.config.label.type'),
+                    disabled: true,
                 },
                 {
                     id: 2,
                     value: 'contact',
-                    label: this.$tc('sw-cms.elements.form.config.label.typeContact'),
+                    label: this.$t('sw-cms.elements.form.config.label.typeContact'),
                 },
                 {
                     id: 3,
                     value: 'newsletter',
-                    label: this.$tc('sw-cms.elements.form.config.label.typeNewsletter'),
+                    label: this.$t('sw-cms.elements.form.config.label.typeNewsletter'),
+                },
+                {
+                    id: 4,
+                    value: 'revocationRequest',
+                    label: this.$t('sw-cms.elements.form.config.label.typeRevocationRequest'),
                 },
             ];
+        },
+
+        requireConfigTab() {
+            return [
+                'contact',
+                'revocationRequest',
+            ].includes(this.element.config.type.value);
         },
     },
 

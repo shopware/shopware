@@ -2,7 +2,6 @@
  * @sw-package fundamentals@framework
  */
 
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {

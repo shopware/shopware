@@ -11,7 +11,7 @@
             {% block sw_custom_field_set_renderer_card_form_renderer_change_field %}
             <mt-checkbox
                 class="sw-bulk-edit-custom-fields__change"
-                :label="$tc('sw-bulk-edit.product.customFields.changeLabel', {name: getInlineSnippet(customField.config.label)}, 0)"
+                :label="$t('sw-bulk-edit.product.customFields.changeLabel', {name: getInlineSnippet(customField.config.label)}, 0)"
                 @update:checked="toggleItemCheck($event, customField)"
             />
             {% endblock %}
@@ -32,8 +32,9 @@
                         v-bind="getBind(customField, props)"
                         :key="props.isInherited"
                         :class="'sw-form-field-renderer-input-field__' + customField.name"
-                        :disabled="disabled || props.isInherited"
+                        :disabled="disabled"
                         :value="props.currentValue"
+                        v-on="getElementEventListeners(customField, props)"
                         @update:value="props.updateCurrentValue"
                     />
                 </template>

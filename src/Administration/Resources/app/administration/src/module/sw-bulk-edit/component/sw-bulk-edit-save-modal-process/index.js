@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import Criteria from 'src/core/data/criteria.data';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
 
@@ -10,12 +11,21 @@ const { chunk: chunkArray } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: ['orderDocumentApiService'],
+    inject: [
+        'orderDocumentApiService',
+        'repositoryFactory',
+        'syncService',
+    ],
+
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+    ],
 
     emits: [
         'changes-apply',
         'title-set',
         'buttons-update',
+        'redirect',
     ],
 
     data() {
@@ -35,6 +45,7 @@ export default {
                     isReached: 0,
                 },
             },
+            maxDependentDocumentsToShow: 10,
         };
     },
 
@@ -45,6 +56,14 @@ export default {
 
         documentTypes() {
             return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+        },
+
+        deleteDocumentTypes() {
+            return (
+                Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value?.filter(
+                    (documentType) => documentType.selected,
+                ) ?? []
+            );
         },
 
         documentTypeConfigs() {
@@ -87,6 +106,10 @@ export default {
 
             return payload;
         },
+
+        documentRepository() {
+            return this.repositoryFactory.create('document');
+        },
     },
 
     created() {
@@ -97,26 +120,32 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
-            await this.createDocuments();
-            this.$emit('changes-apply');
+            Shopware.Store.get('swBulkEdit').resetDocumentGenerationResult();
+            try {
+                await this.createDocuments();
+                await this.deleteDocuments();
+                this.$emit('changes-apply');
+            } catch {
+                this.$emit('redirect', 'error');
+            }
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.process.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.process.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'cancel',
-                    label: this.$tc('global.default.cancel'),
+                    label: this.$t('global.default.cancel'),
                     position: 'left',
                     action: '',
                     disabled: false,
                 },
                 {
                     key: 'next',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.sw-modal.labelClose'),
                     position: 'right',
                     variant: 'primary',
                     action: '',
@@ -136,44 +165,185 @@ export default {
             const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
+            const documentGroups = [
+                [
+                    'invoice',
+                    invoiceDocuments,
+                ],
+                [
+                    'storno',
+                    stornoDocuments,
+                ],
+                [
+                    'credit_note',
+                    creditNoteDocuments,
+                ],
+                [
+                    'delivery_note',
+                    deliveryNoteDocuments,
+                ],
+            ];
 
-            if (invoiceDocuments.length > 0) {
-                await this.createDocument('invoice', invoiceDocuments);
+            let totalRequested = 0;
+            let totalErrors = 0;
+            let totalSkipped = 0;
+            const failedItems = [];
+
+            for (const [
+                documentType,
+                documents,
+            ] of documentGroups) {
+                if (documents.length <= 0) {
+                    continue;
+                }
+
+                const {
+                    requested,
+                    failed,
+                    skipped,
+                    failedItems: documentFailedItems,
+                } = await this.createDocument(documentType, documents);
+
+                totalRequested += requested;
+                totalErrors += failed;
+                totalSkipped += skipped ?? 0;
+                failedItems.push(...(documentFailedItems ?? []));
             }
 
-            if (stornoDocuments.length > 0) {
-                await this.createDocument('storno', stornoDocuments);
-            }
-
-            if (creditNoteDocuments.length > 0) {
-                await this.createDocument('credit_note', creditNoteDocuments);
-            }
-
-            if (deliveryNoteDocuments.length > 0) {
-                await this.createDocument('delivery_note', deliveryNoteDocuments);
-            }
+            Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(
+                totalRequested,
+                totalErrors,
+                totalSkipped,
+                failedItems,
+            );
         },
 
         async createDocument(documentType, payload) {
+            const requestedTotal = payload.length;
+
             if (payload.length <= this.requestsPerPayload) {
-                await this.orderDocumentApiService.generate(documentType, payload);
+                const response = await this.orderDocumentApiService.generate(documentType, payload);
                 this.document[documentType].isReached = 100;
 
-                return Promise.resolve();
+                return this.getDocumentGenerationResult(response, documentType, requestedTotal);
             }
 
             const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
             const percentages = Math.round(100 / chunkedPayload.length);
 
-            return Promise.all(
+            const results = await Promise.all(
                 chunkedPayload.map(async (item) => {
-                    await this.orderDocumentApiService.generate(documentType, item);
-                    // eslint-disable-next-line operator-assignment
+                    const response = await this.orderDocumentApiService.generate(documentType, item);
                     this.document[documentType].isReached = this.document[documentType].isReached + percentages;
+
+                    return this.getDocumentGenerationResult(response, documentType, item.length);
                 }),
-            ).then(() => {
-                this.document[documentType].isReached = 100;
-            });
+            );
+
+            this.document[documentType].isReached = 100;
+
+            return {
+                requested: requestedTotal,
+                failed: results.reduce((total, result) => total + result.failed, 0),
+                skipped: results.reduce((total, result) => total + result.skipped, 0),
+                failedItems: results.flatMap((result) => result.failedItems),
+            };
+        },
+
+        getDocumentGenerationResult(response, documentType, requested) {
+            const generatedDocuments = response?.data?.data;
+
+            if (!Array.isArray(generatedDocuments)) {
+                throw new Error('Invalid document generation response');
+            }
+
+            const failedItems = this.getFailedDocumentGenerationItems(response?.data?.errors ?? {}, documentType);
+            const failed = failedItems.length;
+
+            return {
+                requested,
+                failed,
+                skipped: Math.max(requested - generatedDocuments.length - failed, 0),
+                failedItems,
+            };
+        },
+
+        getFailedDocumentGenerationItems(errors, documentType) {
+            return Object.entries(errors).map(
+                ([
+                    orderId,
+                    orderErrors,
+                ]) => {
+                    const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
+
+                    return {
+                        orderId,
+                        documentType,
+                        errorCode: error?.code,
+                        detail: error?.detail,
+                    };
+                },
+            );
+        },
+
+        async deleteDocuments() {
+            if (this.deleteDocumentTypes.length === 0) {
+                return;
+            }
+
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'documentType.technicalName',
+                    this.deleteDocumentTypes.map((documentType) => documentType.technicalName),
+                ),
+            );
+
+            const documents = await this.documentRepository.searchIds(criteria);
+
+            if (documents.total === 0) {
+                return;
+            }
+
+            const syncPayload = {
+                'delete-order_document': {
+                    action: 'delete',
+                    entity: 'document',
+                    payload: documents.data.map((id) => ({ id })),
+                },
+            };
+
+            try {
+                await this.syncService.sync(
+                    syncPayload,
+                    {},
+                    {
+                        'single-operation': 1,
+                        'sw-language-id': Shopware.Context.api.languageId,
+                    },
+                );
+            } catch (error) {
+                const detailedErrorMessage = error.response?.data?.errors?.[0]?.detail;
+                this.createNotificationError({
+                    message: detailedErrorMessage ? this.truncateErrorMessage(detailedErrorMessage) : error.message,
+                });
+
+                throw error;
+            }
+        },
+
+        truncateErrorMessage(detailedErrorMessage) {
+            const dependentDocuments = detailedErrorMessage.split(', ');
+
+            if (dependentDocuments.length <= this.maxDependentDocumentsToShow) {
+                return detailedErrorMessage;
+            }
+
+            const remainingDependentDocuments = dependentDocuments.length - this.maxDependentDocumentsToShow;
+
+            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow).join(', ')}
+                ... (and ${remainingDependentDocuments} more)`;
         },
     },
 };

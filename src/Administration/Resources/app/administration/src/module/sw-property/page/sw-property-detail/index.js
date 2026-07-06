@@ -71,7 +71,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('property.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('property.editor'),
                     showOnDisabledElements: true,
                 };
@@ -179,7 +179,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-property.detail.messageSaveError'),
+                        message: this.$t('sw-property.detail.messageSaveError'),
                     });
                     this.isLoading = false;
                     throw exception;

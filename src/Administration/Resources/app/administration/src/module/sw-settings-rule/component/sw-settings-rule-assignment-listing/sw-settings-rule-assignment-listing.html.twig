@@ -2,6 +2,7 @@
 <slot
     name="link-column"
     :item="item"
+    :column-index="columnIndex"
     :column="column"
     :render-column="renderColumn"
 >
@@ -17,6 +18,6 @@
     class="link link-danger"
     @click="showBulkDeleteModal = true"
 >
-    {{ $tc('global.default.remove') }}
+    {{ $t('global.default.remove') }}
 </a>
 {% endblock %}

@@ -3,7 +3,7 @@
 
     {% block sw_settings_product_feature_set_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(productFeatureSet, 'name', $t('sw-settings-product-feature-sets.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -27,7 +27,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
+            {{ $t('sw-settings-product-feature-sets.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
 
@@ -45,13 +45,13 @@
             <template v-else>
                 {% block sw_settings_product_feature_set_detail_content_language_info %}
                 <sw-language-info
-                    :entity-description="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline'))"
+                    :entity-description="placeholder(productFeatureSet, 'name', $t('sw-settings-product-feature-sets.detail.textHeadline'))"
                 />
                 {% endblock %}
 
                 {% block sw_settings_product_feature_set_detail_content_card %}
                 <mt-card
-                    :title="$tc('sw-settings-product-feature-sets.detail.titleCard')"
+                    :title="$t('sw-settings-product-feature-sets.detail.titleCard')"
                     position-identifier="sw-settings-product-feature-sets-detail"
                 >
 
@@ -64,19 +64,19 @@
                         required
                         :error="productFeatureSetNameError"
                         :disabled="!acl.can('product_feature_sets.editor')"
-                        :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
-                        :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
+                        :label="$t('sw-settings-product-feature-sets.detail.labelName')"
+                        :placeholder="placeholder(productFeatureSet, 'name', $t('sw-settings-product-feature-sets.detail.placeholderName'))"
                     />
                     {% endblock %}
 
                     {% block sw_settings_product_feature_set_detail_content_field_description %}
                     <mt-textarea
                         v-model="productFeatureSet.description"
-                        :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
+                        :label="$t('sw-settings-product-feature-sets.detail.labelDescription')"
                         class="sw-settings-product-feature-sets-detail__description"
                         :error="productFeatureSetDescriptionError"
                         :disabled="!acl.can('product_feature_sets.editor')"
-                        :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
+                        :placeholder="placeholder(productFeatureSet, 'description', $t('sw-settings-product-feature-sets.detail.placeholderDescription'))"
                     />
                     {% endblock %}
 

@@ -300,7 +300,7 @@ export default {
                 }
 
                 const config = {
-                    message: this.$tc(
+                    message: this.$t(
                         this.stateText?.[log.activity]?.[log.state] ?? '',
                         {
                             profile: log.profileName,

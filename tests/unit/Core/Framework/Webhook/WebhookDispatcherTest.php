@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
@@ -108,7 +109,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function testAddListenerForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $eventDispatcherMock->expects($this->once())
@@ -125,7 +126,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function testRemoveListenerForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $eventDispatcherMock->expects($this->once())
@@ -157,7 +158,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function testGetListenerPriorityForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $eventDispatcherMock->expects($this->once())
@@ -203,7 +204,7 @@ class TestEvent implements Hookable
         return [];
     }
 
-    public function isAllowed(string $appId, \Shopware\Core\Framework\Webhook\AclPrivilegeCollection $permissions): bool
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
         return true;
     }

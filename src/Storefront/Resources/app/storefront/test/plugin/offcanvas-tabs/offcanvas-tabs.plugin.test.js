@@ -26,6 +26,9 @@ describe('OffCanvasTabsPlugin test', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         jest.useFakeTimers();
@@ -51,7 +54,7 @@ describe('OffCanvasTabsPlugin test', () => {
 
         const offCanvas = document.querySelector('.offcanvas');
 
-        expect(window.PluginManager.initializePluginsInParentElement).toBeCalledTimes(1);
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
         expect(offCanvas.innerHTML).toBe('Tab content');
     });
 });

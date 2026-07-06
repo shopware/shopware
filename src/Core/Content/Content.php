@@ -3,11 +3,13 @@
 namespace Shopware\Core\Content;
 
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
+use Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -36,19 +38,26 @@ class Content extends Bundle
         $loader->load('product_export.xml');
         $loader->load('property.xml');
         $loader->load('cms.xml');
+        $loader->load('mail.xml');
         $loader->load('mail_template.xml');
         $loader->load('delivery_time.xml');
         $loader->load('import_export.xml');
         $loader->load('contact_form.xml');
+        $loader->load('revocation_request_form.xml');
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
+        $loader->load('shared.xml');
+
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader->load('product_export_tracking.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('media_test.xml');
         }
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new ThumbnailProcessorCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

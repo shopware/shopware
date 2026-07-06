@@ -1,7 +1,7 @@
 {% block sw_bulk_edit_save_modal_confirm %}
 <div class="sw-bulk-edit-save-modal-confirm">
     <p class="sw-bulk-edit-save-modal__help-text">
-        {{ $tc('sw-bulk-edit.modal.confirm.description', { itemCount: itemTotal }, itemTotal) }}
+        {{ $t('sw-bulk-edit.modal.confirm.description', { itemCount: itemTotal }, itemTotal) }}
     </p>
 
     {% block sw_bulk_edit_save_modal_confirm_trigger_flows %}
@@ -16,8 +16,8 @@
             v-model="isFlowTriggered"
             name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"
             class="sw-bulk-edit-save-modal-confirm__trigger-flows-switch"
-            :label="$tc('sw-bulk-edit.modal.confirm.switchLabel')"
-            :help-text="$tc('sw-bulk-edit.modal.confirm.switchHelpText')"
+            :label="$t('sw-bulk-edit.modal.confirm.switchLabel')"
+            :help-text="$t('sw-bulk-edit.modal.confirm.switchHelpText')"
         />
         {% endblock %}
 
@@ -26,7 +26,7 @@
             v-show="isFlowTriggered"
             class="sw-bulk-edit-save-modal-confirm__trigger-flows-alert"
         >
-            <p>{{ $tc('sw-bulk-edit.modal.confirm.alertTitle') }}</p>
+            <p>{{ $t('sw-bulk-edit.modal.confirm.alertTitle') }}</p>
             <span>{{ triggeredFlows.join(', ') }}</span>
         </mt-banner>
         {% endblock %}
@@ -34,10 +34,18 @@
     {% endblock %}
 
     <mt-banner
+        v-if="hasDocumentDeletionSelected"
+        variant="attention"
+        class="sw-bulk-edit-save-modal__warning-document-deletion"
+    >
+        {{ $t('sw-bulk-edit.modal.warningTextDocumentDeletion') }}
+    </mt-banner>
+
+    <mt-banner
         variant="attention"
         class="sw-bulk-edit-save-modal__warning"
     >
-        {{ $tc('sw-bulk-edit.modal.warningText') }}
+        {{ $t('sw-bulk-edit.modal.warningText') }}
     </mt-banner>
 </div>
 {% endblock %}

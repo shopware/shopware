@@ -2,7 +2,6 @@
  * @sw-package fundamentals@after-sales
  */
 import ImportExportProfileMappingService from 'src/module/sw-import-export/service/importExportProfileMapping.service';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 import * as mappings from './mocks/mappings.mock';
 
@@ -27,9 +26,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('product: should not find any missing required fields', async () => {
-        const invalidFields = importExportProfileMappingService.validate('product', mappings.productProfileOnlyRequired);
+        const violations = importExportProfileMappingService.validate('product', mappings.productProfileOnlyRequired);
 
-        expect(invalidFields.missingRequiredFields).toHaveLength(0);
+        expect(violations.missingRequiredFields).toHaveLength(0);
+        expect(violations.duplicateMappings).toHaveLength(0);
     });
 
     [
@@ -43,35 +43,43 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     ].forEach((fieldName) => {
         it(`product: should find missing required field ${fieldName}`, async () => {
             const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== fieldName);
-            const invalidFields = importExportProfileMappingService.validate('product', mapping);
+            const violations = importExportProfileMappingService.validate('product', mapping);
 
-            expect(invalidFields.missingRequiredFields).toHaveLength(1);
-            expect(invalidFields.missingRequiredFields).toContain(fieldName);
+            expect(violations.missingRequiredFields).toHaveLength(1);
+            expect(violations.duplicateMappings).toHaveLength(0);
+
+            expect(violations.missingRequiredFields).toContain(fieldName);
         });
     });
 
     it('product: should find missing required field name', async () => {
         const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== 'translations.DEFAULT.name');
-        const invalidFields = importExportProfileMappingService.validate('product', mapping);
+        const violations = importExportProfileMappingService.validate('product', mapping);
 
-        expect(invalidFields.missingRequiredFields).toHaveLength(1);
-        expect(invalidFields.missingRequiredFields).toContain('name');
+        expect(violations.missingRequiredFields).toHaveLength(1);
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields).toContain('name');
     });
 
     it('product: should find missing required field createdAt', async () => {
         const mapping = mappings.productProfileOnlyRequired.filter(
             (field) => field.key !== 'translations.DEFAULT.createdAt',
         );
-        const invalidFields = importExportProfileMappingService.validate('product', mapping);
+        const violations = importExportProfileMappingService.validate('product', mapping);
 
-        expect(invalidFields.missingRequiredFields).toHaveLength(1);
-        expect(invalidFields.missingRequiredFields).toContain('createdAt');
+        expect(violations.missingRequiredFields).toHaveLength(1);
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields).toContain('createdAt');
     });
 
     it('product: should return all missing required fields', async () => {
-        const invalidFields = importExportProfileMappingService.validate('product', []);
+        const violations = importExportProfileMappingService.validate('product', []);
 
-        expect(invalidFields.missingRequiredFields.sort()).toEqual(
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields.sort()).toEqual(
             [
                 'id',
                 'versionId',
@@ -91,30 +99,33 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     it('product: should find missing required when parentProduct is existing', async () => {
         const mapping = mappings.productDuplicateProfileOnlyRequired.filter((field) => field.key === 'productNumber');
-        const invalidFields = importExportProfileMappingService.validate(
+        const violations = importExportProfileMappingService.validate(
             'product',
             mapping,
             mappings.productDuplicateProfileOnlyRequired,
         );
 
-        expect(invalidFields.missingRequiredFields).toEqual([
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields).toEqual([
             'id',
             'taxId',
         ]);
     });
 
     it('product: should not find any missing required when parentProduct is existing', async () => {
-        const invalidFields = importExportProfileMappingService.validate(
+        const violations = importExportProfileMappingService.validate(
             'product',
             mappings.productDuplicateProfileOnlyRequired,
             mappings.productDuplicateProfileOnlyRequired,
         );
 
-        expect(invalidFields.missingRequiredFields).toHaveLength(0);
+        expect(violations.missingRequiredFields).toHaveLength(0);
+        expect(violations.duplicateMappings).toHaveLength(0);
     });
 
     it('product: should find missing required when key.id is existing', async () => {
-        const invalidFields = importExportProfileMappingService.validate(
+        const violations = importExportProfileMappingService.validate(
             'product',
             [
                 {
@@ -126,32 +137,56 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             mappings.productDuplicateProfileOnlyRequired,
         );
 
-        expect(invalidFields.missingRequiredFields).toEqual([
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields).toEqual([
             'id',
             'productNumber',
         ]);
     });
 
     it('media: should not find any missing required fields', async () => {
-        const invalidFields = importExportProfileMappingService.validate('media', mappings.mediaProfileOnlyRequired);
-        expect(invalidFields.missingRequiredFields).toHaveLength(0);
+        const violations = importExportProfileMappingService.validate('media', mappings.mediaProfileOnlyRequired);
+
+        expect(violations.missingRequiredFields).toHaveLength(0);
+        expect(violations.duplicateMappings).toHaveLength(0);
     });
 
     it('media: should find missing required field id', async () => {
         const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== 'id');
-        const invalidFields = importExportProfileMappingService.validate('product', mapping);
-        expect(invalidFields.missingRequiredFields).toHaveLength(1);
-        expect(invalidFields.missingRequiredFields).toContain('id');
+
+        const violations = importExportProfileMappingService.validate('product', mapping);
+
+        expect(violations.missingRequiredFields).toHaveLength(1);
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields).toContain('id');
     });
 
     it('media: should find missing required field createdAt', async () => {
         const mapping = mappings.productProfileOnlyRequired.filter(
             (field) => field.key !== 'translations.DEFAULT.createdAt',
         );
-        const invalidFields = importExportProfileMappingService.validate('product', mapping);
+        const violations = importExportProfileMappingService.validate('product', mapping);
 
-        expect(invalidFields.missingRequiredFields).toHaveLength(1);
-        expect(invalidFields.missingRequiredFields).toContain('createdAt');
+        expect(violations.missingRequiredFields).toHaveLength(1);
+        expect(violations.duplicateMappings).toHaveLength(0);
+
+        expect(violations.missingRequiredFields).toContain('createdAt');
+    });
+
+    it('should detect duplicate mapping keys', async () => {
+        const mapping = [
+            ...mappings.productProfileOnlyRequired,
+            mappings.productProfileOnlyRequired.find((mapping) => mapping.key === 'id'),
+        ];
+
+        const violations = importExportProfileMappingService.validate('product', mapping);
+
+        expect(violations.missingRequiredFields).toHaveLength(0);
+        expect(violations.duplicateMappings).toHaveLength(1);
+
+        expect(violations.duplicateMappings.at(0).key).toBe('id');
     });
 
     it('category: should list all required fields with depth 1', async () => {
@@ -240,10 +275,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         ]);
     });
 
-    // eslint-disable-next-line no-warning-comments
-    // TODO: Fix this test results diffe local from pipeline
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('newsletter_recipient: should list all required fields with depth 3', async () => {
+    it('newsletter_recipient: should list all required fields with depth 3', async () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('newsletter_recipient', 3);
 
         expect(Object.keys(systemRequiredFields)).toEqual([
@@ -253,6 +285,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'hash',
             'language.id',
             'language.name',
+            'language.active',
             'language.locale.id',
             'language.locale.code',
             'language.locale.translations.DEFAULT.name',

@@ -14,6 +14,7 @@ class ConsentException extends HttpException
     final public const INVALID_CONSENT = 'SYSTEM__CONSENT_INVALID_CONSENT';
     final public const INVALID_CONSENT_STATUS = 'SYSTEM__CONSENT_INVALID_CONSENT_STATUS';
     final public const INVALID_SCOPE = 'SYSTEM__CONSENT_INVALID_SCOPE';
+    final public const INVALID_REVISION = 'SYSTEM__CONSENT_INVALID_REVISION';
 
     final public const CANNOT_RESOLVE_ACTOR = 'SYSTEM__CONSENT_CANNOT_RESOLVE_ACTOR';
 
@@ -90,6 +91,20 @@ class ConsentException extends HttpException
             self::CANNOT_RESOLVE_ACTOR,
             'Cannot resolve actor with user id "{{ userId }}".',
             ['userId' => $id],
+        );
+    }
+
+    public static function invalidRevision(string $consent, ?string $providedRevision, ?string $latestRevision): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REVISION,
+            'Cannot accept consent "{{ consent }}" for revision "{{ providedRevision }}". The latest revision is "{{ latestRevision }}".',
+            [
+                'consent' => $consent,
+                'providedRevision' => $providedRevision,
+                'latestRevision' => $latestRevision,
+            ],
         );
     }
 

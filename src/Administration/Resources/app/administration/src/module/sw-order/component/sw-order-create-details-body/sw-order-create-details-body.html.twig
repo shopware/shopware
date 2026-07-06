@@ -12,8 +12,8 @@
             disabled
             size="small"
             class="sw-order-create-details-body__item"
-            :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
-            :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
+            :label="$t('sw-order.createBase.detailsBody.labelEmail')"
+            :placeholder="$t('sw-order.createBase.detailsBody.placeholderEmail')"
         />
         {% endblock %}
 
@@ -23,14 +23,14 @@
             class="sw-order-create-details-body__item is-billing"
         >
             <p class="sw-order-create-details-body__item-label">
-                {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
+                {{ $t('sw-order.createBase.detailsBody.labelBillingAddress') }}
                 <mt-button
                     class="sw-order-create-details-body__item-label-button"
                     variant="secondary"
                     data-analytics-id="sw-order-create-details-body.edit-billing-address"
                     @click="onEditBillingAddress"
                 >
-                    {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                    {{ $t('sw-order.detailBase.buttonEditAddress') }}
                 </mt-button>
             </p>
             <sw-address :address="billingAddress" />
@@ -39,8 +39,8 @@
             v-else
             disabled
             class="sw-order-create-details-body__item"
-            :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
-            :placeholder="$tc('sw-order.createBase.detailsBody.placeholder')"
+            :label="$t('sw-order.createBase.detailsBody.labelBillingAddress')"
+            :placeholder="$t('sw-order.createBase.detailsBody.placeholder')"
         />
         {% endblock %}
     </div>
@@ -53,8 +53,8 @@
             disabled
             size="small"
             class="sw-order-create-details-body__item"
-            :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
-            :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
+            :label="$t('sw-order.createBase.detailsBody.labelPhoneNumber')"
+            :placeholder="$t('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
         />
         {% endblock %}
 
@@ -66,19 +66,19 @@
             <template v-if="isAddressIdentical">
                 {% block sw_order_create_details_body_shipping_address_identical %}
                 <p class="sw-order-create-details-body__item-label">
-                    {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
+                    {{ $t('sw-order.createBase.detailsBody.labelShippingAddress') }}
                     <mt-button
                         class="sw-order-create-details-body__item-label-button"
                         variant="secondary"
                         data-analytics-id="sw-order-create-details-body.edit-identical-shipping-address"
                         @click="onEditShippingAddress"
                     >
-                        {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                        {{ $t('sw-order.detailBase.buttonEditAddress') }}
                     </mt-button>
                 </p>
                 <div class="sw-order-create-details-body__address-identical">
                     <span class="sw-order-create-details-body__address-identical-text">
-                        {{ $tc('sw-order.createBase.detailsBody.textIdentical') }}
+                        {{ $t('sw-order.createBase.detailsBody.textIdentical') }}
                     </span>
                 </div>
                 {% endblock %}
@@ -86,14 +86,14 @@
             <template v-else>
                 {% block sw_order_create_details_body_shipping_address_content %}
                 <p class="sw-order-create-details-body__item-label">
-                    {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
+                    {{ $t('sw-order.createBase.detailsBody.labelShippingAddress') }}
                     <mt-button
                         class="sw-order-create-details-body__item-label-button"
                         variant="secondary"
                         data-analytics-id="sw-order-create-details-body.edit-shipping-address"
                         @click="onEditShippingAddress"
                     >
-                        {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                        {{ $t('sw-order.detailBase.buttonEditAddress') }}
                     </mt-button>
                 </p>
                 <sw-address :address="shippingAddress" />
@@ -104,8 +104,8 @@
             v-else
             disabled
             class="sw-order-create-details-body__item"
-            :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
-            :placeholder="$tc('sw-order.createBase.detailsBody.placeholder')"
+            :label="$t('sw-order.createBase.detailsBody.labelShippingAddress')"
+            :placeholder="$t('sw-order.createBase.detailsBody.placeholder')"
         />
         {% endblock %}
     </div>

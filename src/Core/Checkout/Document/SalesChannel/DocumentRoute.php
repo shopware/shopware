@@ -13,6 +13,8 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -138,7 +140,7 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $supportedRequestedFormats = array_filter(
             $requestedTypesMapping,
-            fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
+            static fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
             \ARRAY_FILTER_USE_KEY
         );
 
@@ -156,11 +158,17 @@ final class DocumentRoute extends AbstractDocumentRoute
     {
         $response = new Response($content);
 
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($filename, '_');
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
         $disposition = HeaderUtils::makeDisposition(
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename,
             // only printable ascii
-            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename) ?? ''
+            $filenameFallback
         );
 
         $response->headers->set('Content-Type', $contentType);
@@ -185,7 +193,8 @@ final class DocumentRoute extends AbstractDocumentRoute
         }
 
         $orderCustomer = $order->getOrderCustomer();
-        if (!$orderCustomer) {
+
+        if ($orderCustomer === null || $orderCustomer->getCustomerId() === null) {
             throw DocumentException::customerNotLoggedIn();
         }
 

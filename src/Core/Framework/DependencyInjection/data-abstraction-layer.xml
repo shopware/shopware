@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
+        <!-- @deprecated tag:v6.8.0 Will be removed, it's then always enabled -->
         <parameter key="env(SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)" type="string">0</parameter>
         <parameter key="shopware.dbal.time_zone_support_enabled">%env(bool:SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)%</parameter>
 
@@ -33,6 +34,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer"/>
             <argument>%kernel.shopware_core_dir%</argument>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>
@@ -83,7 +85,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
+            <argument>%shopware.dbal.token_minimum_length%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
@@ -95,6 +97,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
+            <argument>%shopware.product.search_keyword.relevant_keyword_count%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader">
@@ -340,6 +343,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition"/>
             <argument type="service" id="lock.factory"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPriceFieldSerializer">
@@ -385,9 +389,17 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\WasModifiedByUserFieldSerializer">
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="shopware.field_serializer"/>
         </service>
@@ -577,6 +589,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="shopware.field_serializer"/>
         </service>
@@ -733,6 +746,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.dal.versioning.expire_days%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -740,6 +754,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
     </services>
 </container>

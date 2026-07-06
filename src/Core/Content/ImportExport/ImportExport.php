@@ -228,7 +228,7 @@ class ImportExport
         $criteria = $criteria === null ? new Criteria() : clone $criteria;
         $criteriaBuilder->enrichCriteria($config, $criteria);
 
-        $enrichEvent = new EnrichExportCriteriaEvent($criteria, $this->logEntity);
+        $enrichEvent = new EnrichExportCriteriaEvent($criteria, $this->logEntity, $context);
         $this->eventDispatcher->dispatch($enrichEvent);
 
         $fields = $this->repository->getDefinition()->getFields();
@@ -514,7 +514,7 @@ class ImportExport
                 if ($exceptions) {
                     $originalRecord['_error'] = json_encode(
                         \array_map(
-                            fn ($exception) => \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8'),
+                            static fn ($exception) => \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8'),
                             $exceptions
                         )
                     );
@@ -523,7 +523,7 @@ class ImportExport
             }
 
             if ($mappedRecord !== [] && !$exportExceptions) {
-                $event = new ImportExportBeforeExportRecordEvent($config, $mappedRecord, $originalRecord);
+                $event = new ImportExportBeforeExportRecordEvent($config, $mappedRecord, $originalRecord, $context);
                 $this->eventDispatcher->dispatch($event);
 
                 $importRecord = $event->getRecord();
@@ -630,7 +630,7 @@ class ImportExport
     private function ensurePrimaryKeys(array $data): array
     {
         foreach ($this->repository->getDefinition()->getPrimaryKeys() as $primaryKey) {
-            if (!($primaryKey instanceof IdField)) {
+            if (!$primaryKey instanceof IdField) {
                 continue;
             }
 
@@ -689,7 +689,7 @@ class ImportExport
 
         $allowedMappings = array_filter(
             $config->getMapping()->getElements(),
-            function ($mapping) use ($definition, $source) {
+            static function ($mapping) use ($definition, $source) {
                 $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor(
                     $definition,
                     $mapping->getKey()

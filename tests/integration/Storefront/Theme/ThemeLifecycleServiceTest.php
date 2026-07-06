@@ -73,12 +73,12 @@ class ThemeLifecycleServiceTest extends TestCase
     protected function setUp(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())->method('getBundles')->willReturn([
+        $kernel->method('getBundles')->willReturn([
             'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
             'ThemeWithLabels' => new ThemeWithLabels(),
         ]);
 
-        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+        $kernel->method('getBundle')->willReturnMap([
             ['ThemeWithFileAssociations', new ThemeWithFileAssociations()],
             ['ThemeWithLabels', new ThemeWithLabels()],
         ]);
@@ -343,7 +343,7 @@ class ThemeLifecycleServiceTest extends TestCase
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
     {
         $bundle = $this->getThemeConfigWithLabels();
-        $this->changeDefaultLanguageLocale('xx-XX');
+        $this->changeDefaultLanguageLocale('de-DE-1');
 
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
@@ -351,7 +351,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertInstanceOf(ThemeTranslationCollection::class, $theme->getTranslations());
         static::assertCount(2, $theme->getTranslations());
-        $translation = $this->getTranslationByLocale('xx-XX', $theme->getTranslations());
+        $translation = $this->getTranslationByLocale('de-DE-1', $theme->getTranslations());
         static::assertSame([
             'fields.sw-image' => 'test label',
         ], $translation->getLabels());

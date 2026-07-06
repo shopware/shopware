@@ -57,7 +57,12 @@ class SeoActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/seo-url-template/validate', name: 'api.seo-url-template.validate', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/seo-url-template/validate',
+        name: 'api.seo-url-template.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url_template:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function validate(Request $request, Context $context): JsonResponse
     {
         $context->setConsiderInheritance(true);
@@ -71,7 +76,12 @@ class SeoActionController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_action/seo-url-template/preview', name: 'api.seo-url-template.preview', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/seo-url-template/preview',
+        name: 'api.seo-url-template.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url_template:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function preview(Request $request, Context $context): Response
     {
         $this->validateSeoUrlTemplate($request);
@@ -99,7 +109,7 @@ class SeoActionController extends AbstractController
         return new JsonResponse($preview);
     }
 
-    #[Route(path: '/api/_action/seo-url-template/context', name: 'api.seo-url-template.context', methods: ['POST'])]
+    #[Route(path: '/api/_action/seo-url-template/context', name: 'api.seo-url-template.context', methods: [Request::METHOD_POST])]
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
     {
         $routeName = $data->get('routeName');
@@ -113,7 +123,7 @@ class SeoActionController extends AbstractController
         $repository = $this->getRepository($config);
 
         $criteria = new Criteria();
-        if (!empty($fk)) {
+        if ($fk !== null && $fk !== '') {
             $criteria = new Criteria([$fk]);
         }
         $criteria->setLimit(1);
@@ -131,7 +141,7 @@ class SeoActionController extends AbstractController
         return new JsonResponse($mapping->getSeoPathInfoContext());
     }
 
-    #[Route(path: '/api/_action/seo-url/canonical', name: 'api.seo-url.canonical', methods: ['PATCH'])]
+    #[Route(path: '/api/_action/seo-url/canonical', name: 'api.seo-url.canonical', methods: [Request::METHOD_PATCH])]
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
     {
         if (!$seoUrl->has('routeName')) {
@@ -176,7 +186,7 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/seo-url/create-custom-url', name: 'api.seo-url.create', methods: ['POST'])]
+    #[Route(path: '/api/_action/seo-url/create-custom-url', name: 'api.seo-url.create', methods: [Request::METHOD_POST])]
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
         /** @var ParameterBag $dataBag */
@@ -233,7 +243,7 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/seo-url-template/default/{routeName}', name: 'api.seo-url-template.default', methods: ['GET'])]
+    #[Route(path: '/api/_action/seo-url-template/default/{routeName}', name: 'api.seo-url-template.default', methods: [Request::METHOD_GET])]
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);

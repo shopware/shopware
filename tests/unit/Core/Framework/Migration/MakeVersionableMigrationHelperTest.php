@@ -90,7 +90,7 @@ class MakeVersionableMigrationHelperTest extends TestCase
         $schemaManager = $this->createMock(MySQLSchemaManager::class);
 
         $schemaManager->expects($this->exactly(3))->method('introspectTablePrimaryKeyConstraint')
-            ->willReturnCallback(function (OptionallyQualifiedName $name): PrimaryKeyConstraint {
+            ->willReturnCallback(static function (OptionallyQualifiedName $name): PrimaryKeyConstraint {
                 $nameString = $name->getUnqualifiedName()->getValue();
                 if ($nameString === UnitDefinition::ENTITY_NAME) {
                     return new PrimaryKeyConstraint(null, [UnqualifiedName::quoted('id')], true);

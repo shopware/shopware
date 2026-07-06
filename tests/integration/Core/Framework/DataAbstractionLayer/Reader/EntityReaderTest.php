@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -1453,7 +1454,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(static fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertSame(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
@@ -1468,7 +1469,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(static fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertSame(['X', 'E', 'D'], array_values($streets));
     }
 
@@ -1864,6 +1865,81 @@ class EntityReaderTest extends TestCase
 
         $criteria->getAssociation('products')
             ->addFilter(new EqualsFilter('product.name', 'foo'));
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
+        static::assertCount(0, $category1->getProducts());
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
+        static::assertCount(0, $category2->getProducts());
+    }
+
+    public function testLoadManyToManyWithoutAnyAssociatedEntities(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+
+        $product1 = [
+            'id' => $id1,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->upsert([$product1, $product2, $product3], $context);
+
+        $this->categoryRepository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test'],
+                ['id' => $id2, 'name' => 'test'],
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
+        static::assertCount(0, $mapping);
+
+        $criteria = new Criteria([$id1, $id2]);
+
+        $criteria->getAssociation('products');
 
         $categories = $this->categoryRepository
             ->search($criteria, $context)
@@ -2349,7 +2425,7 @@ class EntityReaderTest extends TestCase
 
         $foundIds = [];
         foreach ($result as $entity) {
-            $foundIds[] = $entity->getUniqueIdentifier();
+            $foundIds[$entity->getUniqueIdentifier()] = $entity->getUniqueIdentifier();
             if ($entity->getUniqueIdentifier() === $id3) {
                 static::assertSame($id3, $entity->get('nonPk'));
             } else {
@@ -2357,7 +2433,7 @@ class EntityReaderTest extends TestCase
             }
         }
 
-        static::assertEqualsCanonicalizing([$id1, $id2, $id3], $foundIds);
+        static::assertEqualsCanonicalizing([$id1, $id2, $id3], array_values($foundIds));
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void
@@ -2447,7 +2523,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $result);
         $seoUrlCollection = $result->getSeoUrls();
         static::assertNotNull($seoUrlCollection);
-        $urls = $seoUrlCollection->map(fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
+        $urls = $seoUrlCollection->map(static fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
 
         static::assertSame($expected, array_values($urls));
     }
@@ -2514,7 +2590,7 @@ class EntityReaderTest extends TestCase
                     'isDeleted' => true,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING),
                     new FieldSorting('isDeleted', FieldSorting::ASCENDING),
@@ -2544,7 +2620,7 @@ class EntityReaderTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('salesChannel.id', FieldSorting::DESCENDING),
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING)
@@ -2580,7 +2656,7 @@ class EntityReaderTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $filter = new OrFilter([
                     new EqualsFilter('isCanonical', true),
                 ]);
@@ -2654,6 +2730,51 @@ class EntityReaderTest extends TestCase
 
             return $mediaEntity->getFileName();
         })));
+    }
+
+    public function testOneToManyPaginationRespectsCrossEntitySort(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->name('Test Product')
+            ->price(50, 50)
+            ->media('small', 1)
+            ->media('medium', 2)
+            ->media('large', 3);
+
+        $this->productRepository->create([$product->build()], $context);
+
+        // file_size is WriteProtected, so set it via SQL directly.
+        foreach (['small' => 1_000, 'medium' => 5_000, 'large' => 10_000] as $name => $size) {
+            $this->connection->executeStatement(
+                'UPDATE `media` SET `file_size` = :size WHERE `file_name` = :name',
+                ['size' => $size, 'name' => $name]
+            );
+        }
+
+        // Skip the cover (position 0), sort by descending file size, take only the top 1.
+        $criteria = new Criteria([$ids->get('p1')]);
+        $criteria->getAssociation('media')
+            ->addAssociation('media')
+            ->addFilter(new NotEqualsFilter('position', 0))
+            ->addSorting(new FieldSorting('media.fileSize', FieldSorting::DESCENDING))
+            ->setLimit(1);
+
+        $product = $this->productRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $productMedia = $product->getMedia();
+        static::assertNotNull($productMedia);
+        static::assertCount(1, $productMedia);
+
+        $firstProductMedia = $productMedia->first();
+        static::assertNotNull($firstProductMedia);
+        $firstMedia = $firstProductMedia->getMedia();
+        static::assertNotNull($firstMedia);
+        // Must be the image with the highest file_size, not an arbitrary one.
+        static::assertSame('large', $firstMedia->getFileName());
     }
 
     public function testManyToManyJoinsIntoSameTableFiltered(): void

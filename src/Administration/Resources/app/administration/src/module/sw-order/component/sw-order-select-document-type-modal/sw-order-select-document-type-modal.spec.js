@@ -3,6 +3,8 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import { DOCUMENT_TYPES } from '../../order.types';
+import { REQUIRES_INVOICE } from './index';
 
 /**
  * @sw-package checkout
@@ -45,46 +47,37 @@ function getCollection(entity, collection) {
 }
 
 const documentTypeFixture = [
-    {
-        id: '0',
-        name: 'Delivery note',
-        technicalName: 'delivery_note',
+    ...Object.values(DOCUMENT_TYPES).map((type, index) => ({
+        id: index,
+        name: type,
+        technicalName: type,
         translated: {
-            name: 'Delivery note',
+            name: type,
         },
-    },
-    {
-        id: '1',
-        name: 'Invoice',
-        technicalName: 'invoice',
-        translated: {
-            name: 'Invoice',
-        },
-    },
-    {
-        id: '2',
-        name: 'Cancellation invoice',
-        technicalName: 'storno',
-        translated: {
-            name: 'Cancellation invoice',
-        },
-    },
-    {
-        id: '3',
-        name: 'Credit note',
-        technicalName: 'credit_note',
-        translated: {
-            name: 'Credit note',
-        },
-    },
+    })),
 ];
 
-async function createWrapper(customData = {}) {
+const documentTypeRepsoitoryMock = {
+    search: jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture)),
+    get: jest.fn().mockResolvedValue({}),
+};
+
+const documentRepositoryMock = {
+    searchIds: jest.fn().mockResolvedValue(getCollection('document', [documentFixture])),
+};
+
+const defaultProps = {
+    order: orderFixture,
+    value: {},
+};
+
+async function createWrapper(props = defaultProps) {
     return mount(
         await wrapTestComponent('sw-order-select-document-type-modal', {
             sync: true,
         }),
         {
+            props,
             global: {
                 stubs: {
                     'sw-modal': {
@@ -101,80 +94,29 @@ async function createWrapper(customData = {}) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: (entity) => ({
-                            search: () => {
-                                if (entity === 'document_type') {
-                                    return Promise.resolve(getCollection('document_type', documentTypeFixture));
-                                }
+                        create: (entity) => {
+                            if (entity === 'document_type') {
+                                return documentTypeRepsoitoryMock;
+                            }
 
-                                return Promise.resolve([]);
-                            },
-                            searchIds: () => Promise.resolve(getCollection('document', customData.documents || [])),
-                            get: () => Promise.resolve({}),
-                        }),
+                            if (entity === 'document') {
+                                return documentRepositoryMock;
+                            }
+
+                            return null;
+                        },
                     },
                 },
-            },
-            props: {
-                order: { ...orderFixture, ...customData.order },
-                value: {},
             },
         },
     );
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
-    it('should disable storno and credit note if there is no invoice exists', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const documentTypeRadioOptions = wrapper.findAll('.sw-field__radio-option');
-        expect(documentTypeRadioOptions).toHaveLength(4);
-
-        // Delivery note
-        expect(documentTypeRadioOptions[0].find('input').attributes().disabled).toBeUndefined();
-
-        // Invoice
-        expect(documentTypeRadioOptions[1].find('input').attributes().disabled).toBeUndefined();
-
-        // Cancellation invoice
-        expect(documentTypeRadioOptions[2].find('input').element.disabled).toBe(true);
-
-        // Credit note
-        expect(documentTypeRadioOptions[3].find('input').element.disabled).toBe(true);
-
-        const helpTextStorno = documentTypeRadioOptions[2].findComponent('sw-help-text-stub');
-
-        expect(helpTextStorno.attributes().text).toBe('sw-order.components.selectDocumentTypeModal.helpText.storno');
-
-        const helpTextCredit = documentTypeRadioOptions.at(3).find('sw-help-text-stub');
-        expect(helpTextCredit.attributes().text).toBe('sw-order.components.selectDocumentTypeModal.helpText.credit_note');
-    });
-
-    it('should enable cancellation invoice if there is at least one invoice exists', async () => {
-        const wrapper = await createWrapper({ documents: [documentFixture] });
-        await flushPromises();
-
-        const documentTypeRadioOptions = wrapper.findAll('.sw-field__radio-option');
-        expect(documentTypeRadioOptions).toHaveLength(4);
-
-        // Delivery note
-        expect(documentTypeRadioOptions.at(0).find('input').attributes().disabled).toBeUndefined();
-
-        // Invoice
-        expect(documentTypeRadioOptions.at(1).find('input').attributes().disabled).toBeUndefined();
-
-        // Cancellation invoice
-        expect(documentTypeRadioOptions.at(2).find('input').attributes().disabled).toBeUndefined();
-
-        // Credit note
-        expect(documentTypeRadioOptions.at(3).find('input').element.disabled).toBe(true);
-    });
-
     it('should enable credit note if there is at least one invoice exists and order has credit item', async () => {
         const wrapper = await createWrapper({
-            documents: [documentFixture],
             order: {
+                ...orderFixture,
                 lineItems: [
                     {
                         id: '3',
@@ -212,5 +154,112 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         documentTypeRadioOptions.forEach((option) => {
             expect(option.find('input').attributes().disabled).toBeUndefined();
         });
+    });
+
+    it('should fetch document with correct criteria', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        expect(documentRepositoryMock.searchIds).toHaveBeenCalledWith(
+            expect.objectContaining({
+                filters: expect.arrayContaining([
+                    expect.objectContaining({
+                        field: 'order.id',
+                        type: 'equals',
+                        value: '1234',
+                    }),
+                    expect.objectContaining({
+                        field: 'documentType.technicalName',
+                        type: 'equalsAny',
+                        value: [
+                            DOCUMENT_TYPES.INVOICE,
+                            DOCUMENT_TYPES.ZUGFERD_INVOICE,
+                            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
+                        ].join('|'),
+                    }),
+                ]),
+            }),
+        );
+    });
+
+    it('should add help text & disabled if document type needs invoice to be created first', async () => {
+        documentRepositoryMock.searchIds.mockResolvedValueOnce(getCollection('document', []));
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const optionsWithHelpText = wrapper.vm.documentTypes.filter((option) => {
+            return !!option?.helpText;
+        });
+
+        const disabledOptions = wrapper.vm.documentTypes.filter((option) => {
+            return option.disabled;
+        });
+
+        expect([...optionsWithHelpText].map((option) => option.technicalName).sort()).toStrictEqual(REQUIRES_INVOICE.sort());
+        expect([...disabledOptions].map((option) => option.technicalName).sort()).toStrictEqual(REQUIRES_INVOICE.sort());
+
+        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(2);
+        expect(wrapper.findAll('.is--disabled')).toHaveLength(2);
+
+        await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
+
+        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(4);
+        expect(wrapper.findAll('.is--disabled')).toHaveLength(4);
+    });
+
+    it('should not add help text & disable if invoice is already created', async () => {
+        const wrapper = await createWrapper({
+            order: {
+                ...orderFixture,
+                lineItems: [
+                    {
+                        type: 'credit',
+                    },
+                ],
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(0);
+        expect(wrapper.findAll('.is--disabled')).toHaveLength(0);
+
+        await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
+
+        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(0);
+        expect(wrapper.findAll('.is--disabled')).toHaveLength(0);
+    });
+
+    it('should filter displayed document types based on if they are zugferd types or not', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const standardOptions = wrapper
+            .findAll('.sw-field__radio-option')
+            .map((option) => option.text())
+            .sort();
+
+        expect(standardOptions).toStrictEqual([
+            DOCUMENT_TYPES.CREDIT_NOTE,
+            DOCUMENT_TYPES.DELIVERY_NOTE,
+            DOCUMENT_TYPES.INVOICE,
+            DOCUMENT_TYPES.CANCELLATION_INVOICE,
+        ]);
+
+        await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
+
+        const zugferdOptions = wrapper
+            .findAll('.sw-field__radio-option')
+            .map((option) => option.text())
+            .sort();
+
+        expect(zugferdOptions).toStrictEqual([
+            DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
+            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
+            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
+            DOCUMENT_TYPES.ZUGFERD_INVOICE,
+        ]);
     });
 });

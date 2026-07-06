@@ -13,6 +13,9 @@ class ScheduledTaskEntity extends Entity
 
     protected string $name;
 
+    /**
+     * @var class-string<ScheduledTask>
+     */
     protected string $scheduledTaskClass;
 
     protected int $runInterval;
@@ -35,11 +38,17 @@ class ScheduledTaskEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @return class-string<ScheduledTask>
+     */
     public function getScheduledTaskClass(): string
     {
         return $this->scheduledTaskClass;
     }
 
+    /**
+     * @param class-string<ScheduledTask> $scheduledTaskClass
+     */
     public function setScheduledTaskClass(string $scheduledTaskClass): void
     {
         $this->scheduledTaskClass = $scheduledTaskClass;

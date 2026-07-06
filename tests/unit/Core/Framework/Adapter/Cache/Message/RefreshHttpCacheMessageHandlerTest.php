@@ -53,12 +53,12 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
         $this->kernel->expects($this->once())
             ->method('handle')
             ->with(
-                static::callback(function (Request $request) {
+                static::callback(static function (Request $request) {
                     return $request->query->get('query') === 'value'
                         && $request->attributes->get('attribute') === 'value'
                         && $request->cookies->get('cookie') === 'value'
                         && $request->server->get('HTTP_HOST') === 'example.com'
-                        && $request->hasSession();
+                        && $request->hasSession(true);
                 }),
                 HttpKernelInterface::MAIN_REQUEST,
                 false
@@ -96,7 +96,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
 
         $this->kernel->expects($this->once())
             ->method('handle')
-            ->willReturnCallback(function () {
+            ->willReturnCallback(static function () {
                 static::assertSame(['192.168.1.1', '10.0.0.1'], Request::getTrustedProxies());
                 static::assertSame(Request::HEADER_X_FORWARDED_FOR, Request::getTrustedHeaderSet());
 
@@ -134,8 +134,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
         $this->store->expects($this->never())->method('write');
         $this->cache->expects($this->never())->method('delete');
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Kernel error');
+        $this->expectExceptionObject(new \Exception('Kernel error'));
 
         try {
             ($this->handler)($message);
@@ -153,8 +152,8 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
         $this->kernel->expects($this->once())
             ->method('handle')
             ->with(
-                static::callback(function (Request $request) {
-                    return $request->hasSession()
+                static::callback(static function (Request $request) {
+                    return $request->hasSession(true)
                         && $request->getSession() instanceof Session;
                 }),
                 HttpKernelInterface::MAIN_REQUEST,

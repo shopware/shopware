@@ -2,6 +2,7 @@
  * @sw-package framework:fundamentals
  */
 import useConsentStore, { type ConsentDTO } from './consent.store';
+import { isConsentEvent, isConsentEventType } from './events';
 
 type ConsentChangedMessage = {
     type: 'consent-changed';
@@ -35,17 +36,16 @@ export default function broadcastConsentChanges(): BroadcastChannel {
         }
     };
 
-    consentStore.$onAction(({ store, name, args, after }) => {
-        if (name !== 'accept' && name !== 'revoke') {
+    const eventHandler = (consentEvent: unknown) => {
+        if (!isConsentEvent(consentEvent) || !isConsentEventType(consentEvent, 'consent_status_change')) {
             return;
         }
 
-        after(() => {
-            const consent = store.consents[args[0]];
+        bc.postMessage({ type: 'consent-changed', updatedConsent: { ...consentEvent.eventProperties } });
+    };
 
-            bc.postMessage({ type: 'consent-changed', updatedConsent: { ...consent } });
-        });
-    });
+    // eslint-disable-next-line listeners/no-missing-remove-event-listener
+    Shopware.Utils.EventBus.on('consent', eventHandler);
 
     return bc;
 }

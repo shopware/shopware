@@ -4,14 +4,14 @@
     <sw-inherit-wrapper
         v-model:value="product.metaTitle"
         :has-parent="hasParent"
-        :label="$tc('sw-product.seoForm.labelMetaTitle')"
-        :help-text="$tc('sw-product.seoForm.helpTextMetaTitle')"
+        :label="$t('sw-product.seoForm.labelMetaTitle')"
+        :help-text="$t('sw-product.seoForm.helpTextMetaTitle')"
         :inherited-value="parentProduct.metaTitle"
     >
         <template #content="props">
 
             <mt-text-field
-                :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
+                :placeholder="$t('sw-product.seoForm.placeholderMetaTitle')"
                 :error="productMetaTitleError"
                 :disabled="props.isInherited || !allowEdit"
                 :model-value="props.currentValue"
@@ -25,13 +25,13 @@
     <sw-inherit-wrapper
         v-model:value="product.metaDescription"
         :has-parent="hasParent"
-        :label="$tc('sw-product.seoForm.labelMetaDescription')"
-        :help-text="$tc('sw-product.seoForm.helpTextMetaDescription')"
+        :label="$t('sw-product.seoForm.labelMetaDescription')"
+        :help-text="$t('sw-product.seoForm.helpTextMetaDescription')"
         :inherited-value="parentProduct.metaDescription"
     >
         <template #content="props">
             <mt-textarea
-                :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
+                :placeholder="$t('sw-product.seoForm.placeholderMetaDescription')"
                 :error="productMetaDescriptionError"
                 :disabled="props.isInherited || !allowEdit"
                 :model-value="props.currentValue"
@@ -45,13 +45,13 @@
     <sw-inherit-wrapper
         v-model:value="product.keywords"
         :has-parent="hasParent"
-        :label="$tc('sw-product.seoForm.labelKeywords')"
-        :help-text="$tc('sw-product.seoForm.helpTextKeywords')"
+        :label="$t('sw-product.seoForm.labelKeywords')"
+        :help-text="$t('sw-product.seoForm.helpTextKeywords')"
         :inherited-value="parentProduct.keywords"
     >
         <template #content="props">
             <mt-text-field
-                :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
+                :placeholder="$t('sw-product.seoForm.placeholderKeywords')"
                 :error="productKeywordsError"
                 :disabled="props.isInherited || !allowEdit"
                 :model-value="props.currentValue"
@@ -68,7 +68,7 @@
 
         <mt-switch
             v-model="canonicalProductSwitchEnabled"
-            :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')"
+            :label="$t('sw-product.seoForm.labelCanonicalUrlMode')"
         />
         {% endblock %}
 
@@ -79,8 +79,8 @@
             :options="variants"
             :disabled="!canonicalProductSwitchEnabled"
             value-property="id"
-            :label="$tc('sw-product.seoForm.labelCanonicalProduct')"
-            :placeholder="$tc('sw-product.seoForm.placeholderCanonicalProduct')"
+            :label="$t('sw-product.seoForm.labelCanonicalProduct')"
+            :placeholder="$t('sw-product.seoForm.placeholderCanonicalProduct')"
             show-clearable-button
             @search="onSearch"
         >
@@ -109,6 +109,90 @@
         </sw-single-select>
         {% endblock %}
     </template>
+    {% endblock %}
+
+    {% block sw_product_seo_form_open_graph %}
+    <div class="sw-product-seo-form__open-graph">
+        <h3>{{ $t('sw-product.seoForm.titleOpenGraph') }}</h3>
+
+        {% block sw_product_seo_form_og_title %}
+        <sw-inherit-wrapper
+            v-model:value="product.ogTitle"
+            :has-parent="hasParent"
+            :label="$t('sw-product.seoForm.labelOpenGraphTitle')"
+            :help-text="$t('sw-product.seoForm.helpTextOpenGraphTitle')"
+            :inherited-value="parentProduct.ogTitle"
+        >
+            <template #content="props">
+                <mt-text-field
+                    :placeholder="$t('sw-product.seoForm.placeholderOpenGraphTitle')"
+                    :error="productOgTitleError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_seo_form_og_description %}
+        <sw-inherit-wrapper
+            v-model:value="product.ogDescription"
+            :has-parent="hasParent"
+            :label="$t('sw-product.seoForm.labelOpenGraphDescription')"
+            :help-text="$t('sw-product.seoForm.helpTextOpenGraphDescription')"
+            :inherited-value="parentProduct.ogDescription"
+        >
+            <template #content="props">
+                <mt-textarea
+                    :placeholder="$t('sw-product.seoForm.placeholderOpenGraphDescription')"
+                    :error="productOgDescriptionError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_seo_form_og_image %}
+        <sw-inherit-wrapper
+            v-model:value="product.openGraphMediaId"
+            :has-parent="hasParent"
+            :label="$t('sw-product.seoForm.labelOpenGraphImage')"
+            :inherited-value="parentProduct.openGraphMediaId"
+        >
+            <template #content="props">
+                <sw-media-upload-v2
+                    variant="regular"
+                    :upload-tag="openGraphMediaUploadTag"
+                    :source="openGraphMediaItem"
+                    :allow-multi-select="false"
+                    :disabled="props.isInherited || !allowEdit"
+                    :caption="$t('sw-product.seoForm.labelOpenGraphImage')"
+                    file-accept="image/*"
+                    @media-upload-sidebar-open="onOpenOgMediaModal"
+                    @media-upload-remove-image="onRemoveOgMedia(props.updateCurrentValue)"
+                />
+
+                <sw-upload-listener
+                    :upload-tag="openGraphMediaUploadTag"
+                    auto-upload
+                    @media-upload-finish="onOgMediaUploadFinish($event, props.updateCurrentValue)"
+                />
+
+                <sw-media-modal-v2
+                    v-if="showOgMediaModal"
+                    variant="regular"
+                    :caption="$t('sw-product.seoForm.labelOpenGraphImage')"
+                    :allow-multi-select="false"
+                    @media-modal-selection-change="onOgMediaSelectionChange($event, props.updateCurrentValue)"
+                    @modal-close="onCloseOgMediaModal"
+                />
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </div>
     {% endblock %}
 </div>
 {% endblock %}

@@ -34,7 +34,7 @@ class PropertyGroupCollection extends EntityCollection
 
     public function sortByPositions(): void
     {
-        uasort($this->elements, function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
+        uasort($this->elements, static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
             $posA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
             $posB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
             if ($posA === $posB) {

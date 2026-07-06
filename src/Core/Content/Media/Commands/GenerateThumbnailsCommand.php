@@ -134,7 +134,7 @@ class GenerateThumbnailsCommand extends Command
     private function getFolderFilterFromInput(InputInterface $input, Context $context): ?EqualsAnyFilter
     {
         $rawInput = $input->getOption('folder-name');
-        if (empty($rawInput)) {
+        if ($rawInput === null || $rawInput === '') {
             return null;
         }
 
@@ -153,7 +153,7 @@ class GenerateThumbnailsCommand extends Command
     /**
      * @param RepositoryIterator<MediaCollection> $iterator
      *
-     * @return array<string, int|array<array<string>>>
+     * @return array{generated: int, skipped: int, errored: int, errors: list<list<string>>}
      */
     private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
     {
@@ -225,7 +225,6 @@ class GenerateThumbnailsCommand extends Command
 
         if (is_countable($result['errors']) ? \count($result['errors']) : 0) {
             if ($this->io->isVerbose()) {
-                /** @var array<array<string>> $errors */
                 $errors = $result['errors'];
                 $this->io->table(
                     ['Error messages'],

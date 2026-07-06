@@ -16,12 +16,12 @@ class DeliveryTimeTranslationCollection extends EntityCollection
      */
     public function getDeliveryTimeIds(): array
     {
-        return $this->fmap(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getDeliveryTimeId());
+        return $this->fmap(static fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getDeliveryTimeId());
     }
 
     public function filterByDeliveryTimeId(string $id): self
     {
-        return $this->filter(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getDeliveryTimeId() === $id);
+        return $this->filter(static fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getDeliveryTimeId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class DeliveryTimeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getLanguageId());
+        return $this->fmap(static fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

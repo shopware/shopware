@@ -266,7 +266,7 @@
           },
           "helpText": {
             "ariaLabel": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
-            "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "minHeight": "Gib die Mindesthöhe an. Eine reine Zahl wird als Pixel interpretiert. Aus \"200\" wird zum Beispiel \"200px\".",
             "fetchPriorityHigh": "Setze diese Option, wenn das Bild das erste Bild auf der Seite ist. Diesem Bild wird dann das Attribut 'fetchpriority=\"high\"' hinzugefügt, was dem Browser mitteilt, dass das Bild mit höherer Priorität geladen werden soll, was den Largest Contentful Paint (LCP) verbessern kann.",
             "useFetchPriorityOnFirstItem": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "isDecorative": "Wenn diese Option eingeschaltet ist, werden die Bildinformationen nicht von Screenreadern vorgelesen, das heißt der \"alt\"-Tag und \"title\"-Tag bleiben leer."
@@ -534,6 +534,7 @@
             "type": "Formulartyp",
             "typeContact": "Kontakt",
             "typeNewsletter": "Newsletter",
+            "typeRevocationRequest": "Widerruf",
             "confirmationText": "Bestätigungstext"
           },
           "placeholder": {
@@ -553,7 +554,9 @@
             "salutation": "Anrede*",
             "salutationUndisclosed": "Keine Angabe",
             "subject": "Betreff*",
-            "subscribeToNewsletter": "Newsletter abonnieren"
+            "subscribeToNewsletter": "Newsletter abonnieren",
+            "contractNumber": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)*",
+            "comment": "Kommentar"
           },
           "placeholder": {
             "firstName": "John",
@@ -561,7 +564,9 @@
             "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
-            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
             "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
@@ -647,6 +652,9 @@
       "productName": {
         "label": "Produktname"
       },
+      "categoryName": {
+        "label": "Kategoriename"
+      },
       "html": {
         "label": "HTML",
         "labelContent": "Inhalt",
@@ -657,6 +665,9 @@
     },
     "blocks": {
       "commerce": {
+        "categoryHeading": {
+          "label": "Kategoriename"
+        },
         "productHeading": {
           "label": "Produktname & Hersteller-Logo"
         },
@@ -844,6 +855,7 @@
           "404Page": "404-Seiten",
           "maintenancePage": "Wartungsseiten",
           "contactPage": "Kontaktformulare",
+          "revocationRequestPage": "Widerrufsformular",
           "newsletterPage": "Newsletterseiten"
         },
         "products": {

@@ -1,12 +1,12 @@
 {% block sw_flow_leave_page_modal %}
 <sw-modal
-    :title="$tc('sw-flow.leavePageModal.headline')"
+    :title="$t('sw-flow.leavePageModal.headline')"
     class="sw-flow-leave-page-modal"
     variant="small"
     @modal-close="onCancel"
 >
     {% block sw_flow_leave_page_modal_content %}
-    {{ $tc('sw-flow.leavePageModal.description') }}
+    {{ $t('sw-flow.leavePageModal.description') }}
     {% endblock %}
 
     <template #modal-footer>
@@ -18,7 +18,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -29,7 +29,7 @@
             class="sw-flow-leave-page-modal__leave-page"
             @click="onConfirm"
         >
-            {{ $tc('sw-flow.leavePageModal.confirmButton') }}
+            {{ $t('sw-flow.leavePageModal.confirmButton') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

@@ -79,7 +79,7 @@ class AllServiceInstaller
      */
     private function getNewServices(EntitySearchResult $installedServices): array
     {
-        $names = $installedServices->map(fn (AppEntity $app) => $app->getName());
+        $names = $installedServices->map(static fn (AppEntity $app) => $app->getName());
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),

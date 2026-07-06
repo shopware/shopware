@@ -27,7 +27,8 @@ const mockNewsletterRecipient = [
 
 function mockApiCall(type) {
     switch (type) {
-        case 'language' || 'languageFilters':
+        case 'language':
+        case 'languageFilters':
             return [
                 {
                     localeId: '575d2f35a8144b79beefe70e158eb03e',

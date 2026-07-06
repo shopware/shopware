@@ -148,6 +148,10 @@ frame-ancestors 'none';
             <argument type="tagged_iterator" tag="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationInfo">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument>%kernel.shopware_core_dir%</argument>
@@ -170,6 +174,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>
@@ -254,6 +259,9 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="custom_entity.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <!-- Translation -->
@@ -292,6 +300,16 @@ frame-ancestors 'none';
             </call>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Api\TranslationController" public="true">
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationRemover"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -300,6 +318,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
             <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
@@ -360,7 +380,7 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntimeResetter" public="true">
             <tag name="kernel.reset" method="reset"/>
         </service>
 
@@ -393,6 +413,11 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension">
+            <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="twig.extension"/>
         </service>
 
@@ -475,6 +500,7 @@ frame-ancestors 'none';
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
             <argument>%kernel.bundles%</argument>
+            <argument>%kernel.bundles_metadata%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">
@@ -574,6 +600,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Log\LogEntryDefinition">
@@ -620,12 +647,15 @@ frame-ancestors 'none';
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Util\HtmlPurifierConfigProvider"/>
+
         <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">
             <argument>%shopware.html_sanitizer.cache_dir%</argument>
             <argument>%shopware.html_sanitizer.cache_enabled%</argument>
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlPurifierConfigProvider"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -699,6 +729,7 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <argument>%shopware.http_cache.soft_purge%</argument>
             <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">

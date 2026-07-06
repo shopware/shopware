@@ -87,6 +87,11 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "openGraphMediaId": {
+                        "description": "Media used as Open Graph image for social media sharing.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
                     "productNumber": {
                         "description": "Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.",
                         "type": "string"
@@ -268,6 +273,11 @@
                     "description": {
                         "type": "string"
                     },
+                    "descriptionTeaser": {
+                        "description": "Read-only, HTML-stripped excerpt of the description, derived on write.",
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "metaTitle": {
                         "type": "string"
                     },
@@ -279,6 +289,12 @@
                     },
                     "customFields": {
                         "type": "object"
+                    },
+                    "ogTitle": {
+                        "type": "string"
+                    },
+                    "ogDescription": {
+                        "type": "string"
                     },
                     "type": {
                         "description": "The type of the product, e.g., physical or digital.",
@@ -450,6 +466,10 @@
                     "cover": {
                         "$ref": "#/components/schemas/ProductMedia",
                         "description": "Main product image displayed in listings and detail pages"
+                    },
+                    "openGraphMedia": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "Open Graph image for social media sharing"
                     },
                     "cmsPage": {
                         "$ref": "#/components/schemas/CmsPage",

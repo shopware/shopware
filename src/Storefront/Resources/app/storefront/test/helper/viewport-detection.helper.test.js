@@ -54,43 +54,43 @@ describe('viewport-detection.helper', () => {
         resizeTo(480);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(1);
-        expect(isXs).toBeCalledTimes(1);
+        expect(viewportChanged).toHaveBeenCalledTimes(1);
+        expect(isXs).toHaveBeenCalledTimes(1);
 
         resizeTo(640);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(2);
-        expect(isSm).toBeCalledTimes(1);
+        expect(viewportChanged).toHaveBeenCalledTimes(2);
+        expect(isSm).toHaveBeenCalledTimes(1);
 
         resizeTo(860);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(3);
-        expect(isMd).toBeCalledTimes(1);
+        expect(viewportChanged).toHaveBeenCalledTimes(3);
+        expect(isMd).toHaveBeenCalledTimes(1);
 
         resizeTo(1024);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(4);
-        expect(isLg).toBeCalledTimes(1);
+        expect(viewportChanged).toHaveBeenCalledTimes(4);
+        expect(isLg).toHaveBeenCalledTimes(1);
 
         resizeTo(2048);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(5);
-        expect(isXl).toBeCalledTimes(1);
+        expect(viewportChanged).toHaveBeenCalledTimes(5);
+        expect(isXl).toHaveBeenCalledTimes(1);
 
         resizeTo(4096);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(5);
-        expect(isXl).toBeCalledTimes(1);
+        expect(viewportChanged).toHaveBeenCalledTimes(5);
+        expect(isXl).toHaveBeenCalledTimes(1);
 
         resizeTo(-200);
         jest.runOnlyPendingTimers();
 
-        expect(viewportChanged).toBeCalledTimes(6);
+        expect(viewportChanged).toHaveBeenCalledTimes(6);
         expect(detector.currentViewport).toBe('UNDEFINED');
 
     });
@@ -105,6 +105,6 @@ describe('viewport-detection.helper', () => {
         window.dispatchEvent(new Event('DOMContentLoaded'));
         jest.runAllTimers();
 
-        expect(subscriber).toBeCalled();
+        expect(subscriber).toHaveBeenCalled();
     })
 });

@@ -48,7 +48,7 @@ async function createWrapper(privileges = []) {
                 },
             },
             mocks: {
-                $tc: (key) => key,
+                $t: (key) => key,
                 $route: {
                     meta: {
                         $module: {

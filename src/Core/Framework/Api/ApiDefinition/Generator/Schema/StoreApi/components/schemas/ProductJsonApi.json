@@ -125,6 +125,11 @@
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
+                            "openGraphMediaId": {
+                                "description": "Media used as Open Graph image for social media sharing.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
                             "productNumber": {
                                 "description": "Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.",
                                 "type": "string"
@@ -306,6 +311,11 @@
                             "description": {
                                 "type": "string"
                             },
+                            "descriptionTeaser": {
+                                "description": "Read-only, HTML-stripped excerpt of the description, derived on write.",
+                                "type": "string",
+                                "readOnly": true
+                            },
                             "metaTitle": {
                                 "type": "string"
                             },
@@ -318,9 +328,19 @@
                             "customFields": {
                                 "type": "object"
                             },
+                            "ogTitle": {
+                                "type": "string"
+                            },
+                            "ogDescription": {
+                                "type": "string"
+                            },
                             "type": {
                                 "description": "The type of the product, e.g., physical or digital.",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "physical",
+                                    "digital"
+                                ]
                             },
                             "states": {
                                 "type": "array",
@@ -611,6 +631,36 @@
                                                         "type": "string",
                                                         "pattern": "^[0-9a-f]{32}$",
                                                         "example": "41d0e299ca1abeb2094852da042165c7"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "openGraphMedia": {
+                                        "description": "Open Graph image for social media sharing",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/openGraphMedia"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "media"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "bbda52d941a3452369a00f2880f4f358"
                                                     }
                                                 }
                                             }

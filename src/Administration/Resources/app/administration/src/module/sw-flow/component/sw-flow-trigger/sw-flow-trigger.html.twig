@@ -12,7 +12,7 @@
             }"
             class="sw-flow-trigger__search-field"
             :required="!isTemplate"
-            :label="$tc('sw-flow.detail.trigger.name')"
+            :label="$t('sw-flow.detail.trigger.name')"
             :disabled="disabled"
             :error="flowEventNameError"
         >
@@ -161,7 +161,7 @@
                     v-else
                     class="sw-flow-trigger__empty"
                 >
-                    {{ $tc('sw-flow.detail.trigger.textNoEvent') }}
+                    {{ $t('sw-flow.detail.trigger.textNoEvent') }}
                 </p>
                 {% endblock %}
 

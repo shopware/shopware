@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -125,6 +127,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
 
         Shopware.Store.get('shopwareApps').apps = [];
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
 
         wrapper = await createWrapper();
         await flushPromises();
@@ -304,6 +307,86 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(thirdLevelEntries.at(0).text()).toContain('first child of third top level entry');
     });
 
+    it('should close off-canvas menu on route changes on mobile', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(375);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+        expect(emitSpy).toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        emitSpy.mockRestore();
+    });
+
+    it('should not close off-canvas menu on route changes on desktop', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+        expect(emitSpy).not.toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        emitSpy.mockRestore();
+    });
+
+    it('should close off-canvas menu when clicking a navigation item on mobile', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+        const target = document.createElement('li');
+        target.classList.add('sw-admin-menu__navigation-list-item');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(375);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.onMenuItemClick({ level: 1 }, target);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+        expect(emitSpy).toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        emitSpy.mockRestore();
+    });
+
+    it('should not close off-canvas menu when clicking a navigation item on desktop', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+        const target = document.createElement('li');
+        target.classList.add('sw-admin-menu__navigation-list-item');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.onMenuItemClick({ level: 1 }, target);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+        expect(emitSpy).not.toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        emitSpy.mockRestore();
+    });
+
+    it('should close off-canvas menu when clicking outside on mobile', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+        const outsideElement = document.createElement('button');
+        document.body.appendChild(outsideElement);
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(375);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        outsideElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+        expect(emitSpy).toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        outsideElement.remove();
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        emitSpy.mockRestore();
+    });
+
     it('should not render 4.level or higher menu item and throw error', async () => {
         const fourthLevelEntries = wrapper.findAll('.navigation-list-item__level-4');
         const fifthLevelEntries = wrapper.findAll('.navigation-list-item__level-5');
@@ -425,6 +508,137 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe(`${window.innerHeight - 100}px`);
+    });
+
+    it('should constrain flyout max-height when hovering a menu item near the viewport bottom', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = await createWrapper({
+            attachTo: '#component',
+        });
+        await flushPromises();
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        // Target sits 40px above the bottom of the viewport
+        const targetTop = window.innerHeight - 40;
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: targetTop }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+
+        await target.trigger('mouseenter');
+        await flushPromises();
+
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe('40px');
+    });
+
+    it('should set flyout max-height to the full viewport height when target is at the top', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = await createWrapper({
+            attachTo: '#component',
+        });
+        await flushPromises();
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+
+        await target.trigger('mouseenter');
+        await flushPromises();
+
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe(`${window.innerHeight}px`);
+    });
+
+    it('should position the existing third level submenu in an expanded menu item', async () => {
+        const topLevelEntry = wrapper.get('.navigation-list-item__sw-second-top-level');
+
+        await topLevelEntry.trigger('click');
+        await flushPromises();
+
+        const target = wrapper.get('.navigation-list-item__sw-second-level-last');
+        target.element.getBoundingClientRect = jest.fn(() => ({
+            top: 160,
+            right: 560,
+        }));
+
+        await target.trigger('mouseenter');
+
+        const subNavigationList = target.get('.sw-admin-menu__sub-navigation-list');
+
+        expect(wrapper.find('.sw-admin-menu_flyout-holder').exists()).toBe(false);
+        expect(target.classes()).toContain('is--flyout-enabled');
+        expect(subNavigationList.element.style.position).toBe('fixed');
+        expect(subNavigationList.element.style.top).toBe('160px');
+        expect(subNavigationList.element.style.left).toBe('560px');
+        expect(subNavigationList.element.style.maxHeight).toBe(`${window.innerHeight - 160}px`);
+        expect(subNavigationList.element.style.overflowY).toBe('auto');
+        expect(subNavigationList.element.style.transition).toBe('none');
+    });
+
+    it('should position and clean up the third level submenu in the primary flyout', async () => {
+        document.body.innerHTML = '<div id="app"></div>';
+        const app = document.getElementById('app');
+
+        wrapper = await createWrapper({
+            attachTo: app,
+        });
+        await flushPromises();
+
+        const topLevelEntry = wrapper.get('.navigation-list-item__sw-second-top-level');
+        topLevelEntry.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+
+        await topLevelEntry.trigger('mouseenter');
+        await flushPromises();
+
+        const flyout = wrapper.get('.sw-admin-menu_flyout-holder');
+        const target = flyout.get('.navigation-list-item__sw-second-level-last');
+        target.element.getBoundingClientRect = jest.fn(() => ({
+            top: 180,
+            right: 540,
+        }));
+
+        await target.trigger('mouseenter');
+
+        const subNavigationList = target.get('.sw-admin-menu__sub-navigation-list');
+
+        expect(target.classes()).toContain('is--flyout-enabled');
+        expect(subNavigationList.element.style.position).toBe('fixed');
+        expect(subNavigationList.element.style.top).toBe('180px');
+        expect(subNavigationList.element.style.left).toBe('540px');
+        expect(subNavigationList.element.style.maxHeight).toBe(`${window.innerHeight - 180}px`);
+        expect(subNavigationList.element.style.overflowY).toBe('auto');
+        expect(subNavigationList.element.style.transition).toBe('none');
+
+        const leafTarget = flyout.get('.navigation-list-item__sw-second-level-first');
+
+        await leafTarget.trigger('mouseenter');
+
+        expect(target.classes()).not.toContain('is--flyout-enabled');
+        expect(wrapper.find('.sw-admin-menu_flyout-holder').exists()).toBe(true);
+    });
+
+    it('should call logoutSso and clear stores on logout', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.loginService.logoutSso = jest.fn().mockResolvedValue(undefined);
+
+        await wrapper.vm.onLogoutUser();
+
+        expect(wrapper.vm.loginService.logoutSso).toHaveBeenCalledTimes(1);
     });
 
     it('should not show icons in flyout menu items', async () => {

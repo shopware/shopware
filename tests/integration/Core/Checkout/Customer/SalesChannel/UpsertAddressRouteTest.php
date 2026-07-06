@@ -72,7 +72,7 @@ class UpsertAddressRouteTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $data
+     * @param array<string, string|null> $data
      */
     #[DataProvider('addressDataProvider')]
     public function testCreateAddress(array $data): void

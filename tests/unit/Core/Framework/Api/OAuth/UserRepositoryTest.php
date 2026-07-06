@@ -28,6 +28,7 @@ class UserRepositoryTest extends TestCase
         $user->setId(Uuid::randomBytes());
         $user->setUsername($username);
         $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
 
         $userRepository = $this->createUserRepository($user);
 
@@ -51,6 +52,7 @@ class UserRepositoryTest extends TestCase
         $user->setId(Uuid::randomBytes());
         $user->setUsername($username);
         $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
 
         $userRepository = $this->createUserRepository($user);
 
@@ -92,8 +94,33 @@ class UserRepositoryTest extends TestCase
         $user->setId(Uuid::randomBytes());
         $user->setUsername($username);
         $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
 
         $userRepository = $this->createUserRepository($user, false);
+
+        $clientEntity = $this->createMock(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $clientEntity
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testLoginWithDefaultLoginEnabledAndInactiveUser(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(false);
+
+        $userRepository = $this->createUserRepository($user);
 
         $clientEntity = $this->createMock(ClientEntityInterface::class);
         $response = $userRepository->getUserEntityByUserCredentials(
@@ -113,7 +140,7 @@ class UserRepositoryTest extends TestCase
         $queryBuilder->method('from')->willReturnSelf();
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('setParameter')->willReturnSelf();
-        $queryBuilder->method('fetchAssociative')->willReturnCallback(function () use ($user) {
+        $queryBuilder->method('fetchAssociative')->willReturnCallback(static function () use ($user) {
             if ($user !== null) {
                 return $user->jsonSerialize();
             }

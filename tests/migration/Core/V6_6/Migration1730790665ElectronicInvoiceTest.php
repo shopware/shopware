@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_6;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,11 @@ class Migration1730790665ElectronicInvoiceTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1730790665, (new Migration1730790665ElectronicInvoice())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->connection->delete('document_type', ['technical_name' => ZugferdRenderer::TYPE]);
@@ -35,8 +41,11 @@ class Migration1730790665ElectronicInvoiceTest extends TestCase
         $migration->update($this->connection);
 
         $documentTypes = $this->connection
-            ->executeQuery('SELECT `id` FROM `document_type` WHERE `technical_name` LIKE \'%zugferd%\'')
-            ->fetchAllAssociative();
+            ->executeQuery('SELECT `id` FROM `document_type` WHERE `technical_name` IN (:technicalNames)', [
+                'technicalNames' => [ZugferdRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE],
+            ], [
+                'technicalNames' => ArrayParameterType::STRING,
+            ])->fetchAllAssociative();
 
         static::assertCount(2, $documentTypes);
     }

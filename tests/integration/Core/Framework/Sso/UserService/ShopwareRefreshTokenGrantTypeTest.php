@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Nyholm\Psr7\Response as Psr7Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
@@ -29,6 +28,7 @@ use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeUserInstaller;
 use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -39,7 +39,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ShopwareRefreshTokenGrantType::class)]
 class ShopwareRefreshTokenGrantTypeTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -258,7 +257,7 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
     {
         $shopwarePasswordGrantType = new ShopwarePasswordGrantType(
             $this->getContainer()->get(UserRepository::class),
-            new RefreshTokenRepository($this->getContainer()->get(Connection::class)),
+            new RefreshTokenRepository($this->getContainer()->get(Connection::class), new NativeClock()),
             $this->getContainer()->get(UserService::class)
         );
 

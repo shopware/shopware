@@ -18,6 +18,15 @@ test('Visual: Administration themes page', { tag: '@Visual' }, async ({
         await AdminThemesListing.installedTheme('Shopware default theme').click();
         await ShopAdmin.expects(AdminThemesDetail.themeCard('Theme colours')).toBeVisible();
         await AdminThemesDetail.sidebarButton.click();
+
+        const sidebarMediaItems = AdminThemesDetail.page.locator(
+            '.sw-sidebar-media-item .sw-media-media-item',
+        );
+        await ShopAdmin.expects(
+            AdminThemesDetail.page.locator('.sw-sidebar-media-item .sw-loader'),
+        ).toHaveCount(0);
+        await ShopAdmin.expects(sidebarMediaItems.first()).toBeVisible();
+
         await setViewport(AdminThemesDetail.page, {
             width: 1600,
             scrollableElementVertical: AdminThemesDetail.scrollableElement,

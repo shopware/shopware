@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Script\Execution;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -26,7 +26,7 @@ class ScriptLoader implements EventSubscriberInterface
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly ScriptPersister $scriptPersister,
+        private readonly ScriptLifecycleHandler $scriptPersister,
         private readonly TagAwareAdapterInterface $cache,
         string $cacheDir,
         private readonly bool $debug
@@ -117,10 +117,14 @@ class ScriptLoader implements EventSubscriberInterface
                 continue;
             }
 
-            if (!isset($appIncludes[$script['app_id']])) {
-                $includes = array_filter($scripts, fn (array $include) => $include['hook'] === 'include' && $include['app_id'] === $script['app_id']);
+            $scriptByAppId = $script['app_id'] ?? '';
+            if ($scriptByAppId === '') {
+                continue;
+            }
+            if (!isset($appIncludes[$scriptByAppId])) {
+                $includes = array_filter($scripts, static fn (array $include): bool => $include['hook'] === 'include' && $include['app_id'] === $scriptByAppId);
 
-                $appIncludes[$script['app_id']] = array_map(function (array $include): Script {
+                $appIncludes[$scriptByAppId] = array_map(function (array $include): Script {
                     return new Script(
                         $include['scriptName'],
                         $include['script'],
@@ -132,7 +136,7 @@ class ScriptLoader implements EventSubscriberInterface
                 }, $includes);
             }
 
-            $includes = $appIncludes[$script['app_id']];
+            $includes = $appIncludes[$scriptByAppId];
 
             $dates = [...[new \DateTimeImmutable($script['lastModified'])], ...array_column($includes, 'lastModified')];
 

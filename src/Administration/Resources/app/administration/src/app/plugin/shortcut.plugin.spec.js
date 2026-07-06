@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -399,6 +401,54 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).toHaveBeenCalledWith();
         expect(testString).toBe('foobar');
+    });
+
+    it('Number field component: should be blurred on save shortcut to react to content changes', async () => {
+        const onSaveMock = jest.fn();
+        let savedPosition = 1;
+
+        wrapper = await createWrapper({
+            template: `
+                <mt-number-field
+                    v-model="position"
+                    name="position"
+                />
+            `,
+            shortcuts: {
+                'SYSTEMKEY+S': 'onSave',
+            },
+            data() {
+                return {
+                    position: savedPosition,
+                };
+            },
+            methods: {
+                onSave() {
+                    onSaveMock();
+                    savedPosition = this.position;
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const numberInput = wrapper.get('input');
+        numberInput.element.blur = () => {
+            numberInput.element.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        await numberInput.setValue('2');
+
+        expect(onSaveMock).not.toHaveBeenCalled();
+        expect(savedPosition).toBe(1);
+
+        await numberInput.trigger('keydown', {
+            key: 's',
+            ctrlKey: true,
+        });
+
+        expect(onSaveMock).toHaveBeenCalledWith();
+        expect(savedPosition).toBe(2);
     });
 
     it('should call the onEsc method when Escape key is pressed outside a modal', async () => {

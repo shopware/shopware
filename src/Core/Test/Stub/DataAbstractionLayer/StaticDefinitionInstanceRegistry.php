@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToOneAssociationFieldSerializer;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -84,8 +86,9 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             FloatFieldSerializer::class => new FloatFieldSerializer($this->validator, $this),
             BoolFieldSerializer::class => new BoolFieldSerializer($this->validator, $this),
             JsonFieldSerializer::class => new JsonFieldSerializer($this->validator, $this),
-            CreatedAtFieldSerializer::class => new CreatedAtFieldSerializer($this->validator, $this),
-            UpdatedAtFieldSerializer::class => new UpdatedAtFieldSerializer($this->validator, $this),
+            ListFieldSerializer::class => new ListFieldSerializer($this->validator, $this),
+            CreatedAtFieldSerializer::class => new CreatedAtFieldSerializer($this->validator, $this, new NativeClock()),
+            UpdatedAtFieldSerializer::class => new UpdatedAtFieldSerializer($this->validator, $this, new NativeClock()),
             BlobFieldSerializer::class => new BlobFieldSerializer(),
             CustomFieldsSerializer::class => new CustomFieldsSerializer(
                 $this,

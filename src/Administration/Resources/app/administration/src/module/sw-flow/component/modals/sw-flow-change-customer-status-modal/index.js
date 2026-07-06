@@ -38,11 +38,11 @@ export default {
             return [
                 {
                     value: true,
-                    label: this.$tc('sw-flow.modals.customerStatus.active'),
+                    label: this.$t('sw-flow.modals.customerStatus.active'),
                 },
                 {
                     value: false,
-                    label: this.$tc('sw-flow.modals.customerStatus.inactive'),
+                    label: this.$t('sw-flow.modals.customerStatus.inactive'),
                 },
             ];
         },

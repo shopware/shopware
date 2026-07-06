@@ -170,8 +170,7 @@ class AdminUiXmlSchemaTest extends TestCase
             ['custom_entity_field']
         );
 
-        $detail = $customEntityTest->getDetail();
-        $tabs = $detail->getTabs();
+        $tabs = $customEntityTest->getDetail()->getTabs();
         static::assertCount(1, $tabs->getContent());
 
         $cards = $this->checkTab($tabs->getContent()[0], 'main');
@@ -214,7 +213,9 @@ class AdminUiXmlSchemaTest extends TestCase
         foreach ($columns->getContent() as $column) {
             static::assertInstanceOf(Column::class, $column);
             static::assertContains($column->getRef(), $refs);
-            unset($refs[array_search($column->getRef(), $refs, true)]);
+            $position = array_search($column->getRef(), $refs, true);
+            static::assertIsInt($position);
+            unset($refs[$position]);
         }
         static::assertCount(0, $refs);
     }
@@ -248,7 +249,9 @@ class AdminUiXmlSchemaTest extends TestCase
             static::assertInstanceOf(CardField::class, $cardField);
             static::assertContains($cardField->getRef(), $refs);
 
-            unset($refs[array_search($cardField->getRef(), $refs, true)]);
+            $position = array_search($cardField->getRef(), $refs, true);
+            static::assertIsInt($position);
+            unset($refs[$position]);
         }
         static::assertCount(0, $refs);
     }

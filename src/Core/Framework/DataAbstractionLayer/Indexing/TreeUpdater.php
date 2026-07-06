@@ -166,7 +166,7 @@ class TreeUpdater
         $query->setParameter('id', $entity['id']);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
-        RetryableQuery::retryable($this->connection, function () use ($query): void {
+        RetryableQuery::retryable($this->connection, static function () use ($query): void {
             $query->executeStatement();
         });
     }
@@ -237,7 +237,7 @@ class TreeUpdater
         return $definition->getFields()
             ->filterInstance(TreePathField::class)
             /** @phpstan-ignore argument.type (Collection only contains `TreePathField`) */
-            ->reduce(function (array $fields, TreePathField $field) {
+            ->reduce(static function (array $fields, TreePathField $field) {
                 if (!\in_array($field->getPathField(), $fields, true)) {
                     $fields[] = $field->getPathField();
                 }
@@ -405,7 +405,7 @@ class TreeUpdater
 
         RetryableQuery::retryable(
             connection: $this->connection,
-            closure: function () use ($statement, $update): void {
+            closure: static function () use ($statement, $update): void {
                 StatementHelper::executeStatement($statement, $update);
             }
         );

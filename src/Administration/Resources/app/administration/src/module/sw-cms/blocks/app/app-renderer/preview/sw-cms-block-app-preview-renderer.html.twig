@@ -3,7 +3,7 @@
     <img
         v-if="previewImage"
         :src="previewImage"
-        :alt="'Preview image for app CMS block: ' + $tc(blockLabel)"
+        :alt="'Preview image for app CMS block: ' + $t(blockLabel)"
     >
 
     <sw-extension-teaser-popover
@@ -16,7 +16,7 @@
         class="sw-cms-block-app-preview-renderer__fallback-preview"
     >
         <h2>
-            {{ $tc(appName) }}
+            {{ $t(appName) }}
         </h2>
     </section>
 </div>

@@ -5,12 +5,11 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use League\Flysystem\Filesystem;
-use PHPUnit\Framework\Attributes\CoversClass;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -51,7 +50,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -71,13 +69,16 @@ class ThemeCompilerTest extends TestCase
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         // Avoid filesystem operations
-        $mockFilesystem = $this->createMock(Filesystem::class);
+        $mockThemeFilesystem = $this->createMock(Filesystem::class);
+        $mockTempFilesystem = $this->createMock(Filesystem::class);
+        $mockAssetFilesystem = $this->createMock(Filesystem::class);
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
         $this->themeCompiler = new ThemeCompiler(
-            $mockFilesystem,
-            $mockFilesystem,
+            $mockThemeFilesystem,
+            $mockTempFilesystem,
+            $mockAssetFilesystem,
             new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
@@ -88,8 +89,6 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
     }
 
@@ -442,12 +441,13 @@ PHP_EOL;
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['bla']);
 
-        $fs = new Filesystem(new MemoryFilesystemAdapter());
-        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
-
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
+        $assetFs = new Filesystem(new InMemoryFilesystemAdapter());
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
+            $assetFs,
             new CopyBatchInputFactory(),
             $resolver,
             true,
@@ -458,8 +458,6 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
 
         $exception = null;

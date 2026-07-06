@@ -44,7 +44,7 @@ class Profiler
         self::$profilers = array_intersect_key($profilers, array_flip($activeProfilers));
         self::$tags = [];
 
-        register_shutdown_function(fn () => self::cleanup());
+        register_shutdown_function(static fn () => self::cleanup());
     }
 
     /**

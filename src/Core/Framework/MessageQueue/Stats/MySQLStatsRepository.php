@@ -12,7 +12,9 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 /**
  * @internal
  *
- * @codeCoverageIgnore tested via an integration test
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\MessageQueue\Stats\MySQLStatsRepositoryTest
  */
 #[Package('framework')]
 class MySQLStatsRepository extends AbstractStatsRepository

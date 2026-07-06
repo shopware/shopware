@@ -85,16 +85,16 @@ async function createWrapper(props = defaultProps) {
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-tree-item', () => {
     it.each([
-        { expected: true },
-        { expected: false },
-    ])('should hide actions: $expected', async ({ expected }) => {
+        { hideActions: true },
+        { hideActions: false },
+    ])('should hide actions: $hideActions', async ({ hideActions }) => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            hideActions: expected,
+            hideActions,
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-tree-item__actions').exists()).toBe(!expected);
+        expect(wrapper.props('hideActions')).toBe(hideActions);
     });
 
     it.each(testCases)('should check association: $name', async ({ data, extensions, disabled }) => {

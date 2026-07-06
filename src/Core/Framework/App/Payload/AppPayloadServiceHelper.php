@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Payload;
 
+use GuzzleHttp\Psr7\Request;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -15,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -32,6 +35,7 @@ class AppPayloadServiceHelper
         private readonly ShopIdProvider $shopIdProvider,
         private readonly InAppPurchase $inAppPurchase,
         private readonly string $shopUrl,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -42,9 +46,68 @@ class AppPayloadServiceHelper
     {
         return new Source(
             $this->shopUrl,
-            $this->shopIdProvider->getShopId(),
+            $this->shopIdProvider->getShopId()->id,
             $appVersion,
             $this->inAppPurchase->getJWTByExtension($appName),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @param array<string, string> $webhookHeaders
+     */
+    public function createWebhookRequest(
+        array $payload,
+        string $url,
+        string $shopwareVersion,
+        int $connectionTimeout,
+        int $requestTimeout,
+        ?string $secret = null,
+        ?string $languageId = null,
+        ?string $userLocale = null,
+        array $webhookHeaders = [],
+    ): WebhookRequest {
+        $timestamp = $this->clock->now()->getTimestamp();
+
+        $payload['timestamp'] = $timestamp;
+
+        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
+
+        $headers = array_merge(
+            [
+                'Content-Type' => 'application/json',
+                'sw-version' => $shopwareVersion,
+            ],
+            $webhookHeaders
+        );
+
+        if ($languageId !== null && $userLocale !== null) {
+            $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE] = $languageId;
+            $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE] = $userLocale;
+        }
+
+        $request = new Request(
+            'POST',
+            $url,
+            $headers,
+            $jsonPayload
+        );
+
+        $options = [
+            'connect_timeout' => $connectionTimeout,
+            'timeout' => $requestTimeout,
+        ];
+
+        if ($secret !== null) {
+            $options[AuthMiddleware::APP_REQUEST_TYPE] = [AuthMiddleware::APP_SECRET => $secret];
+        }
+
+        return new WebhookRequest(
+            $request,
+            $headers,
+            $jsonPayload,
+            $timestamp,
+            $options,
         );
     }
 

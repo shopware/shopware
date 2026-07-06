@@ -70,7 +70,7 @@ Module.register('sw-settings-usage-data', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.usage.data.index',
-        icon: 'regular-analytics',
+        icon: 'regular-shield',
         privilege: 'system.system_config',
     },
 });

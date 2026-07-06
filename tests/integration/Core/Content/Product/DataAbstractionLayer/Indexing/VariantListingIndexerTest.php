@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -160,6 +161,7 @@ class VariantListingIndexerTest extends TestCase
                 'stock' => 10,
                 'name' => 'example',
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
                 ],
@@ -346,14 +348,13 @@ class VariantListingIndexerTest extends TestCase
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
 
-        /** @var array<array<string>> $optionIds */
-        $optionIds = array_map(fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
+        $optionIds = array_map(static fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
 
-        if (!empty($optionIds)) {
+        if ($optionIds !== []) {
             $optionIds = array_merge(...$optionIds);
         }
 
-        return new Listing(array_column($listing, 'id'), $optionIds);
+        return new Listing(array_column($listing, 'id'), array_values($optionIds));
     }
 }
 
@@ -363,8 +364,8 @@ class VariantListingIndexerTest extends TestCase
 class Listing
 {
     /**
-     * @param string[] $ids
-     * @param string[] $optionIds
+     * @param list<string> $ids
+     * @param list<string> $optionIds
      */
     public function __construct(
         public array $ids,

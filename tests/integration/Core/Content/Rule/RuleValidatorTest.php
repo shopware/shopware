@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -300,6 +302,43 @@ class RuleValidatorTest extends TestCase
             static::assertContains('/0/value/count', $pointer);
             static::assertContains('/0/value/operator', $pointer);
         }
+    }
+
+    public function testItCanClearValueWhenConditionTypeChanges(): void
+    {
+        $customerGroupConditionId = Uuid::randomHex();
+
+        $this->ruleRepository->create([
+            [
+                'name' => 'super rule',
+                'priority' => 15,
+                'conditions' => [
+                    [
+                        'id' => $customerGroupConditionId,
+                        'type' => CustomerGroupRule::RULE_NAME,
+                        'value' => [
+                            'customerGroupIds' => [Uuid::randomHex()],
+                            'operator' => CustomerGroupRule::OPERATOR_EQ,
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        $this->ruleConditionRepository->update([
+            [
+                'id' => $customerGroupConditionId,
+                'type' => AlwaysValidRule::RULE_NAME,
+                'value' => null,
+            ],
+        ], $this->context);
+
+        $updatedCondition = $this->ruleConditionRepository->search(new Criteria([$customerGroupConditionId]), $this->context)
+            ->getEntities()->get($customerGroupConditionId);
+
+        static::assertInstanceOf(RuleConditionEntity::class, $updatedCondition);
+        static::assertSame(AlwaysValidRule::RULE_NAME, $updatedCondition->getType());
+        static::assertNull($updatedCondition->getValue());
     }
 
     /**

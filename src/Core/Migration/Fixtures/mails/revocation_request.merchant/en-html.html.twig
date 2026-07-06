@@ -1,0 +1,24 @@
+<div style="font-family: arial; font-size: 12px;">
+    <p>
+        New revocation request for the contract with the number {{ revocationRequestFormData.contractNumber }}.
+    </p>
+    <p>
+        Further information:
+        <br/>
+        First name: {{ revocationRequestFormData.firstName }}
+        <br/>
+        Last name: {{ revocationRequestFormData.lastName }}
+        <br/>
+        Email address: {{ revocationRequestFormData.email }}
+        <br/>
+        Contract number (order number, subscription number, ...): {{ revocationRequestFormData.contractNumber }}
+        {% if revocationRequestFormData.comment %}
+            <br/>
+            Comment:<br/>
+            {{ revocationRequestFormData.comment }}
+        {% endif %}
+    </p>
+    <p>
+        The form was submitted at {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}.
+    </p>
+</div>

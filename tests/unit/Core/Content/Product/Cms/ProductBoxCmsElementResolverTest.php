@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -34,11 +34,11 @@ class ProductBoxCmsElementResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $boxCmsElementResolver;
 
-    private MockObject&SystemConfigService $systemConfig;
+    private Stub&SystemConfigService $systemConfig;
 
     protected function setUp(): void
     {
-        $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->systemConfig = static::createStub(SystemConfigService::class);
 
         $this->boxCmsElementResolver = new ProductBoxCmsElementResolver($this->systemConfig);
     }
@@ -50,7 +50,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -64,7 +64,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithEmptyStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection([
             new FieldConfig('products', FieldConfig::SOURCE_STATIC, []),
@@ -82,7 +82,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $productId = Uuid::randomHex();
         $fieldConfig = new FieldConfigCollection([
@@ -103,7 +103,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testCollectWithMappedConfigButWithoutEntityResolverContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'category.products'),
@@ -121,7 +121,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
     public function testEnrichWithNoProductConfig(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
         $fieldConfig = new FieldConfigCollection();
@@ -145,12 +145,12 @@ class ProductBoxCmsElementResolverTest extends TestCase
     public function testEnrichWithProductConfigIsMapped(): void
     {
         $productId = Uuid::randomHex();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
         $product->setUniqueIdentifier('product1');
 
-        $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), $this->createMock(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), static::createStub(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
         $fieldConfig = new FieldConfigCollection([
             new FieldConfig('product', FieldConfig::SOURCE_MAPPED, $productId),
@@ -185,13 +185,13 @@ class ProductBoxCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
         $product->setStock($availableStock);
-        $product->setAvailableStock($availableStock);
         $product->setIsCloseout($closeout);
+        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
@@ -232,16 +232,14 @@ class ProductBoxCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<array<bool|int>> closeout, hidden, availableStock
+     * @return iterable<array<bool|int>> closeout, hidden, availableStock
      */
-    public static function enrichDataProvider(): array
+    public static function enrichDataProvider(): iterable
     {
-        return [
-            [false, false, 1],
-            [false, true, 1],
-            [true, false, 1],
-            [true, true, 1],
-            [true, true, 0],
-        ];
+        yield 'visible product with stock is enriched' => [false, false, 1];
+        yield 'hidden product with stock is enriched when closeout is disabled' => [false, true, 1];
+        yield 'closeout product with stock is enriched when it is visible' => [true, false, 1];
+        yield 'hidden closeout product with stock is enriched' => [true, true, 1];
+        yield 'hidden closeout product without stock is not enriched' => [true, true, 0];
     }
 }

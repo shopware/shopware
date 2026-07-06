@@ -143,7 +143,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param string[][] $directReads
+     * @param array<string, array<string>> $directReads
      *
      * @return array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
@@ -359,7 +359,7 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $filtered = $entities[$definition]->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
                 $result->add($key, $filtered);
             }

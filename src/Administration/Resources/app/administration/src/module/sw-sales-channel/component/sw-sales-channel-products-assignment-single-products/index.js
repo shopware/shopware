@@ -70,12 +70,12 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
+                    label: this.$t('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
+                    label: this.$t('sw-sales-channel.detail.products.columnProductNumber'),
                     allowResize: true,
                 },
             ];

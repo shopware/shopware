@@ -22,8 +22,8 @@ class SmtpOauthTokenProviderTest extends TestCase
     public function testGetTokenFetchesFromCache(): void
     {
         $cache = $this->createMock(CacheInterface::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
+        $httpClient = static::createStub(HttpClientInterface::class);
+        $configService = static::createStub(SystemConfigService::class);
 
         $cache->expects($this->once())
             ->method('get')
@@ -41,14 +41,14 @@ class SmtpOauthTokenProviderTest extends TestCase
     {
         $cache = $this->createMock(CacheInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
+        $configService = static::createStub(SystemConfigService::class);
         $cacheItem = $this->createMock(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
         $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
-            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+            ->willReturnCallback(static function ($_, callable $callback) use ($cacheItem) {
                 return $callback($cacheItem);
             });
 
@@ -101,14 +101,14 @@ class SmtpOauthTokenProviderTest extends TestCase
     {
         $cache = $this->createMock(CacheInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
-        $cacheItem = $this->createMock(ItemInterface::class);
+        $configService = static::createStub(SystemConfigService::class);
+        $cacheItem = static::createStub(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
         $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
-            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+            ->willReturnCallback(static function ($_, callable $callback) use ($cacheItem) {
                 return $callback($cacheItem);
             });
 
@@ -135,8 +135,7 @@ class SmtpOauthTokenProviderTest extends TestCase
 
         $provider = new SmtpOauthTokenProvider($httpClient, $cache, $configService);
 
-        $this->expectException(MailException::class);
-        $this->expectExceptionMessage('Failed to fetch oauth token: Error details');
+        $this->expectExceptionObject(MailException::oauthError('Failed to fetch oauth token: Error details'));
 
         $provider->getToken();
     }

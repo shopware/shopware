@@ -40,21 +40,18 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowCreate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -102,7 +99,7 @@ export default {
 
         contextMenuTooltipText() {
             if (!this.allowEdit) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
             return null;
@@ -159,7 +156,7 @@ export default {
             this.loadLandingPages()
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {
@@ -216,8 +213,8 @@ export default {
             const behavior = {
                 cloneChildren: false,
                 overwrites: {
-                    name: `${contextItem.data.name} ${this.$tc('global.default.copy')}`,
-                    url: `${contextItem.data.url}-${this.$tc('global.default.copy')}`,
+                    name: `${contextItem.data.name} ${this.$t('global.default.copy')}`,
+                    url: `${contextItem.data.url}-${this.$t('global.default.copy')}`,
                     active: false,
                 },
             };
@@ -238,7 +235,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },

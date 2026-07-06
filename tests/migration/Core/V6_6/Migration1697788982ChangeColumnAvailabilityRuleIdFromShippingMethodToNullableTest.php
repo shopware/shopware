@@ -22,6 +22,11 @@ class Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNulla
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1697788982, (new Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable();

@@ -211,7 +211,7 @@
                     <template #default="{ isInherited }">
                         {% block sw_cms_element_product_listing_config_filter_info %}
                         <mt-banner variant="info">
-                            {{ $tc('sw-cms.elements.productListing.config.filter.infoText') }}
+                            {{ $t('sw-cms.elements.productListing.config.filter.infoText') }}
                         </mt-banner>
                         {% endblock %}
 
@@ -224,7 +224,7 @@
                                 {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
                             <mt-switch
                                 v-model="filterByManufacturer"
-                                :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
+                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
                                 :disabled="isInherited"
                                 bordered
                             />
@@ -233,7 +233,7 @@
                                 {% block sw_cms_element_product_listing_config_filter_by_rating %}
                             <mt-switch
                                 v-model="filterByRating"
-                                :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
+                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
                                 :disabled="isInherited"
                                 bordered
                             />
@@ -242,7 +242,7 @@
                                 {% block sw_cms_element_product_listing_config_filter_by_price %}
                             <mt-switch
                                 v-model="filterByPrice"
-                                :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
+                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
                                 :disabled="isInherited"
                                 bordered
                             />
@@ -251,7 +251,7 @@
                                 {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
                             <mt-switch
                                 v-model="filterByFreeShipping"
-                                :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
+                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
                                 :disabled="isInherited"
                                 bordered
                             />
@@ -269,8 +269,8 @@
                                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
                             <mt-switch
                                 v-model="filterByProperties"
-                                :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
-                                :help-text="$tc('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
+                                :label="$t('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
+                                :help-text="$t('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
                                 :disabled="isInherited"
                                 bordered
                             />
@@ -279,7 +279,7 @@
                                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_info_text %}
                             <div
                                 class="sw-cms-el-config-product-listing-filter_properties_as_filter__description-text"
-                                v-html="$tc('sw-cms.elements.productListing.config.filter.descriptionTextUseFilterByProperties')"
+                                v-html="$t('sw-cms.elements.productListing.config.filter.descriptionTextUseFilterByProperties')"
                             ></div>
                                     {% endblock %}
                                 {% endblock %}
@@ -344,8 +344,8 @@
                             <mt-empty-state
                                 v-else
                                 icon="solid-products"
-                                :headline="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
-                                :description="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
+                                :headline="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
+                                :description="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
                             />
                                 {% endblock %}
                         </div>

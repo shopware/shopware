@@ -18,6 +18,31 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductSearchBuilder::class)]
 class ProductSearchBuilderTest extends TestCase
 {
+    public function testFallbackToCriteriaTermWhenSearchKeywordIndexingIsDisabled(): void
+    {
+        $termInterpreter = $this->createMock(ProductSearchTermInterpreterInterface::class);
+        $logger = static::createStub(LoggerInterface::class);
+        $searchBuilder = new ProductSearchBuilder(
+            $termInterpreter,
+            $logger,
+            20,
+            false
+        );
+
+        $mockSalesChannelContext = static::createStub(SalesChannelContext::class);
+        $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $request = new Request();
+        $request->query->set('search', 'ring saphir');
+
+        $termInterpreter->expects($this->never())->method('interpret');
+
+        $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
+
+        static::assertSame('ring saphir', $criteria->getTerm());
+    }
+
     public function testSearchTermMaxLengthReached(): void
     {
         $termInterpreter = $this->createMock(ProductSearchTermInterpreterInterface::class);
@@ -28,7 +53,7 @@ class ProductSearchBuilderTest extends TestCase
             20
         );
 
-        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext = static::createStub(SalesChannelContext::class);
         $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $criteria = new Criteria();

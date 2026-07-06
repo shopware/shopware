@@ -45,7 +45,6 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
         return $this->cartLocker->locked($context, function () use ($request, $cart, $context) {
             $itemsToUpdate = $request->request->all('items');
 
-            /** @var array<mixed> $item */
             foreach ($itemsToUpdate as $item) {
                 $this->lineItemFactory->update($cart, $item, $context);
             }

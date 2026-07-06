@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
@@ -21,6 +21,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\Thumbnail\Processor\GdImageThumbnailProcessor;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
@@ -39,15 +40,15 @@ class ThumbnailServiceTest extends TestCase
 
     private Context $context;
 
-    private FilesystemOperator&MockObject $filesystemPublic;
+    private FilesystemOperator&Stub $filesystemPublic;
 
-    private FilesystemOperator&MockObject $filesystemPrivate;
+    private FilesystemOperator&Stub $filesystemPrivate;
 
-    private EventDispatcherInterface&MockObject $dispatcher;
+    private EventDispatcherInterface&Stub $dispatcher;
 
-    private EntityIndexer&MockObject $indexer;
+    private EntityIndexer&Stub $indexer;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private ThumbnailSizeCalculator $thumbnailSizeCalculator;
 
@@ -63,25 +64,16 @@ class ThumbnailServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $this->filesystemPrivate = $this->createMock(FilesystemOperator::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->indexer = $this->createMock(EntityIndexer::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->filesystemPublic = static::createStub(FilesystemOperator::class);
+        $this->filesystemPrivate = static::createStub(FilesystemOperator::class);
+        $this->dispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->indexer = static::createStub(EntityIndexer::class);
+        $this->connection = static::createStub(Connection::class);
         $this->thumbnailSizeCalculator = new ThumbnailSizeCalculator();
         $this->context = Context::createDefaultContext();
         $this->thumbnailRepository = new StaticEntityRepository([]);
         $this->mediaFolderRepository = new StaticEntityRepository([]);
-        $this->thumbnailService = new ThumbnailService(
-            $this->thumbnailRepository,
-            $this->filesystemPublic,
-            $this->filesystemPrivate,
-            $this->mediaFolderRepository,
-            $this->dispatcher,
-            $this->indexer,
-            $this->thumbnailSizeCalculator,
-            $this->connection,
-        );
+        $this->thumbnailService = $this->createThumbnailService();
     }
 
     public function testGenerateWithValidMediaCollection(): void
@@ -94,25 +86,28 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $this->indexer->expects($this->once())
+        $indexer = $this->createMock(EntityIndexer::class);
+        $indexer->expects($this->once())
             ->method('handle')
             ->with(static::isInstanceOf(MediaIndexingMessage::class));
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
             });
 
-        $result = $this->thumbnailService->generate($mediaCollection, $this->context);
+        $result = $this->createThumbnailService($filesystemPublic, $indexer, $connection)->generate($mediaCollection, $this->context);
         static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
@@ -141,25 +136,28 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderEntity->getConfiguration()->setKeepAspectRatio(true);
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $this->indexer->expects($this->once())
+        $indexer = $this->createMock(EntityIndexer::class);
+        $indexer->expects($this->once())
             ->method('handle')
             ->with(static::isInstanceOf(MediaIndexingMessage::class));
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
             });
 
-        $result = $this->thumbnailService->generate($mediaCollection, $this->context);
+        $result = $this->createThumbnailService($filesystemPublic, $indexer, $connection)->generate($mediaCollection, $this->context);
         static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
@@ -191,8 +189,7 @@ class ThumbnailServiceTest extends TestCase
 
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Thumbnail association not loaded');
+        $this->expectExceptionObject(MediaException::thumbnailAssociationNotLoaded());
 
         $result = $this->thumbnailService->generate($mediaCollection, $this->context);
 
@@ -250,26 +247,30 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderEntity = $this->createMediaFolderEntity('def');
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
             });
 
+        $thumbnailService = $this->createThumbnailService(filesystemPublic: $filesystemPublic, connection: $connection);
+
         $mediaCollection = new MediaCollection([$mediaEntity]);
-        $this->thumbnailService->generate($mediaCollection, $this->context);
+        $thumbnailService->generate($mediaCollection, $this->context);
 
         $newMediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $newMediaEntity->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('transactional')
             ->willReturnCallback(function (\Closure $func) use ($expected, $newMediaEntity, $mediaFolderEntity) {
                 $reflection = new \ReflectionFunction($func);
@@ -285,7 +286,7 @@ class ThumbnailServiceTest extends TestCase
                 return $expected;
             });
 
-        $actual = $this->thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
+        $actual = $thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
 
         static::assertSame(1, $actual);
     }
@@ -297,26 +298,30 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderEntity = $this->createMediaFolderEntity('abc');
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
             });
 
+        $thumbnailService = $this->createThumbnailService(filesystemPublic: $filesystemPublic, connection: $connection);
+
         $mediaCollection = new MediaCollection([$mediaEntity]);
-        $this->thumbnailService->generate($mediaCollection, $this->context);
+        $thumbnailService->generate($mediaCollection, $this->context);
 
         $newMediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $newMediaEntity->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('transactional')
             ->willReturnCallback(function (\Closure $func) use ($newMediaEntity, $mediaFolderEntity) {
                 $reflection = new \ReflectionFunction($func);
@@ -332,7 +337,7 @@ class ThumbnailServiceTest extends TestCase
                 return [];
             });
 
-        $actual = $this->thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
+        $actual = $thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
 
         static::assertSame(0, $actual);
     }
@@ -361,8 +366,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaEntity = new MediaEntity();
         $mediaEntity->setId('media-id-1');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Media contains no thumbnails.');
+        $this->expectExceptionObject(MediaException::mediaContainsNoThumbnails());
 
         $this->thumbnailService->deleteThumbnails($mediaEntity, $this->context);
     }
@@ -389,22 +393,18 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string, int>|bool>>
+     * @return iterable<array<array<string, int>|bool>>
      */
-    public static function thumbnailSizeProvider(): array
+    public static function thumbnailSizeProvider(): iterable
     {
-        return [
-            // image size, keep aspect ratio, preferred size, expected size
-            [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]],
-            [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]],
-            [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]],
-        ];
+        yield 'landscape image keeps aspect ratio for a smaller thumbnail' => [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]];
+        yield 'landscape image uses preferred size when aspect ratio is disabled' => [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]];
+        yield 'smaller source image is kept when aspect ratio is disabled' => [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]];
     }
 
     public function testThumbnailGenerationThrowExceptionWhenRemoteThumbnailEnabled(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailGenerationDisabled()->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailGenerationDisabled());
 
         $service = new ThumbnailService(
             $this->thumbnailRepository,
@@ -415,6 +415,7 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor(),
             true,
         );
 
@@ -423,8 +424,7 @@ class ThumbnailServiceTest extends TestCase
 
     public function testUpdateThumbnailThrowExceptionWhenRemoteThumbnailEnabled(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailGenerationDisabled()->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailGenerationDisabled());
 
         $service = new ThumbnailService(
             $this->thumbnailRepository,
@@ -435,6 +435,7 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor(),
             true,
         );
 
@@ -443,8 +444,7 @@ class ThumbnailServiceTest extends TestCase
 
     public function testDeleteThumbnailThrowExceptionWhenRemoteThumbnailEnabled(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailGenerationDisabled()->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailGenerationDisabled());
 
         $service = new ThumbnailService(
             $this->thumbnailRepository,
@@ -455,10 +455,90 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor(),
             true,
         );
 
         $service->deleteThumbnails(new MediaEntity(), $this->context);
+    }
+
+    public function testGenerateSkipsExternalMediaCompletely(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('external-thumb-id-1');
+        $mediaThumbnailEntity->setPath('http://localhost:8000/thumb.jpg');
+        $mediaThumbnailEntity->setWidth(200);
+        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('http://localhost:8000/image.jpg');
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
+
+        static::assertSame(0, $result);
+        static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsSkipsExternalMedia(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('external-thumb-id-1');
+        $mediaThumbnailEntity->setPath('http://localhost:8000/thumb.jpg');
+        $mediaThumbnailEntity->setWidth(200);
+        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('http://localhost:8000/image.jpg');
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
+
+        static::assertSame(0, $result);
+        static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsDeletesAllThumbnailsForNonImageLocalMedia(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('thumb-id-1');
+        $mediaThumbnailEntity->setPath('/path/to/thumb.pdf');
+        $mediaThumbnailEntity->setWidth(100);
+        $mediaThumbnailEntity->setHeight(100);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('/path/to/file.pdf');
+        $media->setMediaType(new DocumentType());
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
+
+        static::assertSame(0, $result);
+        static::assertCount(1, $this->thumbnailRepository->deletes);
+    }
+
+    private function createThumbnailService(
+        ?FilesystemOperator $filesystemPublic = null,
+        ?EntityIndexer $indexer = null,
+        ?Connection $connection = null,
+    ): ThumbnailService {
+        return new ThumbnailService(
+            $this->thumbnailRepository,
+            $filesystemPublic ?? $this->filesystemPublic,
+            $this->filesystemPrivate,
+            $this->mediaFolderRepository,
+            $this->dispatcher,
+            $indexer ?? $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $connection ?? $this->connection,
+            new GdImageThumbnailProcessor()
+        );
     }
 
     private function createMediaEntity(MediaThumbnailEntity $mediaThumbnailEntity, MediaFolderEntity $mediaFolderEntity): MediaEntity

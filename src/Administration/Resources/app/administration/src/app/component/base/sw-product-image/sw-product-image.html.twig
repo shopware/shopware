@@ -18,7 +18,7 @@
             size="medium"
             appearance="pill"
         >
-            {{ $tc('sw-product.mediaForm.coverSubline') }}
+            {{ $t('sw-product.mediaForm.coverSubline') }}
         </sw-label>
 
         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
@@ -35,14 +35,14 @@
                 v-if="isArReady"
                 class="sw-label__ar-ready"
             >
-                {{ $tc('sw-product.mediaForm.arSubline') }}
+                {{ $t('sw-product.mediaForm.arSubline') }}
             </label>
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label
                 v-else
                 class="sw-label__spatial"
             >
-                {{ $tc('sw-product.mediaForm.spatialSubline') }}
+                {{ $t('sw-product.mediaForm.spatialSubline') }}
             </label>
         </sw-label>
         {% endblock %}
@@ -56,7 +56,7 @@
                 class="sw-product-image__button-cover"
                 @click="$emit('sw-product-image-cover')"
             >
-                {{ $tc('global.sw-product-image.context.buttonAsCover') }}
+                {{ $t('global.sw-product-image.context.buttonAsCover') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -66,7 +66,7 @@
                 class="sw-product-image__button-delete"
                 @click="$emit('sw-product-image-delete')"
             >
-                {{ $tc('global.sw-product-image.context.buttonRemove') }}
+                {{ $t('global.sw-product-image.context.buttonRemove') }}
             </sw-context-menu-item>
             {% endblock %}
             {% endblock %}

@@ -125,9 +125,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
-                    fn ($id) => ['id' => $id],
+                    static fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }

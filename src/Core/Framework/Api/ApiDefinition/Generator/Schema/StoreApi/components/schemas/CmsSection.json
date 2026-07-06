@@ -29,7 +29,7 @@
                         "format": "int64"
                     },
                     "type": {
-                        "description": "Types of sections can be `sidebar` or `fullwidth`.",
+                        "description": "Types of sections can be `default` or `sidebar`.",
                         "type": "string",
                         "enum": [
                             "default",

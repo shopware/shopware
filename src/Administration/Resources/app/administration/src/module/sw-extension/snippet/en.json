@@ -451,7 +451,6 @@
         "mail_template": "Email template",
         "mail_template_translation": "Email template translation",
         "mail_template_media": "Media",
-        "mail_template_sales_channel": "Sales Channel",
         "mail_template_type": "Type",
         "mail_template_type_translation": "Type translation"
       }

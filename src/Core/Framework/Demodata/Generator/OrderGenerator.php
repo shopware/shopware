@@ -80,7 +80,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             $productIds
         );
         $promotionLineItems = array_map(
-            function ($promotionCode) {
+            static function ($promotionCode) {
                 $uniqueKey = 'promotion-' . $promotionCode;
 
                 return (new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE))
@@ -147,7 +147,7 @@ class OrderGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
                     static fn (string $id) => ['id' => $id],
                     $chosenTags

@@ -10,7 +10,6 @@ async function createWrapper(options = {}) {
     const pages = [];
 
     for (let i = 0; i < 5; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
         const page = await wrapTestComponent('sw-wizard-page');
         page.props = {
             position: i,

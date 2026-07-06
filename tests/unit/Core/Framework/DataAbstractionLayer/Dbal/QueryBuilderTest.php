@@ -21,7 +21,7 @@ class QueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $driver = $this->createMock(Driver::class);
+        $driver = static::createStub(Driver::class);
         $driver->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $this->queryBuilder = new QueryBuilder(new Connection([], $driver));
@@ -53,6 +53,7 @@ class QueryBuilderTest extends TestCase
         $sql = $this->queryBuilder->getSQL();
         $matches = [];
         preg_match('/-- (.+)\n/', $sql, $matches);
+        static::assertArrayHasKey(1, $matches);
         static::assertSame($title, $matches[1]);
     }
 }

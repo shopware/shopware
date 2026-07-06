@@ -107,7 +107,7 @@ export default {
 
         removeFileButtonLabel() {
             if (this.removeButtonLabel === '') {
-                return this.$tc('global.sw-product-image.context.buttonRemove');
+                return this.$t('global.sw-product-image.context.buttonRemove');
             }
 
             return this.removeButtonLabel;

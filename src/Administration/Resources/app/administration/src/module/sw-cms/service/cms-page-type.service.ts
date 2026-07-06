@@ -20,7 +20,6 @@ export type PageType = {
  * @private
  */
 export default class CmsPageTypeService {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     #state: { pageTypes: PageType[] } = reactive({
         pageTypes: [] as PageType[],
     });

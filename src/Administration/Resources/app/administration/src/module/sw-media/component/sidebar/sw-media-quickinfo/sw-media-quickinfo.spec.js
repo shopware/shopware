@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -257,7 +259,6 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             {},
             {
                 renameMedia: () =>
-                    // eslint-disable-next-line prefer-promise-reject-errors
                     Promise.reject({
                         response: {
                             data: {

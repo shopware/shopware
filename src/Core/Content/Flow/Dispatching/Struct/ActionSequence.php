@@ -12,6 +12,9 @@ class ActionSequence extends Sequence
 {
     public string $action;
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $config = [];
 
     public ?Sequence $nextAction = null;

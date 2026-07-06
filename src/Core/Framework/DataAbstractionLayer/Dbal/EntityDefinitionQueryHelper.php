@@ -64,7 +64,7 @@ class EntityDefinitionQueryHelper
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
     /**
@@ -82,7 +82,7 @@ class EntityDefinitionQueryHelper
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
     /**
@@ -95,14 +95,7 @@ class EntityDefinitionQueryHelper
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::tableExists instead')
         );
 
-        return !empty(
-            $connection->fetchOne(
-                'SHOW TABLES LIKE :table',
-                [
-                    'table' => $table,
-                ]
-            )
-        );
+        return $connection->fetchOne('SHOW TABLES LIKE :table', ['table' => $table]) !== false;
     }
 
     /**
@@ -372,7 +365,7 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
+                static fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
@@ -479,11 +472,11 @@ class EntityDefinitionQueryHelper
         }
 
         $fields = $translationDefinition->getFields()->filter(
-            fn (Field $field) => $field instanceof StorageAware
+            static fn (Field $field) => $field instanceof StorageAware
                 && $definition->getFields()->get($field->getPropertyName()) instanceof TranslatedField,
         );
         if ($partial !== []) {
-            $fields = $fields->filter(fn (Field $field) => isset($partial[$field->getPropertyName()]));
+            $fields = $fields->filter(static fn (Field $field) => isset($partial[$field->getPropertyName()]));
         }
 
         $translationChain = self::buildTranslationChain(

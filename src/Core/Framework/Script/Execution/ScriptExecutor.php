@@ -16,7 +16,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
- * @codeCoverageIgnore This class is fully tested by @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest
  */
 #[Package('framework')]
 class ScriptExecutor
@@ -84,7 +86,7 @@ class ScriptExecutor
 
         $twig->addGlobal('services', $services);
 
-        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
+        $this->traces->trace($hook, $script, static function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
 
             if ($hook instanceof DeprecatedHook) {

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
 class StaticProductProcessor extends AbstractProductSliderProcessor
@@ -27,6 +29,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -45,6 +48,8 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = new Criteria($products->getArrayValue());
+
+        $this->eventDispatcher->dispatch(new ProductSliderStaticCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
         $collection = new CriteriaCollection();
         $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
@@ -72,6 +77,16 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
+        $criteriaIds = array_unique($searchResult->getCriteria()->getIds());
+        if (\count($criteriaIds) > 0 && \count($searchResult->getCriteria()->getSorting()) === 0) {
+            $configuredIds = $slot->getFieldConfig()->get('products')?->getArrayValue() ?? [];
+            usort(
+                $criteriaIds,
+                static fn (string $a, string $b): int => array_search($a, $configuredIds, true) <=> array_search($b, $configuredIds, true)
+            );
+            $products->sortByIdArray($criteriaIds);
+        }
+
         $slider = new ProductSliderStruct();
         $slider->setProducts($products);
 
@@ -80,7 +95,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
 
     protected function hideUnavailableProducts(SalesChannelContext $context): bool
     {
-        return (bool) $this->systemConfigService->get(
+        return $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         );

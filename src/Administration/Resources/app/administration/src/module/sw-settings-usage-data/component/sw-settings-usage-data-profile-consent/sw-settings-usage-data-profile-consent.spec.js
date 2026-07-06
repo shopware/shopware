@@ -2,10 +2,8 @@ import { mount } from '@vue/test-utils';
 import { MtSwitch } from '@shopware-ag/meteor-component-library';
 import useConsentStore from 'src/core/consent/consent.store';
 import SwSettingsUsageDataProfileConsent from './index';
-/* eslint-disable max-len */
 import SwSettingsUsageDataUserDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
-/* eslint-enable max-len */
 
 describe('module/sw-settings-usage-data/component/sw-settings-usage-data-profile-consent', () => {
     beforeEach(() => {

@@ -2,7 +2,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="flow"
-            :placeholder="$tc('sw-flow.general.placeholderSearchBar')"
+            :placeholder="$t('sw-flow.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -10,12 +10,12 @@
 
     <template #smart-bar-header>
         <h2>
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-flow.list.textHeadline') }}
+            {{ $t('sw-flow.list.textHeadline') }}
 
             <span
                 v-if="!isLoading"
@@ -35,7 +35,7 @@
 
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('flow.creator'),
                 position: 'bottom',
                 showOnDisabledElements: true
@@ -45,7 +45,7 @@
             :disabled="!acl.can('flow.creator') || undefined"
             @click="$router.push({ name: 'sw.flow.create' })"
         >
-            {{ $tc('sw-flow.list.buttonAddFlow') }}
+            {{ $t('sw-flow.list.buttonAddFlow') }}
         </mt-button>
     </template>
 
@@ -59,19 +59,19 @@
                 <sw-tabs-item
                     class="sw-flow-listing__tab-my-flows"
                     name="flows"
-                    :title="$tc('sw-flow.general.tabMyFlows')"
+                    :title="$t('sw-flow.general.tabMyFlows')"
                     :route="{ name: 'sw.flow.index.flows'}"
                 >
-                    {{ $tc('sw-flow.general.tabMyFlows') }}
+                    {{ $t('sw-flow.general.tabMyFlows') }}
                 </sw-tabs-item>
 
                 <sw-tabs-item
                     class="sw-flow-listing__tab-flow-templates"
                     name="templates"
-                    :title="$tc('sw-flow.general.tabFlowTemplates')"
+                    :title="$t('sw-flow.general.tabFlowTemplates')"
                     :route="{ name: 'sw.flow.index.templates'}"
                 >
-                    {{ $tc('sw-flow.general.tabFlowTemplates') }}
+                    {{ $t('sw-flow.general.tabFlowTemplates') }}
                 </sw-tabs-item>
 
                 {% block sw_flow_tabs_header_extension %}{% endblock %}

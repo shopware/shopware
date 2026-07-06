@@ -3,42 +3,42 @@
     v-if="logEntity"
     class="sw-import-export-activity-log-info-modal"
     variant="small"
-    :title="$tc('sw-import-export.activity.logInfo.modalTitle')"
+    :title="$t('sw-import-export.activity.logInfo.modalTitle')"
     @modal-close="$emit('log-close')"
 >
     {% block sw_import_export_activity_log_info_modal_description %}
     <dl class="sw-import-export-activity-log-info-modal__description-list">
         {% block sw_import_export_activity_log_info_modal_description_name %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-file-name">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelFilename') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelFilename') }}</dt>
             <dd>{{ logEntity.file.originalName }}</dd>
         </div>
         {% endblock %}
 
         {% block sw_import_export_activity_log_info_modal_description_profile %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-profile">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelProfile') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelProfile') }}</dt>
             <dd>{{ logEntity.profile.technicalName }}</dd>
         </div>
         {% endblock %}
 
         {% block sw_import_export_activity_log_info_modal_description_records %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-records">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelExportRecords') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelExportRecords') }}</dt>
             <dd>{{ logEntity.records }}</dd>
         </div>
         {% endblock %}
 
         {% block sw_import_export_activity_log_info_modal_description_size %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-size">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelSize') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelSize') }}</dt>
             <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
         </div>
         {% endblock %}
 
         {% block sw_import_export_activity_log_info_modal_description_date %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-date">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelDate') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelDate') }}</dt>
 
             <dd>
                 <sw-time-ago
@@ -51,7 +51,7 @@
 
         {% block sw_import_export_activity_log_info_modal_description_user %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-user">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelUser') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelUser') }}</dt>
 
             <dd>{{ logEntity.username }}</dd>
         </div>
@@ -62,7 +62,7 @@
             class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-state"
             :class="stateClass"
         >
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelState') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelState') }}</dt>
 
             <dd>
                 <sw-color-badge
@@ -92,7 +92,7 @@
 
         {% block sw_import_export_activity_log_info_modal_description_type %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-type">
-            <dt>{{ $tc('sw-import-export.activity.logInfo.labelType') }}</dt>
+            <dt>{{ $t('sw-import-export.activity.logInfo.labelType') }}</dt>
 
             <dd>{{ typeText }}</dd>
         </div>
@@ -108,7 +108,7 @@
         variant="secondary"
         @click="openDownload(logEntity.fileId)"
     >
-        {{ $tc('sw-import-export.activity.logInfo.labelDownloadFile') }}
+        {{ $t('sw-import-export.activity.logInfo.labelDownloadFile') }}
     </mt-button>
     {% endblock %}
 </sw-modal>

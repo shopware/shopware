@@ -32,7 +32,7 @@ class ImportExportHandlerTest extends TestCase
     {
         $messageBus = new CollectingMessageBus();
 
-        $factory = $this->createMock(ImportExportFactory::class);
+        $factory = static::createStub(ImportExportFactory::class);
 
         $eventDispatcher = new EventDispatcher();
 
@@ -49,7 +49,7 @@ class ImportExportHandlerTest extends TestCase
 
         $progress = new Progress($logEntity->getId(), $logEntity->getState());
 
-        $importExport = $this->createMock(ImportExport::class);
+        $importExport = static::createStub(ImportExport::class);
         $importExport->method($method)
             ->willReturn($progress);
         $importExport->method('getLogEntity')
@@ -111,7 +111,7 @@ class ImportExportHandlerTest extends TestCase
     {
         $messageBus = new CollectingMessageBus();
 
-        $factory = $this->createMock(ImportExportFactory::class);
+        $factory = static::createStub(ImportExportFactory::class);
 
         $eventDispatcher = new EventDispatcher();
 
@@ -130,7 +130,7 @@ class ImportExportHandlerTest extends TestCase
 
         $progress = new Progress($logEntity->getId(), $logEntity->getState());
 
-        $importExport = $this->createMock(ImportExport::class);
+        $importExport = static::createStub(ImportExport::class);
         $importExport->method('exportExceptions')
             ->willReturn($progress);
         $importExport->method('getLogEntity')
@@ -143,7 +143,7 @@ class ImportExportHandlerTest extends TestCase
 
         $eventDispatcher->addListener(
             ImportExportExceptionImportExportHandlerEvent::class,
-            function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
+            static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
                 static::assertInstanceOf(ImportExportException::class, $event->getException());
                 static::assertSame('The activity "unknown_activity" could not be processed.', $event->getException()->getMessage());
                 static::assertSame($importExportMessage, $event->getMessage());
@@ -217,7 +217,7 @@ class ImportExportHandlerTest extends TestCase
         $dispatchedEvent = null;
         $eventDispatcher->addListener(
             ImportExportAfterProcessFinishedEvent::class,
-            function (ImportExportAfterProcessFinishedEvent $event) use (&$dispatchedEvent): void {
+            static function (ImportExportAfterProcessFinishedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
             }
         );

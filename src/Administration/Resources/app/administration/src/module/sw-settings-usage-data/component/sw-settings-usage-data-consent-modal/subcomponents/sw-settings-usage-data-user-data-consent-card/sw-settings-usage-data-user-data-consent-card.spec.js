@@ -36,4 +36,15 @@ describe('module/sw-settings-usage-data/component/sw-settings-usage-data-consent
         expect(consentSwitch.props('disabled')).toBe(true);
         expect(wrapper.findComponent(MtLoader).exists()).toBe(true);
     });
+
+    it('hides the switch when configured', async () => {
+        const wrapper = await mount(SwSettingsUsageDataUserDataConsentCard, {
+            props: {
+                consent: false,
+                hideSwitch: true,
+            },
+        });
+
+        expect(wrapper.findComponent(MtSwitch).exists()).toBe(false);
+    });
 });

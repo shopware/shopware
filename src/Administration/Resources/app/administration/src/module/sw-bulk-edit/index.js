@@ -3,7 +3,7 @@
  */
 import './init/services.init';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-bulk-edit-product', () => import('./page/sw-bulk-edit-product'));
 Shopware.Component.register('sw-bulk-edit-order', () => import('./page/sw-bulk-edit-order'));
 Shopware.Component.register('sw-bulk-edit-customer', () => import('./page/sw-bulk-edit-customer'));
@@ -33,6 +33,10 @@ Shopware.Component.extend(
 Shopware.Component.register(
     'sw-bulk-edit-order-documents-download-documents',
     () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents'),
+);
+Shopware.Component.register(
+    'sw-bulk-edit-order-documents-delete-documents',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents'),
 );
 Shopware.Component.extend(
     'sw-bulk-edit-custom-fields',
@@ -68,8 +72,12 @@ Shopware.Component.register('sw-bulk-edit-save-modal', () => import('./component
 Shopware.Component.register('sw-bulk-edit-save-modal-confirm', () => import('./component/sw-bulk-edit-save-modal-confirm'));
 Shopware.Component.register('sw-bulk-edit-save-modal-process', () => import('./component/sw-bulk-edit-save-modal-process'));
 Shopware.Component.register('sw-bulk-edit-save-modal-success', () => import('./component/sw-bulk-edit-save-modal-success'));
+Shopware.Component.register(
+    'sw-bulk-edit-document-generation-failed-list',
+    () => import('./component/sw-bulk-edit-document-generation-failed-list'),
+);
 Shopware.Component.register('sw-bulk-edit-save-modal-error', () => import('./component/sw-bulk-edit-save-modal-error'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

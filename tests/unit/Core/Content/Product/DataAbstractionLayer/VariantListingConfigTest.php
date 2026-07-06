@@ -16,7 +16,9 @@ class VariantListingConfigTest extends TestCase
     {
         $displayParent = true;
         $mainVariantId = '1';
-        $configuratorGroupConfig = ['key' => 'value'];
+        $configuratorGroupConfig = [
+            ['id' => 'group-a', 'representation' => 'box', 'expressionForListings' => true],
+        ];
 
         $variantListingConfig = new VariantListingConfig($displayParent, $mainVariantId, $configuratorGroupConfig);
 

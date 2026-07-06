@@ -32,9 +32,9 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new ProductStreamAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
     }
@@ -42,9 +42,9 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new ProductStreamAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -53,8 +53,8 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
         $event = new EntityWrittenContainerEvent(
             Context::createDefaultContext(),
             new NestedEventCollection([
-                new EntityWrittenEvent('product_stream', [
-                    new EntityWriteResult(['productStreamId' => $id], ['name' => 'PS'], 'product_stream', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWrittenEvent('product_stream_translation', [
+                    new EntityWriteResult(['productStreamId' => $id], ['name' => 'PS'], 'product_stream_translation', EntityWriteResult::OPERATION_UPDATE),
                 ], Context::createDefaultContext()),
             ]),
             []
@@ -82,7 +82,7 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $productStream = new ProductStreamEntity();
         $productStream->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -97,8 +97,8 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new ProductStreamAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
             100
         );
@@ -121,8 +121,8 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
 
         $indexer = new ProductStreamAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -139,7 +139,7 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn(
             [

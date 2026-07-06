@@ -2,11 +2,11 @@ const RulerTester = require('eslint').RuleTester;
 const rule = require('./move-slots-to-wrap-blocks');
 
 const tester = new RulerTester({
-    parserOptions: {
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
         ecmaVersion: 2015,
         sourceType: 'module',
     },
-    parser: require.resolve('vue-eslint-parser'),
 });
 
 tester.run('move-slots-to-wrap-blocks', rule, {

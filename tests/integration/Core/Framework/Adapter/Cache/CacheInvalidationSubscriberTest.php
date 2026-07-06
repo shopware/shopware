@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -56,7 +57,8 @@ class CacheInvalidationSubscriberTest extends TestCase
             false,
             false,
             true,
-            $this->backtraceCollector
+            $this->backtraceCollector,
+            new NativeClock(),
         );
 
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
@@ -89,7 +91,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->method('info')
             ->with(
                 'Purged tags (1).',
-                static::callback(function (array $context): bool {
+                static::callback(static function (array $context): bool {
                     static::assertCount(1, $context['tags']);
                     static::assertSame(
                         (new Frame(

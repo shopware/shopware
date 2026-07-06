@@ -1,10 +1,8 @@
-/**
- * @sw-package framework
- */
 import template from './sw-settings-services-dashboard-banner.html.twig';
 import './sw-settings-services-dashboard-banner.scss';
 
 /**
+ * @sw-package framework
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
@@ -17,7 +15,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         return {
             isHidden: true,
-            // eslint-disable-next-line max-len
             servicesGraphicLight: assetFilter(
                 '/administration/administration/static/img/services/services-graphic-light.svg',
             ),

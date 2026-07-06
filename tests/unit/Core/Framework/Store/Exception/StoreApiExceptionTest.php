@@ -89,10 +89,8 @@ class StoreApiExceptionTest extends TestCase
             )
         );
 
-        $exception = new StoreApiException($clientException);
-
-        foreach ($exception->getErrors() as $error) {
-            static::assertSame('title', $error['title']);
+        foreach ((new StoreApiException($clientException))->getErrors() as $error) {
+            static::assertSame('title', $error['title'] ?? null);
         }
     }
 
@@ -108,10 +106,8 @@ class StoreApiExceptionTest extends TestCase
             )
         );
 
-        $exception = new StoreApiException($clientException);
-
-        foreach ($exception->getErrors() as $error) {
-            static::assertSame('https://shopware.docs', $error['meta']['documentationLink']);
+        foreach ((new StoreApiException($clientException))->getErrors() as $error) {
+            static::assertSame('https://shopware.docs', $error['meta']['documentationLink'] ?? null);
         }
     }
 
@@ -136,10 +132,10 @@ class StoreApiExceptionTest extends TestCase
         foreach ($exception->getErrors(true) as $error) {
             static::assertSame('FRAMEWORK__STORE_ERROR', $error['code']);
             static::assertSame((string) Response::HTTP_INTERNAL_SERVER_ERROR, $error['status']);
-            static::assertSame('title', $error['title']);
+            static::assertSame('title', $error['title'] ?? null);
             static::assertSame('description', $error['detail']);
-            static::assertSame('https://shopware.docs', $error['meta']['documentationLink']);
-            static::assertIsString($error['trace']);
+            static::assertSame('https://shopware.docs', $error['meta']['documentationLink'] ?? null);
+            static::assertIsString($error['trace'] ?? null);
         }
     }
 }

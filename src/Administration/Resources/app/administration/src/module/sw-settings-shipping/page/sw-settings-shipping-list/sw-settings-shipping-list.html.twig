@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="shipping_method"
-            :placeholder="$tc('sw-settings-shipping.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-shipping.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -17,11 +17,11 @@
         {% block sw_settings_shipping_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_shipping_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $tc('sw-settings-shipping.list.textHeadline') }}
+            /> {{ $t('sw-settings-shipping.list.textHeadline') }}
             {% endblock %}
 
             {% block sw_settings_shipping_list_smart_bar_header_amount %}
@@ -46,7 +46,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.shipping.create' })"
         >
-            {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
+            {{ $t('sw-settings-shipping.list.buttonAddShippingMethod') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -132,7 +132,7 @@
                             required
                             show-clearable-button
                             size="small"
-                            :placeholder="$tc('sw-settings-shipping.list.placeholderTaxType')"
+                            :placeholder="$t('sw-settings-shipping.list.placeholderTaxType')"
                             :options="shippingCostTaxOptions"
                         />
                     </template>
@@ -154,7 +154,7 @@
                         :disabled="!acl.can('shipping.editor') || undefined"
                         class="sw-settings-shipping-list__edit-action"
                     >
-                        {{ $tc('sw-settings-shipping.list.contextMenuEdit') }}
+                        {{ $t('sw-settings-shipping.list.contextMenuEdit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -164,7 +164,7 @@
                         :disabled="!acl.can('shipping.deleter') || undefined"
                         @click="onDelete(item.id)"
                     >
-                        {{ $tc('sw-settings-shipping.list.contextMenuDelete') }}
+                        {{ $t('sw-settings-shipping.list.contextMenuDelete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -175,13 +175,13 @@
                     {% block sw_settings_shipping_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
                         {% block sw_settings_shipping_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-shipping-list__confirm-delete-text">
-                            {{ $tc('sw-settings-shipping.list.textDeleteConfirm', { name: item.name }, 0) }}
+                            {{ $t('sw-settings-shipping.list.textDeleteConfirm', { name: item.name }, 0) }}
                         </p>
                         {% endblock %}
 
@@ -193,7 +193,7 @@
                                 variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
                             {% endblock %}
 
@@ -203,7 +203,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $tc('sw-settings-shipping.list.buttonDelete') }}
+                                {{ $t('sw-settings-shipping.list.buttonDelete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -224,7 +224,7 @@
             {% block sw_settings_shipping_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-settings-shipping.list.titleSidebarItemRefresh')"
+                :title="$t('sw-settings-shipping.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

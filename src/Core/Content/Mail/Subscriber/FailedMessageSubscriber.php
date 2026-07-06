@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,8 +17,10 @@ use Symfony\Component\Mailer\Event\FailedMessageEvent;
 #[Package('after-sales')]
 class FailedMessageSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -56,7 +59,7 @@ class FailedMessageSubscriber implements EventSubscriberInterface
             'channel' => 'mail',
             'context' => $context,
             'extra' => $extra,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 }

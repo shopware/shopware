@@ -72,21 +72,35 @@ class BindingSpecificationTest extends TestCase
         static::assertSame([], $schema['inputs']);
     }
 
-    #[TestDox('isPromoted() is false and toSchema() emits promoted:false when the flag is omitted')]
+    #[TestDox('isPromoted() is false when the flag is omitted')]
     public function testDefaultsToNotPromoted(): void
     {
         $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core');
 
         static::assertFalse($specification->isPromoted());
+    }
+
+    #[TestDox('toSchema() emits promoted:false when the flag is omitted')]
+    public function testToSchemaEmitsPromotedFalseWhenFlagOmitted(): void
+    {
+        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core');
+
         static::assertFalse($specification->toSchema()['promoted']);
     }
 
-    #[TestDox('isPromoted() is true and toSchema() emits promoted:true when the flag is set')]
+    #[TestDox('isPromoted() is true when the flag is set')]
     public function testCarriesPromotedFlag(): void
     {
         $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core', true);
 
         static::assertTrue($specification->isPromoted());
+    }
+
+    #[TestDox('toSchema() emits promoted:true when the flag is set')]
+    public function testToSchemaEmitsPromotedTrueWhenFlagSet(): void
+    {
+        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core', true);
+
         static::assertTrue($specification->toSchema()['promoted']);
     }
 }

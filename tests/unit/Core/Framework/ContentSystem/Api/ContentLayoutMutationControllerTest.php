@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutWrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -171,6 +172,50 @@ class ContentLayoutMutationControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertStringContainsString('"resolutions":{}', $content);
+    }
+
+    #[TestDox('propagates contentLayoutNotFound from the mutator for an unknown layout id')]
+    public function testMutateThrowsWhenLayoutNotFound(): void
+    {
+        $mutator = static::createStub(PersistedLayoutMutator::class);
+        $mutator->method('mutate')->willThrowException(ContentSystemException::contentLayoutNotFound('layout-404'));
+
+        try {
+            $this->controller($mutator)->remove('layout-404', new ContentLayoutRemoveRequest('el', null), Context::createDefaultContext());
+            static::fail('Expected a ' . ContentSystemException::CONTENT_LAYOUT_NOT_FOUND . ' exception, but none was thrown.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::CONTENT_LAYOUT_NOT_FOUND, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        }
+    }
+
+    #[TestDox('propagates layoutVersionConflict from the mutator for a stale expected version token')]
+    public function testMutateThrowsOnStaleVersionToken(): void
+    {
+        $mutator = static::createStub(PersistedLayoutMutator::class);
+        $mutator->method('mutate')->willThrowException(ContentSystemException::layoutVersionConflict('layout-1'));
+
+        try {
+            $this->controller($mutator)->remove('layout-1', new ContentLayoutRemoveRequest('el', '2020-01-01T00:00:00.000+00:00'), Context::createDefaultContext());
+            static::fail('Expected a ' . ContentSystemException::LAYOUT_VERSION_CONFLICT . ' exception, but none was thrown.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::LAYOUT_VERSION_CONFLICT, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        }
+    }
+
+    #[TestDox('rejects a malformed attach element with invalidLayoutStructure before the mutator is invoked')]
+    public function testAttachThrowsWhenElementStructureIsInvalid(): void
+    {
+        $mutator = static::createStub(PersistedLayoutMutator::class);
+
+        try {
+            $this->controller($mutator)->attach('layout-1', new ContentLayoutAttachRequest(['component' => 'Sw:Card'], null), Context::createDefaultContext());
+            static::fail('Expected a ' . ContentSystemException::INVALID_LAYOUT_STRUCTURE . ' exception, but none was thrown.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        }
     }
 
     private function controller(PersistedLayoutMutator $mutator): ContentLayoutMutationController

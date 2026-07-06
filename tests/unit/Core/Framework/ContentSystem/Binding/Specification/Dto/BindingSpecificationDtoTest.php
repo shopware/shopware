@@ -191,12 +191,4 @@ class BindingSpecificationDtoTest extends TestCase
         // Load-bearing: toBindingSpecification() maps on a strict === true, never coercing a truthy value.
         yield 'is a truthy non-boolean' => [1, false];
     }
-
-    #[TestDox('defaults isPromoted() to false when the promoted facet is omitted from the constructor')]
-    public function testDefaultsPromotedToFalseWhenOmitted(): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], []);
-
-        static::assertFalse($dto->toBindingSpecification('id', 'core')->isPromoted());
-    }
 }

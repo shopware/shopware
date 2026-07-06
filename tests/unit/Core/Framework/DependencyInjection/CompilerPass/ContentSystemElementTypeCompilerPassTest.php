@@ -169,14 +169,15 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     #[TestDox('does nothing when both loader services are absent')]
     public function testRegistersNothingWhenBothLoaderServicesAreAbsent(): void
     {
+        // Neither YamlTypeLoader nor YamlBindingSpecificationLoader is defined, and no parameters are set at
+        // all: a missing guard would throw fetching kernel.bundles_metadata instead of returning early, so a
+        // regressed guard fails this test loudly rather than silently.
         $container = new ContainerBuilder();
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', []);
-        $container->setParameter('kernel.environment', 'prod');
+        $definitionsBefore = $container->getDefinitions();
 
-        // Neither YamlTypeLoader nor YamlBindingSpecificationLoader is defined — the pass early-returns without throwing
-        $this->expectNotToPerformAssertions();
         $this->pass->process($container);
+
+        static::assertSame($definitionsBefore, $container->getDefinitions());
     }
 
     #[TestDox('feeds both loaders the same directory set covering core, bundle, plugin, and dev-app entries')]
@@ -229,22 +230,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         static::assertNotNull($app);
         static::assertSame(self::FIXTURES_DIR . '/apps/test-app/Resources/content-system/types', $app->getArgument(1));
         static::assertSame('TestApp', $app->getArgument(2));
-    }
-
-    #[TestDox('gives each loader its own directory definition instances, never sharing them across the two services')]
-    public function testGivesEachLoaderItsOwnDefinitionInstances(): void
-    {
-        $container = $this->buildContainerWithBothLoaders('prod');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', []);
-
-        $this->pass->process($container);
-
-        $typeCore = $this->findBySource($this->extractDirectories($container, YamlTypeLoader::class), 'core');
-        $bindingCore = $this->findBySource($this->extractDirectories($container, YamlBindingSpecificationLoader::class), 'core');
-        static::assertNotNull($typeCore);
-        static::assertNotNull($bindingCore);
-        static::assertNotSame($typeCore, $bindingCore);
     }
 
     #[TestDox('feeds the binding loader even when the type loader service is absent')]

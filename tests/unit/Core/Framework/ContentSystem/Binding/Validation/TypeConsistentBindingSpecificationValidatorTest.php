@@ -94,41 +94,33 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         }
     }
 
-    #[TestDox('a $loader loader propertyReference config key naming a primitive property passes')]
-    #[DataProvider('primitivePropertyLoaderProvider')]
-    public function testPropertyReferenceKeyNamingPrimitivePasses(string $loader): void
+    #[TestDox('a resolves entry propertyReference config key naming a primitive property passes')]
+    public function testPropertyReferenceKeyNamingPrimitivePasses(): void
     {
-        $validator = $this->validator($this->imageType(), $this->map([$loader => $this->loaderSpec()]));
+        // The loader identifier is never branched on by the validator (validatePropertyReferenceKeys() only uses
+        // it as a ContentSystemDataLoaderMap lookup key), so a second loader here would exercise the same path.
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
 
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['media' => ['loader' => $loader, 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function primitivePropertyLoaderProvider(): iterable
-    {
-        yield 'entity' => ['entity'];
-        yield 'non-entity' => ['catalog'];
-    }
-
-    #[TestDox('a $loader loader propertyReference config key naming $_dataName is a violation for every loader')]
+    #[TestDox('a resolves entry propertyReference config key naming $_dataName is a violation')]
     #[DataProvider('nonPrimitivePropertyProvider')]
-    public function testPropertyReferenceKeyNamingNonPrimitiveIsViolation(string $loader, string $propertyValue): void
+    public function testPropertyReferenceKeyNamingNonPrimitiveIsViolation(string $propertyValue): void
     {
-        $validator = $this->validator($this->imageType(), $this->map([$loader => $this->loaderSpec()]));
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
 
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['media' => ['loader' => $loader, 'config' => ['entity' => 'media', 'property' => $propertyValue]]],
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => $propertyValue]]],
             inputs: [],
         );
 
@@ -140,14 +132,15 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string}>
+     * @return iterable<string, array{string}>
      */
     public static function nonPrimitivePropertyProvider(): iterable
     {
-        yield 'a reference property, entity loader' => ['entity', 'media'];
-        yield 'a missing property, entity loader' => ['entity', 'ghost'];
-        yield 'a reference property, non-entity loader' => ['catalog', 'media'];
-        yield 'a missing property, non-entity loader' => ['catalog', 'ghost'];
+        // The loader identifier ('entity' vs. any other registered loader) is not varied here: it is never
+        // branched on by validatePropertyReferenceKeys(), only used as a ContentSystemDataLoaderMap lookup key
+        // (configSpecificationFor()), so both loaders would traverse identical SUT branches.
+        yield 'a reference property' => ['media'];
+        yield 'a missing property' => ['ghost'];
     }
 
     #[TestDox('resolves the declared type from the overlay when the registry does not carry it, and validates against it')]

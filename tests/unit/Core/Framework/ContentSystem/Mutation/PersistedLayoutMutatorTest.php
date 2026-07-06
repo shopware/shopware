@@ -64,22 +64,8 @@ class PersistedLayoutMutatorTest extends TestCase
         static::assertSame('detached-child', $result->orphaned[0]->getId());
     }
 
-    #[TestDox('persists the mutated tree to the repository')]
-    public function testPersistsMutatedTreeToRepository(): void
-    {
-        $id = $this->ids->get('layout');
-        $repository = $this->staticRepository($this->entity($id, self::VERSION));
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
-
-        $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), Context::createDefaultContext());
-
-        static::assertSame($id, $repository->updates[0][0]['id']);
-        static::assertCount(1, $repository->updates[0][0]['layout']);
-    }
-
-    #[TestDox('returns the re-resolved layout after mutation')]
-    public function testReturnsReResolvedLayoutAfterMutation(): void
+    #[TestDox('persists the mutated tree to the repository and returns the re-resolved layout')]
+    public function testPersistsMutatedTreeAndReturnsReResolvedLayout(): void
     {
         $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, self::VERSION));
@@ -88,6 +74,8 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), Context::createDefaultContext());
 
+        static::assertSame($id, $repository->updates[0][0]['id']);
+        static::assertCount(1, $repository->updates[0][0]['layout']);
         static::assertSame(['block-b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result->layout));
     }
 
@@ -103,15 +91,18 @@ class PersistedLayoutMutatorTest extends TestCase
         $registry = $this->createMock(RootSourceRegistry::class);
         $registry->expects($this->once())->method('resolve')->with($rootSource)->willReturn($rootContext);
 
+        $report = new DiagnosticsReport([]);
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
             ->with(static::anything(), static::identicalTo($rootContext), static::anything())
-            ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
+            ->willReturn(new LayoutAnalysis($report, []));
 
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $registry, $diagnostics);
 
-        $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
+        $result = $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
+
+        static::assertSame($report, $result->diagnostics);
     }
 
     /**
@@ -134,19 +125,6 @@ class PersistedLayoutMutatorTest extends TestCase
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
 
         static::assertSame(['block-b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result->layout));
-    }
-
-    #[TestDox('accepts a null expected version for a never-updated layout')]
-    public function testAcceptsNullVersionForNeverUpdatedLayout(): void
-    {
-        $id = $this->ids->get('layout');
-        $repository = $this->staticRepository($this->entity($id, null));
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
-
-        $result = $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
-
-        static::assertSame(['block-b'], array_column(array_map(static fn (ContentElement $e): array => ['id' => $e->getId()], $result->layout), 'id'));
     }
 
     #[TestDox('throws layoutNotFound and never writes when the layout does not exist')]

@@ -508,7 +508,14 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('emits no unfilled_required_input when a required reference is satisfied by parent context instead of stored wiring')]
     public function testParentContextSatisfiedReferenceDoesNotGateOnUnfilledInput(): void
     {
-        $element = new ContentElement('root-1', 'Sw:Block');
+        // The element also carries a stored requirement for "product", but its loader produces CategoryEntity —
+        // not the declared SalesChannelProductEntity — so ElementResolver's Stored candidate fails to resolve
+        // and the sole matching parent context wins the pick instead. This isolates the "origin !== Stored"
+        // guard: the stored requirement is genuinely present, so if that guard were removed, execution would
+        // reach the unfilled-input check below and gate on the empty "productId", turning bindingErrors() non-empty.
+        $element = ContentElementBuilder::create('Sw:Block', 'root-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
 
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
@@ -518,11 +525,17 @@ class LayoutDiagnosticsTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-            ->reference('product', SalesChannelProductEntity::class, required: true)
-            ->primitive('productId', 'string')
-            ->build()])
-            ->analyze([$element], $rootContext)->report;
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(CategoryEntity::class),
+        )->analyze([$element], $rootContext)->report;
 
         static::assertSame([], $report->bindingErrors());
     }

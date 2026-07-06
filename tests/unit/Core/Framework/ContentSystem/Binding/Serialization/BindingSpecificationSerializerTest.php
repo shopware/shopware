@@ -92,22 +92,17 @@ class BindingSpecificationSerializerTest extends TestCase
         static::assertArrayNotHasKey('id', $normalized);
     }
 
-    #[TestDox('normalize emits promoted as null when the declaration omits it, round-tripping absence')]
-    public function testNormalizeEmitsNullPromotedWhenAbsent(): void
+    #[TestDox('normalize emits promoted as null (round-tripping absence) and keeps empty resolves/inputs as [], not null')]
+    public function testNormalizeEmitsNullPromotedAndEmptyResolvesInputsWhenAbsent(): void
     {
         $dto = $this->serializer->denormalize(['type' => 'media-gallery', 'label' => 'x', 'resolves' => [], 'inputs' => []]);
 
-        static::assertNull($this->serializer->normalize($dto)['promoted']);
-    }
-
-    #[TestDox('normalize keeps an empty resolves/inputs map as [], not null')]
-    public function testNormalizeKeepsEmptyResolvesAndInputsAsEmptyArray(): void
-    {
-        $dto = $this->serializer->denormalize(['type' => 'media-gallery', 'label' => 'x', 'resolves' => [], 'inputs' => []]);
-
-        $normalized = $this->serializer->normalize($dto);
-
-        static::assertSame([], $normalized['resolves']);
-        static::assertSame([], $normalized['inputs']);
+        static::assertSame([
+            'type' => 'media-gallery',
+            'label' => 'x',
+            'promoted' => null,
+            'resolves' => [],
+            'inputs' => [],
+        ], $this->serializer->normalize($dto));
     }
 }

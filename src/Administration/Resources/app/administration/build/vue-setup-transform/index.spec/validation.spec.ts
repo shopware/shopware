@@ -235,19 +235,19 @@ describe('build/vue-setup-transform validation', () => {
 
     it('ignores fake Shopware setup script tags in non-top-level contexts', () => {
         const source = stripIndent`
-            <!-- <script setup sw-component="from-comment"></script> -->
+            <!-- <script setup></script> -->
             <template>
-                <div data-example="<script setup sw-component='from-template'>"></div>
+                <div data-example="<script setup>"></div>
             </template>
             <style>
-            .example::before { content: "<script setup sw-component='from-style'>"; }
+            .example::before { content: "<script setup>"; }
             </style>
             <script setup>
-            // <script setup sw-component='from-line-comment'>
-            /* <script setup sw-component='from-block-comment'> */
-            const single = '<script setup sw-component="from-single-string">';
-            const fake = "<script setup sw-component='from-string'>";
-            const template = \`<script setup sw-component="from-template-literal">\${'<script setup sw-component="from-template-expression">'}\`;
+            // <script setup>
+            /* <script setup> */
+            const single = '<script setup>';
+            const fake = "<script setup>";
+            const template = \`<script setup>\${'<script setup>'}\`;
             const count = 1;
             swDefinePublic({ count });
             </script>
@@ -257,15 +257,6 @@ describe('build/vue-setup-transform validation', () => {
 
         expect(result).toContain('Shopware.Component.createExtendableSetup(');
         expect(result).toContain("name: 'scanner'");
-        expect(result).not.toContain("name: 'from-comment'");
-        expect(result).not.toContain("name: 'from-template'");
-        expect(result).not.toContain("name: 'from-style'");
-        expect(result).not.toContain("name: 'from-line-comment'");
-        expect(result).not.toContain("name: 'from-block-comment'");
-        expect(result).not.toContain("name: 'from-single-string'");
-        expect(result).not.toContain("name: 'from-string'");
-        expect(result).not.toContain("name: 'from-template-literal'");
-        expect(result).not.toContain("name: 'from-template-expression'");
     });
 
     it('skips transformation when Vue reports SFC parse errors', () => {

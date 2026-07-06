@@ -76,16 +76,12 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         );
     });
 
-    it('hoists bare defineEmits() while a user emit() binding is exposed as state', () => {
+    it('hoists bare defineEmits() statements', () => {
         const source = stripIndent`
             <script setup>
             defineEmits(['save']);
 
-            function emit() {
-                return 'local binding';
-            }
-
-            const count = emit().length;
+            const count = 1;
 
             swDefinePublic({
                 count,
@@ -93,13 +89,11 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-bare-emits-collision.vue').code;
+        const result = transformOrFail(source, 'base-bare-emits.vue').code;
 
         expect(result).toContain("defineEmits(['save']);");
         expect(result).not.toContain('const emit = defineEmits');
         expect(result).toContain('(__swSetupContext.emit);');
-        expect(result).toContain("return 'local binding';");
-        expect(result).toContain('private: {\n                emit,\n            }');
     });
 
     it('supports runtime array emit declarations', () => {

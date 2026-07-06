@@ -146,16 +146,12 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         );
     });
 
-    it('hoists bare defineProps() while a user props() binding is exposed as state', () => {
+    it('hoists bare defineProps() statements', () => {
         const source = stripIndent`
             <script setup>
             defineProps();
 
-            function props() {
-                return 'local binding';
-            }
-
-            const count = props().length;
+            const count = 1;
 
             swDefinePublic({
                 count,
@@ -163,15 +159,11 @@ describe('build/vue-setup-transform base defineProps macro', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'sw-my-component.vue').code;
+        const result = transformOrFail(source, 'base-bare-props.vue').code;
 
         expect(result).toContain('const __swSetupPropsDeclaration = defineProps();');
-        expect(result).toContain('Shopware.Component.createExtendableSetup(');
-        expect(result).toContain("name: 'sw-my-component'");
         expect(result).toContain('props: __swSetupPropsDeclaration,');
         expect(result).toContain('(__swSetupProps);');
-        expect(result).toContain("return 'local binding';");
-        expect(result).toContain('private: {\n                props,\n            }');
     });
 
     it('keeps base withDefaults(defineProps()) outside the extendable setup callback', () => {

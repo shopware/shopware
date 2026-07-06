@@ -45,6 +45,11 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `swag-dev-tools-log-search`: query (string), level (string, optional) — full-text search of application log entries
 - `swag-dev-tools-log-stream`: limit (int, optional) — stream the most recent log lines
 
+## Tool discovery
+- Not every available Shopware MCP tool is listed initially. If you need a capability that is not visible, call `shopware-tool-search` first.
+- For broader workflow areas, call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, and refresh `tools/list` after the server sends a list-changed notification.
+- Toolsets only change visibility for the current MCP session. The allowlist and ACL permissions remain the security boundary.
+
 ## Key concepts
 - Shopware uses a Data Abstraction Layer (DAL). Use `shopware-entity-schema` when you need field or association names for an unfamiliar entity.
 - Entity IDs are UUIDs (32 hex chars, no dashes, lowercase).

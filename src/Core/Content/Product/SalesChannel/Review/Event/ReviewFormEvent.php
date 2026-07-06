@@ -32,7 +32,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
      */
     private readonly array $reviewFormData;
 
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'product', newType: 'ProductEntity', description: 'The parameter loses its null default and becomes required.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'product', newType: ProductEntity::class, description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         private readonly Context $context,
         private readonly string $salesChannelId,

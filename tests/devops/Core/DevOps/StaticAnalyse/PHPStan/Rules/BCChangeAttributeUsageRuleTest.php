@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
+use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -82,11 +83,15 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'NewRequiredParameter on "NewRequiredParameterCases::requiredWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
                 149,
             ],
+            [
+                'ReturnTypeNarrowing on "UnresolvableTypePayloads::shortClassName()": announced type "UnimportedShortName" references the unresolvable class "UnimportedShortName". Reference classes fully qualified via ::class so tooling can resolve them.',
+                165,
+            ],
         ]);
     }
 
     protected function getRule(): Rule
     {
-        return new BCChangeAttributeUsageRule($this->createReflectionProvider());
+        return new BCChangeAttributeUsageRule(self::createReflectionProvider(), self::getContainer()->getByType(TypeStringResolver::class));
     }
 }

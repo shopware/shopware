@@ -33,7 +33,7 @@ class ProductSortingEntity extends Entity
     /**
      * @return array<FieldSorting>
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'fallbackSorting', parameterType: '?FieldSorting')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'fallbackSorting', parameterType: '?' . FieldSorting::class)]
     public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
         $fallbackSorting = \func_num_args() === 1 ? func_get_arg(0) : null;

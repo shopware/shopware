@@ -44,7 +44,7 @@ class EntityExists extends Constraint
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'entity', newType: 'string', description: 'The parameter loses its null default and becomes required.')]
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'context', newType: 'Context', description: 'The parameter loses its null default and becomes required.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'context', newType: Context::class, description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         ?array $options = null,
         ?string $entity = null,

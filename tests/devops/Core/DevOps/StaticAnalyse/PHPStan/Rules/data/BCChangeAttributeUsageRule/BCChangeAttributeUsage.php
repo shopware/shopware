@@ -159,3 +159,14 @@ class NewRequiredParameterCases
         }
     }
 }
+
+class UnresolvableTypePayloads
+{
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'UnimportedShortName')]
+    public function shortClassName(): ?string
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'narrowing');
+
+        return null;
+    }
+}

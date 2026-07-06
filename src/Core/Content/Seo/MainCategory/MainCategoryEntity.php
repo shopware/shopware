@@ -61,7 +61,7 @@ class MainCategoryEntity extends Entity
         $this->categoryId = $categoryId;
     }
 
-    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?CategoryEntity')]
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . CategoryEntity::class)]
     public function getCategory(): CategoryEntity
     {
         if ($this->category === null) {

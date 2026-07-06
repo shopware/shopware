@@ -22,7 +22,7 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     /**
      * @param CmsPageCollection $result
      */
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'result', newType: 'CmsPageCollection')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'result', newType: CmsPageCollection::class)]
     public function __construct(
         protected Request $request,
         /* protected CmsPageCollection $result, */
@@ -47,7 +47,7 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     /**
      * @return CmsPageCollection
      */
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'CmsPageCollection')]
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: CmsPageCollection::class)]
     public function getResult(): EntityCollection /* CmsPageCollection */
     {
         return $this->result;

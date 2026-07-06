@@ -11,6 +11,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
 use PHPStan\Node\InClassNode;
+use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
@@ -26,6 +27,8 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 
@@ -76,8 +79,24 @@ class BCChangeAttributeUsageRule implements Rule
         ParameterTypeWidening::class,
     ];
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    /**
+     * Attributes carrying a type payload; the announced type must be resolvable as
+     * written (reference classes via ::class), so tooling can act on it.
+     *
+     * @var array<class-string, array{string, int}>
+     */
+    private const TYPE_CARRYING = [
+        ReturnTypeNarrowing::class => ['newType', 1],
+        ReturnTypeWidening::class => ['newType', 1],
+        ParameterTypeNarrowing::class => ['newType', 2],
+        ParameterTypeWidening::class => ['newType', 2],
+        NewOptionalParameter::class => ['parameterType', 2],
+    ];
+
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly TypeStringResolver $typeStringResolver,
+    ) {
     }
 
     public function getNodeType(): string
@@ -162,6 +181,14 @@ class BCChangeAttributeUsageRule implements Rule
                 $symbol,
                 \is_scalar($version) ? (string) $version : \gettype($version)
             ));
+        }
+
+        $typeArgument = self::TYPE_CARRYING[$attribute->getName()] ?? null;
+        if ($typeArgument !== null) {
+            $typeString = $this->argument($attribute, $typeArgument[0], $typeArgument[1]);
+            if (\is_string($typeString)) {
+                $errors = [...$errors, ...$this->validateResolvableType($attribute, $typeString, $symbol, $line)];
+            }
         }
 
         if (\in_array($attribute->getName(), self::PARAMETER_SCOPED, true)) {
@@ -307,6 +334,41 @@ class BCChangeAttributeUsageRule implements Rule
             $this->shortName($attribute),
             $symbol
         ))];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateResolvableType(ReflectionAttribute|FakeReflectionAttribute $attribute, string $typeString, string $symbol, int $line): array
+    {
+        if (\in_array(\strtolower($typeString), ['self', 'static', '$this'], true)) {
+            return [];
+        }
+
+        try {
+            $type = $this->typeStringResolver->resolve($typeString);
+        } catch (\Throwable) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": announced type "%s" is not a valid type expression.',
+                $this->shortName($attribute),
+                $symbol,
+                $typeString
+            ))];
+        }
+
+        foreach ($type->getReferencedClasses() as $referenced) {
+            if (!$this->reflectionProvider->hasClass($referenced)) {
+                return [$this->error($line, \sprintf(
+                    '%s on "%s": announced type "%s" references the unresolvable class "%s". Reference classes fully qualified via ::class so tooling can resolve them.',
+                    $this->shortName($attribute),
+                    $symbol,
+                    $typeString,
+                    $referenced
+                ))];
+            }
+        }
+
+        return [];
     }
 
     private function parameterExists(\ReflectionMethod $method, string $parameterName): bool

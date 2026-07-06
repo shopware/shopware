@@ -89,7 +89,7 @@ class TaxRuleEntity extends Entity
         $this->taxRuleTypeId = $taxRuleTypeId;
     }
 
-    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?TaxRuleTypeEntity')]
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . TaxRuleTypeEntity::class)]
     public function getType(): TaxRuleTypeEntity
     {
         if ($this->type === null) {

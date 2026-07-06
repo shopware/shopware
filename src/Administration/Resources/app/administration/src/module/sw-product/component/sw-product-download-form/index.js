@@ -198,21 +198,24 @@ export default {
         },
 
         downloadMedia(download) {
-            this.mediaService.downloadMedia(download.media.id).then((data) => {
-                const url = window.URL.createObjectURL(data);
+            this.mediaService
+                .downloadMedia(download.media.id)
+                .then((data) => {
+                    const url = window.URL.createObjectURL(data);
 
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = this.getFileName(download);
-                link.dispatchEvent(new MouseEvent('click'));
-                link.remove();
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = this.getFileName(download);
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
 
-                URL.revokeObjectURL(url);
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                    URL.revokeObjectURL(url);
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                    });
                 });
-            });
         },
     },
 };

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\Api\MediaDownloadController;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -12,10 +13,9 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -60,13 +60,13 @@ class MediaDownloadControllerTest extends TestCase
 
         $this->mediaRepository->addSearch(new MediaCollection([$media]));
 
-        $stream = $this->createMock(StreamInterface::class);
+        $stream = static::createStub(StreamInterface::class);
         $stream->method('detach')->willReturn(fopen('php://temp', 'r'));
 
         $this->mediaService
             ->expects($this->once())
             ->method('loadFileStream')
-            ->with($mediaId, $this->isInstanceOf(Context::class))
+            ->with($mediaId, static::isInstanceOf(Context::class))
             ->willReturn($stream);
 
         $response = $this->controller->downloadMediaFile($mediaId, $context);
@@ -87,13 +87,13 @@ class MediaDownloadControllerTest extends TestCase
 
         $this->mediaRepository->addSearch(new MediaCollection([$media]));
 
-        $stream = $this->createMock(StreamInterface::class);
+        $stream = static::createStub(StreamInterface::class);
         $stream->method('detach')->willReturn(fopen('php://temp', 'r'));
 
         $this->mediaService
             ->expects($this->once())
             ->method('loadFileStream')
-            ->with($mediaId, $this->isInstanceOf(Context::class))
+            ->with($mediaId, static::isInstanceOf(Context::class))
             ->willReturn($stream);
 
         $response = $this->controller->downloadMediaFile($mediaId, $context);
@@ -105,6 +105,10 @@ class MediaDownloadControllerTest extends TestCase
     {
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->addSearch(new MediaCollection());
+
+        $this->mediaService
+            ->expects($this->never())
+            ->method('loadFileStream');
 
         $this->expectExceptionObject(MediaException::mediaNotFound($mediaId));
 

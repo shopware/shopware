@@ -4,10 +4,10 @@ namespace Shopware\Core\Content\Media\Api;
 
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
-use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

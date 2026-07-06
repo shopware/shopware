@@ -57,7 +57,7 @@ class System extends Bundle
         $phpLoader->load('usage_data.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('services_test.xml');
+            $phpLoader->load('services_test.php');
         }
 
         $container->addCompilerPass(new SalesChannelEntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);

@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Replaces the real translation repository client, so tests never reach the network.
+             Must live in this bundle: snippet.xml is loaded after the Framework bundle's
+             services_test.xml and would silently win otherwise. -->
+        <service id="shopware.translation.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
+
+        <service id="shopware.translation.client" class="GuzzleHttp\Client">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service" id="shopware.translation.mock_handler"/>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+    </services>
+</container>

@@ -35,7 +35,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\EntityReaderTest;
 
 use function Symfony\Component\String\u;
 
@@ -44,7 +43,7 @@ use function Symfony\Component\String\u;
  *
  * @codeCoverageIgnore
  *
- * @see EntityReaderTest
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\EntityReaderTest
  */
 #[Package('framework')]
 class EntityReader implements EntityReaderInterface

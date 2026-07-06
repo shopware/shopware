@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,12 +30,12 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 #[CoversClass(ThemeMergedConfigBuilder::class)]
 class ThemeMergedConfigBuilderTest extends TestCase
 {
-    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
+    private StorefrontPluginRegistry&Stub $storefrontPluginRegistryMock;
 
     /**
-     * @var EntityRepository<ThemeCollection>&MockObject
+     * @var EntityRepository<ThemeCollection>&Stub
      */
-    private EntityRepository&MockObject $themeRepositoryMock;
+    private EntityRepository&Stub $themeRepositoryMock;
 
     private ThemeMergedConfigBuilder $mergedConfigBuilder;
 
@@ -43,8 +43,8 @@ class ThemeMergedConfigBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
-        $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->storefrontPluginRegistryMock = static::createStub(StorefrontPluginRegistry::class);
+        $this->themeRepositoryMock = static::createStub(EntityRepository::class);
 
         $this->context = Context::createDefaultContext();
 

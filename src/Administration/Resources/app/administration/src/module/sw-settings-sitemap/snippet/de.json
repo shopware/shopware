@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "Sitemap",
       "description": "Hier können Einstellungen an der Sitemap vorgenommen werden.",
       "textHeadline": "Sitemap",
-      "buttonSave": "Speichern",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
     }
   }

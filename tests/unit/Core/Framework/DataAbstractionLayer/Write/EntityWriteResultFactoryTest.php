@@ -41,13 +41,13 @@ class EntityWriteResultFactoryTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CountryDefinition::class, TaxDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $factory = new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -191,8 +191,8 @@ class EntityWriteResultFactoryTest extends TestCase
         $ids = new IdsCollection();
         $registry = new StaticDefinitionInstanceRegistry(
             [CountryDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -216,7 +216,7 @@ class EntityWriteResultFactoryTest extends TestCase
 
         $result = (new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         ))->build($queue);
 
         static::assertCount(1, $result['country']);
@@ -233,8 +233,8 @@ class EntityWriteResultFactoryTest extends TestCase
         $ids = new IdsCollection();
         $registry = new StaticDefinitionInstanceRegistry(
             [TestJsonDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -261,7 +261,7 @@ class EntityWriteResultFactoryTest extends TestCase
 
         $result = (new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         ))->build($queue);
 
         static::assertCount(1, $result[TestJsonDefinition::ENTITY_NAME]);

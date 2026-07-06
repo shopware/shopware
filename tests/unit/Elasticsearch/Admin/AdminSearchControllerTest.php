@@ -45,8 +45,8 @@ class AdminSearchControllerTest extends TestCase
     {
         $controller = new AdminSearchController(
             static::createStub(AdminSearcher::class),
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             new AdminElasticsearchHelper(false, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
@@ -62,8 +62,8 @@ class AdminSearchControllerTest extends TestCase
     {
         $controller = new AdminSearchController(
             static::createStub(AdminSearcher::class),
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 
@@ -79,8 +79,8 @@ class AdminSearchControllerTest extends TestCase
     {
         $controller = new AdminSearchController(
             $this->searcher,
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger())
         );
 

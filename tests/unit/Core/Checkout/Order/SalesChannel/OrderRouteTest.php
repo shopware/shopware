@@ -50,16 +50,16 @@ class OrderRouteTest extends TestCase
         $this->expectException(OrderException::class);
 
         $route = new OrderRoute(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(RateLimiter::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(AccountService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AccountService::class),
             new GuestAuthenticator(),
             new NativeClock()
         );
 
-        $route->load(new Request(), $this->createMock(SalesChannelContext::class), new Criteria());
+        $route->load(new Request(), static::createStub(SalesChannelContext::class), new Criteria());
     }
 
     public function testLoadCustomerOrder(): void
@@ -70,7 +70,7 @@ class OrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getCustomer')
             ->willReturn($customer);
@@ -102,10 +102,10 @@ class OrderRouteTest extends TestCase
 
         $route = new OrderRoute(
             $orderRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(RateLimiter::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
             $eventDispatcher,
-            $this->createMock(AccountService::class),
+            static::createStub(AccountService::class),
             new GuestAuthenticator(),
             new NativeClock()
         );
@@ -148,7 +148,7 @@ class OrderRouteTest extends TestCase
         $order->setOrderCustomer($orderCustomer);
         $order->setBillingAddress($billingAddress);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getCustomer')
             ->willReturn(null);
@@ -186,8 +186,8 @@ class OrderRouteTest extends TestCase
 
         $route = new OrderRoute(
             $orderRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(RateLimiter::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
             $eventDispatcher,
             $accountService,
             new GuestAuthenticator(),
@@ -233,16 +233,16 @@ class OrderRouteTest extends TestCase
         $this->expectException(OrderException::class);
 
         $route = new OrderRoute(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(RateLimiter::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(AccountService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AccountService::class),
             new GuestAuthenticator(),
             new NativeClock()
         );
 
-        $route->load(new Request(), $this->createMock(SalesChannelContext::class), (new Criteria())->addFilter($filter));
+        $route->load(new Request(), static::createStub(SalesChannelContext::class), (new Criteria())->addFilter($filter));
     }
 
     /**
@@ -280,7 +280,7 @@ class OrderRouteTest extends TestCase
         $order->setOrderCustomer($orderCustomer);
         $order->setBillingAddress($billingAddress);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getCustomer')
             ->willReturn(null);
@@ -294,17 +294,17 @@ class OrderRouteTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository = static::createStub(EntityRepository::class);
         $orderRepository
             ->method('search')
             ->willReturn($searchResult);
 
         $route = new OrderRoute(
             $orderRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(RateLimiter::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(AccountService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(AccountService::class),
             new GuestAuthenticator(),
             new NativeClock(),
             $expireDays,

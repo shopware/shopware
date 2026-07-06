@@ -23,7 +23,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
     {
         $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->never())->method('run');
 
@@ -50,7 +50,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
             null
         );
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->once())->method('run');
 
@@ -65,7 +65,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
     {
         $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->never())->method('run');
 
@@ -81,7 +81,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
     {
         $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
         $aliasHandler->expects($this->never())->method('run');
 

@@ -27,7 +27,7 @@ class DomainNotMappedListenerTest extends TestCase
         $listener = new DomainNotMappedListener($container);
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             0,
             new \Exception()
@@ -39,12 +39,12 @@ class DomainNotMappedListenerTest extends TestCase
     public function testSalesChannelMappingException(): void
     {
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->once())->method('get')->willReturn($this->createMock(Environment::class));
+        $container->expects($this->once())->method('get')->willReturn(static::createStub(Environment::class));
 
         $listener = new DomainNotMappedListener($container);
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             0,
             StorefrontFrameworkException::salesChannelMappingException('test')

@@ -17,8 +17,12 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
+use Shopware\Core\Framework\Webhook\Health\ErrorClassifier;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -417,6 +421,37 @@ class WebhookDeliveryServiceTest extends TestCase
         yield 'retry path' => ['markPendingRetry', new Response(500, [], '{"error":"fail"}'), 2];
     }
 
+    public function testHoldDispatchesEachMessageWithHeldStamp(): void
+    {
+        $service = $this->createService();
+        $message = $this->createMessage();
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordInflightOutboxEntry');
+
+        $service->hold([$message]);
+
+        $envelopes = $this->bus->getMessages();
+        static::assertCount(1, $envelopes);
+        static::assertSame($message, $envelopes[0]->getMessage());
+        static::assertNotNull($envelopes[0]->last(HeldDeliveryStamp::class));
+    }
+
+    public function testRecordsSuccessToEndpointHealthAfterSuccessfulDelivery(): void
+    {
+        $msg = $this->createMessage();
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($this->createWebhookRequest());
+        $this->webhookOutboxStore->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+        $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')->willReturn(true);
+
+        $endpointHealth = $this->createMock(EndpointHealth::class);
+        $endpointHealth->expects($this->once())->method('recordSuccess')->with($msg->getWebhookId());
+
+        $service = $this->createService(endpointHealth: $endpointHealth);
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $service->deliver($msg));
+    }
+
     private function queueGuzzleResponse(Response $response): void
     {
         $this->guzzleMock->append($response);
@@ -425,6 +460,8 @@ class WebhookDeliveryServiceTest extends TestCase
     private function createService(
         bool $isAdminWorkerEnabled = false,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
+        ?EndpointHealth $endpointHealth = null,
+        ?ErrorClassifier $errorClassifier = null,
     ): WebhookDeliveryService {
         $signingSecretResolver = $this->createMock(WebhookSigningSecretResolver::class);
         $signingSecretResolver->method('resolve')->willReturnCallback(
@@ -440,6 +477,8 @@ class WebhookDeliveryServiceTest extends TestCase
             $this->bus,
             $this->webhookHealthService,
             $this->logger,
+            $endpointHealth,
+            $errorClassifier,
             $isAdminWorkerEnabled,
             $failureStrategy,
         );

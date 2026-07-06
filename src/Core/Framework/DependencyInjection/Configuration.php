@@ -1637,6 +1637,20 @@ class Configuration implements ConfigurationInterface
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
                 ->end()
+                ->arrayNode('health')
+                    ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOKS_REWORK Phase 2 endpoint-health (circuit breaker) tuning.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('cooldown_schedule_seconds')
+                            ->info('Trial cooldown tiers in seconds (~doubling backoff, 5m→4h cap); the DEGRADED cycle budget is the schedule length.')
+                            ->integerPrototype()->min(1)->end()
+                            ->defaultValue([300, 600, 1200, 2400, 3600, 14400])
+                        ->end()
+                        ->integerNode('degraded_threshold')->min(1)->defaultValue(5)->end()
+                        ->integerNode('non_transient_threshold')->min(1)->defaultValue(3)->end()
+                        ->integerNode('max_suspended_days')->min(1)->max(14)->defaultValue(7)->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

@@ -696,3 +696,9 @@ shopware:
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
         failure_strategy: disable_on_threshold
+        #@experimental stableVersion:v6.8.0 feature:WEBHOOKS_REWORK Phase 2 endpoint-health tuning; the DEGRADED cycle budget is the schedule length
+        health:
+            cooldown_schedule_seconds: [300, 600, 1200, 2400, 3600, 14400]
+            degraded_threshold: 5
+            non_transient_threshold: 3
+            max_suspended_days: 7

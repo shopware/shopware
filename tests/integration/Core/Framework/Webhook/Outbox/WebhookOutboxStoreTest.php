@@ -62,6 +62,35 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertDeliveryDeleted('evt-1');
     }
 
+    public function testRecordHeldOutboxEntryWritesPausedNonClaimableRow(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+
+        $entry = $this->store->recordHeldOutboxEntry($this->toEntry($message));
+
+        static::assertInstanceOf(OutboxEntry::class, $entry);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PAUSED, $entry->deliveryStatus);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PAUSED, $delivery['delivery_status']);
+        static::assertSame(0, (int) $delivery['execution_count']);
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        // A paused row must never be claimed: fetchDue (claimable statuses only) ignores it.
+        $due = $this->store->fetchDue(
+            Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
+            [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY],
+            10
+        );
+        static::assertSame([], $due);
+    }
+
     public function testBackfillDeliveryCreatesDeliveryForQueuedEventLog(): void
     {
         $this->createWebhook('wh-1');

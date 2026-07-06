@@ -31,6 +31,13 @@ class WebhookEventLogDefinition extends EntityDefinition
 
     final public const STATUS_SUCCESS = 'success';
 
+    /**
+     * Health-held delivery: a row written for a DEGRADED webhook, held for the cooldown probe.
+     * Not in the transport's claimable-status set, so the receiver ignores it like SUCCESS/FAILED.
+     * A SUSPENDED/DISABLED webhook writes no row at all — the dispatch gate skips it (#16565).
+     */
+    final public const STATUS_PAUSED = 'paused';
+
     final public const ENTITY_NAME = 'webhook_event_log';
 
     public function getEntityName(): string
@@ -80,6 +87,7 @@ class WebhookEventLogDefinition extends EntityDefinition
             (new BlobField('serialized_webhook_message', 'serializedWebhookMessage'))->removeFlag(ApiAware::class)->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new IntField('sequence', 'sequence'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('failure_reason', 'failureReason', 32))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Reason a pending webhook delivery was dropped by the endpoint-health model — e.g. endpoint_suspended (→ SUSPENDED) or webhook_disabled (→ DISABLED); null otherwise (#16565).'),
         ]);
     }
 }

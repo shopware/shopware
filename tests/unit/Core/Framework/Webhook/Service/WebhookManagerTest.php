@@ -23,8 +23,11 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
+use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -65,6 +68,8 @@ class WebhookManagerTest extends TestCase
 
     private WebhookOutboxStore&MockObject $webhookOutboxStore;
 
+    private WebhookDeliveryService&MockObject $deliveryService;
+
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
@@ -102,6 +107,162 @@ class WebhookManagerTest extends TestCase
 
         $webhook = $this->prepareWebhook($event2->getName());
         $this->assertSyncWebhookIsSent($webhook, $event2, $webhookManager);
+    }
+
+    public function testFlagOnSkipDecisionExcludesWebhookFromDelivery(): void
+    {
+        $event = $this->prepareEvent();
+
+        $keep = $this->getWebhook('foobar');
+        $drop = $this->getWebhook('foobar');
+
+        $this->webhookLoader->method('getWebhooks')->willReturn([$keep, $drop]);
+        $this->webhookLoader->method('getPrivilegesForRoles')->willReturnCallback(
+            static fn (array $roleIds): array => array_fill_keys($roleIds, new AclPrivilegeCollection([])),
+        );
+
+        $endpointHealth = $this->createMock(EndpointHealth::class);
+        $endpointHealth->method('gateFor')->willReturnCallback(
+            static fn (string $webhookId): WebhookDispatchDecision => $webhookId === $keep->id
+                ? WebhookDispatchDecision::Deliver
+                : WebhookDispatchDecision::Skip,
+        );
+
+        $manager = $this->getWebhookManager(true, $endpointHealth);
+
+        $this->deliveryService->expects($this->never())->method('hold');
+        $this->deliveryService->expects($this->once())->method('process')->with(
+            static::callback(static function (array $messages) use ($keep): bool {
+                if (\count($messages) !== 1) {
+                    return false;
+                }
+
+                static::assertInstanceOf(WebhookEventMessage::class, $messages[0]);
+
+                return $messages[0]->getWebhookId() === $keep->id;
+            }),
+            false,
+        );
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
+    }
+
+    public function testFlagOnSkipDecisionForEveryWebhookDispatchesNothing(): void
+    {
+        $event = $this->prepareEvent();
+        $this->prepareWebhook('foobar');
+
+        $endpointHealth = $this->createMock(EndpointHealth::class);
+        $endpointHealth->method('gateFor')->willReturn(WebhookDispatchDecision::Skip);
+
+        $manager = $this->getWebhookManager(true, $endpointHealth);
+
+        $this->deliveryService->expects($this->never())->method('process');
+        $this->deliveryService->expects($this->never())->method('hold');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
+    }
+
+    public function testFlagOnHoldDecisionDispatchesViaHoldNotProcess(): void
+    {
+        $event = $this->prepareEvent();
+        $webhook = $this->prepareWebhook('foobar');
+
+        $endpointHealth = $this->createMock(EndpointHealth::class);
+        $endpointHealth->method('gateFor')->willReturn(WebhookDispatchDecision::Hold);
+
+        $manager = $this->getWebhookManager(true, $endpointHealth);
+
+        // Held webhooks go through the delivery service's hold() path (→ transport persists paused),
+        // never the deliver path.
+        $this->deliveryService->expects($this->never())->method('process');
+        $this->deliveryService->expects($this->once())->method('hold')->with(
+            static::callback(static function (array $messages) use ($webhook): bool {
+                if (\count($messages) !== 1) {
+                    return false;
+                }
+
+                static::assertInstanceOf(WebhookEventMessage::class, $messages[0]);
+
+                return $messages[0]->getWebhookId() === $webhook->id;
+            }),
+        );
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
+    }
+
+    public function testFlagOnMixedDecisionRoutesEachWebhookToItsLane(): void
+    {
+        $event = $this->prepareEvent();
+        $deliver = $this->getWebhook('foobar');
+        $held = $this->getWebhook('foobar');
+        $skip = $this->getWebhook('foobar');
+
+        $this->webhookLoader->method('getWebhooks')->willReturn([$deliver, $held, $skip]);
+        $this->webhookLoader->method('getPrivilegesForRoles')->willReturnCallback(
+            static fn (array $roleIds): array => array_fill_keys($roleIds, new AclPrivilegeCollection([])),
+        );
+
+        $endpointHealth = $this->createMock(EndpointHealth::class);
+        $endpointHealth->method('gateFor')->willReturnCallback(
+            static fn (string $webhookId): WebhookDispatchDecision => match ($webhookId) {
+                $deliver->id => WebhookDispatchDecision::Deliver,
+                $held->id => WebhookDispatchDecision::Hold,
+                default => WebhookDispatchDecision::Skip,
+            },
+        );
+
+        $manager = $this->getWebhookManager(true, $endpointHealth);
+
+        $this->deliveryService->expects($this->once())->method('process')->with(
+            static::callback(static function (array $messages) use ($deliver): bool {
+                if (\count($messages) !== 1) {
+                    return false;
+                }
+
+                static::assertInstanceOf(WebhookEventMessage::class, $messages[0]);
+
+                return $messages[0]->getWebhookId() === $deliver->id;
+            }),
+            false,
+        );
+        $this->deliveryService->expects($this->once())->method('hold')->with(
+            static::callback(static function (array $messages) use ($held): bool {
+                if (\count($messages) !== 1) {
+                    return false;
+                }
+
+                static::assertInstanceOf(WebhookEventMessage::class, $messages[0]);
+
+                return $messages[0]->getWebhookId() === $held->id;
+            }),
+        );
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
+    }
+
+    public function testFlagOnWithNoHealthBoundDeliversEveryWebhookViaProcess(): void
+    {
+        $event = $this->prepareEvent();
+        $first = $this->getWebhook('foobar');
+        $second = $this->getWebhook('foobar');
+
+        $this->webhookLoader->method('getWebhooks')->willReturn([$first, $second]);
+        $this->webhookLoader->method('getPrivilegesForRoles')->willReturnCallback(
+            static fn (array $roleIds): array => array_fill_keys($roleIds, new AclPrivilegeCollection([])),
+        );
+
+        // No EndpointHealth bound (null): flag-on must behave exactly like trunk —
+        // every webhook delivered, nothing held.
+        $manager = $this->getWebhookManager(true);
+
+        $this->deliveryService->expects($this->never())->method('hold');
+        $this->deliveryService->expects($this->once())->method('process')->with(
+            static::callback(static fn (array $messages): bool => \count($messages) === 2),
+            false,
+        );
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
     }
 
     public function testDispatchWithWebhooksSync(): void
@@ -526,14 +687,14 @@ class WebhookManagerTest extends TestCase
         return $webhook;
     }
 
-    private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
+    private function getWebhookManager(bool $isAdminWorkerEnabled, ?EndpointHealth $endpointHealth = null): WebhookManager
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
-        $deliveryService = $this->createMock(WebhookDeliveryService::class);
-        $deliveryService->method('buildRequest')->willReturnCallback(
+        $this->deliveryService = $this->createMock(WebhookDeliveryService::class);
+        $this->deliveryService->method('buildRequest')->willReturnCallback(
             fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
         );
 
@@ -548,8 +709,9 @@ class WebhookManagerTest extends TestCase
             'https://example.com',
             '0.0.0',
             $isAdminWorkerEnabled,
-            $deliveryService,
+            $this->deliveryService,
             $this->webhookOutboxStore,
+            $endpointHealth,
         );
     }
 

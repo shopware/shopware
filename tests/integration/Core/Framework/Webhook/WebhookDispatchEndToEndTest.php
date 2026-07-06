@@ -925,6 +925,8 @@ class WebhookDispatchEndToEndTest extends TestCase
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(WebhookHealthService::class),
             static::getContainer()->get('logger'),
+            null,
+            null,
             $isAdminWorkerEnabled,
         );
 
@@ -941,6 +943,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            null,
         );
     }
 

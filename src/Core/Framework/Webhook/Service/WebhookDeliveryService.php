@@ -5,7 +5,11 @@ namespace Shopware\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Exception as DBALException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
+use Shopware\Core\Framework\Webhook\Health\ErrorClassifier;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -39,6 +43,8 @@ class WebhookDeliveryService
         private readonly MessageBusInterface $bus,
         private readonly WebhookHealthService $webhookHealthService,
         private readonly LoggerInterface $logger,
+        private readonly ?EndpointHealth $endpointHealth,
+        private readonly ?ErrorClassifier $errorClassifier,
         private readonly bool $isAdminWorkerEnabled,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
@@ -59,6 +65,19 @@ class WebhookDeliveryService
 
         foreach ($messages as $message) {
             $this->bus->dispatch($message);
+        }
+    }
+
+    /**
+     * Dispatches held webhooks so WebhookTransport persists them as paused (held) rows; they are
+     * never delivered. Counterpart to {@see process()} for the dispatch gate's Hold decision (#16565).
+     *
+     * @param list<WebhookEventMessage> $messages
+     */
+    public function hold(array $messages): void
+    {
+        foreach ($messages as $message) {
+            $this->bus->dispatch($message, [new HeldDeliveryStamp()]);
         }
     }
 
@@ -188,6 +207,12 @@ class WebhookDeliveryService
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
                 $this->webhookHealthService->resetErrorCount($webhookId);
 
+                // Health seam (no-op when no EndpointHealth is bound). A 2xx clears this webhook's
+                // DEGRADED → HEALTHY, or de-escalates its SUSPENDED half-open trial → DEGRADED.
+                if (Feature::isActive('WEBHOOKS_REWORK')) {
+                    $this->endpointHealth?->recordSuccess($webhookId);
+                }
+
                 return;
             }
 
@@ -201,10 +226,10 @@ class WebhookDeliveryService
             return;
         }
 
-        $this->handleFailure($webhookId, $entry, $response);
+        $this->handleFailure($webhookId, $entry, $response, $result->exception);
     }
 
-    private function handleFailure(string $webhookId, OutboxEntry $entry, ?DeliveryResponse $response): void
+    private function handleFailure(string $webhookId, OutboxEntry $entry, ?DeliveryResponse $response, ?\Throwable $exception = null): void
     {
         $persisted = $this->persistFailureOutcome($entry, $response);
         if (!$persisted) {
@@ -221,6 +246,14 @@ class WebhookDeliveryService
         // error_count counts failed deliveries, not failed attempts — only bump after retries are exhausted.
         if ($entry->executionCount > self::MAX_RETRIES) {
             $this->webhookHealthService->recordFailure($webhookId, $this->failureStrategy);
+        }
+
+        // Health seam (no-op when unbound). Fires per attempt (not per exhausted delivery) so a
+        // non-transient error can suspend immediately; the implementation aggregates transient
+        // retries. The exception is passed because a pre-response failure (DNS/timeout/TLS) has status 0.
+        if (Feature::isActive('WEBHOOKS_REWORK') && $this->endpointHealth !== null && $this->errorClassifier !== null) {
+            $classification = $this->errorClassifier->classify($response->responseStatusCode ?? 0, $exception);
+            $this->endpointHealth->recordFailure($webhookId, $classification);
         }
     }
 

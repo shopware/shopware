@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
@@ -13,6 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
+ * Discovers the element-type YAML directories (core, bundles, plugins, and — in dev — apps) once and injects the
+ * resulting directory set into both {@see YamlTypeLoader} and {@see YamlBindingSpecificationLoader}: the type loader
+ * scans them for element-type definitions, the binding loader scans the same files for their inline `bindings:`
+ * sections. Each loader receives its own {@see ElementTypeSourceDirectory} definition instances.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -26,7 +32,10 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
 
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(YamlTypeLoader::class)) {
+        $hasTypeLoader = $container->hasDefinition(YamlTypeLoader::class);
+        $hasBindingLoader = $container->hasDefinition(YamlBindingSpecificationLoader::class);
+
+        if (!$hasTypeLoader && !$hasBindingLoader) {
             return;
         }
 
@@ -36,18 +45,24 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         $this->loadFromBundleMetadata($container, $directories);
         $this->loadFromPlugins($container, $directories);
 
-        // In prod, app types are loaded from the database by DatabaseTypeLoader instead
+        // In prod, app types/bindings are loaded from the database by DatabaseTypeLoader / DatabaseBindingSpecificationLoader instead
         if ($container->getParameter('kernel.environment') === 'dev') {
             $this->loadFromApps($container, $directories);
         }
 
-        $container->getDefinition(YamlTypeLoader::class)->setArgument('$directories', $directories);
+        if ($hasTypeLoader) {
+            $container->getDefinition(YamlTypeLoader::class)->setArgument('$directories', $this->toDefinitions($directories));
+        }
+
+        if ($hasBindingLoader) {
+            $container->getDefinition(YamlBindingSpecificationLoader::class)->setArgument('$directories', $this->toDefinitions($directories));
+        }
     }
 
     /**
      * Active plugins excluded — loaded separately via loadFromPlugins to support custom type directories.
      *
-     * @param list<Definition> $directories
+     * @param list<array{string, string, string}> $directories
      */
     private function loadFromBundleMetadata(ContainerBuilder $container, array &$directories): void
     {
@@ -78,7 +93,7 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     }
 
     /**
-     * @param list<Definition> $directories
+     * @param list<array{string, string, string}> $directories
      */
     private function loadFromPlugins(ContainerBuilder $container, array &$directories): void
     {
@@ -141,7 +156,7 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
      * DBAL exceptions are silently swallowed because the compiler pass may run
      * before the database exists (fresh install, CI).
      *
-     * @param list<Definition> $directories
+     * @param list<array{string, string, string}> $directories
      */
     private function loadFromApps(ContainerBuilder $container, array &$directories): void
     {
@@ -164,12 +179,26 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     }
 
     /**
-     * @param list<Definition> $directories
+     * @param list<array{string, string, string}> $directories
      */
     private function loadFromDirectory(string $directory, string $source, string $prefix, array &$directories): void
     {
-        $definition = new Definition(ElementTypeSourceDirectory::class, [$source, $directory, $prefix]);
+        $directories[] = [$source, $directory, $prefix];
+    }
 
-        $directories[] = $definition;
+    /**
+     * Maps the discovered directory triples to fresh {@see ElementTypeSourceDirectory} definitions, so each loader
+     * argument gets its own definition instances rather than sharing them across the two services.
+     *
+     * @param list<array{string, string, string}> $directories
+     *
+     * @return list<Definition>
+     */
+    private function toDefinitions(array $directories): array
+    {
+        return array_map(
+            static fn (array $directory): Definition => new Definition(ElementTypeSourceDirectory::class, $directory),
+            $directories,
+        );
     }
 }

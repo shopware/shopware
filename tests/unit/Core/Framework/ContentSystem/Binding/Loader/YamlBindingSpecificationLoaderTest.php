@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Binding\Loader\BindingSpecificationSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -51,7 +51,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "meta:\n  label: Image\nbindings:\n  from-media-library:\n    label: \"From media library\"\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $specifications = $loader->load();
 
@@ -67,7 +67,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "meta:\n  label: Image\nproperties:\n  mediaId:\n    type: string\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         static::assertSame([], $loader->load());
     }
@@ -75,7 +75,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     #[TestDox('returns an empty array for a non-existent directory')]
     public function testReturnsEmptyForMissingDirectory(): void
     {
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', '/path/does/not/exist', 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', '/path/does/not/exist', 'Sw')]);
 
         static::assertSame([], $loader->load());
     }
@@ -85,7 +85,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/notes.txt', 'not a yaml file');
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         static::assertSame([], $loader->load());
     }
@@ -97,7 +97,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  {$id}:\n    label: x\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $specifications = $loader->load();
 
@@ -125,7 +125,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir(\dirname($fullPath), 0777, true);
         file_put_contents($fullPath, $body);
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(
             ContentSystemException::bindingSpecificationLoadFailed($fullPath, $reason)
@@ -142,7 +142,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  shared:\n    label: a\n");
         file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  shared:\n    label: b\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         // Filesystem iteration order is not guaranteed; assert the duplicate is rejected naming both files
         // without coupling to which is seen first.
@@ -163,8 +163,8 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($dirB . '/hero/banner.yaml', "bindings:\n  shared:\n    label: b\n");
 
         $loader = $this->createLoader([
-            new BindingSpecificationSourceDirectory('source-a', $dirA, 'Sw'),
-            new BindingSpecificationSourceDirectory('source-a', $dirB, 'Sw'),
+            new ElementTypeSourceDirectory('source-a', $dirA, 'Sw'),
+            new ElementTypeSourceDirectory('source-a', $dirB, 'Sw'),
         ]);
 
         $this->expectExceptionObject(
@@ -185,8 +185,8 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($dirB . '/media/image.yaml', "bindings:\n  shared:\n    label: b\n");
 
         $loader = $this->createLoader([
-            new BindingSpecificationSourceDirectory('source-a', $dirA, 'Sw'),
-            new BindingSpecificationSourceDirectory('source-b', $dirB, 'Sw'),
+            new ElementTypeSourceDirectory('source-a', $dirA, 'Sw'),
+            new ElementTypeSourceDirectory('source-b', $dirB, 'Sw'),
         ]);
 
         $specifications = $loader->load();
@@ -201,7 +201,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  from-media-library:\n    type: Sw:Media:Image\n    label: x\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
             'from-media-library',
@@ -217,7 +217,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  from-media-library:\n    id: something-else\n    label: x\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
             'from-media-library',
@@ -233,7 +233,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings: not-a-map\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
             $this->tempDir . '/media/image.yaml',
@@ -249,7 +249,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  from-media-library: not-a-map\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
             $this->tempDir . '/media/image.yaml',
@@ -265,7 +265,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/broken.yaml', "id: \"unterminated\n  bad: [");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessageMatches('/Invalid YAML syntax/');
@@ -290,7 +290,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
             new ConstraintViolation('resolves entry "image" must declare a non-blank "loader"', null, [], null, 'bindings[broken].resolves[image].loader', null),
         ]));
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')], $failing);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')], $failing);
 
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessageMatches('/bindings\[broken\]\.resolves\[image\]\.loader/');
@@ -309,7 +309,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
             "bindings:\n  promoted-first:\n    label: first\n    promoted: true\n  promoted-second:\n    label: second\n    promoted: true\n",
         );
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         // The map preserves insertion order, so the first entry holds the incumbent promoted flag.
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationPromotedDuplicate(
@@ -335,8 +335,8 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($dirB . '/media/image.yaml', "bindings:\n  promoted-b:\n    label: b\n    promoted: true\n");
 
         $loader = $this->createLoader([
-            new BindingSpecificationSourceDirectory('source-a', $dirA, 'Sw'),
-            new BindingSpecificationSourceDirectory('source-b', $dirB, 'Sw'),
+            new ElementTypeSourceDirectory('source-a', $dirA, 'Sw'),
+            new ElementTypeSourceDirectory('source-b', $dirB, 'Sw'),
         ]);
 
         // Directory order determines the incumbent: source-a is scanned first, so it holds the promoted flag.
@@ -357,7 +357,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  promoted-image:\n    label: image\n    promoted: true\n");
         file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  promoted-banner:\n    label: banner\n    promoted: true\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $specifications = $loader->load();
 
@@ -370,7 +370,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     }
 
     /**
-     * @param list<BindingSpecificationSourceDirectory> $directories
+     * @param list<ElementTypeSourceDirectory> $directories
      */
     private function createLoader(array $directories, ?ValidatorInterface $validator = null): YamlBindingSpecificationLoader
     {

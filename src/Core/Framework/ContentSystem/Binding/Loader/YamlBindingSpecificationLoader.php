@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecifica
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -29,7 +30,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     private const MAX_ID_LENGTH = 255;
 
     /**
-     * @param list<BindingSpecificationSourceDirectory> $directories
+     * @param list<ElementTypeSourceDirectory> $directories
      */
     public function __construct(
         private readonly array $directories,

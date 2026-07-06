@@ -45,7 +45,13 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
         $typeOverlay = $this->buildTypeOverlay($typesDirectory, $source, $appName);
 
         $violations = [];
-        $specifications = $this->collect($violations, $typesDirectory, fn () => $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay));
+
+        try {
+            $specifications = $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
+        } catch (ContentSystemException $e) {
+            $violations[] = \sprintf('in "%s": %s', $typesDirectory, $e->getMessage());
+            $specifications = [];
+        }
 
         $this->detectPromotedConflicts($violations, $specifications);
 
@@ -69,23 +75,6 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
         try {
             return $this->typeLoader->loadOverlayFromDirectory($typesDirectory, $source, $prefix);
         } catch (ContentSystemException) {
-            return [];
-        }
-    }
-
-    /**
-     * @param list<string> $violations
-     * @param callable(): list<ResolvedBindingSpecificationDto> $load
-     *
-     * @return list<ResolvedBindingSpecificationDto>
-     */
-    private function collect(array &$violations, string $directory, callable $load): array
-    {
-        try {
-            return $load();
-        } catch (ContentSystemException $e) {
-            $violations[] = \sprintf('in "%s": %s', $directory, $e->getMessage());
-
             return [];
         }
     }

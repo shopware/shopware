@@ -41,7 +41,7 @@ class CriteriaQueryBuilderTest extends TestCase
 {
     public function testBuildWithWhereCondition(): void
     {
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(
@@ -72,14 +72,14 @@ class CriteriaQueryBuilderTest extends TestCase
         $builder = new CriteriaQueryBuilder(
             $parser,
             $helper,
-            $this->createMock(SearchTermInterpreter::class),
-            $this->createMock(EntityScoreQueryBuilder::class),
-            $this->createMock(JoinGroupBuilder::class),
-            $this->createMock(CriteriaPartResolver::class)
+            static::createStub(SearchTermInterpreter::class),
+            static::createStub(EntityScoreQueryBuilder::class),
+            static::createStub(JoinGroupBuilder::class),
+            static::createStub(CriteriaPartResolver::class)
         );
 
         $definition = $this->returnMockDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
@@ -93,7 +93,7 @@ class CriteriaQueryBuilderTest extends TestCase
 
     public function testBuildWithoutAddConditions(): void
     {
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(
@@ -111,15 +111,15 @@ class CriteriaQueryBuilderTest extends TestCase
 
         $builder = new CriteriaQueryBuilder(
             $parser,
-            $this->createMock(EntityDefinitionQueryHelper::class),
-            $this->createMock(SearchTermInterpreter::class),
-            $this->createMock(EntityScoreQueryBuilder::class),
-            $this->createMock(JoinGroupBuilder::class),
-            $this->createMock(CriteriaPartResolver::class)
+            static::createStub(EntityDefinitionQueryHelper::class),
+            static::createStub(SearchTermInterpreter::class),
+            static::createStub(EntityScoreQueryBuilder::class),
+            static::createStub(JoinGroupBuilder::class),
+            static::createStub(CriteriaPartResolver::class)
         );
 
         $definition = $this->returnMockDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
         static::assertNull(QueryBuilderDataExtractor::getWhere($queryBuilder));
@@ -127,21 +127,21 @@ class CriteriaQueryBuilderTest extends TestCase
 
     public function testInvalidSortingDirectionException(): void
     {
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $definition = $this->returnMockDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('name', 'foo'));
 
         $builder = new CriteriaQueryBuilder(
-            $this->createMock(SqlQueryParser::class),
-            $this->createMock(EntityDefinitionQueryHelper::class),
-            $this->createMock(SearchTermInterpreter::class),
-            $this->createMock(EntityScoreQueryBuilder::class),
-            $this->createMock(JoinGroupBuilder::class),
-            $this->createMock(CriteriaPartResolver::class)
+            static::createStub(SqlQueryParser::class),
+            static::createStub(EntityDefinitionQueryHelper::class),
+            static::createStub(SearchTermInterpreter::class),
+            static::createStub(EntityScoreQueryBuilder::class),
+            static::createStub(JoinGroupBuilder::class),
+            static::createStub(CriteriaPartResolver::class)
         );
 
         $this->expectExceptionObject(DataAbstractionLayerException::invalidSortingDirection('foo'));
@@ -162,12 +162,12 @@ class CriteriaQueryBuilderTest extends TestCase
             ->willReturn('`order`.`name`');
 
         $builder = new CriteriaQueryBuilder(
-            $this->createMock(SqlQueryParser::class),
+            static::createStub(SqlQueryParser::class),
             $helper,
-            $this->createMock(SearchTermInterpreter::class),
-            $this->createMock(EntityScoreQueryBuilder::class),
-            $this->createMock(JoinGroupBuilder::class),
-            $this->createMock(CriteriaPartResolver::class)
+            static::createStub(SearchTermInterpreter::class),
+            static::createStub(EntityScoreQueryBuilder::class),
+            static::createStub(JoinGroupBuilder::class),
+            static::createStub(CriteriaPartResolver::class)
         );
 
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);

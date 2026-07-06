@@ -146,8 +146,8 @@ class XmlRendererTest extends TestCase
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
-                $this->createMock(AbstractTranslator::class),
-                $this->createMock(AbstractSalesChannelContextFactory::class),
+                static::createStub(AbstractTranslator::class),
+                static::createStub(AbstractSalesChannelContextFactory::class),
                 'rootDir',
             ),
             new XmlFormatter(),

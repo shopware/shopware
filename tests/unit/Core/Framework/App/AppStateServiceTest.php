@@ -45,7 +45,7 @@ class AppStateServiceTest extends TestCase
     public function testThrowsIfAppDoesNotExist(): void
     {
         $appStateService = new AppStateService(
-            $this->createMock(AppManager::class),
+            static::createStub(AppManager::class),
             AppFixture::createAppRepository(),
         );
 

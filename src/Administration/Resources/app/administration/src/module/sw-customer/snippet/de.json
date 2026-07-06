@@ -82,13 +82,8 @@
       "columnActive": "Aktiv",
       "columnCreatedAt": "Erstellt am",
       "emptyBoundSalesChannel": "Alle",
-      "contextMenuView": "Anzeigen",
-      "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDelete": "Löschen",
-      "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Kunden",
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
-      "buttonDelete": "Löschen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
@@ -157,7 +152,6 @@
       "titleDefaultBillingAddress": "Standard-Rechnungsadresse",
       "buttonAddAddress": "Adresse anlegen",
       "buttonTitleEditAddress": "Adresse bearbeiten",
-      "buttonSave": "Speichern",
       "buttonEdit": "Kunden bearbeiten",
       "buttonChangePassword": "Passwort ändern",
       "labelAccountActiveField": "Konto ist aktiv"
@@ -166,8 +160,6 @@
       "cardTitle": "Adressen",
       "filterPlaceholder": "Adressen durchsuchen …",
       "buttonAddAddress": "Adresse anlegen",
-      "buttonClose": "Schließen",
-      "buttonDelete": "Löschen",
       "buttonSelect": "Auswahl",
       "buttonSaveAndSelect": "Speichern und auswählen",
       "modalTitleAddress": "Adresse",
@@ -183,9 +175,6 @@
       "columnZipCode": "PLZ",
       "columnCity": "Stadt",
       "columnActions": "Aktionen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "contextMenuDuplicate": "Duplizieren",
       "contextMenuDefaultShippingAddress": "Als Standard-Lieferadresse festlegen",
       "contextMenuDefaultBillingAddress": "Als Standard-Rechnungsadresse festlegen"
     },
@@ -207,8 +196,7 @@
       "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
       "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
       "modalInfoLogout": "abzumelden",
-      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen.",
-      "labelCancel": "Schließen"
+      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen."
     },
     "addressForm": {
       "labelCompany": "Firma",
@@ -244,8 +232,6 @@
       "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },
     "detail": {
-      "buttonSave": "Speichern",
-      "buttonEdit": "Bearbeiten",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
       "messageCustomerNotFound": "Der Kunde konnte nicht gefunden werden. Der Kunde wurde möglicherweise gelöscht.",

@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
@@ -32,6 +34,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
@@ -191,6 +194,43 @@ class MailDataSimulatorTest extends TestCase
         static::assertLessThanOrEqual(10000, $result['score']);
     }
 
+    /**
+     * @param array<string, mixed> $expectedFormData
+     */
+    #[DataProvider('formDataObjectProvider')]
+    public function testGetTemplateDataProvidesKnownFormDataForUnstructuredObjectTypes(string $variableName, array $expectedFormData): void
+    {
+        $simulator = $this->createSimulator([
+            $variableName => (new ObjectType())->toArray(),
+        ]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+        $formData = $result[$variableName];
+
+        static::assertIsArray($formData);
+        foreach ($expectedFormData as $key => $value) {
+            static::assertArrayHasKey($key, $formData);
+            static::assertSame($value, $formData[$key]);
+        }
+
+        if ($variableName === FlowMailVariables::REVOCATION_REQUEST_FORM_DATA) {
+            static::assertArrayHasKey('submitTime', $formData);
+            static::assertInstanceOf(\DateTimeImmutable::class, $formData['submitTime']);
+        }
+    }
+
+    public function testGetTemplateDataReturnsEmptyArrayForUnknownUnstructuredObjectTypes(): void
+    {
+        $simulator = $this->createSimulator([
+            'unknownFormData' => (new ObjectType())->toArray(),
+        ]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertArrayHasKey('unknownFormData', $result);
+        static::assertSame([], $result['unknownFormData']);
+    }
+
     public function testGetTemplateDataUsesProviderCriteriaForEntityEventData(): void
     {
         $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
@@ -327,6 +367,44 @@ class MailDataSimulatorTest extends TestCase
         static::assertInstanceOf(EntityCollection::class, $mappingChildren);
         static::assertCount(1, $mappingChildren);
         static::assertInstanceOf(Entity::class, $mappingChildren->first());
+    }
+
+    public static function formDataObjectProvider(): \Generator
+    {
+        yield 'contact form data' => [
+            FlowMailVariables::CONTACT_FORM_DATA,
+            [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'phone' => '+49123456789',
+                'subject' => 'Lorem ipsum dolor',
+                'comment' => 'Lorem ipsum dolor sit amet.',
+            ],
+        ];
+
+        yield 'review form data' => [
+            FlowMailVariables::REVIEW_FORM_DATA,
+            [
+                'name' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'points' => 5,
+                'title' => 'Lorem ipsum dolor',
+                'content' => 'Lorem ipsum dolor sit amet.',
+            ],
+        ];
+
+        yield 'revocation request form data' => [
+            FlowMailVariables::REVOCATION_REQUEST_FORM_DATA,
+            [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'contractNumber' => '10000',
+                'comment' => 'Lorem ipsum dolor sit amet.',
+            ],
+        ];
     }
 
     /**

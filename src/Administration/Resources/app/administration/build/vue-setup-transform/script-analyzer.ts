@@ -4,6 +4,7 @@
 
 import type { CallExpression, Identifier, ImportDeclaration, Node as BabelNode, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from './utils/transform-error';
+import type { ShopwareSetupMode } from './utils/shopware-setup-block';
 import {
     type SetupMacroBuckets,
     type StatementMacroCall,
@@ -13,6 +14,8 @@ import {
     isCompilerMacroCall,
     isStatementCompilerMacro,
     UNSUPPORTED_VUE_MACROS,
+    WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
+    WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
 } from './script-analyzer/macros';
 import { type SourceRange, getNodeRange, isBabelNodeLike, parseScript, walk } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
@@ -32,6 +35,7 @@ import {
 type ImportBlock = SourceRange & { code: string };
 type TypeDeclarationBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
+    mode: ShopwareSetupMode;
     lang: string | null;
     scriptOffset: number;
 };
@@ -51,10 +55,13 @@ type ShopwareSetupScriptAnalysis = {
     runtimeBindingNames: Set<string>;
     importedBindings: Set<string>;
     publicEntries: string[];
+    overrideEntries: string[];
     propsMacro: SetupMacroSummary | null;
     emitsMacro: SetupMacroSummary | null;
     slotsMacro: SetupMacroSummary | null;
     optionsMacro: SetupMacroSummary | null;
+    overridePrivateBindings: Set<string>;
+    overridePrivateNamespace: string | null;
 };
 
 /**
@@ -295,20 +302,50 @@ function assertHoistedMacroArgumentsDoNotUseLocalSetup({
 
 /**
  * Validates Shopware exposure macros.
- *
- * TODO: the override transform adds its own marker macro and the mode-dependent marker rules here.
  */
 function validateShopwareMarkers({
+    mode,
     scriptOffset,
     publicMarkerStatements,
+    overrideMarkerStatements,
 }: {
+    mode: ShopwareSetupMode;
     scriptOffset: number;
     publicMarkerStatements: StatementMacroCall[];
+    overrideMarkerStatements: StatementMacroCall[];
 }): void {
+    if (mode === 'override' && publicMarkerStatements.length > 0) {
+        throw new ShopwareSetupTransformError(
+            WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
+            scriptOffset + getNodeRange(publicMarkerStatements[0], scriptOffset).start,
+        );
+    }
+
+    if (mode === 'base' && overrideMarkerStatements.length > 0) {
+        throw new ShopwareSetupTransformError(
+            WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
+            scriptOffset + getNodeRange(overrideMarkerStatements[0], scriptOffset).start,
+        );
+    }
+
     if (publicMarkerStatements.length > 1) {
         throw new ShopwareSetupTransformError(
             'Only one swDefinePublic() call is allowed in a base Shopware setup block.',
             scriptOffset + getNodeRange(publicMarkerStatements[1], scriptOffset).start,
+        );
+    }
+
+    if (overrideMarkerStatements.length > 1) {
+        throw new ShopwareSetupTransformError(
+            'Only one swDefineOverride() call is allowed in an override Shopware setup block.',
+            scriptOffset + getNodeRange(overrideMarkerStatements[1], scriptOffset).start,
+        );
+    }
+
+    if (mode === 'override' && overrideMarkerStatements.length !== 1) {
+        throw new ShopwareSetupTransformError(
+            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
+            scriptOffset,
         );
     }
 }
@@ -318,6 +355,7 @@ function validateShopwareMarkers({
  */
 function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): ShopwareSetupScriptAnalysis {
     const lang = options.lang ?? 'js';
+    const mode = options.mode;
     const scriptOffset = options.scriptOffset;
     const ast = parseScript(script, lang, scriptOffset);
     const imports: ImportDeclaration[] = [];
@@ -326,6 +364,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const runtimeBindings: RuntimeBinding[] = [];
     const runtimeBindingNames = new Set<string>();
     const publicMarkerStatements: StatementMacroCall[] = [];
+    const overrideMarkerStatements: StatementMacroCall[] = [];
     const definePropsCalls: CallExpression[] = [];
     const defineEmitsCalls: CallExpression[] = [];
     const defineExposeCalls: CallExpression[] = [];
@@ -335,6 +374,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const defineOptionsStatements: (DefineOptionsStatement & StatementWithCall)[] = [];
     const withDefaultsCalls: CallExpression[] = [];
     const topLevelPublicCalls = new Set<CallExpression>();
+    const topLevelOverrideCalls = new Set<CallExpression>();
     const topLevelUnsupportedMacroCalls = new Set<CallExpression>();
 
     ast.program.body.forEach((statement) => {
@@ -357,10 +397,15 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             return;
         }
 
-        // TODO: the override transform collects its own marker macro (swDefineOverride) here.
         if (isStatementCompilerMacro(statement, 'swDefinePublic')) {
             publicMarkerStatements.push(statement);
             topLevelPublicCalls.add(statement.expression);
+            return;
+        }
+
+        if (isStatementCompilerMacro(statement, 'swDefineOverride')) {
+            overrideMarkerStatements.push(statement);
+            topLevelOverrideCalls.add(statement.expression);
             return;
         }
 
@@ -384,7 +429,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             return;
         }
 
-        collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset);
+        collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
     });
 
     walk(ast.program, (node) => {
@@ -399,8 +444,10 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
 
     assertNoUnsupportedSyntax(
         ast,
+        mode,
         scriptOffset,
         topLevelPublicCalls,
+        topLevelOverrideCalls,
         topLevelUnsupportedMacroCalls,
     );
 
@@ -428,6 +475,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     });
 
     const { setupInputReplacements, propsMacro, emitsMacro, slotsMacro, optionsMacro } = analyzeSetupInputs(script, {
+        mode,
         scriptOffset,
         definePropsCalls,
         withDefaultsCalls,
@@ -440,16 +488,23 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     });
 
     validateShopwareMarkers({
+        mode,
         scriptOffset,
         publicMarkerStatements,
+        overrideMarkerStatements,
     });
 
     const publicEntries =
         publicMarkerStatements.length > 0
             ? extractStaticObjectMarker(publicMarkerStatements[0], scriptOffset, 'swDefinePublic', 'public')
             : [];
+    const overrideEntries =
+        overrideMarkerStatements.length > 0
+            ? extractStaticObjectMarker(overrideMarkerStatements[0], scriptOffset, 'swDefineOverride', 'override')
+            : [];
 
     assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefinePublic');
+    assertStaticObjectEntries(overrideEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefineOverride');
 
     const importedBindingsAsObjects: RuntimeBinding[] = Array.from(importedBindings).flatMap((name) => {
         const node = imports.find((importNode) => importNode.specifiers.some((specifier) => specifier.local?.name === name));
@@ -469,6 +524,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             ...runtimeBindings,
             ...importedBindingsAsObjects,
         ],
+        mode,
         scriptOffset,
     );
 
@@ -477,6 +533,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
         ...defineOptionsStatements.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
+        ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
     ];
     return {
         source: script,
@@ -488,10 +545,13 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         runtimeBindingNames,
         importedBindings,
         publicEntries,
+        overrideEntries,
         propsMacro,
         emitsMacro,
         slotsMacro,
         optionsMacro,
+        overridePrivateBindings: new Set(),
+        overridePrivateNamespace: null,
     };
 }
 

@@ -5,6 +5,7 @@
 import type { ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
+import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 
 type RuntimeBinding = {
     name: string;
@@ -99,13 +100,18 @@ function collectRuntimeBindingPattern(
 
 /**
  * Allows setup input helper aliases without returning them as component state.
- *
- * TODO: the override transform adds its own runtime input helpers (useSwPreviousState, useSwProps) here.
  */
-function isRuntimeInputAlias(declaration: VariableDeclarator): boolean {
-    const runtimeInputHelpers = new Set([
-        'useSwContext',
-    ]);
+function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetupMode): boolean {
+    const runtimeInputHelpers =
+        mode === 'base'
+            ? new Set([
+                  'useSwContext',
+              ])
+            : new Set([
+                  'useSwPreviousState',
+                  'useSwProps',
+                  'useSwContext',
+              ]);
 
     return (
         declaration.id.type === 'Identifier' &&
@@ -166,7 +172,8 @@ function isSetupInputDeclaration(declaration: VariableDeclarator): boolean {
         (init.callee.name === 'defineProps' ||
             init.callee.name === 'defineEmits' ||
             init.callee.name === 'defineSlots' ||
-            init.callee.name === 'withDefaults')
+            init.callee.name === 'withDefaults' ||
+            init.callee.name === 'useSwProps')
     );
 }
 
@@ -192,13 +199,14 @@ function isExposableSetupMacroDeclaration(declaration: VariableDeclarator): bool
 }
 
 /**
- * Classifies top-level declarations that become base setup state.
+ * Classifies top-level declarations that become private/base or override state.
  */
 function collectRuntimeBinding(
     statement: Statement,
     runtimeBindings: RuntimeBinding[],
     runtimeBindingNames: Set<string>,
     scriptOffset: number,
+    mode: ShopwareSetupMode,
 ): void {
     if (statement.type === 'VariableDeclaration') {
         statement.declarations.forEach((declaration) => {
@@ -210,14 +218,14 @@ function collectRuntimeBinding(
                     return;
                 }
 
-                if (isExposableSetupMacroDeclaration(declaration) && declaration.id.type === 'Identifier') {
+                if (mode === 'base' && isExposableSetupMacroDeclaration(declaration) && declaration.id.type === 'Identifier') {
                     addRuntimeBinding(runtimeBindings, runtimeBindingNames, declaration.id.name, declaration.id, scriptOffset);
                 }
 
                 return;
             }
 
-            if (isRuntimeInputAlias(declaration)) {
+            if (isRuntimeInputAlias(declaration, mode)) {
                 return;
             }
 

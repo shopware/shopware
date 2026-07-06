@@ -4,6 +4,7 @@
 
 import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
+import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getNodeRange, isFunctionNode, walk } from './utils';
 import {
     RESERVED_OVERRIDE_STATE_NAME,
@@ -16,9 +17,9 @@ type NamedBinding = {
     node: BabelNode;
 };
 
-// TODO: the override transform adds an override helper set and dispatches on the setup mode.
 const BASE_HELPERS = new Set([
     'swDefinePublic',
+    'swDefineOverride',
     'defineEmits',
     'defineExpose',
     'defineOptions',
@@ -27,16 +28,29 @@ const BASE_HELPERS = new Set([
     'useSwContext',
 ]);
 
+const OVERRIDE_HELPERS = new Set([
+    'swDefinePublic',
+    'swDefineOverride',
+    'defineEmits',
+    'defineExpose',
+    'defineOptions',
+    'defineSlots',
+    'useSwPreviousState',
+    'withDefaults',
+    'useSwProps',
+    'useSwContext',
+]);
+
 /**
  * Rejects syntax that would require native `<script setup>` semantics we do not emulate.
  * Meaning: Unsupported Vue macros, top-level await, and ES module exports.
- *
- * TODO: the override transform adds mode-dependent rejections for its marker macro and runtime helpers here.
  */
 function assertNoUnsupportedSyntax(
     ast: BabelFile,
+    mode: ShopwareSetupMode,
     scriptOffset: number,
     topLevelPublicCalls: Set<CallExpression>,
+    topLevelOverrideCalls: Set<CallExpression>,
     topLevelUnsupportedMacroCalls: Set<CallExpression>,
 ): void {
     walk(ast.program, (node, ancestors) => {
@@ -46,6 +60,30 @@ function assertNoUnsupportedSyntax(
         if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && topLevelUnsupportedMacroCalls.has(node)) {
             throw new ShopwareSetupTransformError(
                 `Vue macro ${node.callee.name}() is not supported inside Shopware setup blocks.`,
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
+        if (
+            mode === 'base' &&
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'useSwProps'
+        ) {
+            throw new ShopwareSetupTransformError(
+                "useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue's defineProps() macro instead.",
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
+        if (
+            mode === 'base' &&
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'useSwPreviousState'
+        ) {
+            throw new ShopwareSetupTransformError(
+                'useSwPreviousState() is only supported in override Shopware setup blocks.',
                 scriptOffset + getNodeRange(node, scriptOffset).start,
             );
         }
@@ -89,6 +127,19 @@ function assertNoUnsupportedSyntax(
             );
         }
 
+        // Ensure swDefineOverride() is only called at top level
+        if (
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'swDefineOverride' &&
+            !topLevelOverrideCalls.has(node)
+        ) {
+            throw new ShopwareSetupTransformError(
+                'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
         // Reject ES module exports:
         //  Same as Vue: native <script setup> rejects runtime ES module exports because setup bindings are exposed
         //  through the generated setup return, not through module exports.
@@ -108,9 +159,11 @@ function assertNoUnsupportedSyntax(
 /**
  * Prevents user bindings from shadowing generated composable-style helper names.
  */
-function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number): void {
+function assertReservedMacroNames(bindings: NamedBinding[], mode: ShopwareSetupMode, scriptOffset: number): void {
+    const helpers = mode === 'base' ? BASE_HELPERS : OVERRIDE_HELPERS;
+
     bindings.forEach((binding) => {
-        if (BASE_HELPERS.has(binding.name)) {
+        if (helpers.has(binding.name)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,
                 scriptOffset + getNodeRange(binding.node, scriptOffset).start,

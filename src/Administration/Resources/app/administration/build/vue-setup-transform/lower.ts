@@ -14,9 +14,7 @@ type LoweredShopwareSetupBlock = {
 };
 
 /**
- * Lowers the analyzed block after shared analysis has completed.
- *
- * TODO: the override transform dispatches to its own lowering path here.
+ * Dispatches to the mode-specific lowering path after shared analysis has completed.
  */
 function lowerShopwareSetupBlock(
     block: ShopwareSetupBlock,

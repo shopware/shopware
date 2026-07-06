@@ -22,9 +22,10 @@ type ElementNode = CoreElementNode & {
     children: CoreElementNode['children'];
 };
 
-// TODO: the override transform extends the analysis with override-private template bindings.
 type TemplateAnalysis = {
     edits: TemplateEdit[];
+    privateBindings: Set<string>;
+    privateNamespace: string | null;
 };
 
 function isSwBlockNode(node: ElementNode): boolean {
@@ -89,6 +90,8 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     if (!block.template) {
         return {
             edits,
+            privateBindings: new Set(),
+            privateNamespace: null,
         };
     }
 
@@ -108,6 +111,8 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
             start: block.template!.contentStart + edit.start,
             end: block.template!.contentStart + edit.end,
         })),
+        privateBindings: new Set(),
+        privateNamespace: null,
     };
 }
 

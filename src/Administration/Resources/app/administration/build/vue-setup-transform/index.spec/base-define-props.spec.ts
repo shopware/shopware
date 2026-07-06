@@ -32,6 +32,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).toContain('props: __swSetupPropsDeclaration,');
         expect(result).toContain('const props = (__swSetupProps);');
         expect(result).toContain('const count = ref(props.initialCount ?? 0);');
+        expect(result).not.toContain('const useSwProps =');
         expect(result.indexOf('const __swSetupPropsDeclaration = defineProps')).toBeLessThan(
             result.indexOf('Shopware.Component.createExtendableSetup('),
         );

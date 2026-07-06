@@ -101,7 +101,7 @@ export default {
             const buttonConfig = [
                 {
                     key: 'cancel',
-                    label: this.$t('global.sw-modal.labelClose'),
+                    label: this.$t('global.default.close'),
                     position: 'left',
                     action: '',
                     disabled: false,

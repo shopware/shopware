@@ -35,6 +35,34 @@ export default {
     },
 
     methods: {
+        getTranslatedTitle(notification) {
+            if (!notification.title) {
+                return '';
+            }
+
+            return this.$te(notification.title) ? this.$t(notification.title) : notification.title;
+        },
+
+        getTranslatedMessage(notification) {
+            const message = this.$te(notification.message) ? this.$t(notification.message) : notification.message;
+
+            return this.$sanitize(message, {
+                ALLOWED_TAGS: [
+                    'a',
+                    'b',
+                    'i',
+                    'u',
+                    'strong',
+                    'em',
+                    'br',
+                ],
+                ALLOWED_ATTR: [
+                    'href',
+                    'target',
+                ],
+            });
+        },
+
         isNotificationFromSameDay() {
             const timestamp = this.notification.timestamp;
             const now = new Date();

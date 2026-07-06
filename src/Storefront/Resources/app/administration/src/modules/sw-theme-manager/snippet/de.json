@@ -207,7 +207,7 @@
         }
       },
       "asyncCompilation": {
-        "started": "Die Kompilierung der Änderungen wird im Hintergrund gestartet. Die Änderungen werden möglicherweise mit Verzögerung sichtbar (ca. 1 Minute). Du erhältst eine Benachrichtigung, sobald die Kompilierung abgeschlossen ist.",
+        "started": "Die Änderungen werden im Hintergrund kompiliert. Sie werden nach ca. 1 Minute sichtbar. Du erhältst eine Benachrichtigung, sobald die Kompilierung abgeschlossen ist.",
         "completed": "Die Theme-Kompilierung wurde abgeschlossen."
       }
     },

@@ -36,10 +36,8 @@ function buildBaseReturn(analysis: ShopwareSetupScriptAnalysis): string {
  * Lowers base mode into the existing extendable setup runtime bridge.
  */
 function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
-    // All generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they
-    // are deterministic and never collide. defineEmits()/defineSlots() are hoisted as bare statements
-    // because the template reads `emit`/`slots` through the returned setup state; only defineProps()
-    // still needs an identifier so its value can be passed into the bridge.
+    // Only the hoisted props declaration needs an identifier: its value is passed into the
+    // createExtendableSetup() options. Hoisted defineEmits()/defineSlots() declare nothing.
     const setupPropsName = '__swSetupProps';
     const setupContextName = '__swSetupContext';
     const propsName = analysis.propsMacro ? '__swSetupPropsDeclaration' : null;

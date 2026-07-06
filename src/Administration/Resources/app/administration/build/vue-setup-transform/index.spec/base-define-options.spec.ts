@@ -26,10 +26,6 @@ describe('build/vue-setup-transform base defineOptions macro', () => {
     inheritAttrs: false,
 });`);
         expect(result.indexOf('defineOptions({')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
-        expect(result).not.toContain(`(__swSetupProps, __swSetupContext) => {
-    const useSwContext = () => __swSetupContext;
-
-    defineOptions`);
         expect(result.match(/defineOptions/g)).toHaveLength(1);
     });
 

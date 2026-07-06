@@ -177,9 +177,9 @@ The transform rejects these cases loudly:
 - Local setup bindings referenced in hoisted macro arguments passed to `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, or `defineOptions(...)`
 - Override-only helpers such as `useSwPreviousState()` and `useSwProps()` in base mode
 - `defineEmits()` in override mode, or more than one `defineEmits()` call
-- `defineExpose()` in override mode, outside the top level, or more than one `defineExpose()` call
+- `defineExpose()` in override mode, or more than one `defineExpose()` call
 - `defineSlots()` in override mode, or more than one `defineSlots()` call
-- `defineOptions()` in override mode, outside the top level, or more than one `defineOptions()` call
+- `defineOptions()` in override mode, or more than one `defineOptions()` call
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode

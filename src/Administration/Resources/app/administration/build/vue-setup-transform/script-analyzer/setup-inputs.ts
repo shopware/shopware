@@ -72,20 +72,16 @@ function validateBaseSetupMacros({
     propsMacroCalls,
     defineEmitsCalls,
     defineExposeStatements,
-    defineExposeCalls,
     defineSlotsCalls,
     defineOptionsStatements,
-    defineOptionsCalls,
 }: {
     mode: ShopwareSetupMode;
     scriptOffset: number;
     propsMacroCalls: CallExpression[];
     defineEmitsCalls: CallExpression[];
     defineExposeStatements: DefineExposeStatement[];
-    defineExposeCalls: CallExpression[];
     defineSlotsCalls: CallExpression[];
     defineOptionsStatements: DefineOptionsStatement[];
-    defineOptionsCalls: CallExpression[];
 }): { emitsMacroCalls: CallExpression[]; slotsMacroCalls: CallExpression[] } {
     if (mode === 'override' && propsMacroCalls.length > 0) {
         const firstPropsMacro = propsMacroCalls[0];
@@ -122,19 +118,6 @@ function validateBaseSetupMacros({
         );
     }
 
-    const topLevelDefineExposeCalls = new Set(defineExposeStatements.map((entry) => entry.call));
-
-    defineExposeCalls.forEach((call) => {
-        if (topLevelDefineExposeCalls.has(call)) {
-            return;
-        }
-
-        throw new ShopwareSetupTransformError(
-            'defineExpose() must be called once at the top level of a base Shopware setup block.',
-            scriptOffset + getNodeRange(call, scriptOffset).start,
-        );
-    });
-
     if (mode === 'override' && defineExposeStatements.length > 0) {
         throw new ShopwareSetupTransformError(
             'defineExpose() is only supported in base Shopware setup blocks.',
@@ -166,19 +149,6 @@ function validateBaseSetupMacros({
             scriptOffset + getNodeRange(slotsMacroCalls[1], scriptOffset).start,
         );
     }
-
-    const topLevelDefineOptionsCalls = new Set(defineOptionsStatements.map((entry) => entry.call));
-
-    defineOptionsCalls.forEach((call) => {
-        if (topLevelDefineOptionsCalls.has(call)) {
-            return;
-        }
-
-        throw new ShopwareSetupTransformError(
-            'defineOptions() must be called once at the top level of a base Shopware setup block.',
-            scriptOffset + getNodeRange(call, scriptOffset).start,
-        );
-    });
 
     if (mode === 'override' && defineOptionsStatements.length > 0) {
         throw new ShopwareSetupTransformError(
@@ -279,10 +249,8 @@ function analyzeSetupInputs(
         withDefaultsCalls,
         defineEmitsCalls,
         defineExposeStatements,
-        defineExposeCalls,
         defineSlotsCalls,
         defineOptionsStatements,
-        defineOptionsCalls,
     }: {
         mode: ShopwareSetupMode;
         scriptOffset: number;
@@ -290,10 +258,8 @@ function analyzeSetupInputs(
         withDefaultsCalls: CallExpression[];
         defineEmitsCalls: CallExpression[];
         defineExposeStatements: DefineExposeStatement[];
-        defineExposeCalls: CallExpression[];
         defineSlotsCalls: CallExpression[];
         defineOptionsStatements: DefineOptionsStatement[];
-        defineOptionsCalls: CallExpression[];
     },
 ): AnalyzeSetupInputsResult {
     const propsMacroCalls = getPropsMacroCalls({
@@ -307,10 +273,8 @@ function analyzeSetupInputs(
         propsMacroCalls,
         defineEmitsCalls,
         defineExposeStatements,
-        defineExposeCalls,
         defineSlotsCalls,
         defineOptionsStatements,
-        defineOptionsCalls,
     });
     const setupInputReplacements: SetupInputReplacement[] = [
         ...propsMacroCalls.map((call) => ({

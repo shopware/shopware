@@ -123,7 +123,7 @@ describe('build/vue-setup-transform base defineOptions macro', () => {
         );
     });
 
-    it('rejects nested defineOptions()', () => {
+    it('ignores nested defineOptions() like Vue compiler-sfc does', () => {
         const source = stripIndent`
             <script setup>
             if (true) {
@@ -134,8 +134,13 @@ describe('build/vue-setup-transform base defineOptions macro', () => {
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'nested-options.vue')).toThrow(
-            'defineOptions() must be called once at the top level of a base Shopware setup block.',
+        const result = transformOrFail(source, 'nested-options.vue').code;
+
+        expect(result).toContain(`if (true) {
+            defineOptions({ inheritAttrs: false });
+        }`);
+        expect(result.indexOf('defineOptions({ inheritAttrs: false })')).toBeGreaterThan(
+            result.indexOf('Shopware.Component.createExtendableSetup('),
         );
     });
 });

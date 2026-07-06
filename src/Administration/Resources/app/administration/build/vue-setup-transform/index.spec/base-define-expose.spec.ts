@@ -94,7 +94,7 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
         );
     });
 
-    it('rejects nested defineExpose()', () => {
+    it('ignores nested defineExpose() like Vue compiler-sfc does', () => {
         const source = stripIndent`
             <script setup>
             if (true) {
@@ -105,8 +105,11 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'nested-expose.vue')).toThrow(
-            'defineExpose() must be called once at the top level of a base Shopware setup block.',
-        );
+        const result = transformOrFail(source, 'nested-expose.vue').code;
+
+        expect(result).toContain(`if (true) {
+            defineExpose({});
+        }`);
+        expect(result).not.toContain('(__swSetupContext.expose)');
     });
 });

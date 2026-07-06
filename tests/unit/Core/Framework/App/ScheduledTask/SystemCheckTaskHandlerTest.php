@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Event\SystemHeartbeatEvent;
@@ -19,14 +20,14 @@ class SystemCheckTaskHandlerTest extends TestCase
 {
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     private SystemHeartbeatHandler $handler;
 
     protected function setUp(): void
     {
-        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $scheduledTaskRepository = static::createStub(EntityRepository::class);
+        $this->logger = static::createStub(LoggerInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $this->handler = new SystemHeartbeatHandler(

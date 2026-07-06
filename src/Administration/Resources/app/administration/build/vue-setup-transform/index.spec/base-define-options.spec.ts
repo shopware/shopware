@@ -126,4 +126,20 @@ describe('build/vue-setup-transform base defineOptions macro', () => {
             'Only one defineOptions() call is allowed in a base Shopware setup block.',
         );
     });
+
+    it('rejects nested defineOptions()', () => {
+        const source = stripIndent`
+            <script setup>
+            if (true) {
+                defineOptions({ inheritAttrs: false });
+            }
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'nested-options.vue')).toThrow(
+            'defineOptions() must be called once at the top level of a base Shopware setup block.',
+        );
+    });
 });

@@ -93,4 +93,20 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
             'Only one defineExpose() call is allowed in a base Shopware setup block.',
         );
     });
+
+    it('rejects nested defineExpose()', () => {
+        const source = stripIndent`
+            <script setup>
+            if (true) {
+                defineExpose({});
+            }
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'nested-expose.vue')).toThrow(
+            'defineExpose() must be called once at the top level of a base Shopware setup block.',
+        );
+    });
 });

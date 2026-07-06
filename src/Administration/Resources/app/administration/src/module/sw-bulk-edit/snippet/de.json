@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Mehrfachänderung",
       "descriptionTextModule": "Modul zur Mehrfachänderung von Daten",
       "defaultChangeLabel": "Ändern:"
     },

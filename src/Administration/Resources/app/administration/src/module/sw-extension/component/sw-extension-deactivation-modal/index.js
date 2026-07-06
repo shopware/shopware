@@ -35,7 +35,7 @@ export default {
                 {
                     removeLabel: this.isLicensed
                         ? this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
-                        : this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
+                        : this.$t('global.default.remove'),
                 },
                 0,
             );

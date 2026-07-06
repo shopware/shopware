@@ -11,20 +11,20 @@
  *    like exfil payloads.
  *
  * No runtime dependencies. TypeScript types are erased at runtime — run with
- * `node validate-triage-output.ts` (Node >= 22.6 strips types natively) in CI,
- * or `npx esno validate-triage-output.ts` locally. Invoked by
- * `.github/workflows/process-triage-result.yml` after every triage run; exits
+ * `node validate-sw-triage-output.ts` (Node >= 22.6 strips types natively) in CI,
+ * or `npx esno validate-sw-triage-output.ts` locally. Invoked by
+ * `.github/workflows/process-sw-triage-result.yml` after every triage run; exits
  * non-zero if anything trips, which fails the processor run.
  *
  * Usage:
- *   node validate-triage-output.ts <path-to-triage-output.json>
+ *   node validate-sw-triage-output.ts <path-to-triage-output.json>
  */
 
 import { readFileSync, existsSync } from 'node:fs';
 
 const FILE = process.argv[2];
 if (!FILE) {
-  console.error('usage: validate-triage-output.ts <triage-output.json>');
+  console.error('usage: validate-sw-triage-output.ts <triage-output.json>');
   process.exit(2);
 }
 if (!existsSync(FILE)) {
@@ -44,7 +44,7 @@ const SEVERITIES = new Set<string>(['low', 'medium', 'high', 'critical']);
 const CHANGE_SIZES = new Set<string>(['quick-fix', 'small', 'medium', 'large', 'unknown']);
 
 // The closed label catalogue. KEEP IN SYNC with the canonical list in
-// .agents/skills/triage/references/DOMAINS.md — when a label is added/removed
+// .agents/skills/sw-triage/references/DOMAINS.md — when a label is added/removed
 // there, mirror it here (and vice-versa). Kept as a hardcoded set on purpose:
 // parsing the prose doc at runtime would make this gate fragile and non-hermetic.
 const COMPONENT_LABELS = new Set<string>(['component/core', 'component/administration', 'component/storefront']);
@@ -79,7 +79,7 @@ interface SecretPattern {
 // Catastrophic-leakage patterns. A match fails this post-run validation (red check on
 // the triage run) — it does NOT abort the upload: by the time this runs the artifact is
 // already stored, so this is the deterministic backstop. Upload-time blocking is gh-aw's
-// threat-detection job (configured via safe-outputs.threat-detection in triage.md), which
+// threat-detection job (configured via safe-outputs.threat-detection in sw-triage.md), which
 // runs before the upload and is aligned to these same patterns.
 // GitHub token prefixes per https://github.blog/2021-04-05-behind-githubs-new-authentication-token-formats/
 const SECRET_PATTERNS: SecretPattern[] = [

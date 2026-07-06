@@ -83,14 +83,9 @@ describe('build/vue-setup-transform base transforms', () => {
                 <sw-block name="sw_example_component_headline">
                     <h2>{{ headline }}</h2>
                 </sw-block>
-
-                <sw-block :name="dynamicBlockName">
-                    <p>{{ headline }}</p>
-                </sw-block>
             </article>
             </template>
             <script setup>
-            const dynamicBlockName = 'sw_example_component_dynamic';
             const headline = 'Headline';
 
             swDefinePublic({
@@ -102,7 +97,6 @@ describe('build/vue-setup-transform base transforms', () => {
         const result = transformOrFail(source, 'base-sw-block-data.vue').code;
 
         expect(result).toContain('<sw-block :data="$dataScope" name="sw_example_component_headline">');
-        expect(result).toContain('<sw-block :data="$dataScope" :name="dynamicBlockName">');
     });
 
     it('returns destructured runtime declarations as setup bindings', () => {

@@ -174,7 +174,7 @@ class McpResourcePersisterTest extends TestCase
 
     private function createMcpWithResources(McpResources $mcpResources): Mcp
     {
-        $mcp = $this->createMock(Mcp::class);
+        $mcp = static::createStub(Mcp::class);
         $mcp->method('getResources')->willReturn($mcpResources);
 
         return $mcp;

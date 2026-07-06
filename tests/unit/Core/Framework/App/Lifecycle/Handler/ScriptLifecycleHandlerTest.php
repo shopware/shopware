@@ -69,7 +69,7 @@ class ScriptLifecycleHandlerTest extends TestCase
         $appRepository = new StaticEntityRepository([]);
 
         return new ScriptLifecycleHandler(
-            $this->createMock(ScriptFileReader::class),
+            static::createStub(ScriptFileReader::class),
             $scriptRepository,
             $appRepository,
         );

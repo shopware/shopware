@@ -22,7 +22,7 @@ class ConfigExtensionTest extends TestCase
 {
     public function testGetFunctionsReturnsConfigFunction(): void
     {
-        $extension = new ConfigExtension($this->createMock(SystemConfigService::class));
+        $extension = new ConfigExtension(static::createStub(SystemConfigService::class));
         $functions = $extension->getFunctions();
 
         static::assertCount(1, $functions);
@@ -48,7 +48,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testStaticConfigThrowsWhenMajorFeatureIsActive(): void
     {
-        $extension = new ConfigExtension($this->createMock(SystemConfigService::class));
+        $extension = new ConfigExtension(static::createStub(SystemConfigService::class));
 
         $this->expectException(FeatureException::class);
 

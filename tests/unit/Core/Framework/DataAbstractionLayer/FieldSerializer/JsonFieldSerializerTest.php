@@ -37,7 +37,7 @@ class JsonFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $validator = Validation::createValidator();
         $this->serializer = new JsonFieldSerializer($validator, $this->definitionRegistry);
         $dateSerializer = new DateFieldSerializer($validator, $this->definitionRegistry);

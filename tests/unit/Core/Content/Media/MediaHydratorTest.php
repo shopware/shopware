@@ -41,8 +41,8 @@ class MediaHydratorTest extends TestCase
                 MediaFolderDefinition::class,
                 MediaTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $container->set(MediaHydrator::class, $this->hydrator);

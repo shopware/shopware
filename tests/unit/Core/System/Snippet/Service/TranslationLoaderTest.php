@@ -26,6 +26,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -33,6 +34,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -67,11 +69,14 @@ class TranslationLoaderTest extends TestCase
 
     private TranslationConfig $config;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
         $this->client = $this->createMock(ClientInterface::class);
         $this->flysystem = new FlySystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->context = Context::createDefaultContext();
+        $this->eventDispatcher = new EventDispatcher();
         $this->ids = new IdsCollection();
         $this->languageRepository = new StaticEntityRepository([$this->getSearchResult('language')]);
         $this->localeRepository = new StaticEntityRepository([$this->getSearchResult('locale')]);
@@ -399,6 +404,23 @@ class TranslationLoaderTest extends TestCase
         $this->getTranslationLoader()->getDecorated();
     }
 
+    public function testLoadDispatchesEvent(): void
+    {
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            TranslationLoadedEvent::class,
+            static function (TranslationLoadedEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->getTranslationLoader()->load('es-ES', $this->context);
+
+        static::assertInstanceOf(TranslationLoadedEvent::class, $dispatched);
+        static::assertSame('es-ES', $dispatched->getLocale());
+        static::assertSame($this->context, $dispatched->getContext());
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(
@@ -408,6 +430,7 @@ class TranslationLoaderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: $this->client,
             config: $this->config,
+            eventDispatcher: $this->eventDispatcher,
         );
     }
 

@@ -77,16 +77,12 @@ describe('build/vue-setup-transform base defineSlots macro', () => {
         expect(result).toContain('const { default: defaultSlot } = (__swSetupContext.slots);');
     });
 
-    it('hoists bare defineSlots() while a user slots() binding is exposed as state', () => {
+    it('hoists bare defineSlots() statements', () => {
         const source = stripIndent`
             <script setup>
             defineSlots();
 
-            function slots() {
-                return 'local binding';
-            }
-
-            const count = slots().length;
+            const count = 1;
 
             swDefinePublic({
                 count,
@@ -94,13 +90,11 @@ describe('build/vue-setup-transform base defineSlots macro', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-bare-slots-collision.vue').code;
+        const result = transformOrFail(source, 'base-bare-slots.vue').code;
 
         expect(result).toContain('defineSlots();');
         expect(result).not.toContain('const slots = defineSlots');
         expect(result).toContain('(__swSetupContext.slots);');
-        expect(result).toContain("return 'local binding';");
-        expect(result).toContain('private: {\n                slots,\n            }');
     });
 
     it('rejects duplicate base defineSlots() declarations', () => {

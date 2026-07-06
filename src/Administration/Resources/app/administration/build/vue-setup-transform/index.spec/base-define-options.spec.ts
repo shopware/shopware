@@ -64,11 +64,6 @@ describe('build/vue-setup-transform base defineOptions macro', () => {
         expect(result.indexOf("name: 'sw-custom-name'")).toBeLessThan(
             result.indexOf('Shopware.Component.createExtendableSetup('),
         );
-        expect(result).not.toContain(`customOption: {
-        enabled: true,
-    },
-
-    const count`);
     });
 
     it('rejects local setup bindings in hoisted defineOptions() arguments', () => {

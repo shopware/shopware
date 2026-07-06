@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\System;
@@ -22,34 +21,35 @@ class SystemTest extends TestCase
         static::assertSame(-1, $system->getTemplatePriority());
     }
 
-    #[TestDox('build in $_dataName')]
-    #[DataProvider('provideEnvironments')]
-    public function testBuildLoadsTranslationTestServices(string $environment, bool $expectMock): void
+    #[TestDox('build loads the translation client mock in the test environment')]
+    public function testBuildLoadsTranslationClientMockInTestEnvironment(): void
+    {
+        $container = $this->buildContainer('test');
+
+        static::assertTrue($container->has('shopware.translation.mock_handler'), 'services_test.php');
+
+        // the client must be wired to the mock handler instead of the argument-less
+        // real client from snippet.xml (see issue #18067)
+        static::assertNotSame([], $container->getDefinition('shopware.translation.client')->getArguments());
+    }
+
+    #[TestDox('build keeps the real translation client outside the test environment')]
+    public function testBuildKeepsRealTranslationClientInProdEnvironment(): void
+    {
+        $container = $this->buildContainer('prod');
+
+        static::assertFalse($container->has('shopware.translation.mock_handler'), 'services_test.php');
+        static::assertTrue($container->has('shopware.translation.client'), 'snippet.xml');
+        static::assertSame([], $container->getDefinition('shopware.translation.client')->getArguments());
+    }
+
+    private function buildContainer(string $environment): ContainerBuilder
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', $environment);
 
         (new System())->build($container);
 
-        static::assertTrue($container->has('shopware.translation.client'), 'snippet.xml');
-        static::assertSame($expectMock, $container->has('shopware.translation.mock_handler'), 'services_test.php');
-
-        // in the test environment the client must be wired to the mock handler instead of the
-        // argument-less real client from snippet.xml (see issue #18067)
-        $clientArguments = $container->getDefinition('shopware.translation.client')->getArguments();
-        if ($expectMock) {
-            static::assertNotSame([], $clientArguments);
-        } else {
-            static::assertSame([], $clientArguments);
-        }
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function provideEnvironments(): \Generator
-    {
-        yield 'test environment loads the translation client mock' => ['test', true];
-        yield 'prod environment keeps the real translation client' => ['prod', false];
+        return $container;
     }
 }

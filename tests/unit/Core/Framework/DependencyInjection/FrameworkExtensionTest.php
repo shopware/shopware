@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -15,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[CoversClass(Configuration::class)]
 class FrameworkExtensionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedCacheCompressionConfigSetsReplacementParameters(): void
     {
         $container = new ContainerBuilder();
@@ -32,6 +35,19 @@ class FrameworkExtensionTest extends TestCase
         static::assertSame('deflate', $container->getParameter('shopware.cache.compression_method'));
         static::assertFalse($container->getParameter('shopware.cache.cache_compression'));
         static::assertSame('deflate', $container->getParameter('shopware.cache.cache_compression_method'));
+    }
+
+    public function testDeprecatedCacheCompressionConfigThrowsException(): void
+    {
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'));
+        (new FrameworkExtension())->load([
+            [
+                'cache' => [
+                    'cache_compression' => false,
+                    'cache_compression_method' => 'deflate',
+                ],
+            ],
+        ], new ContainerBuilder());
     }
 
     public function testReplacementCacheCompressionConfigHasPrecedenceOverDeprecatedConfig(): void

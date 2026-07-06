@@ -209,12 +209,9 @@
       "labelCreatedAt": "Created at",
       "labelPoints": "Stars",
       "labelTitle": "Title",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "modal": {
         "confirmTitle": "Delete review",
-        "confirmText": "Do you really want to delete this review?",
-        "buttonDelete": "Delete"
+        "confirmText": "Do you really want to delete this review?"
       },
       "messageEmptyTitle": "Product not reviewed yet",
       "messageEmptySubline": "Check out other products' reviews instead.",
@@ -234,8 +231,6 @@
       "columnQuantityStart": "Quantity from...",
       "columnQuantityEnd": "to...",
       "columnPrice": "Price (gross / net)",
-      "contextMenuDuplicate": "Duplicate",
-      "contextMenuDelete": "Delete",
       "settingShowListPrices": "Show list prices",
       "toolbarLabel": "Rules"
     },
@@ -243,8 +238,6 @@
       "textProductOverview": "Products",
       "buttonAddProduct": "Add product",
       "buttonAddDownloadableProduct": "Add digital product",
-      "buttonDuplicate": "Duplicate",
-      "buttonDelete": "Delete",
       "columnName": "Name",
       "columnProductNumber": "Product number",
       "columnManufacturer": "Manufacturer",
@@ -262,9 +255,6 @@
       "columnMedia": "Media",
       "columnSales": "Sales",
       "columnDownloadsTooltip": "Digital products must have at least one file attached.",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
       "contextMenuShowVariants": "Show variants",
       "variantIndicatorTooltip": "This product has variants.",
       "variantGridEmptyStateSubline": "No variants were found.",
@@ -287,7 +277,6 @@
     },
     "detail": {
       "textHeadline": "New product",
-      "buttonSave": "Save",
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
@@ -306,7 +295,6 @@
       "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
     },
     "mediaForm": {
-      "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
       "errorMediaItemDuplicated": "Media item \"{fileName}\" is already assigned.",
       "coverSubline": "Cover",
@@ -368,7 +356,6 @@
       "generateVariationsButton": "Save variants",
       "nextModalButton": "Next",
       "deleteVariationsButton": "Delete all variants",
-      "backVariationsButton": "Back",
       "configuratorCardTitle": "Variant generator",
       "generatedVariationCardTitle": "Variants",
       "variationCard": {
@@ -393,11 +380,8 @@
       "generatedListColumnContentProductState": {
         "is-download": "digital"
       },
-      "generatedListContextMenuEdit": "Edit",
-      "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
       "generatedListDeleteModalMessagePlural": "Do you really want to delete these variants?",
-      "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListMessageDeleteErrorCanonicalUrl": "Variant could not be deleted because it is being used as the canonical url template.",
@@ -430,12 +414,8 @@
         "restrictedCombinations": "Excluded property values",
         "searchRestrictions": "Search excluded values...",
         "addNewRestriction": "Exclude values",
-        "editRestriction": "Edit",
-        "deleteRestriction": "Delete",
         "singleRestrictionSeperation": "And",
-        "deleteCombination": "Delete",
         "isOneFrom": "is one of",
-        "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
         "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there.",
@@ -458,8 +438,7 @@
         "listingExplanationModeSingle": "Choose a variant that will be displayed in listings and preselected on the product detail page.",
         "listingExplanationModeMainProduct": "Choose a variant that will be the preselected on the product detail page.",
         "listingLabelModeExpanded": "Expand property values in product listings",
-        "listingPlaceholderSelectMainVariant": "Choose a variant...",
-        "save": "Save"
+        "listingPlaceholderSelectMainVariant": "Choose a variant..."
       }
     },
     "layout": {
@@ -473,7 +452,6 @@
       "buttonAddCrossSelling": "Add new Cross Selling",
       "newCrossSellingTitle": "New Cross Selling",
       "buttonAddCrossSellingLanguageWarning": "You can only create new cross sellings in your default language",
-      "buttonDeleteCrossSelling": "Delete",
       "inputCrossSellingTitle": "Name",
       "inputCrossSellingActive": "Active",
       "inputCrossSellingType": "Type",
@@ -496,7 +474,6 @@
       "releaseDateDescendingSortingType": "Release date, descending",
       "deleteConfirmTitle": "Delete Cross Selling",
       "deleteConfirmText": "Are you sure you want to delete the Cross Selling configuration?",
-      "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
       "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",

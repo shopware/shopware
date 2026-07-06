@@ -239,6 +239,20 @@ describe('build/vue-setup-transform validation', () => {
         );
     });
 
+    it('rejects top-level bindings using the reserved __swSetup prefix', () => {
+        const source = stripIndent`
+            <script setup>
+            const __swSetupProps = 1;
+            const count = __swSetupProps;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'reserved-prefix.vue')).toThrow(
+            '"__swSetupProps" uses the reserved "__swSetup" prefix of the Shopware setup transform and must not be declared or imported.',
+        );
+    });
+
     it('ignores fake Shopware setup script tags in non-top-level contexts', () => {
         const source = stripIndent`
             <!-- <script setup sw-component="from-comment"></script> -->

@@ -6,7 +6,11 @@ import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babe
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getNodeRange, isFunctionNode, walk } from './utils';
-import { RESERVED_OVERRIDE_STATE_NAME, type ShopwareSetupMacroName } from './macros';
+import {
+    RESERVED_OVERRIDE_STATE_NAME,
+    SHOPWARE_SETUP_INTERNAL_PREFIX,
+    type ShopwareSetupMacroName,
+} from './macros';
 
 type NamedBinding = {
     name: string;
@@ -169,6 +173,13 @@ function assertReservedMacroNames(bindings: NamedBinding[], mode: ShopwareSetupM
         if (binding.name === RESERVED_OVERRIDE_STATE_NAME) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved for Shopware override-private state and must not be declared or imported.`,
+                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+            );
+        }
+
+        if (binding.name.startsWith(SHOPWARE_SETUP_INTERNAL_PREFIX)) {
+            throw new ShopwareSetupTransformError(
+                `"${binding.name}" uses the reserved "${SHOPWARE_SETUP_INTERNAL_PREFIX}" prefix of the Shopware setup transform and must not be declared or imported.`,
                 scriptOffset + getNodeRange(binding.node, scriptOffset).start,
             );
         }

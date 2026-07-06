@@ -483,6 +483,35 @@ class AccountOrderControllerTest extends TestCase
         static::assertArrayHasKey(AccountEditOrderPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testOrderPageRendersWithMalformedTrackingUrl(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+        $orderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+
+        static::getContainer()->get('order.repository')->create([$orderData[0]], $context);
+
+        // Malformed tracking URL: a stray "%" that is not a valid sprintf specifier
+        static::getContainer()->get('shipping_method.repository')->update([
+            [
+                'id' => $orderData[0]['deliveries'][0]['shippingMethodId'],
+                'trackingUrl' => 'https://tracking.com/test?t=%',
+            ],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account/order');
+
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());

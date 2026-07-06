@@ -47,5 +47,3 @@ function expectVueCompilerScriptToCompile(code: string, filename: string): void 
 }
 
 export { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc };
-
-export {};

@@ -2,6 +2,40 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
+        "/_action/media/{mediaId}/download": {
+            "get": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Download a media file",
+                "description": "Downloads a media file by its identifier.",
+                "operationId": "downloadMedia",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "description": "Identifier of the media entity.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/MediaId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The media file.",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/_action/media/{mediaId}/upload": {
             "post": {
                 "tags": [

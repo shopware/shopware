@@ -339,6 +339,9 @@
         },
         "coverSaveError": {
           "message": "Cover image could not be saved."
+        },
+        "downloadError": {
+          "message": "Error downloading file."
         }
       },
       "labelUploading": "Uploading..."

@@ -186,6 +186,7 @@
       "cardTitleDownloads": "Files",
       "cardSubtitleDownloads": "Add files to your digital product.",
       "downloadsLabel": "File upload",
+      "downloadsContextMenuDownloadFile": "Download file",
       "manageStockLabel": "Manage stock",
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },

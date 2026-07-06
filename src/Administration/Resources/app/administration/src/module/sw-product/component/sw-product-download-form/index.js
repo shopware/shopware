@@ -18,6 +18,7 @@ export default {
         'repositoryFactory',
         'acl',
         'configService',
+        'mediaService',
     ],
 
     emits: ['media-open'],
@@ -193,6 +194,24 @@ export default {
         updateMediaItemPositions() {
             this.productMedia.forEach((medium, index) => {
                 medium.position = index;
+            });
+        },
+
+        downloadMedia(download) {
+            this.mediaService.downloadMedia(download.media.id).then((data) => {
+                const url = window.URL.createObjectURL(data);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = this.getFileName(download);
+                link.dispatchEvent(new MouseEvent('click'));
+                link.remove();
+
+                URL.revokeObjectURL(url);
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                });
             });
         },
     },

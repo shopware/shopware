@@ -18,12 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\VarExporter\LazyGhostTrait;
 
@@ -48,6 +48,9 @@ class EntityRepository
         private readonly EntityAggregatorInterface $aggregator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityLoadedEventFactory $eventFactory,
+        // wired into every container-built repository by EntityCompilerPass; null only for hand-built
+        // repositories (tests), which then run uninstrumented
+        private readonly ?DalSearchInstrumentor $dalSearchInstrumentor = null,
     ) {
     }
 
@@ -61,20 +64,26 @@ class EntityRepository
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        if (!$criteria->getTitle()) {
-            return $this->_search($criteria, $context);
-        }
+        $searchFn = fn (): EntitySearchResult => $this->_search($criteria, $context);
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $context), 'repository');
+        return $this->dalSearchInstrumentor?->measure(
+            DalSearchInstrumentor::OPERATION_SEARCH,
+            $this->definition,
+            $criteria,
+            $searchFn,
+        ) ?? $searchFn();
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
-        if (!$criteria->getTitle()) {
-            return $this->_aggregate($criteria, $context);
-        }
+        $aggregateFn = fn (): AggregationResultCollection => $this->_aggregate($criteria, $context);
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $context), 'repository');
+        return $this->dalSearchInstrumentor?->measure(
+            DalSearchInstrumentor::OPERATION_AGGREGATE,
+            $this->definition,
+            $criteria,
+            $aggregateFn,
+        ) ?? $aggregateFn();
     }
 
     /**
@@ -86,11 +95,14 @@ class EntityRepository
      */
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        if (!$criteria->getTitle()) {
-            return $this->_searchIds($criteria, $context);
-        }
+        $searchIdsFn = fn (): IdSearchResult => $this->_searchIds($criteria, $context);
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_searchIds($criteria, $context), 'repository');
+        return $this->dalSearchInstrumentor?->measure(
+            DalSearchInstrumentor::OPERATION_SEARCH_IDS,
+            $this->definition,
+            $criteria,
+            $searchIdsFn,
+        ) ?? $searchIdsFn();
     }
 
     /**

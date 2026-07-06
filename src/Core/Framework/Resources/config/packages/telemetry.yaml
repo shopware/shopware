@@ -54,6 +54,30 @@ shopware:
                     description: 'Number of associations loaded'
                     type: 'histogram'
 
+                dal.search.duration:
+                    # es_aware x backend is the OpenSearch scaling indicator: es_aware=yes served by backend=sql means
+                    # traffic eligible for OpenSearch but still handled by SQL (either OpenSearch not enabled or is falling back).
+                    # "search" operation may call searchIds/aggregate, so one read can produce several metric samples
+                    # Analyze each operation on its own and do not add the operations together.
+                    description: 'Duration of DAL read/search/aggregate operations. es_aware x backend flags OpenSearch scaling possibilities (es_aware=yes on backend=sql = eligible for OpenSearch but served by SQL). A search operation triggers searchIds/aggregate operations and may emit multiple metrics, so compare each operation on its own and do not sum them.'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-ms indexed lookups up to multi-hundred-ms complex searches/aggregations
+                        buckets: [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
+                    labels:
+                        # EntityGroupResolver (known: product, category, customer, order, media, content, cms, rule, system, b2b, other)
+                        entity_group:
+                            policy: open
+                        operation:
+                            allowed_values: [search, searchIds, aggregate]
+                        es_aware:
+                            allowed_values: ['yes', 'no']
+                        # elasticsearch when the ES bundle served the result, else sql (incl. when the bundle is inactive);
+                        # es_aware=no with backend=elasticsearch is impossible
+                        backend:
+                            allowed_values: [sql, elasticsearch]
+
                 database.locks.count:
                     description: 'Number of database locks'
                     enabled: true

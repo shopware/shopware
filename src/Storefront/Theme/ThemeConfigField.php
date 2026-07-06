@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
-use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -132,27 +130,24 @@ class ThemeConfigField extends Struct
     }
 
     /**
+     * Will be natively typed in v6.8.0. Note that the `list<string>|string` docblock type is
+     * currently inaccurate: theme.json config values also contain booleans and numbers.
+     *
      * @return list<string>|string
      */
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'list<string>|string')]
     public function getValue()
     {
         return $this->value;
     }
 
     /**
+     * Will be natively typed in v6.8.0. Note that the `list<string>|string` docblock type is
+     * currently inaccurate: theme.json config values also contain booleans and numbers.
+     *
      * @param list<string>|string $value
      */
-    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'value', newType: 'list<string>|string')]
     public function setValue($value): void
     {
-        if (!\is_string($value) && !\is_array($value)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                'Passing a value that is neither a string nor a list of strings is deprecated, the parameter will be natively typed.'
-            );
-        }
-
         $this->value = $value;
     }
 

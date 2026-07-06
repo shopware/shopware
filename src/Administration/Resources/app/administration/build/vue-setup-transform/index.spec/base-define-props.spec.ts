@@ -4,7 +4,7 @@
 
 import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
-describe('build/vue-setup-transform base props macros', () => {
+describe('build/vue-setup-transform base defineProps macro', () => {
     it('keeps base defineProps() outside the extendable setup callback and passes props into the bridge', () => {
         const source = stripIndent`
             <template><div>{{ count }}</div></template>

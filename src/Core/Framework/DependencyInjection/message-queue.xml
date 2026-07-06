@@ -35,6 +35,13 @@
             <tag name="shopware.telemetry.subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\Telemetry\MessengerQueueDepthCollector">
+            <argument type="service" id="messenger.receiver_locator"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="shopware.telemetry.periodic_metric_collector"/>
+        </service>
+
         <!--Controller-->
         <service id="Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController" public="true">
             <argument type="service" id="messenger.receiver_locator"/>

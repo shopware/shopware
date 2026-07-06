@@ -182,7 +182,7 @@ class AppListCommandTest extends TestCase
      */
     private function setupEntityCollection(array $entities): void
     {
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new AppCollection($entities));
         $this->appRepoMock->method('search')->willReturn($result);
     }

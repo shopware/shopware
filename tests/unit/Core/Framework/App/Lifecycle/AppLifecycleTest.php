@@ -70,7 +70,7 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateThrowsWhenAppDoesNotExist(): void
     {
-        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), AppFixture::createAppRepository());
+        $appLifecycle = new AppLifecycle(static::createStub(AppManager::class), AppFixture::createAppRepository());
 
         static::expectException(AppException::class);
 
@@ -79,7 +79,7 @@ class AppLifecycleTest extends TestCase
 
     public function testGetDecoratedThrows(): void
     {
-        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), AppFixture::createAppRepository());
+        $appLifecycle = new AppLifecycle(static::createStub(AppManager::class), AppFixture::createAppRepository());
 
         static::expectException(DecorationPatternException::class);
 

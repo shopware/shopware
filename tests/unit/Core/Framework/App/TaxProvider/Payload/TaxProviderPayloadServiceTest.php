@@ -52,12 +52,12 @@ class TaxProviderPayloadServiceTest extends TestCase
     public function testRequest(): void
     {
         $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
             ->willReturn(new TaxProviderDefinition());
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -110,11 +110,11 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ExceptionLogger::class),
         );
 
         $cart = new Cart($this->ids->get('cart'));
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
 
         $app = new AppEntity();
@@ -172,7 +172,7 @@ class TaxProviderPayloadServiceTest extends TestCase
             },
         ]);
 
-        $payload = $this->createMock(TaxProviderPayload::class);
+        $payload = static::createStub(TaxProviderPayload::class);
 
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
@@ -180,9 +180,9 @@ class TaxProviderPayloadServiceTest extends TestCase
         $app->setAppSecret('very-secret');
 
         $taxProviderPayloadService = new TaxProviderPayloadService(
-            $this->createMock(AppPayloadServiceHelper::class),
+            static::createStub(AppPayloadServiceHelper::class),
             $client,
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ExceptionLogger::class),
         );
 
         $response = $taxProviderPayloadService->request(
@@ -200,7 +200,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $client = new Client(['handler' => new MockHandler([new Response(200, [], '{')])]);
         $context = new Context(new SystemSource());
 
-        $payload = $this->createMock(TaxProviderPayload::class);
+        $payload = static::createStub(TaxProviderPayload::class);
 
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
@@ -250,7 +250,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $client = new Client(['handler' => new MockHandler([new Response(200, [], '{"cartPriceTaxes":[{"tax":"invalid","taxRate":13,"price":200}]}')])]);
         $context = new Context(new SystemSource());
 
-        $payload = $this->createMock(TaxProviderPayload::class);
+        $payload = static::createStub(TaxProviderPayload::class);
 
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
@@ -298,12 +298,12 @@ class TaxProviderPayloadServiceTest extends TestCase
     public function testAppSecretMissing(): void
     {
         $shopId = ShopId::v2('123');
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
             ->willReturn(new TaxProviderDefinition());
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -332,10 +332,10 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(),
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ExceptionLogger::class),
         );
 
-        $payload = $this->createMock(TaxProviderPayload::class);
+        $payload = static::createStub(TaxProviderPayload::class);
 
         $this->expectExceptionObject(AppException::registrationFailed('Test app', 'App secret is missing'));
 

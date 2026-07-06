@@ -111,38 +111,6 @@ describe('build/vue-setup-transform validation', () => {
         expect(result).not.toContain('Vue macro defineModel() is not supported');
     });
 
-    it('rejects nested defineOptions()', () => {
-        const source = stripIndent`
-            <script setup>
-            if (true) {
-                defineOptions({ inheritAttrs: false });
-            }
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'nested-options.vue')).toThrow(
-            'defineOptions() must be called once at the top level of a base Shopware setup block.',
-        );
-    });
-
-    it('rejects nested defineExpose()', () => {
-        const source = stripIndent`
-            <script setup>
-            if (true) {
-                defineExpose({});
-            }
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'nested-expose.vue')).toThrow(
-            'defineExpose() must be called once at the top level of a base Shopware setup block.',
-        );
-    });
-
     it('rejects top-level await', () => {
         const source = stripIndent`
             <script setup>

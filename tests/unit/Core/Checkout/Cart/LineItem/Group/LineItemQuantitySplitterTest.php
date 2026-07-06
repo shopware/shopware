@@ -34,7 +34,7 @@ class LineItemQuantitySplitterTest extends TestCase
 
     protected function setUp(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 

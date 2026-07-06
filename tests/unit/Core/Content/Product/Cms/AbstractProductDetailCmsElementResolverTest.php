@@ -92,6 +92,8 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $criteria = $definition['product_slot-1'];
         static::assertInstanceOf(Criteria::class, $criteria);
         static::assertSame('cms::product-detail-static', $criteria->getTitle());
+        static::assertArrayHasKey('properties', $criteria->getAssociations());
+        static::assertArrayHasKey('group', $criteria->getAssociations()['properties']->getAssociations());
     }
 
     public function testGetSlotProductReturnsNullIfNoSearchResultProvided(): void

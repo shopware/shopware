@@ -154,7 +154,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         // Both loaders scan the identical discovered directory set (same source/path/prefix per entry, same order).
         static::assertEquals($typeDirs, $bindingDirs);
 
-        // Every discovered source kind is present with the expected path and prefix.
         $core = $this->findBySource($typeDirs, 'core');
         static::assertNotNull($core);
         $corePath = $core->getArgument(1);

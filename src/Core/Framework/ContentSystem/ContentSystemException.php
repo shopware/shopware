@@ -714,7 +714,7 @@ class ContentSystemException extends HttpException
     // The load-time 400 for a specification whose declared (or inline-implicit) type is not a registered element
     // type. The canonicalizer needs the type for every specification it processes (sugared or canonical), so an
     // unknown type is rejected here rather than deferred to TypeConsistentBindingSpecification. Deliberately not
-    // a CLIENT_DEFECT_CODE: that list is only for element-tree config defects the diagnostics kernel catches, not
+    // in CLIENT_DEFECT_CODES: that list is only for element-tree config defects the diagnostics kernel catches, not
     // authored-artifact load errors (matching bindingSpecificationNotFound/bindingTypeMismatch).
     public static function bindingSpecificationUnknownType(string $id, string $type): self
     {
@@ -728,8 +728,8 @@ class ContentSystemException extends HttpException
 
     // The load-time 400 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
     // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
-    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not a
-    // CLIENT_DEFECT_CODE, for the same reason as bindingSpecificationUnknownType.
+    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not in
+    // CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
     public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
     {
         return new self(

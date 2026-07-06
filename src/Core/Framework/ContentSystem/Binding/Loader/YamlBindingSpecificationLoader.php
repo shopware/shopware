@@ -197,8 +197,9 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     /**
      * An inline entry's type is implicit (the containing file's type) and its id is the map key. An authored
      * `type` or `id` inside the entry would silently drift from those, so both are hard load-time errors. Runs
-     * before denormalization so the guard is never bypassed by the `['type' => …] + $entry`
-     * union that would otherwise let an inner `type` be overridden and an inner `id` be dropped unnoticed.
+     * before the type-injecting merge below, which copies each entry facet over the injected implicit type: without
+     * this guard an inner `type` would overwrite the implicit one, and an inner `id` would be silently ignored (the
+     * map key is the id), letting either drift unnoticed.
      *
      * @param array<array-key, mixed> $entryData
      */

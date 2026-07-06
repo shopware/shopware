@@ -173,7 +173,7 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
     private function validate(BindingSpecificationDto $dto): ConstraintViolationListInterface
     {
         // Validate against the explicit structural constraint only, NOT via attribute mapping. This isolates the
-        // structural rule under test; the semantic TypeConsistentBindingSpecification, now carried by the DTO
+        // structural rule under test; the semantic TypeConsistentBindingSpecification, carried by the DTO
         // collection, not the DTO, is covered by its own dedicated test.
         return Validation::createValidatorBuilder()
             ->getValidator()

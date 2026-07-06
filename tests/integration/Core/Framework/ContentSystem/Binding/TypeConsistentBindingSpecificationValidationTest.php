@@ -66,7 +66,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             $paths[] = $violation->getPropertyPath();
         }
 
-        // The semantic constraint now runs on the collection, so violation paths are keyed on the binding id.
+        // The semantic constraint runs on the collection, so violation paths are keyed on the binding id.
         static::assertContains('bindings[' . self::ID . '].' . $expectedPath, $paths);
     }
 

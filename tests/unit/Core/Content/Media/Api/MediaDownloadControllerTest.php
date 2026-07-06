@@ -5,19 +5,16 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\Api\MediaDownloadController;
+use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
-use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\HttpFoundation\HeaderUtils;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -27,7 +24,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[CoversClass(MediaDownloadController::class)]
 class MediaDownloadControllerTest extends TestCase
 {
-    private MediaService&MockObject $mediaService;
+    private DownloadResponseGenerator&MockObject $downloadResponseGenerator;
 
     /**
      * @var StaticEntityRepository<MediaCollection>
@@ -38,16 +35,16 @@ class MediaDownloadControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaService = $this->createMock(MediaService::class);
+        $this->downloadResponseGenerator = $this->createMock(DownloadResponseGenerator::class);
         $this->mediaRepository = new StaticEntityRepository([]);
 
         $this->controller = new MediaDownloadController(
             $this->mediaRepository,
-            $this->mediaService
+            $this->downloadResponseGenerator
         );
     }
 
-    public function testDownloadMediaFileStreamsPrivateMedia(): void
+    public function testDownloadMediaFileUsesDownloadResponseGenerator(): void
     {
         $mediaId = Uuid::randomHex();
         $media = new MediaEntity();
@@ -60,21 +57,19 @@ class MediaDownloadControllerTest extends TestCase
 
         $this->mediaRepository->addSearch(new MediaCollection([$media]));
 
-        $stream = static::createStub(StreamInterface::class);
-        $stream->method('detach')->willReturn(fopen('php://temp', 'r'));
-
-        $this->mediaService
+        $expectedResponse = new StreamedResponse(static function (): void {});
+        $this->downloadResponseGenerator
             ->expects($this->once())
-            ->method('loadFileStream')
-            ->with($mediaId, static::isInstanceOf(Context::class))
-            ->willReturn($stream);
+            ->method('getResponseByContext')
+            ->with($media, $context)
+            ->willReturn($expectedResponse);
 
         $response = $this->controller->downloadMediaFile($mediaId, $context);
 
-        AssertResponseHelper::assertResponseEquals(self::createExpectedStreamResponse(), $response);
+        static::assertSame($expectedResponse, $response);
     }
 
-    public function testDownloadMediaFileStreamsPublicMedia(): void
+    public function testPrepareMediaDownloadReturnsRedirectTargetUrl(): void
     {
         $mediaId = Uuid::randomHex();
         $media = new MediaEntity();
@@ -87,18 +82,43 @@ class MediaDownloadControllerTest extends TestCase
 
         $this->mediaRepository->addSearch(new MediaCollection([$media]));
 
-        $stream = static::createStub(StreamInterface::class);
-        $stream->method('detach')->willReturn(fopen('php://temp', 'r'));
-
-        $this->mediaService
+        $this->downloadResponseGenerator
             ->expects($this->once())
-            ->method('loadFileStream')
-            ->with($mediaId, static::isInstanceOf(Context::class))
-            ->willReturn($stream);
+            ->method('getResponseByContext')
+            ->with($media, $context)
+            ->willReturn(new RedirectResponse('https://cdn.example.test/download'));
 
-        $response = $this->controller->downloadMediaFile($mediaId, $context);
+        $response = $this->controller->prepareMediaDownload($mediaId, $context);
 
-        AssertResponseHelper::assertResponseEquals(self::createExpectedStreamResponse(), $response);
+        static::assertSame(
+            json_encode(['type' => 'external', 'url' => 'https://cdn.example.test/download'], \JSON_THROW_ON_ERROR),
+            $response->getContent()
+        );
+    }
+
+    public function testPrepareMediaDownloadSignalsBlobFallbackWhenGeneratorNeedsLocalResponse(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->addSearch(new MediaCollection([$media]));
+
+        $expectedResponse = new StreamedResponse(static function (): void {});
+
+        $this->downloadResponseGenerator
+            ->expects($this->once())
+            ->method('getResponseByContext')
+            ->with($media, $context)
+            ->willReturn($expectedResponse);
+
+        $response = $this->controller->prepareMediaDownload($mediaId, $context);
+
+        static::assertSame(
+            json_encode(['type' => 'blob'], \JSON_THROW_ON_ERROR),
+            $response->getContent()
+        );
     }
 
     public function testDownloadMediaFileThrowsIfMediaDoesNotExist(): void
@@ -106,22 +126,26 @@ class MediaDownloadControllerTest extends TestCase
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->addSearch(new MediaCollection());
 
-        $this->mediaService
+        $this->downloadResponseGenerator
             ->expects($this->never())
-            ->method('loadFileStream');
+            ->method('getResponseByContext');
 
         $this->expectExceptionObject(MediaException::mediaNotFound($mediaId));
 
         $this->controller->downloadMediaFile($mediaId, Context::createDefaultContext());
     }
 
-    private static function createExpectedStreamResponse(): StreamedResponse
+    public function testPrepareMediaDownloadThrowsIfMediaDoesNotExist(): void
     {
-        return new StreamedResponse(static function (): void {
-        }, Response::HTTP_OK, [
-            'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, 'foobar.txt', 'foobar.txt'),
-            'Content-Length' => 123,
-            'Content-Type' => 'application/octet-stream',
-        ]);
+        $mediaId = Uuid::randomHex();
+        $this->mediaRepository->addSearch(new MediaCollection());
+
+        $this->downloadResponseGenerator
+            ->expects($this->never())
+            ->method('getResponseByContext');
+
+        $this->expectExceptionObject(MediaException::mediaNotFound($mediaId));
+
+        $this->controller->prepareMediaDownload($mediaId, Context::createDefaultContext());
     }
 }

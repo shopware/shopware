@@ -81,6 +81,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
+                    prepareDownloadMedia: jest.fn(),
                     ...mediaServiceFunctions,
                 },
                 customFieldDataProviderService: {
@@ -504,6 +505,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
     it('should download private media with media service', async () => {
         const mediaBlob = new Blob(['media-content']);
+        const prepareDownloadMediaMock = jest.fn().mockResolvedValue({ type: 'blob' });
         const downloadMediaMock = jest.fn().mockResolvedValue(mediaBlob);
         const objectUrl = 'blob:media-download';
         const createObjectURLMock = jest.fn().mockReturnValue(objectUrl);
@@ -539,6 +541,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                 fileExtension: 'jpg',
             },
             {
+                prepareDownloadMedia: prepareDownloadMediaMock,
                 downloadMedia: downloadMediaMock,
             },
         );
@@ -550,6 +553,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         await downloadAction.trigger('click');
         await flushPromises();
 
+        expect(prepareDownloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
         expect(downloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
         expect(createObjectURLMock).toHaveBeenCalledWith(mediaBlob);
         expect(createElementSpy).toHaveBeenCalledWith('a');
@@ -560,7 +564,62 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(revokeObjectURLMock).toHaveBeenCalledWith(objectUrl);
     });
 
+    it('should directly trigger external media downloads', async () => {
+        const prepareDownloadMediaMock = jest.fn().mockResolvedValue({
+            type: 'external',
+            url: 'https://cdn.example.test/download',
+        });
+        const downloadMediaMock = jest.fn();
+        const createObjectURLMock = jest.fn();
+        const originalCreateElement = document.createElement.bind(document);
+        const link = document.createElement('a');
+        const createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName, options) => {
+            if (tagName === 'a') {
+                return link;
+            }
+
+            return originalCreateElement(tagName, options);
+        });
+        const dispatchEventSpy = jest.spyOn(link, 'dispatchEvent').mockImplementation(() => true);
+        const removeSpy = jest.spyOn(link, 'remove').mockImplementation(() => {});
+
+        Object.defineProperty(window.URL, 'createObjectURL', {
+            configurable: true,
+            writable: true,
+            value: createObjectURLMock,
+        });
+
+        const wrapper = await createWrapper(
+            {
+                hasFile: true,
+                private: true,
+                fileName: 'private-media',
+                fileExtension: 'jpg',
+            },
+            {
+                prepareDownloadMedia: prepareDownloadMediaMock,
+                downloadMedia: downloadMediaMock,
+            },
+        );
+
+        const downloadAction = wrapper.find('.quickaction--download');
+        await downloadAction.trigger('click');
+        await flushPromises();
+
+        expect(prepareDownloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(downloadMediaMock).not.toHaveBeenCalled();
+        expect(createObjectURLMock).not.toHaveBeenCalled();
+        expect(createElementSpy).toHaveBeenCalledWith('a');
+        expect(link.href).toBe('https://cdn.example.test/download');
+        expect(link.download).toBe('');
+        expect(link.target).toBe('_blank');
+        expect(link.rel).toBe('noopener noreferrer');
+        expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(MouseEvent));
+        expect(removeSpy).toHaveBeenCalled();
+    });
+
     it('should show notification when private media download fails', async () => {
+        const prepareDownloadMediaMock = jest.fn().mockResolvedValue({ type: 'blob' });
         const downloadMediaMock = jest.fn().mockRejectedValue(new Error('Download failed'));
         const wrapper = await createWrapper(
             {
@@ -568,6 +627,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                 private: true,
             },
             {
+                prepareDownloadMedia: prepareDownloadMediaMock,
                 downloadMedia: downloadMediaMock,
             },
         );
@@ -576,6 +636,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         await wrapper.vm.downloadMedia();
         await flushPromises();
 
+        expect(prepareDownloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
         expect(downloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
         expect(createNotificationErrorSpy).toHaveBeenCalledWith({
             message: 'global.sw-media-media-item.notification.downloadError.message',

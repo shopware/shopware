@@ -367,6 +367,18 @@ class MediaApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    prepareDownloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download/prepare`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

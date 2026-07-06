@@ -199,23 +199,40 @@ export default {
 
         downloadMedia(download) {
             this.mediaService
-                .downloadMedia(download.media.id)
-                .then((data) => {
-                    const url = window.URL.createObjectURL(data);
+                .prepareDownloadMedia(download.media.id)
+                .then((downloadConfig) => {
+                    if (downloadConfig.type === 'external') {
+                        this.triggerDownload(downloadConfig.url);
 
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = this.getFileName(download);
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
+                        return;
+                    }
 
-                    URL.revokeObjectURL(url);
+                    return this.mediaService.downloadMedia(download.media.id).then((data) => {
+                        const url = window.URL.createObjectURL(data);
+                        this.triggerDownload(url, this.getFileName(download));
+                        URL.revokeObjectURL(url);
+                    });
                 })
                 .catch(() => {
                     this.createNotificationError({
                         message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
                     });
                 });
+        },
+
+        triggerDownload(url, fileName = null) {
+            const link = document.createElement('a');
+            link.href = url;
+
+            if (fileName) {
+                link.download = fileName;
+            } else {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
+
+            link.dispatchEvent(new MouseEvent('click'));
+            link.remove();
         },
     },
 };

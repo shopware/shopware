@@ -102,15 +102,23 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expect(result).toContain('private: {\n                emit,\n            }');
     });
 
-    it('supports runtime array and object declarations', () => {
-        const arraySource = stripIndent`
+    it('supports runtime array emit declarations', () => {
+        const source = stripIndent`
             <script setup>
             const emit = defineEmits(['save']);
             const count = 1;
             swDefinePublic({ count });
             </script>
         `;
-        const objectSource = stripIndent`
+
+        const result = transformOrFail(source, 'base-emits-array.vue').code;
+
+        expect(result).toContain("defineEmits(['save']);");
+        expect(result).toContain('const emit = (__swSetupContext.emit);');
+    });
+
+    it('supports runtime object emit declarations', () => {
+        const source = stripIndent`
             <script setup>
             const emit = defineEmits({
                 save: (id) => Boolean(id),
@@ -120,16 +128,12 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
             </script>
         `;
 
-        expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain("defineEmits(['save']);");
-        expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain(
-            'const emit = (__swSetupContext.emit);',
-        );
-        expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(`defineEmits({
+        const result = transformOrFail(source, 'base-emits-object.vue').code;
+
+        expect(result).toContain(`defineEmits({
     save: (id) => Boolean(id),
 });`);
-        expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(
-            'const emit = (__swSetupContext.emit);',
-        );
+        expect(result).toContain('const emit = (__swSetupContext.emit);');
     });
 
     it('supports defineEmits() wrapped in a TypeScript as expression', () => {

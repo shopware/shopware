@@ -4,7 +4,7 @@
 
 import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
-describe('build/vue-setup-transform base slots, options, and props access', () => {
+describe('build/vue-setup-transform base defineSlots macro', () => {
     it('keeps base defineSlots() outside the extendable setup callback and replaces it with context.slots', () => {
         const source = stripIndent`
             <script setup lang="ts">
@@ -103,118 +103,6 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         expect(result).toContain('private: {\n                slots,\n            }');
     });
 
-    it('keeps base defineOptions() outside the extendable setup callback', () => {
-        const source = stripIndent`
-            <script setup>
-            defineOptions({
-                inheritAttrs: false,
-            });
-
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-options.vue').code;
-
-        expect(result).toContain(`defineOptions({
-    inheritAttrs: false,
-});`);
-        expect(result.indexOf('defineOptions({')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
-        expect(result).not.toContain(`(__shopwareSetupBindings) => {
-    const useSwContext = () => __swSetupContext;
-
-    defineOptions`);
-        expect(result.match(/defineOptions/g)).toHaveLength(1);
-    });
-
-    it('preserves defineOptions() component name and custom options at the generated script root', () => {
-        const source = stripIndent`
-            <script setup>
-            defineOptions({
-                name: 'sw-custom-name',
-                inheritAttrs: false,
-                customOption: {
-                    enabled: true,
-                },
-            });
-
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-options-custom.vue').code;
-
-        expect(result).toContain(`defineOptions({
-    name: 'sw-custom-name',
-    inheritAttrs: false,
-    customOption: {
-        enabled: true,
-    },
-});`);
-        expect(result.indexOf("name: 'sw-custom-name'")).toBeLessThan(
-            result.indexOf('Shopware.Component.createExtendableSetup('),
-        );
-        expect(result).not.toContain(`customOption: {
-        enabled: true,
-    },
-
-    const count`);
-    });
-
-    it('rejects local setup bindings in hoisted defineOptions() arguments', () => {
-        const source = stripIndent`
-            <script setup>
-            const inheritAttrs = false;
-            defineOptions({
-                inheritAttrs,
-            });
-
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'base-options-local-value.vue')).toThrow(
-            'defineOptions() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
-        );
-    });
-
-    it('supports defineOptions() wrapped in a TypeScript as expression', () => {
-        const source = stripIndent`
-            <script setup lang="ts">
-            defineOptions({
-                inheritAttrs: false,
-            }) as void;
-
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-options-as.vue').code;
-
-        expect(result).toContain(`defineOptions({
-    inheritAttrs: false,
-});`);
-        expect(result).not.toContain('as void');
-        expect(result.indexOf('defineOptions({')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
-        expect(result.match(/defineOptions/g)).toHaveLength(1);
-    });
-
     it('rejects duplicate base defineSlots() declarations', () => {
         const source = stripIndent`
             <script setup>
@@ -227,21 +115,6 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
         expect(() => transformShopwareSetupSfc(source, 'base-duplicate-slots.vue')).toThrow(
             'Only one defineSlots() call is allowed in a base Shopware setup block.',
-        );
-    });
-
-    it('rejects duplicate base defineOptions() declarations', () => {
-        const source = stripIndent`
-            <script setup>
-            defineOptions({ inheritAttrs: false });
-            defineOptions({ name: 'sw-my-component' });
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'base-duplicate-options.vue')).toThrow(
-            'Only one defineOptions() call is allowed in a base Shopware setup block.',
         );
     });
 
@@ -264,24 +137,5 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         }`);
         expect(result).not.toContain('const slots = defineSlots');
         expect(result).not.toContain('(__swSetupContext.slots)');
-    });
-
-    it('rewrites props access by source ranges instead of placeholder string replacement', () => {
-        const source = stripIndent`
-            <script setup>
-            const props = defineProps();
-            const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__';
-            const count = props.initialCount ?? literal.length;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-props-placeholder-literal.vue').code;
-
-        expect(result).toContain("const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__';");
-        expect(result).toContain('const props = (__swSetupProps);');
     });
 });

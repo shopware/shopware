@@ -52,6 +52,20 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:factory-for-deprecation',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
+
+        // The following reasons are migrated to BC-change attributes in the platform
+        // (NoBCPlanningDeprecationRule forbids reintroducing them there), but stay
+        // exempted while downstream repositories migrate their own annotations.
+        'reason:return-type-change',
+        'reason:parameter-type-change',
+        'reason:parameter-type-extension',
+        'reason:new-optional-parameter',
+        'reason:parameter-name-change',
+        'reason:becomes-internal',
+        'reason:becomes-final',
+        'reason:class-hierarchy-change',
+        'reason:visibility-change',
+        'reason:exception-change',
     ];
 
     public function getNodeType(): string

@@ -143,12 +143,14 @@ class DecorationPatternRule implements Rule
     private function isInternal(string $doc, ClassReflection $class): bool
     {
         return str_contains($doc, '@internal')
+            || str_contains($doc, 'reason:becomes-internal') // downstream repositories still migrating
             || BCChangeMarkers::has(BecomesInternal::class, $class);
     }
 
     private function isFinal(ClassReflection $class, string $doc): bool
     {
         return str_contains($doc, '@final')
+            || str_contains($doc, 'reason:becomes-final') // downstream repositories still migrating
             || $class->isFinal()
             || BCChangeMarkers::has(BecomesFinal::class, $class);
     }
@@ -198,7 +200,10 @@ class DecorationPatternRule implements Rule
             return false;
         }
 
-        return !BCChangeMarkers::has(VisibilityChange::class, $method);
+        $doc = (string) $method->getDocComment();
+
+        return !\str_contains($doc, 'reason:visibility-change') // downstream repositories still migrating
+            && !BCChangeMarkers::has(VisibilityChange::class, $method);
     }
 
     private function isBaseImplementation(InClassNode $node): bool

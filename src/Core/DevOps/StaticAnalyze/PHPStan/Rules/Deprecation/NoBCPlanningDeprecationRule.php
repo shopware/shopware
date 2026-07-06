@@ -19,6 +19,10 @@ use Shopware\Core\Framework\Log\Package;
  * PHPDoc markers: the markers surface as deprecation errors in static analysis of
  * third-party code although there is nothing to migrate to.
  *
+ * Enforcement is scoped to the platform namespaces: downstream repositories consume
+ * these rules through their own PHPStan setups and migrate their annotations on
+ * their own schedule.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -39,6 +43,13 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:exception-change' => 'Use a plain comment instead; thrown exceptions are not part of the BC promise.',
     ];
 
+    private const ENFORCED_NAMESPACES = [
+        'Shopware\\Core\\',
+        'Shopware\\Administration\\',
+        'Shopware\\Storefront\\',
+        'Shopware\\Elasticsearch\\',
+    ];
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -46,6 +57,15 @@ class NoBCPlanningDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
+        $className = $node->getClassReflection()->getName();
+        $enforced = false;
+        foreach (self::ENFORCED_NAMESPACES as $namespace) {
+            $enforced = $enforced || \str_starts_with($className, $namespace);
+        }
+        if (!$enforced) {
+            return [];
+        }
+
         $classNode = $node->getOriginalNode();
 
         $errors = $this->validateDoc($classNode->getDocComment()?->getText(), $classNode->getStartLine());

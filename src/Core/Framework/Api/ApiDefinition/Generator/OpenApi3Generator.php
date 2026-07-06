@@ -61,6 +61,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $this->openApiBuilder->enrich($openApi, $api);
 
         ksort($definitions);
+        $availableRequestSchemaEntityNames = $this->getAvailableRequestSchemaEntityNames($definitions, $forSalesChannel, $apiType);
 
         foreach ($definitions as $definition) {
             if (!$this->shouldDefinitionBeIncluded($definition)) {
@@ -72,13 +73,22 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
             };
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
-                $definition,
-                $this->getResourceUri($definition),
-                $forSalesChannel,
-                $onlyFlat,
-                $apiType
-            );
+            $schema = $this->shouldIncludeRequestSchemas($definition, $apiType, $onlyFlat, $bundleName)
+                ? $this->definitionSchemaBuilder->getSchemaByDefinitionWithRequestSchemas(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyFlat,
+                    $apiType,
+                    $availableRequestSchemaEntityNames
+                )
+                : $this->definitionSchemaBuilder->getSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyFlat,
+                    $apiType
+                );
 
             $openApi->components->merge($schema);
 
@@ -240,6 +250,61 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return false;
     }
 
+    /**
+     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     *
+     * @return array<string, true>
+     */
+    private function getAvailableRequestSchemaEntityNames(array $definitions, bool $forSalesChannel, string $apiType): array
+    {
+        $entityNames = [];
+
+        foreach ($definitions as $definition) {
+            if (!$this->shouldDefinitionBeIncluded($definition)) {
+                continue;
+            }
+
+            $onlyFlat = match ($apiType) {
+                DefinitionService::TYPE_JSON => true,
+                default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
+            };
+
+            if ($onlyFlat) {
+                continue;
+            }
+
+            $schemas = $this->definitionSchemaBuilder->getSchemaByDefinition(
+                $definition,
+                $this->getResourceUri($definition),
+                $forSalesChannel,
+                $onlyFlat,
+                $apiType
+            );
+
+            if (!$this->hasEntitySchema($schemas)) {
+                continue;
+            }
+
+            $entityNames[$definition->getEntityName()] = true;
+        }
+
+        return $entityNames;
+    }
+
+    /**
+     * @param array<string, mixed> $schemas
+     */
+    private function hasEntitySchema(array $schemas): bool
+    {
+        foreach (array_keys($schemas) as $schemaName) {
+            if (!str_ends_with($schemaName, 'JsonApi')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
         if (str_ends_with($definition->getEntityName(), '_translation')) {
@@ -265,5 +330,18 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return false;
+    }
+
+    private function shouldIncludeRequestSchemas(EntityDefinition $definition, string $apiType, bool $onlyFlat, ?string $bundleName): bool
+    {
+        if ($apiType !== DefinitionService::TYPE_JSON_API || $onlyFlat) {
+            return false;
+        }
+
+        if ($bundleName !== null && $bundleName !== '') {
+            return false;
+        }
+
+        return !is_subclass_of($definition, SalesChannelDefinitionInterface::class);
     }
 }

@@ -30,7 +30,7 @@ class TrackingEventClientTest extends TestCase
         $instanceService->method('getInstanceId')->willReturn(null);
 
         $trackingEventClient = new TrackingEventClient(
-            new Client(['handler' => HandlerStack::create($mockHandler)]),
+            new Client(['base_uri' => 'https://example.local', 'handler' => HandlerStack::create($mockHandler)]),
             $instanceService
         );
 
@@ -44,7 +44,7 @@ class TrackingEventClientTest extends TestCase
     {
         $mockHandler = new MockHandler();
         $mockHandler->append(new Response(200));
-        $httpClient = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $httpClient = new Client(['base_uri' => 'https://example.local', 'handler' => HandlerStack::create($mockHandler)]);
 
         $instanceService = $this->createMock(InstanceService::class);
         $instanceService->method('getShopwareVersion')->willReturn('6.5.0.0-test');
@@ -75,7 +75,7 @@ class TrackingEventClientTest extends TestCase
     {
         $mockHandler = new MockHandler();
         $mockHandler->append(new \Exception());
-        $httpClient = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $httpClient = new Client(['base_uri' => 'https://example.local', 'handler' => HandlerStack::create($mockHandler)]);
 
         $instanceService = $this->createMock(InstanceService::class);
         $instanceService->method('getShopwareVersion')->willReturn('6.5.0.0-test');

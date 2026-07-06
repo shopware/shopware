@@ -8,6 +8,7 @@
 
         <service id="shopware.store_client" class="GuzzleHttp\Client" public="true">
             <argument type="collection">
+                <argument key="base_uri">https://example.local</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create"/>
@@ -21,6 +22,7 @@
 
         <service id="shopware.frw_client" class="GuzzleHttp\Client" public="true">
             <argument type="collection">
+                <argument key="base_uri">https://example.local</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create"/>
@@ -32,6 +34,7 @@
 
         <service id="shopware.store_download_client" class="GuzzleHttp\Client">
             <argument type="collection">
+                <argument key="base_uri">https://example.local</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create"/>

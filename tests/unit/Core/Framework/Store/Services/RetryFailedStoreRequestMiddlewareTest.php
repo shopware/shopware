@@ -92,6 +92,7 @@ class RetryFailedStoreRequestMiddlewareTest extends TestCase
         }
 
         $config = [
+            'base_uri' => 'https://example.local',
             'handler' => $handler,
         ];
 

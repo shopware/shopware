@@ -64,7 +64,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -333,7 +333,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -374,7 +374,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -713,7 +713,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             self::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);

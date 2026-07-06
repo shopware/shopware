@@ -31,7 +31,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setZipcode('ABC123');
@@ -54,7 +54,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setZipcode('ABC2');
@@ -77,7 +77,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setZipcode('ABC4');
@@ -100,7 +100,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -140,7 +140,7 @@ class BillingZipCodeRuleTest extends TestCase
     public function testRuleMatchingNumeric(string $operator, bool $isMatching, string $zipCode): void
     {
         $zipCodes = ['90210', '81985'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($zipCode);
 
@@ -178,7 +178,7 @@ class BillingZipCodeRuleTest extends TestCase
     #[DataProvider('getMatchValuesAlphanumeric')]
     public function testRuleMatchingAlphanumeric(string $operator, bool $isMatching, ?string $zipCode, string $customerZipCode = '9E21L', bool $noCustomer = false, bool $noAddress = false): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($customerZipCode);
 

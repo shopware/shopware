@@ -49,25 +49,25 @@ class PromotionCalculatorTest extends TestCase
     {
         // a packager without matching items yields a zero-value discount, exactly like a
         // price-definition filter that matches no line items
-        $cartScopeDiscountPackager = $this->createMock(DiscountPackager::class);
+        $cartScopeDiscountPackager = static::createStub(DiscountPackager::class);
         $cartScopeDiscountPackager->method('getMatchingItems')->willReturn(new DiscountPackageCollection([]));
 
         $this->promotionCalculator = new PromotionCalculator(
-            $this->createMock(AmountCalculator::class),
-            $this->createMock(AbsolutePriceCalculator::class),
-            $this->createMock(LineItemGroupBuilder::class),
-            $this->createMock(DiscountCompositionBuilder::class),
-            $this->createMock(PackageFilter::class),
-            $this->createMock(AdvancedPackagePicker::class),
-            $this->createMock(SetGroupScopeFilter::class),
-            $this->createMock(LineItemQuantitySplitter::class),
-            $this->createMock(PercentagePriceCalculator::class),
+            static::createStub(AmountCalculator::class),
+            static::createStub(AbsolutePriceCalculator::class),
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
+            static::createStub(PackageFilter::class),
+            static::createStub(AdvancedPackagePicker::class),
+            static::createStub(SetGroupScopeFilter::class),
+            static::createStub(LineItemQuantitySplitter::class),
+            static::createStub(PercentagePriceCalculator::class),
             $cartScopeDiscountPackager,
-            $this->createMock(DiscountPackager::class),
-            $this->createMock(DiscountPackager::class),
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class),
         );
 
-        $this->context = $this->createMock(SalesChannelContext::class);
+        $this->context = static::createStub(SalesChannelContext::class);
     }
 
     public function testZeroValueDiscountWithUnknownConditionAddsWarning(): void

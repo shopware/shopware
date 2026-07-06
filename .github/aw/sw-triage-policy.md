@@ -4,8 +4,8 @@ Frontmatter-free gh aw policy fragment for issue triage.
 This file holds only the **gh-aw-mode specifics** — invocation context and
 JSON output contract. The **shared policy** (role, trust boundaries,
 research workflow, tool budget, anti-reward-hacking) lives in
-`.github/aw/shared/triage-policy.md` and is runtime-imported below, so the
-interactive skill (.agents/skills/triage/SKILL.md) and this fragment cannot
+`.github/aw/shared/sw-triage-policy.md` and is runtime-imported below, so the
+interactive skill (.agents/skills/sw-triage/SKILL.md) and this fragment cannot
 drift on the rubric. (Shared policy must live under `.github/` — gh aw
 forbids runtime-imports outside `.github/` for security reasons.)
 -->
@@ -16,7 +16,7 @@ You operate inside the `shopware/shopware` monorepo with read access to the
 codebase and to GitHub via MCP tools. Your output is a single structured
 `TriageOutput` JSON object consumed by a deterministic reconciler and a
 post-run schema/secret-scan validator
-(`.github/bin/js/validate-triage-output.ts`). You **cannot** label, close,
+(`.github/bin/js/validate-sw-triage-output.ts`). You **cannot** label, close,
 assign, or comment on the issue — the structured result is the only
 deliverable.
 
@@ -35,7 +35,7 @@ for recent-fix evidence and do not retry it with different flags — it cannot
 surface history here. For related-fix / duplicate detection, use the GitHub
 `search_pull_requests` / `search_issues` / `get_pull_request` MCP tools instead.
 
-{{#runtime-import .github/aw/shared/triage-policy.md}}
+{{#runtime-import .github/aw/shared/sw-triage-policy.md}}
 
 ## Output contract
 
@@ -65,7 +65,7 @@ unknown keys, missing fields, or field-name typos.
 Field rules:
 - **All 13 fields are required.** Use `null` for `duplicate_of` when not a
   duplicate; empty arrays `[]` for the list fields when nothing applies.
-- `suggested_labels`: 1–2 entries from `.agents/skills/triage/references/DOMAINS.md`.
+- `suggested_labels`: 1–2 entries from `.agents/skills/sw-triage/references/DOMAINS.md`.
   When the primary label is `domain/framework`, the second MUST be
   `component/{core,administration,storefront}`.
 - `evidence_quotes`: prefix each entry `[issue]` (from issue body/comments)
@@ -76,5 +76,5 @@ Field rules:
   `summary` — they are not in the schema and will fail validation.
 
 Worked examples (for shape and tone, not normative content) are in
-`.agents/skills/triage/assets/examples.md` — accessible if the gh aw
+`.agents/skills/sw-triage/assets/examples.md` — accessible if the gh aw
 sandbox allows reading from `.agents/`, otherwise refer to the schema above.

@@ -75,6 +75,28 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
         static::assertStringContainsString('Sw:Media:Image', $error->getMessage());
     }
 
+    #[TestDox('aggregates every promotion violation into the one schema error')]
+    public function testAllPromotionViolationsRideOneSchemaError(): void
+    {
+        // Three promotions of one type produce two conflict violations. ErrorCollection keys by message key,
+        // so a second error of the same class would silently replace the first; both violations must
+        // therefore ride the single aggregated error.
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([
+            new ResolvedBindingSpecificationDto('first-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'First', null, null, true)),
+            new ResolvedBindingSpecificationDto('second-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'Second', null, null, true)),
+            new ResolvedBindingSpecificationDto('third-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'Third', null, null, true)),
+        ]);
+
+        $errors = $this->validator($loader)->validate($this->manifest(), Context::createDefaultContext());
+
+        static::assertCount(1, $errors->getElements());
+        $error = $errors->first();
+        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
+        static::assertStringContainsString('second-promoted', $error->getMessage());
+        static::assertStringContainsString('third-promoted', $error->getMessage());
+    }
+
     private function validator(YamlBindingSpecificationLoader $loader, ?YamlTypeLoader $typeLoader = null): ContentSystemBindingSpecificationAppValidator
     {
         $typeLoader ??= static::createStub(YamlTypeLoader::class);

@@ -288,6 +288,76 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         }
     }
 
+    #[TestDox('rejects an app promoting one type twice, wrapped as an AppException')]
+    public function testThrowsAppExceptionWhenAppPromotesOneTypeTwice(): void
+    {
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([
+            new ResolvedBindingSpecificationDto('first-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'First', null, null, true)),
+            new ResolvedBindingSpecificationDto('second-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'Second', null, null, true)),
+        ]);
+
+        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($repo, loader: $loader);
+
+        try {
+            $persister->persist($this->buildContext());
+            static::fail('Expected AppException was not thrown');
+        } catch (AppException $e) {
+            static::assertSame(AppException::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED, $e->getErrorCode());
+            static::assertStringContainsString('first-promoted', $e->getMessage());
+            static::assertStringContainsString('second-promoted', $e->getMessage());
+            static::assertStringContainsString('DemoApp:Media:Image', $e->getMessage());
+            static::assertStringContainsString('at most one specification may be promoted per type', $e->getMessage());
+        }
+    }
+
+    #[TestDox('persists two promoted bindings that promote different types')]
+    public function testPersistsTwoPromotedBindingsForDifferentTypes(): void
+    {
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([
+            new ResolvedBindingSpecificationDto('image-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'Image', null, null, true)),
+            new ResolvedBindingSpecificationDto('banner-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Banner', 'Banner', null, null, true)),
+        ]);
+
+        $repo = $this->createEmptyRepository();
+        $persister = $this->buildPersister($repo, loader: $loader);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        static::assertCount(2, $repo->upserts[0]);
+    }
+
+    #[TestDox('wraps a type-overlay ContentSystemException as an AppException before the binding load runs')]
+    public function testThrowsAppExceptionWhenTypeOverlayFails(): void
+    {
+        $typeException = ContentSystemException::elementTypeLoadFailed('media-image.yaml', 'broken');
+
+        $typeLoader = static::createStub(YamlTypeLoader::class);
+        $typeLoader->method('loadOverlayFromDirectory')->willThrowException($typeException);
+
+        // A malformed type file must fail the install before any binding is loaded.
+        $loader = static::createMock(YamlBindingSpecificationLoader::class);
+        $loader->expects($this->never())->method('loadDtosFromTypeDirectory');
+
+        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($repo, loader: $loader, typeLoader: $typeLoader);
+
+        try {
+            $persister->persist($this->buildContext());
+            static::fail('Expected AppException was not thrown');
+        } catch (AppException $e) {
+            static::assertSame(AppException::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED, $e->getErrorCode());
+            static::assertStringContainsString('Resources/content-system/types', $e->getMessage());
+            static::assertSame($typeException, $e->getPrevious());
+        }
+    }
+
     #[TestDox('wraps a unique-constraint violation from a concurrent install as an AppException')]
     public function testWrapsConcurrentDuplicateInstallAsAppException(): void
     {
@@ -377,12 +447,13 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         ?AbstractContentSystemBindingSpecificationRegistry $registry = null,
         ?Connection $connection = null,
         ?LockFactory $lockFactory = null,
+        ?YamlTypeLoader $typeLoader = null,
     ): ContentSystemBindingSpecificationPersister {
         $registry ??= static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
 
         return new ContentSystemBindingSpecificationPersister(
             $loader ?? $this->loader,
-            $this->typeLoader(),
+            $typeLoader ?? $this->typeLoader(),
             $repo,
             $this->serializer,
             $connection ?? $this->runTransactionStub(),

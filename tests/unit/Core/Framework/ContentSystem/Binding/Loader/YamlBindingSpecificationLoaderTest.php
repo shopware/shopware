@@ -152,6 +152,23 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
+    #[TestDox('reports the duplicate id even when the duplicate entry would also fail shape validation')]
+    public function testDuplicateIdIsReportedBeforeEntryShapeValidation(): void
+    {
+        // *.yaml files are collected before *.yml files (two findFiles passes), so image.yaml deterministically
+        // registers "shared" first; banner.yml's duplicate must surface as the duplicate error, not as the
+        // shape error its non-map entry would otherwise produce.
+        mkdir($this->tempDir . '/media', 0777, true);
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  shared:\n    label: a\n");
+        file_put_contents($this->tempDir . '/media/banner.yml', "bindings:\n  shared: not-a-map\n");
+
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDuplicate('shared', 'image.yaml', 'banner.yml'));
+
+        $loader->load();
+    }
+
     #[TestDox('throws when the same source ships the same id across two directories')]
     public function testThrowsOnSameSourceAcrossDifferentDirectories(): void
     {

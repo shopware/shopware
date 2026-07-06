@@ -236,7 +236,7 @@ The map key (`from-media-library` above) is the specification's id. Each entry d
 - **`label`** (required): a human label.
 - **`resolves`** (optional): reference property key → loader wiring. Three authoring shapes, see below. Every key must name a property the implicit type actually declares.
 - **`inputs`** (optional): primitive property key → `{ default: ... }`. The default seeds the property when the specification is applied, only if the element does not already carry a value. Do not author `required`; the flag is derived (see below), and declaring it by hand is a load-time error.
-- **`promoted`** (optional): catalog metadata marking the author's preferred specification for the type. At most one promoted specification per element type: a duplicate is a load-time error for authored YAML and a manifest error for apps. No server behavior reads the flag; it only informs client pickers.
+- **`promoted`** (optional): catalog metadata marking the author's preferred specification for the type. At most one promoted specification per element type: a duplicate is a load-time error for authored YAML and, for apps, a manifest-validation error and a hard install-time error. No server behavior reads the flag; it only informs client pickers.
 
 ### Authoring Sugar
 

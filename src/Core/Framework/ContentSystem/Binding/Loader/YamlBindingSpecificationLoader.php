@@ -140,6 +140,14 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
             foreach ($bindings as $bareId => $entryData) {
                 $id = $this->assertValidId($bareId, $path);
 
+                // Duplicate detection runs before any per-entry processing, so a duplicate id surfaces as the
+                // duplicate error even when the second entry would also fail shape checks or canonicalization.
+                if (isset($seenIds[$id])) {
+                    throw ContentSystemException::bindingSpecificationDuplicate($id, $seenIds[$id], $fileInfo->getFilename());
+                }
+
+                $seenIds[$id] = $fileInfo->getFilename();
+
                 if (!\is_array($entryData)) {
                     throw ContentSystemException::bindingSpecificationLoadFailed($path, \sprintf('the "bindings" entry "%s" must be a map, got %s', $id, get_debug_type($entryData)));
                 }
@@ -156,11 +164,6 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
 
                 $dto = $this->canonicalizer->canonicalize($this->serializer->denormalize($specificationData), $id, $typeOverlay);
 
-                if (isset($seenIds[$id])) {
-                    throw ContentSystemException::bindingSpecificationDuplicate($id, $seenIds[$id], $fileInfo->getFilename());
-                }
-
-                $seenIds[$id] = $fileInfo->getFilename();
                 $resolvedSpecificationDtos[] = new ResolvedBindingSpecificationDto($id, $source, $dto);
             }
         }

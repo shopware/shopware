@@ -32,7 +32,7 @@ class AppTemplateIteratorTest extends TestCase
         $aggregationResult = new AggregationResultCollection();
         $aggregationResult->add($termsResult);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('aggregate')->willReturn($aggregationResult);
 
         $iterator = new AppTemplateIterator($filesystemTemplates, $repository);
@@ -71,7 +71,7 @@ class AppTemplateIteratorTest extends TestCase
         $aggregationResult = new AggregationResultCollection();
         $aggregationResult->add($termsResult);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('aggregate')->willReturn($aggregationResult);
 
         $iterator = new AppTemplateIterator($filesystemTemplates, $repository);
@@ -97,7 +97,7 @@ class AppTemplateIteratorTest extends TestCase
         $aggregationResult = new AggregationResultCollection();
         $aggregationResult->add($termsResult);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('aggregate')->willReturn($aggregationResult);
 
         $iterator = new AppTemplateIterator($filesystemTemplates, $repository);
@@ -126,7 +126,7 @@ class AppTemplateIteratorTest extends TestCase
         $aggregationResult = new AggregationResultCollection();
         $aggregationResult->add($termsResult);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('aggregate')->willReturn($aggregationResult);
 
         $iterator = new AppTemplateIterator($filesystemTemplates, $repository);

@@ -43,8 +43,8 @@ class HtmlRendererTest extends TestCase
     public function testConfig(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TwigEnvironment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
@@ -112,8 +112,8 @@ class HtmlRendererTest extends TestCase
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TwigEnvironment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         $input = new RenderInput(
@@ -140,8 +140,8 @@ class HtmlRendererTest extends TestCase
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
-                $this->createMock(AbstractTranslator::class),
-                $this->createMock(AbstractSalesChannelContextFactory::class),
+                static::createStub(AbstractTranslator::class),
+                static::createStub(AbstractSalesChannelContextFactory::class),
                 'rootDir',
             ),
         );

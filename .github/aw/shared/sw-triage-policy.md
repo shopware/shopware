@@ -2,8 +2,8 @@
 
 Single source of the triage policy — the **role**, the **trust boundaries**,
 the **research workflow**, and the **anti-reward-hacking** rules. Loaded by
-both the interactive skill (`.agents/skills/triage/SKILL.md`) and the
-unattended workflow (`.github/aw/triage-policy.md`); the two mode files keep
+both the interactive skill (`.agents/skills/sw-triage/SKILL.md`) and the
+unattended workflow (`.github/aw/sw-triage-policy.md`); the two mode files keep
 only their mode-specific invocation context and output format.
 
 ## Your role

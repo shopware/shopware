@@ -29,8 +29,8 @@ class CartPersisterTest extends TestCase
 {
     public function testDecorated(): void
     {
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $connection = $this->createMock(Connection::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $connection = static::createStub(Connection::class);
         $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
         $this->expectException(DecorationPatternException::class);
         $persister->getDecorated();
@@ -38,7 +38,7 @@ class CartPersisterTest extends TestCase
 
     public function testLoadWithUnserializationTypeError(): void
     {
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -73,7 +73,7 @@ class CartPersisterTest extends TestCase
             ->willReturn($statement);
 
         $eventDispatcher = new CollectingEventDispatcher();
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $persister->save($cart, Generator::generateSalesChannelContext());
@@ -102,7 +102,7 @@ class CartPersisterTest extends TestCase
             ->willReturn($statement);
 
         $eventDispatcher = new CollectingEventDispatcher();
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $persister->save($cart, Generator::generateSalesChannelContext());

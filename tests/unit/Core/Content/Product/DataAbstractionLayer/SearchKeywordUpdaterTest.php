@@ -39,7 +39,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $analyzer->expects($this->never())->method('analyze');
 
         $updater = new SearchKeywordUpdater(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $languageRepository,
             $productRepository,
             $analyzer,
@@ -140,10 +140,10 @@ class SearchKeywordUpdaterTest extends TestCase
     private function createUpdater(EntityRepository $productRepository): SearchKeywordUpdater
     {
         return new SearchKeywordUpdater(
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             $productRepository,
-            $this->createMock(ProductSearchKeywordAnalyzerInterface::class),
+            static::createStub(ProductSearchKeywordAnalyzerInterface::class),
             new MockClock()
         );
     }

@@ -20,7 +20,7 @@ class PrefixFilesystemTest extends TestCase
 {
     public function testPrefix(): void
     {
-        $generator = $this->createMock(TemporaryUrlGenerator::class);
+        $generator = static::createStub(TemporaryUrlGenerator::class);
         $generator->method('temporaryUrl')->willReturn('http://example.com/temporary-url');
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://example.com'], null, null, $generator);

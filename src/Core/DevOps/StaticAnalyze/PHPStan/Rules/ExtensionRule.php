@@ -112,7 +112,6 @@ class ExtensionRule implements Rule
     private function isInternal(string $doc, ClassReflection|ExtendedMethodReflection $subject): bool
     {
         return \str_contains($doc, '@internal')
-            || \str_contains($doc, 'reason:becomes-internal') // downstream repositories still migrating
             || BCChangeMarkers::has(BecomesInternal::class, $subject);
     }
 

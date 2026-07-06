@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -133,6 +134,28 @@ class RuntimeDetectableViolations
     {
         if ($legacy !== null) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $legacy is deprecated');
+        }
+    }
+}
+
+class NewRequiredParameterCases
+{
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'existing', parameterType: 'string')]
+    public function requiredAlreadyExists(string $existing): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'shim');
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function requiredWithoutTrigger(): void
+    {
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function requiredWithTrigger(): void
+    {
+        if (\func_num_args() < 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter $context missing');
         }
     }
 }

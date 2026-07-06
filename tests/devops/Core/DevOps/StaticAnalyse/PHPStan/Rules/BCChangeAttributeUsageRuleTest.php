@@ -20,59 +20,67 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/BCChangeAttributeUsageRule/BCChangeAttributeUsage.php'], [
             [
                 'BecomesFinal on "AlreadyFinalClass": the class is already final.',
-                17,
+                18,
             ],
             [
                 'BecomesInternal on "WrongVersionFormatClass": version "6.8.0" must match the format "v6.8.0".',
-                22,
+                23,
             ],
             [
                 'BecomesInternal on "AlreadyInternalClass": the class is already @internal.',
-                30,
+                31,
             ],
             [
                 'NewOptionalParameter on "MethodLevelViolations::leadingDollar()": parameter name "$states" must be given without the leading "$".',
-                37,
+                38,
             ],
             [
                 'NewOptionalParameter on "MethodLevelViolations::alreadyExistingParameter()": parameter "existing" already exists.',
-                42,
+                43,
             ],
             [
                 'ParameterNameChange on "MethodLevelViolations::missingParameter()": parameter "missing" does not exist.',
-                47,
+                48,
             ],
             [
                 'BecomesAbstract on "MethodLevelViolations::alreadyAbstract()": the method is already abstract.',
-                52,
+                53,
             ],
             [
                 'VisibilityChange on "MethodLevelViolations::alreadyProtected()": announced visibility "protected" is not narrower than the current visibility.',
-                55,
+                56,
             ],
             [
                 'ReturnTypeNarrowing on "SealedClass::narrowingOnFinalClass()": the class is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
-                83,
+                84,
             ],
             [
                 'NewOptionalParameter on "SoftSealedClass::newParameterOnSoftFinalClass()": the class is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
-                100,
+                101,
             ],
             [
                 'ParameterTypeWidening on "ClassWithFinalMethod::wideningOnFinalMethod()": the method is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
-                108,
+                109,
             ],
             [
                 'ParameterTypeNarrowing on "RuntimeDetectableViolations::narrowingWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
-                116,
+                117,
             ],
             [
                 'BecomesAbstract on "RuntimeDetectableViolations::becomesAbstractWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
-                121,
+                122,
             ],
             [
                 'ParameterRemoval on "RuntimeDetectableViolations::removalWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
-                126,
+                127,
+            ],
+            [
+                'NewRequiredParameter on "NewRequiredParameterCases::requiredAlreadyExists()": parameter "existing" already exists.',
+                143,
+            ],
+            [
+                'NewRequiredParameter on "NewRequiredParameterCases::requiredWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
+                149,
             ],
         ]);
     }

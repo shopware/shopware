@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -56,12 +57,19 @@ class BCChangeAttributeUsageRule implements Rule
      */
     private const RUNTIME_DETECTABLE = [
         BecomesAbstract::class,
+        NewRequiredParameter::class,
         ParameterRemoval::class,
         ParameterTypeNarrowing::class,
     ];
 
+    private const MUST_NOT_EXIST = [
+        NewOptionalParameter::class,
+        NewRequiredParameter::class,
+    ];
+
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
+        NewRequiredParameter::class,
         ParameterNameChange::class,
         ParameterRemoval::class,
         ParameterTypeNarrowing::class,
@@ -230,15 +238,16 @@ class BCChangeAttributeUsageRule implements Rule
 
         $parameterExists = $this->parameterExists($method, ltrim($parameterName, '$'));
 
-        if ($attributeClass === NewOptionalParameter::class && $parameterExists) {
+        if (\in_array($attributeClass, self::MUST_NOT_EXIST, true) && $parameterExists) {
             return [$this->error($line, \sprintf(
-                'NewOptionalParameter on "%s": parameter "%s" already exists.',
+                '%s on "%s": parameter "%s" already exists.',
+                $this->shortName($attribute),
                 $symbol,
                 $parameterName
             ))];
         }
 
-        if ($attributeClass !== NewOptionalParameter::class && !$parameterExists) {
+        if (!\in_array($attributeClass, self::MUST_NOT_EXIST, true) && !$parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" does not exist.',
                 $this->shortName($attribute),

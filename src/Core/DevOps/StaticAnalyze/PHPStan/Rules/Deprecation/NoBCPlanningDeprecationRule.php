@@ -19,10 +19,6 @@ use Shopware\Core\Framework\Log\Package;
  * PHPDoc markers: the markers surface as deprecation errors in static analysis of
  * third-party code although there is nothing to migrate to.
  *
- * Enforcement is scoped to the platform namespaces: downstream repositories consume
- * these rules through their own PHPStan setups and migrate their annotations on
- * their own schedule.
- *
  * @implements Rule<InClassNode>
  *
  * @internal

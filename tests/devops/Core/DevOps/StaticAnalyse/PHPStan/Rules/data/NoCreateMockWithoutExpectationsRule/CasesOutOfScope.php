@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Example\NoCreateMockWithoutExpectationsRule;
+namespace Shopware\Tests\Unit\Core\Framework\Example\NoCreateMockWithoutExpectationsRule;
 
 use PHPUnit\Framework\TestCase;
 

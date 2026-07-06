@@ -49,6 +49,32 @@ describe('build/vue-setup-transform validation', () => {
         expect(result).toContain("name: 'script-attribute'");
     });
 
+    it('preserves script setup attributes that do not belong to the Shopware transform', () => {
+        const source = stripIndent`
+            <script setup lang="ts" generic="TValue" future-flag>
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'passthrough-attributes.vue').code;
+
+        expect(result).toContain('<script setup lang="ts" generic="TValue" future-flag>');
+    });
+
+    it('adds an explicit generated script language when base mode had no language attribute', () => {
+        const source = stripIndent`
+            <script setup>
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-no-lang.vue').code;
+
+        expect(result).toContain('<script setup lang="ts">');
+    });
+
     it.each([
         [
             'defineModel()',
@@ -126,6 +152,40 @@ describe('build/vue-setup-transform validation', () => {
 
         expect(() => transformShopwareSetupSfc(source, 'await.vue')).toThrow(
             'Top-level await is not supported inside Shopware setup blocks.',
+        );
+    });
+
+    it('rejects useSwProps() in base mode', () => {
+        const source = stripIndent`
+            <script setup>
+            const props = useSwProps();
+            const count = props.initialCount ?? 0;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-use-sw-props.vue')).toThrow(
+            "useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue's defineProps() macro instead.",
+        );
+    });
+
+    it('rejects useSwPreviousState() in base mode', () => {
+        const source = stripIndent`
+            <script setup>
+            const previousState = useSwPreviousState();
+            const count = 1;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-previous-state.vue')).toThrow(
+            'useSwPreviousState() is only supported in override Shopware setup blocks.',
         );
     });
 

@@ -11,13 +11,12 @@ import {
     collectTopLevelSetupMacroCalls,
     extractStaticObjectMarker,
     getStatementCompilerMacroCall,
-    isCompilerMacroCall,
     isStatementCompilerMacro,
     UNSUPPORTED_VUE_MACROS,
     WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
     WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
 } from './script-analyzer/macros';
-import { type SourceRange, getNodeRange, isBabelNodeLike, parseScript, walk } from './script-analyzer/utils';
+import { type SourceRange, getNodeRange, isBabelNodeLike, parseScript } from './script-analyzer/utils';
 import { type RuntimeBinding, collectImportBindings, collectRuntimeBinding } from './script-analyzer/runtime-bindings';
 import {
     assertNoUnsupportedSyntax,
@@ -367,10 +366,8 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const overrideMarkerStatements: StatementMacroCall[] = [];
     const definePropsCalls: CallExpression[] = [];
     const defineEmitsCalls: CallExpression[] = [];
-    const defineExposeCalls: CallExpression[] = [];
     const defineExposeStatements: (DefineExposeStatement & StatementWithCall)[] = [];
     const defineSlotsCalls: CallExpression[] = [];
-    const defineOptionsCalls: CallExpression[] = [];
     const defineOptionsStatements: (DefineOptionsStatement & StatementWithCall)[] = [];
     const withDefaultsCalls: CallExpression[] = [];
     const topLevelPublicCalls = new Set<CallExpression>();
@@ -432,16 +429,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
     });
 
-    walk(ast.program, (node) => {
-        if (isCompilerMacroCall(node, 'defineExpose')) {
-            defineExposeCalls.push(node);
-        }
-
-        if (isCompilerMacroCall(node, 'defineOptions')) {
-            defineOptionsCalls.push(node);
-        }
-    });
-
     assertNoUnsupportedSyntax(
         ast,
         mode,
@@ -481,10 +468,8 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         withDefaultsCalls,
         defineEmitsCalls,
         defineExposeStatements,
-        defineExposeCalls,
         defineSlotsCalls,
         defineOptionsStatements,
-        defineOptionsCalls,
     });
 
     validateShopwareMarkers({

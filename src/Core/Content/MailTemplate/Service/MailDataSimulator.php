@@ -13,7 +13,6 @@ use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
@@ -195,12 +194,9 @@ class MailDataSimulator
         if ($dataType['type'] === ObjectType::TYPE) {
             $objectData = $dataType['data'] ?? null;
             if (($objectData === null || $objectData === []) && $name !== null) {
-                $event = new MailDataSimulatorFormDataEvent($name, $context, $this->getKnownFormData($name));
-                $this->eventDispatcher->dispatch($event);
-
-                $formData = $event->getData();
-                if ($formData !== null) {
-                    return $formData;
+                $knownFormData = $this->getKnownFormData($name);
+                if ($knownFormData !== null) {
+                    return $knownFormData;
                 }
             }
 

@@ -126,6 +126,58 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         static::assertNull($this->findBySource($directories, 'bundle:MyPlugin'));
     }
 
+    #[TestDox('feeds both loaders the same directory set covering core, bundle, plugin, and dev-app entries')]
+    public function testFeedsBothLoadersTheSameDirectorySet(): void
+    {
+        $container = $this->buildContainerWithBothLoaders('dev');
+        $container->setParameter('kernel.bundles_metadata', [
+            'BundleA' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
+        ]);
+        $container->setParameter('kernel.active_plugins', [
+            FixturePluginWithCustomTypeDir::class => [
+                'name' => 'FixturePluginWithCustomTypeDir',
+                'path' => self::FIXTURES_DIR . '/test-plugin-custom',
+                'class' => FixturePluginWithCustomTypeDir::class,
+            ],
+        ]);
+        $container->setParameter('kernel.project_dir', self::FIXTURES_DIR . '/apps');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['path' => 'test-app', 'name' => 'TestApp']]);
+        $container->set(Connection::class, $connection);
+
+        $this->pass->process($container);
+
+        $typeDirs = $this->extractDirectories($container, YamlTypeLoader::class);
+        $bindingDirs = $this->extractDirectories($container, YamlBindingSpecificationLoader::class);
+
+        // Both loaders scan the identical discovered directory set (same source/path/prefix per entry, same order).
+        static::assertEquals($typeDirs, $bindingDirs);
+
+        // Every discovered source kind is present with the expected path and prefix.
+        $core = $this->findBySource($typeDirs, 'core');
+        static::assertNotNull($core);
+        $corePath = $core->getArgument(1);
+        static::assertIsString($corePath);
+        static::assertStringEndsWith('ContentSystem/Layout/Type/Definitions', $corePath);
+        static::assertSame('Sw', $core->getArgument(2));
+
+        $bundle = $this->findBySource($typeDirs, 'bundle:BundleA');
+        static::assertNotNull($bundle);
+        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/types', $bundle->getArgument(1));
+        static::assertSame('Sw', $bundle->getArgument(2));
+
+        $plugin = $this->findBySource($typeDirs, 'plugin:FixturePluginWithCustomTypeDir');
+        static::assertNotNull($plugin);
+        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-types', $plugin->getArgument(1));
+        static::assertSame('FixturePluginWithCustomTypeDir', $plugin->getArgument(2));
+
+        $app = $this->findBySource($typeDirs, 'app:TestApp');
+        static::assertNotNull($app);
+        static::assertSame(self::FIXTURES_DIR . '/apps/test-app/Resources/content-system/types', $app->getArgument(1));
+        static::assertSame('TestApp', $app->getArgument(2));
+    }
+
     #[TestDox('uses custom type directory when plugin overrides default')]
     public function testUsesCustomTypeDirectoryWhenPluginOverridesDefault(): void
     {
@@ -178,58 +230,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         static::assertSame($definitionsBefore, $container->getDefinitions());
-    }
-
-    #[TestDox('feeds both loaders the same directory set covering core, bundle, plugin, and dev-app entries')]
-    public function testFeedsBothLoadersTheSameDirectorySet(): void
-    {
-        $container = $this->buildContainerWithBothLoaders('dev');
-        $container->setParameter('kernel.bundles_metadata', [
-            'BundleA' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
-        ]);
-        $container->setParameter('kernel.active_plugins', [
-            FixturePluginWithCustomTypeDir::class => [
-                'name' => 'FixturePluginWithCustomTypeDir',
-                'path' => self::FIXTURES_DIR . '/test-plugin-custom',
-                'class' => FixturePluginWithCustomTypeDir::class,
-            ],
-        ]);
-        $container->setParameter('kernel.project_dir', self::FIXTURES_DIR . '/apps');
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([['path' => 'test-app', 'name' => 'TestApp']]);
-        $container->set(Connection::class, $connection);
-
-        $this->pass->process($container);
-
-        $typeDirs = $this->extractDirectories($container, YamlTypeLoader::class);
-        $bindingDirs = $this->extractDirectories($container, YamlBindingSpecificationLoader::class);
-
-        // Both loaders scan the identical discovered directory set (same source/path/prefix per entry, same order).
-        static::assertEquals($typeDirs, $bindingDirs);
-
-        // Every discovered source kind is present with the expected path and prefix.
-        $core = $this->findBySource($typeDirs, 'core');
-        static::assertNotNull($core);
-        $corePath = $core->getArgument(1);
-        static::assertIsString($corePath);
-        static::assertStringEndsWith('ContentSystem/Layout/Type/Definitions', $corePath);
-        static::assertSame('Sw', $core->getArgument(2));
-
-        $bundle = $this->findBySource($typeDirs, 'bundle:BundleA');
-        static::assertNotNull($bundle);
-        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/types', $bundle->getArgument(1));
-        static::assertSame('Sw', $bundle->getArgument(2));
-
-        $plugin = $this->findBySource($typeDirs, 'plugin:FixturePluginWithCustomTypeDir');
-        static::assertNotNull($plugin);
-        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-types', $plugin->getArgument(1));
-        static::assertSame('FixturePluginWithCustomTypeDir', $plugin->getArgument(2));
-
-        $app = $this->findBySource($typeDirs, 'app:TestApp');
-        static::assertNotNull($app);
-        static::assertSame(self::FIXTURES_DIR . '/apps/test-app/Resources/content-system/types', $app->getArgument(1));
-        static::assertSame('TestApp', $app->getArgument(2));
     }
 
     #[TestDox('feeds the binding loader even when the type loader service is absent')]
@@ -298,6 +298,22 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $bundlesMetadata
+     */
+    #[DataProvider('throwsForInvalidActivePluginsProvider')]
+    #[TestDox('throws for invalid active plugins configuration')]
+    public function testThrowsForInvalidActivePluginsConfiguration(array $bundlesMetadata, mixed $activePlugins, DependencyInjectionException $expectedException): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', $bundlesMetadata);
+        $container->setParameter('kernel.active_plugins', $activePlugins);
+
+        $this->expectExceptionObject($expectedException);
+
+        $this->pass->process($container);
+    }
+
+    /**
      * @return iterable<string, array{array<string, mixed>, mixed, DependencyInjectionException}>
      */
     public static function throwsForInvalidActivePluginsProvider(): iterable
@@ -335,22 +351,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
                 \sprintf('entry for "%s" has missing or invalid metadata', FixturePlugin::class)
             ),
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $bundlesMetadata
-     */
-    #[DataProvider('throwsForInvalidActivePluginsProvider')]
-    #[TestDox('throws for invalid active plugins configuration')]
-    public function testThrowsForInvalidActivePluginsConfiguration(array $bundlesMetadata, mixed $activePlugins, DependencyInjectionException $expectedException): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', $bundlesMetadata);
-        $container->setParameter('kernel.active_plugins', $activePlugins);
-
-        $this->expectExceptionObject($expectedException);
-
-        $this->pass->process($container);
     }
 
     private function buildContainer(string $environment): ContainerBuilder

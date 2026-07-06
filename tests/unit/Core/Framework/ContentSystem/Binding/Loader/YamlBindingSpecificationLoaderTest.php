@@ -61,6 +61,47 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         static::assertSame('core', $specifications[0]->source());
     }
 
+    #[TestDox('allows two different sources to each ship the same bare id without throwing')]
+    public function testAllowsSameBareIdAcrossDifferentSources(): void
+    {
+        $dirA = $this->tempDir . '/a';
+        $dirB = $this->tempDir . '/b';
+        mkdir($dirA . '/media', 0777, true);
+        mkdir($dirB . '/media', 0777, true);
+        file_put_contents($dirA . '/media/image.yaml', "bindings:\n  shared:\n    label: a\n");
+        file_put_contents($dirB . '/media/image.yaml', "bindings:\n  shared:\n    label: b\n");
+
+        $loader = $this->createLoader([
+            new ElementTypeSourceDirectory('source-a', $dirA, 'Sw'),
+            new ElementTypeSourceDirectory('source-b', $dirB, 'Sw'),
+        ]);
+
+        $specifications = $loader->load();
+
+        static::assertCount(2, $specifications);
+        static::assertSame(['source-a', 'source-b'], array_map(static fn ($specification) => $specification->source(), $specifications));
+    }
+
+    #[TestDox('loads two promoted specifications for DIFFERENT types without throwing')]
+    public function testLoadsTwoPromotedSpecificationsForDifferentTypes(): void
+    {
+        mkdir($this->tempDir . '/media', 0777, true);
+        mkdir($this->tempDir . '/hero', 0777, true);
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  promoted-image:\n    label: image\n    promoted: true\n");
+        file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  promoted-banner:\n    label: banner\n    promoted: true\n");
+
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
+
+        $specifications = $loader->load();
+
+        static::assertCount(2, $specifications);
+        static::assertSame([true, true], array_map(static fn ($specification) => $specification->isPromoted(), $specifications));
+        static::assertEqualsCanonicalizing(
+            ['Sw:Media:Image', 'Sw:Hero:Banner'],
+            array_map(static fn ($specification) => $specification->type(), $specifications),
+        );
+    }
+
     #[TestDox('skips an element-type file that carries no bindings section')]
     public function testSkipsTypeFileWithoutBindingsSection(): void
     {
@@ -103,18 +144,6 @@ class YamlBindingSpecificationLoaderTest extends TestCase
 
         static::assertCount(1, $specifications);
         static::assertSame($id, $specifications[0]->id());
-    }
-
-    /**
-     * @return iterable<string, array{string, string, string}>
-     */
-    public static function throwsOnLoadFailureProvider(): iterable
-    {
-        yield 'blank id' => ['media/image.yaml', "bindings:\n  \"\":\n    label: x\n", 'missing or empty "id"'];
-        // A numeric YAML key decodes to a PHP int map key, so assertValidId sees a non-string id.
-        yield 'non-string id' => ['media/image.yaml', "bindings:\n  123:\n    label: x\n", 'missing or empty "id"'];
-        yield 'id exceeds max length' => ['media/image.yaml', "bindings:\n  " . str_repeat('a', 256) . ":\n    label: x\n", 'id exceeds the maximum length of 255 characters'];
-        yield 'scalar body' => ['media/scalar.yaml', 'just a string', 'YAML file must contain an array/map, got string'];
     }
 
     #[DataProvider('throwsOnLoadFailureProvider')]
@@ -189,27 +218,6 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         );
 
         $loader->load();
-    }
-
-    #[TestDox('allows two different sources to each ship the same bare id without throwing')]
-    public function testAllowsSameBareIdAcrossDifferentSources(): void
-    {
-        $dirA = $this->tempDir . '/a';
-        $dirB = $this->tempDir . '/b';
-        mkdir($dirA . '/media', 0777, true);
-        mkdir($dirB . '/media', 0777, true);
-        file_put_contents($dirA . '/media/image.yaml', "bindings:\n  shared:\n    label: a\n");
-        file_put_contents($dirB . '/media/image.yaml', "bindings:\n  shared:\n    label: b\n");
-
-        $loader = $this->createLoader([
-            new ElementTypeSourceDirectory('source-a', $dirA, 'Sw'),
-            new ElementTypeSourceDirectory('source-b', $dirB, 'Sw'),
-        ]);
-
-        $specifications = $loader->load();
-
-        static::assertCount(2, $specifications);
-        static::assertSame(['source-a', 'source-b'], array_map(static fn ($specification) => $specification->source(), $specifications));
     }
 
     #[TestDox('rejects an inline entry that declares an explicit type')]
@@ -366,24 +374,16 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('loads two promoted specifications for DIFFERENT types without throwing')]
-    public function testLoadsTwoPromotedSpecificationsForDifferentTypes(): void
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function throwsOnLoadFailureProvider(): iterable
     {
-        mkdir($this->tempDir . '/media', 0777, true);
-        mkdir($this->tempDir . '/hero', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  promoted-image:\n    label: image\n    promoted: true\n");
-        file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  promoted-banner:\n    label: banner\n    promoted: true\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        $specifications = $loader->load();
-
-        static::assertCount(2, $specifications);
-        static::assertSame([true, true], array_map(static fn ($specification) => $specification->isPromoted(), $specifications));
-        static::assertEqualsCanonicalizing(
-            ['Sw:Media:Image', 'Sw:Hero:Banner'],
-            array_map(static fn ($specification) => $specification->type(), $specifications),
-        );
+        yield 'blank id' => ['media/image.yaml', "bindings:\n  \"\":\n    label: x\n", 'missing or empty "id"'];
+        // A numeric YAML key decodes to a PHP int map key, so assertValidId sees a non-string id.
+        yield 'non-string id' => ['media/image.yaml', "bindings:\n  123:\n    label: x\n", 'missing or empty "id"'];
+        yield 'id exceeds max length' => ['media/image.yaml', "bindings:\n  " . str_repeat('a', 256) . ":\n    label: x\n", 'id exceeds the maximum length of 255 characters'];
+        yield 'scalar body' => ['media/scalar.yaml', 'just a string', 'YAML file must contain an array/map, got string'];
     }
 
     /**

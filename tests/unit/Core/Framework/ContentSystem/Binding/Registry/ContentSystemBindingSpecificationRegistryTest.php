@@ -49,7 +49,7 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         static::assertSame(['from-media-library', 'from-media-library-alt'], array_map(static fn (BindingSpecification $s) => $s->id(), $byType));
     }
 
-    #[TestDox('get resolves a specification by its source-qualified id')]
+    #[TestDox('resolves a specification by its source-qualified id')]
     public function testGetResolvesBySourceQualifiedId(): void
     {
         $registry = $this->registry([
@@ -72,7 +72,7 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         static::assertSame([], $registry->byType('unknown-type'));
     }
 
-    #[TestDox('get returns null for an id that does not exist')]
+    #[TestDox('returns null for an id that does not exist')]
     public function testGetReturnsNullForMissingId(): void
     {
         $registry = $this->registry([
@@ -90,7 +90,7 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         $this->registry([])->getDecorated();
     }
 
-    #[TestDox('throws when invalidate is called on the leaf registry, per the decoration-pattern contract')]
+    #[TestDox('throws when calling invalidate on the leaf registry, per the decoration-pattern contract')]
     public function testInvalidateOnLeafRegistryThrows(): void
     {
         // invalidate() is defined on the abstract base (self::class), inherited unchanged by the leaf;

@@ -155,28 +155,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertSame([['id' => $this->ids->get('binding-old')]], $repo->deletes[0]);
     }
 
-    #[TestDox('queries the stored bindings for the installing app by app id')]
-    public function testQueriesExistingBindingsByAppId(): void
-    {
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
-        $repo = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context): AppContentSystemBindingSpecificationCollection {
-                static::assertCount(1, $criteria->getFilters());
-                $filter = $criteria->getFilters()[0];
-                static::assertInstanceOf(EqualsFilter::class, $filter);
-                static::assertSame('appId', $filter->getField());
-                static::assertSame($this->ids->get('app'), $filter->getValue());
-
-                return new AppContentSystemBindingSpecificationCollection();
-            },
-        ]);
-
-        $this->buildPersister($repo)->persist($this->buildContext());
-
-        // Proves the flow ran through to the upsert, so the search callback above actually fired.
-        static::assertCount(1, $repo->upserts);
-    }
-
     #[TestDox('deletes all stored bindings and invalidates the cache when the app ships no YAML')]
     public function testDeletesAllAndInvalidatesWhenNoYaml(): void
     {
@@ -197,6 +175,45 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertSame([], $repo->upserts);
         static::assertCount(1, $repo->deletes);
         static::assertSame([['id' => $this->ids->get('binding-orphan')]], $repo->deletes[0]);
+    }
+
+    #[TestDox('persists two promoted bindings that promote different types')]
+    public function testPersistsTwoPromotedBindingsForDifferentTypes(): void
+    {
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([
+            new ResolvedBindingSpecificationDto('image-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'Image', null, null, true)),
+            new ResolvedBindingSpecificationDto('banner-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Banner', 'Banner', null, null, true)),
+        ]);
+
+        $repo = $this->createEmptyRepository();
+        $persister = $this->buildPersister($repo, loader: $loader);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        static::assertCount(2, $repo->upserts[0]);
+    }
+
+    #[TestDox('queries the stored bindings for the installing app by app id')]
+    public function testQueriesExistingBindingsByAppId(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
+        $repo = new StaticEntityRepository([
+            function (Criteria $criteria, Context $context): AppContentSystemBindingSpecificationCollection {
+                static::assertCount(1, $criteria->getFilters());
+                $filter = $criteria->getFilters()[0];
+                static::assertInstanceOf(EqualsFilter::class, $filter);
+                static::assertSame('appId', $filter->getField());
+                static::assertSame($this->ids->get('app'), $filter->getValue());
+
+                return new AppContentSystemBindingSpecificationCollection();
+            },
+        ]);
+
+        $this->buildPersister($repo)->persist($this->buildContext());
+
+        // Proves the flow ran through to the upsert, so the search callback above actually fired.
+        static::assertCount(1, $repo->upserts);
     }
 
     #[TestDox('routes the upsert and delete through a single transaction')]
@@ -312,23 +329,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
             static::assertStringContainsString('DemoApp:Media:Image', $e->getMessage());
             static::assertStringContainsString('at most one specification may be promoted per type', $e->getMessage());
         }
-    }
-
-    #[TestDox('persists two promoted bindings that promote different types')]
-    public function testPersistsTwoPromotedBindingsForDifferentTypes(): void
-    {
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([
-            new ResolvedBindingSpecificationDto('image-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'Image', null, null, true)),
-            new ResolvedBindingSpecificationDto('banner-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Banner', 'Banner', null, null, true)),
-        ]);
-
-        $repo = $this->createEmptyRepository();
-        $persister = $this->buildPersister($repo, loader: $loader);
-        $persister->persist($this->buildContext());
-
-        static::assertCount(1, $repo->upserts);
-        static::assertCount(2, $repo->upserts[0]);
     }
 
     #[TestDox('wraps a type-overlay ContentSystemException as an AppException before the binding load runs')]

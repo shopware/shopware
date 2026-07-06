@@ -41,60 +41,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
 {
     private const ID = 'from-media-library';
 
-    #[TestDox('rethrows a non-client-defect ContentSystemException raised while decoding a resolves config')]
-    public function testRethrowsNonClientDefectExceptionFromDecode(): void
-    {
-        $type = new ContentSystemElementTypeSpecification(
-            'Sw:Media:Image',
-            'Image',
-            '',
-            null,
-            null,
-            new CopilotSpecification('', []),
-            ['media' => new PropertySpecification(
-                'media',
-                new PropertyType(Entity::class, false, null, null),
-                false,
-                '',
-                '',
-                null,
-            )],
-            [],
-        );
-
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($type);
-
-        // INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES, so decodeConfig() must rethrow it rather than
-        // turning it into a violation.
-        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
-        $provider->method('decode')->willThrowException(ContentSystemException::invalidFieldType('A', 'B'));
-
-        $validator = new TypeConsistentBindingSpecificationValidator(
-            $registry,
-            $provider,
-            static::createStub(RootContextMapper::class),
-            static::createStub(AbstractContentSystemDataLoaderMapResolver::class),
-        );
-        $validator->initialize(static::createStub(ExecutionContextInterface::class));
-
-        $dto = new BindingSpecificationDto(
-            type: 'Sw:Media:Image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
-            inputs: [],
-        );
-
-        try {
-            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
-            static::fail('Expected a ContentSystemException to be rethrown.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
-        }
-    }
-
-    #[TestDox('a resolves entry propertyReference config key naming a primitive property passes')]
+    #[TestDox('passes a resolves entry whose propertyReference config key names a primitive property')]
     public function testPropertyReferenceKeyNamingPrimitivePasses(): void
     {
         // The loader identifier is never branched on by the validator (validatePropertyReferenceKeys() only uses
@@ -111,8 +58,8 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
 
-    #[TestDox('a resolves entry propertyReference config key naming $_dataName is a violation')]
     #[DataProvider('nonPrimitivePropertyProvider')]
+    #[TestDox('flags a resolves entry propertyReference config key naming $_dataName as a violation')]
     public function testPropertyReferenceKeyNamingNonPrimitiveIsViolation(string $propertyValue): void
     {
         $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
@@ -131,19 +78,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('primitive property', (string) $violations->get(0)->getMessage());
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function nonPrimitivePropertyProvider(): iterable
-    {
-        // The loader identifier ('entity' vs. any other registered loader) is not varied here: it is never
-        // branched on by validatePropertyReferenceKeys(), only used as a ContentSystemDataLoaderMap lookup key
-        // (configSpecificationFor()), so both loaders would traverse identical SUT branches.
-        yield 'a reference property' => ['media'];
-        yield 'a missing property' => ['ghost'];
-    }
-
-    #[TestDox('resolves the declared type from the overlay when the registry does not carry it, and validates against it')]
+    #[TestDox('resolves the declared type from the overlay when the registry does not carry it')]
     public function testResolvesTypeFromOverlayWhenRegistryLacksIt(): void
     {
         // The registry has no type at all (an app's own type at install time); the overlay supplies it, so the
@@ -209,6 +144,71 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame('bindings[' . self::ID . '].type', $violations->get(0)->getPropertyPath());
         static::assertStringContainsString('not a registered element type', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('rethrows a non-client-defect ContentSystemException raised while decoding a resolves config')]
+    public function testRethrowsNonClientDefectExceptionFromDecode(): void
+    {
+        $type = new ContentSystemElementTypeSpecification(
+            'Sw:Media:Image',
+            'Image',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            ['media' => new PropertySpecification(
+                'media',
+                new PropertyType(Entity::class, false, null, null),
+                false,
+                '',
+                '',
+                null,
+            )],
+            [],
+        );
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('get')->willReturn($type);
+
+        // INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES, so decodeConfig() must rethrow it rather than
+        // turning it into a violation.
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willThrowException(ContentSystemException::invalidFieldType('A', 'B'));
+
+        $validator = new TypeConsistentBindingSpecificationValidator(
+            $registry,
+            $provider,
+            static::createStub(RootContextMapper::class),
+            static::createStub(AbstractContentSystemDataLoaderMapResolver::class),
+        );
+        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+
+        $dto = new BindingSpecificationDto(
+            type: 'Sw:Media:Image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        try {
+            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
+            static::fail('Expected a ContentSystemException to be rethrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nonPrimitivePropertyProvider(): iterable
+    {
+        // The loader identifier ('entity' vs. any other registered loader) is not varied here: it is never
+        // branched on by validatePropertyReferenceKeys(), only used as a ContentSystemDataLoaderMap lookup key
+        // (configSpecificationFor()), so both loaders would traverse identical SUT branches.
+        yield 'a reference property' => ['media'];
+        yield 'a missing property' => ['ghost'];
     }
 
     private function validator(ContentSystemElementTypeSpecification $type, ContentSystemDataLoaderMap $map): TypeConsistentBindingSpecificationValidator

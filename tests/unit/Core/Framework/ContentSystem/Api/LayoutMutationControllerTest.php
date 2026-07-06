@@ -86,23 +86,6 @@ class LayoutMutationControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{\Closure(LayoutMutationController): Response, class-string<LayoutMutation>}>
-     */
-    public static function dispatchesExpectedOpProvider(): iterable
-    {
-        $context = Context::createDefaultContext();
-
-        yield 'insert' => [static fn (LayoutMutationController $c): Response => $c->insert(new InsertElementRequest('Sw:Card'), $context), InsertElement::class];
-        yield 'remove' => [static fn (LayoutMutationController $c): Response => $c->remove(new RemoveElementRequest('el'), $context), RemoveElement::class];
-        yield 'move' => [static fn (LayoutMutationController $c): Response => $c->move(new MoveElementRequest('el'), $context), MoveElement::class];
-        yield 'replace' => [static fn (LayoutMutationController $c): Response => $c->replace(new ReplaceElementRequest('el', 'Sw:New'), $context), ReplaceElement::class];
-        yield 'duplicate' => [static fn (LayoutMutationController $c): Response => $c->duplicate(new DuplicateElementRequest('el'), $context), DuplicateElement::class];
-        yield 'wrap' => [static fn (LayoutMutationController $c): Response => $c->wrap(new WrapElementsRequest(['a'], 'Sw:Container'), $context), WrapElements::class];
-        yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
-        yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
-    }
-
-    /**
      * @param \Closure(mixed): mixed $accessor
      */
     #[DataProvider('replaceOptionalFieldsProvider')]
@@ -114,33 +97,6 @@ class LayoutMutationControllerTest extends TestCase
         $response = $controller->replace(new ReplaceElementRequest('el', 'Sw:New'), Context::createDefaultContext());
 
         static::assertSame($expected, $accessor($this->decode($response)[$field]));
-    }
-
-    /**
-     * @return iterable<string, array{MutationResult, string, \Closure(mixed): mixed, mixed}>
-     */
-    public static function replaceOptionalFieldsProvider(): iterable
-    {
-        yield 'orphaned subtrees surface for re-attachment' => [
-            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]),
-            'orphaned',
-            static fn (mixed $value): mixed => $value[0]['id'],
-            'orphan',
-        ];
-
-        yield 'dropped wiring keys are reported' => [
-            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
-            'droppedWiring',
-            static fn (mixed $value): mixed => $value,
-            ['legacy'],
-        ];
-
-        yield 'dropped property values are reported' => [
-            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']),
-            'droppedProperties',
-            static fn (mixed $value): mixed => $value['headline'],
-            'Old headline',
-        ];
     }
 
     #[TestDox('threads the root source context resolved from the registry into the mutation pipeline')]
@@ -208,6 +164,50 @@ class LayoutMutationControllerTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $exception->getErrorCode());
         }
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(LayoutMutationController): Response, class-string<LayoutMutation>}>
+     */
+    public static function dispatchesExpectedOpProvider(): iterable
+    {
+        $context = Context::createDefaultContext();
+
+        yield 'insert' => [static fn (LayoutMutationController $c): Response => $c->insert(new InsertElementRequest('Sw:Card'), $context), InsertElement::class];
+        yield 'remove' => [static fn (LayoutMutationController $c): Response => $c->remove(new RemoveElementRequest('el'), $context), RemoveElement::class];
+        yield 'move' => [static fn (LayoutMutationController $c): Response => $c->move(new MoveElementRequest('el'), $context), MoveElement::class];
+        yield 'replace' => [static fn (LayoutMutationController $c): Response => $c->replace(new ReplaceElementRequest('el', 'Sw:New'), $context), ReplaceElement::class];
+        yield 'duplicate' => [static fn (LayoutMutationController $c): Response => $c->duplicate(new DuplicateElementRequest('el'), $context), DuplicateElement::class];
+        yield 'wrap' => [static fn (LayoutMutationController $c): Response => $c->wrap(new WrapElementsRequest(['a'], 'Sw:Container'), $context), WrapElements::class];
+        yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
+        yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
+    }
+
+    /**
+     * @return iterable<string, array{MutationResult, string, \Closure(mixed): mixed, mixed}>
+     */
+    public static function replaceOptionalFieldsProvider(): iterable
+    {
+        yield 'orphaned subtrees surface for re-attachment' => [
+            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]),
+            'orphaned',
+            static fn (mixed $value): mixed => $value[0]['id'],
+            'orphan',
+        ];
+
+        yield 'dropped wiring keys are reported' => [
+            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
+            'droppedWiring',
+            static fn (mixed $value): mixed => $value,
+            ['legacy'],
+        ];
+
+        yield 'dropped property values are reported' => [
+            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']),
+            'droppedProperties',
+            static fn (mixed $value): mixed => $value['headline'],
+            'Old headline',
+        ];
     }
 
     private function controller(

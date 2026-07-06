@@ -71,95 +71,93 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     }
 
     /**
-     * @return array<string, array{type: mixed, resolves: array<string, mixed>, inputs: array<string, mixed>, expectedPath: string}>
+     * @return iterable<string, array{type: mixed, resolves: array<string, mixed>, inputs: array<string, mixed>, expectedPath: string}>
      */
-    public static function provideInvalidBindings(): array
+    public static function provideInvalidBindings(): iterable
     {
-        return [
-            'unknown type' => [
-                'type' => 'Sw:Does:NotExist',
-                'resolves' => [],
-                'inputs' => [],
-                'expectedPath' => 'type',
+        yield 'unknown type' => [
+            'type' => 'Sw:Does:NotExist',
+            'resolves' => [],
+            'inputs' => [],
+            'expectedPath' => 'type',
+        ];
+        yield 'resolves key is not a reference property' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'mediaId' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             ],
-            'resolves key is not a reference property' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'mediaId' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[mediaId]',
+            'inputs' => [],
+            'expectedPath' => 'resolves[mediaId]',
+        ];
+        yield 'loader produces a type not assignable to the declared property type' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'media' => ['loader' => 'entity', 'config' => ['entity' => 'product', 'property' => 'mediaId']],
             ],
-            'loader produces a type not assignable to the declared property type' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'product', 'property' => 'mediaId']],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[media]',
+            'inputs' => [],
+            'expectedPath' => 'resolves[media]',
+        ];
+        yield 'undecodable loader config' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'media' => ['loader' => 'entity', 'config' => []],
             ],
-            'undecodable loader config' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'media' => ['loader' => 'entity', 'config' => []],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[media].config',
+            'inputs' => [],
+            'expectedPath' => 'resolves[media].config',
+        ];
+        yield 'loader is not a registered data loader' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'media' => ['loader' => 'not-a-registered-loader', 'config' => []],
             ],
-            'loader is not a registered data loader' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'media' => ['loader' => 'not-a-registered-loader', 'config' => []],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[media]',
+            'inputs' => [],
+            'expectedPath' => 'resolves[media]',
+        ];
+        yield 'entity loader property names a non-primitive property' => [
+            // config decodes and the produced MediaEntity is assignable, but the "property" that should
+            // hold the id names "media" (itself a reference), not a primitive id property.
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media']],
             ],
-            'entity loader property names a non-primitive property' => [
-                // config decodes and the produced MediaEntity is assignable, but the "property" that should
-                // hold the id names "media" (itself a reference), not a primitive id property.
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media']],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[media].config.property',
+            'inputs' => [],
+            'expectedPath' => 'resolves[media].config.property',
+        ];
+        yield 'inputs key is not a primitive property' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [],
+            'inputs' => [
+                'media' => ['default' => 'not-a-primitive-property'],
             ],
-            'inputs key is not a primitive property' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [],
-                'inputs' => [
-                    'media' => ['default' => 'not-a-primitive-property'],
-                ],
-                'expectedPath' => 'inputs[media]',
+            'expectedPath' => 'inputs[media]',
+        ];
+        yield 'input default type mismatch' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [],
+            'inputs' => [
+                'mediaId' => ['default' => 123],
             ],
-            'input default type mismatch' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [],
-                'inputs' => [
-                    'mediaId' => ['default' => 123],
-                ],
-                'expectedPath' => 'inputs[mediaId].default',
+            'expectedPath' => 'inputs[mediaId].default',
+        ];
+        yield 'context form is rejected' => [
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'media' => ['context' => 'product.cover'],
             ],
-            'context form is rejected' => [
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'media' => ['context' => 'product.cover'],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[media]',
+            'inputs' => [],
+            'expectedPath' => 'resolves[media]',
+        ];
+        yield 'entity loader config decodes but names an unregistered entity' => [
+            // config decodes fine (both "entity" and "property" are non-empty strings), but
+            // resolveProducedType() throws ContentSystemException::unknownLoaderEntity() for the
+            // unregistered entity name -- this exercises the resolveProducedType() catch, distinct
+            // from the "undecodable loader config" case above, which exercises the decodeConfig() catch.
+            'type' => 'Sw:Media:Image',
+            'resolves' => [
+                'media' => ['loader' => 'entity', 'config' => ['entity' => 'this_entity_does_not_exist', 'property' => 'name']],
             ],
-            'entity loader config decodes but names an unregistered entity' => [
-                // config decodes fine (both "entity" and "property" are non-empty strings), but
-                // resolveProducedType() throws ContentSystemException::unknownLoaderEntity() for the
-                // unregistered entity name -- this exercises the resolveProducedType() catch, distinct
-                // from the "undecodable loader config" case above, which exercises the decodeConfig() catch.
-                'type' => 'Sw:Media:Image',
-                'resolves' => [
-                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'this_entity_does_not_exist', 'property' => 'name']],
-                ],
-                'inputs' => [],
-                'expectedPath' => 'resolves[media].config',
-            ],
+            'inputs' => [],
+            'expectedPath' => 'resolves[media].config',
         ];
     }
 

@@ -74,7 +74,7 @@ class DataLoaderConfigSerializerContractTest extends TestCase
     public function testFixturesCoverEveryRegisteredSource(): void
     {
         $registered = array_keys($this->registeredSources());
-        $fixtured = array_keys(self::provideConfigsPerSource());
+        $fixtured = array_keys(iterator_to_array(self::provideConfigsPerSource()));
 
         sort($registered);
         sort($fixtured);
@@ -89,75 +89,73 @@ class DataLoaderConfigSerializerContractTest extends TestCase
     }
 
     /**
-     * @return array<string, array{source: string, config: array<string, mixed>}>
+     * @return iterable<string, array{source: string, config: array<string, mixed>}>
      */
-    public static function provideConfigsPerSource(): array
+    public static function provideConfigsPerSource(): iterable
     {
-        return [
-            NavigationDataLoader::SOURCE => [
-                'source' => NavigationDataLoader::SOURCE,
-                'config' => ['rootId' => 'main-navigation', 'depth' => 3, 'activeProperty' => 'customActiveId'],
-            ],
-            ServiceMenuDataLoader::SOURCE => [
-                'source' => ServiceMenuDataLoader::SOURCE,
-                'config' => ['rootId' => 'custom-service-root'],
-            ],
-            BreadcrumbDataLoader::SOURCE => [
-                'source' => BreadcrumbDataLoader::SOURCE,
-                'config' => ['property' => 'entityId', 'type' => 'category', 'referrerCategoryProperty' => 'refCategoryId'],
-            ],
-            ProductListingDataLoader::SOURCE => [
-                'source' => ProductListingDataLoader::SOURCE,
-                'config' => ['property' => 'navigationId', 'associations' => ['manufacturer']],
-            ],
-            CrossSellingDataLoader::SOURCE => [
-                'source' => CrossSellingDataLoader::SOURCE,
-                'config' => ['property' => 'productId', 'associations' => ['media']],
-            ],
-            ProductReviewDataLoader::SOURCE => [
-                'source' => ProductReviewDataLoader::SOURCE,
-                'config' => ['property' => 'productId', 'associations' => ['customerReview']],
-            ],
-            ProductSearchDataLoader::SOURCE => [
-                'source' => ProductSearchDataLoader::SOURCE,
-                'config' => ['searchTermProperty' => 'searchTerm', 'associations' => ['manufacturer']],
-            ],
-            ProductSuggestDataLoader::SOURCE => [
-                'source' => ProductSuggestDataLoader::SOURCE,
-                'config' => ['searchTermProperty' => 'searchTerm', 'associations' => ['manufacturer']],
-            ],
-            PaymentMethodDataLoader::SOURCE => [
-                'source' => PaymentMethodDataLoader::SOURCE,
-                'config' => ['associations' => ['media'], 'onlyAvailable' => false],
-            ],
-            CurrencyDataLoader::SOURCE => [
-                'source' => CurrencyDataLoader::SOURCE,
-                'config' => ['associations' => ['country']],
-            ],
-            LanguageDataLoader::SOURCE => [
-                'source' => LanguageDataLoader::SOURCE,
-                'config' => ['associations' => ['locale']],
-            ],
-            ShippingMethodDataLoader::SOURCE => [
-                'source' => ShippingMethodDataLoader::SOURCE,
-                'config' => ['associations' => ['deliveryTime'], 'onlyAvailable' => false],
-            ],
-            EntityLoader::SOURCE => [
-                'source' => EntityLoader::SOURCE,
-                'config' => ['entity' => 'product', 'property' => 'name', 'associations' => ['manufacturer']],
-            ],
-            EntityCollectionLoader::SOURCE => [
-                'source' => EntityCollectionLoader::SOURCE,
-                'config' => ['entity' => 'product', 'property' => 'name', 'associations' => ['manufacturer']],
-            ],
-            TestMultiReferenceGatingLoader::SOURCE => [
-                'source' => TestMultiReferenceGatingLoader::SOURCE,
-                'config' => ['entity' => 'media', 'property' => 'mediaId', 'secondProperty' => 'captionMediaId', 'activeProperty' => 'activeId'],
-            ],
-            TestNavigationShapedLoader::SOURCE => [
-                'source' => TestNavigationShapedLoader::SOURCE,
-                'config' => ['entity' => 'media', 'activeProperty' => 'activeId'],
-            ],
+        yield NavigationDataLoader::SOURCE => [
+            'source' => NavigationDataLoader::SOURCE,
+            'config' => ['rootId' => 'main-navigation', 'depth' => 3, 'activeProperty' => 'customActiveId'],
+        ];
+        yield ServiceMenuDataLoader::SOURCE => [
+            'source' => ServiceMenuDataLoader::SOURCE,
+            'config' => ['rootId' => 'custom-service-root'],
+        ];
+        yield BreadcrumbDataLoader::SOURCE => [
+            'source' => BreadcrumbDataLoader::SOURCE,
+            'config' => ['property' => 'entityId', 'type' => 'category', 'referrerCategoryProperty' => 'refCategoryId'],
+        ];
+        yield ProductListingDataLoader::SOURCE => [
+            'source' => ProductListingDataLoader::SOURCE,
+            'config' => ['property' => 'navigationId', 'associations' => ['manufacturer']],
+        ];
+        yield CrossSellingDataLoader::SOURCE => [
+            'source' => CrossSellingDataLoader::SOURCE,
+            'config' => ['property' => 'productId', 'associations' => ['media']],
+        ];
+        yield ProductReviewDataLoader::SOURCE => [
+            'source' => ProductReviewDataLoader::SOURCE,
+            'config' => ['property' => 'productId', 'associations' => ['customerReview']],
+        ];
+        yield ProductSearchDataLoader::SOURCE => [
+            'source' => ProductSearchDataLoader::SOURCE,
+            'config' => ['searchTermProperty' => 'searchTerm', 'associations' => ['manufacturer']],
+        ];
+        yield ProductSuggestDataLoader::SOURCE => [
+            'source' => ProductSuggestDataLoader::SOURCE,
+            'config' => ['searchTermProperty' => 'searchTerm', 'associations' => ['manufacturer']],
+        ];
+        yield PaymentMethodDataLoader::SOURCE => [
+            'source' => PaymentMethodDataLoader::SOURCE,
+            'config' => ['associations' => ['media'], 'onlyAvailable' => false],
+        ];
+        yield CurrencyDataLoader::SOURCE => [
+            'source' => CurrencyDataLoader::SOURCE,
+            'config' => ['associations' => ['country']],
+        ];
+        yield LanguageDataLoader::SOURCE => [
+            'source' => LanguageDataLoader::SOURCE,
+            'config' => ['associations' => ['locale']],
+        ];
+        yield ShippingMethodDataLoader::SOURCE => [
+            'source' => ShippingMethodDataLoader::SOURCE,
+            'config' => ['associations' => ['deliveryTime'], 'onlyAvailable' => false],
+        ];
+        yield EntityLoader::SOURCE => [
+            'source' => EntityLoader::SOURCE,
+            'config' => ['entity' => 'product', 'property' => 'name', 'associations' => ['manufacturer']],
+        ];
+        yield EntityCollectionLoader::SOURCE => [
+            'source' => EntityCollectionLoader::SOURCE,
+            'config' => ['entity' => 'product', 'property' => 'name', 'associations' => ['manufacturer']],
+        ];
+        yield TestMultiReferenceGatingLoader::SOURCE => [
+            'source' => TestMultiReferenceGatingLoader::SOURCE,
+            'config' => ['entity' => 'media', 'property' => 'mediaId', 'secondProperty' => 'captionMediaId', 'activeProperty' => 'activeId'],
+        ];
+        yield TestNavigationShapedLoader::SOURCE => [
+            'source' => TestNavigationShapedLoader::SOURCE,
+            'config' => ['entity' => 'media', 'activeProperty' => 'activeId'],
         ];
     }
 

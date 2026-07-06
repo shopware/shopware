@@ -105,15 +105,6 @@ class PersistedLayoutMutatorTest extends TestCase
         static::assertSame($report, $result->diagnostics);
     }
 
-    /**
-     * @return iterable<string, array{string, bool}>
-     */
-    public static function diagnosesAgainstRootSourceProvider(): iterable
-    {
-        yield 'an entity root source threads its resolved root-ambient context' => ['product', true];
-        yield 'a none-rooted layout threads an empty context, never a null context' => ['none', false];
-    }
-
     #[TestDox('accepts a token that matches updatedAt to the millisecond, ignoring sub-millisecond noise')]
     public function testAcceptsTokenMatchingToTheMillisecond(): void
     {
@@ -153,16 +144,6 @@ class PersistedLayoutMutatorTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string, array{?string, string}>
-     */
-    public static function rejectsVersionConflictProvider(): iterable
-    {
-        yield 'a stale token older than the committed updatedAt' => [self::VERSION, '2020-01-01T00:00:00.000+00:00'];
-        yield 'a token differing from updatedAt at the millisecond' => ['2026-06-22T10:00:00.123000+00:00', '2026-06-22T10:00:00.456000+00:00'];
-        yield 'a non-null token for a never-updated layout' => [null, '2026-01-01T00:00:00.000+00:00'];
-    }
-
     #[TestDox('rejects an unparseable expected version token with a 400 without writing')]
     public function testRejectsUnparseableVersionTokenWithoutWriting(): void
     {
@@ -190,6 +171,25 @@ class PersistedLayoutMutatorTest extends TestCase
         $this->expectExceptionObject($writeException);
 
         $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function diagnosesAgainstRootSourceProvider(): iterable
+    {
+        yield 'an entity root source threads its resolved root-ambient context' => ['product', true];
+        yield 'a none-rooted layout threads an empty context, never a null context' => ['none', false];
+    }
+
+    /**
+     * @return iterable<string, array{?string, string}>
+     */
+    public static function rejectsVersionConflictProvider(): iterable
+    {
+        yield 'a stale token older than the committed updatedAt' => [self::VERSION, '2020-01-01T00:00:00.000+00:00'];
+        yield 'a token differing from updatedAt at the millisecond' => ['2026-06-22T10:00:00.123000+00:00', '2026-06-22T10:00:00.456000+00:00'];
+        yield 'a non-null token for a never-updated layout' => [null, '2026-01-01T00:00:00.000+00:00'];
     }
 
     /**

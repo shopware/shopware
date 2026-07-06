@@ -46,18 +46,6 @@ class BindingSpecificationTest extends TestCase
         static::assertSame($expected, $schema['inputs']['title']);
     }
 
-    /**
-     * @return iterable<string, array{BindingInput, array<string, mixed>}>
-     */
-    public static function serializesInputProvider(): iterable
-    {
-        yield 'without default' => [new BindingInput(false, null), ['required' => false]];
-        yield 'with default value' => [new BindingInput(true, 'Untitled'), ['default' => 'Untitled', 'required' => false]];
-        yield 'with explicit null default' => [new BindingInput(true, null), ['default' => null, 'required' => false]];
-        yield 'required without default' => [new BindingInput(false, null, true), ['required' => true]];
-        yield 'required with default value' => [new BindingInput(true, 'Untitled', true), ['default' => 'Untitled', 'required' => true]];
-    }
-
     #[TestDox('toSchema() includes id, type and label, and emits [] (not {}) for empty resolves and inputs')]
     public function testToSchemaEmitsEmptyArraysForEmptyResolvesAndInputs(): void
     {
@@ -102,5 +90,17 @@ class BindingSpecificationTest extends TestCase
         $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core', true);
 
         static::assertTrue($specification->toSchema()['promoted']);
+    }
+
+    /**
+     * @return iterable<string, array{BindingInput, array<string, mixed>}>
+     */
+    public static function serializesInputProvider(): iterable
+    {
+        yield 'without default' => [new BindingInput(false, null), ['required' => false]];
+        yield 'with default value' => [new BindingInput(true, 'Untitled'), ['default' => 'Untitled', 'required' => false]];
+        yield 'with explicit null default' => [new BindingInput(true, null), ['default' => null, 'required' => false]];
+        yield 'required without default' => [new BindingInput(false, null, true), ['required' => true]];
+        yield 'required with default value' => [new BindingInput(true, 'Untitled', true), ['default' => 'Untitled', 'required' => true]];
     }
 }

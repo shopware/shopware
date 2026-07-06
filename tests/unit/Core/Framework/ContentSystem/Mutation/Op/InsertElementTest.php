@@ -233,14 +233,14 @@ class InsertElementTest extends TestCase
     /**
      * @return iterable<string, array{bool, bool}>
      */
-    public static function missingCollaboratorProvider(): iterable
+    public static function throwsWhenCollaboratorMissingProvider(): iterable
     {
         yield 'both collaborators missing' => [false, false];
         yield 'applicator missing' => [true, false];
         yield 'registry missing' => [false, true];
     }
 
-    #[DataProvider('missingCollaboratorProvider')]
+    #[DataProvider('throwsWhenCollaboratorMissingProvider')]
     #[TestDox('throws a construction-defect exception, never a silent bindingless insert, when a bindingSpecificationId is given without both collaborators')]
     public function testInsertWithBindingIdButMissingCollaboratorsThrows(bool $withRegistry, bool $withApplicator): void
     {

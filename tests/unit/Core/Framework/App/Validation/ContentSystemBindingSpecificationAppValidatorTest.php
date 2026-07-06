@@ -22,40 +22,6 @@ use Shopware\Core\Framework\Context;
 #[CoversClass(ContentSystemBindingSpecificationAppValidator::class)]
 class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 {
-    #[TestDox('turns a canonicalization failure in a binding load into a schema error instead of throwing')]
-    public function testCanonicalizationFailureBecomesSchemaError(): void
-    {
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willThrowException(
-            ContentSystemException::bindingSpecificationCanonicalizationFailed('bad', 'unexpected shape')
-        );
-
-        $errors = $this->validator($loader)->validate($this->manifest(), Context::createDefaultContext());
-
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
-        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
-        static::assertStringContainsString('unexpected shape', $error->getMessage());
-    }
-
-    #[TestDox('falls back to an empty type overlay when the app types fail to load, without adding an error or throwing')]
-    public function testMalformedAppTypesFallBackToEmptyOverlay(): void
-    {
-        $typeLoader = static::createStub(YamlTypeLoader::class);
-        $typeLoader->method('loadOverlayFromDirectory')->willThrowException(
-            ContentSystemException::elementTypeLoadFailed('type.yaml', 'broken')
-        );
-
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([]);
-
-        // Malformed app types are the element-type validator's error to report; this validator must not add one
-        // and must not let the type-load failure escape.
-        $errors = $this->validator($loader, $typeLoader)->validate($this->manifest(), Context::createDefaultContext());
-
-        static::assertCount(0, $errors->getElements());
-    }
-
     #[TestDox('reports a schema error when two of the app own specifications promote one type')]
     public function testAppInternalDoublePromotionBecomesSchemaError(): void
     {
@@ -95,6 +61,40 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
         static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
         static::assertStringContainsString('second-promoted', $error->getMessage());
         static::assertStringContainsString('third-promoted', $error->getMessage());
+    }
+
+    #[TestDox('turns a canonicalization failure in a binding load into a schema error instead of throwing')]
+    public function testCanonicalizationFailureBecomesSchemaError(): void
+    {
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willThrowException(
+            ContentSystemException::bindingSpecificationCanonicalizationFailed('bad', 'unexpected shape')
+        );
+
+        $errors = $this->validator($loader)->validate($this->manifest(), Context::createDefaultContext());
+
+        static::assertCount(1, $errors->getElements());
+        $error = $errors->first();
+        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
+        static::assertStringContainsString('unexpected shape', $error->getMessage());
+    }
+
+    #[TestDox('falls back to an empty type overlay when the app types fail to load, without adding an error or throwing')]
+    public function testMalformedAppTypesFallBackToEmptyOverlay(): void
+    {
+        $typeLoader = static::createStub(YamlTypeLoader::class);
+        $typeLoader->method('loadOverlayFromDirectory')->willThrowException(
+            ContentSystemException::elementTypeLoadFailed('type.yaml', 'broken')
+        );
+
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([]);
+
+        // Malformed app types are the element-type validator's error to report; this validator must not add one
+        // and must not let the type-load failure escape.
+        $errors = $this->validator($loader, $typeLoader)->validate($this->manifest(), Context::createDefaultContext());
+
+        static::assertCount(0, $errors->getElements());
     }
 
     private function validator(YamlBindingSpecificationLoader $loader, ?YamlTypeLoader $typeLoader = null): ContentSystemBindingSpecificationAppValidator

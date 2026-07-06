@@ -113,9 +113,9 @@ class BindingSpecificationDtoTest extends TestCase
     /**
      * @param array<string, mixed> $entry
      */
-    #[DataProvider('inputRequiredProvider')]
+    #[DataProvider('definesRequiredFlagProvider')]
     #[TestDox('sets BindingInput::required to $expected when the inputs entry $_dataName')]
-    public function testInputsEntryRequiredFlag(array $entry, bool $expected): void
+    public function testSetsRequiredFlagFromInputsEntry(array $entry, bool $expected): void
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry]);
 
@@ -125,7 +125,7 @@ class BindingSpecificationDtoTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, bool}>
      */
-    public static function inputRequiredProvider(): iterable
+    public static function definesRequiredFlagProvider(): iterable
     {
         yield 'carries required:true' => [['required' => true], true];
         yield 'carries required:false' => [['required' => false], false];
@@ -171,7 +171,7 @@ class BindingSpecificationDtoTest extends TestCase
     /**
      * @param mixed $promoted the raw promoted facet as carried from the declaration
      */
-    #[DataProvider('promotedProvider')]
+    #[DataProvider('definesPromotedFacetProvider')]
     #[TestDox('maps isPromoted() to $expected when the raw promoted facet $_dataName')]
     public function testMapsPromotedFacet(mixed $promoted, bool $expected): void
     {
@@ -183,7 +183,7 @@ class BindingSpecificationDtoTest extends TestCase
     /**
      * @return iterable<string, array{mixed, bool}>
      */
-    public static function promotedProvider(): iterable
+    public static function definesPromotedFacetProvider(): iterable
     {
         yield 'is true' => [true, true];
         yield 'is false' => [false, false];

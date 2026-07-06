@@ -37,6 +37,9 @@ jobs:
           npm run lint:js
           npm run lint:scss
 
+      - name: Lint snippets
+        run: composer storefront:lint:snippets
+
   lint-admin-modules:
     name: "Storefront admin-modules code style"
     runs-on: ubuntu-24.04

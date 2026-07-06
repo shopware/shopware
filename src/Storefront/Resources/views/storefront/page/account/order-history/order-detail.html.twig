@@ -160,7 +160,17 @@
                                                                                 {% endset %}
                                                                             {% endif %}
 
-                                                                            {% set totalOutput = totalOutput + 1 %}
+                                                                    {% for trackingCode in trackingCodes %}
+                                                                        {% if trackingUrl %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<a href="' ~ trackingUrl|replace({'%s': trackingCode}) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
+                                                                            ) %}
+                                                                        {% else %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<span>' ~ trackingCode ~ '</span>']
+                                                                            ) %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
 
                                                                             {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
                                                                         {% endfor %}

@@ -120,6 +120,7 @@ Shopware setup blocks differ from plain native setup:
 - Base components may use one top-level `defineExpose(...)` call; it is replaced with the setup context expose function inside the extendable setup callback.
 - Base components may use one `defineSlots(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context slots object.
 - Base components may use one top-level `defineOptions(...)` call; it is kept at the generated script setup root and removed from the extendable setup callback.
+- Type-only declarations (`interface`, `type`, and ambient `declare` statements) are hoisted to the generated script setup root and removed from the setup callback, matching how Vue keeps them at the module root. Ambient `declare` statements describe runtime values provided from elsewhere, so they are never returned as setup state.
 - Runtime arguments passed to hoisted macros such as `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, and `defineOptions(...)` must use inline values, imports, or type-only declarations. They must not reference local setup bindings, because those bindings live inside the generated Shopware setup callback. For prop defaults use `withDefaults(defineProps(...), { ... })` so the default lives on the reactive prop.
 - Other Vue macros are not supported in Shopware setup blocks.
 - Top-level `await` is not supported.
@@ -139,7 +140,6 @@ The transform rejects these cases loudly:
 - `defineOptions()` outside the top level, or more than one `defineOptions()` call
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
-- Top-level TypeScript ambient `declare` declarations, because they are not runtime setup state
 - Top-level bindings using the reserved `__swSetup` prefix, which the transform uses for its generated bindings
 - Additional `<script>` blocks next to Shopware setup blocks
 

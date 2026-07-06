@@ -129,22 +129,23 @@ describe('build/vue-setup-transform validation', () => {
         );
     });
 
-    it.each([
-        'declare const count: number;',
-        'declare function count(): number;',
-        'declare class count {}',
-        'declare enum count { value }',
-        'declare namespace count { const value: number }',
-    ])('rejects TypeScript declare declarations because they are not runtime state: %s', (declaration) => {
+    it('hoists ambient declare declarations to the generated script root', () => {
         const source = stripIndent`
             <script setup lang="ts">
-            ${declaration}
+            declare const injected: number;
+            const count = injected + 1;
+            swDefinePublic({ count });
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'declare.vue')).toThrow(
-            'TypeScript declare declarations are not runtime Shopware setup bindings.',
-        );
+        const result = transformOrFail(source, 'declare.vue').code;
+
+        // Like Vue, ambient declarations describe runtime values provided from elsewhere: they stay at the
+        // script root, are referenced from the callback, but are never collected as returned setup state.
+        expect(result).toContain('declare const injected: number;');
+        expect(result.indexOf('declare const injected')).toBeLessThan(result.indexOf('createExtendableSetup('));
+        expect(result).toContain('const count = injected + 1;');
+        expect(result).not.toMatch(/\n\s*injected,/);
     });
 
     it('rejects ES module exports like native script setup', () => {

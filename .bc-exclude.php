@@ -97,6 +97,9 @@ return [
         // The implemented Twig extension contract already documents this as array<NodeVisitorInterface>
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
 
+        // Twig added this method in 3.27 via https://github.com/twigphp/Twig/pull/4816
+        preg_quote('REMOVED: Method Twig\TokenParser\AbstractTokenParser#isAlwaysAllowedInSandbox() was removed', '/'),
+
         // MailDataSimulatorFieldEvent no longer exposes Faker in the runtime simulate feature
         preg_quote('REMOVED: Property Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent#$faker was removed', '/'),
         preg_quote('REMOVED: Parameter faker was removed from Method Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent::__construct()', '/'),

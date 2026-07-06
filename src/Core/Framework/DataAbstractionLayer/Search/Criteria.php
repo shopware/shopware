@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
@@ -549,8 +548,7 @@ class Criteria extends Struct implements \Stringable
     /**
      * @return array<string, list<string>>|null
      */
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: '?array')]
-    public function getIncludes()
+    public function getIncludes(): ?array
     {
         return $this->includes;
     }

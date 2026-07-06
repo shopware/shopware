@@ -24,7 +24,7 @@ class LayoutGateTest extends TestCase
         $context = Context::createDefaultContext();
 
         $diagnostics = static::createMock(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')
+        $diagnostics->expects($this->once())->method('analyze')
             ->with([], null, $context)
             ->willReturn(new LayoutAnalysis($report, []));
 
@@ -40,7 +40,7 @@ class LayoutGateTest extends TestCase
         $context = Context::createDefaultContext();
 
         $diagnostics = static::createMock(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')
+        $diagnostics->expects($this->once())->method('analyze')
             ->with([], [], $context)
             ->willReturn(new LayoutAnalysis($report, []));
 

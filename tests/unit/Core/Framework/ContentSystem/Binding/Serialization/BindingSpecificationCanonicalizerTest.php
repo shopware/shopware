@@ -416,10 +416,10 @@ class BindingSpecificationCanonicalizerTest extends TestCase
     #[TestDox('FQCN derivation: uses the sales-channel produced class for an entity with a sales-channel definition')]
     public function testDerivationUsesSalesChannelProducedClass(): void
     {
-        $salesChannelDefinition = $this->createMock(SalesChannelProductDefinition::class);
+        $salesChannelDefinition = static::createStub(SalesChannelProductDefinition::class);
         $salesChannelDefinition->method('getEntityClass')->willReturn(SalesChannelProductEntity::class);
 
-        $salesChannelRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $salesChannelRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $salesChannelRegistry->method('getSalesChannelDefinitions')->willReturn(['product' => $salesChannelDefinition]);
 
         $canonicalizer = $this->canonicalizer(
@@ -758,18 +758,18 @@ class BindingSpecificationCanonicalizerTest extends TestCase
         array $definitions = [],
         ?SalesChannelDefinitionInstanceRegistry $salesChannelRegistry = null,
     ): BindingSpecificationCanonicalizer {
-        $typeRegistry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $typeRegistry->method('has')->willReturnCallback(static fn (string $name): bool => \array_key_exists($name, $types));
         $typeRegistry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $types[$name]);
 
-        $mapResolver = $this->createMock(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $mapResolver->method('resolve')->willReturn($map);
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionRegistry->method('getDefinitions')->willReturn($definitions);
 
         if ($salesChannelRegistry === null) {
-            $salesChannelRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+            $salesChannelRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
             $salesChannelRegistry->method('getSalesChannelDefinitions')->willReturn([]);
         }
 
@@ -849,7 +849,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
      */
     private function entityDefinition(string $name, string $class): EntityDefinition
     {
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($name);
         $definition->method('getEntityClass')->willReturn($class);
 
@@ -861,7 +861,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
      */
     private function mappingDefinition(string $name, string $class): MappingEntityDefinition
     {
-        $definition = $this->createMock(MappingEntityDefinition::class);
+        $definition = static::createStub(MappingEntityDefinition::class);
         $definition->method('getEntityName')->willReturn($name);
         $definition->method('getEntityClass')->willReturn($class);
 

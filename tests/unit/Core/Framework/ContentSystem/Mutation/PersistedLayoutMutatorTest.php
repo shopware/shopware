@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -231,7 +231,7 @@ class PersistedLayoutMutatorTest extends TestCase
     }
 
     /**
-     * @return EntityRepository<ContentLayoutCollection>&MockObject
+     * @return EntityRepository<ContentLayoutCollection>&Stub
      */
     private function repository(?ContentLayoutEntity $entity): EntityRepository
     {
@@ -239,7 +239,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $collection = new ContentLayoutCollection($entity === null ? [] : [$entity]);
         $searchResult = new EntitySearchResult('content_layout', $collection->count(), $collection, null, new Criteria(), $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($searchResult);
 
         return $repository;

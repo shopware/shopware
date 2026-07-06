@@ -18,7 +18,7 @@ class HttpCacheCookieEventTest extends TestCase
     {
         $event = new HttpCacheCookieEvent(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             [
                 'foo' => 'bar',
             ]

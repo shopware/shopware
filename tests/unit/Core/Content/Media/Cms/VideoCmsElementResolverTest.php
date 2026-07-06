@@ -34,7 +34,7 @@ class VideoCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         static::assertSame('video', $resolver->getType());
     }
 
@@ -50,7 +50,7 @@ class VideoCmsElementResolverTest extends TestCase
 
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $collection = $resolver->collect($slot, $context);
 
         static::assertInstanceOf(CriteriaCollection::class, $collection);
@@ -80,7 +80,7 @@ class VideoCmsElementResolverTest extends TestCase
 
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         static::assertNull($resolver->collect($slot, $context));
     }
 
@@ -98,7 +98,7 @@ class VideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -108,7 +108,7 @@ class VideoCmsElementResolverTest extends TestCase
             new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'cover.media'),
         ]));
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         static::assertNull($resolver->collect($slot, $context));
     }
 
@@ -120,7 +120,7 @@ class VideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -130,7 +130,7 @@ class VideoCmsElementResolverTest extends TestCase
             new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroVideo'),
         ]));
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $collection = $resolver->collect($slot, $context);
 
         static::assertInstanceOf(CriteriaCollection::class, $collection);
@@ -159,13 +159,13 @@ class VideoCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->method('get')->with('media-1')->willReturn($media);
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('get')->willReturn($media);
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $resolver->enrich($slot, $context, $data);
 
         $data = $slot->getData();
@@ -192,7 +192,7 @@ class VideoCmsElementResolverTest extends TestCase
         $defaultMedia = new MediaEntity();
         $defaultMedia->setId('default-1');
 
-        $mediaResolver = $this->createMock(AbstractDefaultMediaResolver::class);
+        $mediaResolver = static::createStub(AbstractDefaultMediaResolver::class);
         $mediaResolver->method('getDefaultCmsMediaEntity')->willReturn($defaultMedia);
 
         $resolver = new VideoCmsElementResolver($mediaResolver);
@@ -220,13 +220,13 @@ class VideoCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->method('get')->with('media-1')->willReturn($media);
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('get')->willReturn($media);
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $resolver->enrich($slot, $context, $data);
 
         $videoData = $slot->getData();
@@ -242,7 +242,7 @@ class VideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -255,13 +255,13 @@ class VideoCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->method('get')->with('media-1')->willReturn($media);
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('get')->willReturn($media);
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $resolver->enrich($slot, $context, $data);
 
         $videoData = $slot->getData();
@@ -278,7 +278,7 @@ class VideoCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -288,7 +288,7 @@ class VideoCmsElementResolverTest extends TestCase
             new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroVideo'),
         ]));
 
-        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new VideoCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $resolver->enrich($slot, $context, new ElementDataCollection());
 
         $videoData = $slot->getData();

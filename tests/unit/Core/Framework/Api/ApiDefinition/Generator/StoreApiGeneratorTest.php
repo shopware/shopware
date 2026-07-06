@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\BundleWithPredeclaredSwLanguageId\BundleWithPredeclaredSwLanguageId;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -29,7 +28,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(StoreApiGenerator::class)]
-#[DisabledFeatures(['v6.8.0.0'])]
 class StoreApiGeneratorTest extends TestCase
 {
     private StoreApiGenerator $generator;

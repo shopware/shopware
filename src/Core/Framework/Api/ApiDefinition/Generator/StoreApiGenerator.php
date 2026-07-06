@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
@@ -84,7 +83,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $jsonSpec = $loader->loadOpenapiSpecification();
         $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
 
-        $deprecatedSchemaNames = [];
+        $overriddenSchemaNames = [];
 
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
@@ -102,16 +101,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $overlapping = array_intersect(array_keys($schema), $jsonSchemaNames);
 
             foreach ($overlapping as $schemaName) {
-                $deprecatedSchemaNames[] = $schemaName;
-
-                Feature::triggerDeprecationOrThrow(
-                    'v6.8.0.0',
-                    \sprintf(
-                        'The PHP-generated OpenAPI schema for "%s" is deprecated and ignored because the schema is already defined in a JSON file.',
-                        $schemaName
-                    ),
-                    'v6.8.0.0',
-                );
+                $overriddenSchemaNames[] = $schemaName;
             }
 
             $openApi->components->merge($schema);
@@ -123,7 +113,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
 
-        $this->stripDeprecatedPhpSchemas($data, $deprecatedSchemaNames);
+        $this->stripOverriddenPhpSchemas($data, $overriddenSchemaNames);
 
         $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
@@ -260,7 +250,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      * @param array<string, mixed> $data
      * @param list<string> $schemaNames
      */
-    private function stripDeprecatedPhpSchemas(array &$data, array $schemaNames): void
+    private function stripOverriddenPhpSchemas(array &$data, array $schemaNames): void
     {
         foreach ($schemaNames as $schemaName) {
             if (!isset($data['components']['schemas'][$schemaName])) {

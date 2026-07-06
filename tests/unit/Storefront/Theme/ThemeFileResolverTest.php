@@ -40,7 +40,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -53,7 +53,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config, $storefront]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithBundleRelativeFiles' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
@@ -80,7 +80,7 @@ class ThemeFileResolverTest extends TestCase
         $config->setStyleFiles(FileCollection::createFromArray(['@NonExistentTheme']));
         $config->setScriptFiles(new FileCollection());
 
-        $resolver = new ThemeFileResolver($this->createMock(ThemeFilesystemResolver::class));
+        $resolver = new ThemeFileResolver(static::createStub(ThemeFilesystemResolver::class));
 
         $this->expectExceptionObject(ThemeException::couldNotFindThemeByName('NonExistentTheme'));
         $resolver->resolveStyleFiles($config, new StorefrontPluginConfigurationCollection([$config]), false);
@@ -106,10 +106,10 @@ class ThemeFileResolverTest extends TestCase
         $storefront->setStorefrontEntryFilepath($includedEntry);
         $storefront->setScriptFiles(new FileCollection());
 
-        $filesystem = $this->createMock(\Shopware\Core\Framework\Util\Filesystem::class);
+        $filesystem = static::createStub(\Shopware\Core\Framework\Util\Filesystem::class);
         $filesystem->method('has')->willReturn(false);
 
-        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($filesystem);
 
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
@@ -137,7 +137,7 @@ class ThemeFileResolverTest extends TestCase
         $otherConfig->setStyleFiles(FileCollection::createFromArray(['@TestTheme']));
         $otherConfig->setScriptFiles(new FileCollection());
 
-        $resolver = new ThemeFileResolver($this->createMock(ThemeFilesystemResolver::class));
+        $resolver = new ThemeFileResolver(static::createStub(ThemeFilesystemResolver::class));
         $result = $resolver->resolveStyleFiles(
             $config,
             new StorefrontPluginConfigurationCollection([$config, $otherConfig]),
@@ -160,7 +160,7 @@ class ThemeFileResolverTest extends TestCase
             static::fail('Could not create temporary file for test.');
         }
 
-        $filesystem = $this->createMock(\Shopware\Core\Framework\Util\Filesystem::class);
+        $filesystem = static::createStub(\Shopware\Core\Framework\Util\Filesystem::class);
         $filesystem->method('has')->willReturnMap([
             ['Resources', 'app/storefront/src/scss/base.scss', true],
             ['Resources', 'app/storefront/vendor', true],
@@ -170,7 +170,7 @@ class ThemeFileResolverTest extends TestCase
             ['Resources', 'app/storefront/vendor', '/tmp/Resources/app/storefront/vendor'],
         ]);
 
-        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($filesystem);
 
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
@@ -197,7 +197,7 @@ class ThemeFileResolverTest extends TestCase
         $sourceResolver = new StaticSourceResolver([]);
 
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -209,7 +209,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $kernel->method('getBundles')->willReturn([
             'ThemeWithStorefrontSkinScss' => $themePluginBundle,
@@ -245,7 +245,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -257,7 +257,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithStorefrontBootstrapScss' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
@@ -293,7 +293,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -345,7 +345,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -419,7 +419,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -478,7 +478,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -490,7 +490,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithMultiInheritance' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
@@ -522,7 +522,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -580,7 +580,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -592,7 +592,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($config);
         $configCollection->add($storefront);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithBundleRelativeFiles' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
@@ -668,7 +668,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -678,7 +678,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection = new StorefrontPluginConfigurationCollection();
         $configCollection->add($config);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithInvalidBundleReference' => $themePluginBundle,
         ]);
@@ -709,7 +709,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
 
         $result = $resolver->resolveStyleFiles($config, $configCollection, false);
@@ -735,7 +735,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem([]));
 
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
@@ -757,7 +757,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem([]));
 
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
@@ -773,7 +773,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -788,7 +788,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$themeConfig, $plugin]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'SimplePlugin' => $pluginBundle,
         ]);
@@ -821,7 +821,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
 
         $result = $resolver->resolveStyleFiles($config, $configCollection, false);
@@ -836,7 +836,7 @@ class ThemeFileResolverTest extends TestCase
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new Filesystem(),
         );
@@ -847,7 +847,7 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config, $storefront]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')->willReturn([
             'ThemeWithStorefrontSkinScss' => $themePluginBundle,
             'MockStorefront' => $storefrontBundle,
@@ -878,7 +878,7 @@ class ThemeFileResolverTest extends TestCase
         $config->setStyleFiles($fileCollection);
         $config->setScriptFiles(new FileCollection());
 
-        $resolver = new ThemeFileResolver($this->createMock(ThemeFilesystemResolver::class));
+        $resolver = new ThemeFileResolver(static::createStub(ThemeFilesystemResolver::class));
         $result = $resolver->resolveStyleFiles($config, new StorefrontPluginConfigurationCollection([$config]), false);
 
         static::assertCount(1, $result);

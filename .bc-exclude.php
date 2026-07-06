@@ -97,6 +97,9 @@ return [
         // The implemented Twig extension contract already documents this as array<NodeVisitorInterface>
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
 
+        // Twig added this method in 3.27 via https://github.com/twigphp/Twig/pull/4816
+        preg_quote('REMOVED: Method Twig\TokenParser\AbstractTokenParser#isAlwaysAllowedInSandbox() was removed', '/'),
+
         // MailDataSimulatorFieldEvent no longer exposes Faker in the runtime simulate feature
         preg_quote('REMOVED: Property Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent#$faker was removed', '/'),
         preg_quote('REMOVED: Parameter faker was removed from Method Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent::__construct()', '/'),
@@ -128,16 +131,5 @@ return [
         // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
-
-        // Revert of #15865 (grouped product listings / "display as group"). The public API that PR
-        // introduced is intentionally removed again as part of the revert; coordinated with the
-        // SwagCommercial revert (shopware/SwagCommercial#3003).
-        preg_quote('REMOVED: Class Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder has been deleted', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder have been removed:', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder#enrichCriteria() was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
-        preg_quote('REMOVED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$displayAsGroup was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#isDisplayAsGroup() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#setDisplayAsGroup() was removed', '/'),
     ],
 ];

@@ -103,6 +103,21 @@ class PluginCreateCommandTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'with --no-scaffold skips optional generators' => [
+            'arguments' => [
+                'plugin-name' => 'TestPlugin',
+                'plugin-namespace' => 'Test',
+                '--no-scaffold' => true,
+            ],
+            'inputs' => [],
+            'generators' => [
+                [
+                    'hasCommandOption' => true,
+                    'getCommandOptionName' => 'test-option',
+                ],
+            ],
+        ];
     }
 
     /**
@@ -140,6 +155,68 @@ class PluginCreateCommandTest extends TestCase
             'expectedErrorMessage' => 'This command requires interactive mode or the argument must be provided.',
             'interactive' => false,
         ];
+    }
+
+    public function testNoScaffoldSkipsOptionalGenerators(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
+        $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $optionalGenerator->method('hasCommandOption')->willReturn(true);
+        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->expects($this->never())->method('addScaffoldConfig');
+
+        /** @var MockObject&ScaffoldingGenerator $requiredGenerator */
+        $requiredGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $requiredGenerator->method('hasCommandOption')->willReturn(false);
+        $requiredGenerator->expects($this->once())->method('addScaffoldConfig');
+
+        $commandTester = $this->getCommandTester([$optionalGenerator, $requiredGenerator]);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--no-scaffold' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testInteractiveScaffoldQuestionNo(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
+        $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $optionalGenerator->method('hasCommandOption')->willReturn(true);
+        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->expects($this->never())->method('addScaffoldConfig');
+
+        $commandTester = $this->getCommandTester([$optionalGenerator]);
+        $commandTester->setInputs(['no']);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testInteractiveScaffoldQuestionYes(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
+        $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $optionalGenerator->method('hasCommandOption')->willReturn(true);
+        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->expects($this->once())->method('addScaffoldConfig');
+
+        $commandTester = $this->getCommandTester([$optionalGenerator]);
+        $commandTester->setInputs(['yes']);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
     }
 
     public function testDirectoryExists(): void

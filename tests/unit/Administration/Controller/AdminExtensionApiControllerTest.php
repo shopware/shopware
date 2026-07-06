@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriInterface;
 use Shopware\Administration\Controller\AdminExtensionApiController;
@@ -30,28 +31,28 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 #[CoversClass(AdminExtensionApiController::class)]
 class AdminExtensionApiControllerTest extends TestCase
 {
-    private MockObject&AppPayloadServiceHelper $appPayloadServiceHelper;
+    private AppPayloadServiceHelper&Stub $appPayloadServiceHelper;
 
     private Context $context;
 
     /**
-     * @var MockObject&EntityRepository<AppCollection>
+     * @var EntityRepository<AppCollection>&Stub
      */
-    private MockObject&EntityRepository $entityRepository;
+    private EntityRepository&Stub $entityRepository;
 
-    private MockObject&Executor $executor;
+    private Executor&Stub $executor;
 
-    private MockObject&QuerySigner $querySigner;
+    private QuerySigner&Stub $querySigner;
 
     private AdminExtensionApiController $controller;
 
     protected function setUp(): void
     {
-        $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $this->appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $this->context = Context::createDefaultContext();
-        $this->querySigner = $this->createMock(QuerySigner::class);
-        $this->executor = $this->createMock(Executor::class);
-        $this->entityRepository = $this->createMock(EntityRepository::class);
+        $this->querySigner = static::createStub(QuerySigner::class);
+        $this->executor = static::createStub(Executor::class);
+        $this->entityRepository = static::createStub(EntityRepository::class);
 
         $this->controller = new AdminExtensionApiController(
             $this->executor,
@@ -73,9 +74,9 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->expectExceptionObject(AppException::appSecretMissing('test-app'));
 
         $entity = $this->buildAppEntity('test-app', null, []);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->controller->runAction(new RequestDataBag(['appName' => $entity->getName()]), $this->context);
+        $this->buildController(entityRepository: $entityRepository)->runAction(new RequestDataBag(['appName' => $entity->getName()]), $this->context);
     }
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsEmpty(): void
@@ -83,9 +84,9 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->expectExceptionObject(AppException::hostNotAllowed('', 'test-app'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', []);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->controller->runAction(new RequestDataBag(['appName' => $entity->getName()]), $this->context);
+        $this->buildController(entityRepository: $entityRepository)->runAction(new RequestDataBag(['appName' => $entity->getName()]), $this->context);
     }
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsNotAllowed(): void
@@ -93,9 +94,9 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->expectExceptionObject(AppException::hostNotAllowed('test-host', 'test-app'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['shopware']);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->controller->runAction(
+        $this->buildController(entityRepository: $entityRepository)->runAction(
             new RequestDataBag(['appName' => $entity->getName(), 'url' => 'test-host']),
             $this->context
         );
@@ -106,9 +107,9 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->expectExceptionObject(AppException::invalidArgument('Ids must be an array'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->controller->runAction(
+        $this->buildController(entityRepository: $entityRepository)->runAction(
             new RequestDataBag(['appName' => $entity->getName(), 'url' => 'https://foo.bar/test']),
             $this->context
         );
@@ -117,12 +118,14 @@ class AdminExtensionApiControllerTest extends TestCase
     public function testRunActionExecutesAnAppAction(): void
     {
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->appPayloadServiceHelper->expects($this->once())->method('buildSource')->with('1.0.0', $entity->getName());
-        $this->executor->expects($this->once())->method('execute');
+        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->expects($this->once())->method('buildSource')->with('1.0.0', $entity->getName());
+        $executor = $this->createMock(Executor::class);
+        $executor->expects($this->once())->method('execute');
 
-        $this->controller->runAction(
+        $this->buildController(executor: $executor, appPayloadServiceHelper: $appPayloadServiceHelper, entityRepository: $entityRepository)->runAction(
             new RequestDataBag([
                 'appName' => $entity->getName(),
                 'url' => 'https://foo.bar',
@@ -144,27 +147,32 @@ class AdminExtensionApiControllerTest extends TestCase
     public function testSignUriReturnsJsonResponseWithUri(): void
     {
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
 
         $requestBag = new RequestDataBag(['appName' => $entity->getName(), 'uri' => 'test-uri']);
 
-        $this->querySigner->expects($this->once())->method('signUri')
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->once())->method('signUri')
             ->with($requestBag->get('uri'), $entity, $this->context)
-            ->willReturn($this->createMock(UriInterface::class));
+            ->willReturn(static::createStub(UriInterface::class));
 
-        $response = $this->controller->signUri($requestBag, $this->context);
+        $response = $this->buildController(querySigner: $querySigner, entityRepository: $entityRepository)->signUri($requestBag, $this->context);
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"uri":""}', $response->getContent());
     }
 
-    protected function assertEntityRepositoryWithEntity(AppEntity $entity): void
+    /**
+     * @return EntityRepository<AppCollection>&MockObject
+     */
+    protected function assertEntityRepositoryWithEntity(AppEntity $entity): EntityRepository
     {
         $collection = new EntityCollection();
         $collection->add($entity);
         $collection->add($this->buildAppEntity('secondAppDiscarded', null, []));
 
-        $this->entityRepository->expects($this->once())->method('search')
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())->method('search')
             ->willReturn(
                 new EntitySearchResult(
                     'app',
@@ -175,6 +183,8 @@ class AdminExtensionApiControllerTest extends TestCase
                     $this->context
                 )
             );
+
+        return $entityRepository;
     }
 
     /**
@@ -191,5 +201,25 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity->setAllowedHosts($allowedHosts);
 
         return $entity;
+    }
+
+    /**
+     * @param (Executor&MockObject)|null $executor
+     * @param (AppPayloadServiceHelper&MockObject)|null $appPayloadServiceHelper
+     * @param (QuerySigner&MockObject)|null $querySigner
+     * @param (EntityRepository<AppCollection>&MockObject)|null $entityRepository
+     */
+    private function buildController(
+        ?Executor $executor = null,
+        ?AppPayloadServiceHelper $appPayloadServiceHelper = null,
+        ?QuerySigner $querySigner = null,
+        ?EntityRepository $entityRepository = null
+    ): AdminExtensionApiController {
+        return new AdminExtensionApiController(
+            $executor ?? $this->executor,
+            $appPayloadServiceHelper ?? $this->appPayloadServiceHelper,
+            $entityRepository ?? $this->entityRepository,
+            $querySigner ?? $this->querySigner
+        );
     }
 }

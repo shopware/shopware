@@ -123,40 +123,6 @@ describe('build/vue-setup-transform validation', () => {
         );
     });
 
-    it('rejects useSwProps() in base mode', () => {
-        const source = stripIndent`
-            <script setup>
-            const props = useSwProps();
-            const count = props.initialCount ?? 0;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'base-use-sw-props.vue')).toThrow(
-            "useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue's defineProps() macro instead.",
-        );
-    });
-
-    it('rejects useSwPreviousState() in base mode', () => {
-        const source = stripIndent`
-            <script setup>
-            const previousState = useSwPreviousState();
-            const count = 1;
-
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'base-previous-state.vue')).toThrow(
-            'useSwPreviousState() is only supported in override Shopware setup blocks.',
-        );
-    });
-
     it('hoists ambient declare declarations to the generated script root', () => {
         const source = stripIndent`
             <script setup lang="ts">
@@ -251,21 +217,6 @@ describe('build/vue-setup-transform validation', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'public.vue')).toThrow(expectedMessage);
-    });
-
-    it('rejects swDefineOverride() in base mode', () => {
-        const source = stripIndent`
-            <script setup>
-            const count = 1;
-            swDefineOverride({ count });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'base-override.vue')).toThrow(
-            'swDefineOverride() is a Shopware setup compile-time macro for override components. ' +
-                'It declares which base component bindings this override replaces. ' +
-                'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
-        );
     });
 
     it('rejects top-level bindings using the reserved __swSetup prefix', () => {

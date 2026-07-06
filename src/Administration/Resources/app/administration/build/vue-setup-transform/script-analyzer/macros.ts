@@ -6,8 +6,9 @@ import type { CallExpression, ExpressionStatement, Node as BabelNode, ObjectExpr
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 
-type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
-type ShopwareSetupEntryType = 'public' | 'override';
+// TODO: the override transform adds its own marker macro (swDefineOverride) and entry type here.
+type ShopwareSetupMacroName = 'swDefinePublic';
+type ShopwareSetupEntryType = 'public';
 type StatementMacroCall = ExpressionStatement & { expression: CallExpression };
 type SetupMacroBuckets = {
     definePropsCalls: CallExpression[];
@@ -20,18 +21,6 @@ type SetupMacroBuckets = {
 const UNSUPPORTED_VUE_MACROS = new Set([
     'defineModel',
 ]);
-
-const WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE = [
-    'swDefinePublic() is a Shopware setup compile-time macro for base components.',
-    'It declares which setup bindings are public and may be replaced by overrides.',
-    'Override components must use swDefineOverride() to declare replacement bindings instead.',
-].join(' ');
-
-const WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE = [
-    'swDefineOverride() is a Shopware setup compile-time macro for override components.',
-    'It declares which base component bindings this override replaces.',
-    'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
-].join(' ');
 
 const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
 
@@ -220,8 +209,6 @@ export {
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     UNSUPPORTED_VUE_MACROS,
-    WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
-    WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
     collectTopLevelSetupMacroCalls,
     extractStaticObjectMarker,
     getStatementCompilerMacroCall,

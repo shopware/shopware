@@ -4,7 +4,6 @@
 
 import type { CallExpression } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { type SourceRange, containsRange, getNodeRange } from './utils';
 import { isWithDefaultsCall } from './macros';
 
@@ -65,9 +64,10 @@ function getPropsMacroCalls({
 
 /**
  * Validates base-only setup input macros and returns sorted macro call groups.
+ *
+ * TODO: the override transform rejects these base macros in override mode here.
  */
 function validateBaseSetupMacros({
-    mode,
     scriptOffset,
     propsMacroCalls,
     defineEmitsCalls,
@@ -77,7 +77,6 @@ function validateBaseSetupMacros({
     defineOptionsStatements,
     defineOptionsCalls,
 }: {
-    mode: ShopwareSetupMode;
     scriptOffset: number;
     propsMacroCalls: CallExpression[];
     defineEmitsCalls: CallExpression[];
@@ -87,16 +86,6 @@ function validateBaseSetupMacros({
     defineOptionsStatements: DefineOptionsStatement[];
     defineOptionsCalls: CallExpression[];
 }): { emitsMacroCalls: CallExpression[]; slotsMacroCalls: CallExpression[] } {
-    if (mode === 'override' && propsMacroCalls.length > 0) {
-        const firstPropsMacro = propsMacroCalls[0];
-        const macroName = isWithDefaultsCall(firstPropsMacro) ? 'withDefaults' : 'defineProps';
-
-        throw new ShopwareSetupTransformError(
-            `${macroName}() is only supported in base Shopware setup blocks.`,
-            scriptOffset + getNodeRange(firstPropsMacro, scriptOffset).start,
-        );
-    }
-
     if (propsMacroCalls.length > 1) {
         throw new ShopwareSetupTransformError(
             'Only one props declaration macro is allowed in a base Shopware setup block.',
@@ -107,13 +96,6 @@ function validateBaseSetupMacros({
     const emitsMacroCalls = [...defineEmitsCalls].sort(
         (a, b) => getNodeRange(a, scriptOffset).start - getNodeRange(b, scriptOffset).start,
     );
-
-    if (mode === 'override' && emitsMacroCalls.length > 0) {
-        throw new ShopwareSetupTransformError(
-            'defineEmits() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(emitsMacroCalls[0], scriptOffset).start,
-        );
-    }
 
     if (emitsMacroCalls.length > 1) {
         throw new ShopwareSetupTransformError(
@@ -135,13 +117,6 @@ function validateBaseSetupMacros({
         );
     });
 
-    if (mode === 'override' && defineExposeStatements.length > 0) {
-        throw new ShopwareSetupTransformError(
-            'defineExpose() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(defineExposeStatements[0].call, scriptOffset).start,
-        );
-    }
-
     if (defineExposeStatements.length > 1) {
         throw new ShopwareSetupTransformError(
             'Only one defineExpose() call is allowed in a base Shopware setup block.',
@@ -152,13 +127,6 @@ function validateBaseSetupMacros({
     const slotsMacroCalls = [...defineSlotsCalls].sort(
         (a, b) => getNodeRange(a, scriptOffset).start - getNodeRange(b, scriptOffset).start,
     );
-
-    if (mode === 'override' && slotsMacroCalls.length > 0) {
-        throw new ShopwareSetupTransformError(
-            'defineSlots() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(slotsMacroCalls[0], scriptOffset).start,
-        );
-    }
 
     if (slotsMacroCalls.length > 1) {
         throw new ShopwareSetupTransformError(
@@ -179,13 +147,6 @@ function validateBaseSetupMacros({
             scriptOffset + getNodeRange(call, scriptOffset).start,
         );
     });
-
-    if (mode === 'override' && defineOptionsStatements.length > 0) {
-        throw new ShopwareSetupTransformError(
-            'defineOptions() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(defineOptionsStatements[0].call, scriptOffset).start,
-        );
-    }
 
     if (defineOptionsStatements.length > 1) {
         throw new ShopwareSetupTransformError(
@@ -273,7 +234,6 @@ function createMacroSummaries(
 function analyzeSetupInputs(
     script: string,
     {
-        mode,
         scriptOffset,
         definePropsCalls,
         withDefaultsCalls,
@@ -284,7 +244,6 @@ function analyzeSetupInputs(
         defineOptionsStatements,
         defineOptionsCalls,
     }: {
-        mode: ShopwareSetupMode;
         scriptOffset: number;
         definePropsCalls: CallExpression[];
         withDefaultsCalls: CallExpression[];
@@ -302,7 +261,6 @@ function analyzeSetupInputs(
         scriptOffset,
     });
     const { emitsMacroCalls, slotsMacroCalls } = validateBaseSetupMacros({
-        mode,
         scriptOffset,
         propsMacroCalls,
         defineEmitsCalls,

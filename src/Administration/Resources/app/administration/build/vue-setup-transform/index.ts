@@ -48,21 +48,14 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 
     let analysis: ShopwareSetupScriptAnalysis;
     let replacement: ReturnType<typeof lowerShopwareSetupBlock>;
-    let templateAnalysis: TemplateAnalysis = {
-        edits: [],
-        privateBindings: new Set<string>(),
-        privateNamespace: null,
-    };
+    let templateAnalysis: TemplateAnalysis;
 
     try {
         analysis = analyzeShopwareSetupScript(block.content, {
-            mode: block.mode,
             lang: block.lang,
             scriptOffset: block.contentStart,
         });
-        if (block.mode === 'base') {
-            templateAnalysis = analyzeBaseTemplate(block);
-        }
+        templateAnalysis = analyzeBaseTemplate(block);
 
         replacement = lowerShopwareSetupBlock(block, analysis);
     } catch (error) {

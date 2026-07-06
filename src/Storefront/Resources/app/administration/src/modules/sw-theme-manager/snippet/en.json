@@ -101,7 +101,6 @@
       "mainMenuHeader": "Your themes",
       "captionMediaUpload": "Upload an image",
       "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
-      "titleError": "Error",
       "messageSaveError": "Theme could not be assigned to Sales Channel.",
       "defaultTab": "General"
     },
@@ -114,11 +113,9 @@
     },
     "themeListItem": {
       "rename": "Rename",
-      "duplicate": "Duplicate",
       "emptyText": "No theme assigned",
       "addPreviewImage": "Add preview",
       "removePreviewImage": "Remove preview",
-      "notificationDeleteErrorTitle": "Error",
       "notificationDeleteErrorMessage": "The theme you want to delete is still allocated to at least one Sales Channel."
     },
     "modal": {

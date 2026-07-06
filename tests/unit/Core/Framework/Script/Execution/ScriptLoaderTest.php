@@ -36,6 +36,54 @@ class ScriptLoaderTest extends TestCase
         static::assertSame(1, $cache->getItemCalls);
     }
 
+    public function testLoadsFromPersistentCacheAfterReset(): void
+    {
+        $cache = $this->createCache();
+        $loader = new ScriptLoader(
+            $this->createConnection(),
+            $this->createMock(ScriptLifecycleHandler::class),
+            $cache,
+            sys_get_temp_dir(),
+            false,
+        );
+
+        static::assertCount(1, $loader->get('first-hook'));
+
+        $loader->reset();
+
+        // Second get() must hit persistent cache, not DB — connection mock enforces once()
+        static::assertCount(1, $loader->get('first-hook'));
+
+        static::assertSame(2, $cache->getItemCalls);
+    }
+
+    public function testInvalidateCacheClearsMemoryAndPersistentCache(): void
+    {
+        $cache = $this->createCache();
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturn([$this->createScriptInfo('first-hook')]);
+
+        $loader = new ScriptLoader(
+            $connection,
+            $this->createMock(ScriptLifecycleHandler::class),
+            $cache,
+            sys_get_temp_dir(),
+            false,
+        );
+
+        static::assertCount(1, $loader->get('first-hook'));
+
+        $loader->invalidateCache();
+
+        // After invalidation both memory and persistent cache are cleared — DB must be hit again
+        static::assertCount(1, $loader->get('first-hook'));
+
+        static::assertSame(2, $cache->getItemCalls);
+    }
+
     /**
      * @return TagAwareAdapter&object{getItemCalls: int}
      */

@@ -114,7 +114,7 @@ export default {
                 return this.closeLabel;
             }
 
-            return this.$t('global.sw-modal.labelClose');
+            return this.$t('global.default.close');
         },
 
         descriptionText() {

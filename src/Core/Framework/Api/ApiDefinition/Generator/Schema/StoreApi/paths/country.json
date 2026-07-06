@@ -50,7 +50,18 @@
                     {
                         "ApiKey": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "read-countries": {
+                        "description": "get countries list",
+                        "expectedStatus": 200,
+                        "params": {
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}"
+                            }
+                        }
+                    }
+                }
             },
             "get": {
                 "tags": [

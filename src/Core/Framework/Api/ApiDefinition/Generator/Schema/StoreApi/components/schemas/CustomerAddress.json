@@ -4,14 +4,33 @@
     "paths": [],
     "components": {
         "schemas": {
-            "CustomerAddress": {
-                "type": "object",
+            "CustomerAddressUpdate": {
+                "description": "Fields for updating a customer address",
+                "required": [
+                    "countryId",
+                    "firstName",
+                    "lastName",
+                    "city",
+                    "street",
+                    "zipcode"
+                ],
                 "properties": {
-                    "salutationId": {
+                    "countryId": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "countryId": {
+                    "countryStateId": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "salutationId": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
@@ -28,27 +47,205 @@
                         "type": "string"
                     },
                     "company": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "street": {
                         "type": "string"
                     },
                     "department": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "title": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "phoneNumber": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "additionalAddressLine1": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "additionalAddressLine2": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "customFields": {
+                        "oneOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
-                }
+                },
+                "type": "object"
+            },
+            "CustomerAddress": {
+                "description": "Fields for reading a customer address",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/CustomerAddressUpdate"
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "apiAlias",
+                            "customFields",
+                            "hash",
+                            "customerId",
+                            "salutationId",
+                            "salutation",
+                            "countryStateId",
+                            "countryState",
+                            "countryId",
+                            "country",
+                            "firstName",
+                            "lastName",
+                            "zipcode",
+                            "city",
+                            "company",
+                            "street",
+                            "title",
+                            "phoneNumber",
+                            "additionalAddressLine1",
+                            "additionalAddressLine2",
+                            "createdAt",
+                            "updatedAt",
+                            "translated"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "readOnly": true
+                            },
+                            "customerId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "readOnly": true
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": [
+                                    "customer_address"
+                                ]
+                            },
+                            "hash": {
+                                "type": "string",
+                                "readOnly": true
+                            },
+                            "salutation": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Salutation"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "company": {
+                                "oneOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "street": {
+                                "type": "string"
+                            },
+                            "countryState": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CountryState"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "country": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Country"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "readOnly": true
+                            },
+                            "updatedAt": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "translated": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                ]
             }
         }
     }

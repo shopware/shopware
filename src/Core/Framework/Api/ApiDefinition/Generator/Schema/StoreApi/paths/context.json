@@ -26,7 +26,18 @@
                     {
                         "ApiKey": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "guest-context": {
+                        "description": "Read guest session context",
+                        "expectedStatus": 200,
+                        "params": {
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}"
+                            }
+                        }
+                    }
+                }
             },
             "patch": {
                 "tags": [

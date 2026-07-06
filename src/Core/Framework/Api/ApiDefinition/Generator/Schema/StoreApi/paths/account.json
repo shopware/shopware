@@ -568,7 +568,39 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "delete-created-address": {
+                        "description": "delete newly created address",
+                        "expectedStatus": 204,
+                        "params": {
+                            "path": {
+                                "addressId": "{{addressId}}"
+                            },
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "createCustomerAddress",
+                                "exampleKey": "create-address",
+                                "populate": {
+                                    "addressId": "response._data.id"
+                                },
+                                "skipCache": true
+                            },
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            }
+                        ]
+                    }
+                }
             },
             "patch": {
                 "tags": [
@@ -592,7 +624,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddressBody"
+                                "$ref": "#/components/schemas/CustomerAddressUpdate"
                             }
                         }
                     }
@@ -603,17 +635,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "allOf": [
-                                        {
-                                            "$ref": "#/components/schemas/CustomerAddress"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/CustomerAddressRead"
-                                        }
-                                    ]
+                                    "$ref": "#/components/schemas/CustomerAddress"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [
@@ -621,7 +649,97 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "update-address": {
+                        "description": "update customer address",
+                        "expectedStatus": 200,
+                        "params": {
+                            "path": {
+                                "addressId": "{{addressId}}"
+                            },
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            },
+                            "body": {
+                                "countryId": "{{countryId}}",
+                                "firstName": "{{faker.person.firstName}}",
+                                "lastName": "{{faker.person.lastName}}",
+                                "city": "{{faker.location.city}}",
+                                "street": "{{faker.location.street}}",
+                                "zipcode": "{{faker.location.zipCode}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            },
+                            {
+                                "operationId": "listAddress",
+                                "exampleKey": "get-customer-addresses",
+                                "populate": {
+                                    "addressId": "response._data.elements[0].id"
+                                }
+                            },
+                            {
+                                "operationId": "readCountry",
+                                "exampleKey": "read-countries",
+                                "populate": {
+                                    "countryId": "response._data.elements[2].id"
+                                }
+                            }
+                        ]
+                    },
+                    "incorrect-address-data": {
+                        "description": "validate inproper update data",
+                        "expectedStatus": 400,
+                        "params": {
+                            "path": {
+                                "addressId": "{{addressId}}"
+                            },
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            },
+                            "body": {
+                                "countryId": "{{countryId}}",
+                                "firstName": "",
+                                "lastName": "{{faker.person.lastName}}",
+                                "city": "{{faker.location.city}}",
+                                "street": "{{faker.location.street}}",
+                                "zipcode": "{{faker.location.zipCode}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            },
+                            {
+                                "operationId": "listAddress",
+                                "exampleKey": "get-customer-addresses",
+                                "populate": {
+                                    "addressId": "response._data.elements[0].id"
+                                }
+                            },
+                            {
+                                "operationId": "readCountry",
+                                "exampleKey": "read-countries",
+                                "populate": {
+                                    "countryId": "response._data.elements[2].id"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         },
         "/account/list-address": {
@@ -698,7 +816,28 @@
                             "default": "1"
                         }
                     }
-                ]
+                ],
+                "x-examples": {
+                    "get-customer-addresses": {
+                        "description": "",
+                        "expectedStatus": 200,
+                        "params": {
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         },
         "/account/login": {
@@ -752,7 +891,32 @@
                     {
                         "ApiKey": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "login-customer": {
+                        "description": "",
+                        "expectedStatus": 200,
+                        "params": {
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}"
+                            },
+                            "body": {
+                                "username": "{{email}}",
+                                "password": "{{password}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "register",
+                                "exampleKey": "register-user",
+                                "populate": {
+                                    "email": "payload.options.body.email",
+                                    "password": "payload.options.body.password"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         },
         "/account/login/imitate-customer": {
@@ -1048,7 +1212,42 @@
                     {
                         "ApiKey": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "register-user": {
+                        "description": "register private user",
+                        "expectedStatus": 200,
+                        "params": {
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}"
+                            },
+                            "body": {
+                                "email": "{{faker.internet.email({provider: 'example.shopware.com' })}}",
+                                "password": "{{faker.internet.password}}",
+                                "firstName": "{{faker.person.firstName}}",
+                                "lastName": "{{faker.person.lastName}}",
+                                "storefrontUrl": "https://frontends-demo.vercel.app",
+                                "billingAddress": {
+                                    "countryId": "{{countryId}}",
+                                    "firstName": "{{faker.person.firstName}}",
+                                    "lastName": "{{faker.person.lastName}}",
+                                    "zipcode": "{{faker.location.zipCode}}",
+                                    "city": "{{faker.location.city}}",
+                                    "street": "{{faker.location.street}}"
+                                }
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "readCountry",
+                                "exampleKey": "read-countries",
+                                "populate": {
+                                    "countryId": "response._data.elements[0].id"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         },
         "/account/recovery-password-confirm": {
@@ -1178,7 +1377,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": ""
                     }
                 },
@@ -1187,7 +1386,38 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "set-address": {
+                        "description": "",
+                        "expectedStatus": 204,
+                        "params": {
+                            "path": {
+                                "addressId": "{{addressId}}"
+                            },
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "createCustomerAddress",
+                                "exampleKey": "create-address",
+                                "populate": {
+                                    "addressId": "response._data.id"
+                                }
+                            },
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         },
         "/account/address/default-billing/{addressId}": {
@@ -1219,7 +1449,38 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "set-address": {
+                        "description": "",
+                        "expectedStatus": 204,
+                        "params": {
+                            "path": {
+                                "addressId": "{{addressId}}"
+                            },
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            },
+                            {
+                                "operationId": "createCustomerAddress",
+                                "exampleKey": "create-address",
+                                "populate": {
+                                    "addressId": "response._data.id"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         },
         "/account/address": {
@@ -1234,7 +1495,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddressBody"
+                                "$ref": "#/components/schemas/CustomerAddressUpdate"
                             }
                         }
                     }
@@ -1245,14 +1506,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "allOf": [
-                                        {
-                                            "$ref": "#/components/schemas/CustomerAddress"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/CustomerAddressRead"
-                                        }
-                                    ]
+                                    "$ref": "#/components/schemas/CustomerAddress"
                                 }
                             }
                         }
@@ -1263,7 +1517,50 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
-                ]
+                ],
+                "x-examples": {
+                    "create-address": {
+                        "description": "",
+                        "expectedStatus": 200,
+                        "params": {
+                            "headers": {
+                                "sw-access-key": "{{sw-access-key}}",
+                                "sw-context-token": "{{sw-context-token}}"
+                            },
+                            "body": {
+                                "countryId": "{{countryId}}",
+                                "firstName": "{{faker.person.firstName}}",
+                                "lastName": "{{faker.person.lastName}}",
+                                "city": "{{faker.location.city}}",
+                                "street": "{{faker.location.street}}",
+                                "zipcode": "{{faker.location.zipCode}}"
+                            }
+                        },
+                        "dependencies": [
+                            {
+                                "operationId": "loginCustomer",
+                                "exampleKey": "login-customer",
+                                "populate": {
+                                    "sw-context-token": "response.headers['sw-context-token']"
+                                }
+                            },
+                            {
+                                "operationId": "listAddress",
+                                "exampleKey": "get-customer-addresses",
+                                "populate": {
+                                    "addressId": "response._data.elements[0].id"
+                                }
+                            },
+                            {
+                                "operationId": "readCountry",
+                                "exampleKey": "read-countries",
+                                "populate": {
+                                    "countryId": "response._data.elements[2].id"
+                                }
+                            }
+                        ]
+                    }
+                }
             }
         }
     }

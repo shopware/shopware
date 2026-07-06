@@ -19,10 +19,24 @@
                         ]
                     },
                     "activeBillingAddress": {
-                        "$ref": "#/components/schemas/CustomerAddress"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "activeShippingAddress": {
-                        "$ref": "#/components/schemas/CustomerAddress"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "oneOf": [

@@ -1,0 +1,66 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "Salutation": {
+        "description": "Added since version: 6.0.0.0",
+        "required": [
+          "id",
+          "apiAlias",
+          "salutationKey",
+          "displayName",
+          "letterName"
+        ],
+        "properties": {
+          "id": {
+            "readOnly": true,
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "apiAlias": {
+            "readOnly": true,
+            "type": "string",
+            "enum": [
+              "salutation"
+            ]
+          },
+          "salutationKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "letterName": {
+            "type": "string"
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "translated": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}

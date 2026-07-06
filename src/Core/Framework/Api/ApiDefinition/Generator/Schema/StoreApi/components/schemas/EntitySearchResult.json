@@ -6,9 +6,25 @@
         "schemas": {
             "EntitySearchResult": {
                 "type": "object",
+                "required": [
+                    "total",
+                    "aggregations",
+                    "limit",
+                    "page"
+                ],
                 "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "deprecated": true,
+                        "description": "Deprecated and will be removed from API responses.",
+                        "enum": [
+                            "dal_entity_search_result"
+                        ]
+                    },
                     "entity": {
-                        "type": "string"
+                        "type": "string",
+                        "deprecated": true,
+                        "description": "Deprecated and will be removed from API responses."
                     },
                     "total": {
                         "type": "integer",
@@ -28,6 +44,14 @@
                     "limit": {
                         "type": "integer",
                         "description": "The actual limit. This is used for pagination and goes together with the page."
+                    },
+                    "states": {
+                        "type": "array",
+                        "deprecated": true,
+                        "description": "Deprecated and will be removed from API responses.",
+                        "items": {
+                            "type": "object"
+                        }
                     }
                 }
             }

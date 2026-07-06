@@ -32,11 +32,12 @@ describe('build/vue-setup-transform base transforms', () => {
             <script setup lang="ts">
             import { ref, computed } from 'vue';
 
-            const props = defineProps<{
+            const __swSetupPropsDeclaration = defineProps<{
                 initialCount?: number;
             }>();
 
             const {
+                props,
                 count,
                 doubled,
                 internalThing,
@@ -45,12 +46,12 @@ describe('build/vue-setup-transform base transforms', () => {
             } = Shopware.Component.createExtendableSetup(
                 {
                     name: 'sw-my-component',
-                    props: props,
+                    props: __swSetupPropsDeclaration,
                 },
-                (__shopwareProps, __shopwareContext) => {
-                    const useSwContext = () => __shopwareContext;
+                (__swSetupProps, __swSetupContext) => {
+                    const useSwContext = () => __swSetupContext;
 
-                    const props = (__shopwareProps);
+                    const props = (__swSetupProps);
                     const count = ref(props.initialCount ?? 0);
                     const doubled = computed(() => count.value * 2);
                     const internalThing = ref('secret');
@@ -63,6 +64,7 @@ describe('build/vue-setup-transform base transforms', () => {
                             foo2,
                         },
                         private: {
+                            props,
                             internalThing,
                         },
                     };

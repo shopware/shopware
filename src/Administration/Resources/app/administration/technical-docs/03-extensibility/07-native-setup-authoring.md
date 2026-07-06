@@ -78,6 +78,8 @@ The preprocessor runs before Vue compiles the SFC. Base components are lowered d
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 
+Macro-derived bindings are treated the same way: `const props = defineProps(...)`, `const emit = defineEmits(...)`, and `const slots = defineSlots(...)` become private state under their declared names, so the template can reference `emit`, `slots`, and `props.<name>` directly. Generated internal bindings use a reserved `__swSetup` prefix, which is why top-level author bindings may not use it.
+
 Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">` that does not already declare `data`, `:data`, or `v-bind:data`. This forwards the generated script setup data scope to block overrides without requiring every base block author to write it manually.
 
 Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros, and `useSwContext()` reads the setup context.
@@ -138,6 +140,7 @@ The transform rejects these cases loudly:
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
 - Top-level TypeScript ambient `declare` declarations, because they are not runtime setup state
+- Top-level bindings using the reserved `__swSetup` prefix, which the transform uses for its generated bindings
 - Additional `<script>` blocks next to Shopware setup blocks
 
 Malformed or unclosed SFC sections are left to Vue's compiler parser. If `@vue/compiler-sfc` reports SFC parse errors, the Shopware setup preprocessor skips transformation so Vue can present the primary parse error first.

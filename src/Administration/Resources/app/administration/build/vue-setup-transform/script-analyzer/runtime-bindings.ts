@@ -194,6 +194,27 @@ function isSetupInputDeclaration(declaration: VariableDeclarator): boolean {
 }
 
 /**
+ * A base props/emits/slots macro assigned to a plain identifier (`const emit = defineEmits(...)`).
+ *
+ * These variables are exposed as private setup state so the template can reference them through the
+ * generated destructure (`emit`, `slots`, `props.<name>`) instead of relying on a hoisted top-level
+ * identifier. The macro call itself is still hoisted/replaced separately by the lowering step.
+ */
+function isExposableSetupMacroDeclaration(declaration: VariableDeclarator): boolean {
+    const init = unwrapTransparentMacroExpression(declaration.init);
+
+    return (
+        declaration.id.type === 'Identifier' &&
+        init?.type === 'CallExpression' &&
+        init.callee.type === 'Identifier' &&
+        (init.callee.name === 'defineProps' ||
+            init.callee.name === 'defineEmits' ||
+            init.callee.name === 'defineSlots' ||
+            init.callee.name === 'withDefaults')
+    );
+}
+
+/**
  * Classifies top-level declarations that become private/base or override state.
  */
 function collectRuntimeBinding(
@@ -218,6 +239,12 @@ function collectRuntimeBinding(
                 if (declaration.id.type !== 'Identifier') {
                     assertSupportedSetupInputDestructure(declaration, scriptOffset);
                     collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
+
+                    return;
+                }
+
+                if (mode === 'base' && isExposableSetupMacroDeclaration(declaration) && declaration.id.type === 'Identifier') {
+                    addRuntimeBinding(runtimeBindings, runtimeBindingNames, declaration.id.name, declaration.id, scriptOffset);
                 }
 
                 return;

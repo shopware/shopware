@@ -26,12 +26,13 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
         const result = transformOrFail(source, 'base-slots.vue').code;
 
-        expect(result).toContain(`const slots = defineSlots<{
+        expect(result).toContain(`defineSlots<{
     default(props: { count: number }): unknown;
 }>();`);
-        expect(result).toContain('const slots = (__shopwareContext.slots);');
+        expect(result).not.toContain('const slots = defineSlots');
+        expect(result).toContain('const slots = (__swSetupContext.slots);');
         expect(result).toContain('return slots.default?.({ count: 1 });');
-        expect(result).toContain('private: {\n                renderDefaultSlot,\n            }');
+        expect(result).toContain('private: {\n                slots,\n                renderDefaultSlot,\n            }');
         expect(result.match(/defineSlots/g)).toHaveLength(1);
     });
 
@@ -53,7 +54,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
         const result = transformOrFail(source, 'base-slots-local-type.vue').code;
 
-        expect(result.indexOf('type Slots')).toBeLessThan(result.indexOf('const slots = defineSlots<Slots>()'));
+        expect(result.indexOf('type Slots')).toBeLessThan(result.indexOf('defineSlots<Slots>()'));
         expect(result.indexOf('type Slots')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expectVueCompilerScriptToCompile(result, 'base-slots-local-type.vue');
     });
@@ -72,11 +73,11 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
         const result = transformOrFail(source, 'base-destructured-slots.vue').code;
 
-        expect(result).toContain('const slots = defineSlots();');
-        expect(result).toContain('const { default: defaultSlot } = (__shopwareContext.slots);');
+        expect(result).toContain('defineSlots();');
+        expect(result).toContain('const { default: defaultSlot } = (__swSetupContext.slots);');
     });
 
-    it('keeps bare defineSlots() outside the callback when the generated slots binding name is taken', () => {
+    it('hoists bare defineSlots() while a user slots() binding is exposed as state', () => {
         const source = stripIndent`
             <script setup>
             defineSlots();
@@ -95,8 +96,9 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
         const result = transformOrFail(source, 'base-bare-slots-collision.vue').code;
 
-        expect(result).toContain('const slots2 = defineSlots();');
-        expect(result).toContain('(__shopwareContext.slots);');
+        expect(result).toContain('defineSlots();');
+        expect(result).not.toContain('const slots = defineSlots');
+        expect(result).toContain('(__swSetupContext.slots);');
         expect(result).toContain("return 'local binding';");
         expect(result).toContain('private: {\n                slots,\n            }');
     });
@@ -123,7 +125,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 });`);
         expect(result.indexOf('defineOptions({')).toBeLessThan(result.indexOf('Shopware.Component.createExtendableSetup('));
         expect(result).not.toContain(`(__shopwareSetupBindings) => {
-    const useSwContext = () => __shopwareContext;
+    const useSwContext = () => __swSetupContext;
 
     defineOptions`);
         expect(result.match(/defineOptions/g)).toHaveLength(1);
@@ -261,7 +263,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
             return defineSlots<{ default(): unknown }>();
         }`);
         expect(result).not.toContain('const slots = defineSlots');
-        expect(result).not.toContain('(__shopwareContext.slots)');
+        expect(result).not.toContain('(__swSetupContext.slots)');
     });
 
     it('rewrites props access by source ranges instead of placeholder string replacement', () => {
@@ -280,6 +282,6 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         const result = transformOrFail(source, 'base-props-placeholder-literal.vue').code;
 
         expect(result).toContain("const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__';");
-        expect(result).toContain('const props = (__shopwareProps);');
+        expect(result).toContain('const props = (__swSetupProps);');
     });
 });

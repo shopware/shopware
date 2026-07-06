@@ -6,13 +6,7 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import {
-    buildCallbackBodyChunks,
-    escapeSingleQuoted,
-    formatObjectProperties,
-    getTakenNames,
-    makeUniqueName,
-} from './shared';
+import { buildCallbackBodyChunks, escapeSingleQuoted, formatObjectProperties } from './shared';
 
 /**
  * Builds the base callback return object split into public and private state.
@@ -42,12 +36,13 @@ function buildBaseReturn(analysis: ShopwareSetupScriptAnalysis): string {
  * Lowers base mode into the existing extendable setup runtime bridge.
  */
 function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScriptAnalysis): SourceChunk[] {
-    const takenNames = getTakenNames(analysis);
-    const setupPropsName = makeUniqueName('__shopwareProps', takenNames);
-    const setupContextName = makeUniqueName('__shopwareContext', takenNames);
-    const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
-    const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
-    const slotsName = analysis.slotsMacro ? makeUniqueName('slots', takenNames) : null;
+    // All generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they
+    // are deterministic and never collide. defineEmits()/defineSlots() are hoisted as bare statements
+    // because the template reads `emit`/`slots` through the returned setup state; only defineProps()
+    // still needs an identifier so its value can be passed into the bridge.
+    const setupPropsName = '__swSetupProps';
+    const setupContextName = '__swSetupContext';
+    const propsName = analysis.propsMacro ? '__swSetupPropsDeclaration' : null;
     const destructureEntries = [
         ...analysis.runtimeBindings.map((binding) => binding.name),
         '__swOverride',
@@ -90,13 +85,11 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
     }
 
     if (analysis.emitsMacro) {
-        chunks.push(generated(`const ${emitName} = `));
         chunks.push(fromSource(block, analysis.emitsMacro.ranges[0]));
         chunks.push(generated(';\n\n'));
     }
 
     if (analysis.slotsMacro) {
-        chunks.push(generated(`const ${slotsName} = `));
         chunks.push(fromSource(block, analysis.slotsMacro.ranges[0]));
         chunks.push(generated(';\n\n'));
     }

@@ -34,23 +34,6 @@ function formatObjectProperties(properties: string[], spaces = 12): string {
 }
 
 /**
- * Avoids generated helper names colliding with user imports or declarations.
- */
-function makeUniqueName(baseName: string, takenNames: Set<string>): string {
-    let name = baseName;
-    let counter = 2;
-
-    while (takenNames.has(name)) {
-        name = `${baseName}${counter}`;
-        counter += 1;
-    }
-
-    takenNames.add(name);
-
-    return name;
-}
-
-/**
  * Applies analyzer-provided source ranges to produce the callback body.
  */
 function buildCallbackBodyChunks(
@@ -76,21 +59,9 @@ function buildCallbackBodyChunks(
     );
 }
 
-/**
- * Collects names that generated helpers must not reuse.
- */
-function getTakenNames(analysis: ShopwareSetupScriptAnalysis): Set<string> {
-    return new Set([
-        ...analysis.runtimeBindings.map((binding) => binding.name),
-        ...Array.from(analysis.importedBindings),
-    ]);
-}
-
 export {
     type SetupInputNames,
     buildCallbackBodyChunks,
     escapeSingleQuoted,
     formatObjectProperties,
-    getTakenNames,
-    makeUniqueName,
 };

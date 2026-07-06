@@ -35,6 +35,10 @@ const WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE = [
 
 const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
 
+// Every binding the transform generates is prefixed with this, so reserving it lets generated names
+// stay deterministic and collision-free without renaming user code.
+const SHOPWARE_SETUP_INTERNAL_PREFIX = '__swSetup';
+
 /**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
  */
@@ -214,6 +218,7 @@ export {
     type ShopwareSetupMacroName,
     type StatementMacroCall,
     RESERVED_OVERRIDE_STATE_NAME,
+    SHOPWARE_SETUP_INTERNAL_PREFIX,
     UNSUPPORTED_VUE_MACROS,
     WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
     WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,

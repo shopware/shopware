@@ -197,9 +197,7 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(result).toContain('<sw-block name="static_data" data="legacy">');
         expect(result).toContain('<sw-block name="bound_data" :data="customData">');
         expect(result).toContain('<sw-block name="longhand_bound_data" v-bind:data="customData">');
-        expect(result).not.toContain('data="legacy" :data="$dataScope"');
-        expect(result).not.toContain(':data="customData" :data="$dataScope"');
-        expect(result).not.toContain('v-bind:data="customData" :data="$dataScope"');
+        expect(result).not.toContain(':data="$dataScope"');
     });
 
     it('adds the generated data scope to nested and self-closing base sw-block declarations', () => {

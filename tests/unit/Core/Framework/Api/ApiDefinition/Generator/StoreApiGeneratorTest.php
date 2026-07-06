@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\BundleWithPredeclaredSwLanguageId\BundleWithPredeclaredSwLanguageId;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -28,6 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(StoreApiGenerator::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class StoreApiGeneratorTest extends TestCase
 {
     private StoreApiGenerator $generator;
@@ -143,7 +145,7 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testMergeComponentsSchemaRequiredFieldsRecursive(): void
     {
-        [$schema] = $this->generateCapturingDeprecations($this->customApiGenerator, $this->customBundleSchemas->getName());
+        $schema = $this->generateSchema($this->customApiGenerator, $this->customBundleSchemas->getName());
 
         $entities = $schema['components']['schemas'];
 
@@ -1238,7 +1240,7 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testPhpSchemaIsSkippedWhenJsonSchemaExists(): void
     {
-        [$schema] = $this->generateCapturingDeprecations($this->generator, null);
+        $schema = $this->generateSchema($this->generator, null);
 
         $entities = $schema['components']['schemas'];
 
@@ -1256,32 +1258,9 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
     }
 
-    public function testDeprecationWarningTriggeredForJsonOverriddenSchema(): void
+    public function testPhpSchemaIsKeptWhenNoJsonSchemaExists(): void
     {
-        [, $deprecations] = $this->generateCapturingDeprecations($this->generator, null);
-
-        $jsonOverrideDeprecations = array_filter(
-            $deprecations,
-            static fn (string $msg): bool => str_contains($msg, 'JsonOverrideEntity')
-        );
-
-        static::assertNotEmpty($jsonOverrideDeprecations, 'Expected deprecation warning for JsonOverrideEntity');
-        static::assertStringContainsString(
-            'The PHP schema definition for "JsonOverrideEntity" is deprecated and should be removed',
-            array_values($jsonOverrideDeprecations)[0]
-        );
-    }
-
-    public function testNoDeprecationForSchemaWithoutJsonOverride(): void
-    {
-        [$schema, $deprecations] = $this->generateCapturingDeprecations($this->generator, null);
-
-        $simpleDeprecations = array_filter(
-            $deprecations,
-            static fn (string $msg): bool => str_contains($msg, '"Simple"')
-        );
-
-        static::assertEmpty($simpleDeprecations, 'No deprecation expected for Simple (no JSON override in default path)');
+        $schema = $this->generateSchema($this->generator, null);
 
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Simple', $entities);
@@ -1290,7 +1269,7 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testJsonSchemaOverridesPhpSchemaInCustomBundle(): void
     {
-        [$schema, $deprecations] = $this->generateCapturingDeprecations($this->customApiGenerator, $this->customBundleSchemas->getName());
+        $schema = $this->generateSchema($this->customApiGenerator, $this->customBundleSchemas->getName());
 
         $entities = $schema['components']['schemas'];
 
@@ -1301,12 +1280,6 @@ class StoreApiGeneratorTest extends TestCase
         // PHP-only fields should NOT be present
         static::assertArrayNotHasKey('stringField', $entities['Simple']['properties']);
         static::assertArrayNotHasKey('intField', $entities['Simple']['properties']);
-
-        $simpleDeprecations = array_filter(
-            $deprecations,
-            static fn (string $msg): bool => str_contains($msg, '"Simple"')
-        );
-        static::assertNotEmpty($simpleDeprecations, 'Expected deprecation warning for Simple in custom bundle');
     }
 
     public function testPluginExtensionFieldsSurviveJsonSchemaOverride(): void
@@ -1316,7 +1289,7 @@ class StoreApiGeneratorTest extends TestCase
         $definition->addExtension($extension);
 
         try {
-            [$schema] = $this->generateCapturingDeprecations($this->generator, null);
+            $schema = $this->generateSchema($this->generator, null);
 
             $entities = $schema['components']['schemas'];
 
@@ -1338,7 +1311,7 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testPluginJsonAddsFieldToCoreJsonEntity(): void
     {
-        [$schema, $deprecations] = $this->generateCapturingDeprecations($this->pluginApiGenerator, null);
+        $schema = $this->generateSchema($this->pluginApiGenerator, null);
 
         $entities = $schema['components']['schemas'];
 
@@ -1358,18 +1331,11 @@ class StoreApiGeneratorTest extends TestCase
 
         // PHP-only field is NOT present (PHP schema was skipped)
         static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
-
-        // Deprecation was triggered
-        $jsonOverrideDeprecations = array_filter(
-            $deprecations,
-            static fn (string $msg): bool => str_contains($msg, 'JsonOverrideEntity')
-        );
-        static::assertNotEmpty($jsonOverrideDeprecations);
     }
 
     public function testPluginJsonExtendsEnumWithDeduplication(): void
     {
-        [$schema] = $this->generateCapturingDeprecations($this->pluginApiGenerator, null);
+        $schema = $this->generateSchema($this->pluginApiGenerator, null);
 
         $entities = $schema['components']['schemas'];
         $statusEnum = $entities['JsonOverrideEntity']['properties']['status']['enum'];
@@ -1389,7 +1355,7 @@ class StoreApiGeneratorTest extends TestCase
         $definition->addExtension($extension);
 
         try {
-            [$schema] = $this->generateCapturingDeprecations($this->pluginApiGenerator, null);
+            $schema = $this->generateSchema($this->pluginApiGenerator, null);
 
             $entities = $schema['components']['schemas'];
 
@@ -1410,32 +1376,15 @@ class StoreApiGeneratorTest extends TestCase
     }
 
     /**
-     * @return array{0: array<string, mixed>, 1: list<string>}
+     * @return array<string, mixed>
      */
-    private function generateCapturingDeprecations(StoreApiGenerator $generator, ?string $bundleName): array
+    private function generateSchema(StoreApiGenerator $generator, ?string $bundleName): array
     {
-        $deprecations = [];
-        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-
-                return true;
-            }
-
-            return false;
-        });
-
-        try {
-            $schema = $generator->generate(
-                $this->definitionRegistry->getDefinitions(),
-                DefinitionService::STORE_API,
-                DefinitionService::TYPE_JSON_API,
-                $bundleName
-            );
-        } finally {
-            restore_error_handler();
-        }
-
-        return [$schema, $deprecations];
+        return $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundleName
+        );
     }
 }

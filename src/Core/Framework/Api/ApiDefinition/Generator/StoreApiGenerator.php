@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
@@ -103,11 +104,13 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             foreach ($overlapping as $schemaName) {
                 $deprecatedSchemaNames[] = $schemaName;
 
-                trigger_deprecation(
-                    'shopware/core',
-                    'v6.8.0',
-                    'The PHP schema definition for "%s" is deprecated and should be removed. The schema is already defined in a JSON file.',
-                    $schemaName
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    \sprintf(
+                        'The PHP-generated OpenAPI schema for "%s" is deprecated and ignored because the schema is already defined in a JSON file.',
+                        $schemaName
+                    ),
+                    'v6.8.0.0',
                 );
             }
 

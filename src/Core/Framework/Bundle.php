@@ -213,6 +213,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $fileLocator = new FileLocator($this->getPath());
         $loaderResolver = new LoaderResolver([
+            // @deprecated tag:v6.8.0 - XML service definitions are deprecated, remove the XmlFileLoader together with the deprecation
             new XmlFileLoader($container, $fileLocator),
             new YamlFileLoader($container, $fileLocator),
             new PhpFileLoader($container, $fileLocator),
@@ -220,14 +221,32 @@ abstract class Bundle extends SymfonyBundle
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
         foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services.*') as $path) {
+            $this->triggerXmlServiceDefinitionDeprecation($path);
             $delegatingLoader->load($path);
         }
 
         if ($container->getParameter('kernel.environment') === 'test') {
             foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services_test.*') as $testPath) {
+                $this->triggerXmlServiceDefinitionDeprecation($testPath);
                 $delegatingLoader->load($testPath);
             }
         }
+    }
+
+    private function triggerXmlServiceDefinitionDeprecation(string $path): void
+    {
+        if (!str_ends_with($path, '.xml')) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'Loading service definitions from XML file "%s" in bundle "%s" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (services.php).',
+                $path,
+                $this->getName(),
+            ),
+        );
     }
 
     /**

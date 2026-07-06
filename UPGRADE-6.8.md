@@ -176,6 +176,46 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## XML service definitions for bundles and plugins are no longer supported
+
+Symfony 8 removes support for XML service definitions, and loading them for Shopware bundles and plugins is removed with Shopware 6.8. Plugins that ship their service definitions as `Resources/config/services.xml` (or `services_test.xml`) fail during container compilation with an exception.
+
+Migrate the file to PHP format. The service ids, arguments, and tags stay exactly the same, only the notation changes:
+
+Before (`src/Resources/config/services.xml`):
+
+```xml
+<container xmlns="http://symfony.com/schema/dic/services">
+    <services>
+        <service id="Swag\Example\Service\MyService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>
+```
+
+After (`src/Resources/config/services.php`):
+
+```php
+<?php declare(strict_types=1);
+
+use Doctrine\DBAL\Connection;
+use Swag\Example\Service\MyService;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->services()
+        ->set(MyService::class)
+        ->args([service(Connection::class)])
+        ->tag('kernel.event_subscriber');
+};
+```
+
+YAML service definitions (`services.yaml`) remain supported.
+
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 
 The execution orchestration of `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) was moved into the new `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor` service.

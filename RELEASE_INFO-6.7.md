@@ -2,6 +2,12 @@
 
 ## Core
 
+### Deprecated XML service definitions for bundles and plugins
+
+Loading service definitions from XML files (`Resources/config/services.xml` and `services_test.xml`) is deprecated for Shopware bundles and plugins and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which bundle and which file are affected.
+
+**Plugin authors:** migrate your `services.xml` to `services.php` using Symfony's `ContainerConfigurator`. PHP service definitions have been fully supported by the plugin system for years, service ids and wiring stay identical, and both formats can coexist during the transition. YAML definitions remain supported. See the migration example in `UPGRADE-6.8.md`.
+
 ### Webhooks are signed with the current app secret after a secret rotation
 
 Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.

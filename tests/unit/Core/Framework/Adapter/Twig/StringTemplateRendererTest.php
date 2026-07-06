@@ -34,7 +34,7 @@ TWIG;
         $item->setLabel($label);
 
         $environment = new Environment(new ArrayLoader());
-        $translator = $this->createMock(Translator::class);
+        $translator = static::createStub(Translator::class);
         $translator
             ->method('trans')
             ->willReturnCallback(static function (string $id) {

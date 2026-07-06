@@ -466,7 +466,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         await flushPromises();
 
         await wrapper.find('.sw-select-option--0').trigger('click');
-        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.save').trigger('click');
+        await wrapper.findByText('button', 'global.default.save').trigger('click');
 
         expect(wrapper.vm.product.variantRestrictions).toEqual([
             {

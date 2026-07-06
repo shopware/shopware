@@ -13,22 +13,6 @@ type RuntimeBinding = {
 };
 
 /**
- * TypeScript ambient declarations are compile-time only and must not become setup callback code or returned state.
- */
-function isTypeScriptDeclareDeclaration(statement: Statement): boolean {
-    const maybeDeclaredStatement = statement as Statement & { declare?: boolean };
-
-    return Boolean(
-        maybeDeclaredStatement.declare &&
-            (statement.type === 'VariableDeclaration' ||
-                statement.type === 'TSDeclareFunction' ||
-                statement.type === 'ClassDeclaration' ||
-                statement.type === 'TSEnumDeclaration' ||
-                statement.type === 'TSModuleDeclaration'),
-    );
-}
-
-/**
  * Tracks import locals so imports stay preserved but are never returned as state.
  */
 function collectImportBindings(importNode: ImportDeclaration, importedBindings: Set<string>): void {
@@ -224,15 +208,6 @@ function collectRuntimeBinding(
     scriptOffset: number,
     mode: ShopwareSetupMode,
 ): void {
-    if (isTypeScriptDeclareDeclaration(statement)) {
-        // Vue/TypeScript treat ambient declarations as type-only. The lowered callback only contains runtime setup
-        // code, so keeping or returning these declarations would produce invalid output.
-        throw new ShopwareSetupTransformError(
-            'TypeScript declare declarations are not runtime Shopware setup bindings.',
-            scriptOffset + getNodeRange(statement, scriptOffset).start,
-        );
-    }
-
     if (statement.type === 'VariableDeclaration') {
         statement.declarations.forEach((declaration) => {
             if (isSetupInputDeclaration(declaration)) {

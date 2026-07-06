@@ -97,11 +97,18 @@ function getTypeDeclarationRangesAndCode(
 }
 
 /**
- * Type aliases and interfaces have no runtime output, but base setup macros are hoisted
- * to the generated script root and may need these names for type resolution.
+ * Type-only declarations have no runtime output. They are hoisted to the generated script root
+ * (and removed from the setup callback) so hoisted macros can still resolve their names, matching
+ * how Vue keeps them at the module root. This covers type aliases and interfaces as well as ambient
+ * `declare` statements, which describe runtime values provided from elsewhere and are invalid inside
+ * the callback function body.
  */
 function isHoistableTypeDeclaration(statement: Statement): boolean {
-    return statement.type === 'TSInterfaceDeclaration' || statement.type === 'TSTypeAliasDeclaration';
+    return (
+        statement.type === 'TSInterfaceDeclaration' ||
+        statement.type === 'TSTypeAliasDeclaration' ||
+        Boolean((statement as Statement & { declare?: boolean }).declare)
+    );
 }
 
 /**

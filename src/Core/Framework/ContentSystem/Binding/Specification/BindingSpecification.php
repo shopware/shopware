@@ -94,15 +94,6 @@ final readonly class BindingSpecification
     }
 
     /**
-     * A demoted copy of this specification (`promoted: false`), used by the aggregation backstop to keep exactly
-     * one promoted specification per type when more than one survives to the merge.
-     */
-    public function withoutPromotion(): self
-    {
-        return new self($this->id, $this->type, $this->label, $this->resolves, $this->inputs, $this->source, false);
-    }
-
-    /**
      * @return BindingSpecificationSchema
      */
     public function toSchema(): array

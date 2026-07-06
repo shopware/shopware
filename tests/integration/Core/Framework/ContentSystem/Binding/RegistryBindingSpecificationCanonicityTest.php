@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
@@ -24,8 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  * each `resolves` entry's loader is a registered data-loader source and its config decodes through that loader's
  * config serializer without error. This is the runtime counterpart to the load-time canonicalization the sugar
  * ladder performs: no sugar shape survives into a registered specification. The registry is built from the real
- * container loaders (mirroring {@see PromotedBindingSpecificationAggregationTest}) so `all()` reflects production
- * aggregation without the cross-request cache.
+ * container loaders so `all()` reflects production aggregation without the cross-request cache.
  *
  * @internal
  */
@@ -96,7 +94,6 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
     {
         return new ContentSystemBindingSpecificationRegistry(
             [$this->yamlLoader(), $this->databaseLoader()],
-            new NullLogger(),
         );
     }
 

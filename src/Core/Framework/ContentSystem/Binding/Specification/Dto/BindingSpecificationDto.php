@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSp
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The id is not carried here — it comes from the YAML body's "id" key and is supplied to
+ * The id is not carried here — it is the `bindings:` map key of the entry and is supplied to
  * {@see self::toBindingSpecification()} by the loader.
  *
  * Carries only the structural WellFormedBindingSpecification constraint. The semantic

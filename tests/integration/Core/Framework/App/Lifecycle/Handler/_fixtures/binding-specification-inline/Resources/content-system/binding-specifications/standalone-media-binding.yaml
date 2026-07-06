@@ -1,9 +1,0 @@
-id: standalone-media-binding
-type: binding-specification-inline:MediaImage
-label: "From media library"
-resolves:
-  media:
-    loader: entity
-    config:
-      entity: media
-      property: mediaId

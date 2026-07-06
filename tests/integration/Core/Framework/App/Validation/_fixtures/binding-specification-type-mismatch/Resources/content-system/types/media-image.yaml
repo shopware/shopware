@@ -1,0 +1,33 @@
+meta:
+  label: "Media Image"
+  description: "Fixture image type shipping an inline binding whose loader produces the wrong type."
+  icon: "regular-image"
+  category: "content"
+  copilot:
+    summary: "Fixture image element."
+    hints:
+      - "Requires a media entity."
+
+properties:
+  mediaId:
+    type: string
+    title: "Media ID"
+    description: "Stored media id used for entity loading."
+    adminUI:
+      component: "media-field"
+
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: true
+    title: "Media"
+    description: "Hydrated media entity resolved from mediaId."
+
+bindings:
+  bad-media-binding:
+    label: "Bad wiring"
+    resolves:
+      media:
+        loader: entity
+        config:
+          entity: product
+          property: mediaId

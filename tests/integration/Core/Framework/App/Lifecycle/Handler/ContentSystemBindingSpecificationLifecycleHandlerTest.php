@@ -16,11 +16,11 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 
 /**
- * Proves the type-overlay resolution for the app tier end-to-end: the fixture app ships an element type and both
- * an inline and a standalone binding on that own type. Only the binding handler runs here; the app's element
- * types are never persisted, so the element-type registry does not carry the type. The bindings therefore
- * canonicalize only because the persister overlays the app's own types read from the filesystem, exactly the
- * inactive-install condition the overlay exists to cover.
+ * Proves the type-overlay resolution for the app tier end-to-end: the fixture app ships an element type with one
+ * inline binding on that own type. Only the binding handler runs here; the app's element types are never
+ * persisted, so the element-type registry does not carry the type. The binding therefore canonicalizes only
+ * because the persister overlays the app's own types read from the filesystem, exactly the inactive-install
+ * condition the overlay exists to cover.
  *
  * @internal
  */
@@ -70,17 +70,6 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
         );
 
         static::assertSame(['mediaId' => ['required' => true]], $schema['inputs']);
-    }
-
-    #[TestDox('hashes an inline binding and an equivalent standalone binding on the same type identically, so moving a spec between the two forms is hash-neutral')]
-    public function testInlineAndStandaloneFormsHashIdentically(): void
-    {
-        $bindings = $this->install();
-
-        $inline = $this->bindingByName($bindings, 'inline-media-binding');
-        $standalone = $this->bindingByName($bindings, 'standalone-media-binding');
-
-        static::assertSame($inline->getHash(), $standalone->getHash());
     }
 
     private function install(): AppContentSystemBindingSpecificationCollection

@@ -177,7 +177,7 @@ Full field-level schema: [content-system-style-options.json](../Api/ApiDefinitio
 
 `GET /api/_info/content-system-binding-specifications.json`
 
-The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — keyed by their source-qualified id (`source:id`). Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the same ids reported per element in the `applicableBindings` field of the mutation, persisted mutation, and diagnose responses (see below), and what a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions. The specifications for each type are also folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](#element-types).
+The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — keyed by their source-qualified id (`source:id`). Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the ids a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions. The specifications for each type are also folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](#element-types) — a client derives the specifications applicable to an element from `bindingSpecifications[element.component]` there.
 
 Response:
 
@@ -329,7 +329,7 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
 
 ### Response
 
-`200 OK` with `{ resolutions, diagnostics, applicableBindings }` — never persisted, never cached.
+`200 OK` with `{ resolutions, diagnostics }` — never persisted, never cached.
 
 ```json
 {
@@ -373,16 +373,13 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
     "wellFormed": true,
     "resolvable": true,
     "violations": []
-  },
-  "applicableBindings": {
-    "<elementId>": ["core:from-media-library"]
   }
 }
 ```
 
 `resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider), `loader` (a data loader), or `stored` (the element's own applied wiring — a stored reference wiring whose produced type resolves and is assignable to the declared FQCN; it only ever fills `resolved` directly, never a `candidates` menu entry). A `stored` candidate is not loader-shaped: its `loaderSource`, `configTemplate`, and `configComplete` all serialize as `null` (clients branch on `origin` before reading them).
 
-`applicableBindings` maps each element id to the source-qualified binding specification ids applicable to that element's type (`Binding/ApplicableBindingsResolver`) — the ids from the [Binding specifications](#binding-specifications) introspection endpoint that a client may pass as `bindingSpecificationId` to a bind-element action. It is a per-type lookup, independent of `rootSource` and of the element's actual wiring: a specification declared for a type is listed for every element of that type. An entry is emitted for every element in the tree; a listed element's own list is `[]` when its type has no applicable specification. The map itself encodes as `{}` only when the tree has no elements.
+A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](#element-types) (`bindingSpecifications[element.component]`) — the ids from the [Binding specifications](#binding-specifications) introspection endpoint that a client may pass as `bindingSpecificationId` to a bind-element action.
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 
@@ -444,7 +441,7 @@ Every action shares one envelope and adds its own operation fields. Shared field
 | `wrap-elements`     | `elementIds` (required, a non-empty list of ids that are siblings in one slot, or all roots); `containerType` (required); `slot` (required)                                                         |
 | `unwrap-element`    | `containerElementId` (required)                                                                                                                                                                     |
 | `attach-element`    | `element` (required, a raw element subtree to splice in; every id in it is reminted); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
-| `bind-element`      | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the [Binding specifications](#binding-specifications) endpoint or an element's `applicableBindings` entry)                                                                                       |
+| `bind-element`      | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the [Binding specifications](#binding-specifications) endpoint, or from the target element's type entry's `bindingSpecifications` map on `content-system-element-types.json`)                                                                                       |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
@@ -479,8 +476,7 @@ Example (`insert-element`):
   "affectedElementIds": ["<elementId>"],
   "orphaned": [ ... ],
   "droppedWiring": ["<wiringKey>"],
-  "droppedProperties": { "<propertyKey>": "<droppedValue>" },
-  "applicableBindings": { "<elementId>": ["core:from-media-library"] }
+  "droppedProperties": { "<propertyKey>": "<droppedValue>" }
 }
 ```
 
@@ -493,7 +489,6 @@ Example (`insert-element`):
 | `orphaned`           | Subtrees the edit detached (for example, a replace dropping the children of a slot the new type does not have), serialized as elements so the caller can re-place them.                            |
 | `droppedWiring`      | Wiring keys the edit could not keep (for example, a replace to a type without that reference property), so the caller can re-wire.                                                                 |
 | `droppedProperties`  | Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key, so the caller can re-apply them; encodes as `{}` when empty.     |
-| `applicableBindings` | Binding specification ids applicable to each element's type, for the whole resulting tree (not restricted to `affectedElementIds`); identical in shape to the Resolve-and-Diagnose response's field of the same name. |
 
 Nothing the edit detaches or drops is silently lost: it is always returned through `orphaned`, `droppedWiring`, or `droppedProperties`.
 
@@ -557,7 +552,7 @@ Example (`replace-element`):
 
 ### Response
 
-`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring, droppedProperties, applicableBindings }` shape as the stateless endpoints — but the layout is now committed. A `replace` that detaches the children of a slot the new type does not have commits the tree **without** them and returns them in `orphaned` (and any static property values the new type cannot hold in `droppedProperties`); nothing is silently lost, and the caller re-places them with an `attach-element` call. `diagnostics` reflects the layout's own immutable `root_source`, resolved once: the binding-scope violations are those for that single root source. `applicableBindings` is computed the same way as on the stateless endpoints.
+`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring, droppedProperties }` shape as the stateless endpoints — but the layout is now committed. A `replace` that detaches the children of a slot the new type does not have commits the tree **without** them and returns them in `orphaned` (and any static property values the new type cannot hold in `droppedProperties`); nothing is silently lost, and the caller re-places them with an `attach-element` call. `diagnostics` reflects the layout's own immutable `root_source`, resolved once: the binding-scope violations are those for that single root source.
 
 ### Errors
 

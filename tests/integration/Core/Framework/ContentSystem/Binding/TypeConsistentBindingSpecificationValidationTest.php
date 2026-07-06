@@ -168,17 +168,22 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     {
         $directory = sys_get_temp_dir() . '/' . uniqid('content-system-binding-spec-test-', true);
         $filesystem = new Filesystem();
-        $filesystem->mkdir($directory);
+        $filesystem->mkdir($directory . '/media');
 
         try {
-            file_put_contents($directory . '/from-media-library.yaml', Yaml::dump([
-                'id' => 'from-media-library',
-                'type' => 'Sw:Media:Image',
-                'label' => 'From media library',
-                'resolves' => [
-                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'product', 'property' => 'mediaId']],
+            // The type is implicit: media/image.yaml under prefix Sw resolves to the registered Sw:Media:Image,
+            // whose "media" reference is a MediaEntity, so the entity loader producing a ProductEntity is a
+            // produced-type mismatch caught at load time.
+            file_put_contents($directory . '/media/image.yaml', Yaml::dump([
+                'bindings' => [
+                    'from-media-library' => [
+                        'label' => 'From media library',
+                        'resolves' => [
+                            'media' => ['loader' => 'entity', 'config' => ['entity' => 'product', 'property' => 'mediaId']],
+                        ],
+                    ],
                 ],
-            ]));
+            ], 6));
 
             $loader = new YamlBindingSpecificationLoader(
                 [],
@@ -189,7 +194,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             );
 
             try {
-                $loader->loadDtosFromDirectory($directory, 'test');
+                $loader->loadDtosFromTypeDirectory($directory, 'test', 'Sw');
                 static::fail('Expected the loader to reject the produced-type mismatch.');
             } catch (ContentSystemException $exception) {
                 static::assertSame(ContentSystemException::BINDING_SPECIFICATIONS_INVALID, $exception->getErrorCode());

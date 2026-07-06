@@ -18,7 +18,7 @@ Because the operation never mutates shared state, the same draft can be diffed a
 
 1. **Apply** the operation to the decoded tree.
 2. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness output.
-3. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, the orphaned subtrees, dropped wiring, and dropped property values the operation surfaced, and the binding specifications applicable to the whole resulting tree (`applicableBindings`, from `Binding/ApplicableBindingsResolver`, independent of `affected`).
+3. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, and the orphaned subtrees, dropped wiring, and dropped property values the operation surfaced.
 
 ## Result Channels
 
@@ -60,7 +60,7 @@ All nine live in `Op/` and extend `AbstractLayoutMutation`:
 - `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
 - `MutationPipeline` - Apply, diagnose, assemble. The shared stateless runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream). Never persists.
 - `PersistedLayoutMutator` - The persisted counterpart to `MutationPipeline`: it commits one operation to a stored `content_layout`. Loads by id (404 if absent), guards an optimistic-concurrency token against the row's `updatedAt` (409 on a stale token, without writing), applies the operation, and persists the mutated tree, whose write runs the resolvability gates. The response diagnostics are derived from the loaded layout's single `root_source` (resolved via `Adapter/RootSourceRegistry`), consistent with what the gate enforces. Detached content (`orphaned`), dropped wiring (`droppedWiring`), and dropped property values (`droppedProperties`) are committed-out of the tree but returned in the result so the caller can re-place the subtrees with `AttachElement`, re-wire the keys, or re-apply the values; nothing is silently lost.
-- `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring, dropped property values, and the applicable binding specifications for the whole resulting tree.
+- `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring, and dropped property values.
 - `ElementLocation` / `ParentSlot` - Where an element sits: the node, its index in its containing list, and its parent slot coordinates (`null` parent for a root element).
 
 ## Subdirectories

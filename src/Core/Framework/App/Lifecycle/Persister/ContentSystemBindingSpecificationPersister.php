@@ -33,8 +33,6 @@ use Symfony\Component\Lock\LockFactory;
 #[Package('framework')]
 class ContentSystemBindingSpecificationPersister
 {
-    public const DIRECTORY = 'Resources/content-system/binding-specifications';
-
     /**
      * The app's element-type directory, scanned for inline `bindings:` sections. Own copy of the convention
      * string {@see \Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister} also
@@ -113,11 +111,11 @@ class ContentSystemBindingSpecificationPersister
     }
 
     /**
-     * Loads the app's standalone binding files and the inline `bindings:` sections of its element-type files into
-     * one canonical set. Both are canonicalized against a type overlay built from the app's own types, because the
-     * app is inactive at install time so its types are not yet in the element-type registry ({@see YamlTypeLoader}
-     * and the compiler pass both surface active apps only). Wraps ContentSystemException into AppException to
-     * match the app lifecycle's error boundary.
+     * Loads the inline `bindings:` sections of the app's element-type files. Each is canonicalized against a type
+     * overlay built from the app's own types, because the app is inactive at install time so its types are not yet
+     * in the element-type registry ({@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader}
+     * and the compiler pass both surface active apps only).
+     * Wraps ContentSystemException into AppException to match the app lifecycle's error boundary.
      *
      * @return list<ResolvedBindingSpecificationDto>
      */
@@ -125,29 +123,21 @@ class ContentSystemBindingSpecificationPersister
     {
         $appName = $context->app->getName();
         $source = 'app:' . $appName;
-        $standaloneDirectory = $context->appFilesystem->path(self::DIRECTORY);
         $typesDirectory = $context->appFilesystem->path(self::TYPES_DIRECTORY);
 
         $typeOverlay = $this->buildTypeOverlay($typesDirectory, $source, $appName);
 
         try {
-            $standalone = $this->loader->loadDtosFromDirectory($standaloneDirectory, $source, $typeOverlay);
-            $inline = $this->loader->loadInlineDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
-
-            // The cross-form collision is the persister's own check (the two loads each dedup only within their
-            // directory). mergeDtos throws AppException directly, which passes this ContentSystemException catch
-            // untouched; it is already the app lifecycle's boundary exception.
-            return $this->mergeDtos($standalone, $inline);
+            return $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
         } catch (ContentSystemException $e) {
-            throw AppException::contentSystemBindingSpecificationLoadFailed(self::DIRECTORY, $e->getMessage(), $e);
+            throw AppException::contentSystemBindingSpecificationLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
         }
     }
 
     /**
-     * The app's own types keyed by resolved type name, so an inline binding's implicit type, always the app's own
-     * type, canonicalizes and validates against a live spec even while the app is inactive. Wrapped separately
-     * from the binding loads so a malformed type file fails install attributed to the types directory, not the
-     * binding-specifications directory the caller's catch names.
+     * The app's own types keyed by resolved type name. Wraps its own ContentSystemException into AppException
+     * because it runs before the load's try block; without the wrap a malformed type file would escape the
+     * app lifecycle's AppException boundary unwrapped.
      *
      * @return array<string, ContentSystemElementTypeSpecification>
      */
@@ -158,36 +148,6 @@ class ContentSystemBindingSpecificationPersister
         } catch (ContentSystemException $e) {
             throw AppException::contentSystemBindingSpecificationLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
         }
-    }
-
-    /**
-     * Enforces the loader's flat per-source id namespace across both authoring forms: an inline entry and a
-     * standalone file sharing a bare id within the app collide, exactly as two standalone files would.
-     *
-     * @param list<ResolvedBindingSpecificationDto> $standalone
-     * @param list<ResolvedBindingSpecificationDto> $inline
-     *
-     * @return list<ResolvedBindingSpecificationDto>
-     */
-    private function mergeDtos(array $standalone, array $inline): array
-    {
-        $seen = [];
-        foreach ($standalone as $resolvedDto) {
-            $seen[$resolvedDto->id] = true;
-        }
-
-        foreach ($inline as $resolvedDto) {
-            if (isset($seen[$resolvedDto->id])) {
-                throw AppException::contentSystemBindingSpecificationLoadFailed(
-                    self::TYPES_DIRECTORY,
-                    \sprintf('inline binding "%s" collides with a standalone binding of the same id; binding ids are unique per app across both authoring forms', $resolvedDto->id),
-                );
-            }
-
-            $seen[$resolvedDto->id] = true;
-        }
-
-        return array_merge($standalone, $inline);
     }
 
     private function getExistingBindings(string $appId, Context $context): AppContentSystemBindingSpecificationCollection

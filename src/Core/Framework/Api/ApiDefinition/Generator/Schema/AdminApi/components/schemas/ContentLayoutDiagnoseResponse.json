@@ -8,7 +8,7 @@
                 "title": "Content layout diagnose response",
                 "type": "object",
                 "description": "The response returned by the resolve-and-diagnose route: the per-element property resolutions plus the well-formedness / resolvability report for the supplied draft layout. Never persisted, never cached.",
-                "required": ["resolutions", "diagnostics", "applicableBindings"],
+                "required": ["resolutions", "diagnostics"],
                 "properties": {
                     "resolutions": {
                         "allOf": [
@@ -23,16 +23,6 @@
                         ],
                         "description": "The well-formedness / resolvability report. With no source bound (neither `entityType` nor `section`), only intrinsic well-formedness is evaluated and `resolvable` is not meaningful.",
                         "readOnly": true
-                    },
-                    "applicableBindings": {
-                        "type": "object",
-                        "description": "Map of element id to the source-qualified binding specification ids (`source:id`) applicable to that element's type, keyed by declared type rather than by the element's actual wiring. Pass an id back as `bindingSpecificationId` to a bind-element action. An entry is emitted for every element in the tree; a listed element's own list encodes as `[]` when its type has no applicable specification. The map itself encodes as `{}` only when the tree has no elements.",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": { "type": "string" }
-                        },
-                        "readOnly": true,
-                        "example": { "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:from-media-library"] }
                     }
                 },
                 "example": {
@@ -64,9 +54,6 @@
                                 "candidates": []
                             }
                         ]
-                    },
-                    "applicableBindings": {
-                        "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:from-media-library"]
                     }
                 }
             }

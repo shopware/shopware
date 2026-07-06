@@ -89,22 +89,4 @@ class BindingSpecificationTest extends TestCase
         static::assertTrue($specification->isPromoted());
         static::assertTrue($specification->toSchema()['promoted']);
     }
-
-    #[TestDox('withoutPromotion() returns a demoted copy while preserving every other facet')]
-    public function testWithoutPromotionDemotesButKeepsEverythingElse(): void
-    {
-        $resolves = ['image' => new LoaderBinding('entity', ['entity' => 'media'])];
-        $inputs = ['mediaId' => new BindingInput(false, null, true)];
-        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', $resolves, $inputs, 'core', true);
-
-        $demoted = $specification->withoutPromotion();
-
-        static::assertFalse($demoted->isPromoted());
-        static::assertSame('binding-1', $demoted->id());
-        static::assertSame('cms_text', $demoted->type());
-        static::assertSame('Text', $demoted->label());
-        static::assertSame('core', $demoted->source());
-        static::assertSame($resolves, $demoted->resolves());
-        static::assertSame($inputs, $demoted->inputs());
-    }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -19,7 +18,6 @@ class MutationPipeline
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ApplicableBindingsResolver $applicableBindingsResolver,
     ) {
     }
 
@@ -45,7 +43,6 @@ class MutationPipeline
             $mutation->orphaned(),
             $mutation->droppedWiring(),
             $mutation->droppedProperties(),
-            $this->applicableBindingsResolver->resolve($mutated),
         );
     }
 }

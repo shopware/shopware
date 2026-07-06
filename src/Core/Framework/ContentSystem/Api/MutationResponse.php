@@ -10,10 +10,9 @@ use Shopware\Core\Framework\Log\Package;
  * The wire response shared by all draft and persisted mutation routes.
  *
  * Output-only: serialized to JSON and discarded — never cached, stored in a DAL SerializedField, or passed to
- * StructNormalizer::denormalize(). jsonSerialize() casts the map-typed fields (resolutions/droppedProperties/
- * applicableBindings) to {} when empty; the element tree's own maps stay [] (the shape every other read path
- * emits), and each applicableBindings entry is a list<string>, [] when empty. Safe only on this path; a future
- * requirement that caches or reconstructs this object must revisit it.
+ * StructNormalizer::denormalize(). jsonSerialize() casts the map-typed fields (resolutions/droppedProperties)
+ * to {} when empty; the element tree's own maps stay [] (the shape every other read path emits). Safe only on
+ * this path; a future requirement that caches or reconstructs this object must revisit it.
  *
  * @final
  */
@@ -28,7 +27,6 @@ class MutationResponse implements \JsonSerializable
      * @param list<array<string, mixed>> $orphaned serialized detached subtrees
      * @param list<string> $droppedWiring
      * @param array<string, mixed> $droppedProperties dropped property values
-     * @param array<string, list<string>> $applicableBindings applicable binding specification ids, keyed by element id
      */
     private function __construct(
         public array $layout,
@@ -38,7 +36,6 @@ class MutationResponse implements \JsonSerializable
         public array $orphaned,
         public array $droppedWiring,
         public array $droppedProperties,
-        public array $applicableBindings,
     ) {
     }
 
@@ -54,7 +51,6 @@ class MutationResponse implements \JsonSerializable
             array_map($elementSerializer->serializeContentElement(...), $result->orphaned),
             $result->droppedWiring,
             $result->droppedProperties,
-            $result->applicableBindings,
         );
     }
 
@@ -71,7 +67,6 @@ class MutationResponse implements \JsonSerializable
             'orphaned' => $this->orphaned,
             'droppedWiring' => $this->droppedWiring,
             'droppedProperties' => (object) $this->droppedProperties,
-            'applicableBindings' => (object) $this->applicableBindings,
         ];
     }
 }

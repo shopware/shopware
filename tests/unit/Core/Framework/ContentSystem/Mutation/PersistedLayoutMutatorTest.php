@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -49,7 +48,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $orphaning = $this->orphaningMutation('detached-child');
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, null, $orphaning, Context::createDefaultContext());
 
@@ -63,7 +62,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $id = Uuid::randomHex();
         $repository = $this->staticRepository($this->entity($id, self::VERSION));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -77,7 +76,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $id = Uuid::randomHex();
         $repository = $this->staticRepository($this->entity($id, self::VERSION));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -102,7 +101,7 @@ class PersistedLayoutMutatorTest extends TestCase
             ->with(static::anything(), static::identicalTo($rootContext), static::anything())
             ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $registry, $diagnostics, static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $registry, $diagnostics);
 
         $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
     }
@@ -122,7 +121,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $id = Uuid::randomHex();
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -135,7 +134,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $id = Uuid::randomHex();
         $repository = $this->staticRepository($this->entity($id, null));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -200,7 +199,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
         $repository->method('update')->willThrowException($writeException);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         $this->expectExceptionObject($writeException);
 
@@ -218,7 +217,7 @@ class PersistedLayoutMutatorTest extends TestCase
         ContentSystemException $expected,
     ): void {
         $repository = $this->staticRepository($entity);
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics(), static::createStub(ApplicableBindingsResolver::class));
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
 
         try {
             $mutator->mutate($layoutId, $token, new RemoveElement('block-a'), Context::createDefaultContext());

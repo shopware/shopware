@@ -206,37 +206,20 @@ Reference: `Layout/Element/Style/README.md`, `Layout/Element/Style/Definitions/`
 
 ## Custom Binding Specifications
 
-A binding specification is a pre-validated data wiring for one element type: a `resolves` map wiring the type's reference properties to data loaders, plus `inputs` defaults for its primitive properties. An editor (or an agentic layout builder) applies one to an element in a single action (the `bind-element` mutation, or an `insert-element` request carrying a `bindingSpecificationId`) instead of hand-assembling loader configs. Plugins and apps author specifications as YAML in two interchangeable forms: standalone files, or inline in an element-type YAML file.
+A binding specification is a pre-validated data wiring for one element type: a `resolves` map wiring the type's reference properties to data loaders, plus `inputs` defaults for its primitive properties. An editor (or an agentic layout builder) applies one to an element in a single action (the `bind-element` mutation, or an `insert-element` request carrying a `bindingSpecificationId`) instead of hand-assembling loader configs. Plugins and apps author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file.
 
 ### Registration
 
-| Source | Standalone Files                                  | Inline (`bindings:` key in type YAML)      |
-|--------|---------------------------------------------------|--------------------------------------------|
-| Plugin | `Resources/content-system/binding-specifications` | Types directory (`getContentTypeDirectory()`) |
-| App    | `Resources/content-system/binding-specifications` | `Resources/content-system/types`           |
+| Source | Directory                                     |
+|--------|------------------------------------------------|
+| Plugin | Types directory (`getContentTypeDirectory()`) |
+| App    | `Resources/content-system/types`              |
 
-The compiler pass discovers plugin YAML automatically; the standalone directory is a fixed convention, the inline scan follows the same types directory the element-type system uses. App YAML is validated at manifest time and persisted on install/update; in production, app bindings load from the database. No service registration needed.
-
-### Standalone YAML Structure
-
-One specification per file. The body declares its `id` and the element type it targets:
-
-```yaml
-id: from-media-library
-type: Sw:Media:Image
-label: "From media library"
-resolves:
-  media: mediaId
-```
-
-- **`id`**, **`type`**, **`label`** (required): the bare specification id, the target element type name, and a human label. The type must be registered, and every `resolves`/`inputs` key must name a property the type actually declares.
-- **`resolves`** (optional): reference property key → loader wiring. Three authoring shapes, see below.
-- **`inputs`** (optional): primitive property key → `{ default: ... }`. The default seeds the property when the specification is applied, only if the element does not already carry a value. Do not author `required`; the flag is derived (see below), and declaring it by hand is a load-time error.
-- **`promoted`** (optional): catalog metadata marking the author's preferred specification for the type. At most one promoted specification per element type across all sources: a duplicate is a load-time error for authored YAML and a manifest error for apps. No server behavior reads the flag; it only informs client pickers.
+The compiler pass discovers plugin YAML automatically, scanning the same types directory the element-type system uses. App YAML is validated at manifest time and persisted on install/update; in production, app bindings load from the database. No service registration needed.
 
 ### Inline `bindings:` in a Type File
 
-A specification for a type you own can live in that type's YAML file, so a simple element ships as one file. The optional top-level `bindings:` key maps bare specification id → entry. The type is implicit (the containing file), so an entry declaring its own `type:` or `id:` is a load-time error. Core's Image type authors its binding this way:
+A specification for a type you own lives in that type's YAML file, so a simple element ships as one file. The optional top-level `bindings:` key maps bare specification id → entry. The type is implicit (the containing file), so an entry declaring its own `type:` or `id:` is a load-time error. Core's Image type authors its binding this way:
 
 ```yaml
 # Layout/Type/Definitions/media/image.yaml
@@ -247,6 +230,13 @@ bindings:
     resolves:
       media: mediaId
 ```
+
+The map key (`from-media-library` above) is the specification's id. Each entry declares:
+
+- **`label`** (required): a human label.
+- **`resolves`** (optional): reference property key → loader wiring. Three authoring shapes, see below. Every key must name a property the implicit type actually declares.
+- **`inputs`** (optional): primitive property key → `{ default: ... }`. The default seeds the property when the specification is applied, only if the element does not already carry a value. Do not author `required`; the flag is derived (see below), and declaring it by hand is a load-time error.
+- **`promoted`** (optional): catalog metadata marking the author's preferred specification for the type. At most one promoted specification per element type: a duplicate is a load-time error for authored YAML and a manifest error for apps. No server behavior reads the flag; it only informs client pickers.
 
 ### Authoring Sugar
 
@@ -262,15 +252,15 @@ Sugar never resolves by precedence: an entry that cannot expand deterministicall
 
 ### Collision Detection
 
-Uniqueness is per source, not global: a duplicate bare id within one source (across the standalone and inline forms) is a load-time error, while two different sources may ship the same bare id. The registry keys specifications by their source-qualified id (`source:id`), which is also the wire identifier clients pass back as `bindingSpecificationId`.
+Uniqueness is per source, not global: a duplicate bare id within one source is a load-time error, while two different sources may ship the same bare id. The registry keys specifications by their source-qualified id (`source:id`), which is also the wire identifier clients pass back as `bindingSpecificationId`.
 
 ### App Lifecycle
 
-App specifications (both forms) are persisted to `app_content_system_binding_specification` on install/update and cascade-deleted with the app; the registry is invalidated on activate/deactivate/uninstall/delete. Because an app is inactive at install time, its own types are not yet registered; validation resolves the declared type against a type overlay built from the app's own type files. A specification targeting **another** app's type validates only while that app is active.
+App specifications are persisted to `app_content_system_binding_specification` on install/update and cascade-deleted with the app; the registry is invalidated on activate/deactivate/uninstall/delete. Because an app is inactive at install time, its own types are not yet registered; validation resolves the declared type against a type overlay built from the app's own type files. Because the type is always the containing element type, an app binding can only ever target one of the app's own types.
 
 ### Discoverability
 
-A registered specification appears in `GET /api/_info/content-system-binding-specifications.json` and, folded under a `bindingSpecifications` key per type entry, in `GET /api/_info/content-system-element-types.json`. The diagnose and mutation responses report the specifications applicable to each element as `applicableBindings`. See `ADMINISTRATION.md`.
+A registered specification appears in `GET /api/_info/content-system-binding-specifications.json` and, folded under a `bindingSpecifications` key per type entry, in `GET /api/_info/content-system-element-types.json`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]` on the latter. See `ADMINISTRATION.md`.
 
 Reference: `Binding/README.md`, `Layout/Type/Definitions/media/image.yaml` (core inline example)
 

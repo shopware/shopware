@@ -265,7 +265,6 @@ class LayoutMutationControllerTest extends TestCase
             $bound['dataRequirements']['media']
         );
         static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $bound['attributedSpecifications']);
-        static::assertContains(self::CORE_MEDIA_BINDING_ID, $body['applicableBindings']['img-1']);
     }
 
     #[TestDox('resolves the bound media reference via CandidateOrigin::Stored once mediaId is filled in on the bound draft')]
@@ -321,22 +320,6 @@ class LayoutMutationControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
-    }
-
-    #[TestDox('carries an applicableBindings key per element in every mutation response body')]
-    public function testMutationResponseCarriesApplicableBindingsKeyPerElement(): void
-    {
-        $component = TestElementTypeLoader::RESOLVABLE;
-
-        $body = $this->mutate('insert-element', [
-            'layout' => [$this->element('block-a', $component)],
-            'type' => $component,
-        ]);
-
-        static::assertArrayHasKey('applicableBindings', $body);
-        foreach (array_column($body['layout'], 'id') as $elementId) {
-            static::assertArrayHasKey($elementId, $body['applicableBindings']);
-        }
     }
 
     #[TestDox('treats an empty rootSource as absent and evaluates only well-formedness without gating')]

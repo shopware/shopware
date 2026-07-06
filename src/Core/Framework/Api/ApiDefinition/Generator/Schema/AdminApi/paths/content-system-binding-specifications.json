@@ -24,7 +24,7 @@
                                     "properties": {
                                         "bindingSpecifications": {
                                             "type": "object",
-                                            "description": "Map of source-qualified binding specification id (`source:id`) to its specification. The same id a client receives from an element's `applicableBindings` entry and passes back as `bindingSpecificationId` to the bind-element actions.",
+                                            "description": "Map of source-qualified binding specification id (`source:id`) to its specification. The same id a client finds in the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json` and passes back as `bindingSpecificationId` to the bind-element actions.",
                                             "additionalProperties": {
                                                 "type": "object",
                                                 "required": ["id", "type", "label", "promoted", "resolves", "inputs"],

@@ -4,7 +4,7 @@
     <meta>
         <name>binding-specification-inline</name>
         <label>Binding Specification Inline Test</label>
-        <description>Fixture app shipping an element type with an inline binding on its own type, plus an equivalent standalone binding on the same type.</description>
+        <description>Fixture app shipping an element type with an inline binding on its own type.</description>
         <author>shopware AG</author>
         <copyright>(c) by shopware AG</copyright>
         <version>1.0.0</version>

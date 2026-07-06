@@ -20,63 +20,11 @@ use Symfony\Component\DependencyInjection\Definition;
 #[CoversClass(ContentSystemBindingSpecificationCompilerPass::class)]
 class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
 {
-    private const BINDING_DIR = '/Resources/content-system/binding-specifications';
-
     private ContentSystemBindingSpecificationCompilerPass $pass;
 
     protected function setUp(): void
     {
         $this->pass = new ContentSystemBindingSpecificationCompilerPass();
-    }
-
-    #[TestDox('injects the core definitions directory')]
-    public function testInjectsCoreDirectory(): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', []);
-
-        $this->pass->process($container);
-
-        $coreDir = $this->findBySource($this->extractDirectories($container), 'core');
-        static::assertNotNull($coreDir);
-        static::assertStringEndsWith('ContentSystem/Binding/Definitions', $this->path($coreDir));
-    }
-
-    #[TestDox('scans a non-plugin bundle using the fixed convention directory and bundle label')]
-    public function testScansBundleWithFixedDirectory(): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', ['BundleA' => ['path' => '/bundles/bundle-a']]);
-        $container->setParameter('kernel.active_plugins', []);
-
-        $this->pass->process($container);
-
-        $bundleDir = $this->findBySource($this->extractDirectories($container), 'bundle:BundleA');
-        static::assertNotNull($bundleDir);
-        static::assertSame('/bundles/bundle-a' . self::BINDING_DIR, $this->path($bundleDir));
-    }
-
-    #[TestDox('labels a bundle that is an active plugin with the plugin prefix, sharing the fixed directory')]
-    public function testLabelsActivePluginBundleAsPlugin(): void
-    {
-        // The plugin class must exist: the element-type directory set narrows kernel.active_plugins with
-        // class_exists (getActivePluginClasses), so a fake class string would fail the build.
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', ['BindingFixturePlugin' => ['path' => '/plugins/my-plugin']]);
-        $container->setParameter('kernel.active_plugins', [
-            BindingFixturePlugin::class => ['name' => 'BindingFixturePlugin', 'path' => '/plugins/my-plugin', 'class' => BindingFixturePlugin::class],
-        ]);
-
-        $this->pass->process($container);
-
-        $directories = $this->extractDirectories($container);
-        // findBySource returns the first match; the standalone binding-specifications directory is added before
-        // the element-type set, so this resolves the standalone plugin directory.
-        $pluginDir = $this->findBySource($directories, 'plugin:BindingFixturePlugin');
-        static::assertNotNull($pluginDir);
-        static::assertSame('/plugins/my-plugin' . self::BINDING_DIR, $this->path($pluginDir));
-        static::assertNull($this->findBySource($directories, 'bundle:BindingFixturePlugin'));
     }
 
     #[TestDox('injects the core element-type definitions directory with the Sw prefix for inline scanning')]
@@ -93,22 +41,7 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
         static::assertStringEndsWith('ContentSystem/Layout/Type/Definitions', $this->path($typeCoreDir));
     }
 
-    #[TestDox('keeps the standalone core directory at a null prefix')]
-    public function testStandaloneCoreDirectoryCarriesNullPrefix(): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', []);
-
-        $this->pass->process($container);
-
-        $standaloneCoreDir = $this->findBySourcePrefix($this->extractDirectories($container), 'core', null);
-        static::assertNotNull($standaloneCoreDir);
-        static::assertNull($standaloneCoreDir->getArgument(2));
-        static::assertStringEndsWith('ContentSystem/Binding/Definitions', $this->path($standaloneCoreDir));
-    }
-
-    #[TestDox('scans a non-plugin bundle type directory with the Sw prefix alongside its standalone directory')]
+    #[TestDox('scans a non-plugin bundle type directory with the Sw prefix')]
     public function testScansBundleTypeDirectoryWithSwPrefix(): void
     {
         $container = $this->buildContainer('prod');
@@ -117,15 +50,9 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
 
         $this->pass->process($container);
 
-        $directories = $this->extractDirectories($container);
-
-        $bundleTypeDir = $this->findBySourcePrefix($directories, 'bundle:BundleA', 'Sw');
+        $bundleTypeDir = $this->findBySourcePrefix($this->extractDirectories($container), 'bundle:BundleA', 'Sw');
         static::assertNotNull($bundleTypeDir);
         static::assertSame('/bundles/bundle-a/Resources/content-system/types', $this->path($bundleTypeDir));
-
-        $bundleStandaloneDir = $this->findBySourcePrefix($directories, 'bundle:BundleA', null);
-        static::assertNotNull($bundleStandaloneDir);
-        static::assertSame('/bundles/bundle-a' . self::BINDING_DIR, $this->path($bundleStandaloneDir));
     }
 
     #[TestDox('scans an active plugin content-type directory with the plugin-name prefix, honoring getContentTypeDirectory')]
@@ -169,25 +96,6 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
         $appTypeDir = $this->findBySourcePrefix($this->extractDirectories($container), 'app:TestApp', 'TestApp');
         static::assertNotNull($appTypeDir);
         static::assertSame('/project/custom/apps/TestApp/Resources/content-system/types', $this->path($appTypeDir));
-    }
-
-    #[TestDox('registers app directories from the filesystem in dev')]
-    public function testRegistersAppDirectoryInDev(): void
-    {
-        $container = $this->buildContainer('dev');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', []);
-        $container->setParameter('kernel.project_dir', '/project');
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([['path' => 'custom/apps/TestApp', 'name' => 'TestApp']]);
-        $container->set(Connection::class, $connection);
-
-        $this->pass->process($container);
-
-        $appDir = $this->findBySource($this->extractDirectories($container), 'app:TestApp');
-        static::assertNotNull($appDir);
-        static::assertSame('/project/custom/apps/TestApp' . self::BINDING_DIR, $this->path($appDir));
     }
 
     #[TestDox('does not touch the database in prod, where app bindings load from the database loader')]
@@ -313,13 +221,9 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
     }
 
     /**
-     * Both directory sets can carry the same source label (a standalone binding-specifications directory and an
-     * element-type directory for the same source), so tests over the element-type set discriminate by prefix:
-     * null for standalone, the resolver prefix for the element-type set.
-     *
      * @param list<Definition> $directories
      */
-    private function findBySourcePrefix(array $directories, string $source, ?string $prefix): ?Definition
+    private function findBySourcePrefix(array $directories, string $source, string $prefix): ?Definition
     {
         foreach ($directories as $dir) {
             if ($dir->getArgument(0) === $source && $dir->getArgument(2) === $prefix) {
@@ -337,13 +241,6 @@ class ContentSystemBindingSpecificationCompilerPassTest extends TestCase
 
         return $path;
     }
-}
-
-/**
- * @internal
- */
-class BindingFixturePlugin extends Plugin
-{
 }
 
 /**

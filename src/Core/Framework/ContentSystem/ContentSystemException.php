@@ -674,9 +674,7 @@ class ContentSystemException extends HttpException
     }
 
     // The authored-artifact 409 for the promoted-uniqueness invariant: at most one promoted specification per
-    // element type. The YAML loader throws this when two specifications in its loaded set (standalone or inline, any
-    // source) promote the same type, a bug in authored core/bundle/plugin (and, in dev, app) files, hard by design.
-    // The app-validator (soft) and the aggregation backstop (demote-and-warn) cover the paths this hard throw cannot.
+    // element type.
     public static function bindingSpecificationPromotedDuplicate(string $type, string $firstQualifiedId, string $secondQualifiedId): self
     {
         return new self(

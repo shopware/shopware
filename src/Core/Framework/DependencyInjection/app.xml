@@ -235,7 +235,6 @@
         <service id="Shopware\Core\Framework\App\Validation\ContentSystemBindingSpecificationAppValidator">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
             <tag name="shopware.app_manifest.validator"/>
         </service>
 

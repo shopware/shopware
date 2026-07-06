@@ -5,20 +5,19 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Deliberately distinct from {@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory}:
+ * the two are structurally identical, but each belongs to its own loader and the two systems evolve
+ * independently, so they are not consolidated.
+ *
  * @internal
  */
 #[Package('framework')]
 final readonly class BindingSpecificationSourceDirectory
 {
-    /**
-     * A null prefix marks a standalone binding-specification directory, scanned whole-file for one specification
-     * each. A non-null prefix marks an element-type directory, scanned for inline `bindings` sections whose
-     * implicit type names are resolved with that prefix (mirroring {@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory}).
-     */
     public function __construct(
         public string $source,
         public string $path,
-        public ?string $prefix = null,
+        public string $prefix,
     ) {
     }
 }

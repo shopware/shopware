@@ -351,7 +351,6 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry">
             <argument type="tagged_iterator" tag="content_system.binding_specification_loader"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Binding\Registry\CachedContentSystemBindingSpecificationRegistry"
@@ -374,11 +373,6 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer"/>
-        </service>
-
-        <!-- Per-element applicable binding specification ids, response-assembly-layer only -->
-        <service id="Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
         </service>
 
         <!-- Apply-side of a binding decision, shared by the bind-element and insert-element mutation ops -->
@@ -481,7 +475,6 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder">
@@ -506,7 +499,6 @@
         <!-- Mutation Pipeline -->
         <service id="Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver"/>
         </service>
 
         <!-- Layout Mutation Actions (Admin API) -->
@@ -527,7 +519,6 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver"/>
         </service>
 
         <!-- Persisted Layout Mutation Actions (Admin API) -->

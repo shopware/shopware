@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -29,6 +29,14 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('persists a category assignment when the layout root source matches the assignment type')]
     public function testAcceptsAssignmentMatchingRootSource(): void
     {
@@ -36,7 +44,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $categoryId = $this->createCategory($context);
         $layoutId = $this->createLayout('category', $context);
 
-        $assignmentId = Uuid::randomHex();
+        $assignmentId = $this->ids->get('assignment');
         $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $context);
 
         static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
@@ -49,7 +57,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $categoryId = $this->createCategory($context);
         $layoutId = $this->createLayout('product', $context);
 
-        $assignmentId = Uuid::randomHex();
+        $assignmentId = $this->ids->get('assignment');
 
         try {
             $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $context);
@@ -71,7 +79,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
         $skipContext = Context::createDefaultContext();
         $skipContext->addState(LayoutGate::SKIP_VALIDATION_STATE);
-        $assignmentId = Uuid::randomHex();
+        $assignmentId = $this->ids->get('assignment');
 
         $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $skipContext);
 
@@ -83,8 +91,8 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
-        $layoutId = Uuid::randomHex();
-        $assignmentId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $assignmentId = $this->ids->get('assignment');
 
         $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, 'category')], $context);
 
@@ -97,8 +105,8 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
-        $layoutId = Uuid::randomHex();
-        $assignmentId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $assignmentId = $this->ids->get('assignment');
 
         try {
             $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, 'product')], $context);
@@ -116,8 +124,8 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
-        $layoutId = Uuid::randomHex();
-        $assignmentId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $assignmentId = $this->ids->get('assignment');
 
         $operations = [
             new SyncOperation(
@@ -141,7 +149,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
     private function createCategory(Context $context): string
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('category');
         $repository = $this->getContainer()->get('category.repository');
         static::assertInstanceOf(EntityRepository::class, $repository);
         $repository->create([['id' => $id, 'name' => 'binding-gate-category']], $context);
@@ -151,14 +159,14 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
     private function createLayout(string $rootSource, Context $context): string
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $this->layoutRepository()->create([[
             'id' => $id,
             'name' => 'binding-gate-layout',
             'version' => '1.0.0',
             'rootSource' => $rootSource,
             'layout' => [
-                ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
+                ['id' => $this->ids->get('element'), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],
         ]], $context);
 
@@ -188,7 +196,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
             'version' => '1.0.0',
             'rootSource' => $rootSource,
             'layout' => [
-                ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
+                ['id' => $this->ids->get('element'), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],
             'categoryContentLayouts' => [
                 ['id' => $assignmentId, 'categoryId' => $categoryId],

@@ -14,9 +14,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfig;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * Proves extension parity end to end. {@see TestMultiReferenceGatingLoader} is a data loader
@@ -41,6 +41,14 @@ use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfig;
 class BindingConvenienceLayerExtensionParityTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
 
     #[TestDox('canonicalizes a tier-B entry for the test loader, naming the source and deriving its entityName key from the reference FQCN')]
     public function testTierBExpansionNamesLoaderAndDerivesEntityName(): void
@@ -117,7 +125,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     #[TestDox('raises no unfilled_required_input for the test loader wiring once both required inputs carry a value')]
     public function testNoUnfilledRequiredInputWhenTestLoaderInputsFilled(): void
     {
-        $report = $this->diagnostics()->analyze([$this->wiredImage(['mediaId' => Uuid::randomHex(), 'height' => 'auto'])], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$this->wiredImage(['mediaId' => $this->ids->get('media'), 'height' => 'auto'])], [], Context::createDefaultContext())->report;
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], $report->bindingErrors());

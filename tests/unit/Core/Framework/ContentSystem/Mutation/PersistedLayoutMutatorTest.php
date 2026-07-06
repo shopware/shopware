@@ -27,8 +27,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\InMemoryStore;
 
@@ -40,10 +40,18 @@ class PersistedLayoutMutatorTest extends TestCase
 {
     private const VERSION = '2026-06-22T10:00:00.000+00:00';
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('persists an orphaning mutation and reports the detached subtree for re-attachment')]
     public function testPersistsOrphaningMutationAndReportsOrphans(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, null));
 
         $orphaning = $this->orphaningMutation('detached-child');
@@ -59,7 +67,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('persists the mutated tree to the repository')]
     public function testPersistsMutatedTreeToRepository(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, self::VERSION));
 
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
@@ -73,7 +81,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('returns the re-resolved layout after mutation')]
     public function testReturnsReResolvedLayoutAfterMutation(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, self::VERSION));
 
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
@@ -87,7 +95,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('diagnoses the mutated tree against the context resolved from the layouts root source ($_dataName)')]
     public function testDiagnosesAgainstResolvedRootSource(string $rootSource, bool $rooted): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, null, $rootSource));
 
         $rootContext = $rooted ? [$this->providedContext()] : [];
@@ -118,7 +126,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('accepts a token that matches updatedAt to the millisecond, ignoring sub-millisecond noise')]
     public function testAcceptsTokenMatchingToTheMillisecond(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'));
 
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
@@ -131,7 +139,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('accepts a null expected version for a never-updated layout')]
     public function testAcceptsNullVersionForNeverUpdatedLayout(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, null));
 
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $this->registry(), $this->diagnostics());
@@ -144,7 +152,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('throws layoutNotFound and never writes when the layout does not exist')]
     public function testThrowsWhenLayoutDoesNotExist(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->assertMutateThrowsWithoutWriting($id, null, null, ContentSystemException::contentLayoutNotFound($id));
     }
@@ -157,7 +165,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('throws layoutVersionConflict and never writes when the token does not match updatedAt ($_dataName)')]
     public function testRejectsVersionConflictWithoutWriting(?string $committedUpdatedAt, string $token): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->assertMutateThrowsWithoutWriting(
             $id,
@@ -180,7 +188,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('rejects an unparseable expected version token with a 400 without writing')]
     public function testRejectsUnparseableVersionTokenWithoutWriting(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->assertMutateThrowsWithoutWriting(
             $id,
@@ -193,7 +201,7 @@ class PersistedLayoutMutatorTest extends TestCase
     #[TestDox('propagates a WriteException from the committing write without swallowing it')]
     public function testPropagatesWriteGateRejection(): void
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $repository = $this->repository($this->entity($id, null));
 
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));

@@ -15,8 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -24,6 +24,14 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 #[CoversClass(ContentLayoutAssignmentWriteValidator::class)]
 class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('adds no violation when the bound layout is not loadable (null root source), deferring to the FK')]
     public function testNullRootSourceAddsNoViolation(): void
     {
@@ -111,7 +119,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $command->method('hasField')->willReturnCallback(
             static fn (string $field): bool => $hasContentLayoutId && $field === 'content_layout_id'
         );
-        $command->method('getPayload')->willReturn(['content_layout_id' => Uuid::randomHex()]);
+        $command->method('getPayload')->willReturn(['content_layout_id' => $this->ids->get('layout')]);
         $command->method('getPath')->willReturn('/0');
 
         return $command;

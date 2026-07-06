@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,6 +27,14 @@ class ContentLayoutMutationControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     private const BASE_URL = '/api/_action/content-system/layout/';
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
 
     #[TestDox('inserts an element and commits the re-resolved layout to storage')]
     public function testInsertElementPersistsToStorage(): void
@@ -181,7 +189,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     #[TestDox('returns 404 for a mutation targeting an unknown layout id')]
     public function testUnknownLayoutReturnsNotFound(): void
     {
-        $this->request('remove-element', Uuid::randomHex(), ['elementId' => 'block-a', 'expectedVersion' => null]);
+        $this->request('remove-element', $this->ids->get('unknown-layout'), ['elementId' => 'block-a', 'expectedVersion' => null]);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
     }
@@ -322,7 +330,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     #[TestDox('returns 404 for a bind-element mutation targeting an unknown layout id')]
     public function testBindElementUnknownLayoutReturnsNotFound(): void
     {
-        $this->request('bind-element', Uuid::randomHex(), [
+        $this->request('bind-element', $this->ids->get('unknown-layout'), [
             'elementId' => 'block-a',
             'bindingSpecificationId' => 'core:from-media-library',
             'expectedVersion' => null,
@@ -472,7 +480,7 @@ class ContentLayoutMutationControllerTest extends TestCase
      */
     private function createLayout(array $tree): string
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $this->repository()->create([[
             'id' => $id,
             'name' => 'mutation-' . $id,
@@ -524,7 +532,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     private function bindCategory(string $layoutId): void
     {
         $context = Context::createDefaultContext();
-        $categoryId = Uuid::randomHex();
+        $categoryId = $this->ids->get('category');
 
         $categoryRepository = $this->getContainer()->get('category.repository');
         static::assertInstanceOf(EntityRepository::class, $categoryRepository);
@@ -532,7 +540,7 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $assignmentRepository = $this->getContainer()->get('category_content_layout.repository');
         static::assertInstanceOf(EntityRepository::class, $assignmentRepository);
-        $assignmentRepository->create([['id' => Uuid::randomHex(), 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId]], $context);
+        $assignmentRepository->create([['id' => $this->ids->get('assignment'), 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId]], $context);
     }
 
     /**

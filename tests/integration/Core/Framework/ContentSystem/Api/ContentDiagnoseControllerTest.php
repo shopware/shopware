@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -20,6 +20,14 @@ class ContentDiagnoseControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     private const DIAGNOSE_URL = '/api/_action/content-system/layout/diagnose';
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
 
     #[TestDox('reports a well-formed verdict for a layout of registered components without a bound source')]
     public function testDiagnoseReportsWellFormed(): void
@@ -112,7 +120,7 @@ class ContentDiagnoseControllerTest extends TestCase
      */
     private function element(string $component): array
     {
-        return ['id' => Uuid::randomHex(), 'component' => $component, 'properties' => []];
+        return ['id' => $this->ids->get('element'), 'component' => $component, 'properties' => []];
     }
 
     private function registeredComponent(): string

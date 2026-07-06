@@ -9,11 +9,11 @@ use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayou
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
 
@@ -23,12 +23,20 @@ use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEnt
 #[CoversClass(DomainAwareLayoutResolver::class)]
 class DomainAwareLayoutResolverTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('returns assignment when domain ID is known and repository returns entity')]
     public function testReturnsAssignmentWhenDomainIsKnown(): void
     {
         $entity = new HeaderContentLayoutEntity();
-        $entity->setId(Uuid::randomHex());
-        $entity->setContentLayoutId(Uuid::randomHex());
+        $entity->setId($this->ids->get('assignment'));
+        $entity->setContentLayoutId($this->ids->get('layout'));
 
         $context = Generator::generateSalesChannelContext();
 
@@ -56,11 +64,11 @@ class DomainAwareLayoutResolverTest extends TestCase
     public function testReturnsAssignmentWhenDomainIsNull(): void
     {
         $entity = new HeaderContentLayoutEntity();
-        $entity->setId(Uuid::randomHex());
-        $entity->setContentLayoutId(Uuid::randomHex());
+        $entity->setId($this->ids->get('assignment'));
+        $entity->setContentLayoutId($this->ids->get('layout'));
 
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setId($this->ids->get('salesChannel'));
 
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getDomainId')->willReturn(null);
@@ -93,13 +101,13 @@ class DomainAwareLayoutResolverTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $domainSpecific = new HeaderContentLayoutEntity();
-        $domainSpecific->setId(Uuid::randomHex());
+        $domainSpecific->setId($this->ids->get('domainAssignment'));
         $domainSpecific->setContentLayoutId('layout-domain');
         $domainSpecific->setDomainId($context->getDomainId());
         $domainSpecific->setSalesChannelId($context->getSalesChannel()->getId());
 
         $channelOnly = new HeaderContentLayoutEntity();
-        $channelOnly->setId(Uuid::randomHex());
+        $channelOnly->setId($this->ids->get('channelAssignment'));
         $channelOnly->setContentLayoutId('layout-channel');
         $channelOnly->setSalesChannelId($context->getSalesChannel()->getId());
 

@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\Test\Generator;
@@ -33,6 +32,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -42,6 +42,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityLoader::class)]
 class EntityLoaderTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     /**
      * @param list<EntityDefinition> $salesChannelDefinitions
      * @param class-string $expectedProducedType
@@ -182,7 +190,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]
     public function testLoadReturnsCachedResultViaSalesChannelRepository(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
         $entity = $this->createEntityWithId($productId);
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
@@ -199,7 +207,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('falls back to context repository when sales channel repository is unavailable')]
     public function testLoadFallsBackToContextRepositoryWhenSalesChannelRepoUnavailable(): void
     {
-        $categoryId = Uuid::randomHex();
+        $categoryId = $this->ids->get('category');
         $entity = $this->createEntityWithId($categoryId);
         $collection = new EntityCollection([$entity]);
 
@@ -231,7 +239,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('returns uncacheable result when cache tag resolver returns null')]
     public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
         $entity = $this->createEntityWithId($productId);
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
@@ -247,7 +255,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('lowercases entity ID before passing it to the repository')]
     public function testLoadLowercasesEntityId(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
         $upperCaseId = strtoupper($productId);
 
         /** @var Criteria|null $capturedCriteria */
@@ -268,7 +276,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('adds associations from config to criteria when loading entity')]
     public function testLoadAddsAssociationsToCriteria(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
@@ -296,7 +304,7 @@ class EntityLoaderTest extends TestCase
     #[TestDox('uses property name from config to look up element property')]
     public function testLoadUsesPropertyNameFromConfigToLookUpElementProperty(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
         $entity = $this->createEntityWithId($productId);
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);

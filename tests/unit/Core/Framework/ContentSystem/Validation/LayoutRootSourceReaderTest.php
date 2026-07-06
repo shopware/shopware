@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -28,10 +29,18 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(LayoutRootSourceReader::class)]
 class LayoutRootSourceReaderTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('reads the root source from a matching in-batch command and never touches the store')]
     public function testReadsRootSourceFromInBatchCommand(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
 
         $registry = static::createMock(DefinitionInstanceRegistry::class);
         $registry->expects($this->never())->method('getRepository');
@@ -46,7 +55,7 @@ class LayoutRootSourceReaderTest extends TestCase
     #[TestDox('converts a binary uuid to hex before matching the in-batch command')]
     public function testConvertsBinaryUuidToHexBeforeMatching(): void
     {
-        $hex = Uuid::randomHex();
+        $hex = $this->ids->get('layout');
 
         $registry = static::createMock(DefinitionInstanceRegistry::class);
         $registry->expects($this->never())->method('getRepository');
@@ -90,7 +99,7 @@ class LayoutRootSourceReaderTest extends TestCase
     #[TestDox('returns null when the layout is not loadable from the committed store')]
     public function testReturnsNullWhenLayoutNotLoadable(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
         $reader = new LayoutRootSourceReader($this->registryReturning($this->searchResult(null), $layoutId));
 
         static::assertNull($reader->read($layoutId, [], Context::createDefaultContext()));
@@ -99,7 +108,7 @@ class LayoutRootSourceReaderTest extends TestCase
     #[TestDox('falls back to the committed root source when the matching in-batch command sets a non-string root_source')]
     public function testFallsBackToStoreForNonStringInBatchRootSource(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
 
         $layout = static::createStub(ContentLayoutEntity::class);
         $layout->method('getRootSource')->willReturn('category');
@@ -128,10 +137,11 @@ class LayoutRootSourceReaderTest extends TestCase
      */
     public static function fallsBackToStoreProvider(): iterable
     {
-        $layoutId = Uuid::randomHex();
+        $ids = new IdsCollection();
+        $layoutId = $ids->get('layout');
 
         yield 'a matching update that does not set root_source' => [UpdateCommand::class, $layoutId, $layoutId, false];
-        yield 'a command whose primary key does not match the layout' => [InsertCommand::class, $layoutId, Uuid::randomHex(), true];
+        yield 'a command whose primary key does not match the layout' => [InsertCommand::class, $layoutId, $ids->get('mismatch'), true];
         yield 'a delete command for the layout' => [DeleteCommand::class, $layoutId, $layoutId, false];
     }
 

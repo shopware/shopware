@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * The attribution round-trip at the content_layout write boundary: absent, populated, and stale
@@ -34,12 +35,20 @@ class BindingAttributionPersistenceTest extends TestCase
 
     private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('round-trips a raw scaffold with no attribution as absent, not {}, without failing write validation')]
     public function testRawScaffoldWithoutAttributionRoundTripsAsAbsent(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         // A raw scaffold carries no attributedSpecifications key at all; the write must not fail the
         // Type('array') validation the Optional constraint entry exists to guard, and must not force the
@@ -60,8 +69,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testPopulatedAttributionRoundTripsAsArrayWhenWiringMatches(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -82,8 +91,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsAttributionAfterDirectDalWiringEdit(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -116,8 +125,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsAttributionAfterSyncApiWiringEdit(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -148,8 +157,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsAttributionForUnregisteredSpecificationId(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         // A source-qualified id shaped like an app binding, but no such app/spec is registered. This exercises
         // AttributionReconciler's "specification no longer resolves from the registry" drop branch (specWiring()
@@ -181,8 +190,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testWriteWithMalformedDomainLoaderConfigIsRejectedWithCleanViolation(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         // "depth" must be a positive int; NavigationLoaderConfigSerializer::decode() rejects this with a
         // CategoryException (a domain exception, not a ContentSystemException), which
@@ -221,9 +230,9 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsNestedElementAttributionInSlot(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $parentId = Uuid::randomHex();
-        $childId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $parentId = $this->ids->get('parent');
+        $childId = $this->ids->get('child');
 
         $this->repository()->create([[
             'id' => $layoutId,

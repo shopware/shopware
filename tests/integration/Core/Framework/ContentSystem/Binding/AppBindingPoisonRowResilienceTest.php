@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * A persisted, active-app binding row that fails {@see TypeConsistentBindingSpecification} must not take
@@ -41,11 +41,15 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
     private string $appName;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
+        $this->ids = new IdsCollection();
+
         $context = Context::createDefaultContext();
-        $appId = Uuid::randomHex();
-        $this->appName = 'AcmePoison' . Uuid::randomHex();
+        $appId = $this->ids->get('app');
+        $this->appName = 'AcmePoison' . $this->ids->get('appNameSuffix');
 
         $this->appRepository()->create([[
             'id' => $appId,
@@ -69,7 +73,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: []);
 
         $this->bindingSpecificationRepository()->create([[
-            'id' => Uuid::randomHex(),
+            'id' => $this->ids->get('binding'),
             'appId' => $appId,
             'name' => self::POISON_BINDING_NAME,
             'schema' => (new BindingSpecificationSerializer())->normalize($poison),
@@ -99,8 +103,8 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     public function testRegistryStillBuildsWhenPersistedAppBindingHasMalformedDomainLoaderConfig(): void
     {
         $context = Context::createDefaultContext();
-        $appId = Uuid::randomHex();
-        $appName = 'AcmeDomainLoaderPoison' . Uuid::randomHex();
+        $appId = $this->ids->get('domainLoaderApp');
+        $appName = 'AcmeDomainLoaderPoison' . $this->ids->get('domainLoaderAppNameSuffix');
 
         $this->appRepository()->create([[
             'id' => $appId,
@@ -134,7 +138,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         );
 
         $this->bindingSpecificationRepository()->create([[
-            'id' => Uuid::randomHex(),
+            'id' => $this->ids->get('domainLoaderBinding'),
             'appId' => $appId,
             'name' => self::DOMAIN_LOADER_POISON_BINDING_NAME,
             'schema' => (new BindingSpecificationSerializer())->normalize($poison),
@@ -171,8 +175,8 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     public function testValidBindingWriteSucceedsWithPoisonAppBindingRowPresent(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->contentLayoutRepository()->create([[
             'id' => $layoutId,
@@ -192,8 +196,8 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     public function testStaleAttributionDropsWhileWiringStaysIntactWithPoisonAppBindingRowPresent(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->contentLayoutRepository()->create([[
             'id' => $layoutId,

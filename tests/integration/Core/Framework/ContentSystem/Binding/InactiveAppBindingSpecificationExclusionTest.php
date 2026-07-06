@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * Covers the end-to-end counterpart to DatabaseBindingSpecificationLoaderTest's mocked
@@ -39,15 +39,19 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
 
     private string $inactiveAppName;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
+        $this->ids = new IdsCollection();
+
         $context = Context::createDefaultContext();
 
-        $this->activeAppName = 'AcmeActive' . Uuid::randomHex();
+        $this->activeAppName = 'AcmeActive' . $this->ids->get('activeAppName');
         $activeAppId = $this->createApp($this->activeAppName, true);
         $this->createBinding($activeAppId, self::ACTIVE_BINDING_NAME, $this->activeAppName, $context);
 
-        $this->inactiveAppName = 'AcmeInactive' . Uuid::randomHex();
+        $this->inactiveAppName = 'AcmeInactive' . $this->ids->get('inactiveAppName');
         $inactiveAppId = $this->createApp($this->inactiveAppName, false);
         $this->createBinding($inactiveAppId, self::INACTIVE_BINDING_NAME, $this->inactiveAppName, $context);
 
@@ -73,7 +77,7 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
 
     private function createApp(string $appName, bool $active): string
     {
-        $appId = Uuid::randomHex();
+        $appId = $this->ids->get($active ? 'activeAppId' : 'inactiveAppId');
 
         $this->appRepository()->create([[
             'id' => $appId,
@@ -111,7 +115,7 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
         );
 
         $this->bindingSpecificationRepository()->create([[
-            'id' => Uuid::randomHex(),
+            'id' => $this->ids->get('binding-' . $bindingName),
             'appId' => $appId,
             'name' => $bindingName,
             'schema' => (new BindingSpecificationSerializer())->normalize($dto),

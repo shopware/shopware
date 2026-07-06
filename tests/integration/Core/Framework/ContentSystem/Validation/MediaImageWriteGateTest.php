@@ -17,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * Proves end-to-end: the `content_layout` write gate blocks a save when a shipped `Sw:Media:Image`
@@ -36,11 +36,19 @@ class MediaImageWriteGateTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('rejects persisting a none-rooted image bound to the entity loader with no mediaId value, keyed on the mediaId input')]
     public function testRejectsMediaImageWriteWithUnfilledMediaId(): void
     {
         $context = Context::createDefaultContext();
-        $elementId = Uuid::randomHex();
+        $elementId = $this->ids->get('element');
 
         try {
             $this->repository()->create([$this->layout($elementId, mediaId: null)], $context);
@@ -68,9 +76,9 @@ class MediaImageWriteGateTest extends TestCase
     public function testPersistsMediaImageWriteWithFilledMediaId(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
 
-        $this->repository()->create([$this->layout(Uuid::randomHex(), mediaId: Uuid::randomHex(), layoutId: $layoutId)], $context);
+        $this->repository()->create([$this->layout($this->ids->get('element'), mediaId: $this->ids->get('media'), layoutId: $layoutId)], $context);
 
         static::assertSame($layoutId, $this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
     }
@@ -91,7 +99,7 @@ class MediaImageWriteGateTest extends TestCase
     #[TestDox('reports the media image as resolvable with no binding error once the mediaId input carries a value')]
     public function testDiagnosticsReportResolvableOnceMediaIdFilled(): void
     {
-        $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: Uuid::randomHex())], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: $this->ids->get('media'))], [], Context::createDefaultContext())->report;
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], array_filter(
@@ -115,7 +123,7 @@ class MediaImageWriteGateTest extends TestCase
         ];
 
         return [
-            'id' => $layoutId ?? Uuid::randomHex(),
+            'id' => $layoutId ?? $this->ids->get('layout'),
             'name' => 'media-image-gate',
             'version' => '1.0.0',
             'rootSource' => 'none',

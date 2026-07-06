@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -25,11 +25,19 @@ class ContentLayoutWriteValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('persists a layout that is resolvable for its declared root source')]
     public function testAcceptsResolvableLayout(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $id)], $context);
 
@@ -69,7 +77,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     public function testAcceptsNoneRootedResolvableLayout(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $id)], $context);
 
@@ -108,7 +116,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->repository()->create([$this->layout('category', 'Sw:Test:DefinitelyUnregistered', $id)], $context);
 
@@ -119,7 +127,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     public function testRejectsEditBreakingResolvability(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
         $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
 
         try {
@@ -134,7 +142,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     public function testAcceptsResolvableEdit(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
         $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
 
         $this->repository()->update([['id' => $layoutId, 'name' => 'renamed-layout', 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)]], $context);
@@ -148,7 +156,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     public function testRejectsRootSourceChange(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
         $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
 
         try {
@@ -173,7 +181,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function layout(string $rootSource, string $component, ?string $id = null): array
     {
         return [
-            'id' => $id ?? Uuid::randomHex(),
+            'id' => $id ?? $this->ids->get('layout'),
             'name' => 'gate-test',
             'version' => '1.0.0',
             'rootSource' => $rootSource,
@@ -187,7 +195,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function tree(string $component): array
     {
         return [
-            ['id' => Uuid::randomHex(), 'component' => $component, 'properties' => []],
+            ['id' => $this->ids->get('element'), 'component' => $component, 'properties' => []],
         ];
     }
 

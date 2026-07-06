@@ -152,7 +152,7 @@
                                                                         {% for trackingCode in trackingCodes %}
                                                                             {% if trackingUrl %}
                                                                                 {% set output %}
-                                                                                    <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
+                                                                                    <a href="{{ trackingUrl|replace({'%s': trackingCode}) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
                                                                                 {% endset %}
                                                                             {% else %}
                                                                                 {% set output %}
@@ -160,17 +160,7 @@
                                                                                 {% endset %}
                                                                             {% endif %}
 
-                                                                    {% for trackingCode in trackingCodes %}
-                                                                        {% if trackingUrl %}
-                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
-                                                                                ['<a href="' ~ trackingUrl|replace({'%s': trackingCode}) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
-                                                                            ) %}
-                                                                        {% else %}
-                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
-                                                                                ['<span>' ~ trackingCode ~ '</span>']
-                                                                            ) %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
+                                                                            {% set totalOutput = totalOutput + 1 %}
 
                                                                             {% if totalOutput > 1 %}<span>, </span>{% endif %}{{ output }}
                                                                         {% endfor %}

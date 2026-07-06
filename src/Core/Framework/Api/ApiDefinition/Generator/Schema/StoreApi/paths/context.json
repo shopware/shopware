@@ -26,6 +26,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "patch": {
@@ -96,6 +101,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -106,7 +116,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["appName"],
+                                "required": [
+                                    "appName"
+                                ],
                                 "properties": {
                                     "appName": {
                                         "type": "string"
@@ -141,6 +153,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "get": {
@@ -151,23 +168,26 @@
                 "description": "Call the context gateway, which is used to manipulate certain aspects of context (e.g. selected payment methods, register customer, etc.). Please prefer using the POST version of this endpoint.",
                 "operationId": "contextGatewayGet",
                 "parameters": [
-                {
-                  "name": "appName",
-                  "in": "query",
-                  "required": true,
-                  "schema": {
-                    "type": "string"
-                  }
-                },
-                {
-                  "name": "data",
-                  "in": "query",
-                  "schema": {
-                    "type": "object"
-                  },
-                  "style": "deepObject"
-                }
-              ],
+                    {
+                        "name": "appName",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "data",
+                        "in": "query",
+                        "schema": {
+                            "type": "object"
+                        },
+                        "style": "deepObject"
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ContextTokenResponse"

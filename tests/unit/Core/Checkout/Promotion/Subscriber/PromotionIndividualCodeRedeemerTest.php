@@ -56,7 +56,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $codeRepository = $this->createMock(EntityRepository::class);
         $codeRepository->expects($this->never())->method('search');
         $codeRepository->expects($this->never())->method('searchIds');
-        $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, $this->createMock(EntityRepository::class));
+        $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, static::createStub(EntityRepository::class));
 
         $customer = new OrderCustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -165,7 +165,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
 
         $redeemer = new PromotionIndividualCodeRedeemer(
             $codeRepository,
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class)
         );
 
         $customer = new OrderCustomerEntity();

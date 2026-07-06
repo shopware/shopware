@@ -70,7 +70,7 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $rule = new CustomerCustomFieldRule();
         $match = $rule->match($scope);
@@ -80,7 +80,7 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     public function testMatchWithoutCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $scope = new CheckoutRuleScope($context);

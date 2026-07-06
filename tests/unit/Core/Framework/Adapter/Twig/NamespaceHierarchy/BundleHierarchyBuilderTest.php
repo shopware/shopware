@@ -24,7 +24,7 @@ class BundleHierarchyBuilderTest extends TestCase
     #[DataProvider('sortingProvider')]
     public function testSortingOfTemplates(array $plugins, array $apps, array $expectedSorting): void
     {
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $bundles = [];
 
         $path = __DIR__ . '/../../../../../../integration/Core/Framework/Adapter/Twig/fixtures/Plugins/TestPlugin1/';
@@ -35,7 +35,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $kernel->method('getBundles')->willReturn($bundles);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $dbApps = [];
 

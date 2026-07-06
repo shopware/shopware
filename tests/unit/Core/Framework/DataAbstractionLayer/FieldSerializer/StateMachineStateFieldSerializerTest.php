@@ -31,7 +31,7 @@ class StateMachineStateFieldSerializerTest extends TestCase
     {
         $this->serializer = new StateMachineStateFieldSerializer(
             Validation::createValidator(),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 

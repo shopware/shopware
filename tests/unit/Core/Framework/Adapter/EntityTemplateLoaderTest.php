@@ -28,6 +28,8 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
+
         $subscribedEvents = EntityTemplateLoader::getSubscribedEvents();
 
         static::assertSame(['app_template.written' => 'reset'], $subscribedEvents);

@@ -23,7 +23,7 @@ class BeforeCartMergeEventTest extends TestCase
         $customerCart = new Cart('customerCart');
         $guestCart = new Cart('customerCart');
         $mergeableLineItems = new LineItemCollection();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $context = Context::createDefaultContext();
         $salesChannelContext->method('getContext')->willReturn($context);

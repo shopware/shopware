@@ -54,7 +54,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(

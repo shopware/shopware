@@ -71,12 +71,17 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         visibleOptions(): Array<'backend_data' | 'product_analytics'> {
-            return this.showStoreDataConsent
-                ? [
-                      'backend_data',
-                      'product_analytics',
-                  ]
-                : ['product_analytics'];
+            const options: Array<'backend_data' | 'product_analytics'> = [];
+
+            if (this.showStoreDataConsent) {
+                options.push('backend_data');
+            }
+
+            if (this.showUserDataConsent) {
+                options.push('product_analytics');
+            }
+
+            return options;
         },
 
         showSingleOptionActions() {
@@ -91,8 +96,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.acl.can('system.system_config');
         },
 
+        showUserDataConsent() {
+            return this.acl.can('user.update_profile');
+        },
+
         showSavePreferences() {
-            return this.showStoreDataConsent && (this.storeDataConsent || this.userDataConsent);
+            return (
+                this.showStoreDataConsent && (this.storeDataConsent || (this.showUserDataConsent && this.userDataConsent))
+            );
         },
     },
 
@@ -107,10 +118,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         trackDecisionEventForVisibleOptions(storeDataConsent: boolean, userDataConsent: boolean) {
             const eventProps: ConsentEvents['consent_modal_decision'] = {
-                product_analytics: {
-                    status: userDataConsent ? 'accepted' : 'revoked',
-                    changed: userDataConsent !== this.initialUserDataConsent,
-                },
                 time_spent_on_modal: this.getModalTimeSpentInSeconds(),
             };
 
@@ -118,6 +125,13 @@ export default Shopware.Component.wrapComponentConfig({
                 eventProps.backend_data = {
                     status: storeDataConsent ? 'accepted' : 'revoked',
                     changed: storeDataConsent !== this.initialStoreDataConsent,
+                };
+            }
+
+            if (this.showUserDataConsent) {
+                eventProps.product_analytics = {
+                    status: userDataConsent ? 'accepted' : 'revoked',
+                    changed: userDataConsent !== this.initialUserDataConsent,
                 };
             }
 

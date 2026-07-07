@@ -32,6 +32,7 @@
                     @legal-link-clicked="trackLegalLinkClick('data_use_details')"
                 />
                 <sw-settings-usage-data-user-data-consent-card
+                    v-if="showUserDataConsent"
                     v-model:consent="userDataConsent"
                     :hide-switch="showSingleOptionActions"
                     @legal-link-clicked="trackLegalLinkClick('privacy_policy')"

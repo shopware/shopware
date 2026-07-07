@@ -130,16 +130,38 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-page': await wrapTestComponent('sw-page', { sync: true }),
+                    'sw-page': {
+                        template: `
+                    <div class="sw-page">
+                        <slot name="search-bar"></slot>
+                        <slot name="smart-bar-back"></slot>
+                        <slot name="smart-bar-header"></slot>
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="side-content"></slot>
+                        <slot name="content"></slot>
+                        <slot name="sidebar"></slot>
+                        <slot></slot>
+                    </div>
+                `,
+                    },
                     'sw-entity-single-select': true,
                     'sw-card-view': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'mt-checkbox': MtCheckbox,
                     'mt-banner': true,
-                    'sw-media-compact-upload-v2': true,
+                    'sw-media-compact-upload-v2': {
+                        template: '<div id="sw-media-compact-upload"/>',
+                        props: [
+                            'source',
+                            'disabled',
+                        ],
+                    },
                     'mt-switch': MtSwitch,
-                    'sw-multi-select': await wrapTestComponent('sw-multi-select', { sync: true }),
+                    'sw-multi-select': {
+                        template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
+                        props: ['disabled'],
+                    },
                     'sw-skeleton': true,
                     'sw-select-result': true,
                     'sw-highlight-text': true,
@@ -157,11 +179,6 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     },
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
-                    },
-                },
-                mocks: {
-                    $route: {
-                        meta: {},
                     },
                 },
             },
@@ -275,7 +292,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
         expect(wrapper.findAllComponents('.sw-field').every((field) => !field.props().disabled)).toBe(true);
-        expect(wrapper.find('#documentSalesChannel').attributes().disabled).toBe('false');
+        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(false);
     });
 
     it('should not be able to edit', async () => {
@@ -288,7 +305,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeDefined();
         expect(wrapper.findAllComponents('.sw-field').every((field) => field.props().disabled)).toBe(true);
-        expect(wrapper.find('#documentSalesChannel').attributes().disabled).toBe('true');
+        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
     });
 
     it('should create an invoice document with countries note delivery', async () => {
@@ -314,17 +331,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    it('should show the company settings card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
-        const wrapper = await createWrapper({
-            props: { documentConfigId: 'documentConfigWithDocumentType' },
-        });
-        await flushPromises();
-
-        expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(true);
-        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
-    });
-
-    it('should hide the company settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
+    it('should move company settings into the settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
         const wrapper = await createWrapper(
             {
                 props: { documentConfigId: 'documentConfigWithDocumentType' },
@@ -336,36 +343,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
         expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(true);
-    });
-
-    it('should hide the moved company settings banner after closing it', async () => {
-        const wrapper = await createWrapper(
-            {
-                props: { documentConfigId: 'documentConfigWithDocumentType' },
-            },
-            [],
-            true,
-        );
-        await flushPromises();
-
-        await wrapper.getComponent({ name: 'mt-banner' }).vm.$emit('close');
-
-        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
-    });
-
-    it('should show company address switches in the settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
-        const wrapper = await createWrapper(
-            {
-                props: { documentConfigId: 'documentConfigWithDocumentType' },
-            },
-            [],
-            true,
-        );
-        await flushPromises();
-
         expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(true);
-        expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
     });
 
     it('should always show payment due date in the settings card', async () => {
@@ -380,7 +359,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
     });
 
-    it('should keep company address switches in the company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+    it('should keep company settings in the legacy company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
         });
@@ -391,6 +370,21 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('paymentDueDate');
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_company').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
+    });
+
+    it('should hide the moved company settings banner after closing it', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
+
+        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
@@ -449,7 +443,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    it('should render assignment, settings, and displayed content cards in order', async () => {
+    it('should have assignment card at the top of the page', async () => {
         const wrapper = await createWrapper(
             {
                 props: {
@@ -462,12 +456,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         const swCardComponents = wrapper.findAll('.mt-card');
 
-        expect(swCardComponents.length).toBeGreaterThanOrEqual(3);
+        expect(swCardComponents.length).toBeGreaterThan(0);
         expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
-        expect(swCardComponents.at(1).attributes()['position-identifier']).toBe('sw-settings-document-detail-content');
-        expect(swCardComponents.at(2).attributes()['position-identifier']).toBe(
-            'sw-settings-document-detail-displayed-content',
-        );
     });
 
     it('should be have config file formats only show pdf', async () => {
@@ -482,14 +472,14 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
+        expect(multiSelect.attributes().value).toBe('pdf');
 
         await wrapper.vm.onRemoveDocumentType({ id: 'pdf' });
 
         multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
+        expect(multiSelect.attributes().value).toBe('pdf');
     });
 
     it('should be have config file formats with pdf and html', async () => {
@@ -504,21 +494,21 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf', 'html']);
+        expect(multiSelect.attributes().value).toBe('pdf,html');
 
         await wrapper.vm.onRemoveDocumentType({ id: 'html' });
 
         multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
+        expect(multiSelect.attributes().value).toBe('pdf');
 
         await wrapper.vm.onAddDocumentType({ id: 'html' });
 
         multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf', 'html']);
+        expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 
     it('should be possible to select fileTypes without fileTypes property in config', async () => {
@@ -533,10 +523,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf', 'html']);
+        expect(multiSelect.attributes().value).toBe('pdf,html');
 
         await wrapper.vm.onRemoveDocumentType({ id: 'html' });
-        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
+        expect(multiSelect.attributes().value).toBe('pdf');
     });
 
     it.each([

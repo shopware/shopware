@@ -1,33 +1,10 @@
-/**
- * @sw-package fundamentals@framework
- */
 import template from './sw-settings-company-information.html.twig';
 import './sw-settings-company-information.scss';
 
-function createEmptyCompanyInfo() {
-    return {
-        logoId: null,
-        companyName: '',
-        companyEmail: '',
-        companyPhone: '',
-        companyStreet: '',
-        companyCountryId: null,
-        companyZipcode: '',
-        companyCity: '',
-        companyUrl: '',
-        taxNumber: '',
-        taxOffice: '',
-        vatId: '',
-        bankName: '',
-        bankIban: '',
-        bankBic: '',
-        placeOfJurisdiction: '',
-        placeOfFulfillment: '',
-        executiveDirector: '',
-    };
-}
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @sw-package fundamentals@framework
+ */
 export default {
     template,
 
@@ -49,7 +26,26 @@ export default {
 
     data() {
         return {
-            defaultValue: createEmptyCompanyInfo(),
+            defaultValue: {
+                logoId: null,
+                companyName: '',
+                companyEmail: '',
+                companyPhone: '',
+                companyStreet: '',
+                companyCountryId: null,
+                companyZipcode: '',
+                companyCity: '',
+                companyUrl: '',
+                taxNumber: '',
+                taxOffice: '',
+                vatId: '',
+                bankName: '',
+                bankIban: '',
+                bankBic: '',
+                placeOfJurisdiction: '',
+                placeOfFulfillment: '',
+                executiveDirector: '',
+            },
         };
     },
 

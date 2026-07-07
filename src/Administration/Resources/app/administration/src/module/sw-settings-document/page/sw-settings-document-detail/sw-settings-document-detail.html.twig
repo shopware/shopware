@@ -298,6 +298,7 @@
                     <mt-checkbox
                         v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
                         v-model:checked="documentConfig.config.displayCompanyAddress"
+                        name="sw-field--documentConfig-config-displayCompanyAddress"
                         class="sw-settings-document-detail__field-display-company-address"
                         :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
                         :disabled="!acl.can('document.editor') || undefined"
@@ -308,6 +309,7 @@
                     <mt-checkbox
                         v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
                         v-model:checked="documentConfig.config.displayReturnAddress"
+                        name="sw-field--documentConfig-config-displayReturnAddress"
                         class="sw-settings-document-detail__field-display-return-address"
                         :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
                         :disabled="!acl.can('document.editor') || undefined"

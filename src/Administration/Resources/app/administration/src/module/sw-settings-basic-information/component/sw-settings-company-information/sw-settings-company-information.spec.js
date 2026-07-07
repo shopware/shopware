@@ -10,55 +10,11 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-company
             props,
             global: {
                 stubs: {
-                    'sw-container': {
-                        template: '<div class="sw-container"><slot /></div>',
-                    },
-                    'sw-media-compact-upload-v2': {
-                        name: 'sw-media-compact-upload-v2',
-                        template: '<div class="sw-media-compact-upload-v2" />',
-                        props: [
-                            'source',
-                            'label',
-                            'name',
-                        ],
-                    },
-                    'sw-entity-single-select': {
-                        name: 'sw-entity-single-select',
-                        template: '<div class="sw-entity-single-select" />',
-                        props: [
-                            'value',
-                            'disabled',
-                            'label',
-                            'placeholder',
-                            'entity',
-                            'required',
-                        ],
-                    },
-                    'mt-text-field': {
-                        name: 'mt-text-field',
-                        template:
-                            '<input class="mt-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
-                        props: [
-                            'modelValue',
-                            'disabled',
-                            'label',
-                            'placeholder',
-                            'name',
-                            'required',
-                        ],
-                    },
-                    'mt-url-field': {
-                        name: 'mt-url-field',
-                        template:
-                            '<input class="mt-url-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
-                        props: [
-                            'modelValue',
-                            'disabled',
-                            'label',
-                            'placeholder',
-                            'name',
-                        ],
-                    },
+                    'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                    'sw-entity-single-select': true,
+                    'sw-media-compact-upload-v2': true,
+                    'mt-text-field': true,
+                    'mt-url-field': true,
                 },
                 mocks: {
                     $t: (key) => key,
@@ -80,7 +36,8 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-company
             },
         });
 
-        await wrapper.find('.mt-text-field').setValue('ACME');
+        wrapper.vm.currentValue.companyName = 'ACME';
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('update:value')).toBeTruthy();
         expect(wrapper.emitted('update:value').at(-1)[0]).toEqual(

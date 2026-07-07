@@ -130,46 +130,16 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-page': {
-                        template: `
-                    <div class="sw-page">
-                        <slot name="search-bar"></slot>
-                        <slot name="smart-bar-back"></slot>
-                        <slot name="smart-bar-header"></slot>
-                        <slot name="smart-bar-actions"></slot>
-                        <slot name="side-content"></slot>
-                        <slot name="content"></slot>
-                        <slot name="sidebar"></slot>
-                        <slot></slot>
-                    </div>
-                `,
-                    },
+                    'sw-page': await wrapTestComponent('sw-page', { sync: true }),
                     'sw-entity-single-select': true,
                     'sw-card-view': true,
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'mt-checkbox': MtCheckbox,
-                    'mt-banner': {
-                        name: 'mt-banner',
-                        template: '<div class="mt-banner"><slot /></div>',
-                        props: [
-                            'title',
-                            'variant',
-                            'closable',
-                        ],
-                    },
-                    'sw-media-compact-upload-v2': {
-                        template: '<div id="sw-media-compact-upload"/>',
-                        props: [
-                            'source',
-                            'disabled',
-                        ],
-                    },
+                    'mt-banner': true,
+                    'sw-media-compact-upload-v2': true,
                     'mt-switch': MtSwitch,
-                    'sw-multi-select': {
-                        template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
-                        props: ['disabled'],
-                    },
+                    'sw-multi-select': await wrapTestComponent('sw-multi-select', { sync: true }),
                     'sw-skeleton': true,
                     'sw-select-result': true,
                     'sw-highlight-text': true,
@@ -187,6 +157,11 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     },
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {},
                     },
                 },
             },
@@ -300,7 +275,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
         expect(wrapper.findAllComponents('.sw-field').every((field) => !field.props().disabled)).toBe(true);
-        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(false);
+        expect(wrapper.find('#documentSalesChannel').attributes().disabled).toBe('false');
     });
 
     it('should not be able to edit', async () => {
@@ -313,7 +288,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeDefined();
         expect(wrapper.findAllComponents('.sw-field').every((field) => field.props().disabled)).toBe(true);
-        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
+        expect(wrapper.find('#documentSalesChannel').attributes().disabled).toBe('true');
     });
 
     it('should create an invoice document with countries note delivery', async () => {
@@ -507,14 +482,14 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('pdf');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
 
         await wrapper.vm.onRemoveDocumentType({ id: 'pdf' });
 
         multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('pdf');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
     });
 
     it('should be have config file formats with pdf and html', async () => {
@@ -529,21 +504,21 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         let multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('pdf,html');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf', 'html']);
 
         await wrapper.vm.onRemoveDocumentType({ id: 'html' });
 
         multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('pdf');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
 
         await wrapper.vm.onAddDocumentType({ id: 'html' });
 
         multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('pdf,html');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf', 'html']);
     });
 
     it('should be possible to select fileTypes without fileTypes property in config', async () => {
@@ -558,10 +533,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
 
         expect(multiSelect).toBeTruthy();
-        expect(multiSelect.attributes().value).toBe('pdf,html');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf', 'html']);
 
         await wrapper.vm.onRemoveDocumentType({ id: 'html' });
-        expect(multiSelect.attributes().value).toBe('pdf');
+        expect(wrapper.vm.fileTypesSelected).toEqual(['pdf']);
     });
 
     it.each([

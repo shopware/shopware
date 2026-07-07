@@ -18,6 +18,7 @@
       "global": "Global"
     },
     "detail": {
+      "displayTitle": "Anzeigen:",
       "textHeadline": "Neues Dokument",
       "configCard": "Einstellungen",
       "displayedContentCard": "Angezeigte Inhalte",

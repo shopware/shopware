@@ -75,6 +75,7 @@ class DocumentTemplateRendererTest extends TestCase
                     return $parameters['order'] === $order
                         && $parameters['documentNumber'] === '12345'
                         && $parameters['rootDir'] === 'rootDir'
+                        && $parameters['documentV2'] === true
                         && !\array_key_exists('counter', $parameters)
                         && $parameters['context'] instanceof SalesChannelContext;
                 }),
@@ -83,10 +84,10 @@ class DocumentTemplateRendererTest extends TestCase
             ->willReturn($template);
 
         $salesChannel = new SalesChannelEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         $contextFactory->method('create')->willReturn($salesChannelContext);
 
         $renderer = new DocumentTemplateRenderer(
@@ -149,22 +150,22 @@ class DocumentTemplateRendererTest extends TestCase
 
     private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
     {
-        $templateFinder = $this->createMock(TemplateFinder::class);
+        $templateFinder = static::createStub(TemplateFinder::class);
         $templateFinder->method('find')->willReturnArgument(0);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setBusinessTimeZone($businessTimeZone);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         $contextFactory->method('create')->willReturn($salesChannelContext);
 
         return new DocumentTemplateRenderer(
             $templateFinder,
             $twig,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
             $contextFactory,
             'rootDir',
         );

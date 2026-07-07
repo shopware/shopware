@@ -22,11 +22,15 @@ class SystemConfigReadToolTest extends TestCase
     public function testReadSingleKey(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')
-            ->with('core.listing.defaultSorting', null)
-            ->willReturn('name-asc');
+        $configService->expects($this->once())->method('get')
+            ->willReturnCallback(function (string $key, ?string $salesChannelId = null): string {
+                static::assertSame('core.listing.defaultSorting', $key);
+                static::assertNull($salesChannelId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+                return 'name-asc';
+            });
+
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigReadTool($configService, $contextProvider);
@@ -41,14 +45,18 @@ class SystemConfigReadToolTest extends TestCase
     public function testReadDomain(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('getDomain')
-            ->with('core.listing', null)
-            ->willReturn([
-                'core.listing.defaultSorting' => 'name-asc',
-                'core.listing.productsPerPage' => 24,
-            ]);
+        $configService->expects($this->once())->method('getDomain')
+            ->willReturnCallback(function (string $domain, ?string $salesChannelId = null, bool $inherit = false): array {
+                static::assertSame('core.listing', $domain);
+                static::assertNull($salesChannelId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+                return [
+                    'core.listing.defaultSorting' => 'name-asc',
+                    'core.listing.productsPerPage' => 24,
+                ];
+            });
+
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigReadTool($configService, $contextProvider);
@@ -64,11 +72,15 @@ class SystemConfigReadToolTest extends TestCase
     {
         $salesChannelId = 'abc123';
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('get')
-            ->with('core.listing.defaultSorting', $salesChannelId)
-            ->willReturn('price-asc');
+        $configService->expects($this->once())->method('get')
+            ->willReturnCallback(function (string $key, ?string $sc = null) use ($salesChannelId): string {
+                static::assertSame('core.listing.defaultSorting', $key);
+                static::assertSame($salesChannelId, $sc);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+                return 'price-asc';
+            });
+
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigReadTool($configService, $contextProvider);
@@ -88,7 +100,7 @@ class SystemConfigReadToolTest extends TestCase
 
         $configService->expects($this->never())->method('get');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigReadTool($configService, $contextProvider);
@@ -110,7 +122,7 @@ class SystemConfigReadToolTest extends TestCase
         $configService->expects($this->never())->method('get');
         $configService->expects($this->never())->method('getDomain');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new SystemConfigReadTool($configService, $contextProvider);

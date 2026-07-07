@@ -132,6 +132,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
             <argument>%kernel.environment%</argument>
+            <argument type="tagged_iterator" tag="shopware.asset" index-by="asset"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Mail\MailThemeConfigSubscriber">

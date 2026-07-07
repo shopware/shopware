@@ -58,7 +58,7 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repo,
             $messageBusMock,
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $languageRepo,
             false,
         );
@@ -81,7 +81,7 @@ class ProductStreamUpdaterTest extends TestCase
     {
         $updatedStreamId = Uuid::randomHex();
         $deletedStreamId = Uuid::randomHex();
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $expectedMessages = [$updatedStreamId, $deletedStreamId];
         $matcher = $this->exactly(\count($expectedMessages));
@@ -104,7 +104,7 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repo,
             $messageBusMock,
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $languageRepo,
             true,
         );
@@ -135,7 +135,7 @@ class ProductStreamUpdaterTest extends TestCase
 
     public function testUpdaterWithoutFilterChange(): void
     {
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
 
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method('dispatch');
@@ -151,7 +151,7 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repo,
             $messageBusMock,
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $languageRepo,
             true,
         );
@@ -199,8 +199,8 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             new ProductDefinition(),
             $repository,
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $this->createDefaultLanguageRepo(),
             true,
         );
@@ -260,7 +260,7 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,
@@ -327,7 +327,7 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,
@@ -391,7 +391,7 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,

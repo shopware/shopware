@@ -145,7 +145,7 @@ export default {
                 },
                 {
                     key: 'next',
-                    label: this.$t('global.sw-modal.labelClose'),
+                    label: this.$t('global.default.close'),
                     position: 'right',
                     variant: 'primary',
                     action: '',

@@ -29,7 +29,7 @@ class AddressValidationFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $systemConfigServiceMock = static::createStub(SystemConfigService::class);
 
         $this->addressValidationFactory = new AddressValidationFactory($systemConfigServiceMock);
 

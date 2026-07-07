@@ -17,7 +17,7 @@ class MailFactoryTest extends TestCase
 {
     public function testCreateWithFeatureFlag(): void
     {
-        $validatorMock = $this->createMock(HappyPathValidator::class);
+        $validatorMock = static::createStub(HappyPathValidator::class);
 
         $mailFactory = new MailFactory($validatorMock);
         $validatorMock->method('validate')->willReturn(new ConstraintViolationList());

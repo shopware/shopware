@@ -52,6 +52,9 @@ jobs:
           npm run lint:js
           npm run lint:scss
 
+      - name: Lint snippets
+        run: composer storefront:lint:snippets
+
   lint-admin-modules:
     name: "Storefront admin-modules ESLint"
     needs:

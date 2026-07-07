@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -44,11 +44,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(NewsletterSubscribeRoute::class)]
 class NewsletterSubscribeRouteTest extends TestCase
 {
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private Stub&SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
     }
 
     public function testSubscribeWithDOIEnabled(): void
@@ -92,13 +92,13 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
             $systemConfig,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -147,13 +147,13 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
             $systemConfig,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -182,7 +182,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
         ]);
 
-        $mock = $this->createMock(DataValidator::class);
+        $mock = static::createStub(DataValidator::class);
         $mock->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
                 static::assertEquals($value, $data[$propertyName] ?? null);
@@ -193,12 +193,12 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
             $mock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -269,13 +269,13 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             $rateLimiterMock,
             $requestStack,
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -305,14 +305,14 @@ class NewsletterSubscribeRouteTest extends TestCase
             ->willThrowException(new RateLimitExceededException(2));
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             $rateLimiterMock,
             $requestStack,
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
         );
 
         static::expectException(RateLimitExceededException::class);
@@ -349,7 +349,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->salesChannelContext->method('getCustomerId')->willReturn(null);
         }
 
-        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository = static::createStub(EntityRepository::class);
 
         $customerEntity = new CustomerEntity();
         $customerEntity->setId($customerData['id']);
@@ -380,10 +380,10 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->salesChannelContext->getContext(),
         );
 
-        $newsletterRecipientRepository = $this->createMock(EntityRepository::class);
+        $newsletterRecipientRepository = static::createStub(EntityRepository::class);
         $newsletterRecipientRepository->method('search')->willReturn($newsletterRecipientSearchResult);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatchedEvents = [];
         $eventDispatcher
             ->method('dispatch')
@@ -395,12 +395,12 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $newsletterRecipientRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
             $systemConfig,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
             $customerRepository,
         );
 

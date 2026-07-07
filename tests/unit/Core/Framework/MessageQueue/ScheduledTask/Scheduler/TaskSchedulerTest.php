@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Schedule
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Constraint\StringStartsWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -40,8 +41,11 @@ class TaskSchedulerTest extends TestCase
      */
     #[DataProvider('providerGetNextExecutionTime')]
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetNextExecutionTime(array $aggregationResult, ?\DateTime $time): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\MessageQueue\\ScheduledTask\\Scheduler\\TaskScheduler::getNextExecutionTime()" is deprecated and will be removed in v6.8.0.0.');
+
         $scheduledTaskRepository = static::createStub(EntityRepository::class);
         $scheduledTaskRepository->method('aggregate')->willReturn(new AggregationResultCollection($aggregationResult));
 

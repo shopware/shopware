@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
@@ -18,8 +19,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class FrameworkExtensionTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedCacheCompressionConfigSetsReplacementParameters(): void
     {
+        $this->expectUserDeprecationMessage('Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.');
+        $this->expectUserDeprecationMessage('Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.');
+
         $container = new ContainerBuilder();
 
         (new FrameworkExtension())->load([

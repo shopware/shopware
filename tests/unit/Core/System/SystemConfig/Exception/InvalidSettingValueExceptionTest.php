@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -20,8 +21,11 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class InvalidSettingValueExceptionTest extends TestCase
 {
     #[TestDox('the message grows with the optional needed and actual types')]
+    #[IgnoreDeprecations]
     public function testMessageVariants(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\System\\SystemConfig\\Exception\\InvalidSettingValueException" is deprecated and will be removed in v6.8.0.0. Use "SystemConfigException::invalidSettingValueException()" instead.');
+
         static::assertSame(
             'Invalid value for \'core.foo\'',
             (new InvalidSettingValueException('core.foo'))->getMessage()

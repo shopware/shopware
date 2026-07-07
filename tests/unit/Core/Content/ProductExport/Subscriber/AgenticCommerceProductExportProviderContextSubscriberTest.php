@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -35,8 +36,12 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendBodyContextAddsProviderSpecificContext(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AgenticCommerceProductExportProviderRegistry" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
             new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
@@ -106,8 +111,11 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendBodyContextDoesNothingWhenProviderIsNotRegistered(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AgenticCommerceProductExportProviderRegistry" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
             new AgenticCommerceProductExportProviderRegistry([])
         );

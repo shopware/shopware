@@ -183,11 +183,8 @@ class ProductStreamBuilderTest extends TestCase
     public function testDeprecatedBuildFiltersTriggersDeprecationAndStillBuildsFilters(): void
     {
         // Before v6.8.0.0 the deprecated fallback (used for builders that do not extend
-        // AbstractProductStreamBuilder) must stay functional and emit a deprecation notice; TESTS_RUNNING is
-        // disabled so the notice is triggered instead of suppressed. Once the flag is active it throws
-        // instead, which the unit test covers.
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-
+        // AbstractProductStreamBuilder) must stay functional and emit a deprecation notice. Once the
+        // flag is active it throws instead, which the unit test covers.
         $ids = new IdsCollection();
         $value = Uuid::randomHex();
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -177,8 +178,11 @@ class PluginListCommandTest extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with `--json` option
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testJsonOutput(): void
     {
+        $this->expectUserDeprecationMessage('The "--json" option of the "plugin:list" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.');
+
         $entities = [
             $plugin1 = new PluginEntity(),
             $plugin2 = new PluginEntity(),

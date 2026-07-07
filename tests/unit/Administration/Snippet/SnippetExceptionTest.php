@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -18,8 +19,11 @@ class SnippetExceptionTest extends TestCase
      * @deprecated tag:v6.8.0 - will be removed
      * */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDuplicatedFirstLevelKey(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Administration\\Snippet\\SnippetException::duplicatedFirstLevelKey()" is deprecated and will be removed in v6.8.0.0.');
+
         $exception = SnippetException::duplicatedFirstLevelKey(['id1', 'id2', 'id3']);
 
         static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());

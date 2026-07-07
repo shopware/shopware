@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Request;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -47,8 +48,11 @@ class RequestParamHelperTest extends TestCase
      * @deprecated tag:v6.8.0 - Can be removed when fallback to attributes is removed
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testHelperDeprecated(): void
     {
+        $this->expectUserDeprecationMessage('Using `RequestParamHelper::get()` to access parameters in attribute bag is deprecated. Consider using `$request->attributes` directly or store the parameters in `$request->query` or `$request->request` bags.');
+
         $request = new Request(
             query: ['scalar' => 'query', 'non-scalar' => ['query']],
             request: ['scalar' => 'request', 'non-scalar' => ['request']],

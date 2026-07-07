@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
@@ -57,8 +58,11 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with `--json` option
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testJsonOutput(): void
     {
+        $this->expectUserDeprecationMessage('The "--json" option of the "dal:validate" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.');
+
         $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],

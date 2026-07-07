@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -17,8 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 class ThemeExceptionTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testThemeMediaStillInUse(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Exception\\ThemeException::themeMediaStillInUse()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\RestrictDeleteViolationException" instead.');
+
         $exception = ThemeException::themeMediaStillInUse();
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());

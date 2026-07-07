@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use OpenSearch\Common\Exceptions\BadRequest400Exception;
 use OpenSearch\Exception\BadRequestHttpException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
@@ -41,8 +42,11 @@ class ElasticsearchProductExceptionTest extends TestCase
      * @deprecated tag:v6.8.0 - reason: BadRequest400Exception support is removed with the next major - to be removed
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testCannotChangeFieldTypeWithLegacyException(): void
     {
+        $this->expectUserDeprecationMessage('Passing OpenSearch\\Common\\Exceptions\\BadRequest400Exception to Shopware\\Elasticsearch\\Product\\ElasticsearchProductException::cannotChangeFieldType is deprecated and support will be removed in v6.8.0.0. Please pass an instance of OpenSearch\\Exception\\BadRequestHttpException instead.');
+
         $previous = new BadRequest400Exception('mapper_parsing_exception');
         $exception = ElasticsearchProductException::cannotChangeFieldType($previous);
 

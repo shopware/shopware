@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
@@ -137,8 +138,11 @@ class AppListCommandTest extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with `--json` option
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testJsonOutput(): void
     {
+        $this->expectUserDeprecationMessage('The "--json" option of the "app:list" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.');
+
         $entities = [
             $app1 = new AppEntity(),
             $app2 = new AppEntity(),

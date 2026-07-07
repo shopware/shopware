@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
@@ -19,8 +20,11 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class AgenticCommerceProductExportProviderRegistryTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetByTechnicalNameReturnsMatchingProvider(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AgenticCommerceProductExportProviderRegistry" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $firstProvider = $this->createProvider('google');
         $matchingProvider = $this->createProvider('open-ai');
         $duplicateProvider = $this->createProvider('open-ai');
@@ -35,8 +39,11 @@ class AgenticCommerceProductExportProviderRegistryTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetByTechnicalNameReturnsNullWhenProviderDoesNotExist(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AgenticCommerceProductExportProviderRegistry" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $registry = new AgenticCommerceProductExportProviderRegistry([
             $this->createProvider('google'),
             $this->createProvider('meta'),

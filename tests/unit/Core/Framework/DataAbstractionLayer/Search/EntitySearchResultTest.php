@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -37,8 +38,13 @@ class EntitySearchResultTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testSlice(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::first()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->first()" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::getEntity()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::slice()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->slice()" instead.');
+
         $entitySearchResult = $this->createEntitySearchResult();
 
         $newInstance = $entitySearchResult->slice(2);
@@ -54,8 +60,13 @@ class EntitySearchResultTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testFilter(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::filter()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->filter()" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::first()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->first()" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::getEntity()" is deprecated and will be removed in v6.8.0.0.');
+
         $entitySearchResult = $this->createEntitySearchResult();
 
         $count = 0;
@@ -75,8 +86,12 @@ class EntitySearchResultTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testMergeAcceptsPlainEntityCollection(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::getElements()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->getElements()" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::merge()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->merge()" instead.');
+
         $existingEntity = new ArrayEntity(['id' => Uuid::randomHex()]);
         $additionalEntity = new ArrayEntity(['id' => Uuid::randomHex()]);
         $entityCollection = new EntityCollection([$existingEntity]);

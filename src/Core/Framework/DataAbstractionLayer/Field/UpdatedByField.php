@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedByFieldSerializer;
 use Shopware\Core\Framework\Feature;
@@ -30,7 +29,7 @@ class UpdatedByField extends FkField
             $allowedWriteScopes = [Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE];
         }
 
-        if (\func_num_args() === 0 && !Feature::isActive('v6.8.0.0') && !EnvironmentHelper::getVariable('TESTS_RUNNING')) {
+        if (\func_num_args() === 0 && !Feature::isActive('v6.8.0.0')) {
             trigger_deprecation(
                 'shopware/core',
                 '',

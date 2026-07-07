@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
@@ -22,8 +23,11 @@ class CacheStateValidatorTest extends TestCase
 {
     #[DataProvider('cases')]
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidation(bool $isValid, Request $request, Response $response): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Framework\\Adapter\\Cache\\Http\\CacheStateValidator" is deprecated and will be removed in v6.8.0.0.');
+
         $validator = new CacheStateValidator([]);
         static::assertSame($isValid, $validator->isValid($request, $response));
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension;
 use Shopware\Core\Framework\Context;
@@ -32,8 +33,15 @@ class ConfigExtensionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedStaticConfigReturnsValueWithoutCallingSystemConfig(): void
     {
+        $this->expectUserDeprecationMessage('Reading the static template config "cms.revocationNoticeCmsPageId" through config() is deprecated and will be removed. Use core.basicInformation.revocationPage instead.');
+        $this->expectUserDeprecationMessage('Reading the static template config "cms.taxCmsPageId" through config() is deprecated and will be removed. No direct replacement exists.');
+        $this->expectUserDeprecationMessage('Reading the static template config "cms.tosCmsPageId" through config() is deprecated and will be removed. Use core.basicInformation.tosPage instead.');
+        $this->expectUserDeprecationMessage('Reading the static template config "confirm.revocationNotice" through config() is deprecated and will be removed. No direct replacement exists.');
+        $this->expectUserDeprecationMessage('Reading the static template config "seo.descriptionMaxLength" through config() is deprecated and will be removed. Use a template-local value instead.');
+
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('get');
 

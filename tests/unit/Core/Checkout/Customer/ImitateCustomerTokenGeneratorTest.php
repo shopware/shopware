@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use Lcobucci\JWT\Configuration;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -50,10 +50,13 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed with tested method
      */
-    #[DoesNotPerformAssertions]
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidate(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Customer\\ImitateCustomerTokenGenerator::generate()" is deprecated and will be removed in v6.8.0.0. Use "parse" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Customer\\ImitateCustomerTokenGenerator::validate()" is deprecated and will be removed in v6.8.0.0. Use "parse" instead.');
+
         $token = $this->imitateCustomerTokenGenerator->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
 
         $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
@@ -63,8 +66,11 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
      * @deprecated tag:v6.8.0 - will be removed with tested method
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateWithInvalidToken(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Customer\\ImitateCustomerTokenGenerator::validate()" is deprecated and will be removed in v6.8.0.0. Use "parse" instead.');
+
         $this->expectException(InvalidImitateCustomerTokenException::class);
 
         $this->imitateCustomerTokenGenerator->validate('invalidToken', self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
@@ -74,8 +80,11 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
      * @deprecated tag:v6.8.0 - will be removed with tested method
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateWithInvalidTimeToken(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Customer\\ImitateCustomerTokenGenerator::validate()" is deprecated and will be removed in v6.8.0.0. Use "parse" instead.');
+
         $this->expectException(InvalidImitateCustomerTokenException::class);
 
         $token = $this->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID, time() - ImitateCustomerTokenGenerator::TOKEN_LIFETIME - 1);

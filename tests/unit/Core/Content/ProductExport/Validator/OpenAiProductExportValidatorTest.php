@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Validator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\Error\JsonlValidationError;
@@ -21,8 +22,11 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class OpenAiProductExportValidatorTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateDoesNothingForOtherProviders(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $entity->setProvider('google');
 
@@ -34,8 +38,11 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorWhenFileFormatIsNotJsonl(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $entity->setFileFormat(ProductExportEntity::FILE_FORMAT_XML);
 
@@ -51,8 +58,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForMissingRequiredUrlField(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
 
         $content = json_encode([
@@ -87,8 +98,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForBlankRequiredStringField(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow(['seller_name' => '   ']) . \PHP_EOL;
 
@@ -104,8 +119,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsJsonlValidationErrorForMalformedJsonl(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -119,8 +138,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateDoesNotAddErrorsForValidOpenAiFeed(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
 
         $content = json_encode([
@@ -151,8 +174,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorsForInvalidOptionalAndDerivedFieldFormats(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
 
         $content = json_encode([
@@ -204,8 +231,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidTargetCountryCode(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow(['target_countries' => ['DE', 'de']]);
 
@@ -221,8 +252,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorWhenTargetCountriesAreEmpty(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow(['target_countries' => []]) . \PHP_EOL;
 
@@ -238,8 +273,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorWhenAvailabilityDateIsMissingForPreOrder(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow(['availability' => 'pre_order']);
 
@@ -254,8 +293,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorWhenAvailabilityDateIsInvalidForPreOrder(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow([
             'availability' => 'pre_order',
@@ -274,8 +317,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAllowsValidAvailabilityDateForPreOrder(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow([
             'availability' => 'pre_order',
@@ -290,8 +337,12 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForDuplicateItemIds(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\OpenAiProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $content = $this->createValidRow() . \PHP_EOL . $this->createValidRow(['title' => 'Second row']) . \PHP_EOL;
 

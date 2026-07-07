@@ -14,7 +14,10 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 * If your code does not use the annotated symbol in the affected way, there is nothing to do.
 
 All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
-The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
+
+### Deprecations are emitted during test execution
+
+`Feature::triggerDeprecationOrThrow()` no longer suppresses the deprecation notice when the `TESTS_RUNNING` environment variable is set. If your extension's test suite runs with Shopware's test bootstrap, tests that exercise deprecated core functionality now surface an `E_USER_DEPRECATED` notice instead of passing silently. Migrate the call to the documented replacement, or - when the test deliberately covers the legacy path - declare the deprecation explicitly with PHPUnit's `$this->expectUserDeprecationMessage(...)` and the `#[IgnoreDeprecations]` attribute. Shopware's own phpunit configuration now sets `failOnDeprecation="true"`; your project's phpunit configuration is unaffected unless you enable it as well.
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.

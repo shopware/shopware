@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
@@ -22,8 +23,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class CategoryUrlExtensionTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetCategoryUrlUsesSalesChannelContextFallback(): void
     {
+        $this->expectUserDeprecationMessage('The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.');
+
         $category = new CategoryEntity();
         $salesChannelContext = Generator::generateSalesChannelContext();
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,8 +61,13 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertFalse($handler->wasCalled);
     }
 
+    #[IgnoreDeprecations]
     public function testInvokeFallsBackToInlineLogicWhenNoExecutorIsSet(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::get()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->get()" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::has()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->has()" instead.');
+        $this->expectUserDeprecationMessage('The scheduled task handler "Shopware\\Tests\\Unit\\Core\\Framework\\MessageQueue\\ScheduledTask\\HandlerStub" was invoked without a "Shopware\\Core\\Framework\\MessageQueue\\ScheduledTask\\ScheduledTaskExecutor". The inline execution logic in "Shopware\\Core\\Framework\\MessageQueue\\ScheduledTask\\ScheduledTaskHandler" is deprecated and will be removed. Register the handler as a "messenger.message_handler" service so the "Shopware\\Core\\Framework\\DependencyInjection\\CompilerPass\\ScheduledTaskExecutorCompilerPass" can inject the executor.');
+
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection()]);
 

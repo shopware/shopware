@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\NumberRange\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
@@ -60,8 +61,11 @@ class NumberRangeControllerTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedPreviewPatternUsesLegacyValueGenerator(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\System\\NumberRange\\Api\\NumberRangeController::previewPattern()" is deprecated and will be removed in v6.8.0.0. Use "/api/_action/number-range/{numberRangeId}/preview-pattern" instead.');
+
         $valueGenerator = $this->createMock(AbstractNumberRangeValueGenerator::class);
         $valueGenerator->expects($this->once())
             ->method('previewPattern')

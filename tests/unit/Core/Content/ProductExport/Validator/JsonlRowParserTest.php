@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Validator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Validator\JsonlRowParser;
@@ -17,8 +18,11 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class JsonlRowParserTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testParseReturnsDecodedRowsWithLineNumbers(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $parser = new JsonlRowParser();
 
         $rows = $parser->parse("{\"id\":\"first\"}\n{\"id\":\"second\",\"nested\":{\"foo\":\"bar\"}}\n");
@@ -33,8 +37,11 @@ class JsonlRowParserTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testParseSkipsEmptyLines(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $parser = new JsonlRowParser();
 
         $rows = $parser->parse("\n  \n{\"id\":\"first\"}\n\n\t\n{\"id\":\"second\"}\n");
@@ -49,8 +56,11 @@ class JsonlRowParserTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testParseThrowsExceptionForMalformedJsonlLine(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $parser = new JsonlRowParser();
 
         try {
@@ -63,8 +73,11 @@ class JsonlRowParserTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testParseThrowsExceptionWhenJsonlLineDoesNotDecodeToObject(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\JsonlRowParser" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $parser = new JsonlRowParser();
 
         try {

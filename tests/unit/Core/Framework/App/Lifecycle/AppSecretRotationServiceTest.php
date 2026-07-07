@@ -128,11 +128,8 @@ class AppSecretRotationServiceTest extends TestCase
         $appId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->expects($this->once())
-            ->method('get')
-            ->with($appId)
-            ->willReturn(null);
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new AppCollection());
 
         $this->appRepository->expects($this->once())
             ->method('search')
@@ -164,11 +161,8 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setIntegrationId($integrationId);
         $app->setIntegration($integration);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->expects($this->once())
-            ->method('get')
-            ->with($appId)
-            ->willReturn($app);
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new AppCollection([$app]));
 
         $this->appRepository->expects($this->once())
             ->method('search')
@@ -254,11 +248,8 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setIntegrationId($integrationId);
         $app->setIntegration($integration);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->expects($this->once())
-            ->method('get')
-            ->with($appId)
-            ->willReturn($app);
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new AppCollection([$app]));
 
         $this->appRepository->expects($this->once())
             ->method('search')

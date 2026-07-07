@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core;
+namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(IndexerQueuer::class)]
 class IndexerQueuerTest extends TestCase
 {
     use IntegrationTestBehaviour;

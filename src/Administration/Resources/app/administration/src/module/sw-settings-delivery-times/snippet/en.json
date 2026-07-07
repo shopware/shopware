@@ -9,7 +9,6 @@
       "mainMenuItemGeneral": "Delivery times",
       "description": "Settings module for managing delivery times",
       "buttonCreate": "Add delivery time",
-      "buttonSave": "Save",
       "placeholder": "Search all delivery times..."
     },
     "list": {

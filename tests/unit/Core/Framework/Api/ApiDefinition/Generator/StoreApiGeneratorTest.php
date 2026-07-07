@@ -62,8 +62,8 @@ class StoreApiGeneratorTest extends TestCase
                 SimpleDefinition::class,
                 DefinitionWithAssociations::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

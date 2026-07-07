@@ -176,7 +176,7 @@ class ModuleLifecycleHandlerTest extends TestCase
             $app->setAppSecret('s3cr3t');
         }
 
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getAdmin')->willReturn($admin);
 
         return new AppPersistContext(

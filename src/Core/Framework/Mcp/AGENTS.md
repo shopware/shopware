@@ -90,6 +90,15 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `sh
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
 
+### Tool metadata: `meta` vs dedicated attributes
+
+Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest representation that keeps the concept clear and maintainable:
+
+- Use `#[McpTool(..., meta: [...])]` for lightweight MCP descriptor hints that are simple scalar values, experimental, client-facing, or only consumed near tool discovery/advertisement. Examples: `deferred`, ranking/search hints, visibility hints.
+- Use a dedicated Shopware attribute only when the concept is first-class in Shopware, needs structured typing or validation, is repeatable, is consumed by several subsystems, or should be discoverable without parsing arbitrary string keys. Examples: `#[McpToolDependsOn]` and `#[McpToolRequires]`.
+- Do not duplicate the same concept in both places. If `meta` grows validation rules, multiple consumers, or cross-cutting behavior, consider promoting it to an attribute in a follow-up. If an attribute is just a single optional scalar with one consumer, prefer `meta` instead.
+- Before adding a new attribute, document why `meta` is not enough in the PR description or nearby tests. Attribute sprawl makes tool declarations harder to scan.
+
 ## Validating capabilities are loaded
 
 How many layers you need to worry about depends on where the tool lives:

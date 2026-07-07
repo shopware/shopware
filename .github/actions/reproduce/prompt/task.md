@@ -26,8 +26,8 @@ anything rendered/visual, `http` for API/JSON behaviour, `direct` for internal s
 A *visual* issue must use `playwright`. If the bug is about **motion** (animation, drag, toggle,
 scrolling, a control that won't respond), set `record_video: true` so the comment gets a video.
 
-You have a normal shell (rg/find/sed/cat/jq/…), a live browser (`playwright-cli`), and — on Shopware
-6.7+ — Shopware MCP tools for live schema/data. Use them however helps. The reliable loop is:
+You have a normal shell (rg/find/sed/cat/jq/…), a live browser (`playwright-cli`), and Shopware
+MCP/fallback tools for live schema/data. Use them however helps. The reliable loop is:
 
 1. Understand the reported surface from the issue (and, briefly, from source near it — routes,
    templates, entity write shape). Don't hunt for the root cause; you only need the *setup*.
@@ -41,6 +41,11 @@ You have a normal shell (rg/find/sed/cat/jq/…), a live browser (`playwright-cl
    pipeline — the deterministic re-run does that. Optionally `repro try` once for a non-authoritative
    preview of your *spec* (useful for Playwright selector/timing confidence); read the screenshot it
    points you to before trusting a status.
+
+Before you stop — whether you produced a bundle or gave up — write a short **`agent-summary.md`** in
+the workspace root: a few sentences on what you tried, what you found, and (if you gave up) why. This
+is the recap humans read in the issue comment, so keep it honest and concise. It travels with the
+bundle artifact.
 
 If you genuinely can't reproduce, or two attempts hit the same wall, `repro giveup "<reason>"` rather
 than thrash — the run is budgeted.
@@ -63,4 +68,5 @@ pipeline's; you don't run `verify`.
 - [guides/fixtures.md](guides/fixtures.md) — Sync payloads, `{{PLACEHOLDER}}` ids, media, seeded_readiness.
 - [guides/playwright.md](guides/playwright.md) — spec rules (one healthy assertion, precondition gates, auth).
 - [guides/executors.md](guides/executors.md) — choosing http/direct and their assertion shapes.
-- [guides/mcp.md](guides/mcp.md) — using the Shopware MCP tools to author fixtures (6.7+).
+- [guides/mcp.md](guides/mcp.md) — using Shopware MCP/fallback tools to author fixtures.
+- [guides/shopware-6.6.md](guides/shopware-6.6.md) — why 6.6 uses local fallback tools instead of remote MCP.

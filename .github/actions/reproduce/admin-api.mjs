@@ -1,11 +1,14 @@
-// Minimal Shopware Admin API client used by the deterministic seed/HTTP paths. It is intentionally
-// MCP-independent: the trusted pipeline must seed identically on every reported version (incl. 6.6
-// and older, where the Shopware MCP server does not exist) with no agent or bridge present. MCP only
-// assists the agent while it authors fixtures.
-//
-// Auth is the first-party password grant that works on a default install (admin / shopware). All
-// requests use Accept: application/json for the flat response shape (id at the top level).
-import { adminPass, adminUser, appUrl } from './lib.mjs';
+/**
+ * Minimal Shopware Admin API client used by deterministic seed and HTTP paths.
+ *
+ * This module is intentionally MCP-independent: trusted replay must seed identically on every
+ * reported version, including Shopware 6.6 where the remote MCP server does not exist. MCP only
+ * assists the agent while it authors fixtures.
+ *
+ * Auth uses the first-party password grant available on a default install. Requests ask for
+ * `application/json` because the repro helpers expect the flat response shape with ids at top level.
+ */
+import { adminPass, adminUser, appUrl, referencedPlaceholders, RUNTIME_PLACEHOLDERS } from './bundle.mjs';
 
 /**
  * Returns the Admin API base URL for the current provisioned shop.
@@ -19,6 +22,7 @@ const base = () => {
 };
 
 let cachedToken = '';
+let cachedPlaceholders = null;
 
 /**
  * Returns an Admin API bearer token for deterministic seeding and HTTP execution.
@@ -95,38 +99,75 @@ const firstId = (result, field = 'id') => result?.data?.[0]?.[field] ?? '';
  * const body = fillPlaceholders(JSON.stringify(fixtures), ids);
  */
 export async function resolvePlaceholders() {
+  if (cachedPlaceholders) {
+    return cachedPlaceholders;
+  }
   const active = (field) => ({ limit: 1, filter: [{ type: 'equals', field, value: true }] });
   const orderState = (machine) => ({ limit: 1, filter: [
     { type: 'equals', field: 'technicalName', value: 'open' },
     { type: 'equals', field: 'stateMachine.technicalName', value: machine },
   ] });
 
-  const sc = await search('sales-channel', active('active'));
-  const salutations = await search('salutation', { limit: 2 });
-  const domains = await search('sales-channel-domain', { limit: 25 });
+  // All lookups are independent, so run them concurrently.
+  const [
+    sc, salutations, domains, country, tax, currency, domainLanguage,
+    customerGroup, paymentMethod, shippingMethod, orderState_, orderDeliveryState, orderTransactionState,
+  ] = await Promise.all([
+    search('sales-channel', active('active')),
+    search('salutation', { limit: 2 }),
+    search('sales-channel-domain', { limit: 25 }),
+    search('country', active('active')),
+    search('tax', { limit: 1 }),
+    search('currency', { limit: 1, filter: [{ type: 'equals', field: 'isoCode', value: 'EUR' }] }),
+    search('sales-channel-domain', { limit: 1 }),
+    search('customer-group', { limit: 1 }),
+    search('payment-method', active('active')),
+    search('shipping-method', active('active')),
+    search('state-machine-state', orderState('order.state')),
+    search('state-machine-state', orderState('order_delivery.state')),
+    search('state-machine-state', orderState('order_transaction.state')),
+  ]);
+
   const preferredDomain = (() => {
     const urls = (domains.data || []).map((d) => d.url).filter(Boolean);
     return urls.find((u) => u === base()) || urls.find((u) => /^https?:\/\//.test(u)) || urls[0] || base();
   })();
 
-  return {
+  cachedPlaceholders = {
     SC: firstId(sc),
     NAV_CAT: firstId(sc, 'navigationCategoryId'),
     STOREFRONT_URL: preferredDomain,
-    COUNTRY: firstId(await search('country', active('active'))),
+    COUNTRY: firstId(country),
     SALUTATION: salutations.data?.[0]?.id ?? '',
     SALUTATION2: salutations.data?.[1]?.id ?? salutations.data?.[0]?.id ?? '',
-    TAX: firstId(await search('tax', { limit: 1 })),
-    CURRENCY: firstId(await search('currency', { limit: 1, filter: [{ type: 'equals', field: 'isoCode', value: 'EUR' }] })),
+    TAX: firstId(tax),
+    CURRENCY: firstId(currency),
     SYSTEM_LANGUAGE: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-    LANGUAGE: firstId(await search('sales-channel-domain', { limit: 1 }), 'languageId') || '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-    CUSTOMER_GROUP: firstId(await search('customer-group', { limit: 1 })),
-    PAYMENT_METHOD: firstId(await search('payment-method', active('active'))),
-    SHIPPING_METHOD: firstId(await search('shipping-method', active('active'))),
-    ORDER_STATE_OPEN: firstId(await search('state-machine-state', orderState('order.state'))),
-    ORDER_DELIVERY_STATE_OPEN: firstId(await search('state-machine-state', orderState('order_delivery.state'))),
-    ORDER_TRANSACTION_STATE_OPEN: firstId(await search('state-machine-state', orderState('order_transaction.state'))),
+    LANGUAGE: firstId(domainLanguage, 'languageId') || '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+    CUSTOMER_GROUP: firstId(customerGroup),
+    PAYMENT_METHOD: firstId(paymentMethod),
+    SHIPPING_METHOD: firstId(shippingMethod),
+    ORDER_STATE_OPEN: firstId(orderState_),
+    ORDER_DELIVERY_STATE_OPEN: firstId(orderDeliveryState),
+    ORDER_TRANSACTION_STATE_OPEN: firstId(orderTransactionState),
   };
+  return cachedPlaceholders;
+}
+
+export async function resolveBundlePlaceholders({ values, includeSalesChannelAccessKey = false }) {
+  const referenced = referencedPlaceholders(...values);
+  const needsIds = referenced.some((key) => !RUNTIME_PLACEHOLDERS.includes(key));
+
+  let ids = { STOREFRONT_URL: appUrl() };
+  if (needsIds) {
+    ids = { ...await resolvePlaceholders() };
+  }
+
+  ids.STOREFRONT_URL = ids.STOREFRONT_URL || appUrl();
+  ids.SW_ACCESS_KEY = process.env.SW_ACCESS_KEY || (includeSalesChannelAccessKey ? await salesChannelAccessKey() : '');
+  ids.SW_CONTEXT_TOKEN = '';
+
+  return ids;
 }
 
 /**
@@ -146,19 +187,8 @@ export async function salesChannelAccessKey() {
  * Seeding wants actionable API validation detail in `seed-error.txt`, so callers receive
  * `{ ok, status, detail }` instead of an exception with a lost response body.
  *
- * @example
- * const result = await sync(toSyncOperations(fixtures));
- * // May return:
- * // {
- * //   ok: true,
- * //   status: 204,
- * // }
- * // or:
- * // {
- * //   ok: false,
- * //   status: 400,
- * //   detail: 'Expected value for required field product.name',
- * // }
+ * @returns A non-throwing Sync API outcome: success status on accepted operations, or validation
+ * detail that explains why seeding failed.
  */
 export async function sync(operations) {
   const res = await fetch(`${base()}/api/_action/sync`, {
@@ -169,9 +199,27 @@ export async function sync(operations) {
   if (res.status === 200 || res.status === 204) {
     return { ok: true, status: res.status };
   }
-  const body = await res.json().catch(() => null);
-  const detail = body?.errors?.map((e) => e.detail).filter(Boolean).join('; ') || (await res.text().catch(() => '')).slice(0, 300);
-  return { ok: false, status: res.status, detail };
+  return { ok: false, status: res.status, detail: await errorDetail(res) };
+}
+
+/**
+ * Extracts an actionable message from a failed Admin API response.
+ *
+ * The body can only be read once, so this reads it as text and then tries JSON so both structured
+ * `errors[].detail` responses and plain-text error pages surface a reason (a bare `await res.json()`
+ * followed by `res.text()` would throw "Body is unusable" and lose all non-JSON detail).
+ */
+async function errorDetail(res) {
+  const raw = await res.text().catch(() => '');
+  try {
+    const detail = JSON.parse(raw)?.errors?.map((e) => e.detail).filter(Boolean).join('; ');
+    if (detail) {
+      return detail;
+    }
+  } catch {
+    // Not JSON — fall back to the raw text below.
+  }
+  return raw.slice(0, 300);
 }
 
 /**
@@ -194,8 +242,7 @@ export async function uploadMedia({ mediaId, path, extension, mimeType, fileName
   if ([200, 204, 302].includes(res.status)) {
     return { ok: true };
   }
-  const body = await res.json().catch(() => null);
-  return { ok: false, status: res.status, detail: body?.errors?.map((e) => e.detail).join('; ') || '' };
+  return { ok: false, status: res.status, detail: await errorDetail(res) };
 }
 
 /**

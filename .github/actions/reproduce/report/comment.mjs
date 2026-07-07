@@ -109,8 +109,11 @@ function write(markdown) {
 if (process.env.MODE === 'incomplete') {
   const tpl = fs.readFileSync(path.join(templates, 'comment.incomplete.md'), 'utf8');
   const edits = readExtra('workspace-edits.txt');
+  // Prefer the agent's own give-up reason (written by `repro giveup` into giveup.txt, carried in the
+  // repro-plan artifact). Fall back to the REASON env / generic default only when it's absent.
+  const giveup = readExtra('giveup.txt');
   write(render(tpl, {
-    REASON: process.env.REASON || DATA.incomplete_reason_default,
+    REASON: giveup || process.env.REASON || DATA.incomplete_reason_default,
     RUN_URL: process.env.RUN_URL || '',
     AGENT_SUMMARY: readExtra('agent-summary.md'),
     EDITS: edits,

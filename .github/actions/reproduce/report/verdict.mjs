@@ -40,15 +40,8 @@ const oneLine = (s, max = 300) => String(s).replace(/[\r\n]+/g, ' ').replace(/\s
  * Agent confidence and blocked/inconclusive legs override the simple status matrix so uncertain
  * evidence is surfaced as `needs_human_review` instead of a misleading closure recommendation.
  *
- * @example
- * const result = computeVerdict('artifacts');
- * // May return:
- * // {
- * //   reported: 'reproduced',
- * //   trunk: 'not_reproduced',
- * //   verdict: 'fixed_on_trunk',
- * //   fix_candidate: '...',
- * // }
+ * @returns The reported/trunk leg statuses, final verdict, uncertainty reason, and fix-candidate
+ * hint used for GitHub output and issue-comment rendering.
  */
 export function computeVerdict(art = process.env.ART || 'artifacts') {
   const reportedLeg = readJson(`${art}/repro-reported/result.json`);

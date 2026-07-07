@@ -1,17 +1,42 @@
-// Seed exactly the entities a repro needs via the Admin Sync API — no demodata. Reads fixtures.json,
-// resolves {{PLACEHOLDER}} ids against the running shop, upserts, uploads any fixture media, and
-// refreshes storefront indexes so seeded entities are visible. Idempotent.
-//
-// Fails LOUD: a bad payload writes the API's validation detail to seed-error.txt and throws, so the
-// agent (via `try`) and the report (via a blocked leg) both get an actionable reason.
+/**
+ * Seed command for applying exactly the fixture entities a repro needs through Admin Sync API.
+ *
+ * It resolves placeholders against the running shop, upserts static fixtures, uploads any media
+ * bytes, and refreshes storefront indexes. Bad payloads write API validation detail to
+ * `seed-error.txt` and throw so both agent preview and official legs get an actionable blocker.
+ */
 import fs from 'node:fs';
-import { FILES, ENTITY_PLACEHOLDERS, readJson, fillPlaceholders, unresolvedPlaceholders } from './lib.mjs';
-import { resolvePlaceholders, sync, uploadMedia, refreshIndexes } from './admin-api.mjs';
+import { FILES, ENTITY_PLACEHOLDERS, readJson, fillPlaceholders, unresolvedPlaceholders } from '../../bundle.mjs';
+import { resolvePlaceholders, sync, uploadMedia, refreshIndexes } from '../../admin-api.mjs';
 
 /**
  * Converts Admin API-style entity names to Sync API operation entity names.
  */
 const snakeCase = (name) => name.replace(/-/g, '_');
+
+/**
+ * Shopware core ids that are identical on every install and safe to hardcode.
+ *
+ * Unlike country, salutation, or payment ids, these survive replay on the trunk leg. Keep this set in
+ * sync with `validate.mjs`; otherwise valid placeholder fallbacks would be rejected as install ids.
+ */
+const STABLE_IDS = new Set([
+  '2fbb5fe2e29a4d70aa5854ce7ce3e20b', // Defaults::LANGUAGE_SYSTEM
+  'b7d2554b0ce847cd82f3ac9bd1c0dfca', // Defaults::LIVE_VERSION
+]);
+
+/**
+ * Storefront indexers affected by each seeded entity type.
+ *
+ * Keys omitted here either do not affect rendered storefront state for repro purposes or are handled
+ * by the Sync operation itself.
+ */
+const ENTITY_INDEXERS = {
+  product: ['product.indexer', 'category.indexer', 'product_stream.indexer'],
+  category: ['category.indexer'],
+  product_stream: ['product_stream.indexer'],
+  landing_page: ['landing_page.indexer'],
+};
 
 class SeedError extends Error {
   constructor(message) {
@@ -73,11 +98,11 @@ export async function seed({ fixturesPath = FILES.fixtures } = {}) {
   const ids = await resolvePlaceholders();
   const rawOperations = JSON.stringify(operations);
 
-  // A literal install id seeds on this shop but FK-fails on the freshly-provisioned legs — reject it
-  // so the failure surfaces here, with the placeholder to use, instead of as a mystery SQL 1452 later.
+  // Reject install ids here so the fix is visible before the official leg blocks later.
   for (const key of ENTITY_PLACEHOLDERS) {
     const value = ids[key];
-    if (value && rawOperations.includes(value)) {
+    // Cross-install constants are portable, so skip the install-id guard for them.
+    if (value && !STABLE_IDS.has(value) && rawOperations.includes(value)) {
       throw new SeedError(
         `fixtures hardcode the install {{${key}}} id (${value}); `
         + 'reference it with the placeholder — every provisioned shop generates different UUIDs',
@@ -101,8 +126,15 @@ export async function seed({ fixturesPath = FILES.fixtures } = {}) {
   console.log(`seeded OK (sync HTTP ${result.status})`);
 
   await uploadFixtureMedia(fixtures._repro_media_uploads, ids);
-  await refreshIndexes();
-  console.log('refreshed storefront indexes');
+
+  // Only run indexers that the seeded entities can affect.
+  const indexers = [...new Set(
+    Object.keys(operations).flatMap((key) => ENTITY_INDEXERS[key] ?? []),
+  )];
+  if (indexers.length) {
+    await refreshIndexes(indexers);
+    console.log(`refreshed storefront indexes: ${indexers.join(', ')}`);
+  }
 }
 
 /**

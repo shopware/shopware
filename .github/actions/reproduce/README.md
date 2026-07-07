@@ -22,9 +22,12 @@ verify`, which only the deterministic steps run (gated by `REPRO_ALLOW_VERIFY=1`
 ## Layout
 
 - `prompt/task.md` — the concise agent playbook; `prompt/guides/*.md` — depth read on demand.
-- `cli/` — one Node CLI (`repro.mjs`) used by the agent and the deterministic pipeline:
-  `validate` · `seed` · `check` · `try` (agent preview) · `giveup` · `verify` (trusted) · `reset`.
-  Executors live in `cli/executors/`; `admin-api.mjs` is the MCP-independent seeding transport.
+- `cli/` — terminal-facing entrypoint, one file per public subcommand in `commands/`, plus shared
+  CLI helpers such as `full-run.mjs` and `execute-bundle.mjs`.
+- `executors/` — code that runs authored test cases and classifies their output.
+  Playwright harness assets and storage-state scripts live in `executors/playwright/boilerplate/`.
+- `bundle.mjs` — shared bundle contract, placeholder helpers, and canonical result construction.
+- `admin-api.mjs` — Admin API transport used by seeding and HTTP placeholder resolution.
 - `steps/` — thin bash glue for the GitHub-Actions-only concerns (fetch/version/provision/proxy/snapshot/context).
 - `report/` — `verdict.mjs` (two legs → verdict) and `comment.mjs` (render from `templates/`).
 - `templates/` — `verdicts.json` (all comment copy, as data) + `comment.*.md` layouts.

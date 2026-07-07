@@ -1,6 +1,9 @@
-// Shared building blocks for the reproduce CLI: the file names that make up a bundle,
-// the placeholder vocabulary fixtures may use, and small IO/result helpers. Every other
-// cli/ module imports from here, so the bundle contract lives in exactly one place.
+/**
+ * Shared bundle contract and small helpers for the deterministic reproduce CLI.
+ *
+ * File names, placeholder vocabulary, IO helpers, and result construction live here so commands,
+ * full-run orchestration, and executors agree on one authored-bundle shape.
+ */
 import fs from 'node:fs';
 
 /**
@@ -54,6 +57,12 @@ export const ENTITY_PLACEHOLDERS = [
   'ORDER_TRANSACTION_STATE_OPEN',
 ];
 
+export const RUNTIME_PLACEHOLDERS = [
+  'STOREFRONT_URL',
+  'SW_ACCESS_KEY',
+  'SW_CONTEXT_TOKEN',
+];
+
 /**
  * Returns the provisioned Shopware base URL without a trailing slash.
  */
@@ -103,11 +112,16 @@ export const writeJson = (path, value) => fs.writeFileSync(path, `${JSON.stringi
  * `SALUTATION`, which keeps JSON fixture and HTTP request templates portable.
  *
  * @example
- * const body = fillPlaceholders('{"countryId":"{{COUNTRY}}"}', ids);
+ * const body = fillPlaceholders({ countryId: '{{COUNTRY}}' }, ids);
  */
-export function fillPlaceholders(text, ids) {
+export function fillPlaceholders(value, ids) {
   const keys = Object.keys(ids).sort((a, b) => b.length - a.length);
-  let out = String(text);
+  let out = '';
+
+  if (value !== null && value !== undefined && value !== false) {
+    out = typeof value === 'object' ? JSON.stringify(value) : String(value);
+  }
+
   for (const key of keys) {
     out = out.split(`{{${key}}}`).join(ids[key] ?? '');
   }
@@ -118,6 +132,12 @@ export function fillPlaceholders(text, ids) {
  * Lists unresolved `{{PLACEHOLDER}}` tokens left after fixture or request substitution.
  */
 export const unresolvedPlaceholders = (text) => [...new Set(String(text).match(/\{\{[A-Z0-9_]+\}\}/g) || [])];
+
+/**
+ * Lists placeholder names referenced by bundle fragments.
+ */
+export const referencedPlaceholders = (...values) => unresolvedPlaceholders(JSON.stringify(values))
+  .map((placeholder) => placeholder.slice(2, -2));
 
 /**
  * Builds the canonical `result.json` shape consumed by verdict and comment rendering.

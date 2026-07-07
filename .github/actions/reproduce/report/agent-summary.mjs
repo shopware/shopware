@@ -1,12 +1,33 @@
 #!/usr/bin/env node
-// Extract the agent's final natural-language message from the stream-json debug log, for the
-// "Agent summary" spoiler in the issue comment — it reads well and explains what the agent did.
-// Prefers the CLI's final result text; falls back to the last assistant text block. Capped so it
-// fits comfortably in a GitHub comment.
+// Produce the "Agent summary" spoiler content for the issue comment.
+//
+// PRIMARY: the agent writes a short agent-summary.md alongside its bundle (see prompt/task.md); if
+// present, that authored recap is used verbatim (capped). This is a declared artifact the agent owns,
+// so it survives gh-aw changes.
+// FALLBACK: when no agent-summary.md exists, scrape the agent's final natural-language message from
+// gh-aw's stream-json debug log — preferring the CLI's final result text, then the last assistant
+// text block. If the scrape yields nothing, emit nothing (as before). This path is best-effort.
 import fs from 'node:fs';
 
-const logPath = process.argv[2] || process.env.AGENT_LOG || '/tmp/gh-aw/agent-stdio.log';
 const MAX = 6000;
+const cap = (text) => (text.length > MAX
+  ? `${text.slice(0, MAX)}\n\n… (truncated — see the agent run for the full log)`
+  : text);
+
+// PRIMARY: agent-authored summary. Prefer an explicit path arg's sibling isn't needed — the file
+// lives in the workspace root next to the bundle.
+const authoredPath = process.env.AGENT_SUMMARY_FILE || 'agent-summary.md';
+try {
+  const authored = fs.readFileSync(authoredPath, 'utf8').trim();
+  if (authored) {
+    process.stdout.write(cap(authored));
+    process.exit(0);
+  }
+} catch {
+  // No authored summary — fall back to scraping the gh-aw log below.
+}
+
+const logPath = process.argv[2] || process.env.AGENT_LOG || '/tmp/gh-aw/agent-stdio.log';
 if (!fs.existsSync(logPath)) {
   process.exit(0);
 }
@@ -35,11 +56,8 @@ for (const line of fs.readFileSync(logPath, 'utf8').split('\n')) {
   }
 }
 
-let out = (finalResult || lastAssistant).trim();
+const out = (finalResult || lastAssistant).trim();
 if (!out) {
   process.exit(0);
 }
-if (out.length > MAX) {
-  out = `${out.slice(0, MAX)}\n\n… (truncated — see the agent run for the full log)`;
-}
-process.stdout.write(out);
+process.stdout.write(cap(out));

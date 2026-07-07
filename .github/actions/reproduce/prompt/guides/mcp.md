@@ -1,12 +1,21 @@
-# Shopware MCP — author fixtures against the live shop (6.7+)
+# Shopware MCP — author fixtures against the live shop
 
-On Shopware 6.7+ the run exposes Shopware MCP tools that talk to the already-provisioned
-reported-version shop. When present, they're the best way to get fixture write-shapes right without
-guessing from source. If they're absent (6.6 and older, or not started), skip this — read entity
-definitions/tests near the reported surface instead, and note the limitation in `agent_explanation`.
+The run exposes Shopware MCP tools that talk to the already-provisioned reported-version shop. They
+are the best way to get fixture write-shapes right without guessing from source — use them on every
+version.
 
-Typical tools: `shopware-entity-schema`, `shopware-entity-search`, `shopware-entity-read`,
-`shopware-entity-upsert`.
+On Shopware 6.7+ the bridge proxies the shop's remote MCP server and merges in the local fallback
+tools below. On Shopware 6.6 and older the remote endpoint is absent, but the local fallback tools
+still work against the live shop; see [shopware-6.6.md](shopware-6.6.md) for the version-specific
+context.
+
+The local fallback tools:
+
+- `shopware-entity-schema <entity>` — Admin API entity schema metadata (fields, types, relations).
+- `shopware-entity-search <entity> [criteria]` — DAL search of a live entity (defaults to `limit:10`).
+- `shopware-entity-read <entity> <id>` — read one entity by UUID.
+- `shopware-entity-upsert <entity> <payload>` — validate/post a Sync API upsert; `dryRun` defaults to
+  `true`, so it normalizes and returns the envelope without mutating state.
 
 ## Flow
 

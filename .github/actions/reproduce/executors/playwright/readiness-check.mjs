@@ -1,12 +1,16 @@
-// Verify the seeded state renders: for each plan.seeded_readiness entry, load the route, assert the
-// marker (selector visible, optional text, optional minimum size), and write a screenshot.
-// It proves SETUP, not the symptom — keep the reported broken control out of here.
+/**
+ * Browser readiness command for proving seeded setup before a Playwright symptom run.
+ *
+ * For each `plan.seeded_readiness` entry it loads the route, asserts the marker, and writes a
+ * screenshot. It proves setup only; the reported broken control belongs in the executor spec.
+ */
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
-import { FILES, appUrl, readJson } from './lib.mjs';
+import { FILES, appUrl, readJson } from '../../bundle.mjs';
+import { ensureAdminState } from './boilerplate/login-state.mjs';
 
 const OUT = 'seeded-readiness.json';
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -131,16 +135,28 @@ async function runCheck(page, c, index, failures, observations) {
 /**
  * Builds Playwright storage options for readiness checks.
  *
- * Admin readiness reuses the harness login state, while storefront readiness can pre-accept consent
- * unless the reproduction explicitly needs to exercise the consent flow.
+ * Admin readiness provisions the harness login state through the same shared path the executor uses,
+ * so an admin-route check never runs unauthenticated against the login screen on a fresh runner
+ * (e.g. the trunk leg, or the reported leg when the agent never ran `repro try`). Storefront
+ * readiness can pre-accept consent unless the reproduction explicitly needs the consent flow.
  */
 async function storageStateOptions(plan) {
+  if (plan.layer === 'admin-ui') {
+    if (ensureAdminState(appUrl())) {
+      return { storageState: 'admin-state.json' };
+    }
+    return {};
+  }
   if (fs.existsSync('admin-state.json')) {
     return { storageState: 'admin-state.json' };
   }
   if (plan.layer === 'storefront-ui' && plan.browser_state?.auto_cookie_consent !== false) {
     const state = '.repro-storefront-readiness-state.json';
-    const res = spawnSync(process.execPath, [path.join(here, 'consent-state.mjs'), appUrl(), state], { stdio: 'ignore' });
+    const res = spawnSync(
+      process.execPath,
+      [path.join(here, 'boilerplate/consent-state.mjs'), appUrl(), state],
+      { stdio: 'ignore' },
+    );
     if (res.status === 0 && fs.existsSync(state)) {
       return { storageState: state };
     }

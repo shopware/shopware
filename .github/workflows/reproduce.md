@@ -221,7 +221,14 @@ post-steps:
 
   - name: Extract agent summary
     if: always()
-    run: node .github/actions/reproduce/report/agent-summary.mjs /tmp/gh-aw/agent-stdio.log > agent-summary.md || true
+    # Prefer the agent-authored agent-summary.md (see prompt/task.md); only scrape the gh-aw log as a
+    # fallback when the agent didn't write one. Write via a temp file so we never truncate the
+    # authored summary before the renderer can read it.
+    run: |
+      if [ ! -s agent-summary.md ]; then
+        node .github/actions/reproduce/report/agent-summary.mjs /tmp/gh-aw/agent-stdio.log > agent-summary.md.tmp 2>/dev/null || true
+        [ -s agent-summary.md.tmp ] && mv agent-summary.md.tmp agent-summary.md || rm -f agent-summary.md.tmp
+      fi
 
   - name: Authoritative reported-version verification
     id: reported_verify
@@ -308,7 +315,13 @@ safe-outputs:
         - name: Detect bundle
           id: bundle
           run: |
-            has=$([ -f reproduction-plan.json ] && [ -f artifacts/repro-reported/result.json ] && echo true || echo false)
+            # A give-up is authoritative: if the agent recorded giveup.txt, treat the run as incomplete
+            # even when a stale reproduction-plan.json / result.json linger from an earlier attempt.
+            if [ -f giveup.txt ]; then
+              has=false
+            else
+              has=$([ -f reproduction-plan.json ] && [ -f artifacts/repro-reported/result.json ] && echo true || echo false)
+            fi
             echo "has=$has" >> "$GITHUB_OUTPUT"
             echo "bundle present: $has"
 
@@ -399,9 +412,11 @@ safe-outputs:
             cp reproduction-plan.json artifacts/repro-plan/ 2>/dev/null || true
             cp fixtures.json artifacts/repro-plan/ 2>/dev/null || true
             cp agent-summary.md workspace-edits.txt artifacts/repro-plan/ 2>/dev/null || true
-            # A dead trunk env (provision failed) leaves no result → synthesize a blocked leg.
+            # A dead trunk env (provision failed) leaves no result → synthesize a blocked leg via the
+            # single-sourced bundle contract (bundle.mjs blockedResult) instead of an inline shape.
             if [ -f result.json ]; then cp result.json artifacts/repro-trunk/; else
-              node -e 'const p=require("./reproduction-plan.json");require("fs").writeFileSync("artifacts/repro-trunk/result.json",JSON.stringify({schema_version:"1",issue:p.issue,target:"trunk",version:"trunk",executor:p.executor,status:"blocked",assertion:{expect:null,actual:null,matched:null},duration_s:0,evidence:{script:"",script_lang:"sh",reporter_output:"trunk environment did not come up",http:[],artifacts:[],truncated:false},blocked_reason:"trunk provisioning failed (dead env)"}))'
+              node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk provisioning failed (dead env)" trunk
+              cp result.json artifacts/repro-trunk/
             fi
             cp -r test-results playwright-report artifacts/repro-trunk/ 2>/dev/null || true
             cp video.webm artifacts/repro-trunk/ 2>/dev/null || true   # only present when record_video opted in

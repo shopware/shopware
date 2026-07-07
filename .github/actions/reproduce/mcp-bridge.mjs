@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 // Shopware MCP bridge — an agent-time aid used while reproducing issues.
-// It speaks JSON-RPC (over stdio, or over HTTP with --http) and proxies MCP
-// calls to a running Shopware instance's remote MCP endpoint when credentials
-// are present, falling back to a small set of locally-implemented Admin/Sync
-// API tools otherwise. The remote MCP endpoint only exists on Shopware 6.7+,
-// so on older versions only the local fallback tools are exposed.
+// It speaks JSON-RPC over HTTP and proxies MCP calls to a running Shopware
+// instance's remote MCP endpoint when credentials are present, falling back to
+// a small set of locally-implemented Admin/Sync API tools otherwise. The remote
+// MCP endpoint only exists on Shopware 6.7+, so on older versions only the local
+// fallback tools are exposed.
 import http from 'node:http';
-import readline from 'node:readline';
 
 // --- Configuration (all sourced from the environment) -----------------------
 
@@ -17,8 +16,8 @@ const accessKey = process.env.SHOPWARE_MCP_ACCESS_KEY || '';
 const secretAccessKey = process.env.SHOPWARE_MCP_SECRET_ACCESS_KEY || '';
 const protocolVersion = '2025-03-26';
 
-// Transport selection and HTTP listener binding.
-const httpMode = process.argv.includes('--http');
+// HTTP listener binding. The bridge is always started with --http; the flag is
+// accepted for launcher compatibility but the HTTP transport is unconditional.
 const listenHost = process.env.SHOPWARE_MCP_BRIDGE_HOST || '127.0.0.1';
 const listenPort = Number(process.env.SHOPWARE_MCP_BRIDGE_PORT || '18765');
 
@@ -531,44 +530,7 @@ async function handleToolCall(message) {
   }
 }
 
-// --- Transports --------------------------------------------------------------
-
-/**
- * Handles one newline-delimited JSON-RPC message from stdio transport.
- */
-async function handleLine(line) {
-  const trimmed = line.trim();
-  if (!trimmed) {
-    return;
-  }
-
-  let message;
-  try {
-    message = JSON.parse(trimmed);
-  } catch (e) {
-    process.stdout.write(`${JSON.stringify(error(null, `Invalid JSON-RPC payload: ${e.message}`, -32700))}\n`);
-    return;
-  }
-
-  const response = await handle(message);
-  if (response) {
-    process.stdout.write(`${JSON.stringify(response)}\n`);
-  }
-}
-
-/**
- * Starts the stdio MCP transport used by agent tool processes.
- */
-function startStdio() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    crlfDelay: Number.POSITIVE_INFINITY,
-  });
-
-  rl.on('line', (line) => {
-    void handleLine(line);
-  });
-}
+// --- Transport ---------------------------------------------------------------
 
 /**
  * Starts the HTTP MCP transport on `/mcp`.
@@ -647,8 +609,4 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-if (httpMode) {
-  startHttp();
-} else {
-  startStdio();
-}
+startHttp();

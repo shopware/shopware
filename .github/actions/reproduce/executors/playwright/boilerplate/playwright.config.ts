@@ -35,9 +35,11 @@ export default defineConfig({
     // (consent-state.mjs). Either is passed here so specs never author their own auth.
     storageState: process.env['PW_STORAGE'] || undefined,
     ...(viewport ? { viewport } : {}),
-    trace: 'on',
+    // The narrated video pass discards its trace/screenshots (only video.webm is copied out), so skip
+    // recording them there; the verdict run keeps both for human review of the official result.
+    trace: video ? 'off' : 'on',
     video: video ? (viewport ? { mode: 'on', size: viewport } : 'on') : 'off',
-    screenshot: 'on',
+    screenshot: video ? 'off' : 'on',
     launchOptions: { slowMo: video ? Number(process.env['REPRO_VIDEO_SLOWMO'] || 400) : 0 },
   },
 });

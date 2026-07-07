@@ -1,47 +1,78 @@
 #!/usr/bin/env node
-// The reproduce CLI. Agent-facing commands are composable primitives — the agent decides how to
-// combine them while exploring. `verify` is the trusted, gated post-step command (not for the agent).
-//
-//   repro validate   check the bundle contract (+ sanitize/inspect the spec, no execution)
-//   repro reset      restore the clean DB snapshot + clear cache
-//   repro seed       apply fixtures.json to the live shop (surfaces the Sync result)
-//   repro check      load each seeded_readiness route and assert the seeded markers render
-//   repro try        OPTIONAL preview: run the spec on the current state → builder-result.json
-//   repro giveup     record that no reliable reproduction was found
-//   repro verify     TRUSTED: reset → seed → run → result.json  (post-step only; gated)
 import fs from 'node:fs';
-import { die } from './lib.mjs';
+import { die, blockedResult, readJson, writeJson, FILES } from '../bundle.mjs';
 
-const [command, ...args] = process.argv.slice(2);
+/**
+ * Terminal-facing command dispatcher for the `repro` executable.
+ *
+ * This file owns argument parsing, user-facing command names, exit behavior, and small CLI-only
+ * commands. Named repro subcommands live in `commands/`; executors stay in `executors/`.
+ */
+async function runCli(argv) {
+  const [command, ...args] = argv;
+  const commands = buildCommands(args);
+  const run = commands[command];
 
-const commands = {
-  validate: async () => (await import('./validate.mjs')).validate(),
-  reset: async () => (await import('./reset.mjs')).reset(),
-  seed: async () => {
-    try {
-      await (await import('./seed.mjs')).seed();
-    } catch (err) {
-      die(err.message);
-    }
-  },
-  check: async () => {
-    const { ok } = await (await import('./check.mjs')).check();
-    if (!ok) {
-      process.exit(1);
-    }
-  },
-  try: async () => (await import('./try.mjs')).tryBundle(),
-  verify: async () => (await import('./verify.mjs')).verify(),
-  giveup: async () => {
-    fs.writeFileSync('giveup.txt', `${args.join(' ') || 'no reliable reproduction found'}\n`);
-    console.log('recorded give-up; the deterministic report will post an "incomplete" comment');
-  },
-};
+  if (!run) {
+    console.error(`repro: unknown command ${command ? `'${command}'` : '(none)'}\n`);
+    console.error('commands: validate | reset | seed | check | try | giveup | verify | blocked-result');
+    process.exit(2);
+  }
 
-const run = commands[command];
-if (!run) {
-  console.error(`repro: unknown command ${command ? `'${command}'` : '(none)'}\n`);
-  console.error('commands: validate | reset | seed | check | try | giveup | verify');
-  process.exit(2);
+  await run();
 }
-await run();
+
+/**
+ * Creates command handlers with the current invocation arguments captured for CLI-only commands.
+ *
+ * Most commands delegate to command modules. `giveup` and `blocked-result` live here because they
+ * are terminal/reporting affordances, not test execution behavior.
+ */
+function buildCommands(args) {
+  return {
+    validate: async () => (await import('./commands/validate.mjs')).validate(),
+    reset: async () => (await import('./commands/reset.mjs')).reset(),
+    seed: async () => {
+      try {
+        await (await import('./commands/seed.mjs')).seed();
+      } catch (err) {
+        die(err.message);
+      }
+    },
+    check: async () => {
+      const { ok } = await (await import('./commands/check.mjs')).check();
+      if (!ok) {
+        process.exit(1);
+      }
+    },
+    try: async () => (await import('./commands/try.mjs')).tryBundle(),
+    verify: async () => (await import('./commands/verify.mjs')).verify(),
+    giveup: async () => {
+      fs.writeFileSync('giveup.txt', `${args.join(' ') || 'no reliable reproduction found'}\n`);
+      console.log('recorded give-up; the deterministic report will post an "incomplete" comment');
+    },
+    'blocked-result': async () => writeBlockedResult(args),
+  };
+}
+
+/**
+ * Writes a canonical blocked result when a workflow leg cannot produce one itself.
+ *
+ * This keeps workflow YAML from hand-assembling the result contract while still making the command
+ * clearly terminal-facing: it exists to repair a workflow artifact, not to execute a reproduction.
+ */
+function writeBlockedResult(args) {
+  const [target, reason, version] = args;
+  if (!target) {
+    die('blocked-result: missing <target> (e.g. trunk)', 2);
+  }
+  const plan = { ...readJson(FILES.plan, {}) };
+  if (version) {
+    plan.version = version;
+  }
+  const detail = reason || `${target} environment did not come up`;
+  writeJson(FILES.result, blockedResult(plan, target, detail));
+  console.log(`wrote ${FILES.result}: blocked ${target} leg (${detail})`);
+}
+
+await runCli(process.argv.slice(2));

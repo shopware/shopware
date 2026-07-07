@@ -1,12 +1,13 @@
-// `repro validate` — thin, structural contract check. Trust in the verdict comes from the
-// deterministic two-leg re-run, NOT from this file, so it enforces only what is structural or
-// genuinely trust/correctness-critical and leaves quality choices to the prompt guides. It also
-// inspects the Playwright spec so shape defects are caught WITHOUT executing anything.
-//
-// Refusals print `REFUSED — <reason>` and exit 1; a clean bundle prints `ok`.
+/**
+ * Structural bundle validation command for `repro validate`.
+ *
+ * Trust in the verdict comes from the deterministic two-leg replay, not from this command. Validation
+ * therefore focuses on structural and trust-critical defects: unsafe Playwright specs, missing
+ * assertions, and install-specific ids that would make the trunk leg block.
+ */
 import fs from 'node:fs';
-import { FILES, EXECUTORS, LAYERS, readJson } from './lib.mjs';
-import { stripNarration, hasLeftoverNarration } from './strip-narration.mjs';
+import { FILES, EXECUTORS, LAYERS, readJson } from '../../bundle.mjs';
+import { stripNarration, hasLeftoverNarration } from '../../executors/playwright/strip-narration.mjs';
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', 'host.docker.internal'];
 
@@ -39,8 +40,7 @@ export function validate() {
   add(typeof plan.issue !== 'number', 'issue must be the issue number');
   add(!plan.version, 'version is required');
 
-  // The one kept domain gate: a visual issue must use playwright — an http/direct run can't observe
-  // a rendering bug and would post a false not_reproduced. Classification is written by compose-prompt.
+  // Visual issues need Playwright because HTTP/direct cannot observe rendering symptoms.
   const issueClass = fs.existsSync('issue-class.txt') ? fs.readFileSync('issue-class.txt', 'utf8').trim() : '';
   add(
     issueClass === 'visual' && plan.executor !== 'playwright',
@@ -48,7 +48,9 @@ export function validate() {
   );
 
   if (plan.executor === 'http') {
-    add(!plan.request && !plan.requests, 'http plan needs a `request` or `requests`');
+    // Gate on the effective request list so `requests: []` cannot yield a bogus not_reproduced.
+    const httpRequests = plan.requests || (plan.request ? [plan.request] : []);
+    add(!httpRequests.length, 'http plan needs a `request` or non-empty `requests`');
     add(!plan.assertion && !plan.assertions, 'http plan needs an `assertion` or `assertions`');
     errors.push(...validateHttpIds(plan));
   }
@@ -89,16 +91,37 @@ function validateSpec(plan) {
     return [`playwright plan needs ${specPath}`];
   }
   const errors = [];
-  // Validate what the verdict actually runs + what the comment shows: the spec with narration stripped.
+  // Validate the stripped spec because that is what the verdict executes and the comment shows.
   const spec = stripNarration(fs.readFileSync(specPath, 'utf8'));
   if (hasLeftoverNarration(spec)) {
     errors.push('narrate()/mark() must each be a standalone one-line `await …(…);` statement (so they strip cleanly for the verdict run)');
   }
 
-  const imports = [...spec.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((m) => m[1]);
+  // Catch every module-loading form so generated specs cannot escape the browser sandbox.
+  const imports = [
+    ...spec.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g),
+    ...spec.matchAll(/\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g),
+    ...spec.matchAll(/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g),
+  ].map((m) => m[1]);
   const badImport = imports.find((m) => m !== '@playwright/test');
   if (badImport) {
     errors.push(`spec may only import @playwright/test (video narration from ./video-helpers.js is allowed and stripped), found ${JSON.stringify(badImport)}`);
+  }
+  // A computed dynamic import evades the allowlist above.
+  if (/\bimport\s*\(/.test(spec)) {
+    errors.push('spec must not use dynamic import() — generated specs are static Playwright tests with no runtime module loading');
+  }
+  if (/\b(?:node:)?child_process\b/.test(spec)) {
+    errors.push('spec must not reference child_process — generated specs must not execute shell commands');
+  }
+  if (/\b(?:eval|Function)\s*\(/.test(spec)) {
+    errors.push('spec must not use eval()/new Function() — generated specs must not execute generated code');
+  }
+  if (/\bprocess\.env\b/.test(spec)) {
+    errors.push('spec must not read process.env — generated specs use the harness baseURL and fixture placeholders only');
+  }
+  if (/\b(?:writeFile(?:Sync)?|appendFile(?:Sync)?|createWriteStream|mkdir(?:Sync)?|rm(?:Sync)?|unlink(?:Sync)?|rmdir(?:Sync)?|openSync)\s*\(/.test(spec)) {
+    errors.push('spec must not write through node:fs APIs — generated specs may only produce files via browser/filechooser flows or Playwright screenshots');
   }
 
   const awaitedExpects = (spec.match(/await\s+expect\s*\(/g) || []).length;
@@ -127,8 +150,7 @@ function validateSpec(plan) {
   if (vp !== undefined && (typeof vp !== 'object' || !(vp.width > 0) || !(vp.height > 0))) {
     errors.push('viewport must be {"width":<px>,"height":<px>} with positive numbers (it sizes the run and the recording)');
   }
-  // The plan viewport is authoritative and applied at context creation; an in-spec resize records at
-  // the wrong size, so steer it to the plan field instead.
+  // The plan viewport is applied at context creation, which also sizes video recording.
   if (/\bpage\.setViewportSize\s*\(/.test(spec)) {
     errors.push(
       'do not call page.setViewportSize() — declare "viewport" in reproduction-plan.json '
@@ -139,12 +161,13 @@ function validateSpec(plan) {
   return errors;
 }
 
-// The plan is replayed verbatim on BOTH legs, but every install generates its own UUIDs for
-// countries/salutations/payment methods/etc. A literal install id resolved on the reported shop
-// won't exist on trunk — the request 400s and the leg comes back `blocked` instead of a verdict
-// (see issue #2). Reject bare 32-hex ids in an http plan and steer to per-leg placeholders. Two
-// exemptions: the handful of Shopware core constants that are identical on every install, and any id
-// the agent seeds through fixtures.json (that row is created with the same id on both legs).
+/**
+ * Core ids that can safely appear as literals in HTTP plans.
+ *
+ * The plan is replayed verbatim on both legs, but most Shopware ids are generated per install. Bare
+ * 32-hex ids usually point at reported-leg rows that do not exist on trunk, so they are rejected
+ * unless they are stable core constants or ids created by fixtures/request setup.
+ */
 const STABLE_IDS = new Set([
   '2fbb5fe2e29a4d70aa5854ce7ce3e20b', // Defaults::LANGUAGE_SYSTEM
   'b7d2554b0ce847cd82f3ac9bd1c0dfca', // Defaults::LIVE_VERSION
@@ -172,10 +195,7 @@ function validateHttpIds(plan) {
     }
   }
   const blob = JSON.stringify([plan.request, plan.requests, plan.assertion, plan.assertions]);
-  // A client-assigned primary key the plan CREATES in a request body (`"id": "…"`) is portable — the
-  // same row is created on both legs — as are later references to it (defaultBillingAddressId, …).
-  // Only ids that REFERENCE an existing install entity (a country/salutation the plan didn't create)
-  // are the problem. Exempt the created ones.
+  // Client-assigned ids created by the request body are portable across both legs.
   for (const match of blob.matchAll(/"id":"([0-9a-f]{32})"/g)) {
     allowed.add(match[1]);
   }

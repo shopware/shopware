@@ -52,7 +52,7 @@ Put the request(s) and assertion(s) in the plan itself (no separate artifact):
 ```json
 {
   "executor": "http", "layer": "store-api", "version": "6.6.10.0", "issue": 1,
-  "requests": [ { "method": "POST", "path": "/store-api/product/{{PRODUCT_ID}}", "body": { "salutationId": "{{SALUTATION}}" } } ],
+  "requests": [ { "method": "POST", "path": "/store-api/product/0af1e2c3d4e5f60718293a4b5c6d7e8f", "body": { "salutationId": "{{SALUTATION}}" } } ],
   "assertions": [
     { "kind": "http_status", "expect": 200, "role": "precondition", "label": "product loads" },
     { "field": ".product.calculatedPrice.unitPrice", "op": "equals", "expect": 19.99, "role": "assert", "label": "price is correct" }
@@ -60,6 +60,9 @@ Put the request(s) and assertion(s) in the plan itself (no separate artifact):
 }
 ```
 
-Any entity id in the path/body/assertions must be a `{{PLACEHOLDER}}`, never a literal install id —
-the plan is replayed on trunk where those ids differ. See [executors.md](executors.md) for the id
-rule, the assertion operators, and how each status is decided.
+Any id in the path/body/assertions that references an existing install entity must be a
+`{{PLACEHOLDER}}`, never a literal install id — the plan is replayed on trunk where those ids differ.
+There is no product placeholder: seed the product in `fixtures.json` with a stable id and reference
+that id (as above). See [fixtures.md](fixtures.md) for the resolver's placeholder list and seeding,
+and [executors.md](executors.md) for the id rule, the assertion operators, and how each status is
+decided.

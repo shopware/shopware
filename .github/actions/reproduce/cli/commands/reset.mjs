@@ -1,10 +1,13 @@
-// Restore the clean post-install DB snapshot and clear the shop cache, so a run starts fresh — a
-// re-seed never collides with a prior attempt's rows and no stale cache entry lingers. Best-effort:
-// with no snapshot (a freshly-provisioned leg) this is a no-op; a failed restore just runs on the
-// current state rather than aborting the leg.
+/**
+ * Reset command for restoring the clean post-install database snapshot and clearing shop cache.
+ *
+ * The reset is best-effort: freshly provisioned legs may not have a snapshot yet, and a failed
+ * restore should leave the leg running on current state rather than aborting before seeding can
+ * report an actionable blocker.
+ */
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { FILES, shopDir } from './lib.mjs';
+import { FILES, shopDir } from '../../bundle.mjs';
 
 /**
  * Extracts MySQL connection parts from Shopware's `DATABASE_URL`.

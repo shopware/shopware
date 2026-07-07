@@ -1,8 +1,11 @@
-// Pre-accept the Storefront "technically required" cookie consent → Playwright storageState, so an
-// ordinary Storefront repro isn't blocked by the consent banner. Bugs that ARE about the consent
-// flow set browser_state.auto_cookie_consent=false and get no pre-seeded state.
-//
-// Usage: node consent-state.mjs <APP_URL> [out-state.json]
+/**
+ * Creates Storefront cookie-consent Playwright storage state for ordinary Storefront repros.
+ *
+ * Bugs about the consent flow opt out with `browser_state.auto_cookie_consent=false`; otherwise the
+ * harness pre-accepts technically required cookies so the banner does not block the reported surface.
+ *
+ * Usage: `node consent-state.mjs <APP_URL> [out-state.json]`
+ */
 import fs from 'node:fs';
 
 const [appUrlArg, out = 'storefront-state.json'] = process.argv.slice(2);
@@ -13,7 +16,9 @@ if (!appUrlArg) {
 
 const appUrl = new URL(appUrlArg);
 
-// The banner is considered answered when cookie-config-hash matches the shop's current groups hash.
+/**
+ * Storefront JS skips the modal once this hash matches the current cookie-group configuration.
+ */
 let cookieConfigHash = '{}';
 try {
   const res = await fetch(new URL('/cookie/groups', appUrl), {

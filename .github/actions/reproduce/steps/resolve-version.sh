@@ -35,8 +35,15 @@ if [ -f issue.md ]; then BODY=$(cat issue.md)
 elif command -v gh >/dev/null 2>&1; then BODY=$(gh issue view "$ISSUE" --repo "${REPO:-${GITHUB_REPOSITORY:-}}" --json title,body --jq '.title + "\n" + (.body // "")' 2>/dev/null || echo ""); fi
 
 # Boundary before the version so "16.7"/"8.6" can't false-match; ERE only (portable).
-RAW=$(printf '%s' "$BODY" | grep -oiE '(^|[^0-9.])v?6(\.[0-9]+){1,3}(\.(\*|[xX]))?' | head -1 || true)
-RAW=$(printf '%s' "$RAW"  | grep -oiE 'v?6(\.[0-9]+){1,3}(\.(\*|[xX]))?' || true)
+VER_RE='v?6(\.[0-9]+){1,3}(\.(\*|[xX]))?'
+# Anchor to Shopware context first: a version preceded by "Shopware" (optionally "v"/"version") on the
+# same line wins, so "symfony/messenger to 6.4.2 … Shopware 6.7.0.0" resolves the Shopware 6.7.0.0 and
+# not the first stray 6.x. Only if no Shopware-tied version is found do we fall back to the broad match.
+RAW=$(printf '%s' "$BODY" | grep -oiE "shopware[^0-9]{0,20}${VER_RE}" | head -1 || true)
+if [ -z "$RAW" ]; then
+  RAW=$(printf '%s' "$BODY" | grep -oiE "(^|[^0-9.])${VER_RE}" | head -1 || true)
+fi
+RAW=$(printf '%s' "$RAW"  | grep -oiE "$VER_RE" | head -1 || true)
 
 VERSION=""; IS_TRUNK=true
 if [ -n "$RAW" ]; then

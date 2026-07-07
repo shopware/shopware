@@ -1,37 +1,28 @@
-// The one place the reproduction sequence is defined: (reset) → demodata → seed → readiness → run.
-// `verify` (trusted, records the official result) and `try` (the agent's optional preview) both call
-// this so both legs execute identical steps. Any setup failure writes a `blocked` result and stops —
-// a leg never silently runs on broken setup.
+/**
+ * Shared full reproduction sequence for preview and trusted verification legs.
+ *
+ * This CLI helper owns ordering: optional reset, optional demodata, fixture seeding, readiness
+ * checks, then executor dispatch. Setup failures write a blocked result instead of letting a leg
+ * silently run on broken state.
+ */
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { FILES, appUrl, readJson, shopDir, writeJson, blockedResult } from './lib.mjs';
-import { reset } from './reset.mjs';
-import { seed } from './seed.mjs';
-import { runBundle } from './run-bundle.mjs';
-// check.mjs pulls in @playwright/test, which is only installed for playwright bundles — import it
-// lazily so an http/direct verify never needs Playwright.
+import { FILES, appUrl, readJson, shopDir, writeJson, blockedResult } from '../bundle.mjs';
+import { reset } from './commands/reset.mjs';
+import { seed } from './commands/seed.mjs';
+import { executeBundle } from './execute-bundle.mjs';
 
 /**
  * Runs the deterministic reproduction sequence for one target leg.
  *
  * This is the shared sequence for trusted `verify` and preview `try`: reset when requested,
  * optionally generate demodata, seed fixtures, prove readiness, then run the selected executor.
+ * Browser readiness checks are imported lazily so HTTP/direct bundles do not require Playwright.
  *
- * @example
- * const result = await pipeline({ target: 'reported', out: FILES.result, reset: true });
- * // May return:
- * // {
- * //   target: 'reported',
- * //   status: 'reproduced',
- * //   assertion: { expect: '...', actual: '...', matched: false },
- * //   evidence: { ... },
- * //   blocked_reason: null,
- * //   issue: 12345,
- * //   version: '6.6.10.0',
- * //   executor: 'playwright',
- * // }
+ * @returns The executor's canonical leg result, or a blocked result when reset, seeding, or readiness
+ * fails before the reproduction can be judged.
  */
-export async function pipeline({ target, out, reset: doReset }) {
+export async function fullRun({ target, out, reset: doReset }) {
   if (!appUrl()) {
     return fail(target, out, 'APP_URL is not set — the live shop coordinates were not exported');
   }
@@ -55,7 +46,7 @@ export async function pipeline({ target, out, reset: doReset }) {
     }
 
     if (plan.executor === 'playwright') {
-      const { check } = await import('./check.mjs');
+      const { check } = await import('../executors/playwright/readiness-check.mjs');
       const readiness = await check({ plan });
       if (!readiness.ok && !readiness.skipped) {
         return fail(target, out, `seeded readiness precondition failed: ${(readiness.failures || []).join('; ').slice(0, 500)}`);
@@ -64,7 +55,7 @@ export async function pipeline({ target, out, reset: doReset }) {
   }
 
   clearStaleArtifacts();
-  const result = await runBundle({ target, out });
+  const result = await executeBundle({ target, out });
   if (plan.executor === 'playwright') {
     hintScreenshot();
   }
@@ -114,7 +105,7 @@ function generateDemodata() {
  *
  * @example
  * clearStaleArtifacts();
- * const result = await runBundle({ target, out });
+ * const result = await executeBundle({ target, out });
  */
 function clearStaleArtifacts() {
   fs.rmSync('playwright-report', { recursive: true, force: true });

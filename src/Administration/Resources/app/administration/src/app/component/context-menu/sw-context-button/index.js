@@ -187,11 +187,8 @@ export default {
                 return;
             }
 
-            const contextButton = this.$refs.swContextButton;
-            const contextMenu = this.$refs.swContextMenu?.$el;
-
-            const clickedInsideButton = contextButton?.contains(event.target) ?? false;
-            const clickedInsideMenu = contextMenu?.contains(event.target) ?? false;
+            const clickedInsideButton = this.$el?.contains(event.target) ?? false;
+            const clickedInsideMenu = event.target instanceof Element && event.target.closest('.sw-context-menu') !== null;
 
             if (!clickedInsideButton && !clickedInsideMenu) {
                 this.closeMenu();

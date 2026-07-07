@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Command;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\PromptArgument;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server;
@@ -255,7 +255,7 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://test', 'my-resource', 'A helpful resource', null, null, null),
+            new ResourceDefinition('shopware://test', 'my-resource', null, 'A helpful resource', null, null, null),
             'Acme\\MyResource',
             true,
         );
@@ -275,7 +275,7 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://entities', 'entities', 'All entity types', null, null, null),
+            new ResourceDefinition('shopware://entities', 'entities', null, 'All entity types', null, null, null),
             'Acme\\EntitiesResource',
             true,
         );
@@ -292,7 +292,7 @@ class DebugMcpCommandTest extends TestCase
         $registry = new Registry();
         $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
         $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource', true);
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--tools' => true]);
@@ -310,7 +310,7 @@ class DebugMcpCommandTest extends TestCase
         $registry = new Registry();
         $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
         $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource', true);
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--prompts' => true]);
@@ -328,7 +328,7 @@ class DebugMcpCommandTest extends TestCase
         $registry = new Registry();
         $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
         $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource', true);
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--resources' => true]);
@@ -472,7 +472,7 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://json', 'json-resource', 'JSON resource', 'application/json', null, null),
+            new ResourceDefinition('shopware://json', 'json-resource', null, 'JSON resource', 'application/json', null, null),
             'Acme\\JsonResource',
             true,
         );

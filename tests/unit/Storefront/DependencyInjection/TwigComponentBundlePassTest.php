@@ -63,9 +63,8 @@ class TwigComponentBundlePassTest extends TestCase
     {
         $bundlePath = '/some/storefront/path';
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')
-            ->with($bundlePath . '/Resources/views/components')
             ->willReturn(true);
 
         $container = new ContainerBuilder();
@@ -92,9 +91,8 @@ class TwigComponentBundlePassTest extends TestCase
         $existingConfig = ['template_directory' => 'custom', 'name_prefix' => 'Custom'];
         $namespace = 'Shopware\\Storefront\\Resources\\views\\components\\';
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')
-            ->with($bundlePath . '/Resources/views/components')
             ->willReturn(true);
 
         $container = new ContainerBuilder();

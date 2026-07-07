@@ -6,18 +6,21 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
-use PHPStan\Testing\PHPStanTestCase;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
 
 /**
  * @internal
  */
 #[CoversClass(ExemptionResolver::class)]
-class ExemptionResolverTest extends PHPStanTestCase
+class ExemptionResolverTest extends TestCase
 {
+    private const EXISTING_TEST = 'Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest';
+
     /**
      * @param array<string, string> $useMap
      */
@@ -25,7 +28,13 @@ class ExemptionResolverTest extends PHPStanTestCase
     #[DataProvider('caseProvider')]
     public function testIsExempted(string $docComment, array $useMap, bool $expected): void
     {
-        $resolver = new ExemptionResolver(self::createReflectionProvider());
+        // a real ReflectionProvider would boot the whole PHPStan container; the resolver
+        // only asks hasClass(), and the end-to-end path runs in the devops rule test
+        $reflectionProvider = static::createStub(ReflectionProvider::class);
+        $reflectionProvider->method('hasClass')
+            ->willReturnCallback(static fn (string $class): bool => $class === self::EXISTING_TEST);
+
+        $resolver = new ExemptionResolver($reflectionProvider);
 
         $node = $this->makeClassWithDoc($docComment);
 

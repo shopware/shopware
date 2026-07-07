@@ -9,14 +9,13 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\StreamLockServiceTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see StreamLockServiceTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\StreamLockServiceTest
  */
 #[Package('framework')]
 class StreamLockService

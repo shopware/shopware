@@ -12,6 +12,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class TestRuleHelper
 {
+    /**
+     * @var list<string>
+     */
+    private const UNIT_TEST_CLASS_NAMESPACES = [
+        'Shopware\\Tests\\Unit\\',
+        'Shopware\\Tests\\Migration\\',
+    ];
+
     public static function isTestClass(TestReflectionClassInterface|ClassReflection $class): bool
     {
         foreach ($class->getParents() as $parent) {
@@ -23,25 +31,17 @@ class TestRuleHelper
         return false;
     }
 
-    public static function isUnitTestClass(TestReflectionClassInterface|ClassReflection $class): bool
+    /**
+     * @param list<string>|null $unitTestClassNamespaces
+     */
+    public static function isUnitTestClass(TestReflectionClassInterface|ClassReflection $class, ?array $unitTestClassNamespaces = null): bool
     {
         if (!static::isTestClass($class)) {
             return false;
         }
 
-        $unitTestNamespaces = [
-            'Shopware\\Tests\\Unit\\',
-            'Shopware\\Tests\\Migration\\',
-
-            'Shopware\\Commercial\\Tests\\Unit\\',
-            'Shopware\\Commercial\\Tests\\Migration\\',
-
-            'Swag\\SaasRufus\\Test\\Migration\\',
-            'Swag\\SaasRufus\\Test\\Unit\\',
-        ];
-
-        foreach ($unitTestNamespaces as $unitTestNamespace) {
-            if (\str_contains($class->getName(), $unitTestNamespace)) {
+        foreach ($unitTestClassNamespaces ?? self::UNIT_TEST_CLASS_NAMESPACES as $unitTestClassNamespace) {
+            if (\str_starts_with($class->getName(), $unitTestClassNamespace)) {
                 return true;
             }
         }

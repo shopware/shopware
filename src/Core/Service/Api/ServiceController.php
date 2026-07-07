@@ -209,7 +209,7 @@ class ServiceController
             new EqualsFilter('name', $serviceName),
         )->addAssociation('app.acl_role');
 
-        $service = $this->appRepository->search($criteria, $context)->first();
+        $service = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
         if ($service === null) {
             throw ServiceException::notFound('name', $serviceName);

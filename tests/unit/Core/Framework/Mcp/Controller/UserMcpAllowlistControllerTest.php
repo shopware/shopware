@@ -59,6 +59,7 @@ class UserMcpAllowlistControllerTest extends TestCase
     public function testSaveReturnsNotFoundWhenFeatureFlagIsOff(): void
     {
         $_SERVER['MCP_SERVER'] = false;
+        $this->repository->expects($this->never())->method('update');
         try {
             $repository = $this->createMock(EntityRepository::class);
             $repository->expects($this->never())->method('search');
@@ -82,7 +83,7 @@ class UserMcpAllowlistControllerTest extends TestCase
         ];
 
         $savedContext = null;
-        $entityEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $entityEvent = static::createStub(EntityWrittenContainerEvent::class);
         $this->repository->expects($this->once())
             ->method('update')
             ->willReturnCallback(function (array $data, Context $context) use ($allowlist, $entityEvent, &$savedContext): EntityWrittenContainerEvent {
@@ -151,6 +152,8 @@ class UserMcpAllowlistControllerTest extends TestCase
 
     public function testUserNotFound(): void
     {
+        $this->repository->expects($this->never())->method('update');
+
         $repository = $this->createMock(EntityRepository::class);
         $repository->method('search')->willReturn($this->makeSearchResult([]));
         $repository->expects($this->never())->method('update');

@@ -8,7 +8,6 @@ const { Module } = Shopware;
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-basic-information', () => import('./page/sw-settings-basic-information'));
 Shopware.Component.register('sw-settings-captcha-select-v2', () => import('./component/sw-settings-captcha-select-v2'));
-Shopware.Component.register('sw-settings-company-information', () => import('./component/sw-settings-company-information'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

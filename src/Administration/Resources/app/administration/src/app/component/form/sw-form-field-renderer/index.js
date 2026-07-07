@@ -255,6 +255,10 @@ export default {
         },
 
         componentPropName() {
+            if (this.componentName === 'sw-media-compact-upload-v2') {
+                return 'source';
+            }
+
             if (this.componentName.startsWith('mt-')) {
                 return 'modelValue';
             }
@@ -297,6 +301,10 @@ export default {
 
         emitUpdate(data) {
             this.$emit('update:value', data);
+        },
+
+        emitCompactMediaSelection(selection) {
+            this.$emit('update:value', selection.at(0)?.id ?? null);
         },
 
         getTranslations(

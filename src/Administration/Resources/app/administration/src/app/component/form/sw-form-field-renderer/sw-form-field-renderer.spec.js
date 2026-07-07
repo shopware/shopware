@@ -24,6 +24,7 @@ async function createWrapper(additionalOptions = {}) {
                     'mt-text-field': {
                         template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
                     },
+                    'sw-media-compact-upload-v2': true,
                     'sw-contextual-field': true,
                     'sw-block-field': true,
                     'sw-base-field': true,
@@ -126,5 +127,39 @@ describe('components/form/sw-form-field-renderer', () => {
         });
 
         expect(wrapper.vm.bind.enableMultiSelection).toBe(true);
+    });
+
+    it('should emit the selected media id for sw-media-compact-upload-v2', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                config: {
+                    name: 'companyLogoId',
+                    componentName: 'sw-media-compact-upload-v2',
+                },
+                value: null,
+            },
+        });
+
+        await wrapper.getComponent({ name: 'sw-media-compact-upload-v2' }).vm.$emit('selection-change', [{ id: 'media-id' }]);
+
+        expect(wrapper.emitted('update:value')).toBeTruthy();
+        expect(wrapper.emitted('update:value').at(-1)).toEqual(['media-id']);
+    });
+
+    it('should emit null when sw-media-compact-upload-v2 removes the current image', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                config: {
+                    name: 'companyLogoId',
+                    componentName: 'sw-media-compact-upload-v2',
+                },
+                value: 'media-id',
+            },
+        });
+
+        await wrapper.getComponent({ name: 'sw-media-compact-upload-v2' }).vm.$emit('media-upload-remove-image');
+
+        expect(wrapper.emitted('update:value')).toBeTruthy();
+        expect(wrapper.emitted('update:value').at(-1)).toEqual([null]);
     });
 });

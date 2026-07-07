@@ -32,7 +32,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock());
 
         $executor->execute($handler, new TestExecutorTask());
 
@@ -46,7 +46,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection()]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock());
 
         $executor->execute($handler, $this->createTask());
 
@@ -63,7 +63,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock());
 
         $executor->execute($handler, $task);
 
@@ -86,7 +86,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -120,7 +120,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -188,8 +188,8 @@ class ScheduledTaskExecutorTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
-        $handler = new TestDynamicExecutorHandler($repository, $this->createMock(LoggerInterface::class), $next);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
+        $handler = new TestDynamicExecutorHandler($repository, static::createStub(LoggerInterface::class), $next);
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -213,8 +213,8 @@ class ScheduledTaskExecutorTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
-        $handler = new TestDynamicExecutorHandler($repository, $this->createMock(LoggerInterface::class), null);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
+        $handler = new TestDynamicExecutorHandler($repository, static::createStub(LoggerInterface::class), null);
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -232,8 +232,8 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         // the handler returns a time in the past, which must be clamped to now
-        $handler = new TestDynamicExecutorHandler($repository, $this->createMock(LoggerInterface::class), new \DateTimeImmutable('2026-06-07 00:00:00'));
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
+        $handler = new TestDynamicExecutorHandler($repository, static::createStub(LoggerInterface::class), new \DateTimeImmutable('2026-06-07 00:00:00'));
+        $executor = new ScheduledTaskExecutor($repository, static::createStub(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -250,9 +250,9 @@ class ScheduledTaskExecutorTest extends TestCase
             /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
             $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
-            $legacyHandler = new TestLegacyRescheduleHandler($repository, $this->createMock(LoggerInterface::class));
+            $legacyHandler = new TestLegacyRescheduleHandler($repository, $this->createStub(LoggerInterface::class));
             $legacyHandler->setClock(new MockClock());
-            $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
+            $executor = new ScheduledTaskExecutor($repository, $this->createStub(LoggerInterface::class), new MockClock());
 
             $executor->execute($legacyHandler, $task);
 
@@ -268,7 +268,7 @@ class ScheduledTaskExecutorTest extends TestCase
      */
     private function createHandler(EntityRepository $repository, ?MockClock $clock = null, ?\Throwable $throw = null): TestExecutorHandler
     {
-        $handler = new TestExecutorHandler($repository, $this->createMock(LoggerInterface::class), $throw);
+        $handler = new TestExecutorHandler($repository, static::createStub(LoggerInterface::class), $throw);
         $handler->setClock($clock ?? new MockClock());
 
         return $handler;

@@ -132,13 +132,13 @@ class McpLifecycleHandlerTest extends TestCase
 
     public function testPersistNotifiesMergedExistingAndNewCapabilities(): void
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $context = Context::createDefaultContext();
         $app = (new AppEntity())->assign(['id' => self::APP_ID]);
 
         $fixturePath = __DIR__ . '/../../_fixtures/Resources/mcp.xml';
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('has')->with('Resources/mcp.xml')->willReturn(true);
         $filesystem->method('path')->with('Resources/mcp.xml')->willReturn($fixturePath);
 
@@ -151,7 +151,7 @@ class McpLifecycleHandlerTest extends TestCase
         $promptPersister->expects($this->once())->method('persist');
         $resourcePersister->expects($this->once())->method('persist');
 
-        $capabilityDetector = new class($this->createMock(Connection::class)) extends AppMcpCapabilityDetector {
+        $capabilityDetector = new class(static::createStub(Connection::class)) extends AppMcpCapabilityDetector {
             public int $persistedCalls = 0;
 
             public int $fromMcpCalls = 0;

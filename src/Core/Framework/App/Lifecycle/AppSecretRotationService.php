@@ -160,7 +160,7 @@ class AppSecretRotationService
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('integration');
 
-        $app = $this->appRepository->search($criteria, $context)->get($appId);
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->get($appId);
         if (!$app instanceof AppEntity) {
             throw AppException::notFoundByField('id', $appId);
         }

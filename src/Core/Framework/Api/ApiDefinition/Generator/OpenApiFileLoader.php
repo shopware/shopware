@@ -58,6 +58,48 @@ class OpenApiFileLoader
             );
         }
 
+        $spec['components'] = $this->deduplicateArraysRecursive($spec['components']);
+        $spec['tags'] = $this->deduplicateArraysRecursive($spec['tags']);
+
         return $spec;
+    }
+
+    /**
+     * Recursively deduplicates sequential arrays of scalars produced by array_merge_recursive.
+     * Only applies to flat lists (e.g. enum values, required fields) — arrays containing
+     * nested objects are left untouched to avoid "Array to string conversion" issues.
+     *
+     * @param array<array-key, mixed> $data
+     *
+     * @return array<array-key, mixed>
+     */
+    private function deduplicateArraysRecursive(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            if (!array_is_list($value)) {
+                $data[$key] = $this->deduplicateArraysRecursive($value);
+
+                continue;
+            }
+
+            $allScalar = true;
+            foreach ($value as $item) {
+                if (\is_array($item)) {
+                    $allScalar = false;
+
+                    break;
+                }
+            }
+
+            if ($allScalar) {
+                $data[$key] = array_values(array_unique($value));
+            }
+        }
+
+        return $data;
     }
 }

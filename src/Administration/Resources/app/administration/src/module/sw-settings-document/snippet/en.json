@@ -12,9 +12,7 @@
       "columnType": "Type",
       "columnAssignment": "Assignment",
       "buttonAddDocument": "Add document",
-      "contextMenuEdit": "Edit",
       "messageDeleteSuccess": "Document \"{name}\" has been deleted.",
-      "buttonDelete": "Delete",
       "global": "Global"
     },
     "detail": {
@@ -82,7 +80,6 @@
       "labelDisplayAdditionalNoteDelivery": "\"intra-Community delivery\" label",
       "labelDisplayCustomerVatId": "Customer VAT-ID",
       "placeholderName": "Enter name...",
-      "buttonSave": "Save",
       "disabledSalesChannel": "There is already another document of the same type in this Sales Channel.",
       "disabledSalesChannelSelect": "Choose a document type first.",
       "disabledTypeSelect": "The type of global documents cannot be changed.",

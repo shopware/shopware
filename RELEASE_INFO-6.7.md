@@ -1,17 +1,5 @@
 # 6.7.13.0 (upcoming)
 
-## Storefront
-
-### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
-
-A failed Google reCAPTCHA on a non-AJAX form (e.g. registration) is now rendered as a form error instead of a `403` error page. A missing token — typically because the technically required cookies were not accepted — asks the customer to accept the cookies; other verification failures show a generic captcha error. The bot-only honeypot still fails silently with `403`. A new `component_account_register_violations` Twig block renders form-level violations on the registration page (also used by the checkout registration page via template inheritance).
-
-### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
-
-`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
-
-`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
-
 ## Core
 
 ### Text-based media is stored and served with an explicit charset
@@ -211,6 +199,10 @@ The new database field `product_stream.display_as_group` defaults to `1`, so exi
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
 ## Storefront
+
+### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
+
+A failed Google reCAPTCHA on a non-AJAX form (e.g. registration) is now rendered as a form error instead of a `403` error page. A missing token — typically because the technically required cookies were not accepted — asks the customer to accept the cookies; other verification failures show a generic captcha error. The bot-only honeypot still fails silently with `403`. A new `component_account_register_violations` Twig block renders form-level violations on the registration page (also used by the checkout registration page via template inheritance).
 
 ### robots.txt allows crawling product feed tracking URLs
 

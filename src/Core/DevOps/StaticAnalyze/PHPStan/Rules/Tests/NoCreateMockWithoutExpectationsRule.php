@@ -66,6 +66,11 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Elasticsearch\\',
         'Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\',
         'Shopware\\Tests\\Unit\\Core\\Framework\\App\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\Store\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\Plugin\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\Api\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\Update\\',
+        'Shopware\\Tests\\Unit\\Core\\Framework\\Webhook\\',
     ];
 
     public function getNodeType(): string

@@ -95,7 +95,7 @@ final readonly class BindingSpecificationDto
             $inputs[(string) $key] = new BindingInput(
                 \array_key_exists('default', $entry),
                 $entry['default'] ?? null,
-                ($entry['required'] ?? false) === true,
+                $entry['required'] === true,
             );
         }
 

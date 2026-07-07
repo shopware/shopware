@@ -76,7 +76,7 @@ class BindingSpecificationDtoTest extends TestCase
     public function testInputsEntryWithDefaultHasDefaultTrue(): void
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
-            'alt' => ['default' => 'fallback alt'],
+            'alt' => ['default' => 'fallback alt', 'required' => false],
         ], null);
 
         $inputs = $dto->toBindingSpecification('id', 'core')->inputs();
@@ -89,7 +89,7 @@ class BindingSpecificationDtoTest extends TestCase
     public function testInputsEntryWithoutDefaultKeyHasDefaultFalse(): void
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
-            'alt' => [],
+            'alt' => ['required' => false],
         ], null);
 
         static::assertFalse($dto->toBindingSpecification('id', 'core')->inputs()['alt']->hasDefault);
@@ -101,7 +101,7 @@ class BindingSpecificationDtoTest extends TestCase
         // Load-bearing: buildInputs() keys on array_key_exists('default', ...), so an explicit null default
         // is distinct from an absent one. A regression to a null-coalescing check would collapse the two.
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
-            'alt' => ['default' => null],
+            'alt' => ['default' => null, 'required' => false],
         ], null);
 
         $input = $dto->toBindingSpecification('id', 'core')->inputs()['alt'];
@@ -129,9 +129,6 @@ class BindingSpecificationDtoTest extends TestCase
     {
         yield 'carries required:true' => [['required' => true], true];
         yield 'carries required:false' => [['required' => false], false];
-        yield 'has no required key' => [[], false];
-        // Load-bearing: buildInputs() passes required only on a strict === true, never coercing a truthy value.
-        yield 'carries a non-boolean truthy required' => [['required' => 1], false];
     }
 
     #[TestDox('drops an inputs entry that is not an array')]

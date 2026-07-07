@@ -28,7 +28,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded')), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->getDataRequirements());
         static::assertSame('seeded', $result->getProperty('mediaId'));
@@ -45,7 +45,7 @@ class BindingApplicatorTest extends TestCase
             ->withAttributedSpecification('media', 'core:old-spec')
             ->build();
 
-        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null)), 'core:from-media-library');
+        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:from-media-library');
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $newConfig)], $result->getDataRequirements());
         static::assertSame(['media' => 'core:from-media-library'], $result->getAttributedSpecifications());
@@ -57,7 +57,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:from-media-library');
 
         static::assertFalse($result->hasProperty('mediaId'));
     }
@@ -68,7 +68,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', 'authored')->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded')), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
 
         static::assertSame('authored', $result->getProperty('mediaId'));
     }
@@ -79,7 +79,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', null)->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded')), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
 
         static::assertTrue($result->hasProperty('mediaId'));
         static::assertNull($result->getProperty('mediaId'));
@@ -95,7 +95,7 @@ class BindingApplicatorTest extends TestCase
             ->withStyle($style)
             ->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:from-media-library');
 
         static::assertSame('img-1', $result->getId());
         static::assertSame('Sw:Media:Image', $result->getComponent());
@@ -110,7 +110,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
-        $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded')), 'core:from-media-library');
+        $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
 
         static::assertSame([], $element->getDataRequirements());
         static::assertSame([], $element->getProperties());

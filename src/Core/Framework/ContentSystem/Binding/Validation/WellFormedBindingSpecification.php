@@ -35,7 +35,7 @@ final class WellFormedBindingSpecification extends Constraint
 
     public string $inputsEntryDefaultMessage = 'inputs entry "{{ key }}" "default" must be a scalar or null';
 
-    public string $inputsEntryRequiredMessage = 'inputs entry "{{ key }}" "required" must be a boolean';
+    public string $inputsEntryRequiredMessage = 'inputs entry "{{ key }}" must carry a boolean "required"';
 
     public function getTargets(): string
     {

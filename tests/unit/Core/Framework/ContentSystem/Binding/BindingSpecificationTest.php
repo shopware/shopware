@@ -97,9 +97,9 @@ class BindingSpecificationTest extends TestCase
      */
     public static function serializesInputProvider(): iterable
     {
-        yield 'without default' => [new BindingInput(false, null), ['required' => false]];
-        yield 'with default value' => [new BindingInput(true, 'Untitled'), ['default' => 'Untitled', 'required' => false]];
-        yield 'with explicit null default' => [new BindingInput(true, null), ['default' => null, 'required' => false]];
+        yield 'without default' => [new BindingInput(false, null, false), ['required' => false]];
+        yield 'with default value' => [new BindingInput(true, 'Untitled', false), ['default' => 'Untitled', 'required' => false]];
+        yield 'with explicit null default' => [new BindingInput(true, null, false), ['default' => null, 'required' => false]];
         yield 'required without default' => [new BindingInput(false, null, true), ['required' => true]];
         yield 'required with default value' => [new BindingInput(true, 'Untitled', true), ['default' => 'Untitled', 'required' => true]];
     }

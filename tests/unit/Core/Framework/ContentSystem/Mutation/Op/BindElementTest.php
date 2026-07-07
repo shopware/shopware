@@ -191,7 +191,7 @@ class BindElementTest extends TestCase
             'Sw:Product',
             'Product binding',
             ['product' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
-            ['mediaId' => new BindingInput(true, '123')],
+            ['mediaId' => new BindingInput(true, '123', false)],
             'core',
         );
 
@@ -208,7 +208,7 @@ class BindElementTest extends TestCase
             'Sw:Product',
             'Product binding',
             ['product' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
-            ['mediaId' => new BindingInput(false, null)],
+            ['mediaId' => new BindingInput(false, null, false)],
             'core',
         );
 

@@ -264,7 +264,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
                 ],
             ],
             'inputs' => [
-                'mediaId' => [],
+                'mediaId' => ['required' => false],
             ],
         ];
     }

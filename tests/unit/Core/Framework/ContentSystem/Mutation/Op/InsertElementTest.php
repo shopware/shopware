@@ -152,7 +152,7 @@ class InsertElementTest extends TestCase
             'Sw:Media:Image',
             'From media library',
             ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
-            ['mediaId' => new BindingInput(true, 'seeded')],
+            ['mediaId' => new BindingInput(true, 'seeded', false)],
             'core',
         );
 

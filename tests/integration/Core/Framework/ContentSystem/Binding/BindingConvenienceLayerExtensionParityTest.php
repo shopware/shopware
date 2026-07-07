@@ -94,15 +94,15 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
 
         $mediaIdInput = $inputs['mediaId'] ?? null;
         static::assertIsArray($mediaIdInput);
-        static::assertTrue($mediaIdInput['required'] ?? null, 'A required propertyReference key wiring a required reference makes its input required.');
+        static::assertTrue($mediaIdInput['required'], 'A required propertyReference key wiring a required reference makes its input required.');
 
         $heightInput = $inputs['height'] ?? null;
         static::assertIsArray($heightInput);
-        static::assertTrue($heightInput['required'] ?? null, 'The second required propertyReference key synthesizes its own required input.');
+        static::assertTrue($heightInput['required'], 'The second required propertyReference key synthesizes its own required input.');
 
         $fetchpriorityInput = $inputs['fetchpriority'] ?? null;
         static::assertIsArray($fetchpriorityInput);
-        static::assertFalse($fetchpriorityInput['required'] ?? null, 'A defaulted propertyReference key never makes its input required.');
+        static::assertFalse($fetchpriorityInput['required'], 'A defaulted propertyReference key never makes its input required.');
     }
 
     #[TestDox('gates once per unfilled required propertyReference input for the test loader wiring; the defaulted key never gates')]

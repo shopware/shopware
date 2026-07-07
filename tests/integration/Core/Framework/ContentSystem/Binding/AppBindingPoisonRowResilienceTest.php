@@ -38,6 +38,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
     private const POISON_BINDING_NAME = 'poison-binding';
     private const DOMAIN_LOADER_POISON_BINDING_NAME = 'domain-loader-poison-binding';
+    private const MISSING_REQUIRED_POISON_BINDING_NAME = 'missing-required-poison-binding';
 
     private string $appName;
 
@@ -151,6 +152,57 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         $all = $this->registry()->all();
 
         static::assertArrayNotHasKey('app:' . $appName . ':' . self::DOMAIN_LOADER_POISON_BINDING_NAME, $all);
+        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
+    }
+
+    #[TestDox('builds the registry around a persisted, active-app binding whose inputs entry lacks the required flag, keeping the valid core binding and omitting only the poison one')]
+    public function testRegistryStillBuildsWhenPersistedAppBindingInputsEntryLacksRequired(): void
+    {
+        $context = Context::createDefaultContext();
+        $appId = $this->ids->get('missingRequiredApp');
+        $appName = 'AcmeMissingRequiredPoison' . $this->ids->get('missingRequiredAppNameSuffix');
+
+        $this->appRepository()->create([[
+            'id' => $appId,
+            'name' => $appName,
+            'path' => 'AcmeMissingRequiredPoison',
+            'version' => '1.0.0',
+            'label' => 'Acme Missing Required Poison',
+            'active' => true,
+            'integration' => [
+                'label' => $appName,
+                'accessKey' => 'missing-required-poison-' . $appId,
+                'secretAccessKey' => 'missing-required-poison-' . $appId,
+            ],
+            'aclRole' => [
+                'name' => $appName,
+            ],
+        ]], $context);
+
+        // "mediaId" is a real primitive property of the registered "Sw:Media:Image" type and "resolves" is
+        // empty (also valid), so this row would load cleanly if its inputs entry carried "required" -- the
+        // absent flag is the sole reason WellFormedBindingSpecification rejects it.
+        $poison = new BindingSpecificationDto(
+            type: 'Sw:Media:Image',
+            label: 'Missing Required Poison',
+            resolves: [],
+            inputs: ['mediaId' => ['default' => 'seed']],
+            promoted: null,
+        );
+
+        $this->bindingSpecificationRepository()->create([[
+            'id' => $this->ids->get('missingRequiredBinding'),
+            'appId' => $appId,
+            'name' => self::MISSING_REQUIRED_POISON_BINDING_NAME,
+            'schema' => (new BindingSpecificationSerializer())->normalize($poison),
+            'hash' => 'missing-required-poison-hash',
+        ]], $context);
+
+        $this->registry()->invalidate();
+
+        $all = $this->registry()->all();
+
+        static::assertArrayNotHasKey('app:' . $appName . ':' . self::MISSING_REQUIRED_POISON_BINDING_NAME, $all);
         static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
     }
 

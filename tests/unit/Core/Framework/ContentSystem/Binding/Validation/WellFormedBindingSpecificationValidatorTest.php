@@ -33,10 +33,10 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
      */
     public static function acceptsWellFormedDeclarationProvider(): iterable
     {
-        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt']], null)];
+        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt', 'required' => false]], null)];
         yield 'empty resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', [], [], null)];
         yield 'null resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', null, null, null)];
-        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]], null)];
+        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null, 'required' => false]], null)];
         yield 'an inputs entry with a boolean required flag' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => true]], null)];
         yield 'a true promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], true)];
         yield 'a false promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], false)];
@@ -134,7 +134,13 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
         yield 'inputs entry required is non-boolean' => [
             new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => 'yes']], null),
             'inputs[alt].required',
-            'required" must be a boolean',
+            'must carry a boolean "required"',
+        ];
+
+        yield 'inputs entry is missing required' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => 'fallback']], null),
+            'inputs[alt].required',
+            'must carry a boolean "required"',
         ];
 
         yield 'promoted is a non-boolean string' => [

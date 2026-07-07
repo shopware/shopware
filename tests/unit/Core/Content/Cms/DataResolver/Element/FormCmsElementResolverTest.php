@@ -30,8 +30,8 @@ class FormCmsElementResolverTest extends TestCase
     public function testType(): void
     {
         $formCmsElementResolver = new FormCmsElementResolver(
-            $this->createMock(AbstractSalutationRoute::class),
-            $this->createMock(AbstractSalutationsSorter::class)
+            static::createStub(AbstractSalutationRoute::class),
+            static::createStub(AbstractSalutationsSorter::class)
         );
 
         static::assertSame('form', $formCmsElementResolver->getType());
@@ -40,7 +40,7 @@ class FormCmsElementResolverTest extends TestCase
     public function testResolverUsesAbstractSalutationsRouteToEnrichSlot(): void
     {
         $salutationCollection = $this->getSalutationCollection();
-        $sorter = $this->createMock(AbstractSalutationsSorter::class);
+        $sorter = static::createStub(AbstractSalutationsSorter::class);
         $sorter->method('sort')->willReturnArgument(0);
         $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection), $sorter);
 
@@ -84,11 +84,11 @@ class FormCmsElementResolverTest extends TestCase
     public function testCollectReturnsNull(): void
     {
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
-        $salutationRoute = $this->createMock(AbstractSalutationRoute::class);
+        $salutationRoute = static::createStub(AbstractSalutationRoute::class);
 
         $formCmsElementResolver = new FormCmsElementResolver(
             $salutationRoute,
-            $this->createMock(AbstractSalutationsSorter::class)
+            static::createStub(AbstractSalutationsSorter::class)
         );
         $actual = $formCmsElementResolver->collect(new CmsSlotEntity(), $context);
 

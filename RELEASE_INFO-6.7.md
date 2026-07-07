@@ -215,6 +215,32 @@ Private media visibility is not implicitly widened by this change.
 During DAL write-event dispatch, Shopware marks the context with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` so private media searches still apply normal visibility restrictions.
 If a listener intentionally needs private media access, wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; explicit system-scope reads continue to opt in to private media visibility.
 
+### Manage translation downloads via the Admin API
+
+Translation management — previously only possible through the `translation:list`, `translation:install`, and `translation:update` CLI commands — is now available through the Admin API, so it can be driven from the Administration without shell access:
+
+- `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
+- `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped, unavailable }`, where `unavailable` lists requested locales that have no translation available.
+- `POST /api/_action/translation/update` — updates all installed translations. Returns `{ updated, skipped, unavailable }`.
+- `DELETE /api/_action/translation/{locale}` — removes the downloaded translation files and the metadata entry for a locale. The associated `language`, `locale`, and `snippet_set` records are left untouched and remain manageable through their regular entity endpoints.
+
+The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
+
+`install` and `update` process the requested locales synchronously during the request, downloading each locale's snippet files in turn. Installing many locales at once — in particular `all: true`, which covers every configured locale — can therefore take a while, and the operation is not atomic: if one locale fails, the locales processed before it remain installed.
+
+Two events are dispatched from the underlying services (so they fire for both the Admin API and the `translation:*` CLI commands), giving extensions a targeted hook instead of having to filter generic DAL write events:
+
+- `Shopware\Core\System\Snippet\Event\TranslationLoadedEvent` — after a locale's translations are downloaded and installed (carries the locale and the `Context`).
+- `Shopware\Core\System\Snippet\Event\TranslationRemovedEvent` — after a locale's downloaded files and metadata entry are removed (carries the locale).
+
+### Download media files via the Admin API
+
+The Admin API provides `GET /api/_action/media/{mediaId}/download` to download the binary file of a media entity.
+Depending on the configured media storage and download strategy, the route may either stream the file from Shopware or respond with a redirect to the resolved download URL.
+
+For Administration clients that need to decide whether to trigger a direct browser download or fall back to an authenticated blob request, the Admin API now also provides `GET /api/_action/media/{mediaId}/download/prepare`.
+The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
+
 ## App System
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
@@ -235,6 +261,9 @@ A new CLI command finishes or inspects an interrupted rotation:
 An interrupted rotation whose app kept its old credentials should be recovered promptly with `app:secret:recover`; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until it completes.
 
 Operators who run a fleet of shops get a `app.unconfirmed_app_secrets.count` telemetry gauge so a stuck rotation is visible without inspecting the database.
+### Tax provider priority is preserved across app updates
+
+An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
 ## Administration
 
@@ -303,7 +332,7 @@ Deprecated -> Replacement:
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
-# 6.7.12.0 (upcoming)
+# 6.7.12.0
 
 ## Features
 
@@ -776,10 +805,6 @@ With the flag enabled:
 Enabling the flag requires configuration changes — the worker consume command must list the new `webhook` transport, and `shopware.admin_worker.transports` may need updating if it was overridden. Rolling the flag back off also has its own steps. See `UPGRADE-6.7.md` for the full procedure.
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
-
-### Tax provider priority is preserved across app updates
-
-An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
 ## Hosting & Configuration
 

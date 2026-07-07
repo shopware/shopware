@@ -35,7 +35,7 @@ class CategoryUrlExtensionTest extends TestCase
             ->willReturn('/navigation');
 
         $extension = new CategoryUrlExtension(
-            new RoutingExtension($this->createMock(UrlGeneratorInterface::class)),
+            new RoutingExtension(static::createStub(UrlGeneratorInterface::class)),
             $categoryUrlGenerator
         );
 

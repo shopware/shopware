@@ -46,6 +46,8 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->deletedAppsGateway->expects($this->never())->method('deleteSecretForApp');
+
         static::assertSame([
             AppDeletedEvent::class => 'saveSecretFromDeletedApp',
             AppInstalledEvent::class => 'removeDeletedAppSecret',
@@ -103,7 +105,7 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
 
         $event = new AppInstalledEvent(
             $app,
-            $this->createMock(Manifest::class),
+            static::createStub(Manifest::class),
             Context::createDefaultContext()
         );
 

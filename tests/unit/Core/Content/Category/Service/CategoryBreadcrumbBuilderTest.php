@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -158,7 +157,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setId($categoryIds[0]);
         $categoryEntity->setName('category-name-1');
 
-        $categoryRepositoryMock = $this->getCategoryRepositoryMock([], [$categoryEntity]);
+        $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $categoryRepositoryMock,
             $this->getProductRepositoryMock([], []),
@@ -167,9 +166,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
         $product = $this->getProductEntity([], $categoryIds);
 
+        $context = $this->salesChannelContext->getContext();
         $categoryRepositoryMock->expects($this->once())
             ->method('search')
-            ->willReturnCallback(static function (Criteria $criteria): void {
+            ->willReturnCallback(static function (Criteria $criteria) use ($categoryEntity, $context): EntitySearchResult {
                 $levelSorting = array_values(array_filter(
                     $criteria->getSorting(),
                     static fn (FieldSorting $sorting) => $sorting->getField() === 'level'
@@ -197,6 +197,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
                 static::assertInstanceOf(EqualsFilter::class, $activeFilter);
                 static::assertTrue($activeFilter->getValue());
+
+                return new EntitySearchResult('category', 1, new CategoryCollection([$categoryEntity]), null, $criteria, $context);
             });
 
         $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -361,9 +363,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     private function getConnectionMock(): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $result = $this->createMock(Result::class);
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn(
             [
                 [
@@ -413,11 +415,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      * @param array<CategoryEntity> $categoryEntityCollection1
      * @param array<CategoryEntity> $categoryEntityCollection2
      *
-     * @return EntityRepository<CategoryCollection>&MockObject
+     * @return EntityRepository<CategoryCollection>
      */
-    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository&MockObject
+    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository
     {
-        $categoryRepositoryMock = $this->createMock(EntityRepository::class);
+        $categoryRepositoryMock = static::createStub(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
             new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
@@ -434,7 +436,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      */
     private function getProductRepositoryMock(array $productEntityCollection1, array $productEntityCollection2): SalesChannelRepository
     {
-        $productRepositoryMock = $this->createMock(SalesChannelRepository::class);
+        $productRepositoryMock = static::createStub(SalesChannelRepository::class);
         $productRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
             new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),

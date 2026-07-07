@@ -62,7 +62,6 @@
       "columnShippingMethodPriceCalculations": "Shipping method price matrix assignments",
       "columnShippingMethodPrices": "Shipping method price assignments",
       "columnShippingMethods": "Shipping method assignments",
-      "contextMenuDuplicate": "Duplicate",
       "titleSidebarItemRefresh": "Refresh",
       "valid": "Valid",
       "invalid": "Invalid",
@@ -85,7 +84,6 @@
     },
     "detail": {
       "textHeadline": "New rule",
-      "buttonSave": "Save",
       "titleCard": "General",
       "labelName": "Name",
       "labelDescription": "Description",

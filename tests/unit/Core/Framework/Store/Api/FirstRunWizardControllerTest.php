@@ -572,7 +572,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     private function createClientException(string $message): ClientException
     {
-        return new ClientException($message, $this->createMock(GuzzleRequest::class), new Response(400));
+        return new ClientException($message, static::createStub(GuzzleRequest::class), new Response(400));
     }
 
     /**

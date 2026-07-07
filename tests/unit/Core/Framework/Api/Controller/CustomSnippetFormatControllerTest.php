@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -18,12 +18,12 @@ use Twig\Environment;
 class CustomSnippetFormatControllerTest extends TestCase
 {
     /**
-     * @var KernelPluginCollection&MockObject
+     * @var KernelPluginCollection&Stub
      */
     private KernelPluginCollection $pluginCollection;
 
     /**
-     * @var Environment&MockObject
+     * @var Environment&Stub
      */
     private Environment $twig;
 
@@ -31,8 +31,8 @@ class CustomSnippetFormatControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->pluginCollection = $this->createMock(KernelPluginCollection::class);
-        $this->twig = $this->createMock(Environment::class);
+        $this->pluginCollection = static::createStub(KernelPluginCollection::class);
+        $this->twig = static::createStub(Environment::class);
         $this->controller = new CustomSnippetFormatController($this->pluginCollection, $this->twig);
     }
 
@@ -66,9 +66,11 @@ class CustomSnippetFormatControllerTest extends TestCase
     public function testGetSnippetsWithPlugins(): void
     {
         $plugin = new BundleWithCustomSnippet(true, __DIR__ . '/Fixtures/BundleWithCustomSnippet');
-        $this->pluginCollection->expects($this->once())->method('getActives')->willReturn([$plugin]);
+        $pluginCollection = $this->createMock(KernelPluginCollection::class);
+        $pluginCollection->expects($this->once())->method('getActives')->willReturn([$plugin]);
+        $controller = new CustomSnippetFormatController($pluginCollection, $this->twig);
 
-        $response = $this->controller->snippets();
+        $response = $controller->snippets();
         $content = $response->getContent();
         static::assertNotFalse($content);
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -109,7 +111,8 @@ class CustomSnippetFormatControllerTest extends TestCase
                 'address/last_name',
             ],
         ]);
-        $this->twig->expects($this->once())->method('render')->with('@Framework/snippets/render.html.twig', [
+        $twig = $this->createMock(Environment::class);
+        $twig->expects($this->once())->method('render')->with('@Framework/snippets/render.html.twig', [
             'customer' => [
                 'first_name' => 'Vin',
                 'last_name' => 'Le',
@@ -121,8 +124,9 @@ class CustomSnippetFormatControllerTest extends TestCase
                 ],
             ],
         ])->willReturn('Rendered html');
+        $controller = new CustomSnippetFormatController($this->pluginCollection, $twig);
 
-        $response = $this->controller->render($request);
+        $response = $controller->render($request);
         $content = $response->getContent();
         static::assertNotFalse($content);
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);

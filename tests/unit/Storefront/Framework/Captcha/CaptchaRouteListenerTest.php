@@ -234,7 +234,7 @@ class CaptchaRouteListenerTest extends TestCase
         );
 
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -258,10 +258,10 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('getViolations')
             ->willReturn($violations);
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('get')->willReturn([]);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
 
         $listener = new CaptchaRouteListener(
             [$captcha],

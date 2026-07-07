@@ -402,7 +402,7 @@ return (new Config())
             $fileName = basename($file->name);
 
             foreach ($excludedDirs as $excludedDir) {
-                if (str_starts_with($dir, $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
+                if (str_starts_with($dir . '/', $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
                     continue 2;
                 }
             }

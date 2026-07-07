@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Controller\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class StorefrontRouteNotFoundException extends RouteNotFoundException
 {

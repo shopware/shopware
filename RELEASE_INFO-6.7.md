@@ -185,6 +185,16 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 ## API
 
+### Store API OpenAPI: JSON schema files take precedence over generated entity schemas
+
+The `StoreApiGenerator` now checks whether a component schema already exists in the JSON schema files before using the OpenAPI schema generated from the PHP `EntityDefinition`. If a match is found, the PHP-generated OpenAPI component is ignored.
+
+JSON schema files are now the sole source of truth for any entity they define. Properties, required fields, and other schema details from the PHP `EntityDefinition` will not be merged into the JSON schema.
+
+If you maintain a bundle that provides both a PHP `EntityDefinition` and a JSON schema file under `Resources/Schema/StoreApi/components/schemas/` for the same entity, ensure the JSON file is complete. The PHP `EntityDefinition` remains responsible for DAL and internal entity handling.
+
+See the [JSON as the Source of Truth for API Schema](https://github.com/shopware/shopware/discussions/15100) RFC for the full rationale and roadmap.
+
 ### Purchase prices removed from Store API order line item payloads
 
 Order line item JSON serialization no longer exposes product `purchasePrices` in the payload returned by Store API order responses.

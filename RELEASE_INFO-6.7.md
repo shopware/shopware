@@ -198,6 +198,10 @@ When `displayAsGroup` is disabled, matching variants are returned and rendered i
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
+### New telemetry metrics
+
+Telemetry coverage was substantially expanded: new metrics instrument core framework subsystems - DAL queries, entity indexing, the message queue, HTTP request handling, and scheduled tasks — giving operators visibility into how a running instance behaves under load. The full list is defined in `src/Core/Framework/Resources/config/packages/telemetry.yaml`. It is behind the experimental `TELEMETRY_METRICS` feature flag, so metric and label definitions may still change at any time.
+
 ## Storefront
 
 ### robots.txt allows crawling product feed tracking URLs

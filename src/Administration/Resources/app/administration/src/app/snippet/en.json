@@ -73,6 +73,7 @@
     },
     "notification-center": {
       "title": "Notifications",
+      "triggerAriaLabel": "Notifications",
       "optionsAriaLabel": "Notification options",
       "emptyText": "Nothing going on lately.",
       "deleteModal": {

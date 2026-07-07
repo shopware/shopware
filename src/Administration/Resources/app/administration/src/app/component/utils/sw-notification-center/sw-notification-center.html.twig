@@ -12,6 +12,8 @@
             :class="[additionalContextButtonClass, { 'is--active': isOpened }]"
             variant="tertiary"
             square
+            size="default"
+            :aria-label="$t('global.notification-center.triggerAriaLabel')"
             @click="togglePanel"
         >
             <mt-icon

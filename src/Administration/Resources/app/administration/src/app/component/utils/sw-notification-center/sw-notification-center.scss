@@ -8,8 +8,8 @@
     border-radius: 50%;
     background-color: var(--color-icon-critical-default);
     position: absolute;
-    top: var(--scale-size-2);
-    right: var(--scale-size-2);
+    top: 5px;
+    right: 5px;
 }
 
 .sw-notification-center__context-button.is--active {

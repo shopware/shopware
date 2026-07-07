@@ -43,9 +43,9 @@ if: >-
 
 run-name: "Shopware PR Review #${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}"
 
-concurrency:                 # explicit — a fresh push/comment supersedes an in-flight review of the same PR
+concurrency:                 # serialize per PR
   group: sw-review-${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}
-  cancel-in-progress: true
+  cancel-in-progress: false   # keep false: shared with issue_comment triggers, else the status comment self-cancels the review
 
 checkout:
   # Review the PR head. fetch-depth: 0 gives the base ref for `git diff base...HEAD`;

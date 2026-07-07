@@ -436,7 +436,7 @@
         "lint": [
             "@stylelint",
             "@eslint",
-            "@ecs",
+            "@cs",
             "@php bin/shopware translation:validate"
         ],
         "lint:snippets": "@php bin/shopware translation:validate",

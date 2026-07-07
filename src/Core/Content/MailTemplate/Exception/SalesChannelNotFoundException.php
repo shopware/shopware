@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed as it is not used anymore
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class SalesChannelNotFoundException extends ShopwareHttpException

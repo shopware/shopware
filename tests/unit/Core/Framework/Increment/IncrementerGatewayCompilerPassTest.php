@@ -40,7 +40,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
         $container->register('shopware.increment.gateway.mysql', MySQLIncrementer::class)
             ->addArgument('')
-            ->addArgument($this->createMock(Connection::class));
+            ->addArgument(static::createStub(Connection::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
         $entityCompilerPass->process($container);

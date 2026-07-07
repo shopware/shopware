@@ -72,7 +72,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $this->encodeLogoUrl($config);
 
         if (Uuid::isValid($config->getCompanyCountryId())) {
-            $country = $this->countryRepository->search(new Criteria([$config->getCompanyCountryId()]), $context)->first();
+            $country = $this->countryRepository->search(new Criteria([$config->getCompanyCountryId()]), $context)->getEntities()->first();
 
             $config->setCompanyCountry($country);
         }

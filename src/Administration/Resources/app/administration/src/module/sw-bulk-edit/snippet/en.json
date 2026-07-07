@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Bulk edit",
       "descriptionTextModule": "Module to bulk edit data",
       "defaultChangeLabel": "Change:"
     },

@@ -50,7 +50,7 @@ class PluginAclTest extends TestCase
             require_once $this->testPluginBaseDir . '/src/' . $pluginToLoad . '.php';
         }
 
-        $pluginCollection = $this->createMock(KernelPluginCollection::class);
+        $pluginCollection = static::createStub(KernelPluginCollection::class);
 
         $pluginCollection
             ->method('getActives')
@@ -66,7 +66,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -86,7 +86,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -106,7 +106,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -126,7 +126,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -146,7 +146,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -169,7 +169,7 @@ class PluginAclTest extends TestCase
         ];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -192,7 +192,7 @@ class PluginAclTest extends TestCase
         ];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -212,7 +212,7 @@ class PluginAclTest extends TestCase
         ];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -236,7 +236,7 @@ class PluginAclTest extends TestCase
         ];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -261,7 +261,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );
@@ -282,7 +282,7 @@ class PluginAclTest extends TestCase
         $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
 
         $event = new EntityLoadedEvent(
-            $this->createMock(AclRoleDefinition::class),
+            static::createStub(AclRoleDefinition::class),
             $aclRoles,
             Context::createDefaultContext()
         );

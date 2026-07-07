@@ -82,7 +82,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $validJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -98,7 +98,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $invalidJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -114,7 +114,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\Telemetry;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(ScheduledTaskOverdueGateway::class)]
 class ScheduledTaskOverdueGatewayTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

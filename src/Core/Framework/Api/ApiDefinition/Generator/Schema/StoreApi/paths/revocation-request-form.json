@@ -10,7 +10,11 @@
                 "summary": "Submit a revocation request form message",
                 "description": "Used for submitting revocation request forms. Be aware that there can be more required fields, depending on the system settings.",
                 "operationId": "sendRevocationRequestMail",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {

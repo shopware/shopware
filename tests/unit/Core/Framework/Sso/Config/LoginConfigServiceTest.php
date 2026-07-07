@@ -344,7 +344,7 @@ class LoginConfigServiceTest extends TestCase
      */
     public function createLoginConfigService(array $rawConfig): LoginConfigService
     {
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturnCallback(static function ($name, $parameter) {
             return $name . '?' . \http_build_query($parameter);
         });

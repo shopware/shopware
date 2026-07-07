@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
+use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -117,7 +118,9 @@ readonly class PresignedMediaUploadService
                 $this->cleanupOldMediaData($media, $payload->path, $context);
             }
 
-            $mimeType = $s3Metadata->contentType ?? $payload->mimeType;
+            // The S3 object stores the canonical Content-Type incl. `charset` (see PresignedUploadUrlGenerator);
+            // strip any parameters so the persisted entity mimeType stays bare for media-type/extension detection.
+            $mimeType = FileInfoHelper::stripParameters($s3Metadata->contentType ?? $payload->mimeType);
 
             $this->persistMediaData($mediaId, $payload, $s3Metadata, $mimeType, $media, $context);
             $this->dispatchFinalizeEvents($mediaId, $payload->path, $mimeType, $context);

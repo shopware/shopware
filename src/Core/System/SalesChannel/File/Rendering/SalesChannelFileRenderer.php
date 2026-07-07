@@ -160,7 +160,7 @@ class SalesChannelFileRenderer
         $criteria->getAssociation('currencies')->addSorting(new FieldSorting('isoCode', FieldSorting::ASCENDING));
         $criteria->getAssociation('domains')->addSorting(new FieldSorting('url', FieldSorting::ASCENDING));
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $context->getSalesChannel();

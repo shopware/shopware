@@ -182,7 +182,7 @@ class AdministrationController extends AbstractController
         $criteria = (new Criteria())->addAssociation('locale');
 
         $languages = $this->languageRepository->search($criteria, $context);
-        $installedLocales = $languages->reduce(static function (array $accumulator, LanguageEntity $language) {
+        $installedLocales = $languages->getEntities()->reduce(static function (array $accumulator, LanguageEntity $language) {
             $locale = $language->getLocale();
             if ($locale !== null) {
                 $accumulator[$language->getId()] = $locale->getCode();

@@ -44,6 +44,8 @@ class NotificationServiceTest extends TestCase
 
         $this->expectExceptionObject(new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class));
 
+        $this->entityRepository->expects($this->never())->method('search');
+
         $this->notificationService->getNotifications($context, 0, '');
     }
 
@@ -74,6 +76,17 @@ class NotificationServiceTest extends TestCase
         $source = new AdminApiSource('user1234');
         $source->setIsAdmin(false);
         $context = Context::createDefaultContext($source);
+
+        $this->entityRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'notification',
+                0,
+                new NotificationCollection(),
+                null,
+                new Criteria(),
+                $context
+            ));
 
         $notifications = $this->notificationService->getNotifications($context, 0, '1718179529');
 

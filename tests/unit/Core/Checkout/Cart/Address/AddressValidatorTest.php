@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Address;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressCountryRegionMissingError;
@@ -38,15 +38,15 @@ use Shopware\Core\Test\Generator;
 class AddressValidatorTest extends TestCase
 {
     /**
-     * @var MockObject&EntityRepository<EntityCollection<Entity>>
+     * @var Stub&EntityRepository<EntityCollection<Entity>>
      */
-    private MockObject&EntityRepository $repository;
+    private Stub&EntityRepository $repository;
 
     private AddressValidator $validator;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = static::createStub(EntityRepository::class);
         $this->validator = new AddressValidator($this->repository);
     }
 

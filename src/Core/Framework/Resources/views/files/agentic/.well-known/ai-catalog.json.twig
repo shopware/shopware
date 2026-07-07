@@ -1,0 +1,35 @@
+{% block agentic_ai_catalog_json -%}
+    {%- set host = {
+        displayName: salesChannel.translated.name|default(salesChannel.name),
+    } -%}
+
+    {%- set entries = [] -%}
+
+    {%- apply trim -%}
+        {%- block agentic_ai_catalog_entries -%}
+            {%- set storeApiMcpServerUrl = salesChannelFileContext.storeApiMcpServerUrl|default(null) -%}
+            {%- set publisher = salesChannelFileContext.publisher|default(null) -%}
+
+            {%- if storeApiMcpServerUrl and publisher -%}
+                {%- set entries = entries|merge([{
+                    identifier: 'urn:air:' ~ publisher ~ ':server:store-api-mcp',
+                    displayName: 'Shopware Store API MCP Server',
+                    type: 'application/mcp-server-card+json',
+                    url: storeApiMcpServerUrl,
+                    description: 'Authenticated Store API MCP server for supported Shopware operations.',
+                    tags: ['shopware', 'store-api', 'mcp'],
+                    capabilities: ['shopware-store-api-context'],
+                    representativeQueries: [
+                        'inspect the current Shopware Store API context',
+                        'use authenticated Shopware Store API MCP tools',
+                    ],
+                }]) -%}
+            {%- endif -%}
+            {{- {
+                specVersion: '1.0',
+                host: host,
+                entries: entries,
+            }|json_encode(constant('JSON_PRETTY_PRINT') + constant('JSON_UNESCAPED_SLASHES') + constant('JSON_UNESCAPED_UNICODE'))|raw -}}
+        {%- endblock -%}
+    {%- endapply -%}
+{%- endblock %}

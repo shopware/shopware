@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
@@ -233,11 +234,14 @@ class SearchKeywordUpdater implements ResetInterface
     {
         $definition = $this->productRepository->getDefinition();
 
-        // Filter for products that have translations in the given language
-        // if there are no translations, we copy the keywords of the parent language without fetching the product
+        // Filter for products that have translations anywhere in the language inheritance chain
+        // (current language, its parent and the system default). A sales channel language may
+        // inherit from a parent language that is not itself indexed (e.g. de-CH inheriting de-DE),
+        // in which case the carried-over keywords of the parent language are not available and the
+        // product must be fetched here so its inherited translation can be indexed.
         $filters = [
-            new EqualsFilter('translations.languageId', $context->getLanguageId()),
-            new EqualsFilter('parent.translations.languageId', $context->getLanguageId()),
+            new EqualsAnyFilter('translations.languageId', $context->getLanguageIdChain()),
+            new EqualsAnyFilter('parent.translations.languageId', $context->getLanguageIdChain()),
         ];
 
         foreach ($accessors as $accessor) {

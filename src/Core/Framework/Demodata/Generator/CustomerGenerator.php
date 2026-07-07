@@ -240,7 +240,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->numberBetween(1, \count($tags)));
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
                     static fn (string $id) => ['id' => $id],
                     $chosenTags

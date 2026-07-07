@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Asset\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -24,17 +25,17 @@ class SitemapListerTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $filesystem = $this->createMock(FilesystemOperator::class);
+        $filesystem = static::createStub(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
             new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId(), 0, null, null, null),
         ]));
 
-        $package = $this->createMock(Package::class);
+        $package = static::createStub(Package::class);
         $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
 
-        $sitemapLister = new SitemapLister($filesystem, $package);
+        $sitemapLister = new SitemapLister($filesystem, $package, new NativeClock());
 
         $sitemaps = $sitemapLister->getSitemaps($context);
 
@@ -68,18 +69,18 @@ class SitemapListerTest extends TestCase
 
         $context->getSalesChannel()->setDomains($domains);
 
-        $filesystem = $this->createMock(FilesystemOperator::class);
+        $filesystem = static::createStub(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
             new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $defaultDomainId, 0, null, null, null),
             new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $domainId, 0, null, null, null),
         ]));
 
-        $package = $this->createMock(Package::class);
+        $package = static::createStub(Package::class);
         $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
 
-        $sitemapLister = new SitemapLister($filesystem, $package);
+        $sitemapLister = new SitemapLister($filesystem, $package, new NativeClock());
 
         $sitemaps = $sitemapLister->getSitemaps($context);
 

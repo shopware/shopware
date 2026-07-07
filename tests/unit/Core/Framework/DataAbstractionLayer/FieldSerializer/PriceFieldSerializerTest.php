@@ -38,7 +38,7 @@ class PriceFieldSerializerTest extends TestCase
     {
         $validator = new RecursiveValidator(
             new ExecutionContextFactory(
-                $this->createMock(TranslatorInterface::class)
+                static::createStub(TranslatorInterface::class)
             ),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
@@ -51,7 +51,7 @@ class PriceFieldSerializerTest extends TestCase
                     new ProductDefinition(),
                 ],
                 $validator,
-                $this->createMock(EntityWriteGateway::class)
+                static::createStub(EntityWriteGateway::class)
             )
         );
     }

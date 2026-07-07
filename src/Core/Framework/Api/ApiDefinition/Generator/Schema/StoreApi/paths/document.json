@@ -27,6 +27,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -132,6 +135,9 @@
                             "type": "string"
                         },
                         "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {

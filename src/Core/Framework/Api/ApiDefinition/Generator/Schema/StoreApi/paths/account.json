@@ -58,6 +58,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -179,6 +182,11 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -236,6 +244,11 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -282,6 +295,11 @@
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -340,6 +358,11 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -386,6 +409,11 @@
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -455,6 +483,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -465,7 +498,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Get information about current customer",
-                "description": "Returns information about the current customer.",
+                "description": "Returns information about the current customer.\n\n**Available Associations:**\n- `group` - Customer group determining pricing and permissions\n- `language` - Preferred language for customer communication\n- `lastPaymentMethod` - Last used payment method by the customer\n- `defaultBillingAddress` - Default billing address for the customer\n- `activeBillingAddress` - Currently active billing address in the session\n- `defaultShippingAddress` - Default shipping address for the customer\n- `activeShippingAddress` - Currently active shipping address in the session\n- `salutation` - Customer salutation (e.g., Mr., Mrs., Ms.)\n- `addresses` - All addresses saved for the customer\n- `tags` - Tags assigned to the customer for organization and segmentation",
                 "operationId": "readCustomer",
                 "requestBody": {
                     "required": false,
@@ -513,6 +546,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             },
@@ -586,6 +622,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -697,6 +736,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -751,6 +793,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -811,6 +858,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -834,6 +886,11 @@
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -884,6 +941,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -1048,6 +1110,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -1104,6 +1171,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -1155,6 +1227,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
@@ -1175,6 +1252,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -1207,6 +1287,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -1262,6 +1345,11 @@
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

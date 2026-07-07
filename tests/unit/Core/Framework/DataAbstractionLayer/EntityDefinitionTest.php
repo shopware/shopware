@@ -35,7 +35,7 @@ class EntityDefinitionTest extends TestCase
                 ]);
             }
         };
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $updatedAtField = $definition->getFields()->get('updatedAt');
         static::assertInstanceOf(UpdatedAtField::class, $updatedAtField);
@@ -59,7 +59,7 @@ class EntityDefinitionTest extends TestCase
                 ]);
             }
         };
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $updatedAtField = $definition->getFields()->get('updatedAt');
         static::assertInstanceOf(UpdatedAtField::class, $updatedAtField);

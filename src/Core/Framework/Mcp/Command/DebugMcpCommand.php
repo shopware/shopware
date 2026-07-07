@@ -56,6 +56,11 @@ class DebugMcpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $name = $input->getArgument('name');
+        $integration = $input->getOption('integration');
+        $tools = (bool) $input->getOption('tools');
+        $prompts = (bool) $input->getOption('prompts');
+        $resources = (bool) $input->getOption('resources');
         $io = new SymfonyStyle($input, $output);
 
         if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
@@ -66,35 +71,30 @@ class DebugMcpCommand extends Command
 
         $this->builder->build();
 
-        $accessKey = $input->getOption('integration');
         $toolsAllowlist = null;
-        if (\is_string($accessKey) && $accessKey !== '') {
-            $allowlist = $this->allowlistProvider->forAccessKey($accessKey);
-            $toolsAllowlist = $allowlist['tools'];
+        if ($integration !== null && $integration !== '') {
+            $allowlist = $this->allowlistProvider->forAccessKey($integration);
+            $toolsAllowlist = $allowlist->tools;
             if ($toolsAllowlist === null) {
-                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $accessKey));
+                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $integration));
             } else {
-                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $accessKey, \count($toolsAllowlist)));
+                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $integration, \count($toolsAllowlist)));
             }
         }
 
-        $name = $input->getArgument('name');
         if ($name !== null) {
             return $this->renderDetail($io, $name);
         }
 
-        $filterTools = (bool) $input->getOption('tools');
-        $filterPrompts = (bool) $input->getOption('prompts');
-        $filterResources = (bool) $input->getOption('resources');
-        $noFilter = !$filterTools && !$filterPrompts && !$filterResources;
+        $noFilter = !$tools && !$prompts && !$resources;
 
-        if ($filterTools || $noFilter) {
+        if ($tools || $noFilter) {
             $this->renderTools($io, $toolsAllowlist);
         }
-        if ($filterPrompts || $noFilter) {
+        if ($prompts || $noFilter) {
             $this->renderPrompts($io);
         }
-        if ($filterResources || $noFilter) {
+        if ($resources || $noFilter) {
             $this->renderResources($io);
             $this->renderResourceTemplates($io);
         }

@@ -155,7 +155,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $resolverContext
                 );
 
-                $cmsPage = $pages->first();
+                $cmsPage = $pages->getEntities()->first();
                 if ($cmsPage instanceof CmsPageEntity) {
                     $product->setCmsPage($cmsPage);
                 }
@@ -251,7 +251,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ]
         );
 
-        if (empty($productData)) {
+        if ($productData === false) {
             return [null, null];
         }
 
@@ -379,7 +379,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

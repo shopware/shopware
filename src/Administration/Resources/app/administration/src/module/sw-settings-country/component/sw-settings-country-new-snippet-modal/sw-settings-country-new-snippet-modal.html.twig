@@ -80,16 +80,23 @@
                 :active-item-ids="checkedItemIds"
                 @check-item="checkItem"
             >
-
-                <template #actions="{ item }">
-
-                    <mt-button
+                <template #content="{ item, getName }">
+                    <button
                         v-if="item.childCount === 0"
-                        variant="secondary"
+                        class="sw-settings-country-new-snippet-modal__tree-item-button sw-tree-item__label"
+                        type="button"
+                        @mousedown.prevent
                         @click="addElement(item.data)"
                     >
-                        {{ $t('sw-settings-country.detail.buttonInsertSnippet') }}
-                    </mt-button>
+                        {{ getName(item) }}
+                    </button>
+
+                    <span
+                        v-else
+                        class="sw-tree-item__label"
+                    >
+                        {{ getName(item) }}
+                    </span>
                 </template>
             </sw-tree-item>
         </template>
@@ -132,17 +139,6 @@
                                 </slot>
                             </span>
                         </sw-label>
-                    </slot>
-                </li>
-
-                <li>
-                    <slot name="input">
-                        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                        <input
-                            class="sw-select-selection-list__input"
-                            type="text"
-                            :disabled="disabled || undefined"
-                        >
                     </slot>
                 </li>
             </ul>

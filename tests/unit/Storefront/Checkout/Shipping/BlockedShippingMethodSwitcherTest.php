@@ -337,7 +337,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             $salesChannel->setShippingMethodId('default-shipping-method-id');
         }
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getShippingMethod')->willReturn($this->shippingMethodCollection->get('original-shipping-method-id'));
@@ -347,17 +347,15 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
     private function getShippingMethodRoute(bool $dontReturnAnyOtherShippingMethod = false): ShippingMethodRoute
     {
-        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(ShippingMethodRoute::class);
 
         if ($dontReturnAnyOtherShippingMethod) {
             $shippingMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadShippingMethodsForAllBlocked(...));
         } else {
             $shippingMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadShippingMethods(...));
         }
 

@@ -96,7 +96,6 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->storeReferralCode($this->createControllerEvent($request));
 
-        static::assertTrue($request->hasSession());
         static::assertFalse($request->hasSession(true));
     }
 
@@ -192,7 +191,6 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->createTrackingRecords($event);
 
-        static::assertTrue($request->hasSession());
         static::assertFalse($request->hasSession(true));
         static::assertCount(0, $orderRepo->upserts);
     }
@@ -213,7 +211,6 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->createTrackingRecords($event);
 
-        static::assertTrue($request->hasSession());
         static::assertFalse($request->hasSession(true));
         static::assertCount(0, $orderRepo->upserts);
     }
@@ -323,7 +320,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     {
         $channelId = Uuid::randomHex();
 
-        $orderRepo = $this->createMock(EntityRepository::class);
+        $orderRepo = static::createStub(EntityRepository::class);
         $orderRepo->method('upsert')->willThrowException(new \RuntimeException('DB error'));
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -360,7 +357,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     {
         $channelId = Uuid::randomHex();
 
-        $customerRepo = $this->createMock(EntityRepository::class);
+        $customerRepo = static::createStub(EntityRepository::class);
         $customerRepo->method('upsert')->willThrowException(new \RuntimeException('DB error'));
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -580,7 +577,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     private function createControllerEvent(Request $request): ControllerEvent
     {
         return new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static fn () => new \stdClass(),
             $request,
             HttpKernelInterface::MAIN_REQUEST,

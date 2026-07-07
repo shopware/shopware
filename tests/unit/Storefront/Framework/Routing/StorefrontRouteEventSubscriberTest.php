@@ -33,11 +33,11 @@ class StorefrontRouteEventSubscriberTest extends TestCase
         $request->attributes->set('_route', 'frontend.home.page');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
 
-        $event = $this->createMock(StorefrontRenderEvent::class);
+        $event = static::createStub(StorefrontRenderEvent::class);
         $event->method('getRequest')->willReturn($request);
 
         $dispatchedNames = [];
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')
             ->willReturnCallback(static function (object $evt, ?string $name = null) use (&$dispatchedNames): object {
                 $dispatchedNames[] = $name;

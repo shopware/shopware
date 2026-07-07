@@ -25,7 +25,7 @@ class MediaApiService extends ApiService {
         this.uploads = [];
         this.$listeners = {};
         this.cacheDefaultFolder = {};
-        this.maxConcurrentUploads = 10;
+        this.maxConcurrentUploads = 5;
     }
 
     hasListeners(uploadTag) {
@@ -353,6 +353,31 @@ class MediaApiService extends ApiService {
         }
 
         return null;
+    }
+
+    downloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    prepareDownloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download/prepare`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

@@ -186,6 +186,7 @@
       "cardTitleDownloads": "Dateien",
       "cardSubtitleDownloads": "Füge Dateien zu Deinem digitalen Produkt hinzu.",
       "downloadsLabel": "Datei-Upload",
+      "downloadsContextMenuDownloadFile": "Datei herunterladen",
       "manageStockLabel": "Lagerbestand verwalten",
       "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },

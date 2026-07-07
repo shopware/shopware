@@ -32,6 +32,7 @@
         <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.feature" flag="v6.8.0.0" invert="true"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator">

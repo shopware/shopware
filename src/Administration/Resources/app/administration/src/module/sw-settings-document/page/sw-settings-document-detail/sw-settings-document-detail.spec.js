@@ -359,7 +359,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
     });
 
-    it('should keep company address switches in the legacy company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+    it('should render company address switches in the legacy company card instead of the settings card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
         });
@@ -538,7 +538,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const wrapper = await createWrapper({}, ['document.editor']);
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(false);
 
         await wrapper.setData({
             documentConfig: {
@@ -546,6 +546,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             },
         });
 
-        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(
+            config.displayCompanyAddress || config.displayReturnAddress,
+        );
     });
 });

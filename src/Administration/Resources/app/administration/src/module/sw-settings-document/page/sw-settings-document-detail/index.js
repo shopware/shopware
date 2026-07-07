@@ -481,9 +481,6 @@ export default {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed without replacement
-         */
         showCompanyForm() {
             return this.documentConfig.config.displayCompanyAddress || this.documentConfig.config.displayReturnAddress;
         },

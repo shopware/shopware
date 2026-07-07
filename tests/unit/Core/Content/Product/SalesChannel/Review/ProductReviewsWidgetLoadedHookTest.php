@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -67,17 +68,21 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
 
         $productReview = new ProductReviewEntity();
         $productReview->setUniqueIdentifier($ids->get('productReview'));
-        $reviewResult = new ProductReviewResult(
-            'review',
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                'review',
+                1,
+                new ProductReviewCollection([$productReview]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
+            $productId,
             1,
-            new ProductReviewCollection([$productReview]),
             null,
-            new Criteria(),
-            Context::createDefaultContext()
+            $parentId,
         );
-        $reviewResult->setMatrix(new RatingMatrix([]));
-        $reviewResult->setProductId($productId);
-        $reviewResult->setParentId($parentId);
 
         $this->productReviewLoaderMock->method('load')->willReturn($reviewResult);
 

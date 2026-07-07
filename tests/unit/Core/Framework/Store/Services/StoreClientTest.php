@@ -41,13 +41,13 @@ class StoreClientTest extends TestCase
         $storeClient = new StoreClient(
             [],
             $storeService,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(AbstractStoreRequestOptionsProvider::class),
-            $this->createMock(ExtensionLoader::class),
-            $this->createMock(ClientInterface::class),
-            $this->createMock(InstanceService::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractStoreRequestOptionsProvider::class),
+            static::createStub(ExtensionLoader::class),
+            static::createStub(ClientInterface::class),
+            static::createStub(InstanceService::class),
             new RequestStack(),
-            $this->createMock(CacheInterface::class),
+            static::createStub(CacheInterface::class),
             $eventDispatcher,
         );
 

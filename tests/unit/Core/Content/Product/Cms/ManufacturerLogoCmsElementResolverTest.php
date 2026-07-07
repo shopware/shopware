@@ -12,8 +12,10 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
@@ -222,7 +224,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $media->setId('media-1');
 
         $result = static::createStub(EntitySearchResult::class);
-        $result->method('get')->willReturn($media);
+        $result->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);
@@ -270,7 +272,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $manufacturer->setMedia($mappedMedia);
 
         $mappedResult = static::createStub(EntitySearchResult::class);
-        $mappedResult->method('first')->willReturn($manufacturer);
+        $mappedResult->method('getEntities')->willReturn(new ProductManufacturerCollection([$manufacturer]));
 
         $data = new ElementDataCollection();
         $data->add('mapped_product_manufacturer_slot-1', $mappedResult);
@@ -314,8 +316,10 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
             $resolverContextProduct
         );
 
+        $invalidEntity = new MediaEntity();
+        $invalidEntity->setUniqueIdentifier('invalid-1');
         $invalidMappedResult = static::createStub(EntitySearchResult::class);
-        $invalidMappedResult->method('first')->willReturn(new MediaEntity());
+        $invalidMappedResult->method('getEntities')->willReturn(new MediaCollection([$invalidEntity]));
 
         $data = new ElementDataCollection();
         $data->add('mapped_product_manufacturer_slot-1', $invalidMappedResult);

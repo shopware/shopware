@@ -40,6 +40,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             inputs: [
                 'mediaId' => ['default' => '0189772a5e7570009812345678901234'],
             ],
+            promoted: null,
         );
 
         $violations = $this->validator()->validate(new BindingSpecificationDtoCollection([self::ID => $dto]));
@@ -55,7 +56,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     #[DataProvider('provideInvalidBindings')]
     public function testInvalidBindingProducesViolationAtExpectedPath(mixed $type, array $resolves, array $inputs, string $expectedPath): void
     {
-        $dto = new BindingSpecificationDto($type, 'invalid binding', $resolves, $inputs);
+        $dto = new BindingSpecificationDto($type, 'invalid binding', $resolves, $inputs, null);
 
         $violations = $this->validator()->validate(new BindingSpecificationDtoCollection([self::ID => $dto]));
 

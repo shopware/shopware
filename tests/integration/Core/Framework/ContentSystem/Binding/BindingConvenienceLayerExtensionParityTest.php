@@ -58,6 +58,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
             'Extension parity binding',
             ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'mediaId', 'secondProperty' => 'height']]],
             [],
+            null,
         );
 
         $result = $this->canonicalizer()->canonicalize($dto, 'extension-parity');
@@ -83,6 +84,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
             'Extension parity binding',
             ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'mediaId', 'secondProperty' => 'height', 'activeProperty' => 'fetchpriority']]],
             [],
+            null,
         );
 
         $result = $this->canonicalizer()->canonicalize($dto, 'extension-parity');

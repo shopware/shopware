@@ -103,6 +103,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             'From media library',
             ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             ['mediaId' => ['default' => 'seed']],
+            null,
         );
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
@@ -281,7 +282,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['default' => 'seed']]);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['default' => 'seed']], null);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -309,7 +310,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['pair' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['pair' => $pairSpec]),
         );
 
-        $dto = new BindingSpecificationDto('combo', 'label', ['pair' => ['loader' => 'pair', 'config' => ['entity' => 'media', 'primaryId' => 'primaryId', 'secondaryId' => 'secondaryId']]], []);
+        $dto = new BindingSpecificationDto('combo', 'label', ['pair' => ['loader' => 'pair', 'config' => ['entity' => 'media', 'primaryId' => 'primaryId', 'secondaryId' => 'secondaryId']]], [], null);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -355,7 +356,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['navigation' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['navigation' => $navSpec]),
         );
 
-        $dto = new BindingSpecificationDto('nav', 'label', ['tree' => ['loader' => 'navigation', 'config' => ['entity' => 'media', 'activeProperty' => 'activeFlag']]], []);
+        $dto = new BindingSpecificationDto('nav', 'label', ['tree' => ['loader' => 'navigation', 'config' => ['entity' => 'media', 'activeProperty' => 'activeFlag']]], [], null);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -372,7 +373,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['caption' => []]);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['caption' => []], null);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -463,7 +464,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => ['loader' => 'ghost', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], []);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => ['loader' => 'ghost', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], [], null);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -477,7 +478,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
     {
         $canonicalizer = $this->canonicalizer(['image' => $this->imageType()], $this->map([], []));
 
-        $result = $canonicalizer->canonicalize(new BindingSpecificationDto('image', 'label', $resolves, $inputs), 'binding');
+        $result = $canonicalizer->canonicalize(new BindingSpecificationDto('image', 'label', $resolves, $inputs, null), 'binding');
 
         static::assertSame($expectedResolves, $result->resolves);
         static::assertSame($expectedInputs, $result->inputs);
@@ -582,7 +583,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
         );
 
-        $exception = $this->expectCanonicalizationError($canonicalizer, new BindingSpecificationDto($type, 'label', ['media' => 'mediaId'], []), 'binding');
+        $exception = $this->expectCanonicalizationError($canonicalizer, new BindingSpecificationDto($type, 'label', ['media' => 'mediaId'], [], null), 'binding');
 
         static::assertSame(ContentSystemException::BINDING_SPECIFICATION_UNKNOWN_TYPE, $exception->getErrorCode());
         static::assertStringContainsString('binding', $exception->getMessage());
@@ -597,7 +598,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
         );
 
-        $dto = new BindingSpecificationDto('Sw:Not:Registered', 'label', ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], []);
+        $dto = new BindingSpecificationDto('Sw:Not:Registered', 'label', ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], [], null);
 
         $exception = $this->expectCanonicalizationError($canonicalizer, $dto, 'binding');
 
@@ -676,7 +677,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['required' => true]]);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['required' => true]], null);
 
         $exception = $this->expectCanonicalizationError($canonicalizer, $dto, 'binding');
 
@@ -745,7 +746,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
      */
     private function dto(mixed $type, array $resolves): BindingSpecificationDto
     {
-        return new BindingSpecificationDto($type, 'label', $resolves, []);
+        return new BindingSpecificationDto($type, 'label', $resolves, [], null);
     }
 
     /**

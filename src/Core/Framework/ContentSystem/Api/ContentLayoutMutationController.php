@@ -57,7 +57,7 @@ class ContentLayoutMutationController
         ContentLayoutInsertRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new InsertElement($this->registry, $payload->type, $payload->parentElementId, $payload->slot, $payload->index, $this->bindingRegistry, $payload->bindingSpecificationId, $this->bindingApplicator);
+        $mutation = new InsertElement($this->registry, $payload->type, $this->bindingRegistry, $this->bindingApplicator, bindingSpecificationId: $payload->bindingSpecificationId, parentElementId: $payload->parentElementId, index: $payload->index, slot: $payload->slot);
 
         return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
     }

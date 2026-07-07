@@ -70,7 +70,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
         // The persisted schema column is the DTO's normalized shape without the id; the row's "name"
         // column is the binding id (see DatabaseBindingSpecificationLoader).
-        $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: []);
+        $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: [], promoted: null);
 
         $this->bindingSpecificationRepository()->create([[
             'id' => $this->ids->get('binding'),
@@ -135,6 +135,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
                 'listing' => ['loader' => 'product_listing', 'config' => ['associations' => 'not-an-array']],
             ],
             inputs: [],
+            promoted: null,
         );
 
         $this->bindingSpecificationRepository()->create([[

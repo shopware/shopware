@@ -24,9 +24,6 @@ final readonly class BindingSpecification
     /**
      * @param array<string, LoaderBinding> $resolves keyed by reference property key
      * @param array<string, BindingInput> $inputs keyed by primitive property key
-     *
-     * `$promoted` trails `$source` (rather than sitting in first-use order) so that existing positional
-     * constructions passing `$source` as the sixth argument keep binding it to source, not promoted.
      */
     public function __construct(
         private string $id,
@@ -34,7 +31,7 @@ final readonly class BindingSpecification
         private string $label,
         private array $resolves,
         private array $inputs,
-        private string $source = '',
+        private string $source,
         private bool $promoted = false,
     ) {
     }

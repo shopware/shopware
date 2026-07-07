@@ -112,6 +112,7 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
             inputs: [
                 'mediaId' => [],
             ],
+            promoted: null,
         );
 
         $this->bindingSpecificationRepository()->create([[

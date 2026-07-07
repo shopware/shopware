@@ -21,7 +21,7 @@ class BindingSpecificationTest extends TestCase
     {
         $resolves = ['image' => new LoaderBinding('product', ['filter' => 'active'])];
 
-        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', $resolves, []);
+        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', $resolves, [], 'core');
 
         $schema = $specification->toSchema();
 
@@ -39,7 +39,7 @@ class BindingSpecificationTest extends TestCase
     #[TestDox('toSchema() serializes an input: $_dataName')]
     public function testToSchemaSerializesInput(BindingInput $input, array $expected): void
     {
-        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], ['title' => $input]);
+        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], ['title' => $input], 'core');
 
         $schema = $specification->toSchema();
 
@@ -49,7 +49,7 @@ class BindingSpecificationTest extends TestCase
     #[TestDox('toSchema() includes id, type and label, and emits [] (not {}) for empty resolves and inputs')]
     public function testToSchemaEmitsEmptyArraysForEmptyResolvesAndInputs(): void
     {
-        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], []);
+        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core');
 
         $schema = $specification->toSchema();
 

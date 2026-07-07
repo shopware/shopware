@@ -33,7 +33,7 @@ final readonly class BindingSpecificationDto
         public mixed $label,
         public mixed $resolves,
         public mixed $inputs,
-        public mixed $promoted = null,
+        public mixed $promoted,
     ) {
     }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -40,7 +39,7 @@ class InsertElementTest extends TestCase
     {
         $tree = [new ContentElement('existing', 'Sw:Block')];
 
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card');
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $insert->apply($tree);
 
         static::assertCount(2, $result);
@@ -53,7 +52,7 @@ class InsertElementTest extends TestCase
     #[TestDox('reports the minted id as the only affected element')]
     public function testInsertAffectedIsMintedId(): void
     {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card');
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $insert->apply([]);
 
         static::assertSame([$result[0]->getId()], $insert->affected());
@@ -68,7 +67,7 @@ class InsertElementTest extends TestCase
             'product' => $this->reference(),
         ]);
 
-        $insert = new InsertElement($this->registry(['Sw:Card' => $spec]), 'Sw:Card');
+        $insert = new InsertElement($this->registry(['Sw:Card' => $spec]), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $insert->apply([]);
 
         static::assertSame(['headline' => 'Hello'], $result[0]->getProperties());
@@ -81,7 +80,7 @@ class InsertElementTest extends TestCase
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
         ]);
 
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content', 1);
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content', index: 1);
         $result = $insert->apply([$parent]);
 
         $children = array_values($result[0]->getSlots()['content']->getElements());
@@ -93,7 +92,7 @@ class InsertElementTest extends TestCase
     {
         $tree = [new ContentElement('existing', 'Sw:Block')];
 
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', index: 0);
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), index: 0);
         $result = $insert->apply($tree);
 
         static::assertSame('Sw:Card', $result[0]->getComponent());
@@ -103,7 +102,7 @@ class InsertElementTest extends TestCase
     #[TestDox('rejects an unregistered type with a 400')]
     public function testInsertUnknownTypeRejected(): void
     {
-        $insert = new InsertElement($this->registry([]), 'Sw:Ghost');
+        $insert = new InsertElement($this->registry([]), 'Sw:Ghost', $this->bindingRegistry([]), $this->unboundApplicator());
 
         $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
         $insert->apply([]);
@@ -114,7 +113,7 @@ class InsertElementTest extends TestCase
     {
         $parent = new ContentElement('parent', 'Sw:Block');
 
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent');
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent');
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
         $insert->apply([$parent]);
@@ -123,7 +122,7 @@ class InsertElementTest extends TestCase
     #[TestDox('rejects an insert into a missing parent with a 400')]
     public function testInsertMissingParentRejected(): void
     {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'ghost', 'content');
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'ghost', slot: 'content');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $insert->apply([new ContentElement('other', 'Sw:Block')]);
@@ -138,7 +137,7 @@ class InsertElementTest extends TestCase
         ], new ContextDefinitions([], []), $style)];
         $before = $this->snapshotTree($tree);
 
-        $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply($tree);
+        $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content'))->apply($tree);
 
         static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
         $this->assertInputTreeUnmutated($before, $tree);
@@ -160,12 +159,9 @@ class InsertElementTest extends TestCase
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
-            null,
-            null,
-            null,
             $this->bindingRegistry(['core:from-media-library' => $spec]),
-            'core:from-media-library',
             $this->applicator($config),
+            'core:from-media-library',
         );
         $result = $insert->apply([]);
 
@@ -183,12 +179,9 @@ class InsertElementTest extends TestCase
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
-            null,
-            null,
-            null,
             $this->bindingRegistry([]),
-            'core:ghost',
             $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:ghost',
         );
 
         try {
@@ -212,12 +205,9 @@ class InsertElementTest extends TestCase
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
-            null,
-            null,
-            null,
             $this->bindingRegistry(['core:from-media-library' => $spec]),
-            'core:from-media-library',
             $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:from-media-library',
         );
 
         try {
@@ -228,39 +218,6 @@ class InsertElementTest extends TestCase
         }
 
         $this->assertInputTreeUnmutated($before, $tree);
-    }
-
-    /**
-     * @return iterable<string, array{bool, bool}>
-     */
-    public static function throwsWhenCollaboratorMissingProvider(): iterable
-    {
-        yield 'both collaborators missing' => [false, false];
-        yield 'applicator missing' => [true, false];
-        yield 'registry missing' => [false, true];
-    }
-
-    #[DataProvider('throwsWhenCollaboratorMissingProvider')]
-    #[TestDox('throws a construction-defect exception, never a silent bindingless insert, when a bindingSpecificationId is given without both collaborators')]
-    public function testInsertWithBindingIdButMissingCollaboratorsThrows(bool $withRegistry, bool $withApplicator): void
-    {
-        $insert = new InsertElement(
-            $this->registryWith('Sw:Media:Image'),
-            'Sw:Media:Image',
-            null,
-            null,
-            null,
-            $withRegistry ? $this->bindingRegistry([]) : null,
-            'core:from-media-library',
-            $withApplicator ? $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)) : null,
-        );
-
-        try {
-            $insert->apply([]);
-            static::fail('Expected ContentSystemException was not thrown.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::MUTATION_BINDING_COLLABORATORS_MISSING, $e->getErrorCode());
-        }
     }
 
     private function registryWith(string $type): AbstractContentSystemElementTypeRegistry
@@ -285,6 +242,11 @@ class InsertElementTest extends TestCase
         $serializers->method('decode')->willReturn($config);
 
         return new BindingApplicator($serializers);
+    }
+
+    private function unboundApplicator(): BindingApplicator
+    {
+        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
     }
 
     /**

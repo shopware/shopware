@@ -53,6 +53,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
+            promoted: null,
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator));
@@ -69,6 +70,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => $propertyValue]]],
             inputs: [],
+            promoted: null,
         );
 
         $violations = $this->validateWith($dto, $validator);
@@ -93,6 +95,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media']]],
             inputs: [],
+            promoted: null,
         );
 
         $violations = $this->validateWith($dto, $validator, ['image' => $this->imageType()]);
@@ -119,6 +122,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
+            promoted: null,
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator, ['image' => $this->imageType()]));
@@ -137,6 +141,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
+            promoted: null,
         );
 
         $violations = $this->validateWith($dto, $validator);
@@ -189,6 +194,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => []]],
             inputs: [],
+            promoted: null,
         );
 
         try {

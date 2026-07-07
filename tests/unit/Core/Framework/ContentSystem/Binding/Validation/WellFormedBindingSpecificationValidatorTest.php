@@ -33,11 +33,11 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
      */
     public static function acceptsWellFormedDeclarationProvider(): iterable
     {
-        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt']])];
-        yield 'empty resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', [], [])];
-        yield 'null resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', null, null)];
-        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]])];
-        yield 'an inputs entry with a boolean required flag' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => true]])];
+        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt']], null)];
+        yield 'empty resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', [], [], null)];
+        yield 'null resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', null, null, null)];
+        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]], null)];
+        yield 'an inputs entry with a boolean required flag' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => true]], null)];
         yield 'a true promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], true)];
         yield 'a false promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], false)];
         yield 'an absent promoted flag' => [new BindingSpecificationDto('media-gallery', 'label', [], [], null)];
@@ -66,73 +66,73 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
     public static function rejectsMalformedDeclarationProvider(): iterable
     {
         yield 'type is not a string' => [
-            new BindingSpecificationDto(42, 'label', [], []),
+            new BindingSpecificationDto(42, 'label', [], [], null),
             'type',
             'type must not be blank',
         ];
 
         yield 'type is blank' => [
-            new BindingSpecificationDto('', 'label', [], []),
+            new BindingSpecificationDto('', 'label', [], [], null),
             'type',
             'type must not be blank',
         ];
 
         yield 'label is not a string' => [
-            new BindingSpecificationDto('media-gallery', false, [], []),
+            new BindingSpecificationDto('media-gallery', false, [], [], null),
             'label',
             'label must not be blank',
         ];
 
         yield 'resolves is not an array' => [
-            new BindingSpecificationDto('media-gallery', 'label', 'not-an-array', []),
+            new BindingSpecificationDto('media-gallery', 'label', 'not-an-array', [], null),
             'resolves',
             'resolves must be an array',
         ];
 
         yield 'resolves entry is not an array' => [
-            new BindingSpecificationDto('media-gallery', 'label', ['image' => 'not-an-array'], []),
+            new BindingSpecificationDto('media-gallery', 'label', ['image' => 'not-an-array'], [], null),
             'resolves[image]',
             'resolves entry "image" must be an array',
         ];
 
         yield 'resolves entry is missing loader' => [
-            new BindingSpecificationDto('media-gallery', 'label', ['image' => ['config' => []]], []),
+            new BindingSpecificationDto('media-gallery', 'label', ['image' => ['config' => []]], [], null),
             'resolves[image].loader',
             'must declare a non-blank "loader"',
         ];
 
         yield 'resolves entry has a blank loader' => [
-            new BindingSpecificationDto('media-gallery', 'label', ['image' => ['loader' => '']], []),
+            new BindingSpecificationDto('media-gallery', 'label', ['image' => ['loader' => '']], [], null),
             'resolves[image].loader',
             'must declare a non-blank "loader"',
         ];
 
         yield 'resolves entry config is not an array' => [
-            new BindingSpecificationDto('media-gallery', 'label', ['image' => ['loader' => 'entity', 'config' => 'not-an-array']], []),
+            new BindingSpecificationDto('media-gallery', 'label', ['image' => ['loader' => 'entity', 'config' => 'not-an-array']], [], null),
             'resolves[image].config',
             'config" must be an array',
         ];
 
         yield 'inputs is not an array' => [
-            new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array'),
+            new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array', null),
             'inputs',
             'inputs must be an array',
         ];
 
         yield 'inputs entry is not an array' => [
-            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => 'not-an-array']),
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => 'not-an-array'], null),
             'inputs[alt]',
             'inputs entry "alt" must be an array',
         ];
 
         yield 'inputs entry default is non-scalar' => [
-            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => ['not', 'a', 'scalar']]]),
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => ['not', 'a', 'scalar']]], null),
             'inputs[alt].default',
             'default" must be a scalar or null',
         ];
 
         yield 'inputs entry required is non-boolean' => [
-            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => 'yes']]),
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => 'yes']], null),
             'inputs[alt].required',
             'required" must be a boolean',
         ];
@@ -157,7 +157,7 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
         $this->expectExceptionObject(new UnexpectedTypeException(new NotBlank(), WellFormedBindingSpecification::class));
-        $validator->validate(new BindingSpecificationDto('media-gallery', 'label', [], []), new NotBlank());
+        $validator->validate(new BindingSpecificationDto('media-gallery', 'label', [], [], null), new NotBlank());
     }
 
     #[TestDox('throws UnexpectedTypeException when the value type is wrong')]

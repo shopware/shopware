@@ -59,7 +59,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $this->fixedDto = new ResolvedBindingSpecificationDto(
             'from-media-library',
             'app:DemoApp',
-            new BindingSpecificationDto('media-gallery', 'From media library', null, null),
+            new BindingSpecificationDto('media-gallery', 'From media library', null, null, null),
         );
 
         // The default loader is stubbed: these tests exercise the persister's upsert/hash/delete logic, not the
@@ -504,7 +504,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $resolved = new ResolvedBindingSpecificationDto(
             'from-media-library',
             'app:DemoApp',
-            new BindingSpecificationDto('media-gallery', 'From media library', null, null),
+            new BindingSpecificationDto('media-gallery', 'From media library', null, null, null),
         );
 
         $loader = static::createStub(YamlBindingSpecificationLoader::class);

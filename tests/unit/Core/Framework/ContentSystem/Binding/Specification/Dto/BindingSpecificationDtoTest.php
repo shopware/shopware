@@ -17,7 +17,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('maps type, label, source and the supplied id onto the specification')]
     public function testMapsFieldsOntoSpecification(): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'From media library', [], []);
+        $dto = new BindingSpecificationDto('media-gallery', 'From media library', [], [], null);
 
         $specification = $dto->toBindingSpecification('from-media-library', 'core');
 
@@ -32,7 +32,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [
             'image' => ['loader' => 'entity', 'config' => ['entity' => 'media']],
-        ], []);
+        ], [], null);
 
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
@@ -46,7 +46,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [
             'image' => ['loader' => 'entity'],
-        ], []);
+        ], [], null);
 
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
@@ -67,7 +67,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('builds an empty resolves map for $_dataName')]
     public function testBuildsEmptyResolvesMap(mixed $resolves): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', $resolves, []);
+        $dto = new BindingSpecificationDto('media-gallery', 'label', $resolves, [], null);
 
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->resolves());
     }
@@ -77,7 +77,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => ['default' => 'fallback alt'],
-        ]);
+        ], null);
 
         $inputs = $dto->toBindingSpecification('id', 'core')->inputs();
 
@@ -90,7 +90,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => [],
-        ]);
+        ], null);
 
         static::assertFalse($dto->toBindingSpecification('id', 'core')->inputs()['alt']->hasDefault);
     }
@@ -102,7 +102,7 @@ class BindingSpecificationDtoTest extends TestCase
         // is distinct from an absent one. A regression to a null-coalescing check would collapse the two.
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => ['default' => null],
-        ]);
+        ], null);
 
         $input = $dto->toBindingSpecification('id', 'core')->inputs()['alt'];
 
@@ -117,7 +117,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('sets BindingInput::required to $expected when the inputs entry $_dataName')]
     public function testSetsRequiredFlagFromInputsEntry(array $entry, bool $expected): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry]);
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry], null);
 
         static::assertSame($expected, $dto->toBindingSpecification('id', 'core')->inputs()['alt']->required);
     }
@@ -139,7 +139,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => 'not-an-array',
-        ]);
+        ], null);
 
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
     }
@@ -147,7 +147,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('builds an empty inputs map when inputs is not an array')]
     public function testBuildsEmptyInputsMapWhenInputsIsNotAnArray(): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array');
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array', null);
 
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
     }
@@ -155,7 +155,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('narrows a non-string type to an empty string')]
     public function testNarrowsNonStringTypeToEmptyString(): void
     {
-        $dto = new BindingSpecificationDto(42, 'label', [], []);
+        $dto = new BindingSpecificationDto(42, 'label', [], [], null);
 
         static::assertSame('', $dto->toBindingSpecification('id', 'core')->type());
     }
@@ -163,7 +163,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('narrows a non-string label to an empty string')]
     public function testNarrowsNonStringLabelToEmptyString(): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', false, [], []);
+        $dto = new BindingSpecificationDto('media-gallery', false, [], [], null);
 
         static::assertSame('', $dto->toBindingSpecification('id', 'core')->label());
     }

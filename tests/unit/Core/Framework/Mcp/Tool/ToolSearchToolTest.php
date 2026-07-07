@@ -51,7 +51,7 @@ class ToolSearchToolTest extends TestCase
     public function testSearchToolDoesNotReturnItself(): void
     {
         $registry = $this->registry();
-        $registry->registerTool(self::tool('shopware-tool-search', 'Search tools'), 'Acme\\ToolSearch', true);
+        $registry->registerTool(self::tool('shopware-tool-search', 'Search tools'), 'Acme\\ToolSearch');
 
         $tool = new ToolSearchTool($registry, new ToolSearch());
 
@@ -75,7 +75,7 @@ class ToolSearchToolTest extends TestCase
     {
         $registry = new Registry();
         for ($i = 1; $i <= 25; ++$i) {
-            $registry->registerTool(self::tool('shopware-entity-' . $i, 'Entity helper'), 'Acme\\Tool' . $i, true);
+            $registry->registerTool(self::tool('shopware-entity-' . $i, 'Entity helper'), 'Acme\\Tool' . $i);
         }
 
         $tool = new ToolSearchTool($registry, new ToolSearch());
@@ -99,8 +99,8 @@ class ToolSearchToolTest extends TestCase
     private function registry(): Registry
     {
         $registry = new Registry();
-        $registry->registerTool(self::tool('shopware-entity-search', 'Search entities'), 'Acme\\SearchTool', true);
-        $registry->registerTool(self::tool('shopware-entity-read', 'Read one entity by ID'), 'Acme\\ReadTool', true);
+        $registry->registerTool(self::tool('shopware-entity-search', 'Search entities'), 'Acme\\SearchTool');
+        $registry->registerTool(self::tool('shopware-entity-read', 'Read one entity by ID'), 'Acme\\ReadTool');
 
         return $registry;
     }

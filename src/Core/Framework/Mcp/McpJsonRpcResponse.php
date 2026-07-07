@@ -7,7 +7,7 @@ use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Implementation;
 use Mcp\Schema\JsonRpc\ResultInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Result\InitializeResult;
 use Mcp\Schema\Result\ListPromptsResult;
 use Mcp\Schema\Result\ListResourcesResult;
@@ -89,7 +89,7 @@ class McpJsonRpcResponse implements \JsonSerializable
         $filtered = array_values(
             array_filter(
                 $this->result->resources,
-                static fn (Resource $resource): bool => \in_array($resource->uri, $allowlist, true),
+                static fn (ResourceDefinition $resource): bool => \in_array($resource->uri, $allowlist, true),
             ),
         );
 

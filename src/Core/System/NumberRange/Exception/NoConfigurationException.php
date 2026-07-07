@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed, use NumberRangeException::incrementStorageNotFound() instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class NoConfigurationException extends NumberRangeException

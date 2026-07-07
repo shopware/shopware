@@ -125,6 +125,6 @@ class PersistedLayoutMutator
      */
     private function diagnose(string $rootSource, array $tree, Context $context): LayoutAnalysis
     {
-        return $this->diagnostics->analyze($tree, $this->rootSourceRegistry->resolve($rootSource, $context), $context);
+        return $this->diagnostics->analyze($tree, $this->rootSourceRegistry->resolve($rootSource, $context));
     }
 }

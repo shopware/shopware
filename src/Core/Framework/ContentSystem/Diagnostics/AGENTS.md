@@ -2,7 +2,7 @@
 
 ## Source Code References
 
-- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext, ?Context $context = null): LayoutAnalysis`. Flattens the element tree, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, mismatched reference type on stored wiring, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
+- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext): LayoutAnalysis`. Flattens the element tree, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, mismatched reference type on stored wiring, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
 - `LayoutAnalysis` - Output of `analyze()`. `public DiagnosticsReport $report` and `public array $resolutions` (keyed by element id, values are `list<PropertyResolution>`). `@internal final readonly`.
 - `DiagnosticsReport` - Holds `list<Violation> $violations`. `isWellFormed(): bool` (no intrinsic-scope Error violations — persistence gate). `isResolvable(): bool` (no binding-scope Error violations — serving gate). Also `intrinsicErrors()`, `bindingErrors()`. `@internal final readonly`.
 - `Violation` - `@internal final readonly`. Constructor: `ViolationCode $code, string $elementId, ?string $key, string $message, list<ResolutionCandidate> $candidates = []`. `scope()` and `severity()` delegate to the code.
@@ -14,7 +14,6 @@
 ## Constraints
 
 - `LayoutAnalysis` constructor order: `report` first, then `resolutions`.
-- `analyze()` third argument `$context` is nullable with a `null` default; callers that only need well-formedness checks may omit it entirely.
 - Binding checks are skipped when `$rootContext` is `null`; only the intrinsic subset runs.
 - `ViolationCode` is the only place scope and severity are defined — do not derive them anywhere else.
 - Primitive-property satisfaction is strict: `propertyBindingViolation` flags a required primitive as `UnresolvedRequired` iff `$element->getProperty($key) === null`. Do not reintroduce a `|| $resolution->default === null` term: serving applies no type default, so a bare default does not satisfy; the default reaches storage via `Mutation` scaffold/replace seeding and the write-boundary `Layout/LayoutDefaultSeeder`, not at diagnosis. `PropertyResolution::default` stays populated (the editor still sees the type default) but is not consulted for satisfaction.

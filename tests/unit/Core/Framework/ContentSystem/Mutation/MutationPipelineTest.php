@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\Context;
 
 /**
  * @internal
@@ -90,22 +89,21 @@ class MutationPipelineTest extends TestCase
         static::assertSame(['legacy'], $result->droppedWiring);
     }
 
-    #[TestDox('forwards the mutated tree, root context and context to the diagnostics pass')]
+    #[TestDox('forwards the mutated tree and root context to the diagnostics pass')]
     public function testRunForwardsArgumentsToDiagnostics(): void
     {
         $mutated = new ContentElement('new-1', 'Sw:Card');
         $rootContext = [new ProvidedContext('product', 'Some\\Entity', ContextType::Single, null, DistributionStrategy::Broadcast)];
-        $context = Context::createDefaultContext();
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with([$mutated], $rootContext, $context)
+            ->with([$mutated], $rootContext)
             ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
 
         $pipeline = new MutationPipeline($diagnostics);
 
-        $pipeline->run($this->mutation([$mutated], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], $rootContext, $context);
+        $pipeline->run($this->mutation([$mutated], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], $rootContext);
     }
 
     /**

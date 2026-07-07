@@ -86,7 +86,7 @@ class MediaImageWriteGateTest extends TestCase
     #[TestDox('reports the media image as unresolvable and raises a single unfilled_required_input while the mediaId input is empty')]
     public function testDiagnosticsBlockResolvabilityWhileMediaIdEmpty(): void
     {
-        $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: null)], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: null)], [])->report;
 
         static::assertFalse($report->isResolvable());
 
@@ -99,7 +99,7 @@ class MediaImageWriteGateTest extends TestCase
     #[TestDox('reports the media image as resolvable with no binding error once the mediaId input carries a value')]
     public function testDiagnosticsReportResolvableOnceMediaIdFilled(): void
     {
-        $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: $this->ids->get('media'))], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: $this->ids->get('media'))], [])->report;
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], array_filter(

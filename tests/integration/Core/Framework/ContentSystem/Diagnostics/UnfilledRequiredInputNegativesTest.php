@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoader;
@@ -55,7 +54,7 @@ class UnfilledRequiredInputNegativesTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $report = $this->diagnostics()->analyze([new ContentElement('el-1', 'Sw:Media:Image')], $rootContext, Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([new ContentElement('el-1', 'Sw:Media:Image')], $rootContext)->report;
 
         static::assertTrue($report->isResolvable(), 'The media reference is satisfied by parent context, so the layout is resolvable.');
         static::assertSame([], $this->unfilledRequiredInputs($report->bindingErrors()), 'A reference satisfied by parent context must not raise unfilled_required_input for an absent stored input.');
@@ -74,7 +73,7 @@ class UnfilledRequiredInputNegativesTest extends TestCase
             [],
         );
 
-        $report = $this->diagnostics()->analyze([$element], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$element], [])->report;
 
         static::assertTrue($report->isResolvable(), 'The navigation-shaped wiring resolves the reference and demands no input.');
         static::assertSame([], $this->unfilledRequiredInputs($report->bindingErrors()), 'A loader whose only propertyReference key is defaulted must never gate.');

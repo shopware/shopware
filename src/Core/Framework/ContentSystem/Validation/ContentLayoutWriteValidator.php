@@ -81,7 +81,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
 
         if ($tree !== null) {
             $violations->addAll($this->violationMapper->toConstraintViolationList(
-                $this->gate->wellFormedness($tree, $context)->intrinsicErrors()
+                $this->gate->wellFormedness($tree)->intrinsicErrors()
             ));
         }
 
@@ -123,7 +123,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
                     return;
                 }
 
-                $report = $this->gate->resolvability($tree, $this->rootSourceRegistry->resolve($rootSource, $context), $context);
+                $report = $this->gate->resolvability($tree, $this->rootSourceRegistry->resolve($rootSource, $context));
                 $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
             }
         }

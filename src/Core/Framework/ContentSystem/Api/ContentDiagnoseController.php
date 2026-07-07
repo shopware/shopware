@@ -44,7 +44,7 @@ class ContentDiagnoseController
         [$tree, $decodeViolations] = $this->decoder->decodeLintable($payload->layout);
 
         $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
-        $analysis = $this->diagnostics->analyze($tree, $rootContext, $context);
+        $analysis = $this->diagnostics->analyze($tree, $rootContext);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 

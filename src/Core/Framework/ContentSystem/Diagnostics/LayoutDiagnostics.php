@@ -18,12 +18,11 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
- * root context. The analysis never reads sales-channel state; a plain {@see Context} suffices.
+ * root context.
  *
  * @final
  */
@@ -47,7 +46,7 @@ class LayoutDiagnostics
      * @param list<ContentElement> $tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
      */
-    public function analyze(array $tree, ?array $rootContext, ?Context $context = null): LayoutAnalysis
+    public function analyze(array $tree, ?array $rootContext): LayoutAnalysis
     {
         $elements = $this->flatten($tree);
 

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader;
@@ -108,7 +107,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     #[TestDox('gates once per unfilled required propertyReference input for the test loader wiring; the defaulted key never gates')]
     public function testUnfilledRequiredInputsGatePerRequiredKey(): void
     {
-        $report = $this->diagnostics()->analyze([$this->wiredImage([])], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$this->wiredImage([])], [])->report;
 
         static::assertFalse($report->isResolvable());
 
@@ -127,7 +126,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     #[TestDox('raises no unfilled_required_input for the test loader wiring once both required inputs carry a value')]
     public function testNoUnfilledRequiredInputWhenTestLoaderInputsFilled(): void
     {
-        $report = $this->diagnostics()->analyze([$this->wiredImage(['mediaId' => $this->ids->get('media'), 'height' => 'auto'])], [], Context::createDefaultContext())->report;
+        $report = $this->diagnostics()->analyze([$this->wiredImage(['mediaId' => $this->ids->get('media'), 'height' => 'auto'])], [])->report;
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], $report->bindingErrors());

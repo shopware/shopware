@@ -4,7 +4,7 @@ Produces a `LayoutAnalysis` for a layout element tree: per-element property reso
 
 ## Key Classes
 
-- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext, ?Context $context = null): LayoutAnalysis`. Pass `null` for `$rootContext` to run the intrinsic subset only (well-formedness check without a bound source). The `$context` argument is currently unused — `analyze()` reads no sales-channel state; callers pass a `Context` for forward-compatibility, and a non-null value has no effect on the result today.
+- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext): LayoutAnalysis`. Pass `null` for `$rootContext` to run the intrinsic subset only (well-formedness check without a bound source).
 - `LayoutAnalysis` - Output value object. Holds `DiagnosticsReport $report` and `array $resolutions` (element id → `list<PropertyResolution>`).
 - `DiagnosticsReport` - Holds the public readonly `$violations` (`list<Violation>`, the full unfiltered defect set read directly by consumers such as `Api/ContentDiagnoseController`). Gate predicates: `isWellFormed()` (no intrinsic-scope Error violations), `isResolvable()` (no binding-scope Error violations). Also provides `intrinsicErrors()` and `bindingErrors()`.
 - `Violation` - A single defect: `ViolationCode $code`, `string $elementId`, `?string $key`, `string $message`, `list<ResolutionCandidate> $candidates`. Scope and severity derive from the code.

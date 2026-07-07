@@ -82,11 +82,15 @@
                     :selected-element-id="selectedElementId"
                     :selected-element="selectedElement"
                     :selected-element-type="selectedElementType"
+                    :style-options="styleOptionStore.optionsByName"
                     :is-loading-types="elementTypeStore.isLoading"
+                    :is-loading-style-options="styleOptionStore.isLoading"
                     :type-load-error="elementTypeStore.loadError"
+                    :style-option-load-error="styleOptionStore.loadError"
                     :allow-edit="allowSave"
                     :is-inline-editing-active="isInlineEditing"
                     @update-properties="onElementSettingsChange"
+                    @update-style="onElementStyleChange"
                 />
                 {% endblock %}
             </div>

@@ -12,7 +12,7 @@
         />
 
         <mt-empty-state
-            v-else-if="isLoadingTypes"
+            v-else-if="isLoadingSettings"
             icon="regular-hourglass"
             :description="$t('sw-experience-studio.detail.elementSettings.loading')"
         />
@@ -29,204 +29,63 @@
             :description="$t('sw-experience-studio.detail.elementSettings.typeMissing')"
         />
 
-        <mt-empty-state
-            v-else-if="editableProperties.length === 0"
-            icon="regular-sliders-horizontal"
-            :description="$t('sw-experience-studio.detail.elementSettings.noEditableProperties')"
-        />
-
         <div
             v-else
-            class="sw-experience-studio-element-settings__properties"
+            :key="selectedElementId"
+            class="sw-experience-studio-element-settings__tabs-area"
         >
+            <mt-tabs
+                class="sw-experience-studio-element-settings__tabs"
+                position-identifier="sw-experience-studio-element-settings"
+                :items="settingsTabItems"
+                default-item="element"
+                @new-item-active="onSettingsTabChange"
+            />
+
             <div
-                v-for="entry in editableProperties"
-                :key="entry.key"
-                class="sw-experience-studio-element-settings__property"
+                v-if="activeSettingsTab === 'element'"
+                class="sw-experience-studio-element-settings__tab-panel"
             >
-                <mt-switch
-                    v-if="getControlType(entry.property) === 'switch'"
-                    v-bind="getControlProps(entry.property)"
-                    :label="entry.property.title"
-                    :help-text="getPropertyHelpText(entry.property)"
-                    :model-value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                <mt-empty-state
+                    v-if="showElementEmptyState"
+                    icon="regular-sliders-horizontal"
+                    :description="$t('sw-experience-studio.detail.elementSettings.noEditableProperties')"
                 />
 
-                <div
-                    v-else-if="getControlType(entry.property) === 'responsive-number'"
-                    class="sw-experience-studio-element-settings__responsive-control"
-                >
-                    <div class="sw-experience-studio-element-settings__responsive-slider">
-                        <mt-slider
-                            class="sw-experience-studio-element-settings__responsive-slider-input"
-                            :label="entry.property.title"
-                            :min="getResponsiveLimits(entry.property).min"
-                            :max="getResponsiveLimits(entry.property).max"
-                            :step="getResponsiveLimits(entry.property).step"
-                            :mark-count="0"
-                            :disabled="!allowEdit || isResponsiveViewportMode(entry.key) || undefined"
-                            :model-value="getResponsiveGlobalValue(entry.key, entry.property)"
-                            @update:model-value="onUpdateResponsiveGlobalProperty(entry.key, entry.property, $event)"
-                        />
-                    </div>
-
-                    <button
-                        type="button"
-                        class="sw-experience-studio-element-settings__viewport-toggle"
-                        :disabled="!allowEdit"
-                        @click="onToggleResponsiveViewportMode(entry.key, entry.property)"
-                    >
-                        Viewport settings
-                    </button>
-
-                    <div
-                        v-if="isResponsiveViewportMode(entry.key)"
-                        class="sw-experience-studio-element-settings__viewport-settings"
-                    >
-                        <div
-                            v-for="viewport in getResponsiveViewports()"
-                            :key="viewport"
-                            class="sw-experience-studio-element-settings__viewport-row"
-                        >
-                            <mt-icon
-                                :name="getViewportIcon(viewport)"
-                                size="16px"
-                                class="sw-experience-studio-element-settings__viewport-icon"
-                            />
-                            <span class="sw-experience-studio-element-settings__viewport-label">{{ viewport.toUpperCase() }}</span>
-                            <mt-slider
-                                class="sw-experience-studio-element-settings__responsive-slider-input"
-                                label=""
-                                :min="getResponsiveLimits(entry.property).min"
-                                :max="getResponsiveLimits(entry.property).max"
-                                :step="getResponsiveLimits(entry.property).step"
-                                :mark-count="0"
-                                :disabled="!allowEdit || undefined"
-                                :model-value="getResponsiveViewportValue(entry.key, viewport, entry.property)"
-                                @update:model-value="onUpdateResponsiveViewportProperty(entry.key, entry.property, viewport, $event)"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <mt-number-field
-                    v-else-if="getControlType(entry.property) === 'number'"
-                    v-bind="getControlProps(entry.property)"
-                    :label="entry.property.title"
-                    :help-text="getPropertyHelpText(entry.property)"
-                    :model-value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:model-value="onUpdateProperty(entry.key, $event)"
-                />
-
-                <mt-colorpicker
-                    v-else-if="getControlType(entry.property) === 'color'"
-                    v-bind="getControlProps(entry.property)"
-                    :label="entry.property.title"
-                    :help-text="getPropertyHelpText(entry.property)"
-                    :model-value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:model-value="onUpdateProperty(entry.key, $event)"
-                />
-
-                <mt-select
-                    v-else-if="getControlType(entry.property) === 'select'"
-                    v-bind="getControlProps(entry.property)"
-                    :label="entry.property.title"
-                    :help-text="getPropertyHelpText(entry.property)"
-                    :model-value="getPropertyValue(entry.key, entry.property)"
-                    :options="getSelectOptions(entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:model-value="onUpdateProperty(entry.key, $event)"
-                />
-
-                <div
-                    v-else-if="getControlType(entry.property) === 'radio-panel'"
-                    class="sw-experience-studio-element-settings__radio-panel-group mt-field"
-                >
-                    <label
-                        class="sw-experience-studio-element-settings__radio-panel-label mt-field__label label"
-                        :for="getRadioPanelLabelTargetId(entry.key, entry.property)"
-                    >{{ entry.property.title }}</label>
-
-                    <sw-button-group class="sw-experience-studio-element-settings__radio-panel-options">
-                        <mt-button
-                            v-for="option in getRadioPanelOptions(entry.property)"
-                            :key="option.value"
-                            :id="getRadioPanelOptionId(entry.key, option.value)"
-                            square
-                            size="small"
-                            class="sw-experience-studio-element-settings__radio-panel-option"
-                            :variant="String(getPropertyValue(entry.key, entry.property) ?? '') === option.value ? 'primary' : 'secondary'"
-                            :disabled="!allowEdit || option.disabled || undefined"
-                            :aria-label="option.label"
-                            :title="option.label"
-                            @click="onUpdateRadioPanelProperty(entry.key, option.value)"
-                        >
-                            <mt-icon
-                                :name="option.icon || 'regular-square'"
-                                size="16px"
-                            />
-                        </mt-button>
-                    </sw-button-group>
-                </div>
-
-                <sw-entity-single-select
-                    v-else-if="getControlType(entry.property) === 'entity' && getEntityName(entry.property)"
-                    v-bind="getControlProps(entry.property)"
-                    :entity="getEntityName(entry.property)"
-                    :label="entry.property.title"
-                    :help-text="getPropertyHelpText(entry.property)"
-                    :value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:value="onUpdateProperty(entry.key, $event)"
-                />
-
-                <sw-media-field
-                    v-else-if="getControlType(entry.property) === 'media'"
-                    v-bind="getControlProps(entry.property)"
-                    :label="entry.property.title"
-                    :value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:value="onUpdateProperty(entry.key, $event)"
-                />
-
-                <div
-                    v-else-if="isInlineTextProperty(entry.key, entry.property)"
-                    class="sw-experience-studio-element-settings__inline-text-hint"
-                >
-                    <div class="sw-experience-studio-element-settings__inline-text-title">
-                        {{ entry.property.title }}
-                    </div>
-                    <div class="sw-experience-studio-element-settings__inline-text-description">
-                        {{ $t('sw-experience-studio.detail.elementSettings.inlineTextHint') }}
-                    </div>
-                    <div
-                        v-if="isInlineEditingActive"
-                        class="sw-experience-studio-element-settings__inline-text-state"
-                    >
-                        {{ $t('sw-experience-studio.detail.elementSettings.inlineTextEditingActive') }}
-                    </div>
-                </div>
-
-                <mt-text-editor
-                    v-else-if="getControlType(entry.property) === 'richtext'"
-                    v-bind="getControlProps(entry.property)"
-                    :model-value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:model-value="onUpdateProperty(entry.key, $event)"
-                />
-
-                <mt-text-field
+                <sw-experience-studio-settings-fields
                     v-else
-                    v-bind="getControlProps(entry.property)"
-                    :label="entry.property.title"
-                    :help-text="getPropertyHelpText(entry.property)"
-                    :model-value="getPropertyValue(entry.key, entry.property)"
-                    :disabled="!allowEdit || undefined"
-                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                    :fields="elementFields"
+                    :values="elementPropertyValues"
+                    :allow-edit="allowEdit"
+                    :selected-element-type="selectedElementType"
+                    :is-inline-editing-active="isInlineEditingActive"
+                    :show-inline-text-hints="true"
+                    @update-field="onUpdateElementField"
+                />
+            </div>
+
+            <div
+                v-else-if="activeSettingsTab === 'layout'"
+                class="sw-experience-studio-element-settings__tab-panel"
+            >
+                <mt-empty-state
+                    v-if="hasStyleOptionLoadError"
+                    icon="regular-exclamation-triangle"
+                    :description="$t('sw-experience-studio.detail.elementSettings.styleLoadError')"
+                />
+
+                <mt-empty-state
+                    v-else-if="showLayoutEmptyState"
+                    icon="regular-sliders-horizontal"
+                    :description="$t('sw-experience-studio.detail.elementSettings.noEditableStyleOptions')"
+                />
+
+                <sw-experience-studio-settings-fields
+                    v-else
+                    :fields="layoutFields"
+                    :values="elementStyleValues"
+                    :allow-edit="allowEdit"
+                    @update-field="onUpdateLayoutField"
                 />
             </div>
         </div>

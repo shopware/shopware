@@ -251,6 +251,7 @@ declare global {
         contentSystemLayoutDraftMutationService: $TSFixMe;
         contentSystemEntityTypeService: $TSFixMe;
         contentSystemElementTypeService: $TSFixMe;
+        contentSystemStyleOptionService: $TSFixMe;
         contentSystemPreviewService: $TSFixMe;
         configService: ConfigApiService;
         contextStoreService: StoreContextService;

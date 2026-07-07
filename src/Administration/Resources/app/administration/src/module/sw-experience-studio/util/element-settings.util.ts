@@ -27,6 +27,9 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     // Shopware/base wrappers
     'color': 'color',
     'select': 'select',
+    'switch': 'switch',
+    'number': 'number',
+    'text': 'text',
     'text-editor': 'richtext',
     'entity-single-select': 'entity',
     'sw-entity-single-select': 'entity',

@@ -8,6 +8,7 @@ import type {
     ContentLayoutDraftRemovePayload,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 
 import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
@@ -16,9 +17,11 @@ import {
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
+    updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
@@ -227,6 +230,10 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;
         },
 
+        styleOptionStore() {
+            return Shopware.Store.get('experienceStudioStyleOption' as never) as ExperienceStudioStyleOptionStore;
+        },
+
         canUndo(): boolean {
             return this.editorStore.canUndo;
         },
@@ -282,6 +289,7 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadLayout();
         void this.loadDefaultPreviewSalesChannel();
         void this.loadElementTypes();
+        void this.loadStyleOptions();
         void this.loadLayoutTypes();
     },
 
@@ -300,6 +308,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        sanitizeLayoutForWrite(layout: ContentElementNode[]): ContentElementNode[] {
+            return sanitizeContentElementLayoutForWrite(layout, this.styleOptionStore.optionsByName);
+        },
+
         async loadLayout(): Promise<void> {
             this.isLoading = true;
 
@@ -524,6 +536,10 @@ export default Shopware.Component.wrapComponentConfig({
             await this.elementTypeStore.loadTypes();
         },
 
+        async loadStyleOptions(): Promise<void> {
+            await this.styleOptionStore.loadStyleOptions();
+        },
+
         entityTypeService(): ContentSystemEntityTypeService {
             return Shopware.Service('contentSystemEntityTypeService') as ContentSystemEntityTypeService;
         },
@@ -693,7 +709,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.editorStore.pushToHistory(layoutElements, this.selectedElementId);
-            this.layout.layout = sanitizeContentElementLayoutForWrite(workingLayout);
+            this.layout.layout = this.sanitizeLayoutForWrite(workingLayout);
 
             if (result.selectedElementId !== undefined) {
                 this.selectedElementId = result.selectedElementId;
@@ -867,6 +883,15 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
+        onElementStyleChange(payload: {
+            elementId: string;
+            style: Record<string, unknown>;
+        }): void {
+            this.applyLayoutMutation((layout) => {
+                return updateElementStyleInLayout(layout, payload.elementId, payload.style) ? {} : false;
+            });
+        },
+
         draftMutationService(): ContentSystemLayoutDraftMutationService {
             return Shopware.Service('contentSystemLayoutDraftMutationService') as ContentSystemLayoutDraftMutationService;
         },
@@ -922,7 +947,7 @@ export default Shopware.Component.wrapComponentConfig({
             operationPayload: Record<string, unknown>,
         ): Record<string, unknown> {
             return {
-                layout: sanitizeContentElementLayoutForWrite(layout),
+                layout: this.sanitizeLayoutForWrite(layout),
                 rootSource: this.resolveMutationRootSource(),
                 ...operationPayload,
             };
@@ -976,7 +1001,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
-                this.layout.layout = sanitizeContentElementLayoutForWrite(response.layout as ContentElementNode[]);
+                this.layout.layout = this.sanitizeLayoutForWrite(response.layout as ContentElementNode[]);
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
@@ -1203,6 +1228,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const layout = this.layout;
+            layout.layout = this.sanitizeLayoutForWrite(castContentElementNodes(layout.layout));
 
             this.isLoading = true;
 

@@ -6,8 +6,9 @@ export interface ContentElementNode {
     id: string;
     component: string;
     properties?: Record<string, unknown>;
-    data_requirements?: unknown;
+    style?: Record<string, unknown>;
+    dataRequirements?: unknown;
     slots?: Record<string, ContentElementNode[]>;
-    provides_context?: unknown;
-    accepts_context?: unknown;
+    providesContext?: unknown;
+    acceptsContext?: unknown;
 }

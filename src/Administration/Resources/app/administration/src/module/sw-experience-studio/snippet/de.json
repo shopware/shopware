@@ -67,11 +67,16 @@
       },
       "elementSettings": {
         "title": "Element-Einstellungen",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
         "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten.",
         "loading": "Element-Einstellungen werden geladen ...",
         "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",
+        "styleLoadError": "Layout-Einstellungen konnten nicht geladen werden.",
         "typeMissing": "Für diese Komponente wurde noch kein registrierter Elementtyp gefunden.",
         "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
+        "noEditableStyleOptions": "Es sind keine Layout-Stiloptionen verfügbar.",
+        "viewportSettings": "Viewport-Einstellungen",
         "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
         "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
       },

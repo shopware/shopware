@@ -1,12 +1,8 @@
+import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentElementNode } from '../types/content-element.types';
+import { normalizeElementStyleForWrite } from './style-settings.util';
 
 const { cloneDeep } = Shopware.Utils.object;
-
-type ContentElementWithAliases = ContentElementNode & {
-    dataRequirements?: unknown;
-    providesContext?: unknown;
-    acceptsContext?: unknown;
-};
 
 /**
  * @private
@@ -49,7 +45,10 @@ export function findElementLocation(
  * @private
  * @sw-package discovery
  */
-export function sanitizeContentElementForWrite(element: ContentElementNode): ContentElementNode {
+export function sanitizeContentElementForWrite(
+    element: ContentElementNode,
+    styleOptions?: Record<string, ContentSystemStyleOptionSpecification>,
+): ContentElementNode {
     const sanitized: ContentElementNode = {
         id: element.id,
         component: element.component,
@@ -58,7 +57,8 @@ export function sanitizeContentElementForWrite(element: ContentElementNode): Con
     copyWritableContentElementFields(
         element,
         sanitized,
-        (slotElements) => slotElements.map(sanitizeContentElementForWrite),
+        (slotElements) => slotElements.map((slotElement) => sanitizeContentElementForWrite(slotElement, styleOptions)),
+        styleOptions,
     );
 
     return sanitized;
@@ -68,8 +68,11 @@ export function sanitizeContentElementForWrite(element: ContentElementNode): Con
  * @private
  * @sw-package discovery
  */
-export function sanitizeContentElementLayoutForWrite(layout: ContentElementNode[]): ContentElementNode[] {
-    return layout.map(sanitizeContentElementForWrite);
+export function sanitizeContentElementLayoutForWrite(
+    layout: ContentElementNode[],
+    styleOptions?: Record<string, ContentSystemStyleOptionSpecification>,
+): ContentElementNode[] {
+    return layout.map((element) => sanitizeContentElementForWrite(element, styleOptions));
 }
 
 /**
@@ -101,33 +104,76 @@ export function updateElementPropertiesInLayout(
     return true;
 }
 
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function updateElementStyleInLayout(
+    layout: ContentElementNode[],
+    elementId: string,
+    style: Record<string, unknown>,
+): boolean {
+    const location = findElementLocation(layout, elementId);
+
+    if (location === null) {
+        return false;
+    }
+
+    const element = location.elements[location.index];
+
+    if (!element) {
+        return false;
+    }
+
+    element.style = {
+        ...(element.style ?? {}),
+        ...cloneDeep(style),
+    };
+
+    for (const [key, value] of Object.entries(style)) {
+        if (value === null || value === undefined) {
+            delete element.style[key];
+        }
+    }
+
+    if (Object.keys(element.style).length === 0) {
+        delete element.style;
+    }
+
+    return true;
+}
+
 function copyWritableContentElementFields(
     source: ContentElementNode,
     target: ContentElementNode,
     mapSlotElements: (slotElements: ContentElementNode[]) => ContentElementNode[],
+    styleOptions?: Record<string, ContentSystemStyleOptionSpecification>,
 ): void {
-    const sourceWithAliases = source as ContentElementWithAliases;
-
     if (source.properties !== undefined) {
         target.properties = cloneDeep(source.properties);
     }
 
-    const dataRequirements = source.data_requirements ?? sourceWithAliases.dataRequirements;
+    if (source.style !== undefined) {
+        const style = cloneDeep(source.style);
+        const normalizedStyle = styleOptions
+            ? normalizeElementStyleForWrite(style, styleOptions)
+            : style;
 
-    if (dataRequirements !== undefined) {
-        target.data_requirements = cloneDeep(dataRequirements);
+        if (normalizedStyle !== undefined) {
+            target.style = normalizedStyle;
+        }
     }
 
-    const providesContext = source.provides_context ?? sourceWithAliases.providesContext;
-
-    if (providesContext !== undefined) {
-        target.provides_context = cloneDeep(providesContext);
+    if (source.dataRequirements !== undefined) {
+        target.dataRequirements = cloneDeep(source.dataRequirements);
     }
 
-    const acceptsContext = source.accepts_context ?? sourceWithAliases.acceptsContext;
+    if (source.providesContext !== undefined) {
+        target.providesContext = cloneDeep(source.providesContext);
+    }
 
-    if (acceptsContext !== undefined) {
-        target.accepts_context = cloneDeep(acceptsContext);
+    if (source.acceptsContext !== undefined) {
+        target.acceptsContext = cloneDeep(source.acceptsContext);
     }
 
     if (source.slots) {

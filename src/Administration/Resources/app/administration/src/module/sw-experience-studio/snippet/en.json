@@ -67,11 +67,16 @@
       },
       "elementSettings": {
         "title": "Element settings",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
         "emptyState": "Select an element to edit its settings.",
         "loading": "Loading element settings...",
         "typeLoadError": "Element settings could not be loaded.",
+        "styleLoadError": "Layout settings could not be loaded.",
         "typeMissing": "No registered element type was found for this component yet.",
         "noEditableProperties": "This element does not provide editable primitive properties.",
+        "noEditableStyleOptions": "No layout style options are available.",
+        "viewportSettings": "Viewport settings",
         "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
         "inlineTextEditingActive": "Inline editing is currently active in the preview."
       },

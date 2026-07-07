@@ -82,6 +82,31 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         })).toBe('responsive-number');
     });
 
+    it('maps style option adminUI components to controls', () => {
+        expect(getPropertyControlType({
+            ...stringProperty,
+            type: 'integer',
+            adminUI: {
+                component: 'number',
+            },
+        })).toBe('number');
+
+        expect(getPropertyControlType({
+            ...stringProperty,
+            type: 'boolean',
+            adminUI: {
+                component: 'switch',
+            },
+        })).toBe('switch');
+
+        expect(getPropertyControlType({
+            ...stringProperty,
+            adminUI: {
+                component: 'text',
+            },
+        })).toBe('text');
+    });
+
     it('maps entity select properties to entity controls', () => {
         expect(getPropertyControlType({
             ...stringProperty,

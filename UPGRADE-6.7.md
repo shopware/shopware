@@ -33,6 +33,17 @@ The following blocks in `src/Administration/Resources/app/administration/src/mod
 - `sw_settings_search_searchable_show_example` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
 - `sw_settings_search_searchable_show_example_link_element` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
 
+## App secret rotation sends a previous-secret signature on the confirmation request
+
+When Shopware rotates an already-registered app's secret (re-registration), the registration confirmation request now carries a second signature header in addition to `shopware-shop-signature`:
+
+- `shopware-shop-signature` — the confirmation payload signed with the **new** secret (as before).
+- `shopware-shop-signature-previous` — the same payload signed with the secret the app **currently** holds. It is only sent during re-registration; a first-time install still sends `shopware-shop-signature` alone.
+
+The previous-secret signature lets the app confirm the request comes from the installation that already holds its current secret before it switches to the new one. Apps built on the [app-php-sdk](https://github.com/shopware/app-php-sdk) need no changes. If you validate the confirmation request yourself, accept the registration when **either** signature verifies against a secret you know, and prefer the new secret once confirmed.
+
+An interrupted rotation whose app kept its old credentials should be recovered promptly with `bin/console app:secret:recover`; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until recovery completes.
+
 # 6.7.12.0
 
 ## Deprecation of `sw_integration_list_introduction` twig block
@@ -116,17 +127,6 @@ While adding the `between` operator for date rule conditions, two rule classes c
 
 `RuleComparison` is deprecated for inheritance and will be `final` in v6.8.0.0.
 The `$ruleValue` parameter of `RuleComparison::date()` and `RuleComparison::datetime()` will be widened from `\DateTime` to `\DateTime|string|array` in v6.8.0.0.
-
-## App secret rotation sends a previous-secret signature on the confirmation request
-
-When Shopware rotates an already-registered app's secret (re-registration), the registration confirmation request now carries a second signature header in addition to `shopware-shop-signature`:
-
-- `shopware-shop-signature` — the confirmation payload signed with the **new** secret (as before).
-- `shopware-shop-signature-previous` — the same payload signed with the secret the app **currently** holds. It is only sent during re-registration; a first-time install still sends `shopware-shop-signature` alone.
-
-The previous-secret signature lets the app confirm the request comes from the installation that already holds its current secret before it switches to the new one. Apps built on the [app-php-sdk](https://github.com/shopware/app-php-sdk) need no changes. If you validate the confirmation request yourself, accept the registration when **either** signature verifies against a secret you know, and prefer the new secret once confirmed.
-
-An interrupted rotation whose app kept its old credentials should be recovered promptly with `bin/console app:secret:recover`; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until recovery completes.
 
 # 6.7.8.2
 

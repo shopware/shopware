@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\Context;
@@ -108,14 +109,14 @@ final readonly class RecoverAppSecretCommand
 
         try {
             $result = $this->rotationService->recoverNow($app->getId(), $context);
+        } catch (AppRegistrationException $e) {
+            // recoverNow only lets the "app never confirmed" (timeout/5xx) outcome escape as an
+            // AppRegistrationException; a definitive rejection is handled inside and returns Claimed. The
+            // outcome is unknown, so the operator retries.
+            $io->warning(\sprintf('Recovery outcome for "%s" is unknown (the app did not confirm); retry later. %s', $app->getName(), $e->getMessage()));
+
+            return Command::FAILURE;
         } catch (AppException $e) {
-            if ($e->getErrorCode() === AppException::REGISTRATION_FAILED) {
-                // The app never confirmed (timeout/5xx), so the outcome is unknown; the operator retries.
-                $io->warning(\sprintf('Recovery outcome for "%s" is unknown (the app did not confirm); retry later. %s', $app->getName(), $e->getMessage()));
-
-                return Command::FAILURE;
-            }
-
             // Any other failure (for example, the manifest could not be loaded) is real: report it so a
             // script that retries keeps trying, instead of treating an app that was never recovered as done.
             $io->error(\sprintf('Recovery of "%s" failed: %s', $app->getName(), $e->getMessage()));

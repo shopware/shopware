@@ -408,6 +408,35 @@ class AppRegistrationServiceTest extends TestCase
         static::assertSame(['new-secret'], $this->fetchApp($id)->getUnconfirmedAppSecrets());
     }
 
+    public function testUnconfirmedSecretListIsCappedToTheNewestEntries(): void
+    {
+        $id = Uuid::randomHex();
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $this->createApp($id);
+        $this->seedAppSecret($id, 'old-secret');
+        // Already at the cap from earlier interrupted rotations, oldest last.
+        $this->seedUnconfirmedAppSecretList($id, ['pending-1', 'pending-2', 'pending-3', 'pending-4', 'pending-5']);
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(200, [], $this->buildAppResponse($manifest, 'new-secret')));
+        // Ambiguous confirm keeps the (now capped) pending list.
+        $this->appendNewResponse(new Response(500, []));
+
+        try {
+            $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+            static::fail('Expected AppRegistrationException');
+        } catch (AppRegistrationException) {
+            // expected
+        }
+
+        // The new mint is prepended and the list is bounded; the oldest secret ('pending-5') is dropped.
+        static::assertSame(
+            ['new-secret', 'pending-1', 'pending-2', 'pending-3', 'pending-4'],
+            $this->fetchApp($id)->getUnconfirmedAppSecrets()
+        );
+    }
+
     public function testHandshakeClientErrorKeepsPriorPendingSecret(): void
     {
         $id = Uuid::randomHex();
@@ -449,6 +478,17 @@ class AppRegistrationServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id, $secret): void {
             $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => [$secret]]], $context);
+        });
+    }
+
+    /**
+     * @param list<string> $secrets
+     */
+    private function seedUnconfirmedAppSecretList(string $id, array $secrets): void
+    {
+        $context = Context::createDefaultContext();
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id, $secrets): void {
+            $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => $secrets]], $context);
         });
     }
 

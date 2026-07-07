@@ -31,6 +31,13 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 class AppRegistrationService
 {
     /**
+     * Upper bound on the unconfirmed-secret list. Each interrupted rotation or recovery prepends one mint;
+     * without a cap the list would grow unbounded. An app realistically only holds its committed secret plus
+     * the last mint or two, so keeping the newest few is enough for recovery to reconcile.
+     */
+    private const MAX_UNCONFIRMED_APP_SECRETS = 5;
+
+    /**
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
@@ -57,13 +64,27 @@ class AppRegistrationService
      * have switched to the unconfirmed secret without us ever learning of it, so recovery signs with each
      * candidate secret in turn until the app accepts one.
      */
-    public function reRegisterWithAppHeldSecret(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context, #[\SensitiveParameter] string $appHeldSecret): void
-    {
+    public function reRegisterWithAppHeldSecret(
+        Manifest $manifest,
+        string $id,
+        #[\SensitiveParameter]
+        string $secretAccessKey,
+        Context $context,
+        #[\SensitiveParameter]
+        string $appHeldSecret
+    ): void {
         $this->register($manifest, $id, $secretAccessKey, $context, $appHeldSecret);
     }
 
-    private function register(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context, #[\SensitiveParameter] ?string $appHeldSecret): void
-    {
+    private function register(
+        Manifest $manifest,
+        string $id,
+        #[\SensitiveParameter]
+        string $secretAccessKey,
+        Context $context,
+        #[\SensitiveParameter]
+        ?string $appHeldSecret
+    ): void {
         if (!$manifest->getSetup()) {
             return;
         }
@@ -186,7 +207,13 @@ class AppRegistrationService
             // Prepend, most-recent first: a rotation starts from an empty list; a recovery adds its new secret
             // ahead of the ones it is still trying. Read-then-write is safe under the per-app lock.
             $unconfirmed = $this->fetchApp($id, $context)->getUnconfirmedAppSecrets() ?? [];
-            $unconfirmed = array_values(array_unique(array_merge([$secret], $unconfirmed)));
+            // Cap to the newest few: the dropped tail is the oldest secrets, the least likely one the app
+            // still holds, so bounding the list this way never costs recovery a candidate that would matter.
+            $unconfirmed = \array_slice(
+                array_values(array_unique(array_merge([$secret], $unconfirmed))),
+                0,
+                self::MAX_UNCONFIRMED_APP_SECRETS
+            );
 
             $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => $unconfirmed, 'unconfirmedAppSecretsUpdatedAt' => $this->clock->now()]], $context);
         });

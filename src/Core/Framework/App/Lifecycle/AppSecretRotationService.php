@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
@@ -262,15 +263,10 @@ class AppSecretRotationService
                     $this->recordRecoveryOutcome(AppSecretRecoveryResult::Recovered->value);
 
                     return AppSecretRecoveryResult::Recovered;
-                } catch (AppException $e) {
-                    if ($e->getErrorCode() !== AppException::APP_REGISTRATION_REJECTED) {
-                        // No clear answer (5xx/timeout) or an unexpected failure — let the outer handler deal
-                        // with it. We only move on to the next secret when the app definitively rejected this one.
-                        throw $e;
-                    }
-
-                    // The app does not trust this secret; try the next candidate. The rejection reason is
-                    // already logged in AppRegistrationService.
+                } catch (AppRegistrationRejectedException) {
+                    // The app definitively rejected this secret; try the next candidate. The rejection reason
+                    // is already logged in AppRegistrationService. Any other outcome (5xx/timeout/unexpected)
+                    // is not caught here and propagates to the outer handler unchanged.
                 }
             }
         } catch (\Throwable $e) {

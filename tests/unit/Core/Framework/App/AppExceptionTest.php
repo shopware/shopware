@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
@@ -60,6 +61,16 @@ class AppExceptionTest extends TestCase
 
         static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
         static::assertSame('App registration for "ToBeRegisteredApp" failed: Invalid signature', $e->getMessage());
+    }
+
+    public function testAppRegistrationRejected(): void
+    {
+        $e = AppException::appRegistrationRejected('RejectedApp', 'the app does not trust this secret');
+
+        // A dedicated subtype so recovery can catch a definitive rejection by type, not by error-code string.
+        static::assertInstanceOf(AppRegistrationRejectedException::class, $e);
+        static::assertSame(AppException::APP_REGISTRATION_REJECTED, $e->getErrorCode());
+        static::assertSame('App registration for "RejectedApp" failed: the app does not trust this secret', $e->getMessage());
     }
 
     public function testLicenseCouldNotBeVerified(): void

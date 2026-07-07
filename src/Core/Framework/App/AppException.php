@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -149,9 +150,10 @@ class AppException extends HttpException
     public static function appRegistrationRejected(string $appName, string $reason, ?\Throwable $previous = null): self
     {
         // A definitive 4xx is still a registration failure, so it is an AppRegistrationException like the
-        // ambiguous case (registrationFailed) — same `log_level: notice` and `catch (AppRegistrationException)`.
-        // Only the error code differs, so recovery can tell "wrong secret" from "no clear answer".
-        return new AppRegistrationException(
+        // ambiguous case (registrationFailed) — same `catch (AppRegistrationException)` and error handling.
+        // The dedicated subtype lets recovery tell "wrong secret" (try the next candidate) from "no clear
+        // answer" (keep the unconfirmed and retry) with a type-based catch instead of an error-code check.
+        return new AppRegistrationRejectedException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::APP_REGISTRATION_REJECTED,
             'App registration for "{{ appName }}" failed: {{ reason }}',

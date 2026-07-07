@@ -100,19 +100,6 @@
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
-      <ram:SpecifiedTradeAllowanceCharge>
-        <ram:ChargeIndicator>
-          <udt:Indicator>true</udt:Indicator>
-        </ram:ChargeIndicator>
-        <ram:ActualAmount>0.00</ram:ActualAmount>
-        <ram:ReasonCode>DL</ram:ReasonCode>
-        <ram:Reason>Delivery</ram:Reason>
-        <ram:CategoryTradeTax>
-          <ram:TypeCode>VAT</ram:TypeCode>
-          <ram:CategoryCode>S</ram:CategoryCode>
-          <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
-        </ram:CategoryTradeTax>
-      </ram:SpecifiedTradeAllowanceCharge>
       <ram:SpecifiedTradePaymentTerms>
         <ram:DueDateDateTime>
           <udt:DateTimeString format="102">[date]</udt:DateTimeString>

@@ -252,6 +252,55 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame('20240102', \trim($occurrenceDateTime->getElementsByTagName('DateTimeString')->item(0)->nodeValue ?? ''));
     }
 
+    public function testWithDeliverySkipsZeroAmountAllowanceCharge(): void
+    {
+        $dom = $this->createDeliveryDocumentDom(0.0, ZugferdInvoiceType::INVOICE);
+
+        static::assertSame(0, $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->length);
+    }
+
+    public function testWithDeliveryAddsChargeNodeForPositiveInvoiceShippingCosts(): void
+    {
+        $dom = $this->createDeliveryDocumentDom(10.0, ZugferdInvoiceType::INVOICE);
+
+        static::assertSame(1, $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->length);
+
+        $allowanceCharge = $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->item(0);
+        static::assertNotNull($allowanceCharge);
+        static::assertSame('true', $allowanceCharge->getElementsByTagName('Indicator')->item(0)?->nodeValue);
+        static::assertSame('10.00', $allowanceCharge->getElementsByTagName('ActualAmount')->item(0)?->nodeValue);
+        static::assertSame('DL', $allowanceCharge->getElementsByTagName('ReasonCode')->item(0)?->nodeValue);
+        static::assertSame('Delivery', $allowanceCharge->getElementsByTagName('Reason')->item(0)?->nodeValue);
+    }
+
+    public function testWithDeliveryAddsChargeNodeForPositiveCorrectionShippingCosts(): void
+    {
+        $dom = $this->createDeliveryDocumentDom(10.0, ZugferdInvoiceType::CORRECTION);
+
+        static::assertSame(1, $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->length);
+
+        $allowanceCharge = $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->item(0);
+        static::assertNotNull($allowanceCharge);
+        static::assertSame('true', $allowanceCharge->getElementsByTagName('Indicator')->item(0)?->nodeValue);
+        static::assertSame('10.00', $allowanceCharge->getElementsByTagName('ActualAmount')->item(0)?->nodeValue);
+        static::assertSame('DAM', $allowanceCharge->getElementsByTagName('ReasonCode')->item(0)?->nodeValue);
+        static::assertSame('Return handling', $allowanceCharge->getElementsByTagName('Reason')->item(0)?->nodeValue);
+    }
+
+    public function testWithDeliveryAddsAllowanceNodeForNegativeCorrectionShippingCosts(): void
+    {
+        $dom = $this->createDeliveryDocumentDom(-10.0, ZugferdInvoiceType::CORRECTION);
+
+        static::assertSame(1, $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->length);
+
+        $allowanceCharge = $dom->getElementsByTagName('SpecifiedTradeAllowanceCharge')->item(0);
+        static::assertNotNull($allowanceCharge);
+        static::assertSame('false', $allowanceCharge->getElementsByTagName('Indicator')->item(0)?->nodeValue);
+        static::assertSame('10.00', $allowanceCharge->getElementsByTagName('ActualAmount')->item(0)?->nodeValue);
+        static::assertSame('95', $allowanceCharge->getElementsByTagName('ReasonCode')->item(0)?->nodeValue);
+        static::assertSame('Delivery refund', $allowanceCharge->getElementsByTagName('Reason')->item(0)?->nodeValue);
+    }
+
     public function testEmptyCalculatedTaxes(): void
     {
         $order = new OrderEntity();
@@ -346,6 +395,9 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame($expectedBasisQuantity, $basisQuantity?->nodeValue);
     }
 
+    /**
+     * @return \Generator<string, array{purchaseUnit: ?int, expectedBasisQuantity: string}>
+     */
     public static function basisQuantityProvider(): \Generator
     {
         yield 'with purchase unit' => [
@@ -356,6 +408,37 @@ class ZugferdDocumentTest extends TestCase
             'purchaseUnit' => null,
             'expectedBasisQuantity' => '1.00',
         ];
+    }
+
+    private function createDeliveryDocumentDom(float $shippingTotal, string $documentType): \DOMDocument
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(abs($shippingTotal));
+        $order->setAmountNet(abs($shippingTotal));
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId(Uuid::randomHex());
+        $delivery->setUniqueIdentifier($delivery->getId());
+        $delivery->setShippingCosts(new CalculatedPrice(
+            $shippingTotal,
+            $shippingTotal,
+            new CalculatedTaxCollection([new CalculatedTax(0.0, 19.0, $shippingTotal)]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withDelivery(new OrderDeliveryCollection([$delivery]), $documentType);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        return $document->getDomContent($order, $calculator);
     }
 
     /**

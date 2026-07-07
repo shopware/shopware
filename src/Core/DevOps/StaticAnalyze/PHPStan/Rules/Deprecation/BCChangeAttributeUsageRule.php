@@ -62,6 +62,15 @@ class BCChangeAttributeUsageRule implements Rule
         ParameterTypeNarrowing::class,
     ];
 
+    /**
+     * Methods carrying these attributes are invoked by the framework with exactly the
+     * declared parameters, so a runtime trigger would fire on every legitimate request.
+     */
+    private const FRAMEWORK_INVOKED_ATTRIBUTES = [
+        'Symfony\Component\Routing\Attribute\Route',
+        'Symfony\Component\Routing\Annotation\Route',
+    ];
+
     private const MUST_NOT_EXIST = [
         NewOptionalParameter::class,
         NewRequiredParameter::class,
@@ -120,7 +129,7 @@ class BCChangeAttributeUsageRule implements Rule
                     $subject = $classIsFinal ? 'class' : 'method';
                     $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
                 }
-                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true)) {
+                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true) && !$this->isFrameworkInvoked($method)) {
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
@@ -307,6 +316,17 @@ class BCChangeAttributeUsageRule implements Rule
             $this->shortName($attribute),
             $symbol
         ))];
+    }
+
+    private function isFrameworkInvoked(\ReflectionMethod $method): bool
+    {
+        foreach ($method->getAttributes() as $attribute) {
+            if (\in_array($attribute->getName(), self::FRAMEWORK_INVOKED_ATTRIBUTES, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function parameterExists(\ReflectionMethod $method, string $parameterName): bool

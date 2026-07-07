@@ -102,7 +102,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
 
         if ($navigationId) {
             $criteria = new Criteria([$navigationId]);
-            $categoryEntity = $this->categoryRepository->search($criteria, $context->getContext())->first();
+            $categoryEntity = $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first();
 
             if ($categoryEntity instanceof CategoryEntity && !empty($categoryEntity->getSlotConfig()[$slotId])) {
                 $categoryEntityConfig = $categoryEntity->getSlotConfig()[$slotId];

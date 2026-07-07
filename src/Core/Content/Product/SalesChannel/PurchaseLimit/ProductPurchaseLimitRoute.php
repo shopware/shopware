@@ -61,7 +61,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
             'stock',
         ]);
 
-        $products = $this->productRepository->search($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
 
         $results = new ProductPurchaseLimitCollection();
 

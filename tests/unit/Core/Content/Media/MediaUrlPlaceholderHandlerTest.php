@@ -8,7 +8,7 @@ use Doctrine\DBAL\Result;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandler;
@@ -29,16 +29,16 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
     private const PRODUCT_ID = 'ad518375caa8445caad158291c0c5234';
     private const DATETIME = '2024-05-14 13:37:00';
 
-    private MockObject&Connection $connection;
+    private Stub&Connection $connection;
 
     private MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $this->connection = static::createStub(Connection::class);
+        $this->connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
-        $fileSystemOperator = $this->createMock(Filesystem::class);
+        $fileSystemOperator = static::createStub(Filesystem::class);
         $fileSystemOperator->method('publicUrl')->willReturnCallback(static function ($path) {
             return 'http://foo.text:8000/' . $path;
         });
@@ -85,7 +85,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
     #[DataProvider('replaceDataProvider')]
     public function testReplace(string $content, string $expected): void
     {
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn([
             [
                 'id' => Uuid::fromHexToBytes(self::MEDIA1_ID),

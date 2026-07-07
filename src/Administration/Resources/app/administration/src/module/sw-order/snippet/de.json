@@ -23,15 +23,12 @@
       "buttonAddOrder": "Bestellung anlegen",
       "textOrders": "Bestellungen",
       "textOrdersTotal": "Keine Bestellungen | Eine Bestellung | {count} Bestellungen",
-      "contextMenuView": "Anzeigen",
-      "contextMenuDelete": "Löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
-      "buttonDelete": "Löschen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
       "labelManualOrder": "Erstellt von Admin",
       "tooltipCustomerComment": "Zusätzliche Informationen: {comment}",
@@ -95,8 +92,7 @@
       "labelToggleAutomaticPromotions": "Automatische hinzugefügte Rabattaktionen deaktivieren",
       "labelPromotions": "Rabattaktionen",
       "generalTab": {
-        "labelLineItemsCard": "Positionen",
-        "labelGeneralInfoCard": "Info"
+        "labelLineItemsCard": "Positionen"
       },
       "detailsTab": {
         "labelTransactionCard": "Zahlung",
@@ -199,7 +195,6 @@
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Positionen",
-      "cardTitleGeneralInfo": "Info",
       "cardTitlePromotions": "Rabattaktionen",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
@@ -236,7 +231,6 @@
       "buttonAddProduct": "Produkt hinzufügen",
       "buttonAddBlankProduct": "Leere Position hinzufügen",
       "buttonAddCredit": "Gutschrift hinzufügen",
-      "buttonEditAddress": "Bearbeiten",
       "tooltipNestedLineItemsButton": "Diese Bestellposition enthält Unterpositionen.",
       "labelNoPhoneNumber": "Keine",
       "labelNoEmail": "Keine",
@@ -318,13 +312,11 @@
       "emptySearchResults": "Keine Adressen gefunden."
     },
     "leavePageModal": {
-      "headline": "Warnung",
       "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
       "confirmButton": "Seite verlassen",
       "cancelButton": "Auf Seite bleiben"
     },
     "saveChangesBeforehandModal": {
-      "headline": "Warnung",
       "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest Du jetzt deine Änderungen speichern?",
       "confirmButton": "Änderungen speichern"
     },
@@ -444,7 +436,6 @@
       "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
-      "labelCancel": "Schließen",
       "labelPreview": "Vorschau",
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Gesamt",
@@ -460,7 +451,6 @@
       "labelRecipient": "E-Mail-Adresse",
       "labelContent": "Inhalt",
       "labelSubject": "Betreff",
-      "labelClose": "Schließen",
       "errorMessage": "Beim Versenden der E-Mail ist etwas schiefgelaufen."
     },
     "stateModal": {
@@ -507,7 +497,6 @@
         "buttonAddNewCustomer": "Kunden anlegen",
         "placeholderSearchCustomer": "Kundennamen eingeben ...",
         "textEmptySearch": "Keine Daten für {name} vorhanden",
-        "contextOpenButton": "Öffnen",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",
         "columnSalesChannel": "Verkaufskanal",

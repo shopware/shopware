@@ -63,7 +63,7 @@ class WebhookCleanupTest extends TestCase
             ->with('core.webhook.entryLifetimeSeconds')
             ->willReturn(86400);
 
-        $conn = $this->createMock(Connection::class);
+        $conn = static::createStub(Connection::class);
         $conn->method('executeStatement')->willReturn(0);
 
         $streamLockService = $this->createMock(StreamLockService::class);

@@ -66,10 +66,10 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterUnsubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
         );
 
         $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
@@ -106,10 +106,10 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterUnsubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
         );
 
         $this->expectExceptionObject(NewsletterException::missingEmailParameter());
@@ -140,10 +140,10 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterUnsubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
         );
 
         $this->expectExceptionObject(NewsletterException::recipientNotFound('email', 'test@example.com'));
@@ -180,8 +180,8 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterUnsubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
             $rateLimiter,
             $requestStack,
         );

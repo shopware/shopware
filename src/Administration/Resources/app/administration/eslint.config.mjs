@@ -17,6 +17,7 @@ import fileProgress from 'eslint-plugin-file-progress';
 import filenameRules from 'eslint-plugin-filename-rules';
 import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
+import json from '@eslint/json';
 
 import swCoreRules from 'eslint-plugin-sw-core-rules';
 import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
@@ -122,12 +123,12 @@ export default [
         ],
     },
 
-    js.configs.recommended,
+    { ...js.configs.recommended, ignores: ['**/*.json'] },
 
     // Vue plugin setup (global) + parser for .vue files
     ...pluginVue.configs['flat/recommended'].filter(
         c => c.name === 'vue/base/setup' || c.name === 'vue/base/setup-for-vue',
-    ),
+    ).map(c => ({ ...c, ignores: ['**/*.json'] })),
     // Vue rules scoped to JS, Vue, and Twig files only (not TS)
     ...pluginVue.configs['flat/recommended']
         .filter(c => c.name !== 'vue/base/setup' && c.name !== 'vue/base/setup-for-vue')
@@ -135,6 +136,7 @@ export default [
 
     // Base config for all files
     {
+        ignores: ['**/*.json'],
         plugins: {
             import: importX,
             'inclusive-language': fixupPluginRules(inclusiveLanguage),
@@ -462,5 +464,18 @@ export default [
     {
         ...prettier,
         files: ['**/*.js', '**/*.ts', '**/*.tsx', '**/*.vue'],
+    },
+
+    // Snippet JSON files: parse as JSON and flag entries that duplicate a global.default translation
+    {
+        files: ['src/**/snippet/*.json'],
+        language: 'json/json',
+        plugins: {
+            json,
+            'sw-core-rules': swCoreRules,
+        },
+        rules: {
+            'sw-core-rules/require-global-default-use': 'error',
+        },
     },
 ];

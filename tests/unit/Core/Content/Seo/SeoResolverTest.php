@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
@@ -159,7 +159,7 @@ class SeoResolverTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([
             [
                 'id' => Uuid::randomHex(),
@@ -179,7 +179,7 @@ class SeoResolverTest extends TestCase
         $secondResult = FakeResultFactory::createResult([], $connection);
 
         $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
 
@@ -194,7 +194,7 @@ class SeoResolverTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([
             [
                 'id' => Uuid::randomHex(),
@@ -207,7 +207,7 @@ class SeoResolverTest extends TestCase
         $secondResult = FakeResultFactory::createResult([], $connection);
 
         $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
 
@@ -227,7 +227,7 @@ class SeoResolverTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([
             [
                 'id' => Uuid::randomHex(),
@@ -240,7 +240,7 @@ class SeoResolverTest extends TestCase
         $secondResult = FakeResultFactory::createResult([], $connection);
 
         $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
 
@@ -261,8 +261,8 @@ class SeoResolverTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $storedSeoPath = 'Latest-Product/SW10005?test12345';
 
-        $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $matchResult = FakeResultFactory::createResult([
             [
@@ -305,10 +305,10 @@ class SeoResolverTest extends TestCase
         // returns the requested path verbatim as a non-canonical result. The exact-match
         // (LIKE-removal) behaviour itself is covered by the integration test
         // testResolveSeoPathWithDifferentQueryStringDoesNotMatchCanonicalQuery against a real DB.
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $emptyResult = FakeResultFactory::createResult([], $connection);
         $connection->method('executeQuery')->willReturn($emptyResult, $emptyResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
 
@@ -342,7 +342,7 @@ class SeoResolverTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $foreignId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([
             [
                 'id' => $foreignId,
@@ -355,7 +355,7 @@ class SeoResolverTest extends TestCase
         $secondResult = FakeResultFactory::createResult([], $connection);
 
         $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
         $data = $seoResolver->resolve(Uuid::randomHex(), $salesChannelId, 'awesome-product');
@@ -377,7 +377,7 @@ class SeoResolverTest extends TestCase
         // query-bearing variant. The query-matching variant is returned SECOND, so only the
         // usort query tie-break (not insertion order) can make it win. This guards the core of
         // the fix: a request carrying `?test=123` must resolve to the row stored with that query.
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([
             [
                 'id' => Uuid::randomHex(),
@@ -397,7 +397,7 @@ class SeoResolverTest extends TestCase
         $secondResult = FakeResultFactory::createResult([], $connection);
 
         $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
 
@@ -417,7 +417,7 @@ class SeoResolverTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // First query: returns a non-canonical row pointing at /detail/1234.
         $firstResult = FakeResultFactory::createResult([
             [
@@ -437,7 +437,7 @@ class SeoResolverTest extends TestCase
         ], $connection);
 
         $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
-        $connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $seoResolver = new SeoResolver($connection);
 
@@ -448,9 +448,9 @@ class SeoResolverTest extends TestCase
         static::assertSame('/awesome-product-v2', $resolved->canonicalPathInfo);
     }
 
-    private function getMockConnection(string $salesChannelId, bool $isCanonical, string $pathInfo): Connection&MockObject
+    private function getMockConnection(string $salesChannelId, bool $isCanonical, string $pathInfo): Connection&Stub
     {
-        $mock = $this->createMock(Connection::class);
+        $mock = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([[
             'id' => Uuid::randomHex(),
             'salesChannelId' => $salesChannelId,
@@ -468,7 +468,7 @@ class SeoResolverTest extends TestCase
             ->willReturn($firstResult, $canonicalResult);
         $mock
             ->method('getDatabasePlatform')
-            ->willReturn($this->createMock(AbstractPlatform::class));
+            ->willReturn(static::createStub(AbstractPlatform::class));
 
         return $mock;
     }

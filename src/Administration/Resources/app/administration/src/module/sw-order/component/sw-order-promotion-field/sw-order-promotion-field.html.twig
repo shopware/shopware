@@ -10,12 +10,13 @@
         :placeholder="$t('sw-order.detailsTab.promotionsField.placeholderPromotions')"
         :error="promotionError"
         @on-remove-code="onRemoveExistingCode"
+        @update:code="onCodeChange"
     />
     {% endblock %}
 
     {% block sw_order_promotion_field_apply_code %}
     <mt-button
-        :disabled="!hasLineItem || isLoading || isOrderLoading || !acl.can('order.editor') || undefined"
+        :disabled="!hasLineItem || !promotionCode || isLoading || isOrderLoading || !acl.can('order.editor') || undefined"
         class="sw-order-promotion-field__apply_code__button"
         variant="secondary"
         size="default"

@@ -73,6 +73,7 @@ export default {
     data() {
         return {
             promotionError: null,
+            promotionCode: '',
             disabledAutoPromotions: false,
             promotionUpdates: [],
         };
@@ -340,6 +341,10 @@ export default {
                     .then(this.handlePromotionResponse.bind(this))
                     .catch(this.handleError.bind(this)),
             );
+        },
+
+        onCodeChange(code) {
+            this.promotionCode = code;
         },
 
         onApplyCode() {

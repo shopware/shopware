@@ -14,6 +14,7 @@ export default {
 
     emits: [
         'update:value',
+        'update:code',
         'on-remove-code',
     ],
 
@@ -35,6 +36,13 @@ export default {
             return {
                 'sw-tagged-field__tag-list--disabled': this.disabled,
             };
+        },
+    },
+
+    watch: {
+        // Mirror the typed code to the parent, e.g. to toggle its "Apply code" button.
+        newTagName(code) {
+            this.$emit('update:code', code);
         },
     },
 

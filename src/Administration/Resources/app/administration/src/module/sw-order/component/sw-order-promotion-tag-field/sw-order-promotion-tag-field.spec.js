@@ -230,6 +230,34 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
         expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 
+    it('should emit update:code when the typed code changes', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+        });
+
+        expect(wrapper.emitted('update:code')).toEqual([
+            ['SUMMER-SALE'],
+        ]);
+    });
+
+    it('should emit update:code with an empty string after the code was applied', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+        });
+
+        wrapper.vm.applyCode();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('update:code')).toEqual([
+            ['SUMMER-SALE'],
+            [''],
+        ]);
+    });
+
     it('should emit the removed promotion code tag', async () => {
         const wrapper = await createWrapper();
         const item = { code: 'SUMMER-SALE' };

@@ -303,12 +303,34 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         createStateMapper();
 
         const wrapper = await createWrapper(['order.editor']);
+        await wrapper.setData({
+            promotionCode: 'SUMMER-SALE',
+        });
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
         expect(wrapper.findComponent('.sw-order-promotion-field__apply_code__button').props('disabled')).toBeUndefined();
         expect(
             wrapper.findComponent('.sw-order-promotion-field__apply_auto_promotions__button').props('disabled'),
         ).toBeUndefined();
+    });
+
+    it('should disable the apply-code button while no code is entered', async () => {
+        createStateMapper();
+
+        const wrapper = await createWrapper(['order.editor']);
+        const applyCodeButton = wrapper.findComponent('.sw-order-promotion-field__apply_code__button');
+
+        expect(applyCodeButton.props('disabled')).toBe(true);
+
+        wrapper.vm.onCodeChange('SUMMER-SALE');
+        await wrapper.vm.$nextTick();
+
+        expect(applyCodeButton.props('disabled')).toBeUndefined();
+
+        wrapper.vm.onCodeChange('');
+        await wrapper.vm.$nextTick();
+
+        expect(applyCodeButton.props('disabled')).toBe(true);
     });
 
     it('should render an apply-code button that submits the typed code', async () => {

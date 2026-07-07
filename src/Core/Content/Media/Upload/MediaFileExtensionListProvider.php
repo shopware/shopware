@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 readonly class MediaFileExtensionListProvider
 {
     /**
-     * @param array<string> $allowedExtensions
+     * @param list<string> $allowedExtensions
      * @param list<string> $privateAllowedExtensions
      */
     public function __construct(

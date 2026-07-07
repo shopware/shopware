@@ -91,6 +91,7 @@
         "nyholm/psr7": "^1.5",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
+        "psr/container": "^2.0.2",
         "psr/simple-cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",
         "psr/http-factory": "^1.0.1",

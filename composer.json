@@ -114,6 +114,7 @@
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
+        "psr/container": "^2.0.2",
         "psr/event-dispatcher": "^1.0.0",
         "psr/http-client": "^1.0.3",
         "psr/http-factory": "^1.0.1",

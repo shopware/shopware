@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;

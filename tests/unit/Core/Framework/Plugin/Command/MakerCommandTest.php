@@ -58,7 +58,7 @@ class MakerCommandTest extends TestCase
     public function testInteractRejectsBlankPluginName(): void
     {
         $generator = new DummyScaffoldingGenerator();
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $this->createMock(ScaffoldingWriter::class), $this->createMock(PluginService::class));
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), static::createStub(ScaffoldingWriter::class), static::createStub(PluginService::class));
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -72,7 +72,7 @@ class MakerCommandTest extends TestCase
 
     public function testInteractSetsValidPluginNameOnArgument(): void
     {
-        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+        $scaffoldingWriter = static::createStub(ScaffoldingWriter::class);
 
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())
@@ -94,9 +94,9 @@ class MakerCommandTest extends TestCase
 
     public function testExecuteWithNoNameErrors(): void
     {
-        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+        $scaffoldingWriter = static::createStub(ScaffoldingWriter::class);
 
-        $pluginService = $this->createMock(PluginService::class);
+        $pluginService = static::createStub(PluginService::class);
 
         $generator = new DummyScaffoldingGenerator();
 
@@ -112,7 +112,7 @@ class MakerCommandTest extends TestCase
 
     public function testExecuteWithoutPluginPathErrors(): void
     {
-        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+        $scaffoldingWriter = static::createStub(ScaffoldingWriter::class);
 
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())

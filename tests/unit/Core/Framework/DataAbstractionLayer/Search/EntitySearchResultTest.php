@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -35,6 +36,7 @@ class EntitySearchResultTest extends TestCase
         static::assertSame($page, $result->getPage());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testSlice(): void
     {
         $entitySearchResult = $this->createEntitySearchResult();
@@ -51,6 +53,7 @@ class EntitySearchResultTest extends TestCase
         static::assertSame($entitySearchResult->getContext(), $newInstance->getContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFilter(): void
     {
         $entitySearchResult = $this->createEntitySearchResult();
@@ -69,6 +72,28 @@ class EntitySearchResultTest extends TestCase
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());
         static::assertSame($entitySearchResult->getContext(), $newInstance->getContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testMergeAcceptsPlainEntityCollection(): void
+    {
+        $existingEntity = new ArrayEntity(['id' => Uuid::randomHex()]);
+        $additionalEntity = new ArrayEntity(['id' => Uuid::randomHex()]);
+        $entityCollection = new EntityCollection([$existingEntity]);
+
+        $entitySearchResult = new EntitySearchResult(
+            ArrayEntity::class,
+            $entityCollection->count(),
+            $entityCollection,
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $entitySearchResult->merge(new EntityCollection([$existingEntity, $additionalEntity]));
+
+        static::assertSame([$existingEntity, $additionalEntity], array_values($entitySearchResult->getElements()));
+        static::assertSame([$existingEntity, $additionalEntity], array_values($entitySearchResult->getEntities()->getElements()));
     }
 
     public static function resultPageCriteriaDataProvider(): \Generator

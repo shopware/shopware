@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -31,6 +32,8 @@ class EntityIndexerRegistryTest extends TestCase
 
     private EntityIndexer&MockObject $indexerMock2;
 
+    private IndexerMetricsInstrumentor&MockObject $metricsInstrumentor;
+
     private EntityIndexerRegistry $registry;
 
     protected function setUp(): void
@@ -41,10 +44,11 @@ class EntityIndexerRegistryTest extends TestCase
         $this->dispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->indexerMock1 = $this->createMock(EntityIndexer::class);
         $this->indexerMock2 = $this->createMock(EntityIndexer::class);
+        $this->metricsInstrumentor = $this->createMock(IndexerMetricsInstrumentor::class);
 
         $indexers = [$this->indexerMock1, $this->indexerMock2];
 
-        $this->registry = new EntityIndexerRegistry($indexers, $this->messageBusMock, $this->dispatcherMock);
+        $this->registry = new EntityIndexerRegistry($indexers, $this->messageBusMock, $this->dispatcherMock, $this->metricsInstrumentor);
     }
 
     public function testIndexSuccessful(): void
@@ -72,7 +76,7 @@ class EntityIndexerRegistryTest extends TestCase
         $indexers = [$this->indexerMock1, $this->indexerMock2];
 
         $registryMock = $this->getMockBuilder(EntityIndexerRegistry::class)
-            ->setConstructorArgs([$indexers, $this->messageBusMock, $this->dispatcherMock])
+            ->setConstructorArgs([$indexers, $this->messageBusMock, $this->dispatcherMock, $this->metricsInstrumentor])
             ->onlyMethods(['index'])
             ->getMock();
 
@@ -148,6 +152,25 @@ class EntityIndexerRegistryTest extends TestCase
             ->with('skip1', 'skip2');
 
         $this->registry->refresh($eventMock);
+    }
+
+    public function testHandleIsRoutedThroughTheMetricsInstrumentor(): void
+    {
+        $message = new EntityIndexingMessage(['id-1'], null, null, false, true);
+        $message->setIndexer('indexer1');
+
+        $this->indexerMock1->method('getName')->willReturn('indexer1');
+        $this->indexerMock2->method('getName')->willReturn('indexer2');
+
+        $this->metricsInstrumentor->expects($this->once())
+            ->method('measureRun')
+            ->with($this->indexerMock1, $message, static::isInstanceOf(\Closure::class))
+            // the collaborator owns the invocation; run the callback so the indexer still handles the message
+            ->willReturnCallback(static fn (EntityIndexer $indexer, EntityIndexingMessage $msg, \Closure $callback) => $callback());
+
+        $this->indexerMock1->expects($this->once())->method('handle')->with($message);
+
+        $this->registry->__invoke($message);
     }
 
     public function testAddOnliesAddsCorrectSkips(): void

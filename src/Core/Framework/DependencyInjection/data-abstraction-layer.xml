@@ -714,7 +714,12 @@
             <argument type="tagged_iterator" tag="shopware.entity_indexer"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor"/>
             <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\EntityIndexingSubscriber" >

@@ -107,11 +107,8 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * Validates the fields requested via {@see Criteria::excludeFields()}: each must be a top-level
-     * field of the entity (a typo is rejected rather than silently ignored), and only properties that
-     * are nullable or have a default may be omitted — otherwise the loaded typed entity would have an
-     * uninitialized property. The actual omission happens in {@see joinBasic()} (root + translated
-     * columns) via the excluded field list.
+     * Rejects unknown fields and non-nullable, defaultless properties (which would leave the typed
+     * entity uninitialized). The actual omission happens in {@see joinBasic()}.
      *
      * @param list<string> $excludedFields
      */

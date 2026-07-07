@@ -97,11 +97,8 @@ class ProductListingLoader
     ];
 
     /**
-     * Heavy, off-page columns dropped from listings when `core.listing.partialDataLoading` is
-     * enabled. Reduced loading still returns full, typed product entities (and all associations) —
-     * only these columns are skipped via {@see Criteria::excludeFields()}. They are never rendered on
-     * a product card, and excluding them does not affect search (ranking happens during id
-     * resolution, not during hydration).
+     * Heavy, off-page columns dropped from listings via {@see Criteria::excludeFields()} when
+     * `core.listing.partialDataLoading` is enabled.
      *
      * @var list<string>
      */

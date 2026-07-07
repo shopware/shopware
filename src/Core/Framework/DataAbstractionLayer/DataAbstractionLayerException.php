@@ -150,9 +150,7 @@ class DataAbstractionLayerException extends HttpException
     public const UNABLE_TO_LOAD_PATH = 'FRAMEWORK__DAL_UNABLE_TO_LOAD_PATH';
 
     public const CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE = 'FRAMEWORK__DAL_CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE';
-
     public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
-
     public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
 
     public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self

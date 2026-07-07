@@ -70,7 +70,7 @@ class MediaDownloadController extends AbstractController
 
     private function getMedia(string $mediaId, Context $context): MediaEntity
     {
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->first();
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->first();
 
         if (!$media instanceof MediaEntity) {
             throw MediaException::mediaNotFound($mediaId);

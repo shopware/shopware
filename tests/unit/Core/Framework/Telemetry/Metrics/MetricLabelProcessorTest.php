@@ -23,7 +23,7 @@ class MetricLabelProcessorTest extends TestCase
 {
     public function testUnknownLabelNameThrowsInDev(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'dev');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'dev');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], []);
 
         $this->expectExceptionObject(TelemetryException::unknownMetricLabel('test', 'unknown'));
@@ -33,7 +33,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testUnknownLabelNameThrowsInTest(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'test');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'test');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], []);
 
         $this->expectExceptionObject(TelemetryException::unknownMetricLabel('test', 'unknown'));
@@ -56,7 +56,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testOpenPolicyPassesThroughAnyValue(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
             'status' => new LabelConfig(policy: LabelPolicy::OPEN),
         ]);
@@ -68,7 +68,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testAllowedValuePassesThrough(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
             'method' => new LabelConfig(allowedValues: ['GET', 'POST']),
         ]);
@@ -80,7 +80,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testUnknownValueWithReplacePolicyReplacesValue(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
             'method' => new LabelConfig(allowedValues: ['GET', 'POST'], policy: LabelPolicy::REPLACE),
         ]);
@@ -92,7 +92,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testUnknownValueWithDiscardPolicyReturnsNull(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::GAUGE, true, [], [
             'region' => new LabelConfig(allowedValues: ['eu', 'us'], policy: LabelPolicy::DISCARD),
         ]);
@@ -105,7 +105,7 @@ class MetricLabelProcessorTest extends TestCase
     #[DataProvider('additiveTypeProvider')]
     public function testDefaultPolicyForAdditiveTypesIsReplace(Type $type): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', $type, true, [], [
             'method' => new LabelConfig(allowedValues: ['GET']),
         ]);
@@ -127,7 +127,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testDefaultPolicyForGaugeIsDiscard(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::GAUGE, true, [], [
             'region' => new LabelConfig(allowedValues: ['eu']),
         ]);
@@ -139,7 +139,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testMultipleLabelsProcessedCorrectly(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
             'method' => new LabelConfig(allowedValues: ['GET', 'POST']),
             'status' => new LabelConfig(policy: LabelPolicy::OPEN),
@@ -152,7 +152,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testEmptyLabelsReturnsEmptyArray(): void
     {
-        $processor = new MetricLabelProcessor('other', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('other', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true);
 
         $result = $processor->process($config, []);
@@ -162,7 +162,7 @@ class MetricLabelProcessorTest extends TestCase
 
     public function testCustomReplacementValue(): void
     {
-        $processor = new MetricLabelProcessor('_unknown_', $this->createMock(LoggerInterface::class), 'prod');
+        $processor = new MetricLabelProcessor('_unknown_', static::createStub(LoggerInterface::class), 'prod');
         $config = new MetricConfig('test', 'desc', Type::COUNTER, true, [], [
             'method' => new LabelConfig(allowedValues: ['GET']),
         ]);

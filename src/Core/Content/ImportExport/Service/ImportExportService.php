@@ -119,7 +119,7 @@ class ImportExportService
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('file');
-        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
+        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         if (!$current instanceof ImportExportLogEntity) {
             throw ImportExportException::logEntityNotFound($logId);
         }

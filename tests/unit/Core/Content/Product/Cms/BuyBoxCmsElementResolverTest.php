@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -62,13 +63,11 @@ class BuyBoxCmsElementResolverTest extends TestCase
 
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
-        $result = static::createStub(EntitySearchResult::class);
-
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result->method('get')
-            ->willReturn($product);
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);

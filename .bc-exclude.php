@@ -131,5 +131,8 @@ return [
         // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
+
+        // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
+        'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
     ],
 ];

@@ -84,28 +84,28 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 151,
             ],
             [
+                'ReturnTypeNarrowing on "UnresolvableTypePayloads::shortClassName()": announced type "UnimportedShortName" references the unresolvable class "UnimportedShortName". Reference classes fully qualified via ::class so tooling can resolve them.',
+                173,
+            ],
+            [
                 'ExceptionChange on "ExceptionChangeCases::narrowingIsCovered()": every announced exception is already covered by the current "@throws" contract. Throwing narrower exceptions is not a BC change; apply it directly instead of announcing it.',
-                205,
+                216,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::unchangedIsCovered()": every announced exception is already covered by the current "@throws" contract. Throwing narrower exceptions is not a BC change; apply it directly instead of announcing it.',
-                213,
+                224,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::notAThrowable()": announced class "ArrayObject" is not a Throwable.',
-                221,
+                232,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::unresolvableExceptionClass()": announced exception "UnimportedException" is not a resolvable class. Reference exception classes via ::class.',
-                229,
+                240,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::emptyAnnouncement()": "newExceptions" must announce at least one exception class.',
-                237,
-            ],
-            [
-                'ReturnTypeNarrowing on "UnresolvableTypePayloads::shortClassName()": announced type "UnimportedShortName" references the unresolvable class "UnimportedShortName". Reference classes fully qualified via ::class so tooling can resolve them.',
-                172,
+                248,
             ],
         ]);
     }

@@ -420,8 +420,7 @@ class DocumentConfigLoaderTest extends TestCase
     private function createSystemConfigService(
         ?array $companyInfo = null,
         ?string $expectedSalesChannelId = null,
-    ): SystemConfigService
-    {
+    ): SystemConfigService {
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getDomain')
             ->willReturnCallback(function (string $domain, ?string $salesChannelId) use ($companyInfo, $expectedSalesChannelId): array {

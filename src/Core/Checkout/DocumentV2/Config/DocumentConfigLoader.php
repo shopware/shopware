@@ -212,7 +212,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             return null;
         }
 
-        $logo = $this->mediaRepository->search(new Criteria([$logoId]), $context)->first();
+        $logo = $this->mediaRepository->search(new Criteria([$logoId]), $context)->getEntities()->first();
 
         return $logo instanceof MediaEntity ? $logo : null;
     }

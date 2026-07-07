@@ -140,7 +140,9 @@ describe('components/form/sw-form-field-renderer', () => {
             },
         });
 
-        await wrapper.getComponent({ name: 'sw-media-compact-upload-v2' }).vm.$emit('selection-change', [{ id: 'media-id' }]);
+        await wrapper
+            .getComponent({ name: 'sw-media-compact-upload-v2' })
+            .vm.$emit('selection-change', [{ id: 'media-id' }]);
 
         expect(wrapper.emitted('update:value')).toBeTruthy();
         expect(wrapper.emitted('update:value').at(-1)).toEqual(['media-id']);

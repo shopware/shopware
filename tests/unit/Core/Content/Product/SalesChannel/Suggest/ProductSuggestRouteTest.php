@@ -50,15 +50,15 @@ class ProductSuggestRouteTest extends TestCase
         $this->expectExceptionObject(ProductException::missingRequestParameter('search'));
 
         $route = new ResolvedCriteriaProductSuggestRoute(
-            $this->createMock(ProductSearchBuilderInterface::class),
+            static::createStub(ProductSearchBuilderInterface::class),
             new EventDispatcher(),
-            $this->createMock(AbstractProductSuggestRoute::class),
+            static::createStub(AbstractProductSuggestRoute::class),
             new CompositeListingProcessor([])
         );
 
         $route->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria()
         );
     }
@@ -81,7 +81,7 @@ class ProductSuggestRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSuggestRoute()->load(

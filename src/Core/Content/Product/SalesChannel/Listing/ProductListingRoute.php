@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -42,7 +43,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -167,7 +168,15 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productStreamId = $category->get('productStreamId');
         \assert(\is_string($productStreamId));
 
-        return array_values($this->productStreamBuilder->buildFilters(
+        $productStreamBuilder = $this->productStreamBuilder;
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            $streamCriteria = new Criteria();
+            $productStreamBuilder->enrichCriteria($streamCriteria, $productStreamId, $salesChannelContext->getContext());
+
+            return array_values($streamCriteria->getFilters());
+        }
+
+        return array_values($productStreamBuilder->buildFilters(
             $productStreamId,
             $salesChannelContext->getContext()
         ));

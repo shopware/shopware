@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -24,11 +24,11 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[CoversClass(PresignedUploadUrlGenerator::class)]
 class PresignedUploadUrlGeneratorTest extends TestCase
 {
-    private AbstractMediaPathStrategy&MockObject $mediaPathStrategy;
+    private AbstractMediaPathStrategy&Stub $mediaPathStrategy;
 
     protected function setUp(): void
     {
-        $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
+        $this->mediaPathStrategy = static::createStub(AbstractMediaPathStrategy::class);
         $this->mediaPathStrategy->method('name')->willReturn('test-strategy');
     }
 

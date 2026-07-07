@@ -32,6 +32,8 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertSameUnit(): void
     {
+        $this->unitProvider->expects($this->never())->method('getUnitInfo');
+
         $result = $this->converter->convert(10.5, 'mm', 'mm');
 
         static::assertSame(10.5, $result->value);
@@ -159,6 +161,8 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->unitProvider->expects($this->never())->method('getUnitInfo');
+
         static::expectException(DecorationPatternException::class);
 
         $this->converter->getDecorated();

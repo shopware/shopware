@@ -5,14 +5,13 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\CodeCoverageIgnoreEvaluationRuleTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see CodeCoverageIgnoreEvaluationRuleTest
+ * @see \Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\CodeCoverageIgnoreEvaluationRuleTest
  */
 #[Package('framework')]
 final class Errors

@@ -105,7 +105,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         $conditionRepository = $this->createConditionRepository(...$conditionIds);
 
         $persister = new RuleConditionLifecycleHandler(
-            $this->createMock(ScriptFileReader::class),
+            static::createStub(ScriptFileReader::class),
             $conditionRepository,
             AppFixture::createAppRepository($app),
         );
@@ -125,7 +125,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         $conditionRepository = $this->createConditionRepository(...$conditionIds);
 
         $persister = new RuleConditionLifecycleHandler(
-            $this->createMock(ScriptFileReader::class),
+            static::createStub(ScriptFileReader::class),
             $conditionRepository,
             AppFixture::createAppRepository($app),
         );

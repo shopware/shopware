@@ -47,7 +47,7 @@ class ThemeCompileCommandTest extends TestCase
     #[DataProvider('getOptionsValue')]
     public function testItPassesActiveOnlyFlagCorrectly(bool $activeOnly): void
     {
-        $themeService = static::createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
         $themeProvider->expects($this->once())

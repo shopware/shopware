@@ -31,9 +31,9 @@ class ShippingMethodRouteTest extends TestCase
     public function testGetDecorated(): void
     {
         $route = new ShippingMethodRoute(
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(CacheTagCollector::class),
-            $this->createMock(ScriptExecutor::class),
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(CacheTagCollector::class),
+            static::createStub(ScriptExecutor::class),
             new RuleIdMatcher(),
         );
 
@@ -74,8 +74,8 @@ class ShippingMethodRouteTest extends TestCase
 
         $route = new ShippingMethodRoute(
             $repo,
-            $this->createMock(CacheTagCollector::class),
-            $this->createMock(ScriptExecutor::class),
+            static::createStub(CacheTagCollector::class),
+            static::createStub(ScriptExecutor::class),
             new RuleIdMatcher()
         );
 
@@ -131,7 +131,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $route = new ShippingMethodRoute(
             $repo,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             $executor,
             new RuleIdMatcher()
         );

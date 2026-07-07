@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
@@ -341,6 +342,7 @@ class ProductListingTest extends TestCase
                 'stock' => 10,
                 'name' => $key,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
                 ],

@@ -22,7 +22,7 @@ class ValidatorTest extends TestCase
     public function testValidate(): void
     {
         $mockValidator = $this->createMock(CartValidatorInterface::class);
-        $mockValidator2 = new class($this->createMock(Error::class)) implements CartValidatorInterface {
+        $mockValidator2 = new class($this->createStub(Error::class)) implements CartValidatorInterface {
             public function __construct(private readonly Error $error)
             {
             }
@@ -36,7 +36,7 @@ class ValidatorTest extends TestCase
             }
         };
         $validator = new Validator([$mockValidator, $mockValidator2]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $cart = new Cart('test');
 
         $mockValidator->expects($this->once())->method('validate')->with($cart, static::anything(), $context);

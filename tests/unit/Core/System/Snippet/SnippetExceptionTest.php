@@ -77,7 +77,7 @@ class SnippetExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SnippetException::SNIPPET_NO_LOCALES_ARGUMENT_PROVIDED, $exception->getErrorCode());
-        static::assertSame('The --locales argument must not be empty.', $exception->getMessage());
+        static::assertSame('At least one locale must be provided.', $exception->getMessage());
     }
 
     public function testInvalidLocalesProvided(): void

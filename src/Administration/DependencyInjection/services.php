@@ -50,13 +50,14 @@ use Shopware\Core\System\Tag\Service\FilterTagIdsService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
         ->set('env(SHOPWARE_ADMINISTRATION_PATH_NAME)', 'admin')
-        ->set('shopware_administration.path_name', '%env(resolve:SHOPWARE_ADMINISTRATION_PATH_NAME)%');
+        ->set('shopware_administration.path_name', env('SHOPWARE_ADMINISTRATION_PATH_NAME')->resolve());
 
     $services = $containerConfigurator->services();
 
@@ -99,10 +100,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service('parameter_bag'),
             service('shopware.filesystem.asset'),
-            '%env(SERVICE_REGISTRY_URL)%',
+            env('SERVICE_REGISTRY_URL'),
             service('language.repository'),
             service(SymfonyBearerTokenValidator::class),
-            '%env(PRODUCT_ANALYTICS_GATEWAY_URL)%',
+            env('PRODUCT_ANALYTICS_GATEWAY_URL'),
             service(CustomerEmailUniqueChecker::class),
             param('shopware.api.refresh_token_ttl'),
         ])

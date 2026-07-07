@@ -101,6 +101,7 @@ use Shopware\Elasticsearch\TokenQueryBuilder;
 use Shopware\Elasticsearch\TranslatedFieldQueryBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -541,12 +542,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             [
-                '%env(bool:SHOPWARE_ES_ENABLED)%',
-                '%env(bool:SHOPWARE_ES_INDEXING_ENABLED)%',
-                '%env(string:OPENSEARCH_URL)%',
-                '%env(string:SHOPWARE_ES_INDEX_PREFIX)%',
-                '%env(bool:SHOPWARE_ES_THROW_EXCEPTION)%',
-                '%env(int:SHOPWARE_ES_INDEXING_BATCH_SIZE)%',
+                env('SHOPWARE_ES_ENABLED')->bool(),
+                env('SHOPWARE_ES_INDEXING_ENABLED')->bool(),
+                env('OPENSEARCH_URL')->string(),
+                env('SHOPWARE_ES_INDEX_PREFIX')->string(),
+                env('SHOPWARE_ES_THROW_EXCEPTION')->bool(),
+                env('SHOPWARE_ES_INDEXING_BATCH_SIZE')->int(),
             ],
         ]);
 

@@ -87,7 +87,7 @@ export default class ZoomModalPlugin extends Plugin {
     _registerEvents() {
         this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
         this._triggersCanvas = this.el.querySelectorAll(
-          this.options.triggerSelectorCanvas,
+            this.options.triggerSelectorCanvas,
         );
 
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';

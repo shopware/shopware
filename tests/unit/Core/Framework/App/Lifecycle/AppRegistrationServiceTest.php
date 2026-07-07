@@ -9,6 +9,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\NullLogger;
@@ -67,23 +68,23 @@ class AppRegistrationServiceTest extends TestCase
     private MockHandler $mockHandler;
 
     /**
-     * @var EntityRepository<AppCollection>&MockObject
+     * @var EntityRepository<AppCollection>&Stub
      */
-    private EntityRepository&MockObject $appRepositoryMock;
+    private EntityRepository&Stub $appRepositoryMock;
 
     private AppRegistrationService $appRegistrationService;
 
-    private Meter&MockObject $meterMock;
+    private Meter&Stub $meterMock;
 
     private AppEntity $testApp;
 
     protected function setUp(): void
     {
         $this->handshakeFactoryMock = $this->createMock(HandshakeFactory::class);
-        $this->meterMock = $this->createMock(Meter::class);
+        $this->meterMock = static::createStub(Meter::class);
 
         $this->mockHandler = new MockHandler([]);
-        $this->appRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->appRepositoryMock = static::createStub(EntityRepository::class);
         $this->testApp = $this->createAppEntity();
         $this->appRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
@@ -96,20 +97,7 @@ class AppRegistrationServiceTest extends TestCase
             )
         );
 
-        $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
-        $shopIdProviderMock->method('getShopId')->willReturn(ShopId::v2('shop-id'));
-
-        $this->appRegistrationService = new AppRegistrationService(
-            $this->handshakeFactoryMock,
-            new Client(['handler' => $this->mockHandler]),
-            $this->appRepositoryMock,
-            'https://shopware.swag',
-            $shopIdProviderMock,
-            '6.5.2.0',
-            new NativeClock(),
-            new NullLogger(),
-            $this->meterMock,
-        );
+        $this->appRegistrationService = $this->createService($this->appRepositoryMock);
     }
 
     public function testDoesNotRegisterAtAppServerIfManifestHasNoSetup(): void
@@ -209,8 +197,10 @@ class AppRegistrationServiceTest extends TestCase
 
         // Two-phase commit: the new secret is saved as *unconfirmed* (with a timestamp) before the confirm
         // call, then promoted to app_secret and the unconfirmed fields cleared once the app accepts it.
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->stubSearchForTestApp($appRepositoryMock);
         $update = $this->exactly(2);
-        $this->appRepositoryMock->expects($update)
+        $appRepositoryMock->expects($update)
             ->method('update')
             ->willReturnCallback(function (array $payload) use ($update): EntityWrittenContainerEvent {
                 $isFirstUpdate = $update->numberOfInvocations() === 1;
@@ -230,10 +220,11 @@ class AppRegistrationServiceTest extends TestCase
                     );
                 }
 
-                return $this->createMock(EntityWrittenContainerEvent::class);
+                return static::createStub(EntityWrittenContainerEvent::class);
             });
 
-        $this->registerTestApp($manifest);
+        $this->createService($appRepositoryMock)
+            ->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
     }
 
     public function testRegisterAppDoesNotPersistUnconfirmedSecretWhenConfirmationPayloadCannotBeBuilt(): void
@@ -249,26 +240,17 @@ class AppRegistrationServiceTest extends TestCase
             ], SymfonyResponse::HTTP_BAD_REQUEST),
         );
 
-        $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
+        $shopIdProviderMock = static::createStub(ShopIdProvider::class);
         $shopIdProviderMock->method('getShopId')->willThrowException(new \RuntimeException('shop id backend failed'));
 
-        $this->appRegistrationService = new AppRegistrationService(
-            $this->handshakeFactoryMock,
-            new Client(['handler' => $this->mockHandler]),
-            $this->appRepositoryMock,
-            'https://shopware.swag',
-            $shopIdProviderMock,
-            '6.5.2.0',
-            new NativeClock(),
-            new NullLogger(),
-            $this->meterMock,
-        );
-
-        $this->appRepositoryMock->expects($this->never())->method('update');
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->stubSearchForTestApp($appRepositoryMock);
+        $appRepositoryMock->expects($this->never())->method('update');
 
         $this->expectExceptionObject(new \RuntimeException('shop id backend failed'));
 
-        $this->registerTestApp($manifest);
+        $this->createService($appRepositoryMock, $shopIdProviderMock)
+            ->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
     }
 
     public function testRegisterAppKeepsPendingSecretWhenHandshakeFailsWithClientError(): void
@@ -282,10 +264,13 @@ class AppRegistrationServiceTest extends TestCase
             new ClientException('app rejected the handshake', $handshakeRequest, new Response(SymfonyResponse::HTTP_FORBIDDEN)),
         );
 
-        $this->appRepositoryMock->expects($this->never())->method('update');
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->stubSearchForTestApp($appRepositoryMock);
+        $appRepositoryMock->expects($this->never())->method('update');
 
         $this->expectException(AppException::class);
-        $this->registerTestApp($manifest);
+        $this->createService($appRepositoryMock)
+            ->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidJson(): void
@@ -361,6 +346,49 @@ class AppRegistrationServiceTest extends TestCase
     }
 
     /**
+     * Wire a per-test app repository (a real mock, so the test can constrain update() — which the shared
+     * setUp double, a pure stub, cannot) to resolve the shared test app, like the setUp repository does.
+     *
+     * @param EntityRepository<AppCollection>&MockObject $appRepository
+     */
+    private function stubSearchForTestApp(EntityRepository&MockObject $appRepository): void
+    {
+        $appRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'app',
+                1,
+                new AppCollection([$this->testApp]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+    }
+
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
+    private function createService(EntityRepository $appRepository, ?ShopIdProvider $shopIdProvider = null): AppRegistrationService
+    {
+        if ($shopIdProvider === null) {
+            $shopIdProvider = static::createStub(ShopIdProvider::class);
+            $shopIdProvider->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+        }
+
+        return new AppRegistrationService(
+            $this->handshakeFactoryMock,
+            new Client(['handler' => $this->mockHandler]),
+            $appRepository,
+            'https://shopware.swag',
+            $shopIdProvider,
+            '6.5.2.0',
+            new NativeClock(),
+            new NullLogger(),
+            $this->meterMock,
+        );
+    }
+
+    /**
      * Wire the handshake factory to return a handshake whose request the service will send. The request's
      * contents are never asserted — it only needs to be a non-null request the MockHandler can answer (and
      * that a RequestException can carry) — so a single shared instance stands in for all callers.
@@ -382,7 +410,7 @@ class AppRegistrationServiceTest extends TestCase
             new NativeClock()
         ))->assembleRequest();
 
-        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
         $handshakeMock->method('assembleRequest')->willReturn($handshakeRequest);
         if ($appProof !== null) {
             $handshakeMock->method('fetchAppProof')->willReturn($appProof);

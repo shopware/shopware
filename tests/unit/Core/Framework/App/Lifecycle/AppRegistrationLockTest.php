@@ -25,7 +25,7 @@ class AppRegistrationLockTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(true);
 
         $factory = $this->createMock(LockFactory::class);
@@ -43,10 +43,10 @@ class AppRegistrationLockTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(false);
 
-        $factory = $this->createMock(LockFactory::class);
+        $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
 
         $this->expectExceptionObject(AppException::appSecretRotationInProgress($appId));
@@ -58,10 +58,10 @@ class AppRegistrationLockTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willThrowException(new LockConflictedException());
 
-        $factory = $this->createMock(LockFactory::class);
+        $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
 
         $this->expectExceptionObject(AppException::appSecretRotationInProgress($appId));
@@ -76,10 +76,10 @@ class AppRegistrationLockTest extends TestCase
         // escaping raw and breaking a background flow.
         $appId = Uuid::randomHex();
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willThrowException(new LockAcquiringException('lock store is down'));
 
-        $factory = $this->createMock(LockFactory::class);
+        $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
 
         $this->expectExceptionObject(AppException::appSecretLockUnavailable($appId));
@@ -93,7 +93,7 @@ class AppRegistrationLockTest extends TestCase
         $lock->method('acquire')->willReturn(true);
         $lock->expects($this->once())->method('release');
 
-        $factory = $this->createMock(LockFactory::class);
+        $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
 
         $result = (new AppRegistrationLock($factory, new NullLogger()))
@@ -108,7 +108,7 @@ class AppRegistrationLockTest extends TestCase
         $lock->method('acquire')->willReturn(true);
         $lock->expects($this->once())->method('release');
 
-        $factory = $this->createMock(LockFactory::class);
+        $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
 
         $this->expectExceptionObject(new \RuntimeException('operation failed'));
@@ -122,7 +122,7 @@ class AppRegistrationLockTest extends TestCase
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())->method('refresh');
 
-        $registrationLock = new AppRegistrationLock($this->createMock(LockFactory::class), new NullLogger());
+        $registrationLock = new AppRegistrationLock(static::createStub(LockFactory::class), new NullLogger());
         $registrationLock->refresh($lock, Uuid::randomHex());
     }
 
@@ -130,10 +130,10 @@ class AppRegistrationLockTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('refresh')->willThrowException(new LockConflictedException());
 
-        $registrationLock = new AppRegistrationLock($this->createMock(LockFactory::class), new NullLogger());
+        $registrationLock = new AppRegistrationLock(static::createStub(LockFactory::class), new NullLogger());
 
         $this->expectExceptionObject(AppException::appSecretRotationInProgress($appId));
 
@@ -144,10 +144,10 @@ class AppRegistrationLockTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('refresh')->willThrowException(new LockAcquiringException('lock store is down'));
 
-        $registrationLock = new AppRegistrationLock($this->createMock(LockFactory::class), new NullLogger());
+        $registrationLock = new AppRegistrationLock(static::createStub(LockFactory::class), new NullLogger());
 
         $this->expectExceptionObject(AppException::appSecretLockUnavailable($appId));
 
@@ -158,11 +158,11 @@ class AppRegistrationLockTest extends TestCase
     {
         // A store failure while releasing must not mask the operation's real outcome (the lock self-expires
         // anyway) — it is logged, and the operation's result still reaches the caller.
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(true);
         $lock->method('release')->willThrowException(new LockReleasingException('lock store is down'));
 
-        $factory = $this->createMock(LockFactory::class);
+        $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
 
         $logger = $this->createMock(LoggerInterface::class);

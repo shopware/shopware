@@ -157,7 +157,7 @@ class AppLifecycleIteratorTest extends TestCase
         $existingApp->set('unconfirmedAppSecrets', 'left-over-pending');
 
         // The app is not on disk, so without the pending-secret guard the cleanup would uninstall it.
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
 
         /** @var StaticEntityRepository<AppCollection> */
         $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);

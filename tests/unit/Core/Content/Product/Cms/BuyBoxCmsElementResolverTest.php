@@ -37,7 +37,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
         $repository = new StaticEntityRepository([]);
 
         $resolver = new BuyBoxCmsElementResolver(
-            $this->createMock(ProductConfiguratorLoader::class),
+            static::createStub(ProductConfiguratorLoader::class),
             $repository,
         );
 
@@ -46,9 +46,9 @@ class BuyBoxCmsElementResolverTest extends TestCase
 
     public function testEnrichBuyBox(): void
     {
-        $configurationLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $configurationLoader = static::createStub(ProductConfiguratorLoader::class);
         /** @var EntityRepository<ProductReviewCollection>&MockObject */
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('aggregate')->willReturn(new AggregationResultCollection());
 
         $resolver = new BuyBoxCmsElementResolver($configurationLoader, $repository);
@@ -62,13 +62,12 @@ class BuyBoxCmsElementResolverTest extends TestCase
 
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
 
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
         $result->method('get')
-            ->with($productId)
             ->willReturn($product);
 
         $data = new ElementDataCollection();
@@ -86,7 +85,7 @@ class BuyBoxCmsElementResolverTest extends TestCase
 
     public function testEnrichSetsEmptyBuyBoxWithoutConfig(): void
     {
-        $configurationLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $configurationLoader = static::createStub(ProductConfiguratorLoader::class);
 
         /** @var StaticEntityRepository<ProductReviewCollection> */
         $repository = new StaticEntityRepository([]);

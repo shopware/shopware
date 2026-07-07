@@ -10,7 +10,7 @@ use Mcp\Schema\Prompt;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
@@ -26,16 +26,16 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 #[Package('framework')]
 class AppMcpPromptLoaderTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private AppMcpCapabilityExecutor&MockObject $executor;
+    private AppMcpCapabilityExecutor&Stub $executor;
 
     private AppMcpPromptLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->executor = $this->createMock(AppMcpCapabilityExecutor::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
         $this->loader = new AppMcpPromptLoader($this->connection, $this->executor, new NullLogger());
     }
 
@@ -43,8 +43,7 @@ class AppMcpPromptLoaderTest extends TestCase
     {
         $exception = new class('DB error') extends \Exception implements DBALException {};
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willThrowException($exception);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -64,8 +63,7 @@ class AppMcpPromptLoaderTest extends TestCase
             'description' => 'Context for order management',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$promptRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -162,10 +160,12 @@ class AppMcpPromptLoaderTest extends TestCase
 
         $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
 
-        $this->executor->expects($this->once())
+        $executor = $this->createMock(AppMcpCapabilityExecutor::class);
+        $executor->expects($this->once())
             ->method('execute')
             ->with('my-app-order-context', 'test-secret', 'https://app.example.com/mcp/prompt/order-context', [])
             ->willReturn('{"messages":[]}');
+        $loader = new AppMcpPromptLoader($this->connection, $executor, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -175,7 +175,7 @@ class AppMcpPromptLoaderTest extends TestCase
                 $capturedCallback = $callback;
             });
 
-        $this->loader->load($registry);
+        $loader->load($registry);
 
         static::assertNotNull($capturedCallback);
 
@@ -190,8 +190,7 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testLoadWithEmptyResultRegistersNoPrompts(): void
     {
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([]);
 
         $registry = $this->createMock(RegistryInterface::class);

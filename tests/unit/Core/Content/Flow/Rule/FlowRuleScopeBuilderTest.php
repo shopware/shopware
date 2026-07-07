@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
@@ -25,9 +26,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(FlowRuleScopeBuilder::class)]
 class FlowRuleScopeBuilderTest extends TestCase
 {
-    private MockObject&OrderConverter $orderConverter;
+    private Stub&OrderConverter $orderConverter;
 
-    private MockObject&DeliveryBuilder $deliveryBuilder;
+    private Stub&DeliveryBuilder $deliveryBuilder;
 
     private MockObject&CartDataCollectorInterface $cartDataCollector;
 
@@ -35,15 +36,15 @@ class FlowRuleScopeBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderConverter = $this->createMock(OrderConverter::class);
-        $this->deliveryBuilder = $this->createMock(DeliveryBuilder::class);
+        $this->orderConverter = static::createStub(OrderConverter::class);
+        $this->deliveryBuilder = static::createStub(DeliveryBuilder::class);
         $this->cartDataCollector = $this->createMock(CartDataCollectorInterface::class);
         $this->scopeBuilder = new FlowRuleScopeBuilder($this->orderConverter, $this->deliveryBuilder, [$this->cartDataCollector]);
     }
 
     public function testBuild(): void
     {
-        $mockContext = $this->createMock(SalesChannelContext::class);
+        $mockContext = static::createStub(SalesChannelContext::class);
         $cart = new Cart('test');
         $this->orderConverter->method('assembleSalesChannelContext')->willReturn($mockContext);
         $this->orderConverter->method('convertToCart')->willReturn($cart);

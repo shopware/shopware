@@ -7,7 +7,6 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -37,24 +36,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(McpAllowlistFilter::class)]
 class McpServerControllerTest extends TestCase
 {
-    private RateLimiter&MockObject $rateLimiter;
-
-    private McpServerController $controller;
-
     protected function setUp(): void
     {
         $_SERVER['MCP_SERVER'] = '1';
-        $this->rateLimiter = $this->createMock(RateLimiter::class);
-
-        $this->controller = new McpServerController(
-            Server::builder()->build(),
-            static::createStub(HttpMessageFactoryInterface::class),
-            static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(ResponseFactoryInterface::class),
-            static::createStub(StreamFactoryInterface::class),
-            new McpRateLimiter($this->rateLimiter),
-            new McpSessionIdValidator(),
-        );
     }
 
     protected function tearDown(): void
@@ -87,16 +71,16 @@ class McpServerControllerTest extends TestCase
 
     public function testMalformedSessionIdHeaderIsRejected(): void
     {
-        $this->rateLimiter
-            ->expects($this->never())
-            ->method('ensureAccepted');
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $controller = $this->controllerWithRateLimiter($rateLimiter);
 
         $request = Request::create('/api/_mcp', 'POST');
         $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, 'not-a-uuid');
 
         $this->expectExceptionObject(McpException::invalidSessionId());
 
-        $this->controller->handle($request);
+        $controller->handle($request);
     }
 
     public function testInitializeEnrichmentKeepsEmptyCapabilityObjects(): void
@@ -299,14 +283,16 @@ class McpServerControllerTest extends TestCase
 
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
-        $this->rateLimiter->expects($this->once())
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::MCP_ADMIN_API, $expectedKey)
             ->willThrowException($rateLimitException);
+        $controller = $this->controllerWithRateLimiter($rateLimiter);
 
         $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
-        $this->controller->handle($request);
+        $controller->handle($request);
     }
 
     public function testToolCallBlockedWhenNotInAllowlist(): void
@@ -813,6 +799,19 @@ class McpServerControllerTest extends TestCase
         $response = $controller->handle(new Request());
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
+    {
+        return new McpServerController(
+            Server::builder()->build(),
+            static::createStub(HttpMessageFactoryInterface::class),
+            static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
+            static::createStub(StreamFactoryInterface::class),
+            new McpRateLimiter($rateLimiter),
+            new McpSessionIdValidator(),
+        );
     }
 
     /**

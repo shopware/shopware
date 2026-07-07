@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use Monolog\Level;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
@@ -41,7 +42,7 @@ use Symfony\Component\Mime\Header\HeaderInterface;
 class MailServiceTest extends TestCase
 {
     /**
-     * @var MockObject&StringTemplateRenderer
+     * @var Stub&StringTemplateRenderer
      */
     private StringTemplateRenderer $templateRenderer;
 
@@ -51,11 +52,9 @@ class MailServiceTest extends TestCase
     private AbstractMailFactory $mailFactory;
 
     /**
-     * @var MockObject&EventDispatcherInterface
+     * @var Stub&EventDispatcherInterface
      */
     private EventDispatcherInterface $eventDispatcher;
-
-    private MailService $mailService;
 
     /**
      * @var MockObject&EntityRepository<SalesChannelCollection>
@@ -63,43 +62,29 @@ class MailServiceTest extends TestCase
     private EntityRepository $salesChannelRepository;
 
     /**
-     * @var MockObject&LoggerInterface
+     * @var Stub&LoggerInterface
      */
     private LoggerInterface $logger;
 
     /**
-     * @var MockObject&AbstractMailSender
+     * @var Stub&AbstractMailSender
      */
     private AbstractMailSender $mailSender;
 
     /**
-     * @var MockObject&LanguageLocaleCodeProvider
+     * @var Stub&LanguageLocaleCodeProvider
      */
     private LanguageLocaleCodeProvider $languageLocaleCodeProvider;
 
     protected function setUp(): void
     {
         $this->mailFactory = $this->createMock(AbstractMailFactory::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->templateRenderer = static::createStub(StringTemplateRenderer::class);
         $this->salesChannelRepository = $this->createMock(EntityRepository::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->mailSender = $this->createMock(AbstractMailSender::class);
-        $this->languageLocaleCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-
-        $this->mailService = new MailService(
-            $this->createMock(DataValidator::class),
-            $this->templateRenderer,
-            $this->mailFactory,
-            $this->mailSender,
-            $this->createMock(EntityRepository::class),
-            $this->salesChannelRepository,
-            $this->createMock(SystemConfigService::class),
-            $this->eventDispatcher,
-            $this->logger,
-            $this->languageLocaleCodeProvider,
-            new MailTemplateContentBuilder(),
-        );
+        $this->logger = static::createStub(LoggerInterface::class);
+        $this->mailSender = static::createStub(AbstractMailSender::class);
+        $this->languageLocaleCodeProvider = static::createStub(LanguageLocaleCodeProvider::class);
     }
 
     public function testSendMailSuccess(): void
@@ -138,14 +123,16 @@ class MailServiceTest extends TestCase
             ->from(new Address($data['senderEmail']));
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
-        $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
-        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailTemplateRenderContextEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher)->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }
@@ -189,8 +176,10 @@ class MailServiceTest extends TestCase
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
 
-        $this->logger->expects($this->once())->method('log')->with(Level::Warning);
-        $this->eventDispatcher->expects($this->exactly(3))
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('log')->with(Level::Warning);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
             ->willReturnCallback(static function (ShopwareEvent $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
@@ -208,9 +197,10 @@ class MailServiceTest extends TestCase
                 return $event;
             });
 
-        $this->templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
 
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher, logger: $logger)->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -256,8 +246,10 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
-        $this->logger->expects($this->once())->method('log')->with(Level::Error);
-        $this->eventDispatcher->expects($this->exactly(5))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('log')->with(Level::Error);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(5))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailTemplateRenderContextEvent::class),
             static::isInstanceOf(MailErrorEvent::class),
@@ -273,7 +265,7 @@ class MailServiceTest extends TestCase
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
 
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(eventDispatcher: $eventDispatcher, logger: $logger)->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }
@@ -314,9 +306,11 @@ class MailServiceTest extends TestCase
             ->from(new Address($data['senderEmail']));
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
-        $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
 
-        $this->logger->expects($this->once())->method('log')->with(Level::Error);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('log')->with(Level::Error);
 
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
@@ -337,9 +331,10 @@ class MailServiceTest extends TestCase
                 return $event;
             });
 
-        $this->mailSender->expects($this->once())->method('send')->willThrowException(new \Exception('Mail sending failed'));
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $mailSender->expects($this->once())->method('send')->willThrowException(new \Exception('Mail sending failed'));
 
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(templateRenderer: $templateRenderer, mailSender: $mailSender, logger: $logger)->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -388,16 +383,19 @@ class MailServiceTest extends TestCase
             ->from(new Address($data['senderEmail']));
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
-        $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
-        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailTemplateRenderContextEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );
-        $this->languageLocaleCodeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn('en-GB');
+        $languageLocaleCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $languageLocaleCodeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn('en-GB');
 
-        $email = $this->mailService->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher, languageLocaleCodeProvider: $languageLocaleCodeProvider)->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
         $headers = $email->getHeaders();
@@ -409,5 +407,27 @@ class MailServiceTest extends TestCase
             static::assertInstanceOf(HeaderInterface::class, $header);
             static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
         }
+    }
+
+    private function createMailService(
+        ?StringTemplateRenderer $templateRenderer = null,
+        ?AbstractMailSender $mailSender = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?LoggerInterface $logger = null,
+        ?LanguageLocaleCodeProvider $languageLocaleCodeProvider = null,
+    ): MailService {
+        return new MailService(
+            static::createStub(DataValidator::class),
+            $templateRenderer ?? $this->templateRenderer,
+            $this->mailFactory,
+            $mailSender ?? $this->mailSender,
+            static::createStub(EntityRepository::class),
+            $this->salesChannelRepository,
+            static::createStub(SystemConfigService::class),
+            $eventDispatcher ?? $this->eventDispatcher,
+            $logger ?? $this->logger,
+            $languageLocaleCodeProvider ?? $this->languageLocaleCodeProvider,
+            new MailTemplateContentBuilder(),
+        );
     }
 }

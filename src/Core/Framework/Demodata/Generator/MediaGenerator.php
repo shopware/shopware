@@ -124,7 +124,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_values(array_map(
                     static fn (string $id) => ['id' => $id],
                     $chosenTags

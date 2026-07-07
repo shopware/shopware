@@ -25,13 +25,13 @@ class StaticFileConfigDumperTest extends TestCase
     public function testDumping(): void
     {
         $salesChannelToTheme = new StorefrontPluginConfiguration('Test');
-        $loader = $this->createMock(DatabaseConfigLoader::class);
+        $loader = static::createStub(DatabaseConfigLoader::class);
         $loader->method('load')->willReturn($salesChannelToTheme);
 
         $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
 
-        $themeProvider = $this->createMock(DatabaseAvailableThemeProvider::class);
+        $themeProvider = static::createStub(DatabaseAvailableThemeProvider::class);
         $themeProvider->method('load')->willReturn(['test' => 'test']);
 
         $dumper = new StaticFileConfigDumper(
@@ -55,8 +55,8 @@ class StaticFileConfigDumperTest extends TestCase
         $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $dumper = new StaticFileConfigDumper(
-            $this->createMock(DatabaseConfigLoader::class),
-            $this->createMock(DatabaseAvailableThemeProvider::class),
+            static::createStub(DatabaseConfigLoader::class),
+            static::createStub(DatabaseAvailableThemeProvider::class),
             $privateFileSystem,
             $temporaryFileSystem
         );
@@ -83,13 +83,13 @@ class StaticFileConfigDumperTest extends TestCase
     public function testDumpConfigCreatesDirectoryIfNotExists(): void
     {
         $salesChannelToTheme = new StorefrontPluginConfiguration('Test');
-        $loader = $this->createMock(DatabaseConfigLoader::class);
+        $loader = static::createStub(DatabaseConfigLoader::class);
         $loader->method('load')->willReturn($salesChannelToTheme);
 
         $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
 
-        $themeProvider = $this->createMock(DatabaseAvailableThemeProvider::class);
+        $themeProvider = static::createStub(DatabaseAvailableThemeProvider::class);
         $themeProvider->method('load')->willReturn(['test' => 'test']);
 
         // Verify directory doesn't exist initially

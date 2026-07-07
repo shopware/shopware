@@ -17,7 +17,7 @@ class ProductCloseoutFilterFactoryTest extends TestCase
 {
     public function testCreatesProductCloseoutFilter(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $filter = (new ProductCloseoutFilterFactory())->create($context);
 
         static::assertEquals(new ProductCloseoutFilter(), $filter);

@@ -598,7 +598,10 @@ class AuthControllerTest extends TestCase
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/guest/login', ['redirectTo' => 'foo']);
+        $this->request('GET', '/account/guest/login', [
+            'redirectTo' => 'frontend.account.order.single.page',
+            'redirectParameters' => ['deepLinkCode' => 'foo'],
+        ]);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -608,6 +611,17 @@ class AuthControllerTest extends TestCase
     public function testAccountGuestLoginPageWithoutRedirectRedirects(): void
     {
         $response = $this->request('GET', '/account/guest/login', []);
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('/account/login', $response->headers->get('location'));
+    }
+
+    public function testAccountGuestLoginPageWithMissingRedirectParametersRedirects(): void
+    {
+        // `redirectTo` points to a route that requires parameters (`/account/order/{deepLinkCode}`),
+        // but `redirectParameters` is missing (e.g. the page was called directly). The form action URL
+        // cannot be generated, so the user should be redirected to the login page instead of getting a 500.
+        $response = $this->request('GET', '/account/guest/login', ['redirectTo' => 'frontend.account.order.single.page']);
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('/account/login', $response->headers->get('location'));

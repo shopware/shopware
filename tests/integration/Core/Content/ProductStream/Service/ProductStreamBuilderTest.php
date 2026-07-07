@@ -4,12 +4,13 @@ namespace Shopware\Tests\Integration\Core\Content\ProductStream\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,12 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -32,6 +35,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('inventory')]
 class ProductStreamBuilderTest extends TestCase
 {
+    use EnvTestBehaviour;
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
@@ -44,7 +48,7 @@ class ProductStreamBuilderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private ProductStreamBuilderInterface $service;
+    private ProductStreamBuilder $service;
 
     protected function setUp(): void
     {
@@ -63,6 +67,50 @@ class ProductStreamBuilderTest extends TestCase
         $products = $this->getProducts('137b079935714281ba80b40f83f8d7eb');
 
         static::assertCount(2, $products);
+    }
+
+    public function testBuildAddsDirectVariantStateWhenDisplayAsGroupIsFalse(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'direct-variants',
+            'displayAsGroup' => false,
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
+
+        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
+        static::assertCount(1, $criteria->getFilters());
+    }
+
+    public function testBuildKeepsDisplayAsGroupEnabledWhenPersistedFlagIsTrue(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'grouped-variants',
+            'displayAsGroup' => true,
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
+
+        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
+        static::assertCount(1, $criteria->getFilters());
     }
 
     public function testNestedFilters(): void
@@ -111,8 +159,8 @@ class ProductStreamBuilderTest extends TestCase
         static::getContainer()->get('product_stream.repository')
             ->create([$stream], Context::createDefaultContext());
 
-        $filters = static::getContainer()->get(ProductStreamBuilder::class)
-            ->buildFilters($ids->get('stream'), Context::createDefaultContext());
+        $criteria = new Criteria();
+        $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
 
         $expected = new MultiFilter(MultiFilter::CONNECTION_OR, [
             new MultiFilter(MultiFilter::CONNECTION_AND, [
@@ -123,10 +171,43 @@ class ProductStreamBuilderTest extends TestCase
             ]),
         ]);
 
+        $filters = $criteria->getFilters();
         $filter = array_shift($filters);
         static::assertInstanceOf(MultiFilter::class, $filter);
 
         static::assertEquals($expected, $filter);
+    }
+
+    #[IgnoreDeprecations]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedBuildFiltersTriggersDeprecationAndStillBuildsFilters(): void
+    {
+        // Before v6.8.0.0 the deprecated fallback (used for builders that do not extend
+        // AbstractProductStreamBuilder) must stay functional and emit a deprecation notice; TESTS_RUNNING is
+        // disabled so the notice is triggered instead of suppressed. Once the flag is active it throws
+        // instead, which the unit test covers.
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
+        $ids = new IdsCollection();
+        $value = Uuid::randomHex();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'bc-build-filters',
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => $value,
+            ]],
+        ]], Context::createDefaultContext());
+
+        $this->expectUserDeprecationMessage(
+            'Method "' . ProductStreamBuilder::class . '::buildFilters()" is deprecated and will be removed in v6.8.0.0. Use "AbstractProductStreamBuilder::enrichCriteria" instead.'
+        );
+
+        $filters = $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
+
+        static::assertCount(1, $filters);
     }
 
     public function testNoFilters(): void
@@ -192,10 +273,8 @@ class ProductStreamBuilderTest extends TestCase
 
     private function getProducts(string $productStreamId): ProductCollection
     {
-        $filters = $this->service->buildFilters($productStreamId, $this->context);
-
         $criteria = new Criteria();
-        $criteria->addFilter(...$filters);
+        $this->service->enrichCriteria($criteria, $productStreamId, $this->context);
 
         return $this->productRepository->search($criteria, $this->salesChannelContext)->getEntities();
     }

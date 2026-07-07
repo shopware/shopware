@@ -139,8 +139,8 @@ class McpLifecycleHandlerTest extends TestCase
         $fixturePath = __DIR__ . '/../../_fixtures/Resources/mcp.xml';
 
         $filesystem = static::createStub(Filesystem::class);
-        $filesystem->method('has')->with('Resources/mcp.xml')->willReturn(true);
-        $filesystem->method('path')->with('Resources/mcp.xml')->willReturn($fixturePath);
+        $filesystem->method('has')->willReturn(true);
+        $filesystem->method('path')->willReturn($fixturePath);
 
         $toolPersister = $this->createMock(McpToolPersister::class);
         $promptPersister = $this->createMock(McpPromptPersister::class);

@@ -1,6 +1,12 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.20
+*  [#17470 - Hide purchase prices from Store API order line item payloads](./changelog/release-6-6-10-20/2026-06-23-hide-purchase-prices-from-order-line-item-payloads.md)
+*  [#17617 - SVG validator accepts more passive extension assets](./changelog/release-6-6-10-20/2026-07-01-svg-validator-accepts-passive-extension-assets.md)
+*  [#17679 - Sign webhooks with the current app secret after a secret rotation](./changelog/release-6-6-10-20/2026-06-30-sign-webhooks-with-current-app-secret-after-rotation.md)
+*  [#17697 - DAL write event listeners no longer expand API ACL requirements](./changelog/release-6-6-10-20/2026-06-24-dal-write-event-listeners-system-scope.md)
+
 ## 6.6.10.19
 *  [#16588 - Fix CMS content language inheritance](./changelog/release-6-6-10-19/2026-05-06-fix-cms-content-language-inheritance.md)
 *  [#16464 - Rule config is not cleared after condition change](https://github.com/shopware/shopware/issues/16464)

@@ -331,7 +331,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    it('should hide the company card and show the moved settings notice when DOCUMENT_GENERATION_REWORK is active', async () => {
+    it('should render the company settings layout with feature flag', async () => {
         const wrapper = await createWrapper(
             {
                 props: { documentConfigId: 'documentConfigWithDocumentType' },
@@ -359,7 +359,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
     });
 
-    it('should render company address switches in the legacy company card instead of the settings card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+    it('should render the company settings layout without feature flag', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
         });

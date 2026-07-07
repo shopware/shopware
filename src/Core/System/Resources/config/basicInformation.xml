@@ -140,7 +140,7 @@
         </input-field>
 
         <input-field>
-            <name>taxNumber</name>
+            <name>companyTaxNumber</name>
             <label>Tax number</label>
             <label lang="de-DE">Steuernummer</label>
             <placeholder>Enter tax number...</placeholder>
@@ -148,7 +148,7 @@
         </input-field>
 
         <input-field>
-            <name>taxOffice</name>
+            <name>companyTaxOffice</name>
             <label>Tax office</label>
             <label lang="de-DE">Finanzamt</label>
             <placeholder>Enter tax office...</placeholder>
@@ -156,7 +156,7 @@
         </input-field>
 
         <input-field>
-            <name>vatId</name>
+            <name>companyVatId</name>
             <label>VAT-ID</label>
             <label lang="de-DE">USt-Id</label>
             <placeholder>Enter VAT-ID...</placeholder>
@@ -164,7 +164,7 @@
         </input-field>
 
         <input-field>
-            <name>bankName</name>
+            <name>companyBankName</name>
             <label>Bank</label>
             <label lang="de-DE">Bank</label>
             <placeholder>Enter bank name...</placeholder>
@@ -172,7 +172,7 @@
         </input-field>
 
         <input-field>
-            <name>bankIban</name>
+            <name>companyBankIban</name>
             <label>IBAN</label>
             <label lang="de-DE">IBAN</label>
             <placeholder>Enter IBAN...</placeholder>
@@ -180,7 +180,7 @@
         </input-field>
 
         <input-field>
-            <name>bankBic</name>
+            <name>companyBankBic</name>
             <label>BIC</label>
             <label lang="de-DE">BIC</label>
             <placeholder>Enter BIC...</placeholder>
@@ -188,7 +188,7 @@
         </input-field>
 
         <input-field>
-            <name>placeOfJurisdiction</name>
+            <name>companyPlaceOfJurisdiction</name>
             <label>Commercial register (incl. court &amp; number)</label>
             <label lang="de-DE">Gerichtsstand / Handelsregister-Nr.</label>
             <placeholder>Enter place of jurisdiction...</placeholder>
@@ -196,7 +196,7 @@
         </input-field>
 
         <input-field>
-            <name>placeOfFulfillment</name>
+            <name>companyPlaceOfFulfillment</name>
             <label>Place of fulfillment</label>
             <label lang="de-DE">Erfüllungsort</label>
             <placeholder>Enter place of fulfillment...</placeholder>
@@ -204,7 +204,7 @@
         </input-field>
 
         <input-field>
-            <name>executiveDirector</name>
+            <name>companyExecutiveDirector</name>
             <label>Business executive</label>
             <label lang="de-DE">Geschäftsführer</label>
             <placeholder>Enter business executive...</placeholder>

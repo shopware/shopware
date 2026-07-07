@@ -32,7 +32,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 class DocumentConfigLoaderTest extends TestCase
 {
     private const COMPANY_COUNTRY_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c0';
-    private const COMPANY_INFO_CONFIG_KEY = 'core.basicInformation.companyInfo';
+    private const COMPANY_INFO_CONFIG_DOMAIN = 'core.basicInformation';
+    private const COMPANY_INFO_CONFIG_PREFIX = self::COMPANY_INFO_CONFIG_DOMAIN . '.';
     private const LEGACY_LOGO_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c1';
     private const COMPANY_INFO_LOGO_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c2';
 
@@ -200,7 +201,7 @@ class DocumentConfigLoaderTest extends TestCase
                 'companyZipcode' => '54321',
                 'companyCity' => 'System City',
                 'companyCountryId' => self::COMPANY_COUNTRY_ID,
-                'logoId' => self::COMPANY_INFO_LOGO_ID,
+                'companyLogoId' => self::COMPANY_INFO_LOGO_ID,
             ], $salesChannelId),
         );
 
@@ -416,18 +417,43 @@ class DocumentConfigLoaderTest extends TestCase
     /**
      * @param array<string, mixed>|null $companyInfo
      */
-    private function createSystemConfigService(?array $companyInfo = null, ?string $expectedSalesChannelId = null): SystemConfigService
+    private function createSystemConfigService(
+        ?array $companyInfo = null,
+        ?string $expectedSalesChannelId = null,
+    ): SystemConfigService
     {
         $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')
-            ->willReturnCallback(function (string $key, ?string $salesChannelId) use ($companyInfo, $expectedSalesChannelId): ?array {
-                static::assertSame(self::COMPANY_INFO_CONFIG_KEY, $key);
-
+        $systemConfigService->method('getDomain')
+            ->willReturnCallback(function (string $domain, ?string $salesChannelId) use ($companyInfo, $expectedSalesChannelId): array {
+                static::assertSame(self::COMPANY_INFO_CONFIG_DOMAIN, $domain);
                 if ($expectedSalesChannelId !== null) {
                     static::assertSame($expectedSalesChannelId, $salesChannelId);
                 }
 
-                return $companyInfo;
+                if ($companyInfo === null) {
+                    return [];
+                }
+
+                return array_filter([
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyName' => $companyInfo['companyName'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyEmail' => $companyInfo['companyEmail'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyPhone' => $companyInfo['companyPhone'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyStreet' => $companyInfo['companyStreet'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyCountryId' => $companyInfo['companyCountryId'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyZipcode' => $companyInfo['companyZipcode'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyCity' => $companyInfo['companyCity'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyUrl' => $companyInfo['companyUrl'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyLogoId' => $companyInfo['companyLogoId'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyTaxNumber' => $companyInfo['companyTaxNumber'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyTaxOffice' => $companyInfo['companyTaxOffice'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyVatId' => $companyInfo['companyVatId'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyBankName' => $companyInfo['companyBankName'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyBankIban' => $companyInfo['companyBankIban'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyBankBic' => $companyInfo['companyBankBic'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyPlaceOfJurisdiction' => $companyInfo['companyPlaceOfJurisdiction'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyPlaceOfFulfillment' => $companyInfo['companyPlaceOfFulfillment'] ?? null,
+                    self::COMPANY_INFO_CONFIG_PREFIX . 'companyExecutiveDirector' => $companyInfo['companyExecutiveDirector'] ?? null,
+                ], static fn (mixed $value): bool => $value !== null);
             });
 
         return $systemConfigService;

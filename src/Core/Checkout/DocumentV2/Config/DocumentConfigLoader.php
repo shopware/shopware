@@ -30,7 +30,33 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('after-sales')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
-    private const COMPANY_INFO_CONFIG_KEY = 'core.basicInformation.companyInfo';
+    private const COMPANY_INFO_CONFIG_DOMAIN = 'core.basicInformation';
+
+    /**
+     * Map of config keys to internal company-info keys
+     *
+     * @var array<string, string>
+     */
+    private const COMPANY_INFO_CONFIG_KEYS = [
+        'companyLogoId' => 'logoId',
+        'companyName' => 'companyName',
+        'companyEmail' => 'companyEmail',
+        'companyPhone' => 'companyPhone',
+        'companyStreet' => 'companyStreet',
+        'companyCountryId' => 'companyCountryId',
+        'companyZipcode' => 'companyZipcode',
+        'companyCity' => 'companyCity',
+        'companyUrl' => 'companyUrl',
+        'companyTaxNumber' => 'taxNumber',
+        'companyTaxOffice' => 'taxOffice',
+        'companyVatId' => 'vatId',
+        'companyBankName' => 'bankName',
+        'companyBankIban' => 'bankIban',
+        'companyBankBic' => 'bankBic',
+        'companyPlaceOfJurisdiction' => 'placeOfJurisdiction',
+        'companyPlaceOfFulfillment' => 'placeOfFulfillment',
+        'companyExecutiveDirector' => 'executiveDirector',
+    ];
 
     /**
      * @var array<string, array<string, DocumentConfigBundle>>
@@ -116,9 +142,20 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private function resolveCompanyInfoFromSystemConfig(string $salesChannelId): ?array
     {
-        $companyInfoConfig = $this->systemConfigService->get(self::COMPANY_INFO_CONFIG_KEY, $salesChannelId);
+        $basicInformationConfig = $this->systemConfigService->getDomain(self::COMPANY_INFO_CONFIG_DOMAIN, $salesChannelId);
+        $companyInfoConfig = [];
 
-        if (\is_array($companyInfoConfig) && $companyInfoConfig !== []) {
+        foreach (self::COMPANY_INFO_CONFIG_KEYS as $configKey => $targetKey) {
+            $value = $basicInformationConfig[self::COMPANY_INFO_CONFIG_DOMAIN . '.' . $configKey] ?? null;
+
+            if ($value === null || $value === '' || $value === []) {
+                continue;
+            }
+
+            $companyInfoConfig[$targetKey] = $value;
+        }
+
+        if ($companyInfoConfig !== []) {
             return $companyInfoConfig;
         }
 

@@ -16,7 +16,7 @@ class ElasticsearchRegistryTest extends TestCase
 {
     public function testRegistry(): void
     {
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $definition
             ->method('getEntityDefinition')
             ->willReturn(new ProductDefinition());

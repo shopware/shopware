@@ -30,8 +30,8 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $strategy = new ReinstallAppsStrategy(
             $appRepository,
-            $this->createMock(AppManager::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(AppManager::class),
+            static::createStub(ShopIdProvider::class),
             new NullLogger()
         );
 

@@ -43,8 +43,8 @@ class EntityDefinitionServiceTest extends TestCase
                 $productDefinition,
                 $categoryDefinition,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $entityDefinitionService = new EntityDefinitionService(
@@ -68,8 +68,8 @@ class EntityDefinitionServiceTest extends TestCase
         ];
         new StaticDefinitionInstanceRegistry(
             $definitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $entityDefinitionService = new EntityDefinitionService($definitions, new UsageDataAllowListService());
@@ -126,8 +126,8 @@ class EntityDefinitionServiceTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             $entityDefinitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         foreach ($entityDefinitions as $entityDefinition) {

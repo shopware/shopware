@@ -22,7 +22,7 @@ class DataCollectorTest extends TestCase
 {
     public function testCollect(): void
     {
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([
@@ -31,7 +31,7 @@ class DataCollectorTest extends TestCase
                 ['time' => 0.3],
             ]);
 
-        $adminClient = $this->createMock(ClientProfiler::class);
+        $adminClient = static::createStub(ClientProfiler::class);
         $adminClient
             ->method('getCalledRequests')
             ->willReturn([
@@ -39,12 +39,12 @@ class DataCollectorTest extends TestCase
                 ['time' => 0.5],
             ]);
 
-        $clusterMock = $this->createMock(ClusterNamespace::class);
+        $clusterMock = static::createStub(ClusterNamespace::class);
         $clusterMock
             ->method('health')
             ->willReturn(['status' => 'green']);
 
-        $catMock = $this->createMock(CatNamespace::class);
+        $catMock = static::createStub(CatNamespace::class);
         $catMock
             ->method('indices')
             ->willReturn(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]]);
@@ -88,7 +88,7 @@ class DataCollectorTest extends TestCase
 
     public function testReset(): void
     {
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([
@@ -140,12 +140,12 @@ class DataCollectorTest extends TestCase
 
     public function testCollectAdminSource(): void
     {
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([]);
 
-        $adminClient = $this->createMock(ClientProfiler::class);
+        $adminClient = static::createStub(ClientProfiler::class);
         $adminClient
             ->method('getCalledRequests')
             ->willReturn([
@@ -153,12 +153,12 @@ class DataCollectorTest extends TestCase
                 ['time' => 0.5],
             ]);
 
-        $clusterMock = $this->createMock(ClusterNamespace::class);
+        $clusterMock = static::createStub(ClusterNamespace::class);
         $clusterMock
             ->method('health')
             ->willReturn(['status' => 'green']);
 
-        $catMock = $this->createMock(CatNamespace::class);
+        $catMock = static::createStub(CatNamespace::class);
         $catMock
             ->method('indices')
             ->willReturn(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]]);
@@ -199,7 +199,7 @@ class DataCollectorTest extends TestCase
         static::assertSame(2, $collector->getRequestAmount());
         static::assertCount(2, $collector->getRequests());
 
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([

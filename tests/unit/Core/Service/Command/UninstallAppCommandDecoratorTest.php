@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -31,7 +32,7 @@ class UninstallAppCommandDecoratorTest extends TestCase
 
     private ServiceLifecycle&MockObject $serviceLifecycle;
 
-    private LifecycleManager&MockObject $lifecycleManager;
+    private LifecycleManager&Stub $lifecycleManager;
 
     private UninstallAppCommandDecorator $command;
 
@@ -41,7 +42,7 @@ class UninstallAppCommandDecoratorTest extends TestCase
         $this->appStorage = static::createMock(AppStorage::class);
         $this->serviceStorage = static::createMock(ServiceStorage::class);
         $this->serviceLifecycle = static::createMock(ServiceLifecycle::class);
-        $this->lifecycleManager = static::createMock(LifecycleManager::class);
+        $this->lifecycleManager = static::createStub(LifecycleManager::class);
 
         $this->command = new UninstallAppCommandDecorator(
             $this->appLifecycle,
@@ -56,6 +57,7 @@ class UninstallAppCommandDecoratorTest extends TestCase
     {
         $this->lifecycleManager->method('enabled')->willReturn(true);
         $this->serviceStorage->expects($this->never())->method('findByName');
+        $this->serviceLifecycle->expects($this->never())->method('uninstall');
         $this->expectAppUninstall('MyService', false);
 
         $tester = new CommandTester($this->command);
@@ -91,6 +93,7 @@ class UninstallAppCommandDecoratorTest extends TestCase
     {
         $this->lifecycleManager->method('enabled')->willReturn(false);
         $this->serviceStorage->expects($this->once())->method('findByName')->willReturn(null);
+        $this->serviceLifecycle->expects($this->never())->method('uninstall');
         $this->expectAppUninstall('MyService', false);
 
         $tester = new CommandTester($this->command);

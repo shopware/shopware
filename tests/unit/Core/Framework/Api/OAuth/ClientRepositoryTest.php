@@ -33,6 +33,9 @@ class ClientRepositoryTest extends TestCase
 
     public function testValidateClientWithInvalidGrantTypeThrowException(): void
     {
+        $this->connection->expects($this->never())->method('fetchAssociative');
+        $this->connection->expects($this->never())->method('update');
+
         $this->expectExceptionObject(OAuthServerException::unsupportedGrantType());
         $this->clientRepository->validateClient('clientIdentifier', 'clientSecret', 'unsupportGrantType');
     }

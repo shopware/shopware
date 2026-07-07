@@ -46,7 +46,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
     public function testCreateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $this->accountTypes,
         );
 
@@ -125,7 +125,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
     public function testUpdateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $this->accountTypes,
         );
 

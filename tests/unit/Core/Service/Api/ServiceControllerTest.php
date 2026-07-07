@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Service\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\ApiException;
@@ -40,12 +39,6 @@ class ServiceControllerTest extends TestCase
      */
     private StaticEntityRepository $appRepo;
 
-    private MessageBusInterface&MockObject $bus;
-
-    private ServiceLifecycle&MockObject $serviceLifecycle;
-
-    private LifecycleManager&MockObject $manager;
-
     protected function setUp(): void
     {
         $this->appId = Uuid::randomHex();
@@ -56,10 +49,6 @@ class ServiceControllerTest extends TestCase
         ]);
 
         $this->appRepo = new StaticEntityRepository([new AppCollection([$this->app])]);
-
-        $this->bus = $this->createMock(MessageBusInterface::class);
-        $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
-        $this->manager = $this->createMock(LifecycleManager::class);
     }
 
     public function testExceptionIsThrownIfServiceDoesNotExist(): void
@@ -69,9 +58,10 @@ class ServiceControllerTest extends TestCase
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection()]);
 
-        $this->bus->expects($this->never())->method('dispatch');
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())->method('dispatch');
 
-        $controller = new ServiceController(new ServiceStorage($appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController(new ServiceStorage($appRepo), bus: $bus);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -84,9 +74,10 @@ class ServiceControllerTest extends TestCase
         $source = new ShopApiSource('AABB');
         static::expectExceptionObject(ServiceException::updateRequiresAdminApiSource($source));
 
-        $this->bus->expects($this->never())->method('dispatch');
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())->method('dispatch');
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController(bus: $bus);
 
         $context = Context::createDefaultContext($source);
 
@@ -97,9 +88,10 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::updateRequiresIntegration());
 
-        $this->bus->expects($this->never())->method('dispatch');
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())->method('dispatch');
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController(bus: $bus);
 
         $source = new AdminApiSource('AABB');
         $context = Context::createDefaultContext($source);
@@ -109,13 +101,14 @@ class ServiceControllerTest extends TestCase
 
     public function testUpdateIsTriggered(): void
     {
-        $this->bus->expects($this->once())->method('dispatch')->willReturnCallback(static function (UpdateServiceMessage $msg) {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->once())->method('dispatch')->willReturnCallback(static function (UpdateServiceMessage $msg) {
             static::assertSame('MyCoolService', $msg->name);
 
             return new Envelope($msg, []);
         });
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController(bus: $bus);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -127,13 +120,14 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $source->setPermissions(['api_service_toggle']);
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())
+        $serviceLifecycle->expects($this->once())
             ->method('activate')
             ->with('invalidService', $context)
             ->willThrowException(ServiceException::notFound('name', 'invalidService'));
@@ -146,7 +140,7 @@ class ServiceControllerTest extends TestCase
         $source = new ShopApiSource('AABB');
         static::expectExceptionObject(ServiceException::updateRequiresAdminApiSource($source));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $context = Context::createDefaultContext($source);
 
@@ -157,7 +151,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ApiException::missingPrivileges(['system.plugin_maintain']));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $source = new AdminApiSource('AABB');
         $context = Context::createDefaultContext($source);
@@ -169,7 +163,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ApiException::missingPrivileges(['api_service_toggle']));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
@@ -180,26 +174,28 @@ class ServiceControllerTest extends TestCase
     public function testActivate(): void
     {
         $this->app->setActive(false);
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $source->setPermissions(['api_service_toggle']);
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())->method('activate')->with('MyCoolService', $context);
+        $serviceLifecycle->expects($this->once())->method('activate')->with('MyCoolService', $context);
         $controller->activate('MyCoolService', $context);
     }
 
     public function testAdminActivateUsesSameAction(): void
     {
         $this->app->setActive(false);
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB');
         $source->setPermissions(['system.plugin_maintain']);
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())->method('activate')->with('MyCoolService', $context);
+        $serviceLifecycle->expects($this->once())->method('activate')->with('MyCoolService', $context);
         $controller->activate('MyCoolService', $context);
     }
 
@@ -207,13 +203,14 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $source->setPermissions(['api_service_toggle']);
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())
+        $serviceLifecycle->expects($this->once())
             ->method('deactivate')
             ->with('invalidService', $context)
             ->willThrowException(ServiceException::notFound('name', 'invalidService'));
@@ -226,7 +223,7 @@ class ServiceControllerTest extends TestCase
         $source = new ShopApiSource('AABB');
         static::expectExceptionObject(ServiceException::updateRequiresAdminApiSource($source));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $context = Context::createDefaultContext($source);
 
@@ -237,7 +234,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ApiException::missingPrivileges(['system.plugin_maintain']));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $source = new AdminApiSource('AABB');
         $context = Context::createDefaultContext($source);
@@ -249,7 +246,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ApiException::missingPrivileges(['api_service_toggle']));
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
@@ -260,44 +257,47 @@ class ServiceControllerTest extends TestCase
     public function testDeactivate(): void
     {
         $this->app->setActive(true);
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $source->setPermissions(['api_service_toggle']);
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())->method('deactivate')->with('MyCoolService', $context);
+        $serviceLifecycle->expects($this->once())->method('deactivate')->with('MyCoolService', $context);
         $controller->deactivate('MyCoolService', $context);
     }
 
     public function testAdminDeactivateUsesSameAction(): void
     {
         $this->app->setActive(true);
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB');
         $source->setPermissions(['system.plugin_maintain']);
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())->method('deactivate')->with('MyCoolService', $context);
+        $serviceLifecycle->expects($this->once())->method('deactivate')->with('MyCoolService', $context);
         $controller->deactivate('MyCoolService', $context);
     }
 
     public function testUninstall(): void
     {
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $controller = $this->createController(serviceLifecycle: $serviceLifecycle);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())->method('uninstall')->with('MyCoolService', $context);
+        $serviceLifecycle->expects($this->once())->method('uninstall')->with('MyCoolService', $context);
         $controller->uninstall('MyCoolService', $context);
     }
 
     public function testList(): void
     {
         $this->app->setActive(true);
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -321,20 +321,22 @@ class ServiceControllerTest extends TestCase
 
     public function testDisableServices(): void
     {
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $manager = $this->createMock(LifecycleManager::class);
+        $controller = $this->createController(manager: $manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->manager->expects($this->once())->method('disable');
+        $manager->expects($this->once())->method('disable');
         $controller->disableServices($context);
     }
 
     public function testEnableServices(): void
     {
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $manager = $this->createMock(LifecycleManager::class);
+        $controller = $this->createController(manager: $manager);
 
-        $this->manager->expects($this->once())->method('enable');
+        $manager->expects($this->once())->method('enable');
         $controller->enableServices();
     }
 
@@ -352,7 +354,7 @@ class ServiceControllerTest extends TestCase
             'product:read',
         ]);
 
-        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController();
 
         $response = $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());
         $content = $response->getContent();
@@ -399,9 +401,23 @@ class ServiceControllerTest extends TestCase
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection()]);
 
-        $controller = new ServiceController(new ServiceStorage($appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+        $controller = $this->createController(new ServiceStorage($appRepo));
 
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
         $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());
+    }
+
+    private function createController(
+        ?ServiceStorage $serviceStorage = null,
+        ?MessageBusInterface $bus = null,
+        ?ServiceLifecycle $serviceLifecycle = null,
+        ?LifecycleManager $manager = null,
+    ): ServiceController {
+        return new ServiceController(
+            $serviceStorage ?? new ServiceStorage($this->appRepo),
+            $bus ?? static::createStub(MessageBusInterface::class),
+            $serviceLifecycle ?? static::createStub(ServiceLifecycle::class),
+            $manager ?? static::createStub(LifecycleManager::class),
+        );
     }
 }

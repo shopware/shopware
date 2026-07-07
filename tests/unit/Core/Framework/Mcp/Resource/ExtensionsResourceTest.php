@@ -103,7 +103,7 @@ class ExtensionsResourceTest extends TestCase
 
     public function testBundleRegisteredIsActive(): void
     {
-        $bundleMock = $this->createMock(BundleInterface::class);
+        $bundleMock = static::createStub(BundleInterface::class);
         $data = $this->invokeWithExtensions(
             [['name' => 'SwagMcpExampleBundle', 'type' => 'bundle', 'tool_prefix' => 'example-', 'description' => 'Test bundle', 'install_command' => 'composer require swag/example', 'documentation_url' => null]],
             registeredBundles: ['SwagMcpExampleBundle' => $bundleMock],
@@ -155,7 +155,7 @@ class ExtensionsResourceTest extends TestCase
      */
     private function makeResourceWithExtensions(array $extensions, array $pluginRows = [], array $appRows = [], array $registeredBundles = []): ExtensionsResource
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willReturnCallback(
             static function (string $sql) use ($pluginRows, $appRows): array {
                 if (str_contains($sql, '`plugin`')) {
@@ -169,7 +169,7 @@ class ExtensionsResourceTest extends TestCase
             }
         );
 
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('getBundles')->willReturn($registeredBundles);
 
         return new class($connection, $kernel, $extensions) extends ExtensionsResource {
@@ -198,7 +198,7 @@ class ExtensionsResourceTest extends TestCase
      */
     private function makeResource(array $pluginRows = [], array $appRows = [], array $registeredBundles = []): ExtensionsResource
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willReturnCallback(
             static function (string $sql) use ($pluginRows, $appRows): array {
                 if (str_contains($sql, '`plugin`')) {
@@ -212,7 +212,7 @@ class ExtensionsResourceTest extends TestCase
             }
         );
 
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('getBundles')->willReturn($registeredBundles);
 
         return new ExtensionsResource($connection, $kernel);

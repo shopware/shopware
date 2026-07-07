@@ -33,8 +33,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $strategy = new MoveShopPermanentlyStrategy(
             $appRepository,
-            $this->createMock(AppManager::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(AppManager::class),
+            static::createStub(ShopIdProvider::class),
             new NullLogger()
         );
 
@@ -109,7 +109,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appTwo = AppFixture::createAppEntity(name: 'app-two', id: 'app-two-id');
         $exception = new \RuntimeException('Could not reach app server');
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')
             ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('shop-id'), new FingerprintComparisonResult([], [], 75)));
 

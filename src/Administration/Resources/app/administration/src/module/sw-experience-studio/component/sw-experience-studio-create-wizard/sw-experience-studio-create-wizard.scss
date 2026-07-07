@@ -1,0 +1,87 @@
+.sw-experience-studio-create-wizard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 32px;
+}
+
+.sw-experience-studio-create-wizard__content {
+    width: 100%;
+    max-width: 520px;
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--color-background-primary-default);
+    box-shadow: 0 8px 24px 0 rgba(15, 24, 38, 8%);
+}
+
+.sw-experience-studio-create-wizard__title {
+    margin: 0 0 8px;
+}
+
+.sw-experience-studio-create-wizard__description {
+    margin: 0 0 24px;
+    color: var(--color-text-secondary-default);
+}
+
+.sw-experience-studio-create-wizard__name {
+    margin-bottom: 16px;
+}
+
+.sw-experience-studio-create-wizard__type {
+    margin-bottom: 20px;
+}
+
+.sw-experience-studio-create-wizard__type-label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.sw-experience-studio-create-wizard__type-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.sw-experience-studio-create-wizard__type-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 92px;
+    padding: 12px;
+    border: 1px solid var(--color-border-primary-default);
+    border-radius: 8px;
+    background: var(--color-elevation-surface-raised);
+    color: var(--color-text-primary-default);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.sw-experience-studio-create-wizard__type-option:hover {
+    border-color: var(--color-border-brand-selected);
+}
+
+.sw-experience-studio-create-wizard__type-option:focus-visible {
+    outline: none;
+    border-color: var(--color-border-brand-selected);
+    box-shadow: 0 0 0 2px var(--color-border-brand-selected);
+}
+
+.sw-experience-studio-create-wizard__type-option.is--selected {
+    border-color: var(--color-border-brand-selected);
+    background: var(--color-background-brand-subtle);
+}
+
+.sw-experience-studio-create-wizard__type-option-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-align: center;
+}
+
+.sw-experience-studio-create-wizard__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}

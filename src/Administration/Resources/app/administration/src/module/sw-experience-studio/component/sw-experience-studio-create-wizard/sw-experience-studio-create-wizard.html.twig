@@ -1,0 +1,93 @@
+{% block sw_experience_studio_create_wizard %}
+<div class="sw-experience-studio-create-wizard">
+    <div class="sw-experience-studio-create-wizard__content">
+        <h2 class="sw-experience-studio-create-wizard__title">
+            {{ $t(createWizardTitleSnippet) }}
+        </h2>
+
+        <p class="sw-experience-studio-create-wizard__description">
+            {{ $t(createWizardDescriptionSnippet) }}
+        </p>
+
+        <mt-text-field
+            class="sw-experience-studio-create-wizard__name"
+            :label="$t('sw-experience-studio.createWizard.nameLabel')"
+            :placeholder="$t('sw-experience-studio.createWizard.namePlaceholder')"
+            :model-value="name"
+            @update:model-value="onNameChange"
+            @keypress.enter="onComplete"
+        />
+
+        <mt-empty-state
+            v-if="isLoadingTypes"
+            icon="regular-hourglass"
+            :description="$t('sw-experience-studio.createWizard.loadingTypes')"
+        />
+
+        <mt-empty-state
+            v-else-if="hasTypeLoadError"
+            icon="regular-exclamation-triangle"
+            :description="$t('sw-experience-studio.createWizard.typeLoadError')"
+        />
+
+        <mt-empty-state
+            v-else-if="!hasTypeOptions"
+            icon="regular-puzzle-piece"
+            :description="$t('sw-experience-studio.createWizard.noTypes')"
+        />
+
+        <div
+            v-else
+            class="sw-experience-studio-create-wizard__type mt-field"
+        >
+            <label class="sw-experience-studio-create-wizard__type-label mt-field__label label">
+                {{ $t('sw-experience-studio.createWizard.typeLabel') }}
+            </label>
+
+            <div
+                class="sw-experience-studio-create-wizard__type-options"
+                role="radiogroup"
+                :aria-label="$t('sw-experience-studio.createWizard.typeLabel')"
+            >
+                <button
+                    v-for="option in typeOptions"
+                    :id="getTypeOptionId(option.value)"
+                    :key="option.value"
+                    type="button"
+                    class="sw-experience-studio-create-wizard__type-option"
+                    :class="{ 'is--selected': isSelectedType(option.value) }"
+                    role="radio"
+                    :aria-checked="isSelectedType(option.value)"
+                    @click="onTypeChange(option.value)"
+                >
+                    <mt-icon
+                        :name="getTypeIcon(option)"
+                        size="20px"
+                        class="sw-experience-studio-create-wizard__type-option-icon"
+                    />
+                    <span class="sw-experience-studio-create-wizard__type-option-label">
+                        {{ option.label }}
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sw-experience-studio-create-wizard__actions">
+            <mt-button
+                variant="secondary"
+                @click="onCancel"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+
+            <mt-button
+                variant="primary"
+                :disabled="!isCompletable || undefined"
+                @click="onComplete"
+            >
+                {{ $t(createWizardStartSnippet) }}
+            </mt-button>
+        </div>
+    </div>
+</div>
+{% endblock %}

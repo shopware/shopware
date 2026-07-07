@@ -15,6 +15,24 @@
       "emptyStateTitle": "Noch keine Inhaltslayouts",
       "emptyStateSubline": "Erstelle Dein erstes Inhaltslayout, um loszulegen."
     },
+    "createWizard": {
+      "title": "Inhaltslayout erstellen",
+      "description": "Wähle zuerst einen Namen und den Layout-Typ, bevor Du mit der Bearbeitung startest.",
+      "nameLabel": "Layout-Name",
+      "namePlaceholder": "Layout-Namen eingeben...",
+      "typeLabel": "Layout-Typ",
+      "typePlaceholder": "Layout-Typ auswählen...",
+      "loadingTypes": "Layout-Typen werden geladen...",
+      "typeLoadError": "Layout-Typen konnten nicht geladen werden.",
+      "noTypes": "Es sind keine Layout-Typen verfügbar.",
+      "start": "Bearbeitung starten",
+      "missingFields": "Bitte gib einen Layout-Namen und einen Layout-Typ an, bevor Du speicherst.",
+      "layoutTypes": {
+        "product": "Produkt",
+        "category": "Kategorie",
+        "landing_page": "Landingpage"
+      }
+    },
     "detail": {
       "toolbar": {
         "undo": "Rückgängig",

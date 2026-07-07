@@ -130,6 +130,7 @@ class SeoActionController extends AbstractController
 
         $entity = $repository
             ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
         if (!$entity) {

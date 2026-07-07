@@ -331,7 +331,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    it('should move company settings into the settings card when DOCUMENT_GENERATION_REWORK is active', async () => {
+    it('should hide the company card and show the moved settings notice when DOCUMENT_GENERATION_REWORK is active', async () => {
         const wrapper = await createWrapper(
             {
                 props: { documentConfigId: 'documentConfigWithDocumentType' },
@@ -347,7 +347,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(true);
     });
 
-    it('should always show payment due date in the settings card', async () => {
+    it('should always include payment due date in the general form fields', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
         });
@@ -359,7 +359,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
     });
 
-    it('should keep company settings in the legacy company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+    it('should keep company address switches in the legacy company card when DOCUMENT_GENERATION_REWORK is inactive', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
         });
@@ -534,7 +534,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },
         { name: 'company address active', config: { displayCompanyAddress: true, displayReturnAddress: false } },
         { name: 'both addresses active', config: { displayCompanyAddress: true, displayReturnAddress: true } },
-    ])('should always display the legacy company form when DOCUMENT_GENERATION_REWORK is inactive', async ({ config }) => {
+    ])('should display company settings if company address is selected', async ({ config }) => {
         const wrapper = await createWrapper({}, ['document.editor']);
         await flushPromises();
 

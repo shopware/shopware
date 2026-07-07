@@ -95,5 +95,8 @@ return [
 
         // Unused protected method from final class can be removed safely
         preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
+
+        // Twig added this method in 3.27 via https://github.com/twigphp/Twig/pull/4816
+        preg_quote('REMOVED: Method Twig\TokenParser\AbstractTokenParser#isAlwaysAllowedInSandbox() was removed', '/'),
     ],
 ];

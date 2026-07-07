@@ -385,7 +385,7 @@ class StateMachineRegistry implements ResetInterface
         Context $context,
         EntityRepository $repository
     ): StateMachineStateEntity {
-        $entity = $repository->search(new Criteria([$entityId]), $context)->get($entityId);
+        $entity = $repository->search(new Criteria([$entityId]), $context)->getEntities()->get($entityId);
 
         if (!$entity) {
             throw StateMachineException::stateMachineInvalidEntityId($entityName, $entityId);

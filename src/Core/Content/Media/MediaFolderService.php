@@ -79,15 +79,14 @@ class MediaFolderService
             ];
         }
 
-        $subFolders = $subFolders->filterByProperty('useParentConfiguration', true);
+        $subFolders = $subFolders->getEntities()->filterByProperty('useParentConfiguration', true);
 
         if (\count($subFolders) === 0) {
             $this->deleteOwnConfiguration($folder, $context);
         }
 
         if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
-            $collection = $subFolders->getEntities();
-            $payload = $this->duplicateFolderConfig($collection, $payload, $context);
+            $payload = $this->duplicateFolderConfig($subFolders, $payload, $context);
         }
 
         $this->mediaFolderRepo->update(array_values($payload), $context);
@@ -138,7 +137,7 @@ class MediaFolderService
 
     private function fetchFolder(string $folderId, Context $context): MediaFolderEntity
     {
-        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->get($folderId);
+        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->getEntities()->get($folderId);
 
         if (!$folder) {
             throw MediaException::mediaFolderIdNotFound($folderId);

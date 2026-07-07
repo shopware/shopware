@@ -54,6 +54,11 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "get": {
@@ -76,6 +81,9 @@
                                 "pattern": "^[0-9a-f]{32}$"
                             }
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {

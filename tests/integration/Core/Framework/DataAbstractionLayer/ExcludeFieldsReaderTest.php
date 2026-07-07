@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ExcludeFieldsReaderTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     public function testExcludedFieldIsNotLoadedButEntityStaysFull(): void
     {

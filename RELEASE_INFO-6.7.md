@@ -233,6 +233,14 @@ Two events are dispatched from the underlying services (so they fire for both th
 - `Shopware\Core\System\Snippet\Event\TranslationLoadedEvent` — after a locale's translations are downloaded and installed (carries the locale and the `Context`).
 - `Shopware\Core\System\Snippet\Event\TranslationRemovedEvent` — after a locale's downloaded files and metadata entry are removed (carries the locale).
 
+### Download media files via the Admin API
+
+The Admin API provides `GET /api/_action/media/{mediaId}/download` to download the binary file of a media entity.
+Depending on the configured media storage and download strategy, the route may either stream the file from Shopware or respond with a redirect to the resolved download URL.
+
+For Administration clients that need to decide whether to trigger a direct browser download or fall back to an authenticated blob request, the Admin API now also provides `GET /api/_action/media/{mediaId}/download/prepare`.
+The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
+
 ## App System
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
@@ -240,6 +248,10 @@ Two events are dispatched from the underlying services (so they fire for both th
 Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
 
 When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
+### Tax provider priority is preserved across app updates
+
+An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
 ## Administration
 
@@ -363,7 +375,7 @@ Deprecated -> Replacement:
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
-# 6.7.12.0 (upcoming)
+# 6.7.12.0
 
 ## Features
 
@@ -836,10 +848,6 @@ With the flag enabled:
 Enabling the flag requires configuration changes — the worker consume command must list the new `webhook` transport, and `shopware.admin_worker.transports` may need updating if it was overridden. Rolling the flag back off also has its own steps. See `UPGRADE-6.7.md` for the full procedure.
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
-
-### Tax provider priority is preserved across app updates
-
-An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
 ## Hosting & Configuration
 

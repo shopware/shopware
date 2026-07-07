@@ -48,7 +48,7 @@ class PluginServiceTest extends TestCase
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
-        $pluginService->refreshPlugins(Context::createDefaultContext(), $this->createMock(IOInterface::class));
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
 
         $upserts = $pluginRepo->upserts;
         static::assertCount(1, $upserts, 'There should be one plugin upserted');
@@ -89,7 +89,7 @@ class PluginServiceTest extends TestCase
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
-        $pluginService->refreshPlugins(Context::createDefaultContext(), $this->createMock(IOInterface::class));
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
 
         $upserts = $pluginRepo->upserts;
         static::assertCount(1, $upserts, 'There should be one plugin upserted');

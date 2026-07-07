@@ -64,7 +64,7 @@ class WebhookSigningSecretResolverTest extends TestCase
 
     private function resolver(string|false $appSecret, string|false $deletedSecret): WebhookSigningSecretResolver
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturnCallback(
             static fn (string $sql): string|false => str_contains($sql, 'deleted_apps') ? $deletedSecret : $appSecret
         );

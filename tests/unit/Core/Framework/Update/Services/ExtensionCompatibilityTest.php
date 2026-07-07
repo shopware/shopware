@@ -7,7 +7,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
@@ -27,7 +27,7 @@ class ExtensionCompatibilityTest extends TestCase
     #[DataProvider('statusProvider')]
     public function testGetExtension(string $file, string $statusName, ?string $statusColor): void
     {
-        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient = static::createStub(StoreClient::class);
         $storeClient->method('getExtensionCompatibilities')->willReturn(json_decode((string) file_get_contents($file), true, 512, \JSON_THROW_ON_ERROR));
 
         $pluginCompatibility = new ExtensionCompatibility(
@@ -73,7 +73,7 @@ class ExtensionCompatibilityTest extends TestCase
 
     public function testGetExtensionWhenInvalidVersion(): void
     {
-        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient = static::createStub(StoreClient::class);
         $storeClient
             ->method('getExtensionCompatibilities')
             ->willThrowException(new ClientException('test', new Request('GET', '/'), new Response(400)));
@@ -97,7 +97,7 @@ class ExtensionCompatibilityTest extends TestCase
 
     public function testGetExtensionWhenOtherException(): void
     {
-        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient = static::createStub(StoreClient::class);
         $storeClient
             ->method('getExtensionCompatibilities')
             ->willThrowException(new ClientException('test', new Request('GET', '/'), new Response(500)));
@@ -164,13 +164,13 @@ class ExtensionCompatibilityTest extends TestCase
         static::assertCount(0, $extensionStructs);
     }
 
-    public function getExtensionDataProvider(): AbstractExtensionDataProvider&MockObject
+    public function getExtensionDataProvider(): AbstractExtensionDataProvider&Stub
     {
         $extension = new ExtensionStruct();
         $extension->setName('TestApp');
         $extension->setActive(true);
 
-        $extensionDataProvider = $this->createMock(AbstractExtensionDataProvider::class);
+        $extensionDataProvider = static::createStub(AbstractExtensionDataProvider::class);
         $extensionDataProvider
             ->method('getInstalledExtensions')
             ->willReturn(new ExtensionCollection(['TestApp' => $extension]));
@@ -178,9 +178,9 @@ class ExtensionCompatibilityTest extends TestCase
         return $extensionDataProvider;
     }
 
-    public function getStoreClient(string $file = __DIR__ . './../_fixtures/responses/extension-red.json'): StoreClient&MockObject
+    public function getStoreClient(string $file = __DIR__ . './../_fixtures/responses/extension-red.json'): StoreClient&Stub
     {
-        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient = static::createStub(StoreClient::class);
         $storeClient->method('getExtensionCompatibilities')->willReturn(json_decode((string) file_get_contents($file), true, 512, \JSON_THROW_ON_ERROR));
 
         return $storeClient;

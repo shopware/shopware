@@ -1215,4 +1215,60 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
         expect(cloneMockLastCall[2]).toStrictEqual(Shopware.Context.api);
     });
+
+    it('should wait for loadGridUserSettings before calling resetList', async () => {
+        const wrapper = await createWrapper();
+        const deferred = (() => {
+            let resolve;
+            const promise = new Promise((r) => {
+                resolve = r;
+            });
+            return { promise, resolve };
+        })();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockReturnValue(deferred.promise);
+
+        wrapper.vm.createdComponent();
+
+        expect(resetListSpy).not.toHaveBeenCalled();
+
+        deferred.resolve();
+        await flushPromises();
+
+        expect(resetListSpy).toHaveBeenCalled();
+    });
+
+    it('should call resetList when loadGridUserSettings fails', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockRejectedValue(new Error('Unable to load user settings'));
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetListSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        [
+            9,
+            'grid',
+        ],
+        [
+            10,
+            'list',
+        ],
+    ])('should set limit to %i when %s view is saved', async (limit, listMode) => {
+        const wrapper = await createWrapper();
+
+        jest.spyOn(wrapper.vm, 'getUserSettings').mockResolvedValue({
+            listMode,
+        });
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.limit).toBe(limit);
+    });
 });

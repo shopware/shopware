@@ -91,7 +91,7 @@ class AppContextGatewayPayloadServiceTest extends TestCase
         $client = new Client(['handler' => $handler]);
 
         $service = new AppContextGatewayPayloadService(
-            $this->createMock(AppPayloadServiceHelper::class),
+            static::createStub(AppPayloadServiceHelper::class),
             $client,
         );
 

@@ -37,7 +37,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -54,7 +54,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -71,7 +71,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -88,7 +88,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 3, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -105,7 +105,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 1, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -122,7 +122,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -139,7 +139,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 1, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -156,7 +156,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 3, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -173,7 +173,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 1, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -190,7 +190,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         $rule = (new LineItemWithQuantityRule())->assign(['id' => 'A', 'quantity' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))

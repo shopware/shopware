@@ -38,7 +38,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
                 'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             ],
             inputs: [
-                'mediaId' => ['default' => '0189772a5e7570009812345678901234'],
+                'mediaId' => ['default' => '0189772a5e7570009812345678901234', 'required' => false],
             ],
             promoted: null,
         );

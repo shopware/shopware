@@ -95,7 +95,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with(static::anything(), static::identicalTo($rootContext), static::anything())
+            ->with(static::anything(), static::identicalTo($rootContext))
             ->willReturn(new LayoutAnalysis($report, []));
 
         $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), $registry, $diagnostics);

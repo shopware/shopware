@@ -110,7 +110,7 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
                 'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             ],
             inputs: [
-                'mediaId' => [],
+                'mediaId' => ['required' => false],
             ],
             promoted: null,
         );

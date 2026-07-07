@@ -62,8 +62,8 @@ class ShopIdProviderTest extends TestCase
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
-            $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
         );
 
         $shopId = $provider->getShopId();
@@ -115,8 +115,8 @@ class ShopIdProviderTest extends TestCase
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
-            $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
         );
 
         $upgradedShopId = $provider->getShopId();
@@ -145,7 +145,7 @@ class ShopIdProviderTest extends TestCase
             ->method('fetchOne')
             ->willReturn(1);
 
-        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
         $fingerprintGenerator->method('matchFingerprints')
             ->willReturn(new FingerprintComparisonResult(
                 [],
@@ -237,8 +237,8 @@ class ShopIdProviderTest extends TestCase
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
-            $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
         );
 
         $provider->deleteShopId();

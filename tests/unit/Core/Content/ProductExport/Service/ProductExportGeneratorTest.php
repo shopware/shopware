@@ -17,7 +17,8 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -50,7 +51,7 @@ use Twig\Environment;
 #[CoversClass(ProductExportGenerator::class)]
 class ProductExportGeneratorTest extends TestCase
 {
-    private MockObject&AbstractProductStreamBuilder $productStreamBuilder;
+    private MockObject&ProductStreamBuilder $productStreamBuilder;
 
     /**
      * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
@@ -85,13 +86,13 @@ class ProductExportGeneratorTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CategoryDefinition::class, ProductCategoryDefinition::class, ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $productDefinition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $productDefinition);
 
-        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->productExportRender = $this->createMock(ProductExportRendererInterface::class);
         $this->eventDispatcher = new EventDispatcher();
@@ -146,7 +147,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->salesChannelContextService->expects($this->once())->method('get');
 
         $errorMessage = 'error message';
-        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser = static::createStub(TwigVariableParser::class);
         $twigVariableParser->method('parse')
             ->willThrowException(new \Exception($errorMessage));
         $this->parserFactory->expects($this->once())
@@ -172,6 +173,47 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $this->expectExceptionObject(ProductExportException::renderProductException($errorMessage));
+
+        $generator->generate($productExport, new ExportBehavior());
+    }
+
+    public function testGenerateFallsBackToBuildFiltersForInterfaceOnlyBuilder(): void
+    {
+        $productExport = $this->getProductExportEntity();
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get');
+        $this->parserFactory->expects($this->once())->method('getParser');
+
+        // A builder that only implements the deprecated interface (e.g. a decorator that has not yet adopted
+        // AbstractProductStreamBuilder). The generator must fall back to buildFilters() without a TypeError.
+        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $productStreamBuilder->expects($this->once())
+            ->method('buildFilters')
+            ->with('productStreamId', static::anything())
+            ->willReturn([new EqualsFilter('product.product_stream', 'productStreamId')]);
+
+        $generator = new ProductExportGenerator(
+            $productStreamBuilder,
+            $this->productRepository,
+            $this->productExportRender,
+            $this->eventDispatcher,
+            $this->productExportValidator,
+            $this->salesChannelContextService,
+            $this->translator,
+            $this->contextPersister,
+            $this->connection,
+            1,
+            $this->seoUrlPlaceholderHandler,
+            $this->twig,
+            $this->productDefinition,
+            $this->languageLocaleProvider,
+            $this->parserFactory
+        );
+
+        // Reaching the "not found" result (no products resolve) proves the interface-only builder was routed
+        // through buildFilters() without a TypeError.
+        $this->expectExceptionObject(ProductExportException::productExportNotFound($productExport->getId()));
 
         $generator->generate($productExport, new ExportBehavior());
     }
@@ -385,7 +427,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->parserFactory->expects($this->once())
             ->method('getParser')
-            ->willReturn($this->createMock(TwigVariableParser::class));
+            ->willReturn(static::createStub(TwigVariableParser::class));
 
         $generator = $this->createGenerator();
 

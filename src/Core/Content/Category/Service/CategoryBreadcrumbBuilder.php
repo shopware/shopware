@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,7 +43,8 @@ class CategoryBreadcrumbBuilder
     public function __construct(
         private readonly EntityRepository $categoryRepository,
         private readonly SalesChannelRepository $productRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly EntityRouteResolver $entityRouteResolver,
     ) {
     }
 
@@ -298,8 +300,8 @@ class CategoryBreadcrumbBuilder
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
         $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $query->setParameter('routeName', 'frontend.navigation.page');
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME);
+        $query->setParameter('routeName', $routeName);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));
         $query->setParameter('categoryIds', Uuid::fromHexToBytesList($categoryIds), ArrayParameterType::BINARY);

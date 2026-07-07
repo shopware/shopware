@@ -7,7 +7,6 @@
       "headlineCategories": "Kategorien",
       "placeholderSearchBar": "Durchsuche alle Kategorien ...",
       "buttonCreate": "Kategorie erstellen",
-      "buttonSafeCategory": "Speichern",
       "descriptionLabel": "Beschreibung",
       "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Anzeigebild verwenden",

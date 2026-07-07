@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -52,9 +52,9 @@ class LintTranslationFilesCommandTest extends TestCase
 
     private CommandTester $tester;
 
-    private MockObject&Finder $finder;
+    private Stub&Finder $finder;
 
-    private MockObject&Filesystem $filesystem;
+    private Stub&Filesystem $filesystem;
 
     /**
      * @var array<string>
@@ -64,8 +64,8 @@ class LintTranslationFilesCommandTest extends TestCase
     protected function setUp(): void
     {
         // Mock Finder but configure it to return real fixture files
-        $this->finder = $this->createMock(Finder::class);
-        $this->filesystem = $this->createMock(Filesystem::class);
+        $this->finder = static::createStub(Finder::class);
+        $this->filesystem = static::createStub(Filesystem::class);
         $this->excludedPaths = [];
 
         // Configure Finder mock to be chainable

@@ -59,6 +59,8 @@ class ZugferdDocument
 
     protected bool $allowNegativeProductLineItems = false;
 
+    private string $currentDocumentType = ZugferdInvoiceType::INVOICE;
+
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
      */
@@ -269,6 +271,8 @@ class ZugferdDocument
         string $isoCode,
         string $documentType
     ): self {
+        $this->currentDocumentType = $documentType;
+
         $this->zugferdBuilder->setDocumentInformation(
             $documentNumber,
             $documentType,
@@ -299,7 +303,7 @@ class ZugferdDocument
         return $this;
     }
 
-    public function withDelivery(OrderDeliveryCollection $deliveries, string $documentType = ZugferdInvoiceType::INVOICE): self
+    public function withDelivery(OrderDeliveryCollection $deliveries): self
     {
         foreach ($deliveries as $delivery) {
             $shippingCosts = $delivery->getShippingCosts();
@@ -308,7 +312,7 @@ class ZugferdDocument
                 continue;
             }
 
-            $isCorrectionDocument = $documentType === ZugferdInvoiceType::CORRECTION;
+            $isCorrectionDocument = $this->currentDocumentType === ZugferdInvoiceType::CORRECTION;
             $isCharge = !$isCorrectionDocument || $shippingCosts->getTotalPrice() > 0.0;
 
             $this->addMappedPrice(
@@ -333,8 +337,8 @@ class ZugferdDocument
                     $this->getTaxCode($calculatedTax),
                     'VAT',
                     $calculatedTax->getTaxRate(),
-                    reasonCode: $this->getDeliveryReasonCode($isCharge, $documentType),
-                    reason: $this->getDeliveryReason($isCharge, $documentType)
+                    reasonCode: $this->getDeliveryReasonCode($isCharge, $this->currentDocumentType),
+                    reason: $this->getDeliveryReason($isCharge, $this->currentDocumentType)
                 );
             }
         }

@@ -430,7 +430,8 @@ class ZugferdDocumentTest extends TestCase
         ));
 
         $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
-        $document->withDelivery(new OrderDeliveryCollection([$delivery]), $documentType);
+        $document->withDocumentInformation('2024-01-03', '1002', 'EUR', $documentType);
+        $document->withDelivery(new OrderDeliveryCollection([$delivery]));
 
         $calculator = new AmountCalculator(
             new CashRounding(),

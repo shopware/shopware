@@ -21,8 +21,4 @@ class Migration1775430000AddDisplayAsGroupToProductStream extends MigrationStep
     {
         $this->addColumn($connection, 'product_stream', 'display_as_group', 'TINYINT(1)', false, '1');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

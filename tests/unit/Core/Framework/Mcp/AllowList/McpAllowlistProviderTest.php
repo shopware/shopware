@@ -269,7 +269,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $userId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{"tools":["bearer-tool"],"resources":null,"prompts":null}',
             'admin' => false,
@@ -313,7 +313,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $userId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{"tools":["restricted-tool"],"resources":null,"prompts":null}',
             'admin' => true,
@@ -328,7 +328,7 @@ class McpAllowlistProviderTest extends TestCase
 
     public function testForUserIdReturnsUnrestrictedWhenUserNotFound(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
@@ -340,7 +340,7 @@ class McpAllowlistProviderTest extends TestCase
 
     public function testForUserIdReturnsUnrestrictedWhenAllowlistIsNull(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => null,
             'admin' => false,
@@ -353,7 +353,7 @@ class McpAllowlistProviderTest extends TestCase
 
     public function testForUserIdReturnsUnrestrictedForInvalidJson(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{not-valid-json}',
             'admin' => false,
@@ -368,7 +368,7 @@ class McpAllowlistProviderTest extends TestCase
 
     public function testForUserIdReturnsUnrestrictedWhenJsonIsNotArray(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '"just-a-string"',
             'admin' => false,
@@ -386,7 +386,7 @@ class McpAllowlistProviderTest extends TestCase
         $userId = Uuid::randomHex();
         $userIdBytes = Uuid::fromHexToBytes($userId);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($userIdBytes);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{"tools":["user-key-tool"],"resources":null,"prompts":null}',
@@ -416,7 +416,7 @@ class McpAllowlistProviderTest extends TestCase
         $appUserId = Uuid::randomHex();
         $appUserIdBytes = Uuid::fromHexToBytes($appUserId);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration allowlist: tools A + B
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-a","tool-b"],"resources":null,"prompts":null}');
@@ -444,7 +444,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration has no allowlist (null = unrestricted).
         $connection->method('fetchOne')->willReturn(false);
         // User allowlist restricts to tool-a only.
@@ -470,7 +470,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration restricts to tool-b.
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-b"],"resources":null,"prompts":null}');
@@ -497,7 +497,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn(false);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => null,
@@ -524,7 +524,7 @@ class McpAllowlistProviderTest extends TestCase
         $appUserId = Uuid::randomHex();
         $capturedParams = null;
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-a","tool-b"],"resources":null,"prompts":null}');
         $connection->method('fetchAssociative')
@@ -572,7 +572,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')
             ->willReturn('{"tools":[],"resources":null,"prompts":null}');
         $connection->method('fetchAssociative')->willReturn([
@@ -596,7 +596,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration restricts to tool-b only.
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-b"],"resources":null,"prompts":null}');

@@ -27,8 +27,8 @@ class MailSenderTest extends TestCase
     public function testSendMail(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
@@ -37,7 +37,7 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             0,
             $messageBus,
             false,
@@ -55,7 +55,7 @@ class MailSenderTest extends TestCase
     public function testSendMailWithoutMessageBus(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
@@ -64,7 +64,7 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             0,
             null,
             false,
@@ -81,7 +81,7 @@ class MailSenderTest extends TestCase
 
     public function testSendLargeMail(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
@@ -93,7 +93,7 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $maxMessageSizeKiB,
             $messageBus,
             false,
@@ -128,7 +128,7 @@ class MailSenderTest extends TestCase
 
     public function testSendMailWithDisabledDelivery(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
@@ -154,7 +154,7 @@ class MailSenderTest extends TestCase
 
     public function testSendMailWithDisabledDeliveryInStagingMode(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
+        $mailer = static::createStub(MailerInterface::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
         $fileSystem = $this->createMock(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
@@ -180,8 +180,8 @@ class MailSenderTest extends TestCase
     public function testSendMailWithEnabledDeliveryInStagingMode(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
@@ -190,7 +190,7 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             0,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             0,
             $messageBus,
             false,
@@ -207,9 +207,9 @@ class MailSenderTest extends TestCase
 
     public function testSendMailWithToMuchContent(): void
     {
-        $mailer = $this->createMock(MailerInterface::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $fileSystem = $this->createMock(FilesystemOperator::class);
+        $mailer = static::createStub(MailerInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $fileSystem = static::createStub(FilesystemOperator::class);
         $configService = $this->createMock(SystemConfigService::class);
         $configService->expects($this->once())->method('getBool')->with(SetupStagingEvent::CONFIG_FLAG)->willReturn(false);
         $configService->expects($this->once())->method('get')->with(MailSender::DISABLE_MAIL_DELIVERY)->willReturn(false);
@@ -218,7 +218,7 @@ class MailSenderTest extends TestCase
             $fileSystem,
             $configService,
             5,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             0,
             $messageBus,
             false,

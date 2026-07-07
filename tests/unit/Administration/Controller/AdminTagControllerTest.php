@@ -20,7 +20,7 @@ class AdminTagControllerTest extends TestCase
 {
     public function testFilterIds(): void
     {
-        $filterTagIdsService = $this->createMock(FilterTagIdsService::class);
+        $filterTagIdsService = static::createStub(FilterTagIdsService::class);
         $controller = new AdminTagController($filterTagIdsService);
 
         $response = $controller->filterIds(new Request(), new Criteria(), Context::createDefaultContext());

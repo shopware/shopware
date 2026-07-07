@@ -142,12 +142,15 @@ export default {
                 return;
             }
 
-            // blur rich text and code editor inputs on save shortcut to react on changes before saving
+            // blur editable fields, rich text and code editor inputs on save shortcut to react on changes before saving
             if (
                 matchedShortcut.key === 'SYSTEMKEY+S' &&
-                (event.target.isContentEditable || event.target.classList.contains('ace_text-input'))
+                (eventTarget?.isContentEditable ||
+                    isRestrictedSource(event) ||
+                    eventTarget?.classList.contains('ace_text-input')) &&
+                typeof eventTarget?.blur === 'function'
             ) {
-                event.target.blur();
+                eventTarget.blur();
             }
 
             // check if function exists

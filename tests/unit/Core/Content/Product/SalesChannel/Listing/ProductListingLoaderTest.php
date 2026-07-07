@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -191,7 +190,7 @@ class ProductListingLoaderTest extends TestCase
             });
 
         $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
         $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
 
@@ -414,11 +413,11 @@ class ProductListingLoaderTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn($salesChannelId);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getBool')->willReturnMap([
             ['core.listing.findBestVariant', $salesChannelId, $findBestVariant],
             ['core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId, false],
@@ -430,9 +429,9 @@ class ProductListingLoaderTest extends TestCase
         $loader = new ProductListingLoader(
             $productRepository,
             $systemConfigService,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new EventDispatcher(),
-            $this->createMock(AbstractProductCloseoutFilterFactory::class),
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 

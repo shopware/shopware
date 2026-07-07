@@ -68,6 +68,7 @@ abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElemen
                 new EqualsFilter('product.parentId', $productId),
                 new EqualsFilter('id', $productId),
             ]))
+            ->addAssociation('properties.group')
             ->addGroupField(new FieldGrouping('displayGroup'));
 
         $criteria->setTitle('cms::product-detail-static');

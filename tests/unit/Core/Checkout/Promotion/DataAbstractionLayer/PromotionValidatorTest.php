@@ -33,8 +33,8 @@ class PromotionValidatorTest extends TestCase
     {
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [PromotionDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

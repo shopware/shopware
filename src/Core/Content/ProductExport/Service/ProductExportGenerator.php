@@ -16,6 +16,7 @@ use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -49,7 +50,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
      * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
-        private readonly AbstractProductStreamBuilder $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly ProductExportRendererInterface $productExportRender,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -105,11 +106,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $criteria = new Criteria();
 
-        $this->productStreamBuilder->enrichCriteria(
-            $criteria,
-            $productExport->getProductStreamId(),
-            $context->getContext()
-        );
+        $productStreamBuilder = $this->productStreamBuilder;
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
+        } else {
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+        }
 
         $associations = $this->getAssociations($productExport, $context);
 

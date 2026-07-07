@@ -11,7 +11,7 @@ use Mcp\Schema\Tool;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
@@ -27,16 +27,16 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 #[Package('framework')]
 class AppMcpToolLoaderTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private AppMcpCapabilityExecutor&MockObject $executor;
+    private AppMcpCapabilityExecutor&Stub $executor;
 
     private AppMcpToolLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->executor = $this->createMock(AppMcpCapabilityExecutor::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
         $this->loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger());
     }
 
@@ -44,8 +44,7 @@ class AppMcpToolLoaderTest extends TestCase
     {
         $exception = new class('DB error') extends \Exception implements DBALException {};
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willThrowException($exception);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -67,8 +66,7 @@ class AppMcpToolLoaderTest extends TestCase
             'description' => 'Syncs orders',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$toolRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -143,8 +141,7 @@ class AppMcpToolLoaderTest extends TestCase
             'description' => 'Syncs orders',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$toolRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -181,8 +178,7 @@ class AppMcpToolLoaderTest extends TestCase
             'description' => 'Sync',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$toolRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -205,8 +201,7 @@ class AppMcpToolLoaderTest extends TestCase
             'description' => 'Sync',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$toolRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -300,10 +295,12 @@ class AppMcpToolLoaderTest extends TestCase
 
         $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
 
-        $this->executor->expects($this->once())
+        $executor = $this->createMock(AppMcpCapabilityExecutor::class);
+        $executor->expects($this->once())
             ->method('execute')
             ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', ['since' => '2025-01-01'], '2.1.0')
             ->willReturn('{"success":true}');
+        $loader = new AppMcpToolLoader($this->connection, $executor, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -313,7 +310,7 @@ class AppMcpToolLoaderTest extends TestCase
                 $capturedCallback = $callback;
             });
 
-        $this->loader->load($registry);
+        $loader->load($registry);
 
         static::assertNotNull($capturedCallback);
 
@@ -339,10 +336,12 @@ class AppMcpToolLoaderTest extends TestCase
 
         $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
 
-        $this->executor->expects($this->once())
+        $executor = $this->createMock(AppMcpCapabilityExecutor::class);
+        $executor->expects($this->once())
             ->method('execute')
             ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', [], '0.0.0')
             ->willReturn('{"success":true}');
+        $loader = new AppMcpToolLoader($this->connection, $executor, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -352,7 +351,7 @@ class AppMcpToolLoaderTest extends TestCase
                 $capturedCallback = $callback;
             });
 
-        $this->loader->load($registry);
+        $loader->load($registry);
 
         static::assertNotNull($capturedCallback);
 
@@ -376,8 +375,7 @@ class AppMcpToolLoaderTest extends TestCase
             'description' => 'Sync',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$toolRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -431,8 +429,7 @@ class AppMcpToolLoaderTest extends TestCase
             'description' => 'Sync',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$toolRow]);
 
         $registry = $this->createMock(RegistryInterface::class);

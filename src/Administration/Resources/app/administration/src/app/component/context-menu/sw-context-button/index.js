@@ -73,7 +73,7 @@ export default {
         iconSize: {
             type: String,
             required: false,
-            default: '16px',
+            default: 'var(--scale-size-14)',
         },
 
         disabled: {

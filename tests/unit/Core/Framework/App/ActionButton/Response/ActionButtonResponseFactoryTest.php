@@ -35,7 +35,7 @@ class ActionButtonResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $signer = $this->createMock(QuerySigner::class);
+        $signer = static::createStub(QuerySigner::class);
         $signer->method('signUri')->willReturn(new Uri('http://signed.url'));
 
         $this->actionButtonResponseFactory = new ActionButtonResponseFactory([

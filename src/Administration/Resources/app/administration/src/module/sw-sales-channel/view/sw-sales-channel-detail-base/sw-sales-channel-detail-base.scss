@@ -78,6 +78,22 @@
     .sw-sales-channel-detail__tax-calculation {
         margin-top: 25px;
     }
+
+    .sw-sales-channel-detail-base__unserved-language-banner {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .sw-sales-channel-detail-base__unserved-language-message {
+        min-width: 0;
+    }
+
+    .sw-sales-channel-detail-base__unserved-language-domain-action {
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
 }
 
 .sw-sales-channel-detail-base__delete-modal {

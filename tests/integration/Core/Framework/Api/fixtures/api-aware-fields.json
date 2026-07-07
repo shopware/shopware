@@ -226,6 +226,7 @@
     "sales_channel.mailHeaderFooterId",
     "sales_channel.hreflangDefaultDomainId",
     "sales_channel.measurementUnits",
+    "sales_channel.businessTimeZone",
     "sales_channel.name",
     "sales_channel.shortName",
     "sales_channel.taxCalculationType",

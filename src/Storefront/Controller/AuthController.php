@@ -37,6 +37,9 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
+use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * @internal
@@ -126,6 +129,22 @@ class AuthController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
+        $redirectParameters = $request->query->all()['redirectParameters'] ?? [];
+        if (!\is_array($redirectParameters)) {
+            $redirectParameters = [];
+        }
+
+        // The template builds the form action via `path(redirectTo, redirectParameters)`. If the redirect target
+        // cannot be generated (e.g. the page was called directly without the required `redirectParameters`),
+        // rendering would fail with a 500. Behave like a direct call and send the user to the login page instead.
+        try {
+            $this->generateUrl($redirect, $redirectParameters);
+        } catch (RouteNotFoundException|MissingMandatoryParametersException|InvalidParameterException) {
+            $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
+
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
         // WaitTime can be either set as attribute when it's forwarded to this route
         // or as query parameter when it's redirected
         $waitTime = (int) ($request->attributes->get('waitTime') ?? $request->query->get('waitTime'));
@@ -145,7 +164,7 @@ class AuthController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/guest-auth.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([]),
+            'redirectParameters' => $redirectParameters,
             'page' => $page,
         ]);
     }

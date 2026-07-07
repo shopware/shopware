@@ -32,8 +32,8 @@ function cloneDiscoveredFiles() {
 async function createWrapper(options = {}) {
     const { serviceResponse, translations = {} } = options;
     const mergedTranslations = {
-        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]': 'A Markdown index for AI assistants.',
-        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents.md"]':
+        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms-txt"]': 'A Markdown index for AI assistants.',
+        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents-md"]':
             'Context and operating guidance for agent clients.',
         ...translations,
     };
@@ -233,7 +233,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(wrapper.vm.getDisplayFileName(file)).toBe('unknown.json');
         expect(wrapper.vm.getPublicPath(file)).toBe('/.well-known/unknown.json');
         expect(wrapper.vm.getDescriptionSnippetKey(file)).toBe(
-            'sw-sales-channel.detail.agenticFiles.descriptions["agentic"][".well-known/unknown.json"]',
+            'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["well-known-unknown-json"]',
         );
         expect(wrapper.vm.getDescription(file)).toBe('');
     });
@@ -241,7 +241,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
     it('renders only the first description sentence in the table', async () => {
         const { wrapper } = await createWrapper({
             translations: {
-                'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]':
+                'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms-txt"]':
                     'First sentence. Second sentence.',
             },
         });
@@ -280,7 +280,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         await flushPromises();
 
         const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
-        expect(contextMenuItems.at(0).text()).toBe('sw-sales-channel.detail.agenticFiles.actionEdit');
+        expect(contextMenuItems.at(0).text()).toBe('global.default.edit');
 
         expect(wrapper.findAllComponents(RouterLinkStub).at(1).props('to')).toEqual({
             name: 'sw.sales.channel.detail.agenticFile',

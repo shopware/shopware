@@ -77,7 +77,7 @@ class UserRecoveryControllerTest extends TestCase
         $rateLimiter->expects($this->never())->method('resetIfConfigured');
 
         $controller = new UserRecoveryController(
-            $this->createMock(UserRecoveryService::class),
+            static::createStub(UserRecoveryService::class),
             $rateLimiter,
         );
 

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
@@ -21,12 +21,12 @@ class ElasticsearchAdminResetCommandTest extends TestCase
 {
     private Connection $connection;
 
-    private Client&MockObject $client;
+    private Client&Stub $client;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->client = $this->createMock(Client::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->client = static::createStub(Client::class);
     }
 
     public function testExecuteWithEsNotEnabled(): void
@@ -37,7 +37,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
             new ElasticsearchAdminResetCommand(
                 $this->client,
                 $this->connection,
-                $this->createMock(IncrementGatewayRegistry::class),
+                static::createStub(IncrementGatewayRegistry::class),
                 $searchHelper
             )
         );
@@ -56,7 +56,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
             new ElasticsearchAdminResetCommand(
                 $this->client,
                 $this->connection,
-                $this->createMock(IncrementGatewayRegistry::class),
+                static::createStub(IncrementGatewayRegistry::class),
                 $searchHelper
             )
         );
@@ -83,7 +83,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
             new ElasticsearchAdminResetCommand(
                 $this->client,
                 $this->connection,
-                $this->createMock(IncrementGatewayRegistry::class),
+                static::createStub(IncrementGatewayRegistry::class),
                 $searchHelper
             )
         );

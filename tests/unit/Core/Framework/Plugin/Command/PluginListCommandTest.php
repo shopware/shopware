@@ -222,7 +222,7 @@ class PluginListCommandTest extends TestCase
      */
     private function setupEntityCollection(array $entities): void
     {
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new PluginCollection($entities));
         $this->pluginRepoMock->method('search')->willReturn($result);
     }

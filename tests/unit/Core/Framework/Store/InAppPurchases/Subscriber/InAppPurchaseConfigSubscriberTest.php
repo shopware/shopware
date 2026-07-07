@@ -42,6 +42,8 @@ class InAppPurchaseConfigSubscriberTest extends TestCase
 
     public function testIsSubscribedToSystemConfigChangedEvents(): void
     {
+        $this->iapUpdater->expects($this->never())->method('update');
+
         static::assertSame([
             SystemConfigChangedEvent::class => 'updateIapKey',
             SystemConfigDomainLoadedEvent::class => 'removeIapInformationFromDomain',
@@ -88,6 +90,8 @@ class InAppPurchaseConfigSubscriberTest extends TestCase
 
     public function testRemoveIapInformationFromDomainOnlyActsOnStoreDomain(): void
     {
+        $this->iapUpdater->expects($this->never())->method('update');
+
         $event = new SystemConfigDomainLoadedEvent('some.domain.', ['core.store.iapKey' => 'key'], false, null);
         $this->subscriber->removeIapInformationFromDomain($event);
 
@@ -96,6 +100,8 @@ class InAppPurchaseConfigSubscriberTest extends TestCase
 
     public function testRemoveIapInformationCleansDomain(): void
     {
+        $this->iapUpdater->expects($this->never())->method('update');
+
         $event = new SystemConfigDomainLoadedEvent('core.store.', ['core.store.iapKey' => 'key'], false, null);
         $this->subscriber->removeIapInformationFromDomain($event);
 

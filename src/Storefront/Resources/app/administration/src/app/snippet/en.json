@@ -10,8 +10,7 @@
     "modal": {
       "modalTitleChange": "Change theme",
       "textChangeTheme": "Do you really want to change the theme? This may alter the visualisation of your shop.",
-      "buttonChange": "Change theme",
-      "buttonCancel": "Cancel"
+      "buttonChange": "Change theme"
     }
   }
 }

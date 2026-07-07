@@ -64,12 +64,26 @@ describe('src/app/service/cache.service.ts', () => {
         const childFn = jest.fn().mockResolvedValueOnce('child').mockResolvedValueOnce('child-reloaded');
 
         await cacheService.query({ key: ['user-config'], fn: rootFn });
-        await cacheService.query({ key: ['user-config', 'current-user'], fn: childFn });
+        await cacheService.query({
+            key: [
+                'user-config',
+                'current-user',
+            ],
+            fn: childFn,
+        });
 
         cacheService.invalidateCaches({ cacheKey: ['user-config'] });
 
         await expect(cacheService.query({ key: ['user-config'], fn: rootFn })).resolves.toBe('root-reloaded');
-        await expect(cacheService.query({ key: ['user-config', 'current-user'], fn: childFn })).resolves.toBe('child-reloaded');
+        await expect(
+            cacheService.query({
+                key: [
+                    'user-config',
+                    'current-user',
+                ],
+                fn: childFn,
+            }),
+        ).resolves.toBe('child-reloaded');
     });
 
     it('clears failed pending entries so retries work', async () => {

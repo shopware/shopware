@@ -1411,13 +1411,11 @@ export default {
         },
 
         async loadPreferenceUnits() {
-            const preferenceUnits =
-                (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
-                    'measurement.preferenceUnits'
-                ] || {
-                    length: 'mm',
-                    weight: 'kg',
-                };
+            const preferenceUnits = (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))
+                ?.data?.['measurement.preferenceUnits'] || {
+                length: 'mm',
+                weight: 'kg',
+            };
 
             this.preferenceUnits = preferenceUnits;
             this.lengthUnit = preferenceUnits.length;

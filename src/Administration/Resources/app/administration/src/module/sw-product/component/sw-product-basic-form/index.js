@@ -172,7 +172,11 @@ export default {
             return Shopware.Service('repositoryFactory')
                 .create('number_range')
                 .searchIds(criteria, Shopware.Context.api, {
-                    cacheKey: ['shared-data', 'number-range-ids', 'product'],
+                    cacheKey: [
+                        'shared-data',
+                        'number-range-ids',
+                        'product',
+                    ],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((numberRangeIds) => {

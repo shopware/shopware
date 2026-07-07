@@ -159,9 +159,9 @@ export default {
         async loadUserConfig() {
             this.userConfig = {
                 key: 'setting-country',
-                value: (await Shopware.Service('userConfigService').search(['setting-country']))?.data?.[
-                    'setting-country'
-                ] || [],
+                value:
+                    (await Shopware.Service('userConfigService').search(['setting-country']))?.data?.['setting-country'] ||
+                    [],
             };
             this.userConfigValues = this.userConfig.value[this.countryId];
 

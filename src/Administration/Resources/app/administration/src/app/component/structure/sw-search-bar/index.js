@@ -863,7 +863,11 @@ export default {
             return this.repositoryFactory
                 .create('sales_channel_type')
                 .search(new Criteria(1, 100), Shopware.Context.api, {
-                    cacheKey: ['shared-data', 'sales-channel-types', Shopware.Context.api.languageId ?? 'default'],
+                    cacheKey: [
+                        'shared-data',
+                        'sales-channel-types',
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((salesChannelTypes) => {

@@ -98,7 +98,11 @@ export default {
             return Shopware.Service('repositoryFactory')
                 .create('language')
                 .search(criteria, Shopware.Context.api, {
-                    cacheKey: ['shared-data', 'active-languages', Shopware.Context.api.languageId ?? 'default'],
+                    cacheKey: [
+                        'shared-data',
+                        'active-languages',
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((languages) => {

@@ -922,7 +922,11 @@ export default {
 
             return this.currencyRepository
                 .search(criteria, Shopware.Context.api, {
-                    cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+                    cacheKey: [
+                        'shared-data',
+                        'currencies',
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((res) => {
@@ -947,7 +951,11 @@ export default {
 
             return this.taxRepository
                 .search(criteria, Shopware.Context.api, {
-                    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
+                    cacheKey: [
+                        'shared-data',
+                        'taxes',
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((res) => {
@@ -962,17 +970,19 @@ export default {
         },
 
         getDefaultTaxRate() {
-            return Shopware.Service('cacheService')
-                .query({
-                    key: ['shared-data', 'default-tax-rate-id'],
-                    ttl: 5 * 60 * 1000,
-                    fn: () =>
-                        this.systemConfigApiService.getValues('core.tax').then((response) => {
-                            const defaultTaxRateId = response['core.tax.defaultTaxRate'];
+            return Shopware.Service('cacheService').query({
+                key: [
+                    'shared-data',
+                    'default-tax-rate-id',
+                ],
+                ttl: 5 * 60 * 1000,
+                fn: () =>
+                    this.systemConfigApiService.getValues('core.tax').then((response) => {
+                        const defaultTaxRateId = response['core.tax.defaultTaxRate'];
 
-                            return typeof defaultTaxRateId === 'string' ? defaultTaxRateId : null;
-                        }),
-                });
+                        return typeof defaultTaxRateId === 'string' ? defaultTaxRateId : null;
+                    }),
+            });
         },
 
         loadAttributeSet() {

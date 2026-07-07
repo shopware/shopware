@@ -73,7 +73,10 @@ export default class CacheService {
     }
 
     invalidateCaches({ cacheKey }: InvalidateOptions): void {
-        for (const [cacheId, entry] of this.entries.entries()) {
+        for (const [
+            cacheId,
+            entry,
+        ] of this.entries.entries()) {
             if (this.matchesKey(entry.key, cacheKey)) {
                 this.entries.delete(cacheId);
             }

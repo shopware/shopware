@@ -131,6 +131,14 @@ async function createWrapper() {
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-create', () => {
     beforeEach(() => {
+        global.repositoryFactoryMock.responses.addResponse({
+            method: 'Post',
+            url: '/search/language',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
     });
 
     afterEach(() => {

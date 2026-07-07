@@ -3,12 +3,7 @@ import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
 type CacheServiceContract = {
-    query: <T>(options: {
-        key: unknown[];
-        fn: () => Promise<T>;
-        ttl?: number;
-        forceReload?: boolean;
-    }) => Promise<T>;
+    query: <T>(options: { key: unknown[]; fn: () => Promise<T>; ttl?: number; forceReload?: boolean }) => Promise<T>;
     invalidateCaches: (options: { cacheKey: unknown[] }) => void;
 };
 
@@ -39,7 +34,10 @@ export default class UserConfigService extends ApiService {
 
         return cacheService
             .query<Record<string, unknown>>({
-                key: ['user-config', currentUserId],
+                key: [
+                    'user-config',
+                    currentUserId,
+                ],
                 forceReload,
                 fn: () =>
                     this.httpClient
@@ -85,7 +83,10 @@ export default class UserConfigService extends ApiService {
 
         return this.httpClient.patch<void>(this.getApiBasePath(), upsertData, { headers }).then((response) => {
             (Shopware.Service('cacheService') as CacheServiceContract).invalidateCaches({
-                cacheKey: ['user-config', currentUserId],
+                cacheKey: [
+                    'user-config',
+                    currentUserId,
+                ],
             });
 
             return ApiService.handleResponse(response);

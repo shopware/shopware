@@ -383,7 +383,11 @@ export default {
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
                     this.repositoryFactory.create('currency').search(currencyCriteria, Shopware.Context.api, {
-                        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+                        cacheKey: [
+                            'shared-data',
+                            'currencies',
+                            Shopware.Context.api.languageId ?? 'default',
+                        ],
                         ttl: 5 * 60 * 1000,
                     }),
                 ]);

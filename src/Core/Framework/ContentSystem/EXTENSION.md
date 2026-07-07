@@ -260,7 +260,7 @@ App specifications are persisted to `app_content_system_binding_specification` o
 
 ### Discoverability
 
-A registered specification appears in `GET /api/_info/content-system-binding-specifications.json` and, folded under a `bindingSpecifications` key per type entry, in `GET /api/_info/content-system-element-types.json`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]` on the latter. See `ADMINISTRATION.md`.
+A registered specification appears folded under a `bindingSpecifications` key per type entry in `GET /api/_info/content-system-element-types.json`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]`. See `ADMINISTRATION.md`.
 
 Reference: `Binding/README.md`, `Layout/Type/Definitions/media/image.yaml` (core inline example)
 

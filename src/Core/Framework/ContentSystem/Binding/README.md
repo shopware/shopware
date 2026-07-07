@@ -105,7 +105,7 @@ Both ops perform the specification lookup and the type check themselves (these d
 
 ## Introspection
 
-`GET /api/_info/content-system-binding-specifications.json` (`InfoController::getContentSystemBindingSpecifications()`) serves the full registered catalog keyed by source-qualified id — the id a client passes back as `bindingSpecificationId`. The specifications for each type are also folded into the `bindingSpecifications` key on each entry of `content-system-element-types.json` (`InfoController::elementTypeSchema()`); a client derives the specifications applicable to an element from `bindingSpecifications[element.component]` on that catalog.
+The specifications for each type are folded into the `bindingSpecifications` key on each entry of `content-system-element-types.json` (`InfoController::elementTypeSchema()`), keyed by source-qualified id — the id a client passes back as `bindingSpecificationId`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]` on that catalog.
 
 ## Diagnostics Tie-Ins
 

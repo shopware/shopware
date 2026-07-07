@@ -296,13 +296,6 @@ class InfoController extends AbstractController
         return new JsonResponse(['styleOptions' => (object) $this->styleOptionSchemas()]);
     }
 
-    #[Route(path: '/api/_info/content-system-binding-specifications.json', name: 'api.info.content-system-binding-specifications', methods: ['GET'])]
-    public function getContentSystemBindingSpecifications(): JsonResponse
-    {
-        // Cast to an object so an empty catalog serializes as {} (the OpenAPI type: object), not [].
-        return new JsonResponse(['bindingSpecifications' => (object) $this->bindingSpecificationSchemas()]);
-    }
-
     /**
      * bindingSpecifications are folded into each type entry (mirrors the styleOptions precedent), keyed by
      * source-qualified id. Cast to an object so a type with none serializes {} (the OpenAPI type: object), not [].
@@ -325,17 +318,6 @@ class InfoController extends AbstractController
         return array_map(
             static fn (StyleOptionSpecification $spec) => $spec->toSchema(),
             $this->styleOptionRegistry->allResolved()
-        );
-    }
-
-    /**
-     * @return array<string, BindingSpecificationSchema> keyed by qualified id ("source:id")
-     */
-    private function bindingSpecificationSchemas(): array
-    {
-        return array_map(
-            static fn (BindingSpecification $specification) => $specification->toSchema(),
-            $this->bindingSpecificationRegistry->all()
         );
     }
 

@@ -148,7 +148,7 @@
                                                     },
                                                     "bindingSpecifications": {
                                                         "type": "object",
-                                                        "description": "Map of source-qualified binding specification id (`source:id`) to its specification, filtered to those applicable to this type; folded in from the same registry served at \/_info\/content-system-binding-specifications.json. Encodes as `{}` when the type has no applicable specification.",
+                                                        "description": "Map of source-qualified binding specification id (`source:id`) to its specification, filtered to those applicable to this type; folded in from the aggregated binding specification registry. Encodes as `{}` when the type has no applicable specification.",
                                                         "additionalProperties": {
                                                             "type": "object",
                                                             "required": ["id", "type", "label", "promoted", "resolves", "inputs"],

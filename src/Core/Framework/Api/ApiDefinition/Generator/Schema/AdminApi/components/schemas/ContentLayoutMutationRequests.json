@@ -72,7 +72,7 @@
                             },
                             "bindingSpecificationId": {
                                 "type": ["string", "null"],
-                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit. A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`, and nothing is inserted on either failure.",
+                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit. A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`, and nothing is inserted on either failure.",
                                 "default": null,
                                 "example": "core:from-media-library"
                             }
@@ -287,7 +287,7 @@
                             "bindingSpecificationId": {
                                 "type": "string",
                                 "minLength": 1,
-                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
+                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
                                 "example": "core:from-media-library"
                             }
                         }
@@ -328,7 +328,7 @@
                             },
                             "bindingSpecificationId": {
                                 "type": ["string", "null"],
-                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold, in the same committed edit. A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`. The op throws before the repository write, so nothing is persisted on either failure.",
+                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold, in the same committed edit. A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`. The op throws before the repository write, so nothing is persisted on either failure.",
                                 "default": null,
                                 "example": "core:from-media-library"
                             }
@@ -543,7 +543,7 @@
                             "bindingSpecificationId": {
                                 "type": "string",
                                 "minLength": 1,
-                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
+                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
                                 "example": "core:from-media-library"
                             }
                         }

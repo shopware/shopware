@@ -206,10 +206,10 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
     }
 
-    #[TestDox('serves the introspection endpoint listing the valid core binding while the poison app binding is persisted')]
+    #[TestDox('serves the element-types bindingSpecifications fold listing the valid core binding on its type entry while the poison app binding is persisted')]
     public function testIntrospectionEndpointListsValidBindingAndOmitsPoisonBinding(): void
     {
-        $this->getBrowser()->request('GET', '/api/_info/content-system-binding-specifications.json');
+        $this->getBrowser()->request('GET', '/api/_info/content-system-element-types.json');
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
@@ -219,9 +219,18 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
-        static::assertIsArray($data['bindingSpecifications']);
-        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $data['bindingSpecifications']);
-        static::assertArrayNotHasKey('app:' . $this->appName . ':' . self::POISON_BINDING_NAME, $data['bindingSpecifications']);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            $typesByName[$type['name']] = $type;
+        }
+
+        // The poison row declares the unregistered type Sw:Does:NotExist, so it has no type entry to
+        // appear on; the valid core binding's own type's fold is where both assertions land.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $typesByName['Sw:Media:Image']['bindingSpecifications']);
+        static::assertArrayNotHasKey('app:' . $this->appName . ':' . self::POISON_BINDING_NAME, $typesByName['Sw:Media:Image']['bindingSpecifications']);
     }
 
     #[TestDox('persists a content_layout write attributed to the valid core binding while the poison app binding row is present')]

@@ -191,32 +191,6 @@ class InfoControllerTest extends TestCase
         ], $data['styleOptions']);
     }
 
-    #[TestDox('returns the registered binding specifications keyed by source-qualified id with their derived schema')]
-    public function testContentSystemBindingSpecificationsReturnsRegisteredSpecificationsKeyedByQualifiedId(): void
-    {
-        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification()]);
-
-        $controller = $this->createController(bindingSpecificationRegistry: $registry);
-        $response = $controller->getContentSystemBindingSpecifications();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([
-            'core:from-media-library' => [
-                'id' => 'from-media-library',
-                'type' => 'media-gallery',
-                'label' => 'From Media Library',
-                'promoted' => false,
-                'resolves' => [],
-                'inputs' => [],
-            ],
-        ], $data['bindingSpecifications']);
-    }
-
     #[TestDox('returns content system entity types as JSON')]
     public function testContentSystemEntityTypes(): void
     {
@@ -493,21 +467,6 @@ class InfoControllerTest extends TestCase
         static::assertIsString($content);
         // Assert the raw encoding: json_decode would erase the {} vs [] distinction
         static::assertStringContainsString('"styleOptions":{}', $content);
-    }
-
-    #[TestDox('encodes an empty binding specification catalog as a JSON object, not an array')]
-    public function testContentSystemBindingSpecificationsEncodesEmptySetAsObject(): void
-    {
-        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->method('all')->willReturn([]);
-
-        $controller = $this->createController(bindingSpecificationRegistry: $registry);
-        $response = $controller->getContentSystemBindingSpecifications();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
     /**

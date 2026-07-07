@@ -175,11 +175,9 @@ Full field-level schema: [content-system-style-options.json](../Api/ApiDefinitio
 
 ### Binding specifications
 
-`GET /api/_info/content-system-binding-specifications.json`
+The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](#element-types), keyed by their source-qualified id (`source:id`) and filtered to that entry's type. Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the ids a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions; a client derives the specifications applicable to an element from `bindingSpecifications[element.component]`.
 
-The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — keyed by their source-qualified id (`source:id`). Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the ids a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions. The specifications for each type are also folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](#element-types) — a client derives the specifications applicable to an element from `bindingSpecifications[element.component]` there.
-
-Response:
+A type entry's `bindingSpecifications` fold:
 
 ```json
 {
@@ -202,7 +200,7 @@ Response:
 
 `source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none. Every `inputs` entry always carries a `required` flag — derived by the server from the specification's wiring, never authorable — marking a property that is read through a required config key of a wiring whose reference property is itself required.
 
-Full field-level schema: [content-system-binding-specifications.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-binding-specifications.json).
+Full field-level schema: [content-system-element-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 
 ## Preview Endpoint
 
@@ -379,7 +377,7 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
 
 `resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider), `loader` (a data loader), or `stored` (the element's own applied wiring — a stored reference wiring whose produced type resolves and is assignable to the declared FQCN; it only ever fills `resolved` directly, never a `candidates` menu entry). A `stored` candidate is not loader-shaped: its `loaderSource`, `configTemplate`, and `configComplete` all serialize as `null` (clients branch on `origin` before reading them).
 
-A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](#element-types) (`bindingSpecifications[element.component]`) — the ids from the [Binding specifications](#binding-specifications) introspection endpoint that a client may pass as `bindingSpecificationId` to a bind-element action.
+A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](#element-types) (`bindingSpecifications[element.component]`) — the ids from the [Binding specifications](#binding-specifications) fold that a client may pass as `bindingSpecificationId` to a bind-element action.
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 
@@ -441,7 +439,7 @@ Every action shares one envelope and adds its own operation fields. Shared field
 | `wrap-elements`     | `elementIds` (required, a non-empty list of ids that are siblings in one slot, or all roots); `containerType` (required); `slot` (required)                                                         |
 | `unwrap-element`    | `containerElementId` (required)                                                                                                                                                                     |
 | `attach-element`    | `element` (required, a raw element subtree to splice in; every id in it is reminted); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
-| `bind-element`      | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the [Binding specifications](#binding-specifications) endpoint, or from the target element's type entry's `bindingSpecifications` map on `content-system-element-types.json`)                                                                                       |
+| `bind-element`      | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the target element's type entry's [`bindingSpecifications`](#binding-specifications) map on `content-system-element-types.json`)                                                                                       |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 

@@ -350,14 +350,21 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', 'cms_page'));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder?.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        'cms_page',
+                    ],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         onChangeLanguage(languageId) {

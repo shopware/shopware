@@ -43,6 +43,60 @@ class ProductListingLoader
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
+     *             to drop heavy columns instead of allow-listing fields.
+     *
+     * @var list<string>
+     */
+    final public const PARTIAL_LISTING_FIELDS = [
+        'id',
+        'versionId',
+        'parentId',
+        'productNumber',
+        'displayGroup',
+        'states',
+        'childCount',
+        'name',
+        'descriptionTeaser',
+        'available',
+        'availableStock',
+        'stock',
+        'isCloseout',
+        'minPurchase',
+        'maxPurchase',
+        'purchaseSteps',
+        'purchaseUnit',
+        'referenceUnit',
+        'unitId',
+        'taxId',
+        'price',
+        'prices.ruleId',
+        'prices.price',
+        'prices.quantityStart',
+        'prices.quantityEnd',
+        'cheapestPrice',
+        'variantListingConfig',
+        'variation',
+        'options.group',
+        'coverId',
+        'cover.media.url',
+        'cover.media.alt',
+        'cover.media.title',
+        'cover.media.mediaTypeRaw',
+        'cover.media.thumbnailsRo',
+        'manufacturerId',
+        'manufacturer.name',
+        'ratingAverage',
+        'releaseDate',
+        'markAsTopseller',
+        'deliveryTimeId',
+        'deliveryTime.name',
+        'deliveryTime.min',
+        'deliveryTime.max',
+        'deliveryTime.unit',
+    ];
+
+    /**
      * Heavy, off-page columns dropped from listings when `core.listing.partialDataLoading` is
      * enabled. Reduced loading still returns full, typed product entities (and all associations) —
      * only these columns are skipped via {@see Criteria::excludeFields()}. They are never rendered on

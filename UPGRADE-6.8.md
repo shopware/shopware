@@ -889,6 +889,12 @@ $salesChannel->getMaintenanceIpWhitelist();
 $salesChannel->getMaintenanceIpAllowlist();
 ```
 
+## Removal of `ProductListingLoader::PARTIAL_LISTING_FIELDS`
+
+The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PARTIAL_LISTING_FIELDS` constant has been removed. Reduced listing loading (`core.listing.partialDataLoading`) no longer allow-lists a fixed set of fields; instead it loads full product entities and drops only the heavy, off-page columns via `Criteria::excludeFields()`.
+
+If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
+
 # Administration
 
 <details>

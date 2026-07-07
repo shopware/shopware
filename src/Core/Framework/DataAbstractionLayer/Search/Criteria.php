@@ -646,11 +646,8 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * Loads the full, typed entity but omits the given storage fields from the read — a denylist
-     * counterpart to {@see addFields()} (an allowlist). Because the result stays a full entity
-     * (excluded properties keep their default), it must not be combined with addFields(), and only
-     * fields whose entity property is nullable or has a default may be excluded; the reader rejects
-     * excluding a non-nullable, no-default field.
+     * Denylist counterpart to {@see addFields()}: loads the full, typed entity but omits the given
+     * storage fields. Cannot be combined with addFields(); only nullable/defaulted fields may be excluded.
      *
      * @param list<string> $fields
      */

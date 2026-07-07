@@ -131,9 +131,5 @@ return [
         // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
-
-        // Intentional: Criteria::excludeFields() replaces the PARTIAL_LISTING_FIELDS allowlist in
-        // product listings, so the (recently introduced) constant is removed.
-        preg_quote('REMOVED: Constant Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PARTIAL_LISTING_FIELDS was removed', '/'),
     ],
 ];

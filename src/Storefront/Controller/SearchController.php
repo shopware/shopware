@@ -160,7 +160,7 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        $product = $page->getListing()->first();
+        $product = $page->getListing()->getEntities()->first();
         if (!$product instanceof ProductEntity) {
             return null;
         }

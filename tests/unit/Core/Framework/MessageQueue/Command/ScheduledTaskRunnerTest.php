@@ -25,7 +25,7 @@ class ScheduledTaskRunnerTest extends TestCase
 
         $runner = new ScheduledTaskRunner(
             $scheduler,
-            $this->createMock(CacheItemPoolInterface::class),
+            static::createStub(CacheItemPoolInterface::class),
             new NativeClock()
         );
 

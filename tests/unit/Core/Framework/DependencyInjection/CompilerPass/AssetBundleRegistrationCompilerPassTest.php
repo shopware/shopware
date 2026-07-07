@@ -40,7 +40,7 @@ class AssetBundleRegistrationCompilerPassTest extends TestCase
         $container->addCompilerPass($compilerPass);
         $compilerPass->process($container);
 
-        $container->set('shopware.asset.asset_without_versioning', $this->createMock(Package::class));
+        $container->set('shopware.asset.asset_without_versioning', static::createStub(Package::class));
 
         $assetService = $container->get('assets.packages');
 

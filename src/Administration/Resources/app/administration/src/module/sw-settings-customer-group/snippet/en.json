@@ -3,7 +3,6 @@
     "general": {
       "mainMenuItemGeneral": "Customer groups",
       "buttonCreate": "Add customer group",
-      "buttonSave": "Save",
       "placeholderSearchBar": "Search customer groups..."
     },
     "list": {

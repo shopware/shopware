@@ -3,7 +3,7 @@
 `fixtures.json` seeds exactly the entities/config your repro needs, via the Admin Sync API, before
 the test runs. `repro seed` normalizes it, resolves placeholders, upserts, uploads any media, and
 reindexes — and **prints the real Sync response**, so a wrong payload fails right there with the
-API's own error. On 6.7+, prefer authoring against live schema with the MCP tools ([mcp.md](mcp.md)).
+API's own error. Author against the live schema with `repro schema` / `repro search` ([inspect.md](inspect.md)).
 
 ## Shape
 

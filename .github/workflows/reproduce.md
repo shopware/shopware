@@ -75,11 +75,6 @@ tools:
     - "jq:*"
     - "pwd"
 
-mcp-servers:
-  shopware:
-    type: http
-    url: "http://127.0.0.1:18765/mcp"
-
 # --- Deterministic pre-agent setup: provision the reported version, expose it, snapshot the DB,
 #     write the run context. The agent starts with a ready-to-use live shop. ---
 steps:
@@ -171,23 +166,6 @@ steps:
       printf '#!/usr/bin/env bash\nexec node /tmp/reproduce/cli/repro.mjs "$@"\n' > /tmp/reproduce-bin/repro
       chmod +x /tmp/reproduce-bin/repro
       echo "/tmp/reproduce-bin" >> "$GITHUB_PATH"
-
-  - name: Start Shopware MCP bridge
-    env:
-      SHOPWARE_MCP_AVAILABLE: ${{ steps.provision.outputs.mcp_available }}
-      SHOPWARE_MCP_URL: "http://127.0.0.1:8000/api/_mcp"
-      SHOPWARE_MCP_ACCESS_KEY: ${{ steps.provision.outputs.mcp_access_key }}
-      SHOPWARE_MCP_SECRET_ACCESS_KEY: ${{ steps.provision.outputs.mcp_secret_access_key }}
-      SHOPWARE_MCP_BRIDGE_PORT: "18765"
-    run: |
-      set -euo pipefail
-      nohup node /tmp/reproduce/mcp-bridge.mjs --http >/tmp/shopware-mcp-bridge.log 2>&1 &
-      for i in $(seq 1 20); do
-        curl -s -o /dev/null -w '%{http_code}' --max-time 1 http://127.0.0.1:18765/mcp | grep -q '^405$' && { echo "MCP bridge up"; exit 0; }
-        sleep 0.5
-      done
-      cat /tmp/shopware-mcp-bridge.log || true
-      echo "::error::Shopware MCP bridge did not start."; exit 1
 
 pre-agent-steps:
   - name: Record pre-agent workspace baseline

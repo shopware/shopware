@@ -84,6 +84,22 @@ export async function search(entity, criteria) {
 }
 
 /**
+ * Fetches the running instance's DAL entity schema (all entities, or one when `entity` is given).
+ *
+ * This is the live-inspection substitute for the former MCP `shopware-entity-schema` tool: it reads
+ * the real provisioned instance (`/api/_info/entity-schema.json`) rather than source definitions, so
+ * plugin/extension fields are included, and it works identically on every Shopware version.
+ */
+export async function schema(entity) {
+  const res = await fetch(`${base()}/api/_info/entity-schema.json`, { headers: await authHeaders() });
+  if (!res.ok) {
+    throw new Error(`admin entity-schema request failed (HTTP ${res.status})`);
+  }
+  const all = await res.json();
+  return entity ? { [entity]: all[entity] } : all;
+}
+
+/**
  * Extracts the first id-like field from an Admin API search result.
  */
 const firstId = (result, field = 'id') => result?.data?.[0]?.[field] ?? '';

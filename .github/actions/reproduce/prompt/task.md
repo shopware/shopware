@@ -26,8 +26,9 @@ anything rendered/visual, `http` for API/JSON behaviour, `direct` for internal s
 A *visual* issue must use `playwright`. If the bug is about **motion** (animation, drag, toggle,
 scrolling, a control that won't respond), set `record_video: true` so the comment gets a video.
 
-You have a normal shell (rg/find/sed/cat/jq/…), a live browser (`playwright-cli`), and Shopware
-MCP/fallback tools for live schema/data. Use them however helps. The reliable loop is:
+You have a normal shell (rg/find/sed/cat/jq/…), a live browser (`playwright-cli`), and `repro schema`
+/ `repro search` to read the live shop's entity schema and data. Use them however helps. The reliable
+loop is:
 
 1. Understand the reported surface from the issue (and, briefly, from source near it — routes,
    templates, entity write shape). Don't hunt for the root cause; you only need the *setup*.
@@ -68,5 +69,4 @@ pipeline's; you don't run `verify`.
 - [guides/fixtures.md](guides/fixtures.md) — Sync payloads, `{{PLACEHOLDER}}` ids, media, seeded_readiness.
 - [guides/playwright.md](guides/playwright.md) — spec rules (one healthy assertion, precondition gates, auth).
 - [guides/executors.md](guides/executors.md) — choosing http/direct and their assertion shapes.
-- [guides/mcp.md](guides/mcp.md) — using Shopware MCP/fallback tools to author fixtures.
-- [guides/shopware-6.6.md](guides/shopware-6.6.md) — why 6.6 uses local fallback tools instead of remote MCP.
+- [guides/inspect.md](guides/inspect.md) — `repro schema` / `repro search` for live schema + data (all versions).

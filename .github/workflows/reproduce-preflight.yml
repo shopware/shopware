@@ -62,40 +62,58 @@ jobs:
           npm i -D @playwright/test
           npx playwright install --with-deps chromium
 
-      - name: Start Shopware MCP bridge and assert its tools
-        if: steps.provision.outputs.mcp_available == 'true'
+      - name: Assert live-inspection read commands work
         env:
-          SHOPWARE_MCP_AVAILABLE: ${{ steps.provision.outputs.mcp_available }}
-          SHOPWARE_MCP_URL: "http://127.0.0.1:8000/api/_mcp"
-          SHOPWARE_MCP_ACCESS_KEY: ${{ steps.provision.outputs.mcp_access_key }}
-          SHOPWARE_MCP_SECRET_ACCESS_KEY: ${{ steps.provision.outputs.mcp_secret_access_key }}
-          SHOPWARE_MCP_BRIDGE_PORT: "18765"
+          APP_URL: ${{ steps.provision.outputs.app_url }}
         run: |
           set -euo pipefail
-          nohup node .github/actions/reproduce/mcp-bridge.mjs --http >/tmp/mcp.log 2>&1 &
-          for i in $(seq 1 20); do
-            curl -s -o /dev/null -w '%{http_code}' --max-time 1 http://127.0.0.1:18765/mcp | grep -q '^405$' && break
-            sleep 0.5
-          done
-          tools=$(curl -s -X POST http://127.0.0.1:18765/mcp -H 'content-type: application/json' \
-            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq -r '[.result.tools[].name] | join(",")')
-          echo "MCP tools: $tools"
-          echo "$tools" | grep -q 'shopware-entity-schema' || { echo "::error::MCP bridge did not expose the entity tools"; cat /tmp/mcp.log; exit 1; }
+          # These back the agent's fixture authoring on every version — core Admin API, not MCP.
+          node .github/actions/reproduce/cli/repro.mjs schema product | jq -e '.properties.name.type == "string"' >/dev/null \
+            || { echo "::error::repro schema did not return product fields (/api/_info/entity-schema.json)"; exit 1; }
+          node .github/actions/reproduce/cli/repro.mjs search tax '{"limit":1}' | jq -e '.data[0].id' >/dev/null \
+            || { echo "::error::repro search did not return a tax row (/api/search/tax)"; exit 1; }
+          echo "live-inspection read commands OK (schema + search)"
 
       - name: Author a trivial bundle
         run: |
           cat > reproduction-plan.json <<'JSON'
           { "schema_version":"1","issue":0,"executor":"playwright","layer":"storefront-ui","version":"preflight",
             "fixtures":{"demodata":false},
+            "script_path":"repro.spec.ts",
             "seeded_readiness":[{"kind":"browser","path":"/","selector":"body","min_width":100,"min_height":100}],
             "scenario":["Given the storefront","When I open the home page","Then the page renders"],
             "confidence":1 }
           JSON
+          cat > repro.spec.ts <<'TS'
+          import { test, expect } from '@playwright/test';
+
+          test('preflight storefront home renders', async ({ page }) => {
+            await page.goto('/');
+            await expect(page.locator('body')).toBeVisible();
+          });
+          TS
           cat > fixtures.json <<'JSON'
           { "product":[{ "id":"0af1e2c3d4e5f60718293a4b5c6d7e8f","productNumber":"PREFLIGHT-1","name":"Preflight Product",
             "stock":10,"taxId":"{{TAX}}","price":[{"currencyId":"{{CURRENCY}}","gross":9.99,"net":8.4,"linked":true}],
             "visibilities":[{"salesChannelId":"{{SC}}","visibility":30}] }] }
           JSON
+
+      - name: Assert storefront domain is reachable
+        env:
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+        run: |
+          set -euo pipefail
+          body=$(curl -sS --max-time 20 "$APP_URL/")
+          if grep -qi 'Sales Channel Not Found' <<< "$body"; then
+            echo "::error::storefront domain is not registered for $APP_URL (Sales Channel Not Found)"
+            exit 1
+          fi
+          if ! grep -qiE '<html|<!doctype' <<< "$body"; then
+            echo "::error::storefront did not return an HTML document for $APP_URL"
+            printf '%s\n' "${body:0:1000}"
+            exit 1
+          fi
+          echo "$APP_URL/ returned storefront HTML"
 
       - name: repro validate / seed / check
         env:
@@ -116,7 +134,6 @@ jobs:
             seeded-readiness.json
             seed-error.txt
             test-results/
-            /tmp/mcp.log
             /tmp/repro-shop-proxy.log
           if-no-files-found: ignore
           retention-days: 3

@@ -31,7 +31,6 @@ verify`, which only the deterministic steps run (gated by `REPRO_ALLOW_VERIFY=1`
 - `steps/` — thin bash glue for the GitHub-Actions-only concerns (fetch/version/provision/proxy/snapshot/context).
 - `report/` — `verdict.mjs` (two legs → verdict) and `comment.mjs` (render from `templates/`).
 - `templates/` — `verdicts.json` (all comment copy, as data) + `comment.*.md` layouts.
-- `mcp-bridge.mjs` — Shopware MCP bridge the agent uses to author fixtures (Shopware 6.7+).
 - `dev/compile.sh` — MAINTAINER tool: regenerate the committed lock from the gh-aw source.
 
 ## The bundle

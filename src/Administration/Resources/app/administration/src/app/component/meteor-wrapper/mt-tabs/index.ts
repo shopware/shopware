@@ -67,6 +67,30 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
 
+        activeItemName(): string {
+            if (!this.extensionTabsUseRoutes) {
+                return this.defaultItem;
+            }
+
+            const defaultItemExists = this.mergedItems.some((item) => {
+                return item.name === this.defaultItem;
+            });
+
+            if (defaultItemExists) {
+                return this.defaultItem;
+            }
+
+            return (
+                this.tabExtensions.find((extension) => {
+                    return this.defaultItem.endsWith(`.${extension.componentSectionId}`);
+                })?.componentSectionId ?? this.defaultItem
+            );
+        },
+
+        extensionTabsUseRoutes(): boolean {
+            return this.useRoutesForExtensions && !this.$slots.content;
+        },
+
         activeTabExtension(): TabItemEntry | undefined {
             return this.tabExtensions.find((extension) => {
                 return extension.componentSectionId === this.activeItem;
@@ -74,7 +98,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasCustomContent(): boolean {
-            return Boolean(this.$slots.content || this.activeTabExtension);
+            return Boolean(this.$slots.content || (this.activeTabExtension && !this.extensionTabsUseRoutes));
         },
 
         mergedItems(): TabItem[] {
@@ -86,7 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
                         name: extension.componentSectionId,
                     };
 
-                    if (this.useRoutesForExtensions && !this.$slots.content) {
+                    if (this.extensionTabsUseRoutes) {
                         tabItem.onClick = () => {
                             // Push route to extension.componentSectionId path
                             void this.$router.push({

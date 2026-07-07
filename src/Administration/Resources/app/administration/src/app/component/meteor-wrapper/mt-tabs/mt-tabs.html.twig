@@ -2,7 +2,7 @@
 <mt-tabs-original
     v-bind="$attrs"
     ref="mtTabsOriginal"
-    :default-item="defaultItem"
+    :default-item="activeItemName"
     :items="mergedItems"
     :small="small"
     @new-item-active="onNewItemActive"
@@ -18,7 +18,7 @@
     ></slot>
 
     <sw-extension-component-section
-        v-if="activeTabExtension"
+        v-if="activeTabExtension && !extensionTabsUseRoutes"
         :position-identifier="activeTabExtension.componentSectionId"
     />
 </div>

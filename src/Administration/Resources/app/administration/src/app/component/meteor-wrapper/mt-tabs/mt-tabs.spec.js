@@ -139,4 +139,59 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
             ],
         ]);
     });
+
+    it('should render routed extension tabs only through the generated route', async () => {
+        const routerPush = jest.fn();
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
+            { label: 'Tab 3', componentSectionId: 'tab3' },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultItem: 'tab1',
+                items: [
+                    { label: 'Tab 1', name: 'tab1' },
+                ],
+            },
+            routerPush,
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(false);
+
+        await mtTabsOriginal.vm.$emit('new-item-active', 'tab3');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-component-section').exists()).toBe(false);
+
+        const extensionTab = mtTabsOriginal.props('items')[1];
+        extensionTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            path: 'tab3',
+        });
+    });
+
+    it('should keep generated extension routes active with the component section id', async () => {
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
+            { label: 'Tab 3', componentSectionId: 'tab3' },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultItem: 'sw.test.index.tab3',
+                items: [
+                    { label: 'Tab 1', name: 'sw.test.index' },
+                ],
+            },
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+
+        expect(mtTabsOriginal.props('defaultItem')).toBe('tab3');
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-component-section').exists()).toBe(false);
+    });
 });

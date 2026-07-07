@@ -77,7 +77,7 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         string $productId,
         SalesChannelContext $salesChannelContext
     ): void {
-        $product = $result->get('product_' . $slot->getUniqueIdentifier())?->get($productId);
+        $product = $result->get('product_' . $slot->getUniqueIdentifier())?->getEntities()->get($productId);
         if (!$product instanceof SalesChannelProductEntity) {
             return;
         }

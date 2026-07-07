@@ -111,7 +111,7 @@ class MigrationCommandTest extends TestCase
     #[TestDox('an unknown migration source is reported as a note and does not fail the command')]
     public function testUnknownSourceContinues(): void
     {
-        $loader = $this->createMock(MigrationCollectionLoader::class);
+        $loader = static::createStub(MigrationCollectionLoader::class);
         $loader->method('collect')->willThrowException(MigrationException::unknownMigrationSource('MyPlugin'));
 
         $cache = $this->createMock(TagAwareAdapterInterface::class);

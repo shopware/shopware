@@ -321,11 +321,11 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$productSearchResult->has($mapping[$id])) {
+            if (!$productSearchResult->getEntities()->has($mapping[$id])) {
                 continue;
             }
 
-            $product = $productSearchResult->get($mapping[$id]);
+            $product = $productSearchResult->getEntities()->get($mapping[$id]);
 
             // get access to the data of the search result
             $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));

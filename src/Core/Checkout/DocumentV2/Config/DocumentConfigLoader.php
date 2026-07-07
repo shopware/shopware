@@ -226,7 +226,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $companyCountry = null;
 
         if (\is_string($companyCountryId) && Uuid::isValid($companyCountryId)) {
-            $companyCountry = $this->countryRepository->search(new Criteria([$companyCountryId]), $context)->first();
+            $companyCountry = $this->countryRepository->search(new Criteria([$companyCountryId]), $context)->getEntities()->first();
         }
 
         if (!$companyCountry instanceof CountryEntity) {

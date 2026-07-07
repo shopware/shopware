@@ -15,7 +15,6 @@
     "detail": {
       "textHeadline": "New manufacturer",
       "textMediaSelection": "Media selection",
-      "buttonSave": "Save",
       "cardTitleManufacturerInfo": "Manufacturer information",
       "labelName": "Name",
       "labelDescription": "Description",

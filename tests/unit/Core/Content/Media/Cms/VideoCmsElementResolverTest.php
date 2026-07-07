@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\VideoStruct;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\VideoCmsElementResolver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -160,7 +161,7 @@ class VideoCmsElementResolverTest extends TestCase
         $media->setId('media-1');
 
         $result = static::createStub(EntitySearchResult::class);
-        $result->method('get')->willReturn($media);
+        $result->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);
@@ -221,7 +222,7 @@ class VideoCmsElementResolverTest extends TestCase
         $media->setId('media-1');
 
         $result = static::createStub(EntitySearchResult::class);
-        $result->method('get')->willReturn($media);
+        $result->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);
@@ -256,7 +257,7 @@ class VideoCmsElementResolverTest extends TestCase
         $media->setId('media-1');
 
         $result = static::createStub(EntitySearchResult::class);
-        $result->method('get')->willReturn($media);
+        $result->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $result);

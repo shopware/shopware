@@ -26,7 +26,7 @@ class ListScheduledTaskCommandTest extends TestCase
         $entity->setRunInterval(100);
         $entity->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
 
-        $taskRegistry = $this->createMock(TaskRegistry::class);
+        $taskRegistry = static::createStub(TaskRegistry::class);
         $taskRegistry
             ->method('getAllTasks')
             ->willReturn(new ScheduledTaskCollection([$entity]));

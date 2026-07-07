@@ -233,6 +233,14 @@ Two events are dispatched from the underlying services (so they fire for both th
 - `Shopware\Core\System\Snippet\Event\TranslationLoadedEvent` — after a locale's translations are downloaded and installed (carries the locale and the `Context`).
 - `Shopware\Core\System\Snippet\Event\TranslationRemovedEvent` — after a locale's downloaded files and metadata entry are removed (carries the locale).
 
+### Download media files via the Admin API
+
+The Admin API provides `GET /api/_action/media/{mediaId}/download` to download the binary file of a media entity.
+Depending on the configured media storage and download strategy, the route may either stream the file from Shopware or respond with a redirect to the resolved download URL.
+
+For Administration clients that need to decide whether to trigger a direct browser download or fall back to an authenticated blob request, the Admin API now also provides `GET /api/_action/media/{mediaId}/download/prepare`.
+The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
+
 ## App System
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`

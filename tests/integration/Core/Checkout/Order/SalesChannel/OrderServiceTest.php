@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -170,6 +171,7 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -289,6 +291,7 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             Context::createDefaultContext() // DefaultContext is intended to test if the language of the order is used
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -377,6 +380,7 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -515,6 +519,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -572,6 +577,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -622,6 +628,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -654,6 +661,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 

@@ -150,7 +150,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             $groupInfo = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group']);
             $group = $groupInfo !== null && \is_string($groupInfo['group']) && $groupInfo['group'] !== ''
                 ? $groupInfo['group']
-                : 'other';
+                : (explode('-', (string) $toolInfo['name'])[0] ?: 'other');
 
             $groupMap[$toolInfo['name']] = $group;
         }

@@ -13,7 +13,7 @@ use Mcp\Schema\Request\InitializeRequest;
 use Mcp\Schema\Request\ListPromptsRequest;
 use Mcp\Schema\Request\ListResourcesRequest;
 use Mcp\Schema\Request\ListToolsRequest;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Result\ListPromptsResult;
 use Mcp\Schema\Result\ListResourcesResult;
 use Mcp\Schema\Result\ListToolsResult;
@@ -117,7 +117,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         static::assertSame(
             ['shopware://resource-b', 'shopware://resource-d'],
-            array_map(static fn (Resource $resource): string => $resource->uri, $firstResult->resources),
+            array_map(static fn (ResourceDefinition $resource): string => $resource->uri, $firstResult->resources),
         );
         static::assertSame(base64_encode('2'), $firstResult->nextCursor);
 
@@ -125,7 +125,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         static::assertSame(
             ['shopware://resource-e'],
-            array_map(static fn (Resource $resource): string => $resource->uri, $secondResult->resources),
+            array_map(static fn (ResourceDefinition $resource): string => $resource->uri, $secondResult->resources),
         );
         static::assertNull($secondResult->nextCursor);
     }
@@ -143,7 +143,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         static::assertSame(
             ['shopware://resource-a', 'shopware://resource-b'],
-            array_map(static fn (Resource $resource): string => $resource->uri, $firstResult->resources),
+            array_map(static fn (ResourceDefinition $resource): string => $resource->uri, $firstResult->resources),
         );
         static::assertSame(base64_encode('2'), $firstResult->nextCursor);
 
@@ -151,7 +151,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         static::assertSame(
             ['shopware://resource-c'],
-            array_map(static fn (Resource $resource): string => $resource->uri, $secondResult->resources),
+            array_map(static fn (ResourceDefinition $resource): string => $resource->uri, $secondResult->resources),
         );
         static::assertNull($secondResult->nextCursor);
     }
@@ -168,7 +168,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         $result = $this->handleResourcesList($handler, null);
 
-        static::assertSame(['shopware://resource-a'], array_map(static fn (Resource $resource): string => $resource->uri, $result->resources));
+        static::assertSame(['shopware://resource-a'], array_map(static fn (ResourceDefinition $resource): string => $resource->uri, $result->resources));
     }
 
     public function testPromptsListFiltersAllowlistBeforePaginationAndReturnsCursorRemainder(): void
@@ -297,9 +297,9 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         );
     }
 
-    private function resource(string $name): Resource
+    private function resource(string $name): ResourceDefinition
     {
-        return new Resource(
+        return new ResourceDefinition(
             uri: 'shopware://' . $name,
             name: $name,
         );

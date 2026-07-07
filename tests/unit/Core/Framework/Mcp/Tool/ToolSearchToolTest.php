@@ -86,6 +86,16 @@ class ToolSearchToolTest extends TestCase
         static::assertSame(25, $data['_meta']['totalCandidates']);
     }
 
+    public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
+    {
+        // The MCP SDK discoverer binds a tool handler to __invoke's declaring class. If __invoke
+        // were only inherited from AbstractToolSearchTool, discovery would bind the handler to the
+        // non-instantiable abstract base and the tool would fail at runtime.
+        $method = new \ReflectionMethod(ToolSearchTool::class, '__invoke');
+
+        static::assertSame(ToolSearchTool::class, $method->getDeclaringClass()->getName());
+    }
+
     private function registry(): Registry
     {
         $registry = new Registry();

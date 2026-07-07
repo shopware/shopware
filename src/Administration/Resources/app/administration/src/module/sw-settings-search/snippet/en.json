@@ -62,8 +62,7 @@
         "columnRankingPoints": "Ranking score",
         "columnContent": "Content",
         "columnSplitKeywords": "Split search terms",
-        "textResetRanking": "Reset ranking",
-        "textRemove": "Remove"
+        "textResetRanking": "Reset ranking"
       },
       "configFields": {
         "name": "Product name",

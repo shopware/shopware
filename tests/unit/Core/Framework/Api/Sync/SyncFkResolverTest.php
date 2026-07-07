@@ -52,8 +52,8 @@ class SyncFkResolverTest extends TestCase
                     CategoryDefinition::class,
                     ProductCategoryDefinition::class,
                 ],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             ),
             [new DummyFkResolver()]
         );
@@ -85,8 +85,8 @@ class SyncFkResolverTest extends TestCase
         $resolver = new SyncFkResolver(
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class, TaxDefinition::class, CategoryDefinition::class, ProductCategoryDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             ),
             [new DummyFkResolver(), new DoNothingResolver()]
         );
@@ -198,8 +198,8 @@ class SyncFkResolverTest extends TestCase
         $resolver = new SyncFkResolver(
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class, TaxDefinition::class, CategoryDefinition::class, ProductCategoryDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             ),
             [new DummyFkResolver(), new DoNothingResolver()]
         );

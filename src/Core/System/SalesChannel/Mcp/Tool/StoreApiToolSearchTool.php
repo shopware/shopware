@@ -17,4 +17,13 @@ use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
 #[Package('framework')]
 class StoreApiToolSearchTool extends AbstractToolSearchTool
 {
+    /**
+     * Re-declares the inherited handler on the concrete class so the MCP SDK discoverer
+     * binds the tool to this class instead of the (non-instantiable) abstract base.
+     */
+    #[\Override]
+    public function __invoke(string $query, int $maxResults = 3): string
+    {
+        return parent::__invoke($query, $maxResults);
+    }
 }

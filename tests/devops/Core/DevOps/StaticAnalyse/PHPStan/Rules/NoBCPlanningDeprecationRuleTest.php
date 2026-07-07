@@ -31,7 +31,7 @@ class NoBCPlanningDeprecationRuleTest extends RuleTestCase
                 21,
             ],
             [
-                'The deprecation reason "reason:exception-change" is a BC-planning note, not a deprecation. Remove the deprecation annotation. Use a plain comment instead; thrown exceptions are not part of the BC promise.',
+                'The deprecation reason "reason:exception-change" is a BC-planning note, not a deprecation. Remove the deprecation annotation. Use the #[ExceptionChange] attribute instead.',
                 35,
             ],
         ]);

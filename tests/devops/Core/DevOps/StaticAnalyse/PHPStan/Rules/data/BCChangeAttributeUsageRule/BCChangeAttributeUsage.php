@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\MyFakeNamespace;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
@@ -175,5 +176,77 @@ class UnresolvableTypePayloads
         Feature::triggerDeprecationOrThrow('v6.8.0.0', 'narrowing');
 
         return null;
+    }
+}
+
+class ExceptionChangeCases
+{
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\LogicException::class])]
+    public function unrelatedExceptionIsARealChange(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\Exception::class])]
+    public function wideningIsARealChange(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\UnexpectedValueException::class, \LogicException::class])]
+    public function partiallyCoveredIsARealChange(): void
+    {
+    }
+
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\LogicException::class])]
+    public function withoutThrowsContractIsNotComparable(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\UnexpectedValueException::class])]
+    public function narrowingIsCovered(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\RuntimeException::class])]
+    public function unchangedIsCovered(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [\ArrayObject::class])]
+    public function notAThrowable(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: ['UnimportedException'])]
+    public function unresolvableExceptionClass(): void
+    {
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [])]
+    public function emptyAnnouncement(): void
+    {
     }
 }

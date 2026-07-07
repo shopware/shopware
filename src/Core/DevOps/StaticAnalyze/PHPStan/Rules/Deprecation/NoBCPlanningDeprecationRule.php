@@ -36,14 +36,7 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:becomes-final' => 'Use the #[BecomesFinal] attribute instead.',
         'reason:class-hierarchy-change' => 'Use the #[ClassHierarchyChange] attribute instead.',
         'reason:visibility-change' => 'Use the #[VisibilityChange] or #[BecomesAbstract] attribute instead.',
-        'reason:exception-change' => 'Use a plain comment instead; thrown exceptions are not part of the BC promise.',
-    ];
-
-    private const ENFORCED_NAMESPACES = [
-        'Shopware\\Core\\',
-        'Shopware\\Administration\\',
-        'Shopware\\Storefront\\',
-        'Shopware\\Elasticsearch\\',
+        'reason:exception-change' => 'Use the #[ExceptionChange] attribute instead.',
     ];
 
     public function getNodeType(): string
@@ -53,15 +46,6 @@ class NoBCPlanningDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        $className = $node->getClassReflection()->getName();
-        $enforced = false;
-        foreach (self::ENFORCED_NAMESPACES as $namespace) {
-            $enforced = $enforced || \str_starts_with($className, $namespace);
-        }
-        if (!$enforced) {
-            return [];
-        }
-
         $classNode = $node->getOriginalNode();
 
         $errors = $this->validateDoc($classNode->getDocComment()?->getText(), $classNode->getStartLine());

@@ -36,7 +36,7 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:becomes-final' => 'Use the #[BecomesFinal] attribute instead.',
         'reason:class-hierarchy-change' => 'Use the #[ClassHierarchyChange] attribute instead.',
         'reason:visibility-change' => 'Use the #[VisibilityChange] or #[BecomesAbstract] attribute instead.',
-        'reason:exception-change' => 'Use a plain comment instead; thrown exceptions are not part of the BC promise.',
+        'reason:exception-change' => 'Use the #[ExceptionChange] attribute instead.',
     ];
 
     private const ENFORCED_NAMESPACES = [

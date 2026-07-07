@@ -184,7 +184,7 @@
                                                                     {% for trackingCode in trackingCodes %}
                                                                         {% if trackingUrl %}
                                                                             {% set trackingCodesOutput = trackingCodesOutput|merge(
-                                                                                ['<a href="' ~ trackingUrl|format(trackingCode) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
+                                                                                ['<a href="' ~ trackingUrl|replace({'%s': trackingCode}) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
                                                                             ) %}
                                                                         {% else %}
                                                                             {% set trackingCodesOutput = trackingCodesOutput|merge(

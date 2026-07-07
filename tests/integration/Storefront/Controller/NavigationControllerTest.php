@@ -105,9 +105,45 @@ class NavigationControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
     }
 
+    public function testOffcanvasBackLinkAtFooterRootReturnsToMainEntry(): void
+    {
+        $this->createFooterTree();
+
+        $response = $this->request(
+            'GET',
+            'widgets/menu/offcanvas?navigationId=' . $this->ids->get('issue-13510-footer'),
+            []
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
+
+        static::assertStringNotContainsString('navigationId=', $backLinkHref);
+    }
+
+    public function testOffcanvasBackLinkAtFooterSubcategoryClimbsToParent(): void
+    {
+        $this->createFooterTree();
+
+        $response = $this->request(
+            'GET',
+            'widgets/menu/offcanvas?navigationId=' . $this->ids->get('issue-13510-footer-about'),
+            []
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
+
+        static::assertStringContainsString(
+            'navigationId=' . $this->ids->get('issue-13510-footer'),
+            $backLinkHref
+        );
+    }
+
     private function createData(): void
     {
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             (new Criteria())->addFilter(
                 new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
@@ -115,6 +151,8 @@ class NavigationControllerTest extends TestCase
             ),
             Context::createDefaultContext()
         )->first();
+
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $category = [
             'id' => $this->ids->create('category'),
@@ -204,5 +242,67 @@ class NavigationControllerTest extends TestCase
         );
 
         return ltrim($seoUrl->getSeoPathInfo(), '/');
+    }
+
+    private function createFooterTree(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
+            new Criteria([$salesChannelId]),
+            Context::createDefaultContext()
+        )->first();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('issue-13510-intermediate'),
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+            'name' => 'Issue 13510 Intermediate',
+            'type' => 'page',
+            'active' => true,
+            'visible' => true,
+            'children' => [
+                [
+                    'id' => $this->ids->create('issue-13510-main'),
+                    'name' => 'Issue 13510 Main',
+                    'type' => 'page',
+                    'active' => true,
+                    'visible' => true,
+                ],
+                [
+                    'id' => $this->ids->create('issue-13510-footer'),
+                    'name' => 'Issue 13510 Footer',
+                    'type' => 'page',
+                    'active' => true,
+                    'visible' => true,
+                    'children' => [[
+                        'id' => $this->ids->create('issue-13510-footer-about'),
+                        'name' => 'Issue 13510 About',
+                        'type' => 'page',
+                        'active' => true,
+                        'visible' => true,
+                    ]],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        static::getContainer()->get('sales_channel.repository')->update([[
+            'id' => $salesChannelId,
+            'navigationCategoryId' => $this->ids->get('issue-13510-main'),
+            'footerCategoryId' => $this->ids->get('issue-13510-footer'),
+        ]], Context::createDefaultContext());
+    }
+
+    private function extractBackLinkHref(string $html): string
+    {
+        $matched = preg_match(
+            '#<a[^>]*class="[^"]*\bis-back-link\b[^"]*"[^>]*href="([^"]+)"#',
+            $html,
+            $matches
+        );
+
+        static::assertSame(1, $matched, 'No back-link rendered in offcanvas response.');
+
+        return html_entity_decode($matches[1]);
     }
 }

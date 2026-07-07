@@ -4,8 +4,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -14,18 +15,21 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Template\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Template\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Twig\Environment;
 
 /**
  * @internal
@@ -34,11 +38,13 @@ use Twig\Environment;
 #[CoversClass(HtmlRenderer::class)]
 class HtmlRendererTest extends TestCase
 {
+    private const HTML_TEMPLATE_PATH = '@Framework/documents/invoice.html.twig';
+
     public function testConfig(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
@@ -57,14 +63,14 @@ class HtmlRendererTest extends TestCase
         $finder = $this->createMock(TemplateFinder::class);
         $finder->expects($this->once())
             ->method('find')
-            ->with(DocumentType::INVOICE->templatePath())
-            ->willReturn(DocumentType::INVOICE->templatePath());
+            ->with(self::HTML_TEMPLATE_PATH)
+            ->willReturn(self::HTML_TEMPLATE_PATH);
 
-        $env = $this->createMock(Environment::class);
+        $env = $this->createMock(TwigEnvironment::class);
         $env->expects($this->once())
-            ->method('render')
+            ->method('renderWithTimezoneOverride')
             ->with(
-                DocumentType::INVOICE->templatePath(),
+                self::HTML_TEMPLATE_PATH,
                 static::callback(function (array $parameters): bool {
                     static::assertArrayHasKey('config', $parameters);
                     static::assertInstanceOf(TemplateContext::class, $parameters['config']);
@@ -76,7 +82,8 @@ class HtmlRendererTest extends TestCase
                     static::assertInstanceOf(PaginationCounter::class, $parameters['counter']);
 
                     return true;
-                })
+                }),
+                null,
             )
             ->willReturn($rendered);
 
@@ -105,8 +112,8 @@ class HtmlRendererTest extends TestCase
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         $input = new RenderInput(
@@ -127,37 +134,14 @@ class HtmlRendererTest extends TestCase
         );
     }
 
-    public function testShouldThrowIfDocumentTypeDoesNotExist(): void
-    {
-        $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
-        );
-
-        $input = new RenderInput(
-            'unknown_document_type',
-            '12345',
-            $this->createOrder(),
-            [InvoiceDataProvider::KEY => $this->createRenderData()],
-        );
-
-        static::expectException(\ValueError::class);
-
-        $renderer->renderToString(
-            $input,
-            new RenderState(),
-            Context::createDefaultContext(),
-        );
-    }
-
-    private function createRenderer(TemplateFinder $finder, Environment $env): HtmlRenderer
+    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): HtmlRenderer
     {
         return new HtmlRenderer(
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
-                $this->createMock(AbstractTranslator::class),
-                $this->createMock(AbstractSalesChannelContextFactory::class),
+                static::createStub(AbstractTranslator::class),
+                static::createStub(AbstractSalesChannelContextFactory::class),
                 'rootDir',
             ),
         );
@@ -181,29 +165,48 @@ class HtmlRendererTest extends TestCase
         array $custom = [],
     ): InvoiceRenderData {
         return new InvoiceRenderData(
-            new DocumentConfig(
+            config: new DocumentConfig(
                 pageSize: 'a4',
                 pageOrientation: 'portrait',
                 itemsPerPage: 10,
                 filenamePrefix: $filenamePrefix,
             ),
-            new CompanyInfo(
+            company: new DocumentCompanyInfo(
                 'company',
                 'street',
                 '12345',
                 'city',
                 new CountryEntity()
             ),
+            buyer: new TradePartyView(
+                id: null,
+                name: '',
+                street: null,
+                additionalAddressLine1: null,
+                additionalAddressLine2: null,
+                zipcode: null,
+                city: null,
+                countrySubdivision: null,
+                countryIso: null,
+                email: null,
+            ),
+            templatePaths: [
+                DocumentFormat::HTML->value => self::HTML_TEMPLATE_PATH,
+            ],
+            display: new DocumentDisplayOptions(),
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
+            typeCode: TypeCode::INVOICE,
+            buyerReference: '10000',
+            deliveryDate: null,
+            lineItems: [],
+            allowanceCharges: [],
+            taxBreakdown: [],
+            monetarySummation: new MonetarySummationView(0, 0, 0, 0, 0, 'EUR', 0, 0, 0, 0),
+            paymentMeans: null,
+            paymentDueDate: null,
             intraCommunityDelivery: false,
-            displayDivergentDeliveryAddress: false,
-            displayLineItems: false,
-            displayLineItemPosition: false,
-            displayPrices: false,
-            deliveryCountries: [],
-            legacyConfig: [],
             custom: $custom,
         );
     }

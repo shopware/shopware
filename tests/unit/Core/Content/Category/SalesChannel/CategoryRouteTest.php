@@ -151,7 +151,7 @@ class CategoryRouteTest extends TestCase
                 $this->createConnectionWithParentLanguageIds($languageCodeChain),
             ),
             new CategoryDefinition(),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $categoryRoute->load(
@@ -187,11 +187,7 @@ class CategoryRouteTest extends TestCase
 
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf(
-            'Category "%s" not found.',
-            $this->ids->get('category'),
-        ));
+        $this->expectExceptionObject(new CategoryNotFoundException($this->ids->get('category')));
 
         $this->buildContentlessCategoryRepositoryMock(
             $category,
@@ -292,12 +288,12 @@ class CategoryRouteTest extends TestCase
 
         $categoryRoute = new CategoryRoute(
             $categoryRepositoryMock,
-            $this->createMock(SalesChannelCmsPageLoaderInterface::class),
+            static::createStub(SalesChannelCmsPageLoaderInterface::class),
             new EntityCmsSlotConfigInheritanceBuilder(
                 $this->createConnectionWithParentLanguageIds(['en']),
             ),
             new CategoryDefinition(),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         return $categoryRoute->load(
@@ -312,8 +308,8 @@ class CategoryRouteTest extends TestCase
      */
     private function createConnectionWithParentLanguageIds(array $languageCodeChain): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
 
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('from')->willReturnSelf();
@@ -327,7 +323,7 @@ class CategoryRouteTest extends TestCase
         $parentLanguageIds[] = null;
 
         $results = array_map(function (?string $parentLanguageId): Result {
-            $result = $this->createMock(Result::class);
+            $result = $this->createStub(Result::class);
             $result->method('fetchOne')->willReturn($parentLanguageId);
 
             return $result;

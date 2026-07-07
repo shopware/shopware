@@ -2,20 +2,24 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\CrossSelling;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -429,6 +433,7 @@ class CrossSellingRouteTest extends TestCase
         ]];
         $productData['children'] = [[
             'id' => $variantId,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'options' => [
@@ -529,6 +534,70 @@ class CrossSellingRouteTest extends TestCase
         static::assertNotContains($productId, $element->getProducts()->getIds());
     }
 
+    public function testCrossSellingUsingDynamicGroupUpdatesAfterSeparateFilterSync(): void
+    {
+        $productId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+
+        $initialProductIds = array_column($this->createProducts(), 'id');
+        $replacementProductIds = array_column($this->createProducts(), 'id');
+
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'testStream',
+                'filters' => [
+                    [
+                        'type' => 'equalsAny',
+                        'field' => 'id',
+                        'value' => implode('|', $initialProductIds),
+                    ],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 10,
+            'productStreamId' => $streamId,
+        ]];
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
+        $element = $result->first();
+        static::assertNotNull($element);
+        static::assertEqualsCanonicalizing(
+            array_values($initialProductIds),
+            array_values($element->getProducts()->getIds()),
+        );
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($streamId)],
+        );
+        static::assertIsString($filterId);
+
+        /** @var EntityRepository<ProductStreamFilterCollection> $productStreamFilterRepository */
+        $productStreamFilterRepository = static::getContainer()->get('product_stream_filter.repository');
+        $productStreamFilterRepository->update([[
+            'id' => $filterId,
+            'value' => implode('|', $replacementProductIds),
+        ]], Context::createDefaultContext());
+
+        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
+        $element = $result->first();
+        static::assertNotNull($element);
+        static::assertEqualsCanonicalizing(
+            array_values($replacementProductIds),
+            array_values($element->getProducts()->getIds()),
+            'Cross-selling must reflect updated product_stream_filter value even when the parent product_stream is untouched.',
+        );
+    }
+
     private function createProductStream(bool $includesIsCloseoutProducts = false, bool $noStock = false, ?string $includedProductId = null): string
     {
         $id = Uuid::randomHex();
@@ -621,6 +690,7 @@ class CrossSellingRouteTest extends TestCase
 
         $product = [
             'id' => $id ?? Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => $stock,
             'name' => 'Test',
@@ -650,6 +720,7 @@ class CrossSellingRouteTest extends TestCase
             ]];
             $product['children'] = [[
                 'id' => Uuid::randomHex(),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'options' => [

@@ -78,7 +78,10 @@ abstract class StorefrontController extends AbstractController
 
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache') ?? true;
+        $iconCacheEnabled = $this->getSystemConfigService()->get(
+            'core.storefrontSettings.iconCache',
+            $event->getSalesChannelContext()->getSalesChannelId()
+        ) ?? true;
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::enable();
@@ -221,6 +224,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getMainRequest();
         $exists = [];
 
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront flash handling inspecting the flash bag.) */
         if ($request && $request->hasSession() && $request->getSession() instanceof FlashBagAwareSessionInterface) {
             $exists = $request->getSession()->getFlashBag()->peekAll();
         }

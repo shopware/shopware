@@ -7,7 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Saves the per-user MCP allowlist (tools, resources, prompts).
  * Requires the `users_and_permissions.editor` admin ACL privilege.
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class UserMcpAllowlistController
 {
@@ -88,7 +89,7 @@ class UserMcpAllowlistController
      */
     private function isValidAllowlist(array $allowlist): bool
     {
-        $knownKeys = [McpAllowlistProvider::TOOLS, McpAllowlistProvider::RESOURCES, McpAllowlistProvider::PROMPTS];
+        $knownKeys = [McpAllowlist::TOOLS, McpAllowlist::RESOURCES, McpAllowlist::PROMPTS];
 
         if (array_diff(array_keys($allowlist), $knownKeys) !== []) {
             return false;

@@ -10,8 +10,9 @@ use Mcp\Schema\Resource;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
@@ -25,25 +26,24 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 #[Package('framework')]
 class AppMcpResourceLoaderTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private AppMcpCapabilityExecutor&MockObject $executor;
+    private AppMcpCapabilityExecutor&Stub $executor;
 
     private AppMcpResourceLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->executor = $this->createMock(AppMcpCapabilityExecutor::class);
-        $this->loader = new AppMcpResourceLoader($this->connection, $this->executor);
+        $this->connection = static::createStub(Connection::class);
+        $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
+        $this->loader = new AppMcpResourceLoader($this->connection, $this->executor, new NullLogger());
     }
 
     public function testLoadWithDBALExceptionRegistersNoResources(): void
     {
         $exception = new class('DB error') extends \Exception implements DBALException {};
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willThrowException($exception);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -65,8 +65,7 @@ class AppMcpResourceLoaderTest extends TestCase
             'description' => 'Live order statistics',
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([$resourceRow]);
 
         $registry = $this->createMock(RegistryInterface::class);
@@ -165,7 +164,8 @@ class AppMcpResourceLoaderTest extends TestCase
 
         $this->connection->method('fetchAllAssociative')->willReturn([$resourceRow]);
 
-        $this->executor->expects($this->once())
+        $executor = $this->createMock(AppMcpCapabilityExecutor::class);
+        $executor->expects($this->once())
             ->method('execute')
             ->with(
                 'my-app-order-stats',
@@ -174,6 +174,7 @@ class AppMcpResourceLoaderTest extends TestCase
                 ['uri' => 'app-example://order-stats'],
             )
             ->willReturn('{"contents":[]}');
+        $loader = new AppMcpResourceLoader($this->connection, $executor, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -183,7 +184,7 @@ class AppMcpResourceLoaderTest extends TestCase
                 $capturedCallback = $callback;
             });
 
-        $this->loader->load($registry);
+        $loader->load($registry);
 
         static::assertNotNull($capturedCallback);
 
@@ -198,8 +199,7 @@ class AppMcpResourceLoaderTest extends TestCase
 
     public function testLoadWithEmptyResultRegistersNoResources(): void
     {
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([]);
 
         $registry = $this->createMock(RegistryInterface::class);

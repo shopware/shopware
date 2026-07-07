@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Framework\SystemCheck\Util;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
@@ -27,6 +29,7 @@ readonly class SalesChannelDomainUtil
         private RequestStack $requestStack,
         private KernelInterface $kernel,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -97,18 +100,18 @@ readonly class SalesChannelDomainUtil
         $response = null;
 
         while ($redirectCount <= self::MAX_REDIRECTS) {
-            $requestStart = microtime(true);
+            $requestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             try {
                 // don't let the kernel catch errors, so we can handle them ourselves
                 $response = $this->kernel->handle($currentRequest, catch: false);
             } catch (\Exception $e) {
-                $responseTime += microtime(true) - $requestStart;
+                $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 
                 $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'request' => $currentRequest]);
 
                 return StorefrontHealthCheckResult::create($currentRequest->getUri(), Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
             }
-            $responseTime += microtime(true) - $requestStart;
+            $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 
             if (!$response instanceof RedirectResponse) {
                 break;

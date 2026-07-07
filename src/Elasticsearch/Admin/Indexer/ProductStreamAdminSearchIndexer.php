@@ -104,7 +104,11 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'completion' => $this->buildCompletion([\is_string($row['name'] ?? null) ? $row['name'] : null]),
+            ];
         }
 
         return $mapped;

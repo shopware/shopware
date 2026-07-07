@@ -24,6 +24,7 @@ use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -344,8 +345,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             ->method('deleteFromStorage')
             ->with($path);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not verify uploaded file for media');
+        $this->expectExceptionObject(MediaException::presignedUploadFinalizeFailed($mediaId));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -374,8 +374,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
         $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not verify uploaded file for media');
+        $this->expectExceptionObject(MediaException::presignedUploadFinalizeFailed($mediaId));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -405,8 +404,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
         $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('not supported');
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'malicious',
@@ -571,11 +569,12 @@ class PresignedMediaUploadServiceTest extends TestCase
             $repo,
             $this->presignedUrlGenerator,
             $this->eventDispatcher,
-            $this->createMock(TypeDetector::class),
+            static::createStub(TypeDetector::class),
             $this->mediaFileCleanup,
             $this->extensionValidator,
             $this->mediaPathStrategy,
             new NullLogger(),
+            new NativeClock()
         );
 
         return [$repo, $service];

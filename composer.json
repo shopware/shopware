@@ -81,6 +81,7 @@
         "ext-simplexml": "*",
         "ext-sodium": "*",
         "ext-xml": "*",
+        "ext-xmlreader": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",
@@ -123,7 +124,7 @@
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
-        "symfony/cache": "~7.4.0",
+        "symfony/cache": "~7.4.12",
         "symfony/cache-contracts": "~3.6.0",
         "symfony/clock": "~7.4.0",
         "symfony/config": "~7.4.0",
@@ -142,14 +143,14 @@
         "symfony/http-client": "~7.4.0",
         "symfony/http-client-contracts": "~3.6.0",
         "symfony/http-foundation": "~7.4.0",
-        "symfony/http-kernel": "~7.4.0",
+        "symfony/http-kernel": "~7.4.12",
         "symfony/intl": "~7.4.0",
         "symfony/lock": "~7.4.0",
-        "symfony/mailer": "~7.4.0",
+        "symfony/mailer": "~7.4.12",
         "symfony/mcp-bundle": "~0.9.0",
-        "symfony/messenger": "~7.4.0",
-        "symfony/mime": "~7.4.0",
-        "symfony/monolog-bridge": "~7.4.0",
+        "symfony/messenger": "~7.4.12",
+        "symfony/mime": "~7.4.12",
+        "symfony/monolog-bridge": "~7.4.12",
         "symfony/monolog-bundle": "~3.11.0",
         "symfony/options-resolver": "~7.4.0",
         "symfony/polyfill-php83": ">=1.34.0",
@@ -162,25 +163,25 @@
         "symfony/proxy-manager-bridge": "~6.4.8",
         "symfony/psr-http-message-bridge": "~7.4.0",
         "symfony/rate-limiter": "~7.4.0",
-        "symfony/routing": "~7.4.0",
-        "symfony/runtime": "~7.4.0",
+        "symfony/routing": "~7.4.12",
+        "symfony/runtime": "~7.4.12",
         "symfony/scheduler": "~7.4.0",
-        "symfony/security-core": "~7.4.0",
+        "symfony/security-core": "~7.4.12",
         "symfony/serializer": "~7.4.0",
         "symfony/service-contracts": "~3.6.0",
         "symfony/stopwatch": "~7.4.0",
         "symfony/string": "~7.4.0",
         "symfony/translation": "~7.4.0",
         "symfony/translation-contracts": "~3.6.0",
-        "symfony/twig-bridge": "~7.4.0",
+        "symfony/twig-bridge": "~7.4.12",
         "symfony/twig-bundle": "~7.4.0",
         "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
-        "symfony/yaml": "~7.4.0",
-        "twig/intl-extra": "^3.10.0",
-        "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.21.1",
+        "symfony/yaml": "~7.4.12",
+        "twig/intl-extra": "^3.26.0",
+        "twig/string-extra": "^3.24.0",
+        "twig/twig": "^3.26.0",
         "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {
@@ -189,14 +190,14 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.94.2",
+        "friendsofphp/php-cs-fixer": "3.95.8",
         "jdorn/sql-formatter": "^1.2.17",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
         "phpat/phpat": "0.12.4",
-        "phpbench/phpbench": "^1.2.15",
+        "phpbench/phpbench": "^1.6.1",
         "phpdocumentor/reflection-docblock": "^5.6.4",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
@@ -213,11 +214,11 @@
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.4.0",
         "symfony/css-selector": "~7.4.0",
-        "symfony/dom-crawler": "~7.4.0",
+        "symfony/dom-crawler": "~7.4.12",
         "symfony/expression-language": "~7.4.0",
         "symfony/phpunit-bridge": "~7.4.0",
         "symfony/var-dumper": "~7.4.0",
-        "symfony/web-profiler-bundle": "~7.4.0",
+        "symfony/web-profiler-bundle": "~7.4.12",
         "symplify/phpstan-rules": "14.9.11"
     },
     "suggest": {
@@ -239,6 +240,10 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "composer",
+            "url": "https://shopware.github.io/conflicts/"
         }
     ],
     "scripts-descriptions": {
@@ -248,6 +253,8 @@
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
+        "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
+        "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
@@ -298,9 +305,12 @@
         "phpunit": "Launches the PHP unit test-suite",
         "post-install-cmd": " ",
         "post-update-cmd": " ",
+        "rector": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
         "static-analyze": "Launches the PHP Stan static analysis tool",
+        "storefront:lint:snippets": "Checks that no storefront snippet duplicates a global.default translation in every locale.",
+        "storefront:lint:snippets:all": "Like storefront:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
         "storefront:components:unit": "Launches the Vitest unit test-suite for Storefront components",
@@ -334,6 +344,8 @@
         "admin:generate-position-identifier-list": [
             "@npm:admin run generate-position-identifier-list"
         ],
+        "admin:lint:snippets": "@npm:admin run lint:snippets",
+        "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
@@ -484,6 +496,11 @@
         ],
         "static-analyze": [
             "@phpstan src/"
+        ],
+        "storefront:lint:snippets": "src/Storefront/Resources/app/storefront/node_modules/.bin/eslint --no-cache --no-error-on-unmatched-pattern --config src/Storefront/Resources/app/storefront/eslint.config.js \"src/Storefront/Resources/snippet/storefront.*.json\"",
+        "storefront:lint:snippets:all": [
+            "@putenv SNIPPET_ALLOW_LIST_DISABLED=1",
+            "@storefront:lint:snippets"
         ],
         "storefront:unit": [
             "@npm:storefront run unit"

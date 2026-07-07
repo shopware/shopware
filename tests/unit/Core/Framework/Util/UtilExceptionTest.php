@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[CoversClass(UtilException::class)]
+#[CoversClass(JsonDecodingException::class)]
 class UtilExceptionTest extends TestCase
 {
     public function testInvalidJson(): void
@@ -32,6 +34,15 @@ class UtilExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('UTIL_INVALID_JSON_NOT_LIST', $e->getErrorCode());
         static::assertSame('JSON cannot be decoded to a list', $e->getMessage());
+    }
+
+    public function testInvalidJsonNotArray(): void
+    {
+        $e = UtilException::invalidJsonNotArray();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('UTIL_INVALID_JSON_NOT_ARRAY', $e->getErrorCode());
+        static::assertSame('JSON cannot be decoded to an array', $e->getMessage());
     }
 
     public function testCannotFindFileInFilesystem(): void

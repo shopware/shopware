@@ -190,6 +190,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
+     *
      * @param array<string, mixed> $options
      */
     private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
@@ -274,6 +276,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     /**
      * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */

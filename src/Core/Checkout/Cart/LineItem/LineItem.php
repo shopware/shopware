@@ -631,17 +631,27 @@ class LineItem extends Struct
     {
         $data = parent::jsonSerialize();
 
+        $data['payload'] = $this->getUnprotectedPayload();
+
+        return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getUnprotectedPayload(): array
+    {
         $payload = [];
 
-        foreach ($data['payload'] as $key => $value) {
+        foreach ($this->payload as $key => $value) {
             if (isset($this->payloadProtection[$key]) && $this->payloadProtection[$key] === true) {
                 continue;
             }
+
             $payload[$key] = $value;
         }
-        $data['payload'] = $payload;
 
-        return $data;
+        return $payload;
     }
 
     /**

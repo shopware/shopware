@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\RevocationRequest\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -119,9 +120,9 @@ class RevocationRequestRouteTest extends TestCase
         static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
 
-    public function createValidatorMock(): DataValidator&MockObject
+    public function createValidatorMock(): DataValidator&Stub
     {
-        $validatorMock = $this->createMock(DataValidator::class);
+        $validatorMock = static::createStub(DataValidator::class);
 
         $validatorMock->method('getViolations')->willReturnCallback(static function (): ConstraintViolationList {
             return new ConstraintViolationList();
@@ -130,9 +131,9 @@ class RevocationRequestRouteTest extends TestCase
         return $validatorMock;
     }
 
-    public function createRequestStackMock(): RequestStack&MockObject
+    public function createRequestStackMock(): RequestStack&Stub
     {
-        $requestStackMock = $this->createMock(RequestStack::class);
+        $requestStackMock = static::createStub(RequestStack::class);
         $requestStackMock->method('getMainRequest')->willReturn(new Request());
 
         return $requestStackMock;
@@ -144,15 +145,15 @@ class RevocationRequestRouteTest extends TestCase
      */
     private function createRevocationRequestRoute(?array $slotEntities = [], ?array $categoryEntities = []): RevocationRequestRoute
     {
-        $validatorFactoryMock = $this->createMock(DataValidationFactoryInterface::class);
+        $validatorFactoryMock = static::createStub(DataValidationFactoryInterface::class);
 
         $validatorMock = $this->createValidatorMock();
 
         $requestStackMock = $this->createRequestStackMock();
 
-        $rateLimiterMock = $this->createMock(RateLimiter::class);
-        $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $rateLimiterMock = static::createStub(RateLimiter::class);
+        $eventDispatcherMock = static::createStub(EventDispatcherInterface::class);
+        $systemConfigServiceMock = static::createStub(SystemConfigService::class);
 
         /** @var StaticEntityRepository<CmsSlotCollection> $cmsSlotRepository */
         $cmsSlotRepository = new StaticEntityRepository([$slotEntities], new CmsSlotDefinition());
@@ -168,6 +169,7 @@ class RevocationRequestRouteTest extends TestCase
             $systemConfigServiceMock,
             $cmsSlotRepository,
             $categoryRepository,
+            new NativeClock()
         );
     }
 

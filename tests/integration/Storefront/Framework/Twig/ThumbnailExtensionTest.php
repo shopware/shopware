@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -123,6 +124,84 @@ class ThumbnailExtensionTest extends TestCase
     }
 
     /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersSizesAttrWithValueForEveryBreakpoint(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-with-columns.html.twig', [
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Regression test for https://github.com/shopware/shopware/issues/16710.
+        // Every breakpoint entry in the auto-generated sizes attribute must carry
+        // a non-empty value. Before the fix the xxl entry was missing and produced
+        // "(min-width: ...px) ," in the rendered output.
+        $sizes = self::getSizesAttribute($result);
+
+        self::assertSizesAttributeHasValueForEveryBreakpoint($sizes);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[DataProvider('productBoxLayoutProvider')]
+    public function testProductBoxThumbnailSizesContainXxlBreakpointValue(string $layout): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/product-box-thumbnail-sizes.html.twig', [
+            'layout' => $layout,
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        $sizes = self::getSizesAttribute($result);
+
+        self::assertSizesAttributeHasValueForEveryBreakpoint($sizes);
+        static::assertStringContainsString('(min-width: 1400px) 280px', $sizes);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function productBoxLayoutProvider(): iterable
+    {
+        yield 'standard layout' => ['standard'];
+        yield 'image layout' => ['image'];
+    }
+
+    private static function getSizesAttribute(string $result): string
+    {
+        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
+        static::assertIsString($matches['sizes']);
+
+        return $matches['sizes'];
+    }
+
+    private static function assertSizesAttributeHasValueForEveryBreakpoint(string $sizes): void
+    {
+        $entries = array_map('trim', explode(',', $sizes));
+        $fallback = array_pop($entries);
+
+        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+
+        foreach ($entries as $i => $entry) {
+            static::assertMatchesRegularExpression(
+                '/^\(min-width:[^)]*\)\s+\S+/',
+                $entry,
+                \sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
+            );
+        }
+    }
+
+    /**
      * @param array<string, mixed> $data
      *
      * @throws SyntaxError
@@ -213,13 +292,11 @@ class ThumbnailExtensionTest extends TestCase
         $twig = new Environment($loader);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())
-            ->method('getBundles')
+        $kernel->method('getBundles')
             ->willReturn($bundles);
 
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects($this->any())
-            ->method('getScopes')
+        $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(
@@ -244,6 +321,7 @@ class ThumbnailExtensionTest extends TestCase
             ),
             static::createStub(ThemeScripts::class),
             'test',
+            [],
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

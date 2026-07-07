@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -23,11 +24,11 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[CoversClass(PresignedUploadUrlGenerator::class)]
 class PresignedUploadUrlGeneratorTest extends TestCase
 {
-    private AbstractMediaPathStrategy&MockObject $mediaPathStrategy;
+    private AbstractMediaPathStrategy&Stub $mediaPathStrategy;
 
     protected function setUp(): void
     {
-        $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
+        $this->mediaPathStrategy = static::createStub(AbstractMediaPathStrategy::class);
         $this->mediaPathStrategy->method('name')->willReturn('test-strategy');
     }
 
@@ -37,6 +38,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'amazon-s3', 'config' => ['bucket' => 'test', 'region' => 'eu-west-1']],
             new NullLogger(),
+            new NativeClock(),
             enabled: false,
         );
 
@@ -50,6 +52,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertTrue($generator->isEnabled());
@@ -68,6 +71,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertTrue($generator->isEnabled());
@@ -90,6 +94,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -108,6 +113,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -127,6 +133,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -145,6 +152,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -152,8 +160,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testCreateWithInvalidConfig(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -162,13 +169,13 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => 'invalid',
             ],
             new NullLogger(),
+            new NativeClock(),
         );
     }
 
     public function testCreateWithMissingBucket(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -179,13 +186,13 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
     }
 
     public function testCreateWithMissingRegion(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -196,13 +203,13 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
     }
 
     public function testCreateWithIncompleteCredentials(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -218,6 +225,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
     }
 
@@ -227,6 +235,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new NativeClock(),
             enabled: false,
         );
 
@@ -237,8 +246,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Presigned upload is disabled');
+        $this->expectExceptionObject(MediaException::presignedUploadDisabled());
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -249,6 +257,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new NativeClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -258,8 +267,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Presigned upload is not supported');
+        $this->expectExceptionObject(MediaException::presignedUploadNotSupported());
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -276,6 +284,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -285,8 +294,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "fileName" is invalid');
+        $this->expectExceptionObject(MediaException::invalidRequestParameter('fileName'));
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -303,6 +311,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -312,8 +321,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('No file extension provided');
+        $this->expectExceptionObject(MediaException::missingFileExtension());
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -336,6 +344,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -345,8 +354,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('No Strategy with name "test-strategy" found');
+        $this->expectExceptionObject(MediaException::strategyNotFound('test-strategy'));
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -357,6 +365,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new NativeClock(),
         );
 
         static::assertNull($generator->getFileMetadata('media/ab/cd/test.jpg'));
@@ -381,9 +390,14 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => [
                     'bucket' => 'test-bucket',
                     'region' => 'eu-west-1',
+                    // Provide static credentials so the async-aws client does not fall back to the
+                    // EC2 instance-metadata credential provider, whose IMDSv2 token request is a PUT
+                    // and would be the first call hitting the mocked HTTP client instead of the HEAD.
+                    'credentials' => ['key' => 'test-key', 'secret' => 'test-secret'],
                 ],
             ],
             new NullLogger(),
+            new NativeClock(),
             httpClient: $httpClient,
         );
 

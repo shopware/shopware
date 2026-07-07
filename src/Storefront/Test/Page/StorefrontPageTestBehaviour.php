@@ -84,8 +84,7 @@ trait StorefrontPageTestBehaviour
 
     protected function expectParamMissingException(string $paramName): void
     {
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('Parameter "' . $paramName . '" is missing');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter($paramName));
     }
 
     protected function placeRandomOrder(SalesChannelContext $context): string
@@ -306,12 +305,12 @@ trait StorefrontPageTestBehaviour
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'foo@bar.de',
+            'email' => $customerId . '@example.com',
             'password' => 'password',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         /** @var EntityRepository<CustomerCollection> $repo */

@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest
  */
 #[Package('framework')]
 class RelatedWebhooks

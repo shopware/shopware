@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -48,6 +49,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly ZugferdBuilder $documentBuilder,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -185,7 +187,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                 $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
                 $config->merge([
-                    'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'documentNumber' => $number,
                     'custom' => [
                         'creditNoteNumber' => $number,

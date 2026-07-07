@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\MediaException;
@@ -19,16 +19,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(MediaFileExtensionValidator::class)]
 class MediaFileExtensionValidatorTest extends TestCase
 {
-    private EventDispatcherInterface&MockObject $eventDispatcher;
+    private EventDispatcherInterface&Stub $eventDispatcher;
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
     public function testValidateAllowsExtensionOnPublicWhitelist(): void
     {
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (MediaFileExtensionWhitelistEvent $event): bool {
                 static::assertSame(['jpg', 'png'], $event->getWhitelist());
@@ -37,13 +38,14 @@ class MediaFileExtensionValidatorTest extends TestCase
             }))
             ->willReturnArgument(0);
 
-        $validator = new MediaFileExtensionValidator($this->eventDispatcher, ['jpg', 'png'], ['pdf']);
+        $validator = new MediaFileExtensionValidator($eventDispatcher, ['jpg', 'png'], ['pdf']);
         $validator->validate('jpg', false, Context::createDefaultContext());
     }
 
     public function testValidateAllowsExtensionOnPrivateWhitelist(): void
     {
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (MediaFileExtensionWhitelistEvent $event): bool {
                 static::assertSame(['pdf'], $event->getWhitelist());
@@ -52,7 +54,7 @@ class MediaFileExtensionValidatorTest extends TestCase
             }))
             ->willReturnArgument(0);
 
-        $validator = new MediaFileExtensionValidator($this->eventDispatcher, ['jpg'], ['pdf']);
+        $validator = new MediaFileExtensionValidator($eventDispatcher, ['jpg'], ['pdf']);
         $validator->validate('pdf', true, Context::createDefaultContext());
     }
 
@@ -72,15 +74,15 @@ class MediaFileExtensionValidatorTest extends TestCase
 
         $validator = new MediaFileExtensionValidator($this->eventDispatcher, ['jpg', 'png'], []);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('not supported');
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported('media-42', 'php'));
 
         $validator->validate('php', false, Context::createDefaultContext(), 'media-42');
     }
 
     public function testValidateRespectsListenerModificationOfWhitelist(): void
     {
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->willReturnCallback(static function (MediaFileExtensionWhitelistEvent $event): MediaFileExtensionWhitelistEvent {
                 $event->setWhitelist(['txt']);
@@ -88,7 +90,7 @@ class MediaFileExtensionValidatorTest extends TestCase
                 return $event;
             });
 
-        $validator = new MediaFileExtensionValidator($this->eventDispatcher, ['jpg'], []);
+        $validator = new MediaFileExtensionValidator($eventDispatcher, ['jpg'], []);
 
         // A listener added 'txt' to the whitelist — 'txt' should now be accepted even though it is
         // not in the configured allowedExtensions.
@@ -99,7 +101,8 @@ class MediaFileExtensionValidatorTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (MediaFileExtensionWhitelistEvent $event) use ($context): bool {
                 static::assertSame($context, $event->getContext());
@@ -108,7 +111,7 @@ class MediaFileExtensionValidatorTest extends TestCase
             }))
             ->willReturnArgument(0);
 
-        $validator = new MediaFileExtensionValidator($this->eventDispatcher, ['jpg'], []);
+        $validator = new MediaFileExtensionValidator($eventDispatcher, ['jpg'], []);
         $validator->validate('jpg', false, $context);
     }
 }

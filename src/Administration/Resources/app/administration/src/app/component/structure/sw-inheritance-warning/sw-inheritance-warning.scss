@@ -20,8 +20,8 @@
     }
 
     p {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
         line-height: 22px;
     }
 }

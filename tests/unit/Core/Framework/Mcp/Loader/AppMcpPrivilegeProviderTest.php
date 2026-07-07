@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 
 /**
@@ -16,17 +17,17 @@ class AppMcpPrivilegeProviderTest extends TestCase
 {
     public function testReturnsEmptyMapWhenNoRows(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame([], $provider->getAppToolPrivileges());
     }
 
     public function testDecodesJsonPrivilegesIntoMap(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             [
                 'tool_name' => 'my-erp-sync-orders',
@@ -38,7 +39,7 @@ class AppMcpPrivilegeProviderTest extends TestCase
             ],
         ]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(
             [
@@ -51,14 +52,14 @@ class AppMcpPrivilegeProviderTest extends TestCase
 
     public function testSkipsRowsWithInvalidJson(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['tool_name' => 'broken-tool', 'required_privileges' => 'not-json'],
             ['tool_name' => 'good-tool', 'required_privileges' => '["entity:read"]'],
             ['tool_name' => 'scalar-json', 'required_privileges' => '"plain-string"'],
         ]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(
             ['good-tool' => ['entity:read']],
@@ -68,7 +69,7 @@ class AppMcpPrivilegeProviderTest extends TestCase
 
     public function testReturnsEmptyMapAndLogsErrorWhenDbThrows(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willThrowException(new \RuntimeException('DB down'));
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -83,12 +84,12 @@ class AppMcpPrivilegeProviderTest extends TestCase
 
     public function testReindexesNumericArrays(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['tool_name' => 'tool', 'required_privileges' => '{"0":"a","1":"b"}'],
         ]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(['tool' => ['a', 'b']], $provider->getAppToolPrivileges());
     }

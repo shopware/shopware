@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Mailer\Event\FailedMessageEvent;
 use Symfony\Component\Mime\RawMessage;
 
@@ -56,7 +57,7 @@ class FailedMessageSubscriberTest extends TestCase
                 })
             );
 
-        $subscriber = new FailedMessageSubscriber($connection);
+        $subscriber = new FailedMessageSubscriber($connection, new NativeClock());
 
         $event = new FailedMessageEvent(
             new RawMessage('Test Message'),

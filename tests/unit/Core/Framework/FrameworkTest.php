@@ -38,8 +38,8 @@ class FrameworkTest extends TestCase
         $container->set(DefinitionInstanceRegistry::class, $this->createMock(DefinitionInstanceRegistry::class));
         $container->set(SalesChannelDefinitionInstanceRegistry::class, $this->createMock(SalesChannelDefinitionInstanceRegistry::class));
         $container->setParameter('kernel.cache_dir', '/tmp');
-        $container->setParameter('shopware.cache.cache_compression', true);
-        $container->setParameter('shopware.cache.cache_compression_method', 'gzip');
+        $container->setParameter('shopware.cache.compress', true);
+        $container->setParameter('shopware.cache.compression_method', 'gzip');
         $container->setParameter('kernel.debug', true);
         $container->setParameter('kernel.environment', 'test');
         $framework = new Framework();

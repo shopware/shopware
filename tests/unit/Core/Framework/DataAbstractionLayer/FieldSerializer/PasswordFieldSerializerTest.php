@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerialize
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -44,14 +45,14 @@ class PasswordFieldSerializerTest extends TestCase
     protected SystemConfigService $systemConfigService;
 
     /**
-     * @var ValidatorInterface&MockObject
+     * @var ValidatorInterface&Stub
      */
     protected ValidatorInterface $validator;
 
     protected function setUp(): void
     {
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->validator = $this->createMock(ValidatorInterface::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->validator = static::createStub(ValidatorInterface::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->serializer = new PasswordFieldSerializer($this->validator, $definitionRegistry, $this->systemConfigService);
     }
@@ -116,8 +117,12 @@ class PasswordFieldSerializerTest extends TestCase
         $constraintViolations = new ConstraintViolationList();
         if ($shouldThrowViolationException) {
             $constraintViolations->add(new ConstraintViolation('test', 'test', [], '', '', ''));
-            $this->expectException(WriteConstraintViolationException::class);
-            $this->expectExceptionMessage(\sprintf('Caught %d constraint violation errors.', \count($constraints)));
+
+            $expectedViolations = new ConstraintViolationList();
+            foreach ($constraints as $_) {
+                $expectedViolations->add(new ConstraintViolation('test', 'test', [], '', '/password', ''));
+            }
+            $this->expectExceptionObject(new WriteConstraintViolationException($expectedViolations));
         }
 
         $existence = new EntityExistence('product', [], false, false, false, []);
@@ -134,11 +139,13 @@ class PasswordFieldSerializerTest extends TestCase
             $this->systemConfigService->expects($this->never())->method('getInt');
         }
 
-        $this->validator
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
             ->expects($this->exactly(\count($constraints)))->method('validate')
             ->willReturn($constraintViolations);
 
-        $result = $this->serializer->encode($field, $existence, $kv, $params)->current();
+        $serializer = new PasswordFieldSerializer($validator, static::createStub(DefinitionInstanceRegistry::class), $this->systemConfigService);
+        $result = $serializer->encode($field, $existence, $kv, $params)->current();
 
         if ($inputPassword) {
             if (password_get_info($inputPassword)['algo'] !== null) {
@@ -231,7 +238,7 @@ class PasswordFieldSerializerTest extends TestCase
     {
         return new PasswordFieldSerializer(
             Validation::createValidator(),
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
             $this->systemConfigService
         );
     }

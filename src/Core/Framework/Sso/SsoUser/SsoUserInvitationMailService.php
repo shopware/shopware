@@ -59,14 +59,12 @@ class SsoUserInvitationMailService
 
         $user = $this->getUserById($apiSource->getUserId(), $context);
         $shopName = $this->systemConfigService->get('core.basicInformation.shopName');
-        $senderMail = $this->systemConfigService->get('core.basicInformation.email');
         $mailTemplate = $this->getMailTemplate($localeId, $context);
 
         $mailData = new DataBag();
         $mailData->set('templateId', $mailTemplate?->getId());
         $mailData->set('recipients', [$recipientEmail => $recipientEmail]);
         $mailData->set('senderName', $shopName);
-        $mailData->set('senderEmail', $user?->getEmail() ?? $senderMail);
         $mailData->set('subject', $mailTemplate?->getTranslation('subject'));
         $mailData->set('contentPlain', $mailTemplate?->getTranslation('contentPlain'));
         $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
@@ -75,12 +73,12 @@ class SsoUserInvitationMailService
         $templateVariables->set('nameOfInviter', $this->createInviterName($user));
         $templateVariables->set('storeName', $shopName);
         $templateVariables->set('invitedEmailAddress', $recipientEmail);
-        $templateVariables->set('signupUrl', $this->createSingUpUrl());
+        $templateVariables->set('signupUrl', $this->createSignUpUrl());
 
         $this->mailService->send($mailData->all(), $context, $templateVariables->all());
     }
 
-    private function createSingUpUrl(): string
+    private function createSignUpUrl(): string
     {
         return $this->appUrl . $this->urlGenerator->generate(self::ADMIN_ROUTE_NAME);
     }

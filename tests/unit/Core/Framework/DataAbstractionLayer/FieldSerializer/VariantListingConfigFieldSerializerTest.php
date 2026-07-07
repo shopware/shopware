@@ -31,8 +31,8 @@ class VariantListingConfigFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $validator = $this->createMock(ValidatorInterface::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
         $this->serializer = new VariantListingConfigFieldSerializer($definitionRegistry, $validator);
     }

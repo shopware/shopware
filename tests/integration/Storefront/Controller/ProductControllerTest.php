@@ -425,6 +425,44 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testProductQuickViewManufacturerIsNotLinkedWithoutUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'no-link-manufacturer']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(0, $manufacturerLink);
+
+        $manufacturer = $crawler->filter('span.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturer);
+        static::assertStringContainsString('no-link-manufacturer', $manufacturer->text());
+    }
+
+    public function testProductQuickViewManufacturerIsLinkedWithUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => 'shopware.com']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturerLink);
+        static::assertSame('https://shopware.com', $manufacturerLink->attr('href'));
+        static::assertStringContainsString('linked-manufacturer', $manufacturerLink->text());
+
+        static::assertCount(0, $crawler->filter('span.quickview-minimal-product-manufacturer'));
+    }
+
     public function testProductReviewsLoadedScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();
@@ -534,12 +572,12 @@ class ProductControllerTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'testuser@example.com',
+            'email' => $customerId . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         $repo = static::getContainer()->get('customer.repository');

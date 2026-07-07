@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -36,12 +37,13 @@ class ZugferdRendererTest extends TestCase
     public function testSupports(): void
     {
         $renderer = new ZugferdRenderer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(ZugferdBuilder::class),
-            $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(ZugferdBuilder::class),
+            static::createStub(EventDispatcherInterface::class),
+            new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class)),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            new NativeClock()
         );
 
         static::assertSame('zugferd_invoice', $renderer->supports());
@@ -89,9 +91,10 @@ class ZugferdRendererTest extends TestCase
             $orderRepositoryMock,
             $connection,
             $builder,
-            $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class)),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            new NativeClock()
         );
 
         $rendered = $renderer->render(

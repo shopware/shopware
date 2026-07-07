@@ -41,14 +41,14 @@ class DateFieldSerializerTest extends TestCase
     protected function setUp(): void
     {
         $validator = new RecursiveValidator(
-            new ExecutionContextFactory($this->createMock(TranslatorInterface::class)),
+            new ExecutionContextFactory(static::createStub(TranslatorInterface::class)),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
         );
 
         $this->serializer = new DateFieldSerializer(
             $validator,
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
 
         $this->field = (new DateField('date', 'date'))->addFlags(new Required());

@@ -213,8 +213,7 @@ class ImageTypeDetectorTest extends TestCase
             1024
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::cannotOpenSourceStreamToRead($path)->getMessage());
+        $this->expectExceptionObject(MediaException::cannotOpenSourceStreamToRead($path));
 
         $this->getImageTypeDetector()->detect(
             $mediaFile,

@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -807,7 +808,7 @@ class ThemeTest extends TestCase
     public function testThemeServiceUpdateWrongId(): void
     {
         $randomId = Uuid::randomHex();
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $randomId));
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($randomId));
         $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
     }
 
@@ -874,7 +875,6 @@ class ThemeTest extends TestCase
                     'baseConfig' => array_merge($parentTheme->getBaseConfig() ?? [], $config->getThemeConfig() ?? []),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
-                    'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
@@ -909,7 +909,6 @@ class ThemeTest extends TestCase
                     'baseConfig' => array_merge_recursive($parentTheme->getBaseConfig() ?? [], $customConfig),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
-                    'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
@@ -937,7 +936,6 @@ class ThemeTest extends TestCase
                     'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
-                    'labels' => $parentTheme->getLabels(),
                     'active' => true,
                 ],
             ],

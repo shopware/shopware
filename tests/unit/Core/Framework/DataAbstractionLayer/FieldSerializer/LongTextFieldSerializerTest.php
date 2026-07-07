@@ -37,7 +37,7 @@ class LongTextFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $sanitizer = new HtmlSanitizer(null, true, $this->getHtmlSanitizerSets(), $this->getHtmlSanitizerFieldSets());
         $this->serializer = new LongTextFieldSerializer(Validation::createValidator(), $definitionRegistry, $sanitizer);
@@ -55,8 +55,7 @@ class LongTextFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::invalidSerializerField(LongTextField::class, $field)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidSerializerField(LongTextField::class, $field));
 
         iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
     }
@@ -155,8 +154,7 @@ class LongTextFieldSerializerTest extends TestCase
     {
         $field = new LongTextField('test', 'test');
 
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::invalidArraySerialization($field, [])->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidArraySerialization($field, []));
 
         $this->serializer->decode($field, []);
     }

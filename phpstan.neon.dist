@@ -1,14 +1,12 @@
 includes:
     - phpstan-baseline.php
+    # computes the analysed paths with node_modules subtrees pruned, see the file header
+    - phpstan-paths.php
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
     tmpDir: var/cache/phpstan
-    paths:
-        - src
-        - tests
-
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
@@ -216,9 +214,3 @@ parameters:
         -
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
-
-        - # Bug in PHPStan. See https://github.com/phpstan/phpstan-phpunit/issues/286
-            message: '#Method Shopware\\Tests\\Integration\\Elasticsearch.*Test::test.*Search\(\) invoked with \d parameters, \d required#'
-            paths:
-                - tests/integration/Elasticsearch/Admin/AdminSearchControllerTest.php
-                - tests/integration/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

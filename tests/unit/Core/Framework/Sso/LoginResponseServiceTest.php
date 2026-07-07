@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\LoginResponseService;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -55,6 +56,6 @@ class LoginResponseServiceTest extends TestCase
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator->expects($this->once())->method('generate')->willReturn('/admin');
 
-        return new LoginResponseService($urlGenerator);
+        return new LoginResponseService($urlGenerator, new NativeClock());
     }
 }

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
@@ -153,17 +153,13 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return null;
         }
 
-        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
-        $filterIds = $event->getPrimaryKeysWithPropertyChange(ProductStreamFilterDefinition::ENTITY_NAME, [
-            'type',
-            'field',
-            'value',
-            'operator',
-            'parameters',
-            'position',
-        ]);
+        if ($event->getEventByEntityName(ProductStreamFilterDefinition::ENTITY_NAME) === null) {
+            return null;
+        }
 
-        if ($ids === [] || $filterIds === []) {
+        $ids = ProductStreamWriteResultHelper::getAffectedStreamIds($event);
+
+        if ($ids === []) {
             return null;
         }
 
@@ -195,7 +191,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 

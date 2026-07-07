@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -50,7 +51,7 @@ class CmsSlotsDataResolverTest extends TestCase
      */
     private SalesChannelRepository&MockObject $productRepository;
 
-    private EventDispatcher&MockObject $dispatcher;
+    private EventDispatcher&Stub $dispatcher;
 
     private ExtensionDispatcher $extensions;
 
@@ -61,7 +62,7 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->textResolver = $this->createMock(TextCmsElementResolver::class);
         $this->registry = $this->createMock(DefinitionInstanceRegistry::class);
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
-        $this->dispatcher = $this->createMock(EventDispatcher::class);
+        $this->dispatcher = static::createStub(EventDispatcher::class);
         $this->extensions = new ExtensionDispatcher($this->dispatcher);
     }
 
@@ -136,7 +137,9 @@ class CmsSlotsDataResolverTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $resolverContext = new ResolverContext($context, new Request());
 
-        $this->dispatcher
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $this->extensions = new ExtensionDispatcher($dispatcher);
+        $dispatcher
             // 3 extensions, each dispatched as pre- and post-event
             ->expects($this->exactly(6))
             ->method('dispatch')
@@ -183,7 +186,7 @@ class CmsSlotsDataResolverTest extends TestCase
     private function getCmsSlotsDataResolver(): CmsSlotsDataResolver
     {
         $this->productRepository->method('search')
-            ->willReturn($this->createMock(EntitySearchResult::class));
+            ->willReturn(static::createStub(EntitySearchResult::class));
 
         $productDefinition = new ProductDefinition();
         $productDefinition->compile($this->registry);

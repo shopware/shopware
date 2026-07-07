@@ -7,7 +7,7 @@ use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Implementation;
 use Mcp\Schema\JsonRpc\ResultInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Result\InitializeResult;
 use Mcp\Schema\Result\ListPromptsResult;
 use Mcp\Schema\Result\ListResourcesResult;
@@ -89,7 +89,7 @@ class McpJsonRpcResponse implements \JsonSerializable
         $filtered = array_values(
             array_filter(
                 $this->result->resources,
-                static fn (Resource $resource): bool => \in_array($resource->uri, $allowlist, true),
+                static fn (ResourceDefinition $resource): bool => \in_array($resource->uri, $allowlist, true),
             ),
         );
 
@@ -142,46 +142,6 @@ class McpJsonRpcResponse implements \JsonSerializable
             $this->result->serverInfo,
             $this->result->instructions,
             array_merge($this->result->meta ?? [], ['shopware' => $shopware]),
-            $this->result->protocolVersion,
-        );
-
-        return true;
-    }
-
-    /**
-     * Advertises listChanged support for the capability types the server actually exposes,
-     * so clients that honour capability negotiation subscribe to the notifications emitted
-     * on app lifecycle changes. Without this the initialize response defaults listChanged to
-     * false and spec-compliant clients ignore the notifications.
-     *
-     * Returns true when the result was an InitializeResult, false otherwise.
-     */
-    public function advertiseListChanged(): bool
-    {
-        if (!$this->result instanceof InitializeResult) {
-            return false;
-        }
-
-        $capabilities = $this->result->capabilities;
-
-        $updated = new ServerCapabilities(
-            tools: $capabilities->tools,
-            toolsListChanged: $capabilities->tools === true ? true : $capabilities->toolsListChanged,
-            resources: $capabilities->resources,
-            resourcesSubscribe: $capabilities->resourcesSubscribe,
-            resourcesListChanged: $capabilities->resources === true ? true : $capabilities->resourcesListChanged,
-            prompts: $capabilities->prompts,
-            promptsListChanged: $capabilities->prompts === true ? true : $capabilities->promptsListChanged,
-            logging: $capabilities->logging,
-            completions: $capabilities->completions,
-            experimental: $capabilities->experimental,
-        );
-
-        $this->result = new InitializeResult(
-            $updated,
-            $this->result->serverInfo,
-            $this->result->instructions,
-            $this->result->meta,
             $this->result->protocolVersion,
         );
 

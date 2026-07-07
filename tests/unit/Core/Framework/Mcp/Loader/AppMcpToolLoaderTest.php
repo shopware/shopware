@@ -82,7 +82,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -114,7 +113,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -159,7 +157,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -210,7 +207,6 @@ class AppMcpToolLoaderTest extends TestCase
             ->with(
                 static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
                 static::isCallable(),
-                true,
             );
 
         $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['my-app-sync-orders']);
@@ -242,7 +238,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -274,7 +269,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -410,7 +404,6 @@ class AppMcpToolLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);

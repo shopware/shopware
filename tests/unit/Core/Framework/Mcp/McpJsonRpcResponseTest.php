@@ -348,29 +348,6 @@ class McpJsonRpcResponseTest extends TestCase
         static::assertStringContainsString('"resources":{', $encoded, 'capabilities.resources must encode as {} not []');
     }
 
-    // ── advertiseListChanged ──────────────────────────────────────────────────
-
-    public function testAdvertiseListChangedFlagsSupportedCapabilities(): void
-    {
-        $response = McpJsonRpcResponse::fromJson($this->initializeJson());
-        static::assertNotNull($response);
-
-        static::assertTrue($response->advertiseListChanged());
-
-        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['result']['capabilities']['tools']['listChanged']);
-        static::assertTrue($data['result']['capabilities']['resources']['listChanged']);
-        static::assertTrue($data['result']['capabilities']['prompts']['listChanged']);
-    }
-
-    public function testAdvertiseListChangedReturnsFalseForNonInitializeResponse(): void
-    {
-        $response = McpJsonRpcResponse::fromJson($this->toolsListJson(['tool-a']));
-        static::assertNotNull($response);
-
-        static::assertFalse($response->advertiseListChanged());
-    }
-
     // ── helpers ───────────────────────────────────────────────────────────────
 
     /**

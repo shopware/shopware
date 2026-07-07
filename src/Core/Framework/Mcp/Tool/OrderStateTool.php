@@ -193,7 +193,7 @@ class OrderStateTool extends McpToolResponse
         $criteria->addAssociation('stateMachineState');
 
         $result = $repository->search($criteria, $context);
-        $order = $result->first();
+        $order = $result->getEntities()->first();
 
         return $order instanceof OrderEntity ? $order : null;
     }

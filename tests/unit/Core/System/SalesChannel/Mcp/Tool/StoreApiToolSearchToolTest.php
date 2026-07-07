@@ -20,7 +20,7 @@ class StoreApiToolSearchToolTest extends TestCase
     public function testSearchReturnsStoreApiToolDefinitions(): void
     {
         $registry = new Registry();
-        $registry->registerTool(self::tool('shopware-store-api-product-search', 'Search products'), 'Acme\\ProductSearchTool', true);
+        $registry->registerTool(self::tool('shopware-store-api-product-search', 'Search products'), 'Acme\\ProductSearchTool');
 
         $tool = new StoreApiToolSearchTool($registry, new ToolSearch());
 

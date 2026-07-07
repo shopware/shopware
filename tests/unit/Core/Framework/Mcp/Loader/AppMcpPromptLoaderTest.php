@@ -79,7 +79,6 @@ class AppMcpPromptLoaderTest extends TestCase
                 }),
                 static::isCallable(),
                 [],
-                true,
             );
 
         $this->loader->load($registry);
@@ -110,7 +109,6 @@ class AppMcpPromptLoaderTest extends TestCase
                 }),
                 static::isCallable(),
                 [],
-                true,
             );
 
         $this->loader->load($registry);
@@ -141,7 +139,6 @@ class AppMcpPromptLoaderTest extends TestCase
                 }),
                 static::isCallable(),
                 [],
-                true,
             );
 
         $this->loader->load($registry);

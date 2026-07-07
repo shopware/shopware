@@ -36,10 +36,6 @@ final class LogicDetector
         Expr\Ternary::class,
     ];
 
-    private function __construct()
-    {
-    }
-
     /**
      * Plain conditionals are exempt inside \Throwable subclasses: an exception factory
      * that branches between returning one exception or another (feature-flag forks,
@@ -52,6 +48,10 @@ final class LogicDetector
         Stmt\Else_::class,
         Expr\Ternary::class,
     ];
+
+    private function __construct()
+    {
+    }
 
     public static function methodContainsLogic(ClassMethod $method, bool $inThrowableContext = false): bool
     {

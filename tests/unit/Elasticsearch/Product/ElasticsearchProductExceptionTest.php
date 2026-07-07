@@ -2,13 +2,13 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
+use OpenSearch\Common\Exceptions\BadRequest400Exception;
 use OpenSearch\Exception\BadRequestHttpException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal

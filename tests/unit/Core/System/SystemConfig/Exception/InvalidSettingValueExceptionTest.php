@@ -23,15 +23,15 @@ class InvalidSettingValueExceptionTest extends TestCase
     public function testMessageVariants(): void
     {
         static::assertSame(
-            "Invalid value for 'core.foo'",
+            'Invalid value for \'core.foo\'',
             (new InvalidSettingValueException('core.foo'))->getMessage()
         );
         static::assertSame(
-            "Invalid value for 'core.foo'. Must be of type 'int'",
+            'Invalid value for \'core.foo\'. Must be of type \'int\'',
             (new InvalidSettingValueException('core.foo', 'int'))->getMessage()
         );
         static::assertSame(
-            "Invalid value for 'core.foo'. Must be of type 'int'. But is of type 'string'",
+            'Invalid value for \'core.foo\'. Must be of type \'int\'. But is of type \'string\'',
             (new InvalidSettingValueException('core.foo', 'int', 'string'))->getMessage()
         );
     }

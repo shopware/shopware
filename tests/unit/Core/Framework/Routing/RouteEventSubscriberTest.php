@@ -50,6 +50,9 @@ class RouteEventSubscriberTest extends TestCase
     #[TestDox('getSubscribedEvents registers request, controller and response handlers at priority -10')]
     public function testGetSubscribedEvents(): void
     {
+        $this->listener->expects($this->never())->method('__invoke');
+        $this->secondListener->expects($this->never())->method('__invoke');
+
         static::assertSame(
             [
                 KernelEvents::REQUEST => ['request', -10],
@@ -64,6 +67,9 @@ class RouteEventSubscriberTest extends TestCase
     public function testNoEventDispatchedWithoutRouteOrScope(): void
     {
         $request = new Request();
+
+        $this->listener->expects($this->never())->method('__invoke');
+        $this->secondListener->expects($this->never())->method('__invoke');
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->never())->method('dispatch');
@@ -106,6 +112,8 @@ class RouteEventSubscriberTest extends TestCase
 
         $this->listener->expects($this->once())->method('__invoke');
 
+        $this->secondListener->expects($this->never())->method('__invoke');
+
         $this->dispatcher->addListener('frontend.home.page.request', $this->listener);
 
         $this->subscriber->request($event);
@@ -119,6 +127,8 @@ class RouteEventSubscriberTest extends TestCase
         $event = new ResponseEvent($this->kernel, $request, HttpKernelInterface::MAIN_REQUEST, new Response());
 
         $this->listener->expects($this->once())->method('__invoke');
+
+        $this->secondListener->expects($this->never())->method('__invoke');
 
         $this->dispatcher->addListener('frontend.home.page.response', $this->listener);
 
@@ -134,6 +144,8 @@ class RouteEventSubscriberTest extends TestCase
         $event = new RequestEvent($this->kernel, $request, HttpKernelInterface::MAIN_REQUEST);
 
         $this->listener->expects($this->once())->method('__invoke');
+
+        $this->secondListener->expects($this->never())->method('__invoke');
 
         $this->dispatcher->addListener('api.scope.request', $this->listener);
 
@@ -153,6 +165,8 @@ class RouteEventSubscriberTest extends TestCase
         );
 
         $this->listener->expects($this->once())->method('__invoke');
+
+        $this->secondListener->expects($this->never())->method('__invoke');
 
         $this->dispatcher->addListener('frontend.home.page.controller', $this->listener);
 
@@ -174,6 +188,8 @@ class RouteEventSubscriberTest extends TestCase
 
         $this->listener->expects($this->once())->method('__invoke');
 
+        $this->secondListener->expects($this->never())->method('__invoke');
+
         $this->dispatcher->addListener('api.scope.controller', $this->listener);
 
         $this->subscriber->controller($event);
@@ -193,6 +209,8 @@ class RouteEventSubscriberTest extends TestCase
         );
 
         $this->listener->expects($this->once())->method('__invoke');
+
+        $this->secondListener->expects($this->never())->method('__invoke');
 
         $this->dispatcher->addListener('api.scope.response', $this->listener);
 

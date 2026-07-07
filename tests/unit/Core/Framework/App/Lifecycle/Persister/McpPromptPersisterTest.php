@@ -168,7 +168,7 @@ class McpPromptPersisterTest extends TestCase
 
     private function createMcpWithPrompts(McpPrompts $mcpPrompts): Mcp
     {
-        $mcp = $this->createMock(Mcp::class);
+        $mcp = static::createStub(Mcp::class);
         $mcp->method('getPrompts')->willReturn($mcpPrompts);
 
         return $mcp;

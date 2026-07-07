@@ -39,13 +39,6 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:exception-change' => 'Use the #[ExceptionChange] attribute instead.',
     ];
 
-    private const ENFORCED_NAMESPACES = [
-        'Shopware\\Core\\',
-        'Shopware\\Administration\\',
-        'Shopware\\Storefront\\',
-        'Shopware\\Elasticsearch\\',
-    ];
-
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -53,15 +46,6 @@ class NoBCPlanningDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        $className = $node->getClassReflection()->getName();
-        $enforced = false;
-        foreach (self::ENFORCED_NAMESPACES as $namespace) {
-            $enforced = $enforced || \str_starts_with($className, $namespace);
-        }
-        if (!$enforced) {
-            return [];
-        }
-
         $classNode = $node->getOriginalNode();
 
         $errors = $this->validateDoc($classNode->getDocComment()?->getText(), $classNode->getStartLine());

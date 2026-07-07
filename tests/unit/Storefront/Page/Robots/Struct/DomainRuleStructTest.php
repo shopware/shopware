@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
@@ -25,8 +26,11 @@ class DomainRuleStructTest extends TestCase
      */
     #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('getTestCases')]
+    #[IgnoreDeprecations]
     public function testParsesDomainRulesCorrectly(string $ruleString, string $basePath, array $expectedRules): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Page\\Robots\\Parser\\RobotsDirectiveParser::parseDirectiveFromString()" is deprecated and will be removed in v6.8.0.0. Use "the `parse()` method of the `RobotsDirectiveParser` service to parse the whole `robots.txt` file" instead.');
+
         $domainRuleStruct = new DomainRuleStruct($ruleString, $basePath);
 
         static::assertSame($basePath, $domainRuleStruct->getBasePath());
@@ -137,8 +141,11 @@ class DomainRuleStructTest extends TestCase
      * @deprecated tag:v6.8.0 - Tests deprecated string format, will be removed
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetDirectivesReturnsRobotsDirectiveObjects(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Page\\Robots\\Parser\\RobotsDirectiveParser::parseDirectiveFromString()" is deprecated and will be removed in v6.8.0.0. Use "the `parse()` method of the `RobotsDirectiveParser` service to parse the whole `robots.txt` file" instead.');
+
         $domainRuleStruct = new DomainRuleStruct("Disallow: /private/\nAllow: /public/", '');
 
         $directives = $domainRuleStruct->getDirectives();

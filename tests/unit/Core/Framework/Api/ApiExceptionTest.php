@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
@@ -134,8 +135,11 @@ class ApiExceptionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testInvalidSyncOperation(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\Api\\ApiException::invalidSyncOperation()" is deprecated and will be removed in v6.8.0.0.');
+
         $exception = ApiException::invalidSyncOperation('Message');
 
         static::assertInstanceOf(InvalidSyncOperationException::class, $exception);

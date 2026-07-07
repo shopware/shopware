@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\User\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
@@ -86,8 +87,11 @@ class UserListCommandTest extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with `--json` option
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testWithJson(): void
     {
+        $this->expectUserDeprecationMessage('The "--json" option of the "user:list" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.');
+
         $commandTester = $this->prepareCommandTester();
         $commandTester->execute(['--json' => true]);
 

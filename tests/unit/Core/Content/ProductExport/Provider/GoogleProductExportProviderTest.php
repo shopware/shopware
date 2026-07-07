@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -31,8 +32,11 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 class GoogleProductExportProviderTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetTechnicalNameReturnsGoogle(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\GoogleProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = new GoogleProductExportProvider(
             $this->createSalesChannelRepository(),
             static::createStub(SystemConfigService::class)
@@ -42,8 +46,12 @@ class GoogleProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\GoogleProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $repository = $this->createSalesChannelRepository();
         $salesChannel = $this->createSalesChannel(['DE', null, 'FR']);
         $productExport = $this->createProductExport($salesChannel->getId());
@@ -83,8 +91,12 @@ class GoogleProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\GoogleProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -120,8 +132,12 @@ class GoogleProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenTheyCannotBeResolved(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\GoogleProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -159,8 +175,12 @@ class GoogleProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextUsesConfiguredInputValues(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\GoogleProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $salesChannel = $this->createSalesChannel(['DE']);
         $salesChannelId = $salesChannel->getId();
         $productExport = $this->createProductExport($salesChannelId);

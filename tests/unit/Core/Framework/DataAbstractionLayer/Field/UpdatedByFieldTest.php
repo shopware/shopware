@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
@@ -16,8 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(UpdatedByField::class)]
 class UpdatedByFieldTest extends TestCase
 {
+    #[IgnoreDeprecations]
     public function testGetAllowedWriteScopesDefaultsToSystemScopeBeforeV680(): void
     {
+        $this->expectUserDeprecationMessage('Since shopware/core : Not passing $allowedWriteScopes to Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\UpdatedByField::__construct() will include Context::CRUD_API_SCOPE by default in v6.8.0. Pass the desired scopes explicitly to keep the current behavior.');
+
         Feature::fake([], function (): void {
             $field = new UpdatedByField();
 

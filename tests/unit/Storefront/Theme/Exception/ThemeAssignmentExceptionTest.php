@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -21,8 +22,11 @@ use Symfony\Component\HttpFoundation\Response;
 class ThemeAssignmentExceptionTest extends TestCase
 {
     #[TestDox('the message lists theme and child theme assignments with resolved sales channel names')]
+    #[IgnoreDeprecations]
     public function testMessageFormatsAssignments(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Storefront\\Theme\\Exception\\ThemeAssignmentException" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Storefront\\Theme\\Exception\\ThemeException" instead.');
+
         $exception = new ThemeAssignmentException(
             'MyTheme',
             ['MyTheme' => ['sc-1']],

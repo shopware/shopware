@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
@@ -77,8 +78,11 @@ class AppExceptionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testInstallationFailed(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\App\\AppException::installationFailed()" is deprecated and will be removed in v6.8.0.0.');
+
         $e = AppException::installationFailed('AnyAppName', 'reason');
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
@@ -100,8 +104,11 @@ class AppExceptionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testInAppPurchaseGatewayUrlEmpty(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\App\\AppException::inAppPurchaseGatewayUrlEmpty()" is deprecated and will be removed in v6.8.0.0.');
+
         $e = AppException::inAppPurchaseGatewayUrlEmpty();
 
         static::assertSame(AppException::INVALID_CONFIGURATION, $e->getErrorCode());

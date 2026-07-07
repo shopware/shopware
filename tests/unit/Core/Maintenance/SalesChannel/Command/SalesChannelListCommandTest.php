@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\SalesChannel\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -80,8 +81,11 @@ class SalesChannelListCommandTest extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with `--output` option
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testOutputJsonDeprecated(): void
     {
+        $this->expectUserDeprecationMessage('The "--output" option of the "sales-channel:list" command is deprecated and will be removed in v6.8.0. Use "--format" instead.');
+
         $id = Uuid::randomHex();
 
         $salesChannel = new SalesChannelEntity();

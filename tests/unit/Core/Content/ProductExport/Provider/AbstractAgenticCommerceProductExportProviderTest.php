@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
@@ -21,8 +22,11 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class AbstractAgenticCommerceProductExportProviderTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextAddsProviderStruct(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -42,8 +46,11 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextUsesOwnTrackingCodes(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = $this->createProvider(['extra' => 'value']);
 
         $agenticChannel = new SalesChannelEntity();
@@ -69,8 +76,11 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextWithNoConfiguration(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -92,8 +102,11 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextIncludesReferralCodeAndName(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -115,8 +128,11 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextMergesWithExistingContext(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -137,8 +153,11 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testExtendRenderContextWithNullSalesChannelConfiguration(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Provider\\AbstractAgenticCommerceProductExportProvider" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();

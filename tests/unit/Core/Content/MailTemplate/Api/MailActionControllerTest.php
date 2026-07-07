@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Payload\MailPayload;
@@ -107,8 +108,11 @@ class MailActionControllerTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testBuild(): void
     {
+        $this->expectUserDeprecationMessage('Route "api.action.mail_template.build" is deprecated and will be removed in v6.8.0.0. Use "api.action.mail_template.preview" instead.');
+
         $templateData = [
             'order' => [
                 'id' => 'order-id',
@@ -141,8 +145,11 @@ class MailActionControllerTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testBuildWithoutTemplateContentThrows(): void
     {
+        $this->expectUserDeprecationMessage('Route "api.action.mail_template.build" is deprecated and will be removed in v6.8.0.0. Use "api.action.mail_template.preview" instead.');
+
         $this->stringTemplateRenderer->expects($this->never())
             ->method('enableTestMode');
         $this->stringTemplateRenderer->expects($this->never())

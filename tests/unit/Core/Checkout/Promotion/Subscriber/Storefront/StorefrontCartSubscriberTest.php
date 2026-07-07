@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Subscriber\Storefront;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -228,8 +229,11 @@ class StorefrontCartSubscriberTest extends TestCase
      * @deprecated tag:v6.8.0 - will be removed
      */
     #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    #[IgnoreDeprecations]
     public function testOnLineItemRemovedPromotionNoCodeButPromotionIdBlocksPromotionWhenFeatureDisabled(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::isPromotionBlocked()" is deprecated and will be removed in v6.8.0.0.');
+
         $cart = Generator::createCart();
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
         $lineItem->setPayloadValue('promotionId', 'PROMOID');

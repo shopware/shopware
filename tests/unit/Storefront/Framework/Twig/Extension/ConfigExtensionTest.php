@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,8 +36,11 @@ class ConfigExtensionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedConfigExtractsSalesChannelIdFromContext(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Framework\\Twig\\Extension\\ConfigExtension::config()" is deprecated and will be removed in v6.8.0.0. Use "SystemConfigService" instead.');
+
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $accessor = $this->createMock(TemplateConfigAccessor::class);
@@ -53,8 +57,11 @@ class ConfigExtensionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedConfigExtractsSalesChannelIdFromSalesChannelEntity(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Framework\\Twig\\Extension\\ConfigExtension::config()" is deprecated and will be removed in v6.8.0.0. Use "SystemConfigService" instead.');
+
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId('sales-channel-id');
         $salesChannel->setUniqueIdentifier('sales-channel-id');

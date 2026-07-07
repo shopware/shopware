@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
@@ -112,8 +113,11 @@ class CustomerExceptionTest extends TestCase
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testCannotDeleteActiveAddress(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Customer\\CustomerException::cannotDeleteActiveAddress()" is deprecated and will be removed in v6.8.0.0.');
+
         $exception = CustomerException::cannotDeleteActiveAddress('id-1');
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_ADDRESS_IS_ACTIVE, $exception->getErrorCode());

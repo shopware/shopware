@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Content\Cookie\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
@@ -134,8 +135,11 @@ class CookieProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testLegacyCookieConverting(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Framework\\Cookie\\CookieProvider::getCookieGroups()" is deprecated and will be removed in v6.8.0.0. Use "Use CookieGroupCollectEvent instead to introduce cookies" instead.');
+
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);

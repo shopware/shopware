@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Validation\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -63,8 +64,11 @@ class ConstraintViolationExceptionTest extends TestCase
      */
     #[TestDox('getRootViolations filters violations without a property path')]
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetRootViolations(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\Validation\\Exception\\ConstraintViolationException::getRootViolations()" is deprecated and will be removed in v6.8.0.0.');
+
         $exception = self::createException();
 
         $root = $exception->getRootViolations();

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
@@ -337,8 +338,11 @@ class SeoResolverTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedResolveProjectsAllFieldsToArray(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Content\\Seo\\SeoResolver::resolve()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Content\\Seo\\SeoResolver::resolveUrl()" instead.');
+
         $salesChannelId = Uuid::randomHex();
         $foreignId = Uuid::randomHex();
 

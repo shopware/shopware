@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -69,8 +70,11 @@ class StorefrontExceptionTest extends TestCase
      * @deprecated tag:v6.8.0 - Will be removed
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDontHaveTwigInjected(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Controller\\Exception\\StorefrontException::dontHaveTwigInjected()" is deprecated and will be removed in v6.8.0.0.');
+
         $res = StorefrontException::dontHaveTwigInjected('Example\Class');
 
         static::assertSame(500, $res->getStatusCode());

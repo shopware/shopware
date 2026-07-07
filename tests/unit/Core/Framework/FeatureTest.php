@@ -194,14 +194,15 @@ class FeatureTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.5.0.0'])]
+    #[IgnoreDeprecations]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {
+        $this->expectUserDeprecationMessage('test');
+
         Feature::resetRegisteredFeatures();
 
         // no throw
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
-
-        $this->expectNotToPerformAssertions();
     }
 
     public function testSetActive(): void
@@ -256,9 +257,6 @@ class FeatureTest extends TestCase
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testCallSilentIfInactiveSuppressesDeprecationForInactiveFeature(): void
     {
-        // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-
         $this->expectNotToPerformAssertions();
 
         Feature::callSilentIfInactive('v6.5.0.0', static function (): void {
@@ -274,9 +272,6 @@ class FeatureTest extends TestCase
     #[DataProvider('callSilentIfInactiveProvider')]
     public function testCallSilentIfInactive(string $majorVersion, string $deprecatedMessage, ?string $introducedIn, string $expectedDeprecation): void
     {
-        // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-
         $this->expectUserDeprecationMessage($expectedDeprecation);
 
         Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {

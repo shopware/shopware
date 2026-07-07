@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -109,8 +110,11 @@ class NavigationRouteTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testLoadAddsDeprecatedCacheTagsCorrectly(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Content\\Category\\SalesChannel\\NavigationRoute::buildName()" is deprecated and will be removed in v6.8.0.0. Use " NavigationRoute::ALL_TAG" instead.');
+
         $activeId = Uuid::randomHex();
         $rootId = Generator::NAVIGATION_CATEGORY;
         $request = new Request();

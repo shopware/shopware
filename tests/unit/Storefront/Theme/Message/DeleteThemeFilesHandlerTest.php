@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
@@ -17,8 +18,14 @@ use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 class DeleteThemeFilesHandlerTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testFilesAreDeletedIfPathIsCurrentlyNotActive(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesHandler::__invoke()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesMessage::getSalesChannelId()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesMessage::getThemeId()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesMessage::getThemePath()" is deprecated and will be removed in v6.8.0.0.');
+
         $currentPath = 'path';
 
         $message = new DeleteThemeFilesMessage($currentPath, 'salesChannel', 'theme');
@@ -36,8 +43,14 @@ class DeleteThemeFilesHandlerTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testFilesAreNotDeletedIfPathIsCurrentlyActive(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesHandler::__invoke()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesMessage::getSalesChannelId()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesMessage::getThemeId()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Theme\\Message\\DeleteThemeFilesMessage::getThemePath()" is deprecated and will be removed in v6.8.0.0.');
+
         $pathBuilder = new MD5ThemePathBuilder();
 
         $currentPath = $pathBuilder->assemblePath('salesChannel', 'theme');

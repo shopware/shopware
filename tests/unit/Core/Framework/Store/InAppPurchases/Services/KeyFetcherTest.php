@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\InAppPurchases\Services;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -106,8 +107,11 @@ class KeyFetcherTest extends TestCase
      * @deprecated tag:v6.8.0 - reason: see StoreException::jwksNotFound - to be removed
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testGetKeyReturns400ResponseWithoutExistingKeyDeprecated(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Framework\\App\\AppException" is deprecated and will be removed in v6.8.0.0.');
+
         $this->expectExceptionObject(StoreException::jwksNotFound());
 
         $systemConfig = $this->createMock(SystemConfigService::class);

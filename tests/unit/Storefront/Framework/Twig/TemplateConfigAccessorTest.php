@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -277,8 +278,11 @@ class TemplateConfigAccessorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedConfigReturnsStaticValueWithoutCallingSystemConfig(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Framework\\Twig\\TemplateConfigAccessor::config()" is deprecated and will be removed in v6.8.0.0. Use "SystemConfigService" instead.');
+
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('get');
 
@@ -290,8 +294,11 @@ class TemplateConfigAccessorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedConfigDelegatesToSystemConfig(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Storefront\\Framework\\Twig\\TemplateConfigAccessor::config()" is deprecated and will be removed in v6.8.0.0. Use "SystemConfigService" instead.');
+
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService
             ->expects($this->once())

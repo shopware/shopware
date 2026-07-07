@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\EmptyPathInfoResolver;
@@ -71,8 +72,11 @@ class EmptyPathInfoResolverTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedResolveReturnsRootArrayForEmptyPath(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Content\\Seo\\EmptyPathInfoResolver::resolve()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Content\\Seo\\EmptyPathInfoResolver::resolveUrl()" instead.');
+
         $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated->expects($this->never())->method('resolveUrl');
 
@@ -84,8 +88,11 @@ class EmptyPathInfoResolverTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testDeprecatedResolveProjectsAllPopulatedFieldsToArray(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Content\\Seo\\EmptyPathInfoResolver::resolve()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Content\\Seo\\EmptyPathInfoResolver::resolveUrl()" instead.');
+
         $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated
             ->expects($this->once())

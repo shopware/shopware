@@ -6,6 +6,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -179,8 +180,11 @@ class PromotionCollectorTest extends TestCase
      * @deprecated tag:v6.8.0 - will be removed
      */
     #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    #[IgnoreDeprecations]
     public function testCollectSkipsBlockedPromotionsWhenFeatureDisabled(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::blockPromotion()" is deprecated and will be removed in v6.8.0.0.');
+
         $discountId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
 

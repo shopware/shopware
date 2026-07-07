@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductStream\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
@@ -43,8 +44,13 @@ class ProductStreamBuilderTest extends TestCase
      * it proceeds past the deprecation gate and fails only because the stub stream does not resolve.
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testBuildFiltersDoesNotThrowWhenV68IsInactive(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Content\\ProductStream\\Service\\ProductStreamBuilder::buildFilters()" is deprecated and will be removed in v6.8.0.0. Use "AbstractProductStreamBuilder::enrichCriteria" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::get()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->get()" instead.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::has()" is deprecated and will be removed in v6.8.0.0. Use "getEntities()->has()" instead.');
+
         /** @var StaticEntityRepository<ProductStreamCollection> $repository */
         $repository = new StaticEntityRepository([new ProductStreamCollection([])]);
         $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Validator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
@@ -19,8 +20,11 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class GoogleProductExportValidatorTest extends TestCase
 {
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateDoesNothingForOtherProviders(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $entity->setProvider('open-ai');
 
@@ -32,8 +36,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorWhenFileFormatIsNotXml(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $entity->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
 
@@ -48,8 +55,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForMalformedXml(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -62,8 +72,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForFeedWithoutItems(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -80,8 +93,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateDoesNotAddErrorsForValidGoogleFeed(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -95,8 +111,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForMissingRequiredGoogleField(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -111,8 +130,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidLink(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -127,8 +149,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidAvailability(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -143,8 +168,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidCondition(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -159,8 +187,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidGender(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -175,8 +206,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAcceptsValidGender(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -188,8 +222,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidSizeSystem(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -204,8 +241,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAcceptsValidSizeSystem(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -217,8 +257,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidAgeGroup(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -233,8 +276,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAcceptsValidAgeGroup(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -246,8 +292,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForInvalidPriceFormat(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -262,8 +311,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorWhenIdentifiersAreMissingWithoutFlag(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -278,8 +330,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAcceptsIdentifierExistsNo(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -295,8 +350,11 @@ class GoogleProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testValidateAddsErrorForDuplicateIds(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Content\\ProductExport\\Validator\\GoogleProductExportValidator" is deprecated and will be removed in v6.8.0.0. Use "Will be part of SwagAgenticCommerce" instead.');
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 

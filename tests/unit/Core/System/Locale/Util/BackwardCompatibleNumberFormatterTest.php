@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\Locale\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
@@ -23,8 +24,11 @@ class BackwardCompatibleNumberFormatterTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testItFallsBackToDefaultLocaleIfGivenLocaleIsInvalid(): void
     {
+        $this->expectUserDeprecationMessage('The locale "us" is no valid PHP locale. Please use a valid locale.');
+
         $numberFormatter = new BackwardCompatibleNumberFormatter('us', \NumberFormatter::DECIMAL);
         static::assertSame(\Locale::canonicalize(\Locale::getDefault()), $numberFormatter->getLocale());
     }

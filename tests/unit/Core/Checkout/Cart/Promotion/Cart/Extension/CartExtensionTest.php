@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Framework\Log\Package;
@@ -24,8 +25,12 @@ class CartExtensionTest extends TestCase
      */
     #[Group('promotions')]
     #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    #[IgnoreDeprecations]
     public function testPromotionIsBlockedWhenFeatureDisabled(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::blockPromotion()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::isPromotionBlocked()" is deprecated and will be removed in v6.8.0.0.');
+
         $extension = new CartExtension();
         $extension->blockPromotion('abc');
 
@@ -40,8 +45,11 @@ class CartExtensionTest extends TestCase
      */
     #[Group('promotions')]
     #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    #[IgnoreDeprecations]
     public function testDifferentPromotionIsNotBlocked(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::isPromotionBlocked()" is deprecated and will be removed in v6.8.0.0.');
+
         $extension = new CartExtension();
 
         static::assertFalse($extension->isPromotionBlocked('eef'));
@@ -137,8 +145,12 @@ class CartExtensionTest extends TestCase
      */
     #[Group('promotions')]
     #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    #[IgnoreDeprecations]
     public function testMergeMergesBlockedPromotionsWhenFeatureDisabled(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::blockPromotion()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::isPromotionBlocked()" is deprecated and will be removed in v6.8.0.0.');
+
         $extension1 = new CartExtension();
         $extension1->addCode('c123');
         $extension1->blockPromotion('p123');
@@ -159,8 +171,12 @@ class CartExtensionTest extends TestCase
      */
     #[Group('promotions')]
     #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    #[IgnoreDeprecations]
     public function testMergeKillsBlockedPromotionDuplicatesWhenFeatureDisabled(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::blockPromotion()" is deprecated and will be removed in v6.8.0.0.');
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Promotion\\Cart\\Extension\\CartExtension::isPromotionBlocked()" is deprecated and will be removed in v6.8.0.0.');
+
         $extension1 = new CartExtension();
         $extension1->addCode('c123');
         $extension1->blockPromotion('p123');

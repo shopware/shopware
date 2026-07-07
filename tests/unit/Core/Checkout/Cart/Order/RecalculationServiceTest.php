@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -385,8 +386,11 @@ class RecalculationServiceTest extends TestCase
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     #[DisabledFeatures(['v6.8.0.0'])]
+    #[IgnoreDeprecations]
     public function testToggleAutomaticPromotion(): void
     {
+        $this->expectUserDeprecationMessage('Method "Shopware\\Core\\Checkout\\Cart\\Order\\RecalculationService::toggleAutomaticPromotion()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Cart\\Order\\RecalculationService::applyAutomaticPromotions" instead.');
+
         $order = $this->orderEntity();
 
         $entityRepository = $this->createMock(EntityRepository::class);

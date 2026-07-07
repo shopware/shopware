@@ -9,6 +9,7 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -42,8 +43,11 @@ class JWTFactoryV2Test extends TestCase
     }
 
     #[DataProvider('dataProviderExpiration')]
+    #[IgnoreDeprecations]
     public function testGenerateAndGetToken(int $expiration, bool $expired): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\JWTFactoryV2" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\PaymentTokenGenerator" instead.');
+
         if ($expired) {
             $connection = static::createStub(Connection::class);
         } else {
@@ -74,8 +78,11 @@ class JWTFactoryV2Test extends TestCase
         static::assertSame($expired, $tokenStruct->isExpired());
     }
 
+    #[IgnoreDeprecations]
     public function testGetInvalidFormattedToken(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\JWTFactoryV2" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\PaymentTokenGenerator" instead.');
+
         $token = Uuid::randomHex();
 
         $this->expectExceptionObject(PaymentException::invalidToken($token));
@@ -85,8 +92,11 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory->parseToken($token);
     }
 
+    #[IgnoreDeprecations]
     public function testGetTokenWithInvalidSignature(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\JWTFactoryV2" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\PaymentTokenGenerator" instead.');
+
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId());
         $token = $this->tokenFactory->generateToken($tokenStruct);
@@ -99,16 +109,22 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory->parseToken($invalidToken);
     }
 
+    #[IgnoreDeprecations]
     public function testInvalidateToken(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\JWTFactoryV2" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\PaymentTokenGenerator" instead.');
+
         $token = Uuid::randomHex();
         static::assertNotEmpty($token);
         $success = $this->tokenFactory->invalidateToken($token);
         static::assertFalse($success);
     }
 
+    #[IgnoreDeprecations]
     public function testExpiredToken(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\JWTFactoryV2" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\PaymentTokenGenerator" instead.');
+
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new StrictValidAt(new MockClock(new \DateTimeImmutable('now - 1 day'))));
         $tokenFactory = new JWTFactoryV2($configuration, static::createStub(Connection::class), new NativeClock());
@@ -124,8 +140,11 @@ class JWTFactoryV2Test extends TestCase
         $tokenFactory->parseToken($token);
     }
 
+    #[IgnoreDeprecations]
     public function testTokenNotStored(): void
     {
+        $this->expectUserDeprecationMessage('Class "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\JWTFactoryV2" is deprecated and will be removed in v6.8.0.0. Use "Shopware\\Core\\Checkout\\Payment\\Cart\\Token\\PaymentTokenGenerator" instead.');
+
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
         $this->connection

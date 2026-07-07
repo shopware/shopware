@@ -8,6 +8,7 @@
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          executionOrder="random"
+         failOnDeprecation="true"
          failOnRisky="true">
     <coverage includeUncoveredFiles="true"/>
     <source ignoreSuppressionOfDeprecations="true"

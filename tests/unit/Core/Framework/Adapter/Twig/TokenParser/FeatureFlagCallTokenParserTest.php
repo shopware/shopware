@@ -25,7 +25,7 @@ class FeatureFlagCallTokenParserTest extends TestCase
     public function testSilentFeatureCallSuppressesDeprecation(): void
     {
         // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
+        $this->setEnvVars(['TEST_TWIG' => false]);
 
         $this->expectNotToPerformAssertions();
 
@@ -43,7 +43,7 @@ class FeatureFlagCallTokenParserTest extends TestCase
     public function testCodeRun(string $twigCode): void
     {
         // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
+        $this->setEnvVars(['TEST_TWIG' => false]);
 
         $this->expectUserDeprecationMessage('Foooo');
 

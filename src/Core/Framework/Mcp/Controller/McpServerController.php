@@ -222,8 +222,9 @@ class McpServerController
             return $psrResponse;
         }
 
-        $response->advertiseListChanged();
-        $response->addShopwareMeta($source->getUserId(), $source->getIntegrationId());
+        if (!$response->addShopwareMeta($source->getUserId(), $source->getIntegrationId())) {
+            return $psrResponse;
+        }
 
         $newBody = Json::encode($response);
         $newStream = $this->streamFactory->createStream($newBody);

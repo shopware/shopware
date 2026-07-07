@@ -53,29 +53,6 @@ class TemplateContextTest extends TestCase
         static::assertFalse($context->intraCommunityDelivery);
     }
 
-    public function testExposesOverrides(): void
-    {
-        $context = $this->createContext(fileType: 'html', itemsPerPage: 1000);
-
-        static::assertSame('html', $context->fileType);
-        static::assertSame(1000, $context->itemsPerPage);
-    }
-
-    public function testRendererValuesTakePrecedenceOverDocumentConfig(): void
-    {
-        $context = $this->createContext(
-            fileType: 'html',
-            itemsPerPage: 1000,
-            legacyConfig: [
-                'fileType' => 'pdf',
-                'itemsPerPage' => 10,
-            ],
-        );
-
-        static::assertSame('html', $context->fileType);
-        static::assertSame(1000, $context->itemsPerPage);
-    }
-
     public function testFallsBackToLegacyConfigForKeysNotPromotedToTypedProperties(): void
     {
         $context = $this->createContext(legacyConfig: ['displayAdditionalNoteDelivery' => true]);
@@ -110,11 +87,11 @@ class TemplateContextTest extends TestCase
 
     public function testArrayAccessMirrorsPropertyAccess(): void
     {
-        $context = $this->createContext(fileType: 'html');
+        $context = $this->createContext();
 
         static::assertSame($context->companyName, $context->offsetGet('companyName'));
         static::assertSame($context->pageSize, $context->offsetGet('pageSize'));
-        static::assertSame($context->fileType, $context->offsetGet('fileType'));
+        static::assertSame($context->itemsPerPage, $context->offsetGet('itemsPerPage'));
         static::assertNull($context->offsetGet('doesNotExist'));
 
         static::assertTrue($context->offsetExists('companyName'));
@@ -142,11 +119,8 @@ class TemplateContextTest extends TestCase
     /**
      * @param array<string, mixed> $legacyConfig
      */
-    private function createContext(
-        ?string $fileType = null,
-        ?int $itemsPerPage = null,
-        array $legacyConfig = [],
-    ): TemplateContext {
+    private function createContext(array $legacyConfig = []): TemplateContext
+    {
         $renderData = new InvoiceRenderData(
             new DocumentConfig(
                 'a4',
@@ -201,10 +175,6 @@ class TemplateContextTest extends TestCase
             legacyConfig: $legacyConfig,
         );
 
-        return new TemplateContext(
-            $renderData,
-            $fileType,
-            $itemsPerPage
-        );
+        return new TemplateContext($renderData);
     }
 }

@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed. Use OrderException::paymentMethodNotAvailable() instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class PaymentMethodNotAvailableException extends OrderException

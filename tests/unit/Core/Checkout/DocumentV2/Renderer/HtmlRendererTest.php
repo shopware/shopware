@@ -108,6 +108,35 @@ class HtmlRendererTest extends TestCase
         static::assertSame('invoice_12345', $result->fileName);
     }
 
+    public function testResolvesTemplateByDocumentType(): void
+    {
+        $renderData = $this->createRenderData();
+
+        $expectedTemplate = '@Framework/documents/credit_note.html.twig';
+
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->once())
+            ->method('find')
+            ->with($expectedTemplate)
+            ->willReturn($expectedTemplate);
+
+        $env = $this->createMock(TwigEnvironment::class);
+        $env->method('renderWithTimezoneOverride')->willReturn('<html>rendered</html>');
+
+        $renderer = $this->createRenderer($finder, $env);
+
+        $renderer->renderToString(
+            new RenderInput(
+                DocumentType::CREDIT_NOTE->value,
+                '12345',
+                $this->createOrder(),
+                [InvoiceDataProvider::KEY => $renderData],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
@@ -181,9 +210,6 @@ class HtmlRendererTest extends TestCase
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
-            templatePaths: [
-                DocumentFormat::HTML->value => self::HTML_TEMPLATE_PATH,
-            ],
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: new TradePartyView(

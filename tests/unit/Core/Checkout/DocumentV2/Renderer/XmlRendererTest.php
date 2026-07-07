@@ -115,6 +115,35 @@ class XmlRendererTest extends TestCase
         );
     }
 
+    public function testResolvesTemplateByDocumentType(): void
+    {
+        $renderData = $this->createRenderData();
+
+        $expectedTemplate = '@Framework/documents/zugferd/credit_note.xml.twig';
+
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->once())
+            ->method('find')
+            ->with($expectedTemplate)
+            ->willReturn($expectedTemplate);
+
+        $env = $this->createMock(TwigEnvironment::class);
+        $env->method('renderWithTimezoneOverride')->willReturn('<root/>');
+
+        $renderer = $this->createRenderer($finder, $env);
+
+        $renderer->renderToString(
+            new RenderInput(
+                DocumentType::CREDIT_NOTE->value,
+                '12345',
+                $this->createOrder(),
+                [InvoiceDataProvider::KEY => $renderData],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
@@ -194,9 +223,6 @@ class XmlRendererTest extends TestCase
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
-            templatePaths: [
-                DocumentFormat::ZUGFERD_XML->value => self::ZUGFERD_TEMPLATE_PATH,
-            ],
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: new TradePartyView(

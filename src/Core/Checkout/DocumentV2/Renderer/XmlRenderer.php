@@ -28,6 +28,8 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::ZUGFERD_XML;
 
+    private const TEMPLATE_PATTERN = '@Framework/documents/zugferd/%s.xml.twig';
+
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
         private XmlFormatter $xmlFormatter,
@@ -53,7 +55,7 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
             InvoiceRenderData::class,
         );
 
-        $template = $renderData->templatePathFor(self::FORMAT->value);
+        $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 
         $raw = $this->documentTemplateRenderer->render(
             $template,

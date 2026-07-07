@@ -28,6 +28,8 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::HTML;
 
+    private const TEMPLATE_PATTERN = '@Framework/documents/%s.html.twig';
+
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
     ) {
@@ -54,7 +56,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
 
         $configuration = new TemplateContext($renderData);
 
-        $template = $renderData->templatePathFor(self::FORMAT->value);
+        $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 
         $content = $this->documentTemplateRenderer->render(
             $template,

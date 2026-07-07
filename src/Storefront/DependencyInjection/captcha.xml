@@ -34,12 +34,14 @@
             <argument type="service" id="shopware.captcha.client"/>
 
             <tag name="shopware.storefront.captcha" priority="200"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
             <argument type="service" id="shopware.captcha.client"/>
 
             <tag name="shopware.storefront.captcha" priority="100"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaCookieCollectListener">

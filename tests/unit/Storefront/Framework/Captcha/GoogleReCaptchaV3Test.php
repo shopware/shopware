@@ -211,7 +211,7 @@ class GoogleReCaptchaV3Test extends TestCase
 
         $violation = $violations->get(0);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
-        static::assertSame(GoogleReCaptchaV3::COOKIE_REQUIRED_VIOLATION, $violation->getCode());
+        static::assertSame(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION, $violation->getCode());
         static::assertSame('', $violation->getPropertyPath());
     }
 
@@ -250,6 +250,18 @@ class GoogleReCaptchaV3Test extends TestCase
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         ));
+        static::assertCount(0, $captcha->getViolations());
+    }
+
+    public function testResetClearsViolations(): void
+    {
+        $captcha = $this->getCaptcha();
+
+        static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
+        static::assertCount(1, $captcha->getViolations());
+
+        $captcha->reset();
+
         static::assertCount(0, $captcha->getViolations());
     }
 

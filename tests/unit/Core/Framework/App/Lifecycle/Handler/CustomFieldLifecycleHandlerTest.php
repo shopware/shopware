@@ -79,7 +79,7 @@ class CustomFieldLifecycleHandlerTest extends TestCase
 
     private function createContext(string $appDir): AppPersistContext
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getCustomFields')->willReturn(null);
 
         $app = new AppEntity();

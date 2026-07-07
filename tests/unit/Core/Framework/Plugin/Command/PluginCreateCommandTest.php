@@ -34,7 +34,7 @@ class PluginCreateCommandTest extends TestCase
         $generatorMocks = [];
         foreach ($generators as $generator) {
             /** @var MockObject&ScaffoldingGenerator $generatorMock */
-            $generatorMock = $this->createMock(ScaffoldingGenerator::class);
+            $generatorMock = static::createStub(ScaffoldingGenerator::class);
 
             $generatorMock->method('hasCommandOption')->willReturn($generator['hasCommandOption']);
             $generatorMock->method('getCommandOptionName')->willReturn($generator['getCommandOptionName']);
@@ -239,13 +239,13 @@ class PluginCreateCommandTest extends TestCase
      */
     private function getCommandTester(array $generators = [], bool $directoryExists = false): CommandTester
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn($directoryExists);
 
         $command = new PluginCreateCommand(
             'shopware',
-            $this->createMock(ScaffoldingCollector::class),
-            $this->createMock(ScaffoldingWriter::class),
+            static::createStub(ScaffoldingCollector::class),
+            static::createStub(ScaffoldingWriter::class),
             $filesystem,
             $generators
         );

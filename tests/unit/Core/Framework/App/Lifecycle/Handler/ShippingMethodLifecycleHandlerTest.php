@@ -58,7 +58,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         $shippingMethodHandler = $this->createShippingMethodHandler([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
             'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
-            'mediaService' => $this->createMock(MediaService::class),
+            'mediaService' => static::createStub(MediaService::class),
         ]);
 
         $shippingMethodHandler->install($this->buildContext($manifest));
@@ -109,7 +109,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
      */
     private function createAppShippingMethodRepositoryMock(): EntityRepository
     {
-        $appShippingMethodMock = $this->createMock(EntityRepository::class);
+        $appShippingMethodMock = static::createStub(EntityRepository::class);
         $appShippingMethodMock->method('search')->willReturn(
             new EntitySearchResult(
                 AppShippingMethodEntity::class,
@@ -129,7 +129,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
      */
     private function createMediaRepositoryMock(): EntityRepository
     {
-        $mediaRepositoryMock = $this->createMock(EntityRepository::class);
+        $mediaRepositoryMock = static::createStub(EntityRepository::class);
         $mediaRepositoryMock->method('searchIds')->willReturn(
             new IdSearchResult(
                 0,

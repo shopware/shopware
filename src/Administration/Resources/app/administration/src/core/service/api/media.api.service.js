@@ -25,7 +25,7 @@ class MediaApiService extends ApiService {
         this.uploads = [];
         this.$listeners = {};
         this.cacheDefaultFolder = {};
-        this.maxConcurrentUploads = 10;
+        this.maxConcurrentUploads = 5;
     }
 
     hasListeners(uploadTag) {

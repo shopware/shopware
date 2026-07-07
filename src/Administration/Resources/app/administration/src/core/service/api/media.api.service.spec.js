@@ -331,9 +331,9 @@ describe('storeService', () => {
         expect(result).toBeUndefined();
     });
 
-    it('uses default maxConcurrentUploads of 10', () => {
+    it('uses default maxConcurrentUploads of 5', () => {
         const mediaApiService = getMediaApiService();
-        expect(mediaApiService.maxConcurrentUploads).toBe(10);
+        expect(mediaApiService.maxConcurrentUploads).toBe(5);
     });
 
     it('assigns video cover via API route', async () => {

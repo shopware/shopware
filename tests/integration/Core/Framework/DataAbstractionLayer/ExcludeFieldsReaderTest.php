@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -39,17 +40,27 @@ class ExcludeFieldsReaderTest extends TestCase
         static::assertNotEmpty($product->getProductNumber());
     }
 
-    public function testExcludingNonNullableFieldThrows(): void
+    #[DataProvider('protectedFieldProvider')]
+    public function testExcludingProtectedFieldThrows(string $field): void
     {
         $context = Context::createDefaultContext();
 
-        // `stock` is a non-nullable property with no default; excluding it would leave the typed
-        // property uninitialized, so the reader must reject it.
+        // Required (`stock`) and write-protected (`available`) fields back non-nullable entity
+        // properties, so the reader must reject excluding them.
         $criteria = new Criteria([Uuid::randomHex()]);
-        $criteria->excludeFields(['stock']);
+        $criteria->excludeFields([$field]);
 
         $this->expectException(DataAbstractionLayerException::class);
         static::getContainer()->get('product.repository')->search($criteria, $context);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function protectedFieldProvider(): iterable
+    {
+        yield 'required field' => ['stock'];
+        yield 'write-protected field' => ['available'];
     }
 
     public function testExcludingUnknownFieldThrows(): void

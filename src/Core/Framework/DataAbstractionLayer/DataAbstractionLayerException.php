@@ -167,7 +167,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::FIELD_CANNOT_BE_EXCLUDED,
-            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded: its entity property is not nullable and has no default, so the loaded entity would have an uninitialized property.',
+            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded because it is required or write-protected.',
             ['field' => $field, 'entity' => $entity],
         );
     }

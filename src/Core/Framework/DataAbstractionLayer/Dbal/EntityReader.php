@@ -18,7 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -107,28 +109,21 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * Rejects unknown fields and non-nullable, defaultless properties (which would leave the typed
-     * entity uninitialized). The actual omission happens in {@see joinBasic()}.
+     * Rejects unknown fields and Required/WriteProtected fields — they back non-nullable entity
+     * properties that must not be left unset. The actual omission happens in {@see joinBasic()}.
      *
      * @param list<string> $excludedFields
      */
     private function assertExcludableFields(EntityDefinition $definition, array $excludedFields): void
     {
-        $reflection = new \ReflectionClass($definition->getEntityClass());
-
         foreach ($excludedFields as $propertyName) {
-            if (!$definition->getFields()->has($propertyName)) {
+            $field = $definition->getFields()->get($propertyName);
+
+            if ($field === null) {
                 throw DataAbstractionLayerException::cannotExcludeUnknownField($propertyName, $definition->getEntityName());
             }
 
-            if (!$reflection->hasProperty($propertyName)) {
-                continue;
-            }
-
-            $property = $reflection->getProperty($propertyName);
-            $type = $property->getType();
-
-            if ($type !== null && !$type->allowsNull() && !$property->hasDefaultValue()) {
+            if ($field->is(Required::class) || $field->is(WriteProtected::class)) {
                 throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName());
             }
         }

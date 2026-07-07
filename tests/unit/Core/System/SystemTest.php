@@ -54,9 +54,9 @@ class SystemTest extends TestCase
         $container->set(CustomEntityRegistrar::class, $registrar);
         $container->compile();
 
-        $profiling = new System();
-        $profiling->setContainer($container);
-        $profiling->boot();
+        $system = new System();
+        $system->setContainer($container);
+        $system->boot();
     }
 
     private function buildContainer(string $environment): ContainerBuilder

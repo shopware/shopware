@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[BecomesFinal(version: 'v6.8.0')]
 final class AlreadyFinalClass
@@ -157,6 +158,12 @@ class NewRequiredParameterCases
         if (\func_num_args() < 1) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter $context missing');
         }
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'criteria', parameterType: 'string')]
+    #[Route(path: '/store-api/fake', name: 'store-api.fake')]
+    public function requiredOnRouteNeedsNoTrigger(): void
+    {
     }
 }
 

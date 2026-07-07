@@ -11,14 +11,17 @@ use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
 use PHPStan\Node\InClassNode;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
@@ -105,6 +108,9 @@ class BCChangeAttributeUsageRule implements Rule
             foreach ($this->bcChangeAttributes($method->getAttributes()) as $attribute) {
                 $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
                 $specific = $this->validateMethodLevel($attribute, $method, $symbol, $line);
+                if ($specific === [] && $attribute->getName() === ExceptionChange::class) {
+                    $specific = $this->validateExceptionChange($attribute, $node->getClassReflection(), $method->getName(), $symbol, $line);
+                }
                 if ($specific === [] && ($classIsFinal || $method->isFinal())) {
                     $subject = $classIsFinal ? 'class' : 'method';
                     $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
@@ -293,6 +299,61 @@ class BCChangeAttributeUsageRule implements Rule
         return [$this->error($line, \sprintf(
             '%s on "%s": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
             $this->shortName($attribute),
+            $symbol
+        ))];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateExceptionChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, string $methodName, string $symbol, int $line): array
+    {
+        $announced = $this->argument($attribute, 'newExceptions', 1);
+        if (!\is_array($announced) || $announced === []) {
+            return [$this->error($line, \sprintf(
+                'ExceptionChange on "%s": "newExceptions" must announce at least one exception class.',
+                $symbol
+            ))];
+        }
+
+        $announcedTypes = [];
+        foreach ($announced as $exceptionClass) {
+            if (!\is_string($exceptionClass) || !$this->reflectionProvider->hasClass($exceptionClass)) {
+                return [$this->error($line, \sprintf(
+                    'ExceptionChange on "%s": announced exception "%s" is not a resolvable class. Reference exception classes via ::class.',
+                    $symbol,
+                    \is_scalar($exceptionClass) ? (string) $exceptionClass : \gettype($exceptionClass)
+                ))];
+            }
+            if (!$this->reflectionProvider->getClass($exceptionClass)->implementsInterface(\Throwable::class)) {
+                return [$this->error($line, \sprintf(
+                    'ExceptionChange on "%s": announced class "%s" is not a Throwable.',
+                    $symbol,
+                    $exceptionClass
+                ))];
+            }
+            $announcedTypes[] = new ObjectType($exceptionClass);
+        }
+
+        if (!$class->hasNativeMethod($methodName)) {
+            return [];
+        }
+
+        $throwType = $class->getNativeMethod($methodName)->getThrowType();
+        if ($throwType === null) {
+            // no documented @throws contract to compare against
+            return [];
+        }
+
+        foreach ($announcedTypes as $announcedType) {
+            if (!$throwType->isSuperTypeOf($announcedType)->yes()) {
+                // at least one announced exception falls outside the current contract - a real change
+                return [];
+            }
+        }
+
+        return [$this->error($line, \sprintf(
+            'ExceptionChange on "%s": every announced exception is already covered by the current "@throws" contract. Throwing narrower exceptions is not a BC change; apply it directly instead of announcing it.',
             $symbol
         ))];
     }

@@ -52,7 +52,7 @@ class AppFlowActionProviderTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $orderProvider = $this->createMock(OrderProvider::class);
+        $orderProvider = static::createStub(OrderProvider::class);
         $orderProvider->method('getData')->willReturn($order);
 
         $context = Generator::generateSalesChannelContext();
@@ -60,8 +60,8 @@ class AppFlowActionProviderTest extends TestCase
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
         $orderStorer = new OrderStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
             $orderProvider,
         );
 
@@ -82,7 +82,7 @@ class AppFlowActionProviderTest extends TestCase
 
         $appFlowActionProvider = new AppFlowActionProvider(
             $connection,
-            $this->createMock(BusinessEventEncoder::class),
+            static::createStub(BusinessEventEncoder::class),
             $stringTemplateRender
         );
 

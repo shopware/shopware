@@ -132,8 +132,8 @@ class QuerySignerTest extends TestCase
         $querySigner = new QuerySigner(
             'http://shop.url',
             '1.0.0',
-            $this->createMock(LocaleProvider::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(LocaleProvider::class),
+            static::createStub(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
             new NativeClock()
         );

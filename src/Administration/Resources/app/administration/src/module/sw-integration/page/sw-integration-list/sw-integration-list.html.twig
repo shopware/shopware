@@ -337,7 +337,7 @@
                             :disabled="!acl.can('integration.deleter') || isAppIntegration(item)"
                             @click="showDeleteModal = item.id"
                         >
-                            {{ $t('sw-integration.list.contextMenuDelete') }}
+                            {{ $t('global.default.delete') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </template>
@@ -346,7 +346,7 @@
                         {% block sw_integration_list_grid_inner_slot_delete_modal %}
                         <sw-modal
                             v-if="showDeleteModal === item.id"
-                            :title="$t('sw-integration.detail.deleteModalTitle')"
+                            :title="$t('global.default.delete')"
                             @modal-close="onCloseDeleteModal"
                         >
                             {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
@@ -371,7 +371,7 @@
                                     variant="critical"
                                     @click="onConfirmDelete(item.id)"
                                 >
-                                    {{ $t('sw-integration.detail.buttonDelete') }}
+                                    {{ $t('global.default.delete') }}
                                 </mt-button>
                             </template>
                             {% endblock %}

@@ -12,6 +12,8 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
+const TEST_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+
 // Add all entities from entity-schema
 Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {
     Shopware.EntityDefinition.add(entityName, entityInformation);
@@ -184,6 +186,27 @@ function clientMockFactory() {
     };
 
     // Add default responses
+    responses.addResponse({
+        method: 'POST',
+        url: '/search/language',
+        response: {
+            data: [
+                {
+                    id: TEST_LANGUAGE_ID,
+                    attributes: {
+                        id: TEST_LANGUAGE_ID,
+                        name: 'English',
+                        active: true,
+                    },
+                    relationships: [],
+                },
+            ],
+            meta: {
+                total: 1,
+            },
+        },
+    });
+
     responses.addResponse({
         method: 'POST',
         url: '/search-ids/number-range',

@@ -61,6 +61,12 @@ shopware:
                         transport:
                             policy: open
 
+                scheduled_task.overdue.count:
+                    # tasks still 'scheduled' past their next execution time = scheduler stalled or backed up;
+                    # sampled periodically by the telemetry.collect_periodic_metrics task
+                    description: 'Scheduled tasks past next_execution_time'
+                    type: 'gauge'
+
                 dal.associations.count:
                     description: 'Number of associations loaded'
                     type: 'histogram'

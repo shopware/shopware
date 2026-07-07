@@ -117,7 +117,7 @@ readonly class MediaUploadV2Controller
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('thumbnails');
 
-        $media = $this->mediaRepository->search($criteria, $context)->first();
+        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->first();
 
         if ($media === null) {
             throw MediaException::mediaNotFound($id);

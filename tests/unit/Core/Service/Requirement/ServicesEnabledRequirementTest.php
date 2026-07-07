@@ -25,6 +25,11 @@ class ServicesEnabledRequirementTest extends TestCase
         static::assertSame(Gate::INSTALLATION, (new ServicesEnabledRequirement(new StaticSystemConfigService()))->getGate());
     }
 
+    public function testPermitsStateChange(): void
+    {
+        static::assertTrue((new ServicesEnabledRequirement(new StaticSystemConfigService()))->permitsStateChange());
+    }
+
     public function testIsSatisfiedWhenSystemConfigDoesNotDisableServices(): void
     {
         $requirement = new ServicesEnabledRequirement(new StaticSystemConfigService());

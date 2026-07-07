@@ -125,6 +125,15 @@ class ServiceExceptionTest extends TestCase
         static::assertSame('Service is not allowed to toggle itself.', $e->getMessage());
     }
 
+    public function testStateChangeNotPermitted(): void
+    {
+        $e = ServiceException::stateChangeNotPermitted('MyCoolService');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_STATE_CHANGE_NOT_PERMITTED, $e->getErrorCode());
+        static::assertSame('The state of service "MyCoolService" is managed by its requirements and cannot be changed manually.', $e->getMessage());
+    }
+
     public function testMissingAppSecretInfo(): void
     {
         $e = ServiceException::missingAppSecretInfo('app-123');

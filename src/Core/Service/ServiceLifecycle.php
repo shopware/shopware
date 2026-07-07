@@ -114,6 +114,10 @@ class ServiceLifecycle
             throw ServiceException::notFound('name', $serviceName);
         }
 
+        if (!$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            throw ServiceException::stateChangeNotPermitted($serviceName);
+        }
+
         $this->appManager->activate($service->app, $context);
     }
 
@@ -123,6 +127,10 @@ class ServiceLifecycle
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
+        }
+
+        if (!$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            throw ServiceException::stateChangeNotPermitted($serviceName);
         }
 
         $this->appManager->deactivate($service->app, $context);
@@ -254,8 +262,15 @@ class ServiceLifecycle
             $context
         );
 
-        // it was possibly disabled during the update process
-        $this->activate($entry->name, $context);
+        // it was possibly disabled during the update process; this is a requirement-driven
+        // activation, so it must not be subject to the manual state change policy
+        $service = $this->serviceStorage->findByName($entry->name, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $entry->name);
+        }
+
+        $this->appManager->activate($service->app, $context);
 
         $result = $this->performUpdate($entry, $appInfo, $context);
 

@@ -13,6 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceStorage;
@@ -34,6 +35,7 @@ class ServiceController
         private readonly MessageBusInterface $messageBus,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly LifecycleManager $manager,
+        private readonly RequirementsValidator $requirementsValidator,
     ) {
     }
 
@@ -188,11 +190,11 @@ class ServiceController
     }
 
     /**
-     * @return list<array{id: string, name: string, label: string, active: bool, icon: string|null, description: string|null, updated_at: string|null, version: string, requested_privileges: list<string>, privileges: list<string>, state: string, domains: list<string>, requirements: list<string>}>
+     * @return list<array{id: string, name: string, label: string, active: bool, icon: string|null, description: string|null, updated_at: string|null, version: string, requested_privileges: list<string>, privileges: list<string>, state: string, domains: list<string>, requirements: list<string>, state_change_permitted: bool}>
      */
     private function loadAllServices(Context $context): array
     {
-        return array_map(static fn (Service $service) => [
+        return array_map(fn (Service $service) => [
             'id' => $service->id,
             'name' => $service->name,
             'label' => $service->label,
@@ -206,6 +208,7 @@ class ServiceController
             'state' => $service->state->value,
             'domains' => $service->domains,
             'requirements' => $service->requirements,
+            'state_change_permitted' => $this->requirementsValidator->permitsStateChange($service->requirements),
         ], $this->serviceStorage->findAll($context));
     }
 

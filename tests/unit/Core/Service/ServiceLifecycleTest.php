@@ -177,6 +177,9 @@ class ServiceLifecycleTest extends TestCase
         $context = Context::createDefaultContext();
         $this->fetchReturnsAppInfo();
         $this->requirementsMet(true);
+        // the re-activation during the upgrade is requirement-driven, so it must succeed even for
+        // services whose state may not be changed manually
+        $this->stateChangePermitted(false);
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         /** @var StaticEntityRepository<AppCollection> $appRepo */
@@ -418,6 +421,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->stateChangePermitted(true);
 
         $this->appManager->expects($this->once())->method('activate')->with($app, $context);
 
@@ -433,10 +437,23 @@ class ServiceLifecycleTest extends TestCase
         $this->createLifecycle($this->buildAppRepository())->activate('MyCoolService', Context::createDefaultContext());
     }
 
+    public function testActivateThrowsExceptionWhenStateChangeIsNotPermitted(): void
+    {
+        static::expectExceptionObject(ServiceException::stateChangeNotPermitted('MyCoolService'));
+
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->stateChangePermitted(false);
+
+        $this->appManager->expects($this->never())->method('activate');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->activate('MyCoolService', Context::createDefaultContext());
+    }
+
     public function testDeactivate(): void
     {
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->stateChangePermitted(true);
 
         $this->appManager->expects($this->once())->method('deactivate')->with($app, $context);
 
@@ -450,6 +467,18 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->never())->method('deactivate');
 
         $this->createLifecycle($this->buildAppRepository())->deactivate('MyCoolService', Context::createDefaultContext());
+    }
+
+    public function testDeactivateThrowsExceptionWhenStateChangeIsNotPermitted(): void
+    {
+        static::expectExceptionObject(ServiceException::stateChangeNotPermitted('MyCoolService'));
+
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->stateChangePermitted(false);
+
+        $this->appManager->expects($this->never())->method('deactivate');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->deactivate('MyCoolService', Context::createDefaultContext());
     }
 
     public function testUninstall(): void
@@ -487,6 +516,11 @@ class ServiceLifecycleTest extends TestCase
     private function requirementsMet(bool $met): void
     {
         $this->requirementsValidator->method('isSatisfied')->willReturn($met);
+    }
+
+    private function stateChangePermitted(bool $allowed): void
+    {
+        $this->requirementsValidator->method('permitsStateChange')->willReturn($allowed);
     }
 
     /**

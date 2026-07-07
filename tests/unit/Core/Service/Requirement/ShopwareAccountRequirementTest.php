@@ -24,6 +24,11 @@ class ShopwareAccountRequirementTest extends TestCase
         static::assertSame(Gate::PRIVILEGES, (new ShopwareAccountRequirement($this->createMock(Connection::class)))->getGate());
     }
 
+    public function testDispermitsStateChange(): void
+    {
+        static::assertFalse((new ShopwareAccountRequirement($this->createMock(Connection::class)))->permitsStateChange());
+    }
+
     public function testIsSatisfiedWhenUserHasStoreToken(): void
     {
         $connection = $this->createMock(Connection::class);

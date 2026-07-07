@@ -24,6 +24,11 @@ class ServiceConsentRequirementTest extends TestCase
         static::assertSame(Gate::PRIVILEGES, (new ServiceConsentRequirement($this->createMock(PermissionsService::class)))->getGate());
     }
 
+    public function testPermitsStateChange(): void
+    {
+        static::assertTrue((new ServiceConsentRequirement($this->createMock(PermissionsService::class)))->permitsStateChange());
+    }
+
     public function testIsSatisfiedWhenPermissionsAreGranted(): void
     {
         $permissionsService = $this->createMock(PermissionsService::class);

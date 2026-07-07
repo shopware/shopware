@@ -25,6 +25,7 @@ const createService = (overrides = {}) => ({
     privileges: [],
     domains: [],
     requirements: [],
+    state_change_permitted: true,
     ...overrides,
 });
 
@@ -201,11 +202,12 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 
-    it('shows a disabled deactivate hint for services that require Shopware Account', async () => {
+    it('shows a disabled deactivate hint for services whose state may not be changed manually', async () => {
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
                 service: createService({
                     requirements: ['shopware_account'],
+                    state_change_permitted: false,
                 }),
             },
             global: {
@@ -231,7 +233,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             },
         });
 
-        expect(card.vm.serviceHasShopwareAccountRequirement).toBe(true);
+        expect(card.vm.stateChangePermitted).toBe(false);
         expect(card.text()).not.toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
 
         await card.findComponent(MtPopover).findComponent(MtButton).trigger('click');
@@ -250,6 +252,49 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(popoverItemLabels).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
         expect(popoverItemLabels).toContain('sw-settings-services.service-card.permissions');
         expect(disabledDeactivateHint.props('disabled')).toBe(true);
+    });
+
+    it('does not offer manual activation for inactive services whose state may not be changed manually', async () => {
+        const card = mount(SwSettingsServicesServiceCard, {
+            props: {
+                service: createService({
+                    active: false,
+                    state_change_permitted: false,
+                }),
+            },
+            global: {
+                stubs: {
+                    SwColorBadge,
+                    SwExtensionIcon: {
+                        template: '<div><img :src="src" :alt="alt" /></div>',
+                        props: [
+                            'src',
+                            'alt',
+                        ],
+                    },
+                    SwStatus,
+                    MtModalAction,
+                    MtModal,
+                    MtModalRoot,
+                    MtModalTrigger,
+                    MtPopover,
+                    MtPopoverItem,
+                    MtButton,
+                    SwExtensionPermissionsModal: true,
+                },
+            },
+        });
+
+        await card.findComponent(MtPopover).findComponent(MtButton).trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
+
+        const popoverItemLabels = card.findAllComponents(MtPopoverItem).map((popoverItem) => popoverItem.text());
+
+        expect(popoverItemLabels).not.toContain('sw-settings-services.general.activate');
+        expect(popoverItemLabels).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
     });
 
     it('activates a service', async () => {

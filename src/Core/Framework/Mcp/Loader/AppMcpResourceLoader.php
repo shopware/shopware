@@ -66,6 +66,6 @@ class AppMcpResourceLoader extends AbstractAppMcpLoader
 
         $registry->registerResource($resource, function (RequestContext $context) use ($resourceName, $appSecret, $url, $uri): string {
             return $this->executor->execute($resourceName, $appSecret, $url, ['uri' => $uri]);
-        }, true);
+        });
     }
 }

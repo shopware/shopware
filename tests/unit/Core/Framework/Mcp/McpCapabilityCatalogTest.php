@@ -152,12 +152,10 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerResource(
             new ResourceDefinition('shopware://zzz', 'zzz-resource', null, 'Z Resource', null, null, null),
             'Acme\\ZzzResource',
-            true,
         );
         $registry->registerResource(
             new ResourceDefinition('shopware://aaa', 'aaa-resource', null, 'A Resource', null, null, null),
             'Acme\\AaaResource',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -175,12 +173,10 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerResource(
             new ResourceDefinition('shopware://aaa', 'aaa-resource', null, 'A', null, null, null),
             'Acme\\AaaResource',
-            true,
         );
         $registry->registerResource(
             new ResourceDefinition('shopware://bbb', 'bbb-resource', null, 'B', null, null, null),
             'Acme\\BbbResource',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -197,7 +193,6 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerResource(
             new ResourceDefinition('shopware://aaa', 'aaa-resource', null, 'A', null, null, null),
             'Acme\\AaaResource',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -212,13 +207,11 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('zzz-prompt', null, 'Z prompt', []),
             'Acme\\ZzzPrompt',
             [],
-            true,
         );
         $registry->registerPrompt(
             new Prompt('aaa-prompt', null, 'A prompt', []),
             'Acme\\AaaPrompt',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -237,13 +230,11 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
-            true,
         );
         $registry->registerPrompt(
             new Prompt('prompt-b', null, 'B', []),
             'Acme\\PromptB',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -261,7 +252,6 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -275,7 +265,6 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', 'My Human-Readable Tool', ['type' => 'object', 'properties' => [], 'required' => []], 'desc', null),
             'Acme\\MyTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -301,7 +290,6 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('my-prompt', 'My Human-Readable Prompt', 'desc', []),
             'Acme\\MyPrompt',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -317,7 +305,6 @@ class McpCapabilityCatalogTest extends TestCase
             new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
-            true,
         );
 
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
@@ -363,7 +350,6 @@ class McpCapabilityCatalogTest extends TestCase
         $registry->registerTool(
             new Tool($name, null, ['type' => 'object', 'properties' => [], 'required' => []], $description, null),
             'Acme\\' . str_replace('-', '', ucwords($name, '-')),
-            true,
         );
     }
 }

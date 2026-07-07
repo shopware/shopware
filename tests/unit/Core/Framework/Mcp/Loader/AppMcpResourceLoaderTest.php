@@ -81,7 +81,6 @@ class AppMcpResourceLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -112,7 +111,6 @@ class AppMcpResourceLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -143,7 +141,6 @@ class AppMcpResourceLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);

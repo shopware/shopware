@@ -253,6 +253,21 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
+## Hosting & Configuration
+
+### New `GENERATE_SOURCEMAPS` environment variable for production builds
+
+A new `GENERATE_SOURCEMAPS` environment variable controls whether JavaScript sourcemaps are emitted during production builds. Set it to `true` to generate sourcemaps when `NODE_ENV=production`; omit it or set it to any other value to keep the default behaviour (no sourcemaps in production).
+
+This applies to the Storefront webpack build and all Vite builds (Administration core, Administration extension plugins, and Storefront components).
+
+In non-production environments sourcemaps are always generated regardless of this variable.
+
+```bash
+GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:admin
+GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
+```
+
 ## Administration
 
 ### Snippet inheritance from JSON language files

@@ -43,7 +43,7 @@ const extensionEntries = loadExtensions();
 const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
-    const useSourceMap = !isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const useSourceMap = (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') || (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
 
     const logger = createLogger();
 

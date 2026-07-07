@@ -23,7 +23,7 @@ class RatingFilterHandlerTest extends TestCase
     {
         $result = (new RatingListingFilterHandler())->create(
             new Request([], ['rating-filter' => false]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertNull($result);
@@ -34,7 +34,7 @@ class RatingFilterHandlerTest extends TestCase
     {
         $result = (new RatingListingFilterHandler())->create(
             new Request(['rating' => $input]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $expected = new Filter(

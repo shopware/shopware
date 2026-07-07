@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
@@ -20,17 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CacheCookieEventSubscriber::class)]
 class CacheCookieEventSubscriberTest extends TestCase
 {
-    private SessionFactory&MockObject $sessionFactoryMock;
-
-    private CacheCookieEventSubscriber $subscriber;
-
-    protected function setUp(): void
-    {
-        $this->sessionFactoryMock = $this->createMock(SessionFactory::class);
-
-        $this->subscriber = new CacheCookieEventSubscriber($this->sessionFactoryMock);
-    }
-
     public function testGetSubscribedEvents(): void
     {
         static::assertSame(
@@ -49,18 +37,19 @@ class CacheCookieEventSubscriberTest extends TestCase
             ->method('hasAnyFlashes')
             ->willReturn(false);
 
-        $this->sessionFactoryMock->expects($this->once())
+        $sessionFactoryMock = $this->createMock(SessionFactory::class);
+        $sessionFactoryMock->expects($this->once())
             ->method('getFlashBag')
             ->willReturn($flashBagMock);
 
         $event = new CacheHashRequiredExtension(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Cart('test')
         );
         $event->result = false;
 
-        $this->subscriber->onRequireCacheHash($event);
+        $this->buildSubscriber($sessionFactoryMock)->onRequireCacheHash($event);
 
         static::assertFalse($event->result);
     }
@@ -72,18 +61,19 @@ class CacheCookieEventSubscriberTest extends TestCase
             ->method('hasAnyFlashes')
             ->willReturn(true);
 
-        $this->sessionFactoryMock->expects($this->once())
+        $sessionFactoryMock = $this->createMock(SessionFactory::class);
+        $sessionFactoryMock->expects($this->once())
             ->method('getFlashBag')
             ->willReturn($flashBagMock);
 
         $event = new CacheHashRequiredExtension(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Cart('test')
         );
         $event->result = false;
 
-        $this->subscriber->onRequireCacheHash($event);
+        $this->buildSubscriber($sessionFactoryMock)->onRequireCacheHash($event);
 
         static::assertTrue($event->result);
     }
@@ -98,17 +88,18 @@ class CacheCookieEventSubscriberTest extends TestCase
             ->method('displayedAnyFlashes')
             ->willReturn(false);
 
-        $this->sessionFactoryMock->expects($this->once())
+        $sessionFactoryMock = $this->createMock(SessionFactory::class);
+        $sessionFactoryMock->expects($this->once())
             ->method('getFlashBag')
             ->willReturn($flashBagMock);
 
         $event = new HttpCacheCookieEvent(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             []
         );
 
-        $this->subscriber->passCacheForFlashMessages($event);
+        $this->buildSubscriber($sessionFactoryMock)->passCacheForFlashMessages($event);
 
         static::assertTrue($event->isCacheable);
         static::assertFalse($event->doNotStore);
@@ -116,17 +107,18 @@ class CacheCookieEventSubscriberTest extends TestCase
 
     public function testCacheIsUsedWhenNoFlashBagIsAvailable(): void
     {
-        $this->sessionFactoryMock->expects($this->once())
+        $sessionFactoryMock = $this->createMock(SessionFactory::class);
+        $sessionFactoryMock->expects($this->once())
             ->method('getFlashBag')
             ->willReturn(null);
 
         $event = new HttpCacheCookieEvent(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             []
         );
 
-        $this->subscriber->passCacheForFlashMessages($event);
+        $this->buildSubscriber($sessionFactoryMock)->passCacheForFlashMessages($event);
 
         static::assertTrue($event->isCacheable);
         static::assertFalse($event->doNotStore);
@@ -141,17 +133,18 @@ class CacheCookieEventSubscriberTest extends TestCase
         $flashBagMock->expects($this->never())
             ->method('displayedAnyFlashes');
 
-        $this->sessionFactoryMock->expects($this->once())
+        $sessionFactoryMock = $this->createMock(SessionFactory::class);
+        $sessionFactoryMock->expects($this->once())
             ->method('getFlashBag')
             ->willReturn($flashBagMock);
 
         $event = new HttpCacheCookieEvent(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             []
         );
 
-        $this->subscriber->passCacheForFlashMessages($event);
+        $this->buildSubscriber($sessionFactoryMock)->passCacheForFlashMessages($event);
 
         // when flashes are present, we can't use the cache for the next requests, until the flashes are displayed
         static::assertFalse($event->isCacheable);
@@ -168,20 +161,26 @@ class CacheCookieEventSubscriberTest extends TestCase
             ->method('displayedAnyFlashes')
             ->willReturn(true);
 
-        $this->sessionFactoryMock->expects($this->once())
+        $sessionFactoryMock = $this->createMock(SessionFactory::class);
+        $sessionFactoryMock->expects($this->once())
             ->method('getFlashBag')
             ->willReturn($flashBagMock);
 
         $event = new HttpCacheCookieEvent(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             []
         );
 
-        $this->subscriber->passCacheForFlashMessages($event);
+        $this->buildSubscriber($sessionFactoryMock)->passCacheForFlashMessages($event);
 
         static::assertTrue($event->isCacheable);
         // the current request should not be stored, but all further requests can use the cache
         static::assertTrue($event->doNotStore);
+    }
+
+    private function buildSubscriber(SessionFactory $sessionFactory): CacheCookieEventSubscriber
+    {
+        return new CacheCookieEventSubscriber($sessionFactory);
     }
 }

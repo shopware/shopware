@@ -19,9 +19,11 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -53,6 +55,7 @@ class TranslationLoader extends AbstractTranslationLoader
         private readonly EntityRepository $snippetSetRepository,
         private readonly ClientInterface $client,
         private readonly TranslationConfig $config,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -74,6 +77,8 @@ class TranslationLoader extends AbstractTranslationLoader
 
         $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
+
+        $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
     }
 
     public function pluginTranslationExists(Plugin $plugin): bool

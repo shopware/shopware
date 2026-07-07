@@ -270,9 +270,6 @@
       "nextPage": "Go to next page",
       "page": "Go to page {page}"
     },
-    "sw-modal": {
-      "labelClose": "Close"
-    },
     "sw-text-preview": {
       "showMoreButton": "Show more"
     },
@@ -340,6 +337,9 @@
         },
         "coverSaveError": {
           "message": "Cover image could not be saved."
+        },
+        "downloadError": {
+          "message": "Error downloading file."
         }
       },
       "labelUploading": "Uploading..."
@@ -576,12 +576,6 @@
       "placeholderSearch": "Search...",
       "labelLoadMore": "Load more items"
     },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Remove"
-    },
-    "sw-media-list-selection-item-v2": {
-      "buttonRemove": "Remove"
-    },
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
@@ -714,9 +708,7 @@
         "quantity": "Quantity",
         "isNet": "Net / Gross",
         "isNumeric": "Comparison mode",
-        "fromDate": "From",
         "toDate": "Until",
-        "fromTime": "From",
         "toTime": "Until",
         "useTime": "Time mode",
         "timezone": "Time zone",
@@ -1031,7 +1023,6 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Use as cover",
-        "buttonRemove": "Remove",
         "buttonPreviewImage": "Preview image"
       }
     },
@@ -1206,7 +1197,6 @@
       "Reduced rate 2": "Super-reduced rate"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Bulk edit",
       "startBulkEdit": "Start bulk edit",
       "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
     },
@@ -1363,8 +1353,7 @@
   },
   "sw-error": {
     "general": {
-      "messagePlaceholder": "Oops, something went terribly wrong.",
-      "textLink": "Back"
+      "messagePlaceholder": "Oops, something went terribly wrong."
     }
   },
   "sw-property-search": {
@@ -1403,8 +1392,7 @@
     "ignorePlugin": "Ignore permanently",
     "successfullyDeleted": "Extension has been deleted",
     "table": {
-      "plugin": "Extension",
-      "warning": "Warning"
+      "plugin": "Extension"
     }
   },
   "sw-sales-channel-switch": {
@@ -1650,14 +1638,8 @@
     }
   },
   "sw-wizard": {
-    "backButton": "Back",
     "finishButton": "Finish",
     "nextButton": "Next"
-  },
-  "sw-meteor": {
-    "navigation": {
-      "backButton": "Back"
-    }
   },
   "sw-base-filter": {
     "resetButton": "Reset"

@@ -88,7 +88,10 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
         await ShopCustomer.fillsIn(StorefrontProductDetail.reviewTitleInput, reviewContent.title);
         await ShopCustomer.fillsIn(StorefrontProductDetail.reviewReviewTextInput, reviewContent.content);
         await ShopCustomer.presses(StorefrontProductDetail.reviewSubmitButton);
-        await StorefrontProductDetail.page.waitForURL(`**/${product.productNumber}`, { waitUntil: 'commit' });
+
+        const submitButtonLoadingIcon = StorefrontProductDetail.reviewSubmitButton.locator('.loader');
+        await ShopCustomer.expects(submitButtonLoadingIcon).toBeVisible();
+        await submitButtonLoadingIcon.waitFor({ state: 'hidden' });
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewSubmitMessage).toBeVisible()
         await ShopCustomer.expects(StorefrontProductDetail.reviewCounter).toContainText('1 review');
@@ -158,29 +161,36 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
     });
 
     await test.step('Validate the functionality of the filters.', async () => {
+
+        const btn_loader = StorefrontProductDetail.page.locator('.element-loader-backdrop').locator('.loader');
+
         const reviewFilterAcceptable = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Acceptable');
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.presses(reviewFilterAcceptable.reviewFilterOptionCheckbox);
-        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
+        await ShopCustomer.expects(btn_loader).toBeVisible();
+        await btn_loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
         
         await ShopCustomer.presses(reviewFilterAcceptable.reviewFilterOptionCheckbox);
-        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
+        await ShopCustomer.expects(btn_loader).toBeVisible();
+        await btn_loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
 
         const reviewFilterUnsatisfactory = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.presses(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox);
-        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
+        await ShopCustomer.expects(btn_loader).toBeVisible();
+        await btn_loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
         
         await ShopCustomer.presses(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox);
-        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
+        await ShopCustomer.expects(btn_loader).toBeVisible();
+        await btn_loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).not.toBeChecked();
 
@@ -213,19 +223,20 @@ test('As a shop customer, I want to filter reviews by rating, log in and come ba
     });
 
     await test.step('Filter down the reviews of the product by rating', async () => {
+        const btn_loader = StorefrontProductDetail.page.locator('.element-loader-backdrop').locator('.loader');
         const reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent (2)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeEnabled();
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
-        await StorefrontProductDetail.page.waitForURL(`**/${product.productNumber}`, { waitUntil: 'commit' });
+        await ShopCustomer.expects(btn_loader).toBeVisible();
+        await btn_loader.waitFor({ state: 'hidden' });
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
     });
 
     await test.step('Log in and comes back to the product detail page', async () => {
         await ShopCustomer.attemptsTo(LoginViaReviewsTab(product, customer));
+        await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
         await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(5);
-
-        await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
     });
 });

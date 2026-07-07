@@ -39,7 +39,7 @@ class SeoUrlRouteConfigTest extends TestCase
 
     public function testGetPrimaryKeyParameterThrowsWhenNoKeyConfigured(): void
     {
-        $defintion = $this->createMock(EntityDefinition::class);
+        $defintion = static::createStub(EntityDefinition::class);
         $defintion->method('getEntityName')->willReturn('foo_bar');
 
         $config = new SeoUrlRouteConfig(

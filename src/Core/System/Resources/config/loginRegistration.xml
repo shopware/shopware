@@ -189,8 +189,8 @@
 
         <input-field type="bool">
             <name>requireDataProtectionCheckbox</name>
-            <label>The privacy policy must be accepted via a checkbox</label>
-            <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox akzeptiert werden</label>
+            <label>The privacy policy must be acknowledged via a checkbox</label>
+            <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox bestätigen werden</label>
         </input-field>
 
         <input-field type="text">

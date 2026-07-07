@@ -78,7 +78,7 @@ class MaintenanceModeResolverTest extends TestCase
 
     public function testGetIpsFallsBackToDeprecatedAllowlistAttribute(): void
     {
-        $resolver = new MaintenanceModeResolver($this->createMock(EventDispatcherInterface::class));
+        $resolver = new MaintenanceModeResolver(static::createStub(EventDispatcherInterface::class));
 
         $request = new Request(server: ['REMOTE_ADDR' => '192.168.0.4']);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
@@ -94,7 +94,7 @@ class MaintenanceModeResolverTest extends TestCase
 
     public function testGetIpsPrefersTheNewAllowlistAttribute(): void
     {
-        $resolver = new MaintenanceModeResolver($this->createMock(EventDispatcherInterface::class));
+        $resolver = new MaintenanceModeResolver(static::createStub(EventDispatcherInterface::class));
 
         $request = new Request(server: ['REMOTE_ADDR' => '192.168.0.4']);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);

@@ -118,7 +118,7 @@ class ProductListingLoaderTest extends TestCase
 
         $result = $this->createLoader()->load(new Criteria(), $this->salesChannelContext);
 
-        static::assertSame(['red-l', 'blue-m'], array_values($result->getIds()));
+        static::assertSame(['red-l', 'blue-m'], array_values($result->getEntities()->getIds()));
         static::assertSame(2, $result->getTotal());
     }
 
@@ -196,7 +196,7 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertFalse($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
-        static::assertSame(['variant-a', 'variant-b'], array_values($result->getIds()));
+        static::assertSame(['variant-a', 'variant-b'], array_values($result->getEntities()->getIds()));
     }
 
     public function testLoadResolvesPreviewOnSearchRouteWithOptionPostFilterWhenFindBestVariantIsDisabled(): void
@@ -278,7 +278,7 @@ class ProductListingLoaderTest extends TestCase
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             'core.listing.findBestVariant',
         ], $configKeys);
-        static::assertSame(['preview-id'], array_values($result->getIds()));
+        static::assertSame(['preview-id'], array_values($result->getEntities()->getIds()));
     }
 
     public function testLoadSkipsPreviewOnSearchRouteWhenFindBestVariantIsEnabled(): void
@@ -338,7 +338,7 @@ class ProductListingLoaderTest extends TestCase
         $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
 
         static::assertFalse($previewLoaded);
-        static::assertSame(['variant-id'], array_values($result->getIds()));
+        static::assertSame(['variant-id'], array_values($result->getEntities()->getIds()));
     }
 
     public function testScoreRankedGroupingExcludesProductsWithVariants(): void
@@ -413,11 +413,11 @@ class ProductListingLoaderTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn($salesChannelId);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getBool')->willReturnMap([
             ['core.listing.findBestVariant', $salesChannelId, $findBestVariant],
             ['core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId, false],
@@ -429,9 +429,9 @@ class ProductListingLoaderTest extends TestCase
         $loader = new ProductListingLoader(
             $productRepository,
             $systemConfigService,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new EventDispatcher(),
-            $this->createMock(AbstractProductCloseoutFilterFactory::class),
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
             new ExtensionDispatcher(new EventDispatcher()),
         );
 

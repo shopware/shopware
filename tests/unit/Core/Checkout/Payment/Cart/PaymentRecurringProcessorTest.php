@@ -37,9 +37,9 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $processor = new PaymentRecurringProcessor(
             $this->getOrderTransactionRepository(false),
-            $this->createMock(InitialStateIdLoader::class),
-            $this->createMock(OrderTransactionStateHandler::class),
-            $this->createMock(PaymentHandlerRegistry::class),
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(OrderTransactionStateHandler::class),
+            static::createStub(PaymentHandlerRegistry::class),
             new PaymentTransactionStructFactory(),
             new NullLogger(),
         );
@@ -84,7 +84,7 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor = new PaymentRecurringProcessor(
             $this->getOrderTransactionRepository(true),
             $stateLoader,
-            $this->createMock(OrderTransactionStateHandler::class),
+            static::createStub(OrderTransactionStateHandler::class),
             $registry,
             new PaymentTransactionStructFactory(),
             new NullLogger(),
@@ -137,7 +137,7 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor = new PaymentRecurringProcessor(
             $this->getOrderTransactionRepository(true),
             $stateLoader,
-            $this->createMock(OrderTransactionStateHandler::class),
+            static::createStub(OrderTransactionStateHandler::class),
             $registry,
             new PaymentTransactionStructFactory(),
             new NullLogger(),

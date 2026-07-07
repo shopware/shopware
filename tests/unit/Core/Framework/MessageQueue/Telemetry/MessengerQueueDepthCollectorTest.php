@@ -26,7 +26,7 @@ class MessengerQueueDepthCollectorTest extends TestCase
                 'low_priority' => $this->countableTransport(0),
                 'failed' => $this->countableTransport(2),
             ]),
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         static::assertSame(
@@ -46,7 +46,7 @@ class MessengerQueueDepthCollectorTest extends TestCase
                 'messenger.transport.async' => static fn (): MessageCountAwareInterface => $async,
                 'async' => static fn (): MessageCountAwareInterface => $async,
             ]),
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         static::assertSame(['async' => 7], $this->depthsByTransport($collector));
@@ -60,7 +60,7 @@ class MessengerQueueDepthCollectorTest extends TestCase
                 // no count support
                 'nocount' => $this->uncountableTransport(),
             ]),
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         static::assertSame(['async' => 3], $this->depthsByTransport($collector));
@@ -70,7 +70,7 @@ class MessengerQueueDepthCollectorTest extends TestCase
     {
         $collector = new MessengerQueueDepthCollector(
             $this->locator(['nocount' => $this->uncountableTransport()]),
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         static::assertSame([], iterator_to_array($collector->collect()));

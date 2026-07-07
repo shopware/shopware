@@ -118,12 +118,12 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
 
     private function createSubscriber(int $messageSize = 0): MessageQueueTelemetrySubscriber
     {
-        $meter = $this->createMock(Meter::class);
+        $meter = static::createStub(Meter::class);
         $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
 
-        $sizeCalculator = $this->createMock(MessageSizeCalculator::class);
+        $sizeCalculator = static::createStub(MessageSizeCalculator::class);
         $sizeCalculator->method('size')->willReturn($messageSize);
 
         return new MessageQueueTelemetrySubscriber(

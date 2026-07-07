@@ -49,7 +49,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor($this->createMock(Meter::class), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
         );
         $calculatedCart = $calculator->calculate($cart, $context);
 
@@ -89,7 +89,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor($this->createMock(Meter::class), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
         );
         $calculatedCart = $calculator->calculate($cart, $context);
 

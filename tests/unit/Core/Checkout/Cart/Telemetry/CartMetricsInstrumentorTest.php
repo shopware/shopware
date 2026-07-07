@@ -161,7 +161,7 @@ class CartMetricsInstrumentorTest extends TestCase
 
     private function createInstrumentor(): CartMetricsInstrumentor
     {
-        $meter = $this->createMock(Meter::class);
+        $meter = static::createStub(Meter::class);
         $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
@@ -174,7 +174,7 @@ class CartMetricsInstrumentorTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setTypeId($typeId);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannel')->willReturn($salesChannel);
 
         return $context;

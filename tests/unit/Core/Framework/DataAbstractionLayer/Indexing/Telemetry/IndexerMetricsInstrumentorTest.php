@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Indexing\Telemetry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -126,7 +126,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
 
     private function createInstrumentor(): IndexerMetricsInstrumentor
     {
-        $meter = $this->createMock(Meter::class);
+        $meter = static::createStub(Meter::class);
         $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
@@ -134,9 +134,9 @@ class IndexerMetricsInstrumentorTest extends TestCase
         return new IndexerMetricsInstrumentor($meter);
     }
 
-    private function createIndexer(string $name): EntityIndexer&MockObject
+    private function createIndexer(string $name): EntityIndexer&Stub
     {
-        $indexer = $this->createMock(EntityIndexer::class);
+        $indexer = static::createStub(EntityIndexer::class);
         $indexer->method('getName')->willReturn($name);
 
         return $indexer;

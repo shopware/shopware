@@ -163,14 +163,14 @@ class HttpRequestMetricSubscriberTest extends TestCase
      */
     private function createSubscriber(?QueryCounter $counter = null): HttpRequestMetricSubscriber
     {
-        $telemetry = $this->createMock(Telemetry::class);
+        $telemetry = static::createStub(Telemetry::class);
         $telemetry->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
 
-        $configuration = $this->createMock(Configuration::class);
+        $configuration = static::createStub(Configuration::class);
         $configuration->method('getMiddlewares')->willReturn($counter === null ? [] : [new QueryCountMiddleware($counter)]);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('getConfiguration')->willReturn($configuration);
 
         return new HttpRequestMetricSubscriber(
@@ -197,7 +197,7 @@ class HttpRequestMetricSubscriberTest extends TestCase
         }
 
         return new TerminateEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             new Response('', $statusCode)
         );
@@ -206,7 +206,7 @@ class HttpRequestMetricSubscriberTest extends TestCase
     private function createResponseEvent(Request $request, int $requestType): ResponseEvent
     {
         return new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             $requestType,
             new Response()

@@ -663,12 +663,12 @@ class EntityRepositoryTest extends TestCase
         $operations = [];
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
             $this->recordingInstrumentor($operations),
         );
 
@@ -682,12 +682,12 @@ class EntityRepositoryTest extends TestCase
         $operations = [];
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
             $this->recordingInstrumentor($operations),
         );
 
@@ -701,12 +701,12 @@ class EntityRepositoryTest extends TestCase
         $operations = [];
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
             $this->recordingInstrumentor($operations),
         );
 
@@ -721,12 +721,12 @@ class EntityRepositoryTest extends TestCase
         $operations = [];
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
             $this->recordingInstrumentor($operations),
         );
 
@@ -749,7 +749,7 @@ class EntityRepositoryTest extends TestCase
      */
     private function recordingInstrumentor(array &$operations): DalSearchInstrumentor
     {
-        $instrumentor = $this->createMock(DalSearchInstrumentor::class);
+        $instrumentor = static::createStub(DalSearchInstrumentor::class);
         $instrumentor->method('measure')->willReturnCallback(
             function (string $operation, EntityDefinition $definition, Criteria $criteria, \Closure $callback) use (&$operations): mixed {
                 $operations[] = $operation;

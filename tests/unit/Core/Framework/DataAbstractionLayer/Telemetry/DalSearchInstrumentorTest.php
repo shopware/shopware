@@ -142,7 +142,7 @@ class DalSearchInstrumentorTest extends TestCase
 
     public function testDoesNotEmitWhenMetricConfigurationIsMissing(): void
     {
-        $meter = $this->createMock(Meter::class);
+        $meter = static::createStub(Meter::class);
         $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
@@ -161,7 +161,7 @@ class DalSearchInstrumentorTest extends TestCase
 
     private function createInstrumentor(bool $globalEnabled = true, bool $metricEnabled = true): DalSearchInstrumentor
     {
-        $meter = $this->createMock(Meter::class);
+        $meter = static::createStub(Meter::class);
         $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
@@ -175,7 +175,7 @@ class DalSearchInstrumentorTest extends TestCase
 
     private function definition(string $entityName): EntityDefinition
     {
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($entityName);
 
         return $definition;

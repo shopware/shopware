@@ -29,7 +29,7 @@ class QueryCountMiddlewareTest extends TestCase
         $middleware = new QueryCountMiddleware($counter);
 
         static::assertSame($counter, $middleware->getCounter());
-        static::assertInstanceOf(QueryCountDriver::class, $middleware->wrap($this->createMock(Driver::class)));
+        static::assertInstanceOf(QueryCountDriver::class, $middleware->wrap(static::createStub(Driver::class)));
     }
 
     public function testCountsPreparedStatementExecutionsQueriesAndExecs(): void
@@ -58,17 +58,17 @@ class QueryCountMiddlewareTest extends TestCase
 
     private function wrapConnection(QueryCounter $counter): DriverConnection
     {
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
 
-        $statement = $this->createMock(Statement::class);
+        $statement = static::createStub(Statement::class);
         $statement->method('execute')->willReturn($result);
 
-        $innerConnection = $this->createMock(DriverConnection::class);
+        $innerConnection = static::createStub(DriverConnection::class);
         $innerConnection->method('prepare')->willReturn($statement);
         $innerConnection->method('query')->willReturn($result);
         $innerConnection->method('exec')->willReturn(1);
 
-        $driver = $this->createMock(Driver::class);
+        $driver = static::createStub(Driver::class);
         $driver->method('connect')->willReturn($innerConnection);
 
         return (new QueryCountMiddleware($counter))->wrap($driver)->connect([]);

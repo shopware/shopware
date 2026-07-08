@@ -76,24 +76,47 @@ honored, but confirm the first sandboxed run's `aw_info.json` shows the expected
 
 ### §4a — Probe workflow design: `reproduce-sandbox-probe.md` (temporary)
 
-> **Status: IMPLEMENTED** — files: [`.github/workflows/reproduce-sandbox-probe.md`](../../../workflows/reproduce-sandbox-probe.md)
-> (+ committed `.lock.yml`, compiled with the stock `gh aw compile` at the repo pin v0.81.2),
-> [`dev/sandbox-probe.sh`](sandbox-probe.sh) (in-sandbox measurement), and
-> [`dev/sandbox-probe-report.sh`](sandbox-probe-report.sh) (host-side renderer/verdict). Not run live
-> yet — the first `workflow_dispatch` is the validation step.
+> **Status: IMPLEMENTED & RUN** — files: [`.github/workflows/reproduce-sandbox-probe.md`](../../../workflows/reproduce-sandbox-probe.md)
+> (+ committed `.lock.yml`, stock `gh aw compile` at pin v0.81.2), [`dev/sandbox-probe.sh`](sandbox-probe.sh)
+> (in-sandbox measurement), [`dev/sandbox-probe-report.sh`](sandbox-probe-report.sh) (host verdict).
+> Validated on `gweiermann/shopware`, run **28924417047** (Sonnet). It took five iterations to get a
+> clean run — the bugs found along the way are themselves findings (below).
 >
-> Refinements vs. the design below:
-> - **Model pin** `claude-haiku-4-5`; `max-turns: 6` is honored by the v0.81.2 pin.
-> - **First run (28922261954) found a port collision, now fixed.** An earlier probe iteration ran a
->   raw-TCP forwarder on host port 8080 to test wall #3 on the live shop. But **8080 is gh-aw's MCP
->   Gateway port** — the forwarder grabbed it first, the gateway failed to start, and the agent step
->   was skipped (so the probe never ran). The forwarder is removed; the probe now reports the shop's
->   raw port 8000 as firewall-blocked and gates wall #3 until a custom allowed host port is added
->   (see §3.2, updated). No free default-allowed port exists for the shop.
-> - **Tool surface**: `gh aw` always injects its default read/edit tools plus, because
->   `tools.playwright: cli` is set, `playwright-cli:*`. The "one tool" principle holds where it
->   matters — the only task-shaped command is the probe script; the prompt starves Haiku of any
->   reason to touch the rest.
+> **CONFIRMED RESULTS (run 28924417047, 6 of 26 checks red — as expected):**
+> - **Wall #7 workspace handoff: ✅ WORKS.** `sandbox-probe-report.json` reached the host. The
+>   undiagnosed June failure (agent ran, bundle never arrived) does **not** reproduce here.
+> - **The gh-aw sandbox on this runner is host-chroot + network-firewall, NOT a clean container:**
+>   the agent runs as `uid=1001 runner` with the host filesystem + toolcache visible, but egress is
+>   firewalled (example.com blocked). Consequences:
+>   - **php 8.4, mysql 8.0, composer all PRESENT in-sandbox** → walls #5/#6 are NOT walls. `direct`/
+>     phpunit `repro try` and demodata are viable; the handoff's biggest open decision (§5) dissolves.
+>   - **Playwright works** (`playwright-cli` 0.1.14, host chromium cache visible) → wall #4 clear.
+>   - **`/tmp/reproduce` visible & read-only; `node repro.mjs` resolves** → wall #1 clear via the
+>     workspace CLI (only the PATH `repro` shim is missing, which we don't need).
+> - **Wall #2 (shop reachability) is the ONE real remaining wall**, and #3 gates on it. Port 8000 is
+>   not in `allow-host-ports`, and of the defaults (80/443/8080) **8080 is gh-aw's MCP Gateway**, so
+>   no free allowed port exists — a custom `allow-host-ports` entry is mandatory (see §3.2).
+>
+> **Bugs found & fixed across runs (each a real lesson):**
+> - **Port collision (run 28922261954):** an early probe forwarder bound host 8080, colliding with
+>   the MCP Gateway → gateway failed → agent step skipped, probe never ran. Forwarder removed.
+> - **Model alias (run 28922794633):** the bare `claude-haiku-4-5` is not a valid API model string;
+>   the proxy silently fell back to the account-default **Opus**, which explored files and tripped
+>   the 50-credit cap (403). Use full dated IDs.
+> - **Haiku can't get the task (runs 28923300796 / 28923804213):** gh-aw does **not** inline the
+>   workflow body into the agent prompt — it delivers it only as an unexpanded
+>   `{{#runtime-import <this file>}}` directive, so the agent must **read the referenced workflow
+>   file** to learn its task (the sibling reproduce.md relies on the same behavior). Haiku lacks that
+>   initiative and stopped with "I don't see a specific task" (~5.7 credits, no script run).
+>   **Switched to Sonnet** (`claude-sonnet-4-6`), which reads the file and runs the script reliably
+>   (~32 credits). A truly Haiku-only probe would require changing gh-aw's prompt delivery.
+>
+> **Residuals (cosmetic, non-blocking):** the `agent` job shows `failure` because (a) the verdict
+> step exits red **by design** while walls remain — that is the deliverable, not an error — and
+> (b) "Execute Claude Code CLI" also reports failure because the agent, following gh-aw's injected
+> "report via create_issue" guidance, attempts an unconfigured safe-output after `PROBE COMPLETE`.
+> Neither affects the results. To silence (b), add `safe-outputs` with `noop` or tell the agent not
+> to create issues.
 >
 > The rest of this section is the original design, kept as rationale.
 

@@ -44,13 +44,13 @@ class StoreAppLifecycleServiceTest extends TestCase
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
-            $this->createMock(StoreClient::class),
-            $this->createMock(AppLoader::class),
+            static::createStub(StoreClient::class),
+            static::createStub(AppLoader::class),
             $appLifecycle,
             $appStorage,
             $salesChannelRepository,
             null,
-            $this->createMock(AppConfirmationDeltaProvider::class),
+            static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->activateExtension('TestApp', $context);
@@ -78,13 +78,13 @@ class StoreAppLifecycleServiceTest extends TestCase
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
-            $this->createMock(StoreClient::class),
-            $this->createMock(AppLoader::class),
+            static::createStub(StoreClient::class),
+            static::createStub(AppLoader::class),
             $appLifecycle,
             $appStorage,
             $salesChannelRepository,
             null,
-            $this->createMock(AppConfirmationDeltaProvider::class),
+            static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->deactivateExtension('TestApp', $context);
@@ -135,7 +135,7 @@ class StoreAppLifecycleServiceTest extends TestCase
             $appStorage,
             $salesChannelRepository,
             null,
-            $this->createMock(AppConfirmationDeltaProvider::class),
+            static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'app-id', false, $context);
@@ -162,12 +162,12 @@ class StoreAppLifecycleServiceTest extends TestCase
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
             $storeClient,
-            $this->createMock(AppLoader::class),
-            $this->createMock(AbstractAppLifecycle::class),
+            static::createStub(AppLoader::class),
+            static::createStub(AbstractAppLifecycle::class),
             $appStorage,
             $salesChannelRepository,
             null,
-            $this->createMock(AppConfirmationDeltaProvider::class),
+            static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'missing-app-id', false, $context);

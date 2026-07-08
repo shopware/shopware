@@ -40,13 +40,12 @@ engine:
   id: claude
   model: claude-sonnet-4-6
 
-# Sandbox is disabled: the gh-aw sandbox artifact handoff does not work on this workflow yet.
-# The trusted post-step verifier owns the authoritative result either way.
-strict: false
-sandbox:
-  agent: false
-features:
-  dangerously-disable-sandbox-agent: "Run the agent unsandboxed; the trusted post-step owns the result"
+# Sandboxed agent. Validated by the reproduce-sandbox-probe workflow (green run 28927226644): the
+# agent runs behind awf (network firewall + host-chroot), reaches the shop at host.docker.internal
+# (see "Export shop coordinates" + the sales-channel-domain step below), and its bundle is handed
+# back to the trusted post-steps via the workspace. Two things the probe proved are REQUIRED and are
+# applied by dev/compile.sh [P1] (host port 8000 on awf --allow-host-ports) and the domain step.
+strict: true
 
 # Per-run AI-credit cap (~$20). The agent verifies its assumptions with cheap tools and stops; it
 # does not run the pipeline, so this is headroom rather than a target.
@@ -123,6 +122,15 @@ steps:
       DEMODATA: "false"
     run: bash .github/actions/reproduce/steps/finish-provision.sh
 
+  # Sandbox wall #3: register the agent's host.docker.internal URL as an additional storefront
+  # domain, else the storefront 400s on the sandbox Host header. Additive — host-side legs keep
+  # using the localhost domain. Port 8000 matches finish-provision.sh and compile.sh [P1].
+  - name: Register sandbox host as a storefront sales-channel domain
+    env:
+      SHOP_DIR: shop
+      SANDBOX_URL: http://host.docker.internal:8000
+    run: bash .github/actions/reproduce/steps/register-sandbox-domain.sh
+
   - name: Snapshot clean DB
     run: bash .github/actions/reproduce/steps/snapshot-db.sh
 
@@ -133,11 +141,14 @@ steps:
       APP_URL: ${{ steps.provision.outputs.app_url }}
     run: bash .github/actions/reproduce/steps/compose-prompt.sh
 
-  # The agent runs unsandboxed and reaches the shop directly at its real URL.
+  # The sandboxed agent reaches the shop via host.docker.internal (localhost inside the awf sandbox
+  # is NOT the runner host). The trusted post-agent reported-verify + trunk legs run host-side and
+  # keep using the real localhost app_url from steps.provision.outputs. Both URLs resolve because the
+  # step above registered host.docker.internal as an additional sales-channel domain.
   - name: Export shop coordinates
     run: |
       {
-        echo "APP_URL=${{ steps.provision.outputs.app_url }}"
+        echo "APP_URL=http://host.docker.internal:8000"
         echo "SW_ACCESS_KEY=${{ steps.provision.outputs.access_key }}"
         echo "ADMIN_USER=admin"
         echo "ADMIN_PASS=shopware"
@@ -154,7 +165,10 @@ steps:
       npx playwright install --with-deps chromium
 
   # Immutable copy of the CLI + a `repro` shim on PATH. The agent's feedback tools and the trusted
-  # post-step verifier both run from this copy; the agent can't edit it.
+  # post-step verifier both run from this copy; the agent can't edit it. The shim goes in
+  # /usr/local/bin (not /tmp/reproduce-bin + GITHUB_PATH): GITHUB_PATH does NOT propagate into the awf
+  # sandbox, but /usr/local/bin is on the sandbox PATH (confirmed by reproduce-sandbox-probe). /tmp is
+  # bind-mounted read-only into the sandbox, so the shim's exec target resolves there.
   - name: Install reproduce CLI
     run: |
       set -euo pipefail
@@ -162,10 +176,8 @@ steps:
       cp -R .github/actions/reproduce /tmp/reproduce
       ln -s "$PWD/node_modules" /tmp/reproduce/node_modules
       chmod -R a-w /tmp/reproduce
-      mkdir -p /tmp/reproduce-bin
-      printf '#!/usr/bin/env bash\nexec node /tmp/reproduce/cli/repro.mjs "$@"\n' > /tmp/reproduce-bin/repro
-      chmod +x /tmp/reproduce-bin/repro
-      echo "/tmp/reproduce-bin" >> "$GITHUB_PATH"
+      printf '#!/usr/bin/env bash\nexec node /tmp/reproduce/cli/repro.mjs "$@"\n' | sudo tee /usr/local/bin/repro >/dev/null
+      sudo chmod +x /usr/local/bin/repro
 
 pre-agent-steps:
   - name: Record pre-agent workspace baseline
@@ -259,7 +271,9 @@ post-steps:
 #     and lock-patched (dev/compile.sh) to run whenever the agent job ran — it reads the artifacts and
 #     decides everything itself. ---
 safe-outputs:
-  threat-detection: false
+  # The agent is sandboxed again, so keep gh-aw threat detection on for the tiny safe-output request
+  # that only asks the deterministic trunk job to inspect post-agent artifacts.
+  threat-detection: true
   jobs:
     reproduce-on-trunk:
       description: >

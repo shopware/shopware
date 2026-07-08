@@ -9,9 +9,19 @@ faking it.
 
 ## 1. Current state
 
-- [.github/workflows/reproduce.md](../../../workflows/reproduce.md) runs the agent **unsandboxed**:
+> **✅ DONE — reproduce.md is sandboxed again.** After the probe went green, the two required fixes
+> plus the sandbox config were applied to [reproduce.md](../../../workflows/reproduce.md):
+> `strict: true`, `dangerously-disable-sandbox-agent` removed, `threat-detection: true`; the agent
+> `APP_URL` points at `host.docker.internal:8000`; a sales-channel-domain step
+> ([register-sandbox-domain.sh](../steps/register-sandbox-domain.sh)) registers that host; the `repro`
+> shim moved to `/usr/local/bin` (on the sandbox PATH); and `compile.sh` `[P1]` adds port 8000 to
+> awf's allowlist. The lock is compiled + committed. **Not yet run live** — dispatch it against a
+> known-reproducible issue to confirm end-to-end. The section below is the original pre-fix state,
+> kept for context.
+
+- [.github/workflows/reproduce.md](../../../workflows/reproduce.md) ~~runs the agent **unsandboxed**:
   `strict: false`, `sandbox.agent: false`, `features.dangerously-disable-sandbox-agent`,
-  `safe-outputs.threat-detection: false`.
+  `safe-outputs.threat-detection: false`~~ (historical — now sandboxed, see above).
 - The rollback happened in commit `c95e722f3be` ("Temporarily disable reproduce sandbox",
   2026-06-24). The sandboxed run `28107396157` completed the agent job but produced **no
   `repro-reported` artifact**, so `reproduce_on_trunk` posted "incomplete". Root cause was **never

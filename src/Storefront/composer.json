@@ -71,7 +71,6 @@
         "twig/twig": "^3.26.0"
     },
     "require-dev": {
-        "symfony/css-selector": "~7.4.0",
         "phpunit/phpunit": "^11.5.19"
     }
 }

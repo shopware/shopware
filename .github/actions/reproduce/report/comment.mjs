@@ -149,14 +149,13 @@ function renderVerdict() {
   };
   const entry = DATA.verdicts[verdict] || { headline: verdict, badge: verdict, callout: '' };
 
-  // Show the bundle for confident verdicts, and always when a leg actually reproduced (the bundle is
-  // demonstrably meaningful then) — only hide it for a blocked/unsure verdict where neither leg did.
-  const reproduced = as === 'reproduced' || bs === 'reproduced';
-  const omitBundle = (verdict === 'needs_human_review' || verdict === 'blocked') && !reproduced;
+  // Always surface the authored bundle when one exists — including for an inconclusive/blocked
+  // verdict. Seeing the exact test case + fixtures that were attempted is precisely what a human
+  // needs to judge why it couldn't be reproduced (e.g. a precondition that never rendered).
   const specLeg = legA || legB;
-  const script = omitBundle ? '' : (specLeg?.evidence?.script || '');
+  const script = specLeg?.evidence?.script || '';
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
-  const hasFixtures = !omitBundle && fs.existsSync(fixturesPath);
+  const hasFixtures = fs.existsSync(fixturesPath);
   const agentSummary = readExtra('agent-summary.md');
 
   const legStatus = (s) => p.status[s] || p.status.null;

@@ -39,23 +39,31 @@ control that only stays reachable because the bug leaves a menu open. If your pa
 the symptom is present, the trunk leg times out and comes back `inconclusive`. Prefer stable routes
 (`page.goto` a URL) over multi-step navigation that the fix would change.
 
-## Assert a value on an element that renders — not the presence of the missing one
+## Split it: precondition = the container renders; assertion = the expected text is in it
 
-Point the one healthy assertion at the **value or state of an element that renders on both the
-healthy and buggy versions** (a container that is present but empty, wrong, or hidden), rather than
-at the **presence** of the element the bug removes. A "not found" failure is ambiguous — it looks
-identical whether the bug removed the element or this version just renders that markup differently —
-so it scores `inconclusive`, never `reproduced`. A failed assertion on an element that *did* resolve
-is unambiguously the symptom, and gives a clean `reproduced` (buggy leg) vs `not_reproduced` (trunk).
+Structure a rendered-content symptom as two steps:
+
+1. **Precondition — the container is available.** Wait for the element that *should hold* the content
+   and throw `PRECONDITION_NOT_FOUND` if it never appears. If that container can't render, the shop
+   was never set up to the state that shows the symptom, so the leg is `inconclusive` (precondition
+   failed) — not a fake pass/fail.
+2. **Healthy assertion — the expected text is present in that container.** Assert that the healthy
+   text appears *somewhere inside the element* (`toContainText`). Pick text that is **unique** to the
+   symptom, so a match elsewhere on the page can't make a broken repro look healthy.
+
+This works because the container renders on **both** the healthy and buggy versions — only its
+*content* differs — so the assertion resolves the element and judges its text: a clean `reproduced`
+(text missing on the buggy leg) vs `not_reproduced` (text present on trunk). Asserting the mere
+**presence** of the element the bug removes instead (`toBeVisible` on a node that isn't there) fails
+as "element not found", which is indistinguishable from cross-version UI drift ⇒ `inconclusive`.
 
 ```ts
-// GOOD — the element renders on both versions; only its value/state differs on the buggy one.
-await expect(page.locator('.some-stable-container')).not.toBeEmpty();
-await expect(page.locator('.some-stable-container')).toHaveText('expected healthy value');
+// Precondition: the container that should hold the content must render.
+await page.locator('.some-stable-container').waitFor({ state: 'visible', timeout: 15000 })
+  .catch(() => { throw new Error('PRECONDITION_NOT_FOUND: content container did not render'); });
 
-// AVOID — asserting the presence of the element the bug hides/removes: the failure is "element not
-// found", which is indistinguishable from cross-version drift ⇒ inconclusive, not reproduced.
-await expect(page.locator('.element-the-bug-removes')).toBeVisible();
+// Healthy assertion: the unique expected text must be inside it.
+await expect(page.locator('.some-stable-container')).toContainText('Unique Expected Value');
 ```
 
 ## Viewport — declare it, don't resize mid-test

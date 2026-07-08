@@ -23,14 +23,13 @@ export function classifyPlaywrightReport({ plan, report }) {
   const unexpected = report.stats?.unexpected ?? 0;
   const skipped = report.stats?.skipped ?? 0;
   const errors = stripAnsi(collectPlaywrightErrors(report));
-  const short = errors.replace(/\s+/g, ' ').slice(0, 300);
   const pretty = errors.slice(0, 1200);
 
   if (!expected && !unexpected && !skipped) {
     return outcome('inconclusive', 'no tests ran', 'no tests executed', 'playwright ran no tests');
   }
   if (unexpected > 0) {
-    return classifyUnexpectedFailure({ plan, unexpected, errors, short, pretty });
+    return classifyUnexpectedFailure({ plan, unexpected, errors, pretty });
   }
   if (skipped > 0 && !expected) {
     return outcome(
@@ -47,29 +46,29 @@ export function classifyPlaywrightReport({ plan, report }) {
 /**
  * Separates assertion failures from setup, navigation, and locator drift failures.
  */
-function classifyUnexpectedFailure({ plan, unexpected, errors, short, pretty }) {
+function classifyUnexpectedFailure({ plan, unexpected, errors, pretty }) {
   if (/PRECONDITION_NOT_FOUND/.test(errors)) {
     return outcome(
       'inconclusive',
-      `precondition missing on ${plan.version}`,
-      `precondition absent on this version (UI differs) -- ${short}`,
-      `a precondition element the spec depends on is absent on ${plan.version} (likely cross-version UI drift); the symptom could not be exercised`,
+      `precondition failed on ${plan.version}`,
+      pretty,
+      `could not set up the shop to the state the reproduction needs: a required precondition element is absent on ${plan.version}, so the symptom was never exercised (precondition failed)`,
     );
   }
   if (/net::ERR|ERR_CONNECTION|page\.goto|waiting for navigation|Navigation to .* failed/i.test(errors)) {
     return outcome(
       'inconclusive',
       `could not load the page on ${plan.version}`,
-      `navigation/connection failure -- ${short}`,
-      `the spec could not load the target page on ${plan.version}; the symptom cannot be judged`,
+      pretty,
+      `could not set up the environment: the spec failed to load the target page on ${plan.version}, so the symptom cannot be judged (precondition failed)`,
     );
   }
   if (/strict mode violation/i.test(errors)) {
     return outcome(
       'inconclusive',
       `${unexpected} failing (ambiguous locator)`,
-      `ambiguous locator failure -- ${short}`,
-      'the failure was a strict-mode locator error, not an assertion on one issue-specific state',
+      pretty,
+      'the locator matched multiple elements (strict-mode violation), so the assertion did not test one specific state',
     );
   }
   // Only inconclusive when the element genuinely never resolved (missing/hidden = surface not
@@ -79,9 +78,9 @@ function classifyUnexpectedFailure({ plan, unexpected, errors, short, pretty }) 
   if (!elementResolved && /element\(s\) not found|waiting for (?:selector|locator).*to be visible/i.test(errors)) {
     return outcome(
       'inconclusive',
-      `${unexpected} failing (locator/precondition)`,
-      `locator/precondition failure -- ${short}`,
-      'the failure was a locator or missing-element error before a value assertion',
+      `${unexpected} failing (precondition failed)`,
+      pretty,
+      'could not set up the environment to the state needed to reproduce the issue: an element the spec required never rendered, so the symptom could not be observed (precondition failed)',
     );
   }
   if (isValueAssertionFailure(errors)) {
@@ -90,9 +89,9 @@ function classifyUnexpectedFailure({ plan, unexpected, errors, short, pretty }) 
 
   return outcome(
     'inconclusive',
-    `${unexpected} failing (non-assertion)`,
-    `failure was not a value assertion (likely a missing/changed element) -- ${short}`,
-    'the failure was a locator/timeout error, not an assertion on a found element',
+    `${unexpected} failing (precondition failed)`,
+    pretty,
+    'could not set up the environment to observe the symptom: the failure was a locator/timeout error, not an assertion on a rendered element (precondition failed)',
   );
 }
 

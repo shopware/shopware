@@ -218,6 +218,7 @@ class SeoUrlPersister
         $query = $this->connection->createQueryBuilder()
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
+            ->set('is_canonical', $deleted ? null : $query->createExpression('is_canonical'))
             ->where('foreign_key IN (:fks)')
             ->setParameter('fks', $ids, ArrayParameterType::BINARY);
 

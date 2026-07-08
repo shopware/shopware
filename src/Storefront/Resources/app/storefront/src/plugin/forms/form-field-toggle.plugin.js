@@ -127,12 +127,6 @@ export default class FormFieldTogglePlugin extends Plugin {
     _getButtonTarget() {
         const buttonSelector = this.el.getAttribute(this.options.buttonTargetDataAttribute);
 
-        if (!buttonSelector) {
-            this._buttonTarget = null;
-
-            return;
-        }
-
         if (this.el.form) {
             this._buttonTarget = this.el.form.querySelector(buttonSelector);
         } else {
@@ -209,7 +203,7 @@ export default class FormFieldTogglePlugin extends Plugin {
         if ('checkbox' !== type && 'radio' !== type) {
             return this.el.value === this._value;
         }
-    
+
         if (!this._value) {
             return this.el.checked;
         }

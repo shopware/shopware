@@ -88,49 +88,15 @@ steps:
       DEMODATA: "false"
     run: bash .github/actions/reproduce/steps/finish-provision.sh
 
-  # Probe-only scaffolding (NOT shipped in reproduce.md): a raw-TCP forwarder on an ALREADY-allowed
-  # host port (8080) → the real shop on 8000. This lets the sandbox reach the actual shop through an
-  # allowed port with the `host.docker.internal:8080` Host header intact — so the first probe run can
-  # test BOTH host-access (wall #2) AND Shopware's sales-channel domain routing (wall #3) against the
-  # live shop, instead of gating #3 until a port fix lands. Meanwhile the shop's own port 8000 stays
-  # unlisted, so the script still proves the raw port is firewall-blocked.
-  - name: Forward an allowed port (8080) to the shop (8000)
-    run: |
-      set -euo pipefail
-      nohup python3 - <<'PY' >/tmp/sandbox-forwarder.log 2>&1 &
-      import socket, threading
-      def pipe(a, b):
-          try:
-              while True:
-                  d = a.recv(65536)
-                  if not d: break
-                  b.sendall(d)
-          except OSError:
-              pass
-          finally:
-              for s in (a, b):
-                  try: s.close()
-                  except OSError: pass
-      srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-      srv.bind(("0.0.0.0", 8080)); srv.listen(64)
-      while True:
-          c, _ = srv.accept()
-          try:
-              u = socket.create_connection(("127.0.0.1", 8000))
-          except OSError:
-              c.close(); continue
-          threading.Thread(target=pipe, args=(c, u), daemon=True).start()
-          threading.Thread(target=pipe, args=(u, c), daemon=True).start()
-      PY
-      for i in $(seq 1 10); do
-        curl -sS -m 3 -o /dev/null http://localhost:8080/admin && { echo "forwarder up: 8080 -> 8000"; break; }
-        sleep 1
-      done
+  # NOTE: we deliberately do NOT forward the shop onto an "allowed" host port here. Of awf's default
+  # allow-host-ports (80,443,8080), 8080 is claimed by gh-aw's own MCP Gateway (binding it collides
+  # and kills the agent step), and 80/443 need privilege/TLS. So there is no free allowed port for
+  # the shop without a custom allow-host-ports entry — which is itself a wall-#2 finding. The probe
+  # therefore reports the shop's raw port (8000) as firewall-blocked and gates wall #3 until the port
+  # question is solved in Phase 1 (see dev/sandbox-handoff.md §3.2).
 
-  # Agent-facing coordinates. APP_URL is the INTENDED sandbox-facing URL (host.docker.internal); the
-  # probe also tests localhost + the shop's real port independently. SW_ACCESS_KEY backs the
-  # store-api Host-header check (wall #3).
+  # Agent-facing coordinates. APP_URL is the INTENDED sandbox-facing URL (host.docker.internal);
+  # SW_ACCESS_KEY backs the store-api Host-header check (wall #3) once the shop is reachable.
   - name: Export shop coordinates
     env:
       GH_AW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}

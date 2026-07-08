@@ -106,27 +106,29 @@ fi
 # Wall #2 — reach the provisioned shop; which host+port combos does the firewall pass?
 #   localhost:8000              → container's own localhost (expected: unreachable)
 #   host.docker.internal:8000   → real shop, raw port NOT in the awf allowlist (expected: blocked)
-#   host.docker.internal:8080   → same real shop via the probe forwarder on an ALLOWED port
-#                                 (expected: reachable if host-access works)
-# The 8000-vs-8080 split isolates "firewall blocks the shop's raw port" from "host-access broken".
+# Of awf's default allow-host-ports (80,443,8080), 8080 is gh-aw's MCP Gateway (binding it kills the
+# agent) and 80/443 need privilege/TLS — so no allowed port is free for the shop without a custom
+# allow-host-ports entry. That gap is the wall-#2 finding; wall #3 stays gated until it is solved.
 # ---------------------------------------------------------------------------
 r="$(http_probe 'http://localhost:8000/admin')"
 add "#2" localhost_8000_admin "$(cls_reach "$r")" "$r"
 r="$(http_probe 'http://host.docker.internal:8000/admin')"
-add "#2" hostdocker_8000_admin "$(cls_reach "$r")" "$r (shop's raw port, unlisted)"
-r="$(http_probe 'http://host.docker.internal:8080/admin')"
 shop_reachable="$(cls_reach "$r")"
-add "#2" hostdocker_8080_admin "$shop_reachable" "$r (shop via allowed-port forwarder)"
+add "#2" hostdocker_8000_admin "$shop_reachable" "$r (shop's raw port 8000, not in allow-host-ports)"
+# Informational: confirm 8080 is answered by something on the host (the MCP gateway), i.e. the port
+# is genuinely occupied — not a candidate for the shop. Not scored (always ok=true).
+r="$(http_probe 'http://host.docker.internal:8080/')"
+add "#2" port_8080_reserved true "8080 (reserved by gh-aw MCP gateway) responds: $r"
 
 # ---------------------------------------------------------------------------
 # Wall #3 — Shopware sales-channel domain routing: does the shop accept the sandbox Host header?
-# Tested against the allowed-port forwarder (Host: host.docker.internal:8080). A 404/redirect on the
-# storefront here is the REAL wall-#3 signal — the sandbox host is not a registered domain yet.
+# Only testable once the shop is reachable from the sandbox (wall #2). With no free allowed port it
+# is gated here; a later run that adds a custom allow-host-ports entry can exercise it.
 # ---------------------------------------------------------------------------
 if [ "$shop_reachable" = true ]; then
-  base="http://host.docker.internal:8080"
+  base="http://host.docker.internal:8000"
   r="$(http_probe "${base}/")"
-  add "#3" storefront_home "$(cls_2xx3xx "$r")" "storefront / with Host host.docker.internal:8080: $r"
+  add "#3" storefront_home "$(cls_2xx3xx "$r")" "storefront / with sandbox Host header: $r"
   if [ -n "${SW_ACCESS_KEY:-}" ]; then
     r="$(http_probe "${base}/store-api/context" "-H sw-access-key:${SW_ACCESS_KEY}")"
     add "#3" store_api_context "$(cls_2xx "$r")" "/store-api/context: $r"
@@ -136,7 +138,7 @@ if [ "$shop_reachable" = true ]; then
   r="$(http_probe "${base}/api/_info/version")"
   add "#3" admin_api_reachable "$(cls_reach "$r")" "/api/_info/version (401 expected without auth): $r"
 else
-  add "#3" storefront_home false "gated: shop unreachable via the allowed-port forwarder (see wall #2)"
+  add "#3" storefront_home false "gated: shop unreachable — no free allowed host port (see wall #2)"
   add "#3" store_api_context false "gated: shop unreachable (see wall #2)"
 fi
 

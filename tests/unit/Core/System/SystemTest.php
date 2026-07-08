@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\System;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -41,6 +43,20 @@ class SystemTest extends TestCase
         static::assertFalse($container->has('shopware.translation.mock_handler'), 'services_test.php');
         static::assertTrue($container->has('shopware.translation.client'), 'snippet.xml');
         static::assertSame([], $container->getDefinition('shopware.translation.client')->getArguments());
+    }
+
+    public function testBoot(): void
+    {
+        $registrar = $this->createMock(CustomEntityRegistrar::class);
+        $registrar->expects($this->once())->method('register');
+
+        $container = new Container();
+        $container->set(CustomEntityRegistrar::class, $registrar);
+        $container->compile();
+
+        $system = new System();
+        $system->setContainer($container);
+        $system->boot();
     }
 
     private function buildContainer(string $environment): ContainerBuilder

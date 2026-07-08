@@ -66,6 +66,9 @@ jobs:
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run
 
+      - name: Analyze composer dependencies
+        run: composer dependency-analyzer
+
       - name: Code Style
         run: composer run cs
 

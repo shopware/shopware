@@ -1,8 +1,8 @@
 ---
 name: Reproduce Sandbox Probe
 description: >
-  TEMPORARY infra probe for re-enabling the gh-aw sandbox on the Reproduce workflow. A deliberately
-  dumb, cheap agent (Haiku, one allowlisted command) runs a single script INSIDE the sandbox that
+  TEMPORARY infra probe for re-enabling the gh-aw sandbox on the Reproduce workflow. A cheap,
+  narrowly-scoped agent (Sonnet, one allowlisted command) runs a single script INSIDE the sandbox that
   measures every host contact point the reproduce agent depends on — CLI resolution, shop
   reachability, browsers, workspace handoff, firewall — so we learn which walls are real BEFORE
   flipping the sandbox on for reproduce.md. A RED run is the deliverable: each failed check is a
@@ -36,16 +36,19 @@ network:
 
 engine:
   id: claude
-  # Full dated ID — the bare `claude-haiku-4-5` alias is NOT a valid API model string and the proxy
-  # silently fell back to the account-default Opus (run 28922794633 ran on claude-opus-4-8, explored
-  # files, and blew the credit cap). Pin the exact Haiku ID so the cheap tier actually runs.
-  model: claude-haiku-4-5-20251001
-  max-turns: 6              # hard cap — the agent runs one command and reports; anything more is a loop
+  # NOTE: Haiku was the goal (cheapest tier) but does NOT work here. gh-aw does not inline the
+  # workflow body into the agent prompt — it delivers it only as a `{{#runtime-import <this file>}}`
+  # directive that the harness never expands, so the agent must READ the referenced workflow file to
+  # discover its task (the sibling reproduce.md relies on the same behavior). Haiku lacks the
+  # initiative: runs 28923300796 / 28923804213 had it reply "I don't see a specific task" and stop
+  # (~5.7 credits, no script run). Sonnet — like the Opus that accidentally ran in 28922794633 —
+  # reads the file and runs the script reliably, at a fraction of Opus's cost. See sandbox-handoff §4a.
+  model: claude-sonnet-4-6
+  max-turns: 6              # hard cap — read the file, run one command, report; anything more is a loop
 
 strict: true
 
-# The agent runs one script. Headroom so a little unavoidable model preamble does not 403 mid-probe
-# (Opus exploration tripped 50; Haiku one-shotting the command stays well under this).
+# The agent reads one file + runs one script. Headroom so preamble never 403s mid-probe.
 max-ai-credits: 200
 timeout-minutes: 30
 

@@ -278,6 +278,7 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 - `Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated and will be removed in 6.8. The export no longer computes a grand total; use `hasNextBatch()` to drive pagination and `getOffset()` for the resume position.
 - `ExportBehavior::offset()`, `ProductExportPartialGeneration::getOffset()` and `ProductExportResult::getOffset()` keep the historical `offset` name; the value is now an opaque resume position — an `autoIncrement` keyset cursor for unsorted exports, or a row offset for sorted ones.
+- The product export read buffer size is now configurable via `shopware.product_export.read_buffer_size` (products read and rendered per batch). The default was raised from 100 to **500**, which lowers per-batch overhead (fewer messages, context rebuilds and template parses) at the cost of higher per-batch memory/runtime. Lower it if a batch approaches the message time or memory limit.
 
 ### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
 

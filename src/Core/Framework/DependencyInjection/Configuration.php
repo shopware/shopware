@@ -59,6 +59,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
@@ -1618,6 +1619,24 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductExportSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_export');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('read_buffer_size')
+                    ->info('Number of products read and rendered per product export batch.')
+                    ->min(1)
+                    ->defaultValue(500)
+                ->end()
             ->end();
 
         return $rootNode;

@@ -9,9 +9,15 @@ require __DIR__ . '/vendor/symfony/dependency-injection/Loader/Configurator/Cont
 
 $config = new Configuration();
 
+/** Optional dependency and only used if `extension_loaded` is successful in @see \Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass */
+if (extension_loaded('ext-imagick')) {
+    /** Differentiation is needed as the CI env has this extension installed */
+    $config->ignoreErrorsOnExtension('ext-imagick', [ErrorType::SHADOW_DEPENDENCY]);
+} else {
+    $config->ignoreUnknownClasses(['Imagick', 'ImagickPixel']);
+}
+
 return $config
-    /** Only used if `extension_loaded` is successful in @see \Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass */
-    ->ignoreUnknownClasses(['Imagick', 'ImagickPixel'])
     /** Only used if `class_exists` is successful in @see \Shopware\Core\Profiling\Integration\Datadog */
     ->ignoreUnknownClassesRegex('~^DDTrace~')
     /** Test plugins used in @see \Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour */
@@ -63,7 +69,7 @@ return $config
     /** Only used if `function_exists` is successful @see \Shopware\Core\Content\Media\Thumbnail\ThumbnailService */
     ->ignoreErrorsOnExtension('ext-exif', [ErrorType::SHADOW_DEPENDENCY])
 
-    /** Only used if `extension_loaded` is successful */
+    /** Only used if const defined check is successful */
     ->ignoreErrorsOnExtensionAndPath('ext-pcntl', 'src/Core/Framework/Adapter/Command/CacheWatchDelayedCommand.php', [ErrorType::SHADOW_DEPENDENCY])
 
     /** Optional dependency */

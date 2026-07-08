@@ -25,9 +25,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
                     throw new \RuntimeException('"flag" is a required field for "shopware.feature" tags');
                 }
 
-                $invert = (bool) ($tag['invert'] ?? false);
-
-                if (Feature::isActive($tag['flag']) !== $invert) {
+                if (Feature::isActive($tag['flag'])) {
                     continue;
                 }
 

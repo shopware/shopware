@@ -251,7 +251,7 @@ class RequirementsValidatorTest extends TestCase
         $pluginB = $this->createPlugin($pathB);
         $pluginB->setActive(true);
 
-        $pluginRepo = $this->createMock(EntityRepository::class);
+        $pluginRepo = static::createStub(EntityRepository::class);
         $pluginRepo->method('search')->willReturn(new EntitySearchResult(
             'plugin',
             1,
@@ -277,7 +277,7 @@ class RequirementsValidatorTest extends TestCase
 
     private function createValidator(): RequirementsValidator
     {
-        $pluginRepo = $this->createMock(EntityRepository::class);
+        $pluginRepo = static::createStub(EntityRepository::class);
         $pluginRepo->method('search')->willReturn(new EntitySearchResult(
             'plugin',
             0,

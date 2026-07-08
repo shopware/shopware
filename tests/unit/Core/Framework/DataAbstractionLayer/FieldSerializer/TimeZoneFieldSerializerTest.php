@@ -32,7 +32,7 @@ class TimeZoneFieldSerializerTest extends TestCase
     {
         $this->serializer = new TimeZoneFieldSerializer(
             Validation::createValidator(),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 

@@ -9,13 +9,14 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
@@ -143,56 +144,6 @@ class CrossSellingRouteTest extends TestCase
             static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
             $lastPrice = $productPrice->getGross();
         }
-    }
-
-    public function testLoadByStreamWithDisplayAsGroupFalseReturnsUngroupedVariants(): void
-    {
-        $productId = Uuid::randomHex();
-        $streamId = Uuid::randomHex();
-
-        static::getContainer()->get('product_stream.repository')->create([
-            [
-                'id' => $streamId,
-                'name' => 'variant-stream',
-                'displayAsGroup' => false,
-            ],
-        ], $this->salesChannelContext->getContext());
-
-        $crossSellingProduct = $this->getProductData($productId);
-        $crossSellingProduct['crossSellings'] = [[
-            'name' => 'Test Cross Selling',
-            'sortBy' => ProductCrossSellingDefinition::SORT_BY_NAME,
-            'sortDirection' => FieldSorting::ASCENDING,
-            'active' => true,
-            'limit' => 10,
-            'productStreamId' => $streamId,
-        ]];
-
-        $variantFixture = $this->createVariantFixture();
-        $streamPayload = [
-            [
-                'id' => $streamId,
-                'name' => 'variant-stream',
-                'displayAsGroup' => false,
-                'filters' => [[
-                    'type' => 'equals',
-                    'field' => 'options.id',
-                    'value' => $variantFixture['redOptionId'],
-                ]],
-            ],
-        ];
-
-        $this->productRepository->create([$crossSellingProduct, $variantFixture['product']], $this->salesChannelContext->getContext());
-        static::getContainer()->get('product_stream.repository')->update($streamPayload, $this->salesChannelContext->getContext());
-
-        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
-            ->getResult();
-
-        $element = $result->first();
-        static::assertNotNull($element);
-        static::assertCount(2, $element->getProducts());
-        static::assertContains($variantFixture['redLId'], $element->getProducts()->getIds());
-        static::assertContains($variantFixture['redXlId'], $element->getProducts()->getIds());
     }
 
     public function testLoadForProductWithCloseoutAndFilterDisabled(): void
@@ -482,6 +433,7 @@ class CrossSellingRouteTest extends TestCase
         ]];
         $productData['children'] = [[
             'id' => $variantId,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'options' => [
@@ -521,7 +473,7 @@ class CrossSellingRouteTest extends TestCase
         $route = new ProductCrossSellingRoute(
             static::getContainer()->get('product_cross_selling.repository'),
             $eventDispatcher,
-            $this->createMock(AbstractProductStreamBuilder::class),
+            $this->createMock(ProductStreamBuilderInterface::class),
             static::getContainer()->get('sales_channel.product.repository'),
             $this->createMock(SystemConfigService::class),
             $this->createMock(ProductListingLoader::class),
@@ -619,7 +571,7 @@ class CrossSellingRouteTest extends TestCase
         $element = $result->first();
         static::assertNotNull($element);
         static::assertEqualsCanonicalizing(
-            $initialProductIds,
+            array_values($initialProductIds),
             array_values($element->getProducts()->getIds()),
         );
 
@@ -640,7 +592,7 @@ class CrossSellingRouteTest extends TestCase
         $element = $result->first();
         static::assertNotNull($element);
         static::assertEqualsCanonicalizing(
-            $replacementProductIds,
+            array_values($replacementProductIds),
             array_values($element->getProducts()->getIds()),
             'Cross-selling must reflect updated product_stream_filter value even when the parent product_stream is untouched.',
         );
@@ -738,6 +690,7 @@ class CrossSellingRouteTest extends TestCase
 
         $product = [
             'id' => $id ?? Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => $stock,
             'name' => 'Test',
@@ -767,12 +720,9 @@ class CrossSellingRouteTest extends TestCase
             ]];
             $product['children'] = [[
                 'id' => Uuid::randomHex(),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
                 'options' => [
                     [
                         'id' => $optionId,
@@ -789,137 +739,5 @@ class CrossSellingRouteTest extends TestCase
     private function getUrl(string $productId): string
     {
         return '/store-api/product/' . $productId . '/cross-selling';
-    }
-
-    /**
-     * @return array{
-     *     product: array<string, mixed>,
-     *     redOptionId: string,
-     *     redLId: string,
-     *     redXlId: string
-     * }
-     */
-    private function createVariantFixture(): array
-    {
-        $productId = Uuid::randomHex();
-        $redOptionId = Uuid::randomHex();
-        $greenOptionId = Uuid::randomHex();
-        $xlOptionId = Uuid::randomHex();
-        $lOptionId = Uuid::randomHex();
-        $colorGroupId = Uuid::randomHex();
-        $sizeGroupId = Uuid::randomHex();
-        $manufacturerId = Uuid::randomHex();
-        $taxId = Uuid::randomHex();
-        $redLId = Uuid::randomHex();
-        $redXlId = Uuid::randomHex();
-
-        $product = [
-            'id' => $productId,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 10,
-            'name' => 'Parent variant product',
-            'active' => true,
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
-            'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
-            'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
-            'visibilities' => [
-                ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-            ],
-            'configuratorSettings' => [
-                [
-                    'option' => [
-                        'id' => $redOptionId,
-                        'name' => 'Red',
-                        'position' => 0,
-                        'group' => [
-                            'id' => $colorGroupId,
-                            'sortingType' => 'alphanumeric',
-                            'displayType' => 'text',
-                            'name' => 'Color',
-                        ],
-                    ],
-                    'position' => 0,
-                ],
-                [
-                    'option' => [
-                        'id' => $greenOptionId,
-                        'name' => 'Green',
-                        'position' => 1,
-                        'group' => [
-                            'id' => $colorGroupId,
-                            'sortingType' => 'alphanumeric',
-                            'displayType' => 'text',
-                            'name' => 'Color',
-                        ],
-                    ],
-                    'position' => 1,
-                ],
-                [
-                    'option' => [
-                        'id' => $lOptionId,
-                        'name' => 'L',
-                        'position' => 0,
-                        'group' => [
-                            'id' => $sizeGroupId,
-                            'sortingType' => 'alphanumeric',
-                            'displayType' => 'text',
-                            'name' => 'Size',
-                        ],
-                    ],
-                    'position' => 2,
-                ],
-                [
-                    'option' => [
-                        'id' => $xlOptionId,
-                        'name' => 'XL',
-                        'position' => 1,
-                        'group' => [
-                            'id' => $sizeGroupId,
-                            'sortingType' => 'alphanumeric',
-                            'displayType' => 'text',
-                            'name' => 'Size',
-                        ],
-                    ],
-                    'position' => 3,
-                ],
-            ],
-            'children' => [
-                [
-                    'id' => $redLId,
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 10,
-                    'active' => true,
-                    'visibilities' => [
-                        ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                    ],
-                    'options' => [
-                        ['id' => $redOptionId],
-                        ['id' => $lOptionId],
-                    ],
-                ],
-                [
-                    'id' => $redXlId,
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 10,
-                    'active' => true,
-                    'visibilities' => [
-                        ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                    ],
-                    'options' => [
-                        ['id' => $redOptionId],
-                        ['id' => $xlOptionId],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
-
-        return [
-            'product' => $product,
-            'redOptionId' => $redOptionId,
-            'redLId' => $redLId,
-            'redXlId' => $redXlId,
-        ];
     }
 }

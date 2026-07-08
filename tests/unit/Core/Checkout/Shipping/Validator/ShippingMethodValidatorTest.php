@@ -43,8 +43,8 @@ class ShippingMethodValidatorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [ShippingMethodDefinition::class, PaymentMethodDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $definition = $registry->get(ShippingMethodDefinition::class);
@@ -101,7 +101,7 @@ class ShippingMethodValidatorTest extends TestCase
                 ],
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0/'
         );
 

@@ -21,12 +21,12 @@ class GenericPageLoaderTest extends TestCase
 {
     public function testLoad(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn('Shopware');
 
         $loader = new GenericPageLoader(
             $systemConfigService,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => 'en-GB']);

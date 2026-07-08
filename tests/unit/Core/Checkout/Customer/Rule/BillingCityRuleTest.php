@@ -60,7 +60,7 @@ class BillingCityRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $billingCity): void
     {
         $cityName = 'kyln123';
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setCity($billingCity);
 
@@ -83,7 +83,7 @@ class BillingCityRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setActiveBillingAddress(new CustomerAddressEntity());
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -103,7 +103,7 @@ class BillingCityRuleTest extends TestCase
         $address->setCity('test');
         $customer->setActiveBillingAddress($address);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -118,7 +118,7 @@ class BillingCityRuleTest extends TestCase
         $address->setCity('test');
         $customer->setActiveBillingAddress($address);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -133,14 +133,14 @@ class BillingCityRuleTest extends TestCase
 
     public function testInvalidScope(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['cityName' => 'test', 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
     public function testMissingCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($context);
 
         $this->rule->assign(['cityName' => 'test', 'operator' => Rule::OPERATOR_EQ]);
@@ -150,7 +150,7 @@ class BillingCityRuleTest extends TestCase
     public function testMissingCustomerActiveAddress(): void
     {
         $customer = new CustomerEntity();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -167,7 +167,7 @@ class BillingCityRuleTest extends TestCase
         }
         $customer = new CustomerEntity();
         $customer->setActiveBillingAddress(new CustomerAddressEntity());
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         (new BillingCityRule())->match(

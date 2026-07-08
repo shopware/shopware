@@ -234,8 +234,6 @@ class ElasticsearchProductTest extends TestCase
                     ->build(),
             ], $context);
 
-            $this->refreshIndex();
-
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
@@ -247,7 +245,6 @@ class ElasticsearchProductTest extends TestCase
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
 
-            $this->refreshIndex();
             $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
@@ -2976,7 +2973,10 @@ class ElasticsearchProductTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addSorting(new FieldSorting('product.cheapestPrice', $direction));
-        $criteria->addSorting(new FieldSorting('product.productNumber', $direction));
+        // autoIncrement is the tie-breaker for equal prices: productNumber cannot break ties between
+        // sibling variants, as it is indexed multi-valued ([own, parent]) and an ascending sort uses
+        // the minimum, which is the shared parent product number
+        $criteria->addSorting(new FieldSorting('product.autoIncrement', $direction));
 
         $criteria->addFilter(
             new OrFilter([

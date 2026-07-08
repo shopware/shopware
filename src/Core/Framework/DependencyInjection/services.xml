@@ -261,6 +261,7 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="custom_entity.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <!-- Translation -->
@@ -294,6 +295,16 @@ frame-ancestors 'none';
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Api\TranslationController" public="true">
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationRemover"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

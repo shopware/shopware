@@ -27,6 +27,7 @@ final class Entity
         public ?string $since = null,
         public string $collectionClass = EntityCollection::class,
         public string $hydratorClass = EntityHydrator::class,
+        public bool $inheritanceAware = false,
     ) {
     }
 }

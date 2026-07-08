@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -394,12 +394,12 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
         $listing = $this->fetchListing($criteria);
 
         static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
     }
 
     public function testDisplayAsGroupFalseSkipsPreviewRemapping(): void
@@ -407,12 +407,12 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
         $listing = $this->fetchListing($criteria);
 
         static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
     }
 
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
@@ -765,6 +765,7 @@ class ProductListingLoaderTest extends TestCase
                 'stock' => 10,
                 'name' => 'example',
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
                 ],

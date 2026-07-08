@@ -14,6 +14,9 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
 {
     private const SVG = 'svg';
     private const STYLE = 'style';
+    private const METADATA = 'metadata';
+    private const JSON = 'json';
+    private const IMAGE = 'image';
     private const ACTIVE_CONTENT_MESSAGE = 'SVG files with active content are not allowed.';
     private const INVALID_SVG_MESSAGE = 'The file is not a valid SVG document.';
     private const PARSE_ERROR_MESSAGE = 'The SVG file could not be parsed.';
@@ -21,12 +24,53 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
     private const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
     private const XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/';
     private const XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace';
+    private const RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+    private const CC_NAMESPACE = 'http://creativecommons.org/ns#';
+    private const DC_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
+    private const SODIPODI_NAMESPACE = 'http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd';
+    private const INKSCAPE_NAMESPACE = 'http://www.inkscape.org/namespaces/inkscape';
+    private const BOXY_SVG_NAMESPACE = 'https://boxy-svg.com';
+    private const SKETCH_NAMESPACE = 'http://www.bohemiancoding.com/sketch/ns';
+    private const XPACKET_PROCESSING_INSTRUCTION = 'xpacket';
     private const DISALLOWED_NODE_TYPE = 'Node types not allowed';
     private const DISALLOWED_ELEMENT = 'Elements not allowed';
     private const DISALLOWED_EVENT_HANDLER_ATTRIBUTE = 'Event handler attributes not allowed';
     private const DISALLOWED_ATTRIBUTE = 'Attributes not allowed';
+    private const DISALLOWED_ANIMATED_ATTRIBUTE = 'Animated attributes not allowed';
     private const DISALLOWED_EXTERNAL_REFERENCE = 'External references not allowed';
     private const DISALLOWED_EXTERNAL_STYLE_REFERENCE = 'External style references not allowed';
+    private const ANIMATE = 'animate';
+    private const ANIMATE_TRANSFORM = 'animatetransform';
+
+    /**
+     * @var list<string>
+     */
+    private const ALLOWED_ANIMATED_ATTRIBUTES = [
+        'cx',
+        'cy',
+        'fill',
+        'fill-opacity',
+        'height',
+        'opacity',
+        'r',
+        'rx',
+        'ry',
+        'stroke-opacity',
+        'stroke-width',
+        'width',
+        'x',
+        'y',
+    ];
+
+    /**
+     * @var array<string, list<string>>
+     */
+    private const ALLOWED_SVG_DOCTYPES = [
+        '-//W3C//DTD SVG 1.0//EN' => ['http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'],
+        '-//W3C//DTD SVG 20010904//EN' => ['http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'],
+        '-//W3C//DTD SVG 1.1//EN' => ['http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'],
+        '-//W3C//DTD SVG 1.1 Basic//EN' => ['http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-basic.dtd'],
+    ];
 
     /**
      * @var list<string>
@@ -87,7 +131,7 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
             $reader = $this->openSvgReader($mediaFile);
 
             try {
-                $this->validateDocument($reader);
+                $this->validateDocument($reader, $this->hasAllowedSvgDoctype($mediaFile));
             } finally {
                 $reader->close();
             }
@@ -109,12 +153,33 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
         $this->violations = new ConstraintViolationList();
     }
 
-    private function validateDocument(\XMLReader $reader): void
+    private function validateDocument(\XMLReader $reader, bool $hasAllowedSvgDoctype): void
     {
         $documentElementSeen = false;
+        $metadataDepth = 0;
 
         while ($reader->read()) {
-            if ($this->isDisallowedNodeType($reader->nodeType)) {
+            if ($reader->nodeType === \XMLReader::END_ELEMENT && $this->isUnprefixedSvgElement($reader, self::METADATA) && $metadataDepth > 0) {
+                --$metadataDepth;
+
+                continue;
+            }
+
+            if ($reader->nodeType === \XMLReader::ELEMENT && $this->isUnprefixedSvgElement($reader, self::METADATA) && $metadataDepth > 0) {
+                if (!$reader->isEmptyElement) {
+                    ++$metadataDepth;
+                }
+
+                continue;
+            }
+
+            if ($metadataDepth > 0) {
+                $this->validateMetadataNode($reader, $hasAllowedSvgDoctype);
+
+                continue;
+            }
+
+            if ($this->isDisallowedNodeType($reader, $hasAllowedSvgDoctype)) {
                 $this->buildViolation(self::DISALLOWED_NODE_TYPE, $reader->name);
             }
 
@@ -128,6 +193,10 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
             }
 
             $this->validateElement($reader);
+
+            if (!$reader->isEmptyElement && $this->isUnprefixedSvgElement($reader, self::METADATA)) {
+                ++$metadataDepth;
+            }
         }
 
         if ($documentElementSeen === false) {
@@ -151,19 +220,45 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
     {
         $elementName = mb_strtolower($reader->localName);
 
-        $this->assertElementAllowed($elementName);
-        $this->assertAttributesAllowed($reader);
+        $allowsAnyPassiveAttribute = $this->isKnownPassiveNamespaceNode($reader);
+
+        $this->assertElementAllowed($elementName, $allowsAnyPassiveAttribute);
+        $this->assertAttributesAllowed($reader, $allowsAnyPassiveAttribute, $elementName);
         $this->assertStyleBodyAllowed($reader, $elementName);
+        $this->assertAnimationAllowed($reader, $elementName);
     }
 
-    private function assertElementAllowed(string $elementName): void
+    private function validateMetadataNode(\XMLReader $reader, bool $hasAllowedSvgDoctype): void
     {
-        if (!\in_array($elementName, $this->allowedElements, true)) {
+        if ($this->isDisallowedNodeType($reader, $hasAllowedSvgDoctype, true)) {
+            $this->buildViolation(self::DISALLOWED_NODE_TYPE, $reader->name);
+        }
+
+        if ($reader->nodeType !== \XMLReader::ELEMENT) {
+            return;
+        }
+
+        if (!$this->isSvgElement($reader)) {
+            return;
+        }
+
+        if ($this->isUnprefixedSvgElement($reader, self::JSON)) {
+            $this->assertAttributesAllowed($reader, false, self::JSON);
+
+            return;
+        }
+
+        $this->validateElement($reader);
+    }
+
+    private function assertElementAllowed(string $elementName, bool $allowsAnyPassiveElement): void
+    {
+        if (!$allowsAnyPassiveElement && !\in_array($elementName, $this->allowedElements, true)) {
             $this->buildViolation(self::DISALLOWED_ELEMENT, $elementName);
         }
     }
 
-    private function assertAttributesAllowed(\XMLReader $reader): void
+    private function assertAttributesAllowed(\XMLReader $reader, bool $allowsAnyPassiveAttribute, string $elementName): void
     {
         if (!$reader->hasAttributes) {
             return;
@@ -171,14 +266,14 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
 
         $attributePosition = $reader->moveToFirstAttribute();
         while ($attributePosition === true) {
-            $this->assertAttributeAllowed($reader);
+            $this->assertAttributeAllowed($reader, $allowsAnyPassiveAttribute, $elementName);
             $attributePosition = $reader->moveToNextAttribute();
         }
 
         $reader->moveToElement();
     }
 
-    private function assertAttributeAllowed(\XMLReader $reader): void
+    private function assertAttributeAllowed(\XMLReader $reader, bool $allowsAnyPassiveAttribute, string $elementName): void
     {
         $attributeName = mb_strtolower($reader->name);
 
@@ -186,12 +281,12 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
             $this->buildViolation(self::DISALLOWED_EVENT_HANDLER_ATTRIBUTE, $attributeName);
         }
 
-        if (!$this->isAllowedAttribute($reader, $attributeName)) {
+        if (!$this->isAllowedAttribute($reader, $attributeName, $allowsAnyPassiveAttribute)) {
             $this->buildViolation(self::DISALLOWED_ATTRIBUTE, $attributeName);
         }
 
         $isReferenceAttribute = \in_array($attributeName, $this->allowedReferenceAttributes, true);
-        if ($isReferenceAttribute && $this->isExternalReference($reader->value)) {
+        if ($isReferenceAttribute && $this->isExternalReference($reader->value) && !$this->isEmbeddedRasterImageReference($elementName, $reader->value)) {
             $this->buildViolation(self::DISALLOWED_EXTERNAL_REFERENCE, $attributeName);
         }
 
@@ -214,6 +309,31 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
         if ($this->containsExternalStyleReference($reader->readInnerXml())) {
             $this->buildViolation(self::DISALLOWED_EXTERNAL_STYLE_REFERENCE, $elementName);
         }
+    }
+
+    private function assertAnimationAllowed(\XMLReader $reader, string $elementName): void
+    {
+        if (!\in_array($elementName, [self::ANIMATE, self::ANIMATE_TRANSFORM], true)) {
+            return;
+        }
+
+        $animatedAttribute = $reader->getAttribute('attributeName');
+        if ($animatedAttribute === null || trim($animatedAttribute) === '') {
+            $this->buildViolation(self::DISALLOWED_ANIMATED_ATTRIBUTE, 'attributeName');
+
+            return;
+        }
+
+        $animatedAttribute = mb_strtolower(trim($animatedAttribute));
+        if ($elementName === self::ANIMATE_TRANSFORM && $animatedAttribute === 'transform') {
+            return;
+        }
+
+        if ($elementName === self::ANIMATE && \in_array($animatedAttribute, self::ALLOWED_ANIMATED_ATTRIBUTES, true)) {
+            return;
+        }
+
+        $this->buildViolation(self::DISALLOWED_ANIMATED_ATTRIBUTE, $animatedAttribute);
     }
 
     private function buildViolation(string $violation, string $invalidValue): void
@@ -279,9 +399,23 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
         return $reader;
     }
 
-    private function isDisallowedNodeType(int $nodeType): bool
+    private function isDisallowedNodeType(\XMLReader $reader, bool $hasAllowedSvgDoctype, bool $allowXpacketProcessingInstruction = false): bool
     {
-        return \in_array($nodeType, [\XMLReader::DOC_TYPE, \XMLReader::ENTITY, \XMLReader::ENTITY_REF, \XMLReader::PI], true);
+        if ($reader->nodeType === \XMLReader::DOC_TYPE) {
+            return !$hasAllowedSvgDoctype;
+        }
+
+        if ($allowXpacketProcessingInstruction && $reader->nodeType === \XMLReader::PI) {
+            /*
+             * XMP metadata wraps packets in <?xpacket ...?> processing instructions.
+             * Keep every other processing instruction blocked.
+             *
+             * @see \Shopware\Tests\Unit\Core\Content\Media\File\SvgContentValidatorTest::testSvgWithXmpMetadataPassesValidation()
+             */
+            return mb_strtolower($reader->name) !== self::XPACKET_PROCESSING_INSTRUCTION;
+        }
+
+        return \in_array($reader->nodeType, [\XMLReader::ENTITY, \XMLReader::ENTITY_REF, \XMLReader::PI], true);
     }
 
     private function isExternalReference(string $value): bool
@@ -291,18 +425,33 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
         return $value !== '' && !str_starts_with($value, '#');
     }
 
-    private function isAllowedAttribute(\XMLReader $reader, string $attributeName): bool
+    private function isEmbeddedRasterImageReference(string $elementName, string $value): bool
     {
-        if (!\in_array($attributeName, $this->allowedAttributes, true)) {
+        if ($elementName !== self::IMAGE) {
             return false;
         }
 
-        if ($reader->prefix === 'xmlns') {
-            return $reader->namespaceURI === self::XMLNS_NAMESPACE && $reader->value === self::XLINK_NAMESPACE;
+        $value = (string) preg_replace('/\s+/', '', trim($value));
+
+        /*
+         * Allows embedded raster image payloads only.
+         * Regex tester: https://regex101.com/r/kxNJDI/1
+         */
+        return preg_match('/^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+\/=]+$/i', $value) === 1;
+    }
+
+    private function isAllowedAttribute(\XMLReader $reader, string $attributeName, bool $allowsAnyPassiveAttribute): bool
+    {
+        if ($allowsAnyPassiveAttribute || str_starts_with($attributeName, 'data-') || $this->isKnownPassiveNamespaceNode($reader)) {
+            return true;
         }
 
-        if ($reader->name === 'xmlns') {
-            return $reader->namespaceURI === self::XMLNS_NAMESPACE && $reader->value === self::SVG_NAMESPACE;
+        if ($this->isNamespaceDeclaration($reader)) {
+            return true;
+        }
+
+        if (!\in_array($attributeName, $this->allowedAttributes, true)) {
+            return false;
         }
 
         if ($reader->prefix === 'xml') {
@@ -314,6 +463,69 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
         }
 
         return $reader->namespaceURI === '' || $reader->namespaceURI === null;
+    }
+
+    private function isNamespaceDeclaration(\XMLReader $reader): bool
+    {
+        return $reader->namespaceURI === self::XMLNS_NAMESPACE && ($reader->prefix === 'xmlns' || $reader->name === 'xmlns');
+    }
+
+    private function isUnprefixedSvgElement(\XMLReader $reader, string $elementName): bool
+    {
+        return $reader->prefix === ''
+            && mb_strtolower($reader->localName) === $elementName
+            && $this->isSvgElement($reader);
+    }
+
+    private function isSvgElement(\XMLReader $reader): bool
+    {
+        return $reader->namespaceURI === '' || $reader->namespaceURI === self::SVG_NAMESPACE;
+    }
+
+    private function isKnownPassiveNamespaceNode(\XMLReader $reader): bool
+    {
+        return \in_array($reader->namespaceURI, [
+            self::BOXY_SVG_NAMESPACE,
+            self::CC_NAMESPACE,
+            self::DC_NAMESPACE,
+            self::INKSCAPE_NAMESPACE,
+            self::RDF_NAMESPACE,
+            self::SKETCH_NAMESPACE,
+            self::SODIPODI_NAMESPACE,
+        ], true);
+    }
+
+    private function hasAllowedSvgDoctype(MediaFile $mediaFile): bool
+    {
+        $prefix = file_get_contents($mediaFile->getFileName(), false, null, 0, 8192);
+        if (!\is_string($prefix)) {
+            return false;
+        }
+
+        $start = stripos($prefix, '<!DOCTYPE');
+        if ($start === false) {
+            return false;
+        }
+
+        $end = strpos($prefix, '>', $start);
+        if ($end === false) {
+            return false;
+        }
+
+        $doctype = substr($prefix, $start, $end - $start + 1);
+        if (str_contains($doctype, '[')) {
+            return false;
+        }
+
+        $doctype = (string) preg_replace('/\s+/', ' ', trim($doctype));
+        if (!preg_match('/^<!DOCTYPE svg PUBLIC ([\'"])(.+?)\1 ([\'"])(.+?)\3\s*>$/i', $doctype, $matches)) {
+            return false;
+        }
+
+        $publicId = $matches[2];
+        $systemId = $matches[4];
+
+        return \in_array($systemId, self::ALLOWED_SVG_DOCTYPES[$publicId] ?? [], true);
     }
 
     private function containsExternalStyleReference(string $value): bool

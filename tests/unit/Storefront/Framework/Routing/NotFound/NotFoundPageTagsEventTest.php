@@ -18,7 +18,7 @@ class NotFoundPageTagsEventTest extends TestCase
     public function testEvent(): void
     {
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         $event = new NotFoundPageTagsEvent(['test'], $request, $context);

@@ -86,7 +86,7 @@ class TestBootstrapperTest extends TestCase
             ],
         ]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -122,7 +122,7 @@ class TestBootstrapperTest extends TestCase
             ],
         ]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -140,7 +140,7 @@ class TestBootstrapperTest extends TestCase
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
         $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -158,7 +158,7 @@ class TestBootstrapperTest extends TestCase
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
         $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
         KernelLifecycleAccessor::setKernel($kernel);

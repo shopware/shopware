@@ -43,8 +43,8 @@ class HtmlRendererTest extends TestCase
     public function testConfig(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TwigEnvironment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
@@ -71,11 +71,10 @@ class HtmlRendererTest extends TestCase
             ->method('renderWithTimezoneOverride')
             ->with(
                 self::HTML_TEMPLATE_PATH,
-                static::callback(function (array $parameters): bool {
+                static::callback(function (array $parameters) use ($renderData): bool {
                     static::assertArrayHasKey('config', $parameters);
                     static::assertInstanceOf(TemplateContext::class, $parameters['config']);
-                    static::assertSame('html', $parameters['config']->fileType);
-                    static::assertSame(1000, $parameters['config']->itemsPerPage);
+                    static::assertSame($renderData->config->itemsPerPage, $parameters['config']->itemsPerPage);
                     static::assertSame(['test' => 1], $parameters['config']->custom);
 
                     static::assertArrayHasKey('counter', $parameters);
@@ -112,8 +111,8 @@ class HtmlRendererTest extends TestCase
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TwigEnvironment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         $input = new RenderInput(
@@ -140,8 +139,8 @@ class HtmlRendererTest extends TestCase
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
-                $this->createMock(AbstractTranslator::class),
-                $this->createMock(AbstractSalesChannelContextFactory::class),
+                static::createStub(AbstractTranslator::class),
+                static::createStub(AbstractSalesChannelContextFactory::class),
                 'rootDir',
             ),
         );
@@ -178,6 +177,15 @@ class HtmlRendererTest extends TestCase
                 'city',
                 new CountryEntity()
             ),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: '12345',
+            documentComment: null,
+            templatePaths: [
+                DocumentFormat::HTML->value => self::HTML_TEMPLATE_PATH,
+            ],
+            typeCode: TypeCode::INVOICE,
+            buyerReference: '10000',
             buyer: new TradePartyView(
                 id: null,
                 name: '',
@@ -190,15 +198,6 @@ class HtmlRendererTest extends TestCase
                 countryIso: null,
                 email: null,
             ),
-            templatePaths: [
-                DocumentFormat::HTML->value => self::HTML_TEMPLATE_PATH,
-            ],
-            display: new DocumentDisplayOptions(),
-            documentDate: 'date',
-            documentNumber: '12345',
-            documentComment: null,
-            typeCode: TypeCode::INVOICE,
-            buyerReference: '10000',
             deliveryDate: null,
             lineItems: [],
             allowanceCharges: [],

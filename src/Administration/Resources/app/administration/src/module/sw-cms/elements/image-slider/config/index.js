@@ -341,6 +341,6 @@ export default {
             return this.mediaItems.find((item) => {
                 return item.id === mediaId;
             });
-        }
+        },
     },
 };

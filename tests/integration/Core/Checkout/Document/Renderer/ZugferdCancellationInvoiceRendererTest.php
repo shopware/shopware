@@ -96,12 +96,9 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
         $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
-        $invoiceConfig = new DocumentConfiguration();
-        $invoiceConfig->setDocumentNumber('1001');
-
         $invoice = $this->documentGenerator->generate(
             InvoiceRenderer::TYPE,
-            [$orderId => new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize())],
+            [$orderId => new DocumentGenerateOperation($orderId, FileTypes::PDF, ['documentNumber' => '1001'])],
             $this->context
         )->getSuccess()->first();
 

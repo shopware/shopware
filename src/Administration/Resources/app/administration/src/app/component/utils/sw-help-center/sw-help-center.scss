@@ -1,53 +1,33 @@
 @import "~scss/variables";
-@import "~scss/mixins";
 
-.sw-help-center {
-    &__button {
-        @include reset-button;
+.sw-help-center__badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--scale-size-6);
+    height: var(--scale-size-6);
+    border-radius: var(--border-radius-round);
+    position: absolute;
+    z-index: 1;
+    top: var(--scale-size-2);
+    right: var(--scale-size-2);
+    overflow: hidden;
 
-        width: 40px;
-        height: 40px;
-        border-radius: var(--border-radius-button);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        color: var(--color-icon-primary-default);
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-default);
-            outline-offset: var(--scale-size-2);
-        }
+    * {
+        width: 100%;
+        height: 100%;
     }
 
-    &__badge {
-        @include flex-centering;
-        @include circle(18px);
-
-        position: absolute;
-        z-index: 1;
-        top: -40%;
-        right: -50%;
-        overflow: hidden;
-
-        * {
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    &__badge .sw-card {
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    &__badge .sw-card__content {
+    .sw-card__content {
         padding: 0;
         background: transparent;
     }
+}
+
+.sw-help-center__button[data-state="open"] {
+    background-color: var(--color-interaction-secondary-hover);
+}
+
+.sw-help-center__menu {
+    z-index: $z-index-context-menu;
 }

@@ -24,6 +24,43 @@ shopware:
                   parameters:
                     buckets: [0, 512, 1024, 2048, 4096, 8192, 16384, 32768]
 
+                messenger.message.handled.count:
+                    description: 'Messages handled by the worker, per outcome'
+                    type: 'counter'
+                    labels:
+                        # MessageGroupResolver (known: indexer, webhook, scheduled-task, mail, business, system, other)
+                        message_group:
+                            policy: open
+                        result:
+                            allowed_values: [handled, retried, failed]
+
+                messenger.message.handling.duration:
+                    # recorded for every outcome; the result label separates success latency from failure latency,
+                    # so slow failures (e.g. external-call timeouts eating worker slots) stay visible
+                    # instead of being averaged into the healthy path
+                    description: 'Time from message received to a terminal outcome (handled/failed)'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # low-ms cache/webhook messages up to multi-second indexing/import jobs
+                        buckets: [1, 10, 50, 100, 500, 1000, 5000, 30000]
+                    labels:
+                        message_group:
+                            policy: open
+                        result:
+                            allowed_values: [handled, retried, failed]
+
+                messenger.queue.depth:
+                    # sampled periodically by the telemetry.collect_periodic_metrics task; transport=failed is the
+                    # dead-letter queue depth. Only transports that implement MessageCountAwareInterface are reported.
+                    description: 'Pending messages per transport'
+                    type: 'gauge'
+                    labels:
+                        # transport config name, passed through unmapped (known core: async, low_priority, failed; custom transports reported as-is)
+                        # values are naturally bound by transports configuration
+                        transport:
+                            policy: open
+
                 dal.associations.count:
                     description: 'Number of associations loaded'
                     type: 'histogram'

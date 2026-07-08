@@ -2,16 +2,9 @@
  * @sw-package framework
  */
 
-import { stripIndent, transformOrFail } from './helpers';
+import { getPrivateNamespace, stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override transforms', () => {
-    function getPrivateNamespace(result: string): string | undefined {
-        return (
-            result.match(/__swOverride: \{\n\s+([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1] ??
-            result.match(/__swOverride: \{ ([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1]
-        );
-    }
-
     it('transforms override Shopware setup blocks into hidden override components', () => {
         const source = stripIndent`
             <script setup>
@@ -60,28 +53,6 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(transformOrFail(source, 'sw-my-component.override.vue').code).toBe(expected);
     });
 
-    it('does not add generated data scope to override sw-block extensions', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_headline">
-                <h2>{{ headline }}</h2>
-            </sw-block>
-            </template>
-            <script setup>
-            const headline = 'Headline';
-
-            swDefineOverride({
-                headline,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'override-sw-block-data.override.vue').code;
-
-        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="{ headline }">');
-        expect(result).not.toContain(':data="$dataScope"');
-    });
-
     it('transforms sw-override blocks in .override.vue files', () => {
         const source = stripIndent`
             <script setup>
@@ -95,6 +66,25 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result.mode).toBe('override');
         expect(result.filename).toBe('component-name.override.vue');
         expect(result.code).toContain("Shopware.Component.overrideComponentSetup()('component-name'");
+    });
+
+    it('keeps imports out of returned override state', () => {
+        const source = stripIndent`
+            <script setup>
+            import { computed } from 'vue';
+
+            const doubled = computed(() => 2);
+
+            swDefineOverride({
+                doubled,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'component.override.vue').code;
+
+        expect(result).toContain('return {\n                doubled,\n            };');
+        expect(result).not.toContain('computed,');
     });
 
     it('keeps local type declarations available for override callback code', () => {
@@ -116,25 +106,6 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result.indexOf('type Props')).toBeLessThan(result.indexOf('export default'));
         expect(result).toContain('const props = useSwProps<Props>();');
         expect(result.match(/type Props/g)).toHaveLength(1);
-    });
-
-    it('keeps imports out of returned override state', () => {
-        const source = stripIndent`
-            <script setup>
-            import { computed } from 'vue';
-
-            const doubled = computed(() => 2);
-
-            swDefineOverride({
-                doubled,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'component.override.vue').code;
-
-        expect(result).toContain('return {\n                doubled,\n            };');
-        expect(result).not.toContain('computed,');
     });
 
     it('uses swDefineOverride() as the explicit override payload and keeps unused local state private', () => {
@@ -163,6 +134,27 @@ describe('build/vue-setup-transform override transforms', () => {
         );
         expect(result).not.toContain('__swOverride');
         expect(result).not.toContain('localInfo,');
+    });
+
+    it('adds private namespaces to a default slot without an existing expression', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default>
+                <small>{{ info }}</small>
+            </sw-block>
+            </template>
+            <script setup>
+            const info = 2;
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'empty-slot.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
+
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } } }"`);
     });
 
     it('returns template-used override-local state through a deterministic private namespace', () => {
@@ -198,6 +190,28 @@ describe('build/vue-setup-transform override transforms', () => {
             `return {\n                body,\n                __swOverride: {\n                    ${privateNamespace}: {\n                        info,\n                    },\n                },\n            };`,
         );
         expect(result).not.toContain('unused,');
+    });
+
+    it('does not add generated data scope to override sw-block extensions', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_headline">
+                <h2>{{ headline }}</h2>
+            </sw-block>
+            </template>
+            <script setup>
+            const headline = 'Headline';
+
+            swDefineOverride({
+                headline,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'override-sw-block-data.override.vue').code;
+
+        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="{ headline }">');
+        expect(result).not.toContain(':data="$dataScope"');
     });
 
     it('merges private namespaces into existing object default slot scopes', () => {
@@ -244,27 +258,6 @@ describe('build/vue-setup-transform override transforms', () => {
 
         expect(privateNamespace).toBeDefined();
         expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } }, ...previousState }"`);
-    });
-
-    it('adds private namespaces to a default slot without an existing expression', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body" #default>
-                <small>{{ info }}</small>
-            </sw-block>
-            </template>
-            <script setup>
-            const info = 2;
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'empty-slot.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
-
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } } }"`);
     });
 
     it('detects override-local template references in Vue expression positions', () => {
@@ -315,38 +308,6 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).not.toMatch(/\bitem,/);
     });
 
-    it('ignores template identifiers that are not override-local setup references', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block
-                extends="sw_example_component_body"
-                class="info"
-                data-label="track"
-                #default="{ providedInfo }"
-            >
-                plain info text
-                <p>{{ providedInfo }}</p>
-                <p>{{ previousState.body }}</p>
-                <p>{{ [1].map((info) => info).join(',') }}</p>
-                <p>{{ ({ info: localInfo }) => localInfo }}</p>
-                <p>{{ ({ info: 'static key only' }) }}</p>
-            </sw-block>
-            </template>
-            <script setup>
-            const previousState = useSwPreviousState();
-            const info = 'local';
-            const track = () => {};
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'ignored-template-references.override.vue').code;
-
-        expect(result).not.toContain('__swOverride');
-        expect(result).toContain('return {};');
-    });
-
     it('detects override-local references in TypeScript and optional-chain template expressions', () => {
         const source = stripIndent`
             <template>
@@ -378,6 +339,38 @@ describe('build/vue-setup-transform override transforms', () => {
             expect(privateNamespace).toBeDefined();
             expect(result).toContain(`${name},`);
         });
+    });
+
+    it('ignores template identifiers that are not override-local setup references', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block
+                extends="sw_example_component_body"
+                class="info"
+                data-label="track"
+                #default="{ providedInfo }"
+            >
+                plain info text
+                <p>{{ providedInfo }}</p>
+                <p>{{ previousState.body }}</p>
+                <p>{{ [1].map((info) => info).join(',') }}</p>
+                <p>{{ ({ info: localInfo }) => localInfo }}</p>
+                <p>{{ ({ info: 'static key only' }) }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const previousState = useSwPreviousState();
+            const info = 'local';
+            const track = () => {};
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'ignored-template-references.override.vue').code;
+
+        expect(result).not.toContain('__swOverride');
+        expect(result).toContain('return {};');
     });
 
     it('ignores identifiers shadowed by v-for aliases, slot scopes, and nested callback patterns', () => {

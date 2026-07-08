@@ -46,4 +46,26 @@ function expectVueCompilerScriptToCompile(code: string, filename: string): void 
     expect(() => compileScript(descriptor, { id: filename })).not.toThrow();
 }
 
-export { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc };
+/**
+ * Reads the override-private namespace key back out of a transform result.
+ *
+ * An override's non-public setup bindings are forwarded to the template through the shared
+ * `__swOverride` data-scope object under a per-file namespace key, for example
+ * `__swOverride: { my_component_override_1a2b3: { count } }`. The key is `<file>_<5-hex-sha1>`,
+ * deterministic and unique per override file so several overrides on the same base component never
+ * collide. Tests match the key by shape instead of hardcoding the hash.
+ */
+function getPrivateNamespace(result: string): string | undefined {
+    return (
+        result.match(/__swOverride: \{\n\s+([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1] ??
+        result.match(/__swOverride: \{ ([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1]
+    );
+}
+
+export {
+    expectVueCompilerScriptToCompile,
+    getPrivateNamespace,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+};

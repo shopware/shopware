@@ -149,6 +149,9 @@ class AppListCommandTest extends TestCase
 
     public function testInvalidFormatReturnsError(): void
     {
+        $this->appStorage->expects($this->never())->method('findAll');
+        $this->appStorage->expects($this->never())->method('findAllWithNameOrLabel');
+
         $commandTester = $this->executeCommand(['--format' => 'xml']);
         static::assertSame(2, $commandTester->getStatusCode());
         static::assertStringContainsString('Invalid format "xml"', $commandTester->getDisplay());

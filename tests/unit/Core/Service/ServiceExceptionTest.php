@@ -46,7 +46,7 @@ class ServiceExceptionTest extends TestCase
 
     public function testRequestFailed(): void
     {
-        $response = static::createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
 
         $e = ServiceException::requestFailed($response);

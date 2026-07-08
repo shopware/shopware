@@ -131,7 +131,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallReturnsFalseWhenAppInfoCannotBeFetched(): void
     {
-        $client = $this->createMock(ServiceClient::class);
+        $client = static::createStub(ServiceClient::class);
         $client->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
         $factory = $this->createMock(ServiceClientFactory::class);
         $factory->method('newFor')->willReturn($client);

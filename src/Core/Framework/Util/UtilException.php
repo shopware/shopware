@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class UtilException extends HttpException
 {

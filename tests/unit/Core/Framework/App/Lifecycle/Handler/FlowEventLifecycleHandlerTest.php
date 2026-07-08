@@ -52,7 +52,7 @@ class FlowEventLifecycleHandlerTest extends TestCase
             return ['swag.before.open_the_doors' => Uuid::fromHexToBytes($appId)];
         });
 
-        $flowEventMock = $this->createMock(Event::class);
+        $flowEventMock = static::createStub(Event::class);
         $domDocument = new \DOMDocument();
         $domElement = $domDocument->createElement('root');
         $childElementLabel = $domDocument->createElement('flow-event', 'value');
@@ -96,7 +96,7 @@ class FlowEventLifecycleHandlerTest extends TestCase
             return ['swag.before.open_the_doors' => Uuid::fromHexToBytes($appId)];
         });
 
-        $flowEventMock = $this->createMock(Event::class);
+        $flowEventMock = static::createStub(Event::class);
 
         $domDocument = new \DOMDocument();
         $domElement = $domDocument->createElement('root');
@@ -140,6 +140,9 @@ class FlowEventLifecycleHandlerTest extends TestCase
 
             return 1;
         });
+
+        $this->flowEventsRepositoryMock->expects($this->never())->method('upsert');
+        $this->flowEventsRepositoryMock->expects($this->never())->method('delete');
 
         $this->flowEventLifecycleHandler->deactivate(new AppActivationContext($app, Context::createDefaultContext()));
     }

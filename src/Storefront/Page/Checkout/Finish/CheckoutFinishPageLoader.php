@@ -143,7 +143,7 @@ class CheckoutFinishPageLoader
         }
 
         /** @var OrderEntity|null $order */
-        $order = $searchResult->get($orderId);
+        $order = $searchResult->getEntities()->get($orderId);
 
         if (!$order) {
             throw OrderException::orderNotFound($orderId);

@@ -22,8 +22,8 @@ class DeleteThumbnailsCommandTest extends TestCase
     public function testExecuteWithRemoteThumbnailsDisabled(): void
     {
         $command = new DeleteThumbnailsCommand(
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             false
         );
 

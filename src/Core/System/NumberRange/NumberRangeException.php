@@ -9,6 +9,9 @@ use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class NumberRangeException extends HttpException
 {

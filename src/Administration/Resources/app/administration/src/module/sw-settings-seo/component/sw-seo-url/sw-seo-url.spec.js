@@ -164,6 +164,35 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         });
     });
 
+    it.each([
+        ['seo/url%/1'],
+        ['foo/bar#baz'],
+        ['foo\\bar'],
+    ])('reports a validation error for disallowed character in "%s"', async (invalidPath) => {
+        Shopware.Store.get('swSeoUrl').currentSeoUrl = {
+            seoPathInfo: invalidPath,
+        };
+
+        expect(wrapper.vm.seoPathInfoError).toEqual(
+            expect.objectContaining({ code: 'CONTENT__SEO_URL_INVALID_CHARACTERS' }),
+        );
+    });
+
+    it.each([
+        ['Computers/Laptops'],
+        ['Pepper-white-ground-pearl/SW10098'],
+        ['foo/bar?x=1'],
+        ['caf%C3%A9/SW10098'],
+        [''],
+        [null],
+    ])('accepts "%s" as SEO path', async (validPath) => {
+        Shopware.Store.get('swSeoUrl').currentSeoUrl = {
+            seoPathInfo: validPath,
+        };
+
+        expect(wrapper.vm.seoPathInfoError).toBeNull();
+    });
+
     it('should update currentSeoUrl when defaultSeoUrl not empty', async () => {
         await wrapper.setProps({
             urls: [

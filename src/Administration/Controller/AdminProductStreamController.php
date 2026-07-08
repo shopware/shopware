@@ -9,6 +9,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -73,6 +75,14 @@ class AdminProductStreamController extends AbstractController
         $criteria->addFilter($availableFilter);
 
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        // Mirror the storefront listing's variant grouping so the preview reflects the product stream's
+        // "display as group" setting. It is read from the query string to keep the Criteria request body
+        // (and therefore its schema) untouched.
+        if ($request->query->getBoolean('displayAsGroup')) {
+            $criteria->addGroupField(new FieldGrouping('displayGroup'));
+            $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
+        }
 
         $previewResult = $this->salesChannelProductRepository->search($criteria, $salesChannelContext);
 

@@ -275,13 +275,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: ./.github/actions/phpunit-run
+      - name: Setup and install Shopware
+        uses: ./.github/actions/phpunit-prepare
+        with:
+          keep-composer-tools: "true"
+          migration-coverage: ${{ matrix.suite == 'migration' }}
+      - name: Run PHPUnit with coverage
+        uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
-          keep-composer-tools: "true"
+          coverage: "true"
+      - name: Upload coverage and test results to Codecov
+        uses: ./.github/actions/phpunit-upload
+        # !cancelled(): junit test results must upload even when the run failed
+        if: ${{ !cancelled() }}
+        with:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
-          migration-coverage: ${{ matrix.suite == 'migration' }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   license-check:

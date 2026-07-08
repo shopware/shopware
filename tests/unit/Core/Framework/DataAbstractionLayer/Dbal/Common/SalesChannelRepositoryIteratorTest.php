@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -32,8 +31,9 @@ class SalesChannelRepositoryIteratorTest extends TestCase
 {
     public function testKeysetFetchSeeksPastCursorAndTracksLastId(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $repository = $this->repository();
+        $context = static::createStub(SalesChannelContext::class);
+        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository->method('getDefinition')->willReturn($this->productDefinition());
 
         $criteria = new Criteria();
         $criteria->setLimit(2);
@@ -81,8 +81,9 @@ class SalesChannelRepositoryIteratorTest extends TestCase
 
     public function testKeysetResumesFromProvidedCursor(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $repository = $this->repository();
+        $context = static::createStub(SalesChannelContext::class);
+        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository->method('getDefinition')->willReturn($this->productDefinition());
 
         $criteria = new Criteria();
         $criteria->setLimit(2);
@@ -110,8 +111,9 @@ class SalesChannelRepositoryIteratorTest extends TestCase
 
     public function testCriteriaWithOwnSortingKeepsOffsetPagination(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $repository = $this->repository();
+        $context = static::createStub(SalesChannelContext::class);
+        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository->method('getDefinition')->willReturn($this->productDefinition());
 
         $criteria = new Criteria();
         $criteria->setLimit(2);
@@ -137,22 +139,19 @@ class SalesChannelRepositoryIteratorTest extends TestCase
         static::assertSame(2, $iterator->getOffset(), 'Offset mode resumes via a plain row offset.');
     }
 
-    /**
-     * @return SalesChannelRepository<SalesChannelProductCollection>&MockObject
-     */
-    private function repository(): SalesChannelRepository
+    private function productDefinition(): ProductDefinition
     {
         // ProductDefinition has an AutoIncrementField; hasAutoIncrement() is final and cannot be mocked.
         $registry = new StaticDefinitionInstanceRegistry(
             [CategoryDefinition::class, ProductCategoryDefinition::class, ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        $repository = $this->createMock(SalesChannelRepository::class);
-        $repository->method('getDefinition')->willReturn($registry->get(ProductDefinition::class));
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
 
-        return $repository;
+        return $definition;
     }
 
     private function product(int $autoIncrement): SalesChannelProductEntity

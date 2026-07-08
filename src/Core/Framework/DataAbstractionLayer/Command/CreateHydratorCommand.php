@@ -82,6 +82,7 @@ class CreateHydratorCommand extends Command
         $entities = $this->registry->getDefinitions();
         $classes = [];
         $services = [];
+        $uses = [];
 
         $whitelist = $input->getArgument('whitelist');
         if ($whitelist === []) {
@@ -118,6 +119,7 @@ class CreateHydratorCommand extends Command
             }
 
             $services[] = $this->generateService($entity);
+            $uses[] = $this->getNamespace($entity) . '\\' . $this->getClass($entity);
         }
 
         $io->success('Created schema in ' . $this->dir);
@@ -131,24 +133,35 @@ class CreateHydratorCommand extends Command
             }
         }
 
-        $file = $this->dir . '/Core/Framework/DependencyInjection/hydrator.xml';
+        $file = $this->dir . '/Core/Framework/DependencyInjection/hydrator.php';
 
         try {
-            $content = <<<EOF
-<?xml version="1.0" ?>
+            $content = <<<'EOF'
+<?php declare(strict_types=1);
 
-<container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+namespace Shopware\Core\Framework\DependencyInjection;
 
-    <services>
+#uses#
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $services = $containerConfigurator->services();
+
 #services#
-    </services>
-</container>
+};
 
 EOF;
 
-            $content = str_replace('#services#', implode("\n\n", $services), $content);
+            usort($uses, 'strcasecmp');
+            $useStatements = array_map(static fn (string $class): string => 'use ' . $class . ';', $uses);
+
+            $content = str_replace(
+                ['#uses#', '#services#'],
+                [implode("\n", $useStatements), implode("\n\n", $services)],
+                $content
+            );
 
             $this->filesystem->dumpFile($file, $content);
         } catch (IOException $e) {
@@ -205,18 +218,15 @@ EOF;
 
     private function generateService(EntityDefinition $definition): string
     {
-        $template = <<<EOF
-        <service id="#namespace#\#class#" public="true">
-            <argument type="service" id="service_container"/>
-        </service>
+        $template = <<<'EOF'
+    $services->set(#class#::class)
+        ->public()
+        ->args([
+            service('service_container'),
+        ]);
 EOF;
 
-        $vars = [
-            '#namespace#' => $this->getNamespace($definition),
-            '#class#' => $this->getClass($definition),
-        ];
-
-        return str_replace(array_keys($vars), array_values($vars), $template);
+        return str_replace('#class#', $this->getClass($definition), $template);
     }
 
     private function generate(EntityDefinition $definition): string

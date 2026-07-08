@@ -32,9 +32,10 @@ class CreateHydratorCommandTest extends TestCase
         $this->rootDir = sys_get_temp_dir() . '/' . uniqid('create-hydrator-command-test', true);
         $this->filesystem = new Filesystem();
 
-        // the command reads the definition source file to add getHydratorClass() when missing
-        $definitionFile = $this->rootDir . '/src/Tests/Unit/Core/Framework/DataAbstractionLayer/Command/HydratorCommandTestDefinition.php';
-        $this->filesystem->dumpFile($definitionFile, '<?php // contains getHydratorClass already');
+        // the command reads the definition source files to add getHydratorClass() when missing
+        $fixtureDir = $this->rootDir . '/src/Tests/Unit/Core/Framework/DataAbstractionLayer/Command';
+        $this->filesystem->dumpFile($fixtureDir . '/HydratorCommandTestDefinition.php', '<?php // contains getHydratorClass already');
+        $this->filesystem->dumpFile($fixtureDir . '/AaaHydratorCommandTestDefinition.php', '<?php // contains getHydratorClass already');
     }
 
     protected function tearDown(): void
@@ -45,7 +46,7 @@ class CreateHydratorCommandTest extends TestCase
     public function testExecuteGeneratesPhpServiceDefinitionFile(): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
-            [HydratorCommandTestDefinition::class],
+            [HydratorCommandTestDefinition::class, AaaHydratorCommandTestDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
         );
@@ -53,7 +54,7 @@ class CreateHydratorCommandTest extends TestCase
         $command = new CreateHydratorCommand($registry, $this->filesystem, $this->rootDir);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['whitelist' => ['hydrator_command_test']]);
+        $commandTester->execute(['whitelist' => ['hydrator_command_test', 'aaa_hydrator_command_test']]);
 
         $commandTester->assertCommandIsSuccessful();
 
@@ -65,6 +66,7 @@ class CreateHydratorCommandTest extends TestCase
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Command\AaaHydratorCommandTestHydrator;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Command\HydratorCommandTestHydrator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -78,11 +80,35 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('service_container'),
         ]);
+
+    $services->set(AaaHydratorCommandTestHydrator::class)
+        ->public()
+        ->args([
+            service('service_container'),
+        ]);
 };
 
 EOF;
 
         static::assertStringEqualsFile($this->rootDir . '/src/Core/Framework/DependencyInjection/hydrator.php', $expected);
+    }
+}
+
+/**
+ * @internal
+ */
+class AaaHydratorCommandTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'aaa_hydrator_command_test';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+        ]);
     }
 }
 

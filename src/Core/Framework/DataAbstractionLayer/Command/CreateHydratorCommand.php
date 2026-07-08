@@ -118,8 +118,11 @@ class CreateHydratorCommand extends Command
                 $classes[$this->getDefinitionFile($entity)] = $content;
             }
 
-            $services[] = $this->generateService($entity);
-            $uses[] = $this->getNamespace($entity) . '\\' . $this->getClass($entity);
+            // key by hydrator class: the registry can yield the same definition twice,
+            // and a duplicated use statement would be a PHP fatal error
+            $hydratorClass = $this->getNamespace($entity) . '\\' . $this->getClass($entity);
+            $services[$hydratorClass] = $this->generateService($entity);
+            $uses[$hydratorClass] = $hydratorClass;
         }
 
         $io->success('Created schema in ' . $this->dir);
@@ -154,7 +157,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
 EOF;
 
-            usort($uses, 'strcasecmp');
+            uksort($uses, 'strcasecmp');
             $useStatements = array_map(static fn (string $class): string => 'use ' . $class . ';', $uses);
 
             $content = str_replace(

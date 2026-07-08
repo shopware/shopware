@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core;
+namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(MigrationCollectionLoader::class)]
 class DateTimeTest extends TestCase
 {
     use KernelTestBehaviour;

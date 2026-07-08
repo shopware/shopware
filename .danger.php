@@ -389,7 +389,7 @@ return (new Config())
             }
 
             // DependencyInjection service-wiring files (PHP closures using ContainerConfigurator) need no unit tests.
-            if (str_contains($file->name, '/DependencyInjection/') && str_contains($content, 'ContainerConfigurator')) {
+            if ((str_contains($file->name, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#', $file->name) === 1) && str_contains($content, 'ContainerConfigurator')) {
                 continue;
             }
 
@@ -402,7 +402,7 @@ return (new Config())
             $fileName = basename($file->name);
 
             foreach ($excludedDirs as $excludedDir) {
-                if (str_starts_with($dir, $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
+                if (str_starts_with($dir . '/', $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
                     continue 2;
                 }
             }

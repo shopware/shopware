@@ -46,6 +46,18 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
 
         yield 'no annotation but logic present passes' => [['IgnoreStartEndOnlyClass.php'], []];
 
+        yield 'exception fork branching is not logic, class ignore passes' => [['ExceptionForkClass.php'], []];
+
+        yield 'exception with loop aggregation still fails' => [
+            ['ExceptionWithAggregationClass.php'],
+            [
+                [
+                    'Class ' . self::FQCN_PREFIX . 'ExceptionWithAggregationClass is annotated @codeCoverageIgnore but method aggregate() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                    18,
+                ],
+            ],
+        ];
+
         yield 'class with logic method fails' => [
             ['IfBranchClass.php'],
             [[
@@ -98,13 +110,7 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
 
         yield 'exception subclass without logic passes' => [['ExceptionWithoutLogicClass.php'], []];
 
-        yield 'exception subclass with logic is flagged like any other class' => [
-            ['ExceptionWithLogicClass.php'],
-            [[
-                'Class ' . self::FQCN_PREFIX . 'ExceptionWithLogicClass is annotated @codeCoverageIgnore but method describe() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-                10,
-            ]],
-        ];
+        yield 'exception subclass with plain conditionals passes (throwable exemption)' => [['ExceptionWithLogicClass.php'], []];
 
         yield '@see pointing to existing integration test exempts the class' => [
             ['SeeExistingIntegrationTestClass.php'],

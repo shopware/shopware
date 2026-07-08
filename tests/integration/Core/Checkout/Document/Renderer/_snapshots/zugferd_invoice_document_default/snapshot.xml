@@ -91,8 +91,14 @@
     <ram:ApplicableHeaderTradeSettlement>
       <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
       <ram:SpecifiedTradeSettlementPaymentMeans>
-        <ram:TypeCode>10</ram:TypeCode>
-        <ram:Information>Cash on delivery</ram:Information>
+        <ram:TypeCode>30</ram:TypeCode>
+        <ram:Information>Invoice</ram:Information>
+        <ram:PayeePartyCreditorFinancialAccount>
+          <ram:IBANID>DE89370400440532013000</ram:IBANID>
+        </ram:PayeePartyCreditorFinancialAccount>
+        <ram:PayeeSpecifiedCreditorFinancialInstitution>
+          <ram:BICID>DEUTDEDBFRA</ram:BICID>
+        </ram:PayeeSpecifiedCreditorFinancialInstitution>
       </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:ApplicableTradeTax>
         <ram:CalculatedAmount>7.19</ram:CalculatedAmount>

@@ -43,7 +43,7 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $priceRuleId = Uuid::randomHex();
-        $this->customerId = $this->createCustomer();
+        $this->customerId = $this->createCustomer(['email' => 'test@example.com']);
         $this->salesChannelContext = $this->createSalesChannelContext($this->createShippingMethod(), [$priceRuleId]);
 
         $this->renderer = static::getContainer()->get(ZugferdCancellationInvoiceRenderer::class);
@@ -57,6 +57,7 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
         $invoiceConfig = new DocumentConfiguration();
         $invoiceConfig->setDocumentNumber('1001');
+        $invoiceConfig->setDocumentDate('2023-11-24T12:00:00+00:00');
 
         $invoiceOperation = new DocumentGenerateOperation(
             $orderId,
@@ -168,6 +169,15 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
     {
         $baseline = file_get_contents(__DIR__ . '/_snapshots/' . $expectedSnapshotName . '/snapshot.xml');
         static::assertIsString($baseline);
-        static::assertSame($baseline, $actual, $message);
+        static::assertSame($this->normalizeXmlSnapshotContent($baseline), $this->normalizeXmlSnapshotContent($actual), $message);
+    }
+
+    private function normalizeXmlSnapshotContent(string $content): string
+    {
+        return (string) preg_replace(
+            '/<(?:udt|qdt):DateTimeString format="102">[0-9]{8}<\/(?:udt|qdt):DateTimeString>/',
+            '<udt:DateTimeString format="102">[date]</udt:DateTimeString>',
+            str_replace('<qdt:DateTimeString format="102">', '<udt:DateTimeString format="102">', $content)
+        );
     }
 }

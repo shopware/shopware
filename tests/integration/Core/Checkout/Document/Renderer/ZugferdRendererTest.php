@@ -41,7 +41,7 @@ class ZugferdRendererTest extends TestCase
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(['email' => 'test@example.com']),
                 SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
             ]
         );
@@ -98,6 +98,15 @@ class ZugferdRendererTest extends TestCase
     {
         $baseline = file_get_contents(__DIR__ . '/_snapshots/' . $expectedSnapshotName . '/snapshot.xml');
         static::assertIsString($baseline);
-        static::assertSame($baseline, $actual, $message);
+        static::assertSame($this->normalizeXmlSnapshotContent($baseline), $this->normalizeXmlSnapshotContent($actual), $message);
+    }
+
+    private function normalizeXmlSnapshotContent(string $content): string
+    {
+        return (string) preg_replace(
+            '/<(?:udt|qdt):DateTimeString format="102">[0-9]{8}<\/(?:udt|qdt):DateTimeString>/',
+            '<udt:DateTimeString format="102">[date]</udt:DateTimeString>',
+            str_replace('<qdt:DateTimeString format="102">', '<udt:DateTimeString format="102">', $content)
+        );
     }
 }

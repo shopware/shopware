@@ -2,6 +2,15 @@
 
 ## Core
 
+### ZUGFeRD correction documents derive shipping handling from document metadata
+
+For cancellation and other correction-style ZUGFeRD documents, delivery amounts are now serialized according to their business meaning:
+- refunded shipping is emitted as an allowance
+- charged return shipping is emitted as a charge
+- zero-value shipping is omitted from the XML entirely
+
+Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` instances manually should set document metadata via `withDocumentInformation()` before adding deliveries when they expect correction-specific shipping output. The delivery serialization now derives from the document type that was set there.
+
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.
@@ -198,6 +207,21 @@ When `displayAsGroup` is disabled, matching variants are returned and rendered i
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
+### Mail template simulation supports form data
+
+Mail template simulation now provides sample data for the `contactFormData`, `reviewFormData` and `revocationRequestFormData` variables, so simulating these form templates no longer fails.
+
+Extensions that add their own forms can supply sample data for their form variables too. Declare the variable as `Shopware\Core\Framework\Event\EventData\FormDataObjectType` (instead of a schemaless `ObjectType`) in the event's `getAvailableData()`, and provide the data via the new `Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent`:
+
+```php
+public function provideFormData(MailDataSimulatorFormDataEvent $event): void
+{
+    if ($event->flowEventName === 'my_custom_form.send' && $event->variableName === 'myCustomFormData') {
+        $event->setData(['field' => 'value']);
+    }
+}
+```
+
 ## Storefront
 
 ### robots.txt allows crawling product feed tracking URLs
@@ -295,6 +319,10 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
 ## Administration
+
+### Digital product upload validation uses backend private media metadata
+
+Administration upload validation for digital products now derives private upload MIME metadata from the effective backend private extension allowlist. Extensions added through `shopware.filesystem.private_allowed_extensions` or `MediaFileExtensionWhitelistEvent` are reflected in `/api/_info/config` and in the digital-product upload UI.
 
 ### Snippet inheritance from JSON language files
 

@@ -167,7 +167,6 @@ class Framework extends Bundle
 
         \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
-        /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
 
@@ -180,7 +179,6 @@ class Framework extends Bundle
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.compression_method');
         Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
 
-        /** @var StampedeProtectionConfigurator $stampedeProtectionConfigurator */
         $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);
         $stampedeProtectionConfigurator->apply();
     }

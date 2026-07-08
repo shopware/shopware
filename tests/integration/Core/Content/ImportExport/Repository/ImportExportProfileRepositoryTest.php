@@ -182,7 +182,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             $id = $expect['id'];
 
             /** @var ImportExportProfileEntity $importExportProfile */
-            $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+            $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
 
             if (!Feature::isActive('v6.8.0.0')) {
                 static::assertSame($expect['label'], $importExportProfile->getLabel());
@@ -205,7 +205,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
+        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context)->getEntities();
         static::assertCount(0, $result);
     }
 

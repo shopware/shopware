@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -55,14 +54,13 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
         $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
-        $invoiceConfig = new DocumentConfiguration();
-        $invoiceConfig->setDocumentNumber('1001');
-        $invoiceConfig->setDocumentDate('2023-11-24T12:00:00+00:00');
-
         $invoiceOperation = new DocumentGenerateOperation(
             $orderId,
             FileTypes::PDF,
-            $invoiceConfig->jsonSerialize()
+            [
+                'documentNumber' => '1001',
+                'documentDate' => '2023-11-24T12:00:00+00:00',
+            ]
         );
 
         $invoice = $this->documentGenerator->generate(

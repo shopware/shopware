@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 
@@ -45,6 +46,19 @@ class CacheResponseSubscriberTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), true);
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
+
+        $httpCacheableRoutes = [
+            'frontend.account.login.page',
+            'frontend.account.register.page',
+            'frontend.account.customer-group-registration.page',
+        ];
+        if (Feature::isActive('v6.8.0.0') && \in_array($routeName, $httpCacheableRoutes, true)) {
+            // These routes drop their _noStore attribute and opt into http caching with v6.8.0.0
+            // (see AuthController::loginPage and RegisterController), so no-store must be absent
+            static::assertFalse($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
+
+            return;
+        }
 
         // see noCache() in CacheResponseSubscriber, no-store is only enforced when CACHE_REWORK and v6.8.0.0 are active
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());

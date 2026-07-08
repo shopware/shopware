@@ -39,6 +39,25 @@ control that only stays reachable because the bug leaves a menu open. If your pa
 the symptom is present, the trunk leg times out and comes back `inconclusive`. Prefer stable routes
 (`page.goto` a URL) over multi-step navigation that the fix would change.
 
+## Assert a value on an element that renders — not the presence of the missing one
+
+Point the one healthy assertion at the **value or state of an element that renders on both the
+healthy and buggy versions** (a container that is present but empty, wrong, or hidden), rather than
+at the **presence** of the element the bug removes. A "not found" failure is ambiguous — it looks
+identical whether the bug removed the element or this version just renders that markup differently —
+so it scores `inconclusive`, never `reproduced`. A failed assertion on an element that *did* resolve
+is unambiguously the symptom, and gives a clean `reproduced` (buggy leg) vs `not_reproduced` (trunk).
+
+```ts
+// GOOD — the element renders on both versions; only its value/state differs on the buggy one.
+await expect(page.locator('.some-stable-container')).not.toBeEmpty();
+await expect(page.locator('.some-stable-container')).toHaveText('expected healthy value');
+
+// AVOID — asserting the presence of the element the bug hides/removes: the failure is "element not
+// found", which is indistinguishable from cross-version drift ⇒ inconclusive, not reproduced.
+await expect(page.locator('.element-the-bug-removes')).toBeVisible();
+```
+
 ## Viewport — declare it, don't resize mid-test
 
 For a mobile/responsive/off-canvas symptom, set the viewport in `reproduction-plan.json`:

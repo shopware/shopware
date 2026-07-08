@@ -35,7 +35,8 @@ The deterministic handoff. `repro validate` enforces the required parts; everyth
   pre-accepts consent). Set `false` only when the bug *is* the cookie/consent flow.
 - **record_video** — optional, playwright only. `true` records a `.webm` of each leg for the comment;
   use it for motion/interaction bugs a screenshot can't convey (animation, drag, toggle, a control
-  that won't respond). When you enable it, **narrate the spec** so the clip is followable. See [playwright.md](playwright.md).
+  that won't respond). When you enable it, **narrate the spec** so the clip is followable — see
+  [playwright-narration.md](playwright-narration.md).
 - **viewport** — optional, playwright only. Omit for desktop bugs. Set `{ "width", "height" }` for a
   mobile/responsive/off-canvas symptom: the harness applies it at context creation so both legs run —
   and the video records — at that size. Never resize with `page.setViewportSize()` in the spec.

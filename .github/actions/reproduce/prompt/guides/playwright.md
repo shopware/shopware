@@ -113,36 +113,10 @@ motion*: an animation or transition, a drag, a hover/toggle, scrolling, a loadin
 an interaction where "clicking X does nothing / does the wrong thing" (e.g. a menu that won't close).
 Each leg then records a `.webm` that the comment links. Leave it off otherwise.
 
-**When you set `record_video: true`, narrate the recording** — a silent motion clip is hard to follow,
-and the whole point of the video is that a human can watch the symptom happen. Use the two helpers from
-`./video-helpers.js` (the harness places this file next to your spec at run time — keep the import
-path exactly as written): `narrate(page, "what's happening")` (a subtitle) and `mark(page, locator, "label")`
-(highlights the element about to be used). Narrate each meaningful step — the navigation, the action
-that triggers the symptom, and the failing state. **Write each as its own single-line `await` statement,
-next to — never wrapping — the real action**, e.g.:
-
-```ts
-import { test, expect } from '@playwright/test';
-import { narrate, mark } from './video-helpers.js';   // stripped from the verdict run + the comment
-
-test('discount badge missing in slider', async ({ page }) => {
-  await narrate(page, 'Open the category with the product slider');
-  await page.goto('/navigation/<seeded-id>');
-  await mark(page, page.locator('.product-slider-item').first(), 'the discount badge should show on this card');
-  await expect(page.locator('.product-slider-item .badge-discount')).toBeVisible();
-});
-```
-
-**Give each caption a distinct job — don't just repeat the element's name.** The `narrate` subtitle
-and the `mark` label appear at different moments, so a marker that only re-states what the subtitle
-already named ("Dashboard nav link") is dead weight on screen. Put the *action* in `narrate` and the
-*expectation* in the marker — e.g. `narrate(page, 'Click the Dashboard nav link')` then
-`mark(page, link, 'on a healthy version the sidebar closes')`. If a step warrants only one caption,
-use one; never pad with a label that adds nothing a viewer can't already see.
-
-The verdict run and the code shown in the comment are this spec with the `narrate`/`mark` lines and
-the import **removed** — the actions and the single assertion are byte-identical. So narration only
-ever affects the video, never the result. Don't add extra assertions or locators just to narrate.
+When you enable it, **narrate the recording so a human can follow the motion.** Capturing the clip
+with the `narrate`/`mark` helpers — and the rules that keep captions worth showing — is its own short
+guide: **[playwright-narration.md](playwright-narration.md)**. Read it whenever you set
+`record_video: true`.
 
 Use `repro check` and `playwright-cli` to nail selectors and timing before committing the spec; a
 final `repro try` gives a non-authoritative preview and points you at the screenshot to review.

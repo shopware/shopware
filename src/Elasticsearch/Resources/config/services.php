@@ -774,7 +774,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityDefinitionQueryHelper::class),
             service(CustomFieldService::class),
             service(AbstractKeyValueStorage::class),
-            service('.inner'),
+            service(ProductCriteriaParser::class . '.inner'),
         ]);
 
     $services->set(ElasticsearchOptimizeSwitch::class)
@@ -787,7 +787,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(EntitySearcherInterface::class, null, 500)
         ->public()
         ->args([
-            service('.inner'),
+            service(AdminElasticsearchEntitySearcher::class . '.inner'),
             service(AdminSearchRegistry::class),
             service(AdminElasticsearchHelper::class),
             service(AdminSearcher::class),

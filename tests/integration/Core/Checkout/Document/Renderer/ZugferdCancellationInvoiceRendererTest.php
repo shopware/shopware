@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 
@@ -28,9 +27,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class ZugferdCancellationInvoiceRendererTest extends TestCase
 {
     use DocumentTrait;
-    use SnapshotTesting;
-
-    private const TYPE_XML = 'xml';
 
     private SalesChannelContext $salesChannelContext;
 
@@ -88,12 +84,7 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
         $content = $renderedDocument->getContent();
         static::assertIsString($content);
 
-        $this->assertSnapshot('zugferd_cancellation_invoice_document_default', [
-            [
-                'type' => self::TYPE_XML,
-                'actual' => $content,
-            ],
-        ]);
+        $this->assertXmlSnapshot('zugferd_cancellation_invoice_document_default', $content);
     }
 
     public function testDocumentOmitsDeliveryChargeForZeroShippingCosts(): void
@@ -171,5 +162,12 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
             'placeOfJurisdiction' => 'Musterstadt',
             'documentDate' => '2023-11-24T12:00:00+00:00',
         ];
+    }
+
+    private function assertXmlSnapshot(string $expectedSnapshotName, string $actual, string $message = ''): void
+    {
+        $baseline = file_get_contents(__DIR__ . '/_snapshots/' . $expectedSnapshotName . '/snapshot.xml');
+        static::assertIsString($baseline);
+        static::assertSame($baseline, $actual, $message);
     }
 }

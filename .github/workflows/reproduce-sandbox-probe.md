@@ -95,6 +95,33 @@ steps:
       DEMODATA: "false"
     run: bash .github/actions/reproduce/steps/finish-provision.sh
 
+  # Wall #3 fix: the storefront maps the request Host to a sales-channel domain; the install only
+  # registered the host-side URL, so a request with Host host.docker.internal:8000 gets a 400
+  # (SalesChannelMappingException). Register the sandbox URL as an ADDITIONAL storefront domain
+  # (clone an existing storefront domain's language/currency/snippet, swap the URL) — additive, so
+  # the host-side localhost domain keeps working. Then clear the cached domain→sales-channel map,
+  # because the raw SQL insert bypasses DAL's cache invalidation.
+  - name: Register sandbox host as a storefront sales-channel domain
+    env:
+      SANDBOX_URL: http://host.docker.internal:8000
+    run: |
+      set -euo pipefail
+      cd shop
+      eval "$(php -r '$u=parse_url(getenv("DATABASE_URL")); printf("DBH=%s DBP=%s DBU=%s DBPW=%s DBN=%s", $u["host"]??"127.0.0.1", $u["port"]??3306, rawurldecode($u["user"]??"root"), rawurldecode($u["pass"]??""), ltrim($u["path"]??"/","/"));')"
+      my() { mysql -h"$DBH" -P"$DBP" -u"$DBU" ${DBPW:+-p"$DBPW"} "$DBN" "$@"; }
+      # SALES_CHANNEL_TYPE_STOREFRONT = 8a243080f92e4c719546314b577cf82b
+      my <<SQL
+      INSERT INTO sales_channel_domain (id, sales_channel_id, language_id, currency_id, snippet_set_id, url, created_at)
+      SELECT UNHEX(REPLACE(UUID(),'-','')), d.sales_channel_id, d.language_id, d.currency_id, d.snippet_set_id, '${SANDBOX_URL}', NOW(3)
+      FROM sales_channel_domain d
+      JOIN sales_channel sc ON sc.id = d.sales_channel_id
+      WHERE sc.type_id = UNHEX('8a243080f92e4c719546314b577cf82b')
+        AND NOT EXISTS (SELECT 1 FROM sales_channel_domain e WHERE e.url = '${SANDBOX_URL}')
+      LIMIT 1;
+      SQL
+      echo "sales-channel domains now:"; my -N -e "SELECT url FROM sales_channel_domain;"
+      APP_ENV=prod php bin/console cache:pool:clear --all || APP_ENV=prod php bin/console cache:clear || true
+
   # NOTE: we deliberately do NOT forward the shop onto an "allowed" host port here. Of awf's default
   # allow-host-ports (80,443,8080), 8080 is claimed by gh-aw's own MCP Gateway (binding it collides
   # and kills the agent step), and 80/443 need privilege/TLS. So there is no free allowed port for

@@ -68,6 +68,9 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {

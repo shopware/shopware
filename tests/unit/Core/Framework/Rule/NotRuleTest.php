@@ -28,7 +28,7 @@ class NotRuleTest extends TestCase
             $this->expectException(RuleException::class);
         }
         $rule = new NotRule();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $rule->match(new CheckoutRuleScope($salesChannelContext));
     }
 

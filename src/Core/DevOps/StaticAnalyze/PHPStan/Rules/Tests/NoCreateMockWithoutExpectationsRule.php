@@ -43,22 +43,15 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in others, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
 
     /**
-     * The rule is rolled out domain by domain for early adoption
+     * The domain-by-domain rollout is complete: every unit test suite is covered.
      *
      * @var list<string>
      */
     private const ENABLED_NAMESPACES = [
-        'Shopware\\Tests\\Unit\\Core\\DevOps\\',
-        'Shopware\\Tests\\Unit\\Core\\Profiling\\',
+        'Shopware\\Tests\\Unit\\Core\\',
         'Shopware\\Tests\\Unit\\Administration\\',
         'Shopware\\Tests\\Unit\\Storefront\\',
-        'Shopware\\Tests\\Unit\\Core\\Service\\',
-        'Shopware\\Tests\\Unit\\Core\\Installer\\',
-        'Shopware\\Tests\\Unit\\Core\\Maintenance\\',
-        'Shopware\\Tests\\Unit\\Core\\SsoUser\\',
-        'Shopware\\Tests\\Unit\\Core\\Saas\\',
-        'Shopware\\Tests\\Unit\\Core\\Test\\',
-        'Shopware\\Tests\\Unit\\Core\\System\\',
+        'Shopware\\Tests\\Unit\\Elasticsearch\\',
     ];
 
     public function getNodeType(): string

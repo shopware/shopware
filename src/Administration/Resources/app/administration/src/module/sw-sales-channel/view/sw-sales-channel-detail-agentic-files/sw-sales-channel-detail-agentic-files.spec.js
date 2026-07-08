@@ -280,7 +280,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         await flushPromises();
 
         const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
-        expect(contextMenuItems.at(0).text()).toBe('sw-sales-channel.detail.agenticFiles.actionEdit');
+        expect(contextMenuItems.at(0).text()).toBe('global.default.edit');
 
         expect(wrapper.findAllComponents(RouterLinkStub).at(1).props('to')).toEqual({
             name: 'sw.sales.channel.detail.agenticFile',

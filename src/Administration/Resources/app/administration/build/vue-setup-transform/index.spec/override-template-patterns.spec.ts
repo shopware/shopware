@@ -2,6 +2,18 @@
  * @sw-package framework
  */
 
+/**
+ * Covers how override-local state forwarding interacts with template *destructuring patterns* -
+ * slot-scope and v-for aliases that use default values, computed keys, rest elements, or aliases that
+ * shadow setup bindings. These are the edge cases where the transform must still detect a genuine
+ * setup reference, must not mistake a pattern-local alias for one, and must edit the `#default`
+ * destructure without producing invalid syntax.
+ *
+ * The end-to-end override lowering - script-to-hidden-component, the swDefineOverride return payload,
+ * and the plain (non-pattern) reference-detection and slot-injection cases - lives in
+ * override-transform.spec.ts.
+ */
+
 import { parseExpression } from '@babel/parser';
 import { getPrivateNamespace, stripIndent, transformOrFail } from './helpers';
 

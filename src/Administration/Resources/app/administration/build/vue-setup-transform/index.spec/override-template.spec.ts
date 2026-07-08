@@ -5,7 +5,8 @@
 /**
  * Covers template-driven override-local state forwarding: which setup references the transform detects
  * in an override template, and how it injects or merges that state into the `<sw-block extends>`
- * default slot scope - including top-level shadowing and the reserved `__swOverride` guard.
+ * default slot scope - including runtime input aliases, top-level shadowing, and the rejected
+ * slot-scope bindings.
  *
  * The pure script/return lowering lives in override-transform.spec.ts; the destructuring-pattern edge
  * cases (defaults, computed keys, rest, pattern-local aliases) in override-template-patterns.spec.ts.
@@ -14,27 +15,6 @@
 import { getPrivateNamespace, stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override template forwarding', () => {
-    it('adds private namespaces to a default slot without an existing expression', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body" #default>
-                <small>{{ info }}</small>
-            </sw-block>
-            </template>
-            <script setup>
-            const info = 2;
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'empty-slot.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
-
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } } }"`);
-    });
-
     it('returns template-used override-local state through a deterministic private namespace', () => {
         const source = stripIndent`
             <template>
@@ -64,10 +44,36 @@ describe('build/vue-setup-transform override template forwarding', () => {
         expect(result).toContain(
             `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { ${privateNamespace}: { info } }, body }">`,
         );
-        expect(result).toContain(
-            `return {\n                body,\n                __swOverride: {\n                    ${privateNamespace}: {\n                        info,\n                    },\n                },\n            };`,
-        );
+        expect(result).toContain(`return {
+                body,
+                __swOverride: {
+                    ${privateNamespace}: {
+                        info,
+                    },
+                },
+            };`);
         expect(result).not.toContain('unused,');
+    });
+
+    it('adds private namespaces to a default slot without an existing expression', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default>
+                <small>{{ info }}</small>
+            </sw-block>
+            </template>
+            <script setup>
+            const info = 2;
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'empty-slot.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
+
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } } }"`);
     });
 
     it('does not add generated data scope to override sw-block extensions', () => {
@@ -117,27 +123,6 @@ describe('build/vue-setup-transform override template forwarding', () => {
         expect(result).toContain(`#default="{ body, __swOverride: { ${privateNamespace}: { info } } }"`);
     });
 
-    it('merges private namespaces into existing identifier default slot scopes', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body" #default="previousState">
-                <small>{{ info }}</small>
-            </sw-block>
-            </template>
-            <script setup>
-            const info = 2;
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'identifier-slot.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
-
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } }, ...previousState }"`);
-    });
-
     it('detects override-local template references in Vue expression positions', () => {
         const source = stripIndent`
             <template>
@@ -167,22 +152,13 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'template-references.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
 
-        [
-            'visible',
-            'info',
-            'eventName',
-            'track',
-            'dynamicProp',
-            'infoLabel',
-            'items',
-        ].forEach((name) => {
-            const privateNamespace = getPrivateNamespace(result);
-
-            expect(privateNamespace).toBeDefined();
-            expect(result).toContain(`${name},`);
-        });
-
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(
+            `#default="{ __swOverride: { ${privateNamespace}: { visible, info, eventName, track, dynamicProp, infoLabel, items } } }"`,
+        );
+        // The v-for alias `item` is a template-local binding, not a setup reference.
         expect(result).not.toMatch(/\bitem,/);
     });
 
@@ -206,17 +182,33 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'typescript-template-references.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
 
-        [
-            'maybeInfo',
-            'source',
-            'dynamicKey',
-        ].forEach((name) => {
-            const privateNamespace = getPrivateNamespace(result);
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { maybeInfo, source, dynamicKey } } }"`);
+    });
 
-            expect(privateNamespace).toBeDefined();
-            expect(result).toContain(`${name},`);
-        });
+    it('forwards override input-alias references used in the template', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <p>{{ previousState.body }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const previousState = useSwPreviousState();
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'input-alias-reference.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
+
+        // useSwPreviousState()/useSwProps()/useSwContext() are not returned as independent state, but an
+        // override template may still read them, so a referenced alias is forwarded like any setup local.
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { previousState } } }"`);
     });
 
     it('ignores template identifiers that are not override-local setup references', () => {
@@ -230,14 +222,12 @@ describe('build/vue-setup-transform override template forwarding', () => {
             >
                 plain info text
                 <p>{{ providedInfo }}</p>
-                <p>{{ previousState.body }}</p>
                 <p>{{ [1].map((info) => info).join(',') }}</p>
                 <p>{{ ({ info: localInfo }) => localInfo }}</p>
                 <p>{{ ({ info: 'static key only' }) }}</p>
             </sw-block>
             </template>
             <script setup>
-            const previousState = useSwPreviousState();
             const info = 'local';
             const track = () => {};
 
@@ -280,26 +270,12 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'template-shadowing-patterns.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
 
-        [
-            'rows',
-            'items',
-        ].forEach((name) => {
-            const privateNamespace = getPrivateNamespace(result);
-
-            expect(privateNamespace).toBeDefined();
-            expect(result).toContain(`${name},`);
-        });
-
-        [
-            'info',
-            'localInfo',
-            'firstItem',
-            'localLabel',
-            'index',
-        ].forEach((name) => {
-            expect(result).not.toContain(`                            ${name},`);
-        });
+        // Only `rows` and `items` are genuine setup references; every other name is shadowed by a
+        // v-for alias, slot scope, or nested callback parameter and must not be forwarded.
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { rows, items } } }"`);
     });
 
     it('does not expose override-local state when an existing default slot scope shadows it', () => {
@@ -324,6 +300,25 @@ describe('build/vue-setup-transform override template forwarding', () => {
         expect(result).toContain('#default="{ info }"');
         expect(result).not.toContain('__swOverride');
         expect(result).toContain('return {};');
+    });
+
+    it('rejects a bare identifier default slot scope', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default="slotProps">
+                <small>{{ info }}</small>
+            </sw-block>
+            </template>
+            <script setup>
+            const info = 2;
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'identifier-slot.override.vue')).toThrow(
+            'A bare identifier default slot scope (for example #default="slotProps") is not supported',
+        );
     });
 
     it.each([

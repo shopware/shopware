@@ -604,35 +604,45 @@ function assertNoReservedOverrideSlotScope(slotDirective: DirectiveNode | undefi
 }
 
 /**
- * Rejects a rest element in an extended default slot scope.
+ * Rejects catch-all default slot scopes on an extended block: a bare identifier (`slotProps`) or a rest
+ * element (`{ ...rest }`).
  *
  * The override transform injects override state as named bindings into this slot scope. Because the
- * injection is invisible to the author, a rest element would silently stop capturing any binding that
- * happens to be referenced elsewhere in the template. Requiring explicit named bindings keeps what the
- * author reads out of the slot scope predictable.
+ * injection is invisible to the author, a catch-all binding would silently stop capturing whatever the
+ * transform pulls out - and what it pulls out depends on which bindings the template happens to
+ * reference elsewhere. Requiring explicit named bindings keeps what the author reads out predictable.
  */
-function assertNoRestSlotScope(slotDirective: DirectiveNode | undefined): void {
+function assertNoCatchAllSlotScope(slotDirective: DirectiveNode | undefined): void {
     if (!slotDirective?.exp?.content) {
         return;
     }
 
+    let pattern;
     try {
-        const { pattern } = parseBindingPattern(slotDirective.exp.content);
-
-        if (pattern.type !== 'ObjectPattern' || !pattern.properties.some((property) => property.type === 'RestElement')) {
-            return;
-        }
+        pattern = parseBindingPattern(slotDirective.exp.content).pattern;
     } catch {
         // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
         return;
     }
 
-    throw new ShopwareSetupTransformError(
-        'A rest element (...) is not supported in a <sw-block extends="..."> default slot scope. The override ' +
-            'transform injects override state into this slot scope, so a rest binding would silently exclude the ' +
-            'injected bindings. Destructure the slot props you need by name instead.',
-        0,
-    );
+    if (pattern.type === 'Identifier') {
+        throw new ShopwareSetupTransformError(
+            'A bare identifier default slot scope (for example #default="slotProps") is not supported in a ' +
+                '<sw-block extends="..."> block. The override transform injects override state into this slot scope, ' +
+                'so binding the whole scope to one name would silently change what it contains. Destructure the slot ' +
+                'props you need by name instead.',
+            0,
+        );
+    }
+
+    if (pattern.type === 'ObjectPattern' && pattern.properties.some((property) => property.type === 'RestElement')) {
+        throw new ShopwareSetupTransformError(
+            'A rest element (...) is not supported in a <sw-block extends="..."> default slot scope. The override ' +
+                'transform injects override state into this slot scope, so a rest binding would silently exclude the ' +
+                'injected bindings. Destructure the slot props you need by name instead.',
+            0,
+        );
+    }
 }
 
 /**
@@ -959,7 +969,7 @@ function mergeObjectSlotExpression(expression: string, mappings: SlotMapping[]):
 
     if (pattern.type !== 'ObjectPattern') {
         throw new ShopwareSetupTransformError(
-            'Shopware setup can only merge generated slot props into object or identifier default slot scopes.',
+            'Shopware setup can only merge generated slot props into an object default slot scope.',
             0,
         );
     }
@@ -1017,16 +1027,13 @@ function mergeSlotExpression(slotDirective: DirectiveNode | undefined, mappings:
     const expression = slotDirective.exp.content.trim();
     const { pattern } = parseBindingPattern(expression);
 
-    if (pattern.type === 'Identifier') {
-        return `{ ${sources.join(', ')}, ...${expression} }`;
-    }
-
     if (pattern.type === 'ObjectPattern') {
         return mergeObjectSlotExpression(expression, mappings);
     }
 
+    // Bare-identifier and rest slot scopes are rejected earlier by assertNoCatchAllSlotScope.
     throw new ShopwareSetupTransformError(
-        'Shopware setup can only merge generated slot props into object or identifier default slot scopes.',
+        'Shopware setup can only merge generated slot props into an object default slot scope.',
         0,
     );
 }
@@ -1095,7 +1102,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
         if (isSwBlockExtends(node)) {
             const slotDirective = getDefaultSlotDirective(node);
             assertNoReservedOverrideSlotScope(slotDirective);
-            assertNoRestSlotScope(slotDirective);
+            assertNoCatchAllSlotScope(slotDirective);
 
             const slotScope = collectSlotScopeNames(slotDirective);
             const references = collectTemplateReferences(node.children, slotScope);
@@ -1121,6 +1128,18 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
 
                 privateBindings.add(binding.name);
                 privateLocalNames.push(binding.name);
+            });
+
+            // Runtime input aliases (useSwPreviousState/useSwProps/useSwContext) are never public
+            // override bindings, but the override template can still reference them, so forward them
+            // through the private namespace like any other referenced setup local.
+            analysis.runtimeInputAliasNames.forEach((name) => {
+                if (!references.has(name) || privateBindings.has(name)) {
+                    return;
+                }
+
+                privateBindings.add(name);
+                privateLocalNames.push(name);
             });
 
             const mappings = [

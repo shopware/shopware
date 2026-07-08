@@ -67,6 +67,7 @@ type ShopwareSetupScriptAnalysis = {
     setupInputReplacements: SetupInputReplacement[];
     runtimeBindings: RuntimeBinding[];
     runtimeBindingNames: Set<string>;
+    runtimeInputAliasNames: Set<string>;
     importedBindings: Set<string>;
     publicEntries: string[];
     overrideEntries: string[];
@@ -377,6 +378,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const importedBindings = new Set<string>();
     const runtimeBindings: RuntimeBinding[] = [];
     const runtimeBindingNames = new Set<string>();
+    const runtimeInputAliasNames = new Set<string>();
     const publicMarkerStatements: StatementMacroCall[] = [];
     const overrideMarkerStatements: StatementMacroCall[] = [];
     const definePropsCalls: CallExpression[] = [];
@@ -441,7 +443,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
             return;
         }
 
-        collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
+        collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, runtimeInputAliasNames, scriptOffset, mode);
     });
 
     assertNoUnsupportedSyntax(
@@ -543,6 +545,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         setupInputReplacements,
         runtimeBindings,
         runtimeBindingNames,
+        runtimeInputAliasNames,
         importedBindings,
         publicEntries,
         overrideEntries,

@@ -209,11 +209,16 @@ function isExposableSetupMacroDeclaration(declaration: VariableDeclarator): bool
 
 /**
  * Classifies top-level declarations that become private/base or override state.
+ *
+ * Runtime input aliases (`useSwPreviousState()`, `useSwProps()`, `useSwContext()`) are not returned as
+ * independent setup state, but their names are recorded so template analysis can still forward them to
+ * an override slot scope when the override template references them.
  */
 function collectRuntimeBinding(
     statement: Statement,
     runtimeBindings: RuntimeBinding[],
     runtimeBindingNames: Set<string>,
+    runtimeInputAliasNames: Set<string>,
     scriptOffset: number,
     mode: ShopwareSetupMode,
 ): void {
@@ -245,6 +250,10 @@ function collectRuntimeBinding(
             }
 
             if (isRuntimeInputAlias(declaration, mode)) {
+                if (declaration.id.type === 'Identifier') {
+                    runtimeInputAliasNames.add(declaration.id.name);
+                }
+
                 return;
             }
 

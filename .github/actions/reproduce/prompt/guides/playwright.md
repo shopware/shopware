@@ -39,31 +39,33 @@ control that only stays reachable because the bug leaves a menu open. If your pa
 the symptom is present, the trunk leg times out and comes back `inconclusive`. Prefer stable routes
 (`page.goto` a URL) over multi-step navigation that the fix would change.
 
-## Split it: precondition = the container renders; assertion = the expected text is in it
+## Split it: precondition = the surface renders; assertion = the property the bug changes
 
-Structure a rendered-content symptom as two steps:
+Two steps for a rendered symptom:
 
-1. **Precondition — the container is available.** Wait for the element that *should hold* the content
-   and throw `PRECONDITION_NOT_FOUND` if it never appears. If that container can't render, the shop
-   was never set up to the state that shows the symptom, so the leg is `inconclusive` (precondition
-   failed) — not a fake pass/fail.
-2. **Healthy assertion — the expected text is present in that container.** Assert that the healthy
-   text appears *somewhere inside the element* (`toContainText`). Pick text that is **unique** to the
-   symptom, so a match elsewhere on the page can't make a broken repro look healthy.
+1. **Precondition — the stable surface renders.** Wait for the part of the page that is present
+   *regardless of the bug* (the scaffold the symptom lives in) and throw `PRECONDITION_NOT_FOUND` if
+   it never appears. If it can't render, the shop was never set up to the state that shows the
+   symptom, so the leg is `inconclusive` (precondition failed) — not a fake pass/fail.
+2. **Healthy assertion — check the specific thing the bug changes**, on an element that *resolves in
+   both the healthy and buggy versions*. Assert a value or state, not the mere existence of a node:
+   text (`toContainText` — pick text **unique** to the symptom so an unrelated match can't fake a
+   pass), an attribute (`toHaveAttribute`), a class/state (`toHaveClass`, `toBeEnabled`), a count
+   (`toHaveCount`), a rendered value, and so on.
 
-This works because the container renders on **both** the healthy and buggy versions — only its
-*content* differs — so the assertion resolves the element and judges its text: a clean `reproduced`
-(text missing on the buggy leg) vs `not_reproduced` (text present on trunk). Asserting the mere
-**presence** of the element the bug removes instead (`toBeVisible` on a node that isn't there) fails
-as "element not found", which is indistinguishable from cross-version UI drift ⇒ `inconclusive`.
+Why: an element that *did* resolve lets the assertion judge its property → a clean `reproduced` on
+the buggy leg vs `not_reproduced` on trunk. Asserting the mere **presence** of the element the bug
+removes (`toBeVisible` on a node that isn't there) fails as "element not found", which is
+indistinguishable from cross-version UI drift ⇒ `inconclusive`. (The exception is a bug whose symptom
+*is* an element wrongly appearing — then its presence/absence is the property, and you assert that.)
 
 ```ts
-// Precondition: the container that should hold the content must render.
-await page.locator('.some-stable-container').waitFor({ state: 'visible', timeout: 15000 })
-  .catch(() => { throw new Error('PRECONDITION_NOT_FOUND: content container did not render'); });
+// Precondition: the surface the symptom lives in must render.
+await page.locator('.stable-scaffold').waitFor({ state: 'visible', timeout: 15000 })
+  .catch(() => { throw new Error('PRECONDITION_NOT_FOUND: <what did not render>'); });
 
-// Healthy assertion: the unique expected text must be inside it.
-await expect(page.locator('.some-stable-container')).toContainText('Unique Expected Value');
+// Healthy assertion: check the property the bug changes — here, text unique to the symptom.
+await expect(page.locator('.element-that-renders')).toContainText('Unique Expected Value');
 ```
 
 ## Viewport — declare it, don't resize mid-test

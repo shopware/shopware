@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -25,19 +24,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(VideoCoverLoadedSubscriber::class)]
 class VideoCoverLoadedSubscriberTest extends TestCase
 {
-    /**
-     * @var EntityRepository<MediaCollection>&MockObject
-     */
-    private EntityRepository $mediaRepository;
-
-    private VideoCoverLoadedSubscriber $subscriber;
-
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->subscriber = new VideoCoverLoadedSubscriber($this->mediaRepository);
         $this->context = Context::createDefaultContext();
     }
 
@@ -63,7 +53,8 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             $this->context
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->with(
@@ -76,8 +67,9 @@ class VideoCoverLoadedSubscriberTest extends TestCase
                 static::identicalTo($this->context)
             )
             ->willReturn($this->createSearchResult($cover));
+        $subscriber = new VideoCoverLoadedSubscriber($mediaRepository);
 
-        $this->subscriber->addVideoCoverExtension($event);
+        $subscriber->addVideoCoverExtension($event);
 
         static::assertTrue($video->hasExtension('videoCoverMedia'));
         static::assertSame($cover, $video->getExtension('videoCoverMedia'));
@@ -94,11 +86,13 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             $this->context
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->never())
             ->method('search');
+        $subscriber = new VideoCoverLoadedSubscriber($mediaRepository);
 
-        $this->subscriber->addVideoCoverExtension($event);
+        $subscriber->addVideoCoverExtension($event);
 
         static::assertFalse($video->hasExtension('videoCoverMedia'));
     }
@@ -119,12 +113,14 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             $this->context
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn($this->createSearchResult($cover));
+        $subscriber = new VideoCoverLoadedSubscriber($mediaRepository);
 
-        $this->subscriber->addVideoCoverExtension($event);
+        $subscriber->addVideoCoverExtension($event);
 
         static::assertTrue($video1->hasExtension('videoCoverMedia'));
         static::assertTrue($video2->hasExtension('videoCoverMedia'));
@@ -150,7 +146,8 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             $this->context
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->with(
@@ -165,8 +162,9 @@ class VideoCoverLoadedSubscriberTest extends TestCase
                 static::identicalTo($this->context)
             )
             ->willReturn($this->createSearchResult($cover1, $cover2));
+        $subscriber = new VideoCoverLoadedSubscriber($mediaRepository);
 
-        $this->subscriber->addVideoCoverExtension($event);
+        $subscriber->addVideoCoverExtension($event);
 
         static::assertTrue($video1->hasExtension('videoCoverMedia'));
         static::assertTrue($video2->hasExtension('videoCoverMedia'));
@@ -187,12 +185,14 @@ class VideoCoverLoadedSubscriberTest extends TestCase
             $this->context
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn($this->createSearchResult());
+        $subscriber = new VideoCoverLoadedSubscriber($mediaRepository);
 
-        $this->subscriber->addVideoCoverExtension($event);
+        $subscriber->addVideoCoverExtension($event);
 
         static::assertFalse($video->hasExtension('videoCoverMedia'));
     }

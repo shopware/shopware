@@ -610,12 +610,12 @@ class OrderConverterTest extends TestCase
 
         $converter = new OrderConverter(
             $customerRepository,
-            $this->createMock(SalesChannelContextFactory::class),
+            static::createStub(SalesChannelContextFactory::class),
             $dispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $addressRepository,
-            $this->createMock(InitialStateIdLoader::class),
-            $this->createMock(LineItemDownloadLoader::class),
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(LineItemDownloadLoader::class),
             $ruleRepository,
         );
 
@@ -852,17 +852,17 @@ class OrderConverterTest extends TestCase
     {
         // Setup classes for OrderConverter
         // Static
-        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
-        $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $initialStateIdLoader = static::createStub(InitialStateIdLoader::class);
+        $numberRangeValueGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator->method('getValue')->willReturn('10000');
 
         // Dynamic
-        $salesChannelContextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         if ($salesChannelContextFactoryCreateCallable !== null) {
             $salesChannelContextFactory->method('create')->willReturnCallback($salesChannelContextFactoryCreateCallable);
         }
 
-        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository = static::createStub(EntityRepository::class);
         if ($customerRepositoryResultArray !== null) {
             $customerRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -876,7 +876,7 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $orderAddressRepository = $this->createMock(EntityRepository::class);
+        $orderAddressRepository = static::createStub(EntityRepository::class);
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -900,7 +900,7 @@ class OrderConverterTest extends TestCase
         $productDownload->setId(Uuid::randomHex());
         $productDownload->setMediaId(Uuid::randomHex());
         $productDownload->setPosition(0);
-        $productDownloadRepository = $this->createMock(EntityRepository::class);
+        $productDownloadRepository = static::createStub(EntityRepository::class);
         $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {

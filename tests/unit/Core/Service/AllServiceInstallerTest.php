@@ -28,7 +28,7 @@ class AllServiceInstallerTest extends TestCase
     {
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
@@ -72,7 +72,7 @@ class AllServiceInstallerTest extends TestCase
 
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
@@ -114,7 +114,7 @@ class AllServiceInstallerTest extends TestCase
 
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
@@ -142,10 +142,10 @@ class AllServiceInstallerTest extends TestCase
 
     public function testScheduleInstallDispatchesMessage(): void
     {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $serviceRegistryClient = static::createStub(ServiceRegistryClient::class);
+        $serviceLifeCycle = static::createStub(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
@@ -170,8 +170,8 @@ class AllServiceInstallerTest extends TestCase
     {
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
@@ -197,8 +197,8 @@ class AllServiceInstallerTest extends TestCase
     {
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
@@ -235,8 +235,8 @@ class AllServiceInstallerTest extends TestCase
     {
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,

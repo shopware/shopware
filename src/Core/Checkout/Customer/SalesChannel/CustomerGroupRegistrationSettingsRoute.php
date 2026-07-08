@@ -48,7 +48,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
             throw CustomerException::customerGroupRegistrationConfigurationNotFound($customerGroupId);
         }
 
-        $customerGroup = $result->first();
+        $customerGroup = $result->getEntities()->first();
         \assert($customerGroup !== null);
 
         return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);

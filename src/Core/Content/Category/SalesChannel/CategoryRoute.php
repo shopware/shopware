@@ -106,7 +106,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $resolverContext,
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw CategoryException::pageNotFound($pageId);
         }
@@ -144,7 +144,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

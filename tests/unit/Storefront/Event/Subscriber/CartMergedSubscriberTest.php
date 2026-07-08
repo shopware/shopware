@@ -96,7 +96,7 @@ class CartMergedSubscriberTest extends TestCase
 
     public function testMergedSubscriberDoNothingWithIncompatibleSession(): void
     {
-        $session = $this->createMock(SessionInterface::class);
+        $session = static::createStub(SessionInterface::class);
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();

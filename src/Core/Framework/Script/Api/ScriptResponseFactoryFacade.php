@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -23,7 +24,14 @@ class ScriptResponseFactoryFacade
      */
     public function __construct(
         private readonly RouterInterface $router,
-        protected readonly ?SalesChannelContext $salesChannelContext,
+        /**
+         * @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+         *
+         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be removed with v6.8.0 when render() is removed from this class)
+         */
+        private readonly ?ScriptController $scriptController = null,
+        // @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+        protected readonly ?SalesChannelContext $salesChannelContext = null,
     ) {
     }
 
@@ -75,7 +83,7 @@ class ScriptResponseFactoryFacade
      * Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)
      * or if the Storefront-bundle is not installed.
      *
-     * @deprecated tag:v6.8.0 - Rendering Storefront templates is moving to the Storefront bundle. The `render()` method will only be available on the `response` service in Storefront script hooks; guard usage in app scripts with `{% if response.render is defined %}`.
+     * @deprecated tag:v6.8.0 - Rendering Storefront templates through the core response service is deprecated. Type the response service as `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` in Storefront script hooks and use this core facade without `render()` in admin-api/store-api hooks.
      *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
      * @param array<string, mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
@@ -91,8 +99,16 @@ class ScriptResponseFactoryFacade
             'Rendering Storefront templates via the script `response` service is only supported in Storefront script hooks. The `render()` method will be removed from the core `response` service.'
         );
 
-        // Only the Storefront script hook wires the render-capable subclass; reaching this base implementation
-        // means rendering is not supported in the current script context (e.g. admin-api / store-api).
-        throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
+        if ($this->scriptController === null) {
+            throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
+        }
+
+        if ($this->salesChannelContext === null) {
+            throw ScriptException::hookMethodOutsideOfSalesChannelContext(__METHOD__);
+        }
+
+        $inner = $this->scriptController->renderStorefrontForScript($view, $parameters);
+
+        return new ScriptResponse($inner, $inner->getStatusCode());
     }
 }

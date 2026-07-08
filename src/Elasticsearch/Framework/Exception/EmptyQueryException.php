@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class EmptyQueryException extends ElasticsearchException
 {

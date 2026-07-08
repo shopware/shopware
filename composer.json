@@ -274,8 +274,12 @@
         "eslint:storefront:fix": "Codestyle checks all Storefront JS/TS files and fixes them if possible",
         "eslint:storefront:admin-modules": "Codestyle checks the Storefront's admin-modules JS files",
         "eslint:storefront:admin-modules:fix": "Codestyle checks the Storefront's admin-modules JS files and fixes them if possible",
-        "format:admin": "Dry run Prettier for the Administration",
-        "format:admin:fix": "Format the Administration with Prettier",
+        "eslint:acceptance": "Codestyle checks the acceptance test suite TS files",
+        "eslint:acceptance:fix": "Codestyle checks the acceptance test suite TS files and fixes them if possible",
+        "format:acceptance": "Dry run Prettier for the acceptance test suite",
+        "format:acceptance:fix": "Format the acceptance test suite with Prettier",
+        "format:admin": "Dry run Prettier for all Administration workspaces",
+        "format:admin:fix": "Format all Administration workspaces with Prettier",
         "framework:schema:dump": " ",
         "hook:pre-commit": " ",
         "hook:pre-commit:install": " ",
@@ -289,6 +293,8 @@
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
         "make:coverage": "Generate test coverage files for current branch",
+        "npm:acceptance": " ",
+        "npm:acceptance:bin": " ",
         "npm:admin": " ",
         "npm:admin:bin": " ",
         "npm:admin:check-license": "Check thrid-party dependency licenses for administration",
@@ -398,7 +404,8 @@
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront",
-            "@eslint:storefront:admin-modules"
+            "@eslint:storefront:admin-modules",
+            "@eslint:acceptance"
         ],
         "eslint:admin": "@npm:admin run lint:all",
         "eslint:admin:fix": "@npm:admin run lint:fix",
@@ -406,8 +413,18 @@
         "eslint:storefront:fix": "@npm:storefront run lint:js:fix",
         "eslint:storefront:admin-modules": "@npm:storefront:admin-modules run lint",
         "eslint:storefront:admin-modules:fix": "@npm:storefront:admin-modules run lint:fix",
-        "format:admin": "@npm:admin run format",
-        "format:admin:fix": "@npm:admin run format:fix",
+        "eslint:acceptance": "@npm:acceptance run lint",
+        "eslint:acceptance:fix": "@npm:acceptance run lint:fix",
+        "format:acceptance": "@npm:acceptance run format",
+        "format:acceptance:fix": "@npm:acceptance run format:fix",
+        "format:admin": [
+            "@npm:admin run format",
+            "@npm:storefront:admin-modules run format"
+        ],
+        "format:admin:fix": [
+            "@npm:admin run format:fix",
+            "@npm:storefront:admin-modules run format:fix"
+        ],
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "hook:pre-commit": [
             "bin/pre-commit"
@@ -427,6 +444,7 @@
         "init:js": [
             "@npm:admin clean-install --no-audit --prefer-offline",
             "@npm:storefront clean-install --no-audit --prefer-offline",
+            "@npm:acceptance clean-install --no-audit --prefer-offline",
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
@@ -436,7 +454,7 @@
         "lint": [
             "@stylelint",
             "@eslint",
-            "@ecs",
+            "@cs",
             "@php bin/shopware translation:validate"
         ],
         "lint:snippets": "@php bin/shopware translation:validate",
@@ -445,6 +463,8 @@
         "make:coverage": [
             "@php bin/console make:coverage $(git diff --name-only origin/trunk -- \"*.php\" | grep -vE 'Test\\.php$' | sed 's/.*/\"&\"/' | tr '\\n' ' ')"
         ],
+        "npm:acceptance": "@npm:acceptance:bin npm",
+        "npm:acceptance:bin": "export PROJECT_ROOT=\"$PWD\"; cd tests/acceptance; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:admin": "@npm:admin:bin npm",
         "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:admin:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Administration/Resources/app/administration; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",

@@ -28,7 +28,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $envelope = new Envelope(new \stdClass());
 
-        $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
+        $event = new SendMessageToTransportsEvent($envelope, ['test' => static::createStub(SyncTransport::class)]);
 
         $listener($event);
     }
@@ -47,7 +47,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $message->a = str_repeat('a', $maxMessageSizeKiB * 1024);
         $envelope = new Envelope($message);
 
-        $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
+        $event = new SendMessageToTransportsEvent($envelope, ['test' => static::createStub(SyncTransport::class)]);
 
         $listener($event);
     }

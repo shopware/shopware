@@ -40,7 +40,9 @@ if [ ! -s "$REPORT" ] || ! jq -e . "$REPORT" >/dev/null 2>&1; then
 fi
 
 total=$(jq -r '.summary.total // (.checks|length)' "$REPORT")
-failed=$(jq -r '.summary.failed // ([.checks[]|select(.ok==false)]|length)' "$REPORT")
+# Required failures only — informational rows never make the run red. Fall back to recomputing from
+# the checks (a v1 report without `required` treats every row as required).
+failed=$(jq -r '.summary.failed // ([.checks[]|select((.required != false) and (.ok==false))]|length)' "$REPORT")
 
 {
   echo "# 🧱 Sandbox probe results"
@@ -51,13 +53,14 @@ failed=$(jq -r '.summary.failed // ([.checks[]|select(.ok==false)]|length)' "$RE
     echo "- **Workspace handoff (wall #7): ❌ BROKEN** — no workspace file; results were recovered from"
     echo "  the agent log. This is the June failure mode (agent ran, bundle never reached the host)."
   fi
-  echo "- **Checks:** ${failed} of ${total} failed the healthy-sandbox expectation."
+  echo "- **Required checks failed:** ${failed}. (Informational rows — expected-negative or benign — never turn the run red.)"
   echo
-  echo "| Wall | Check | OK | Detail |"
-  echo "|------|-------|:--:|--------|"
-  jq -r '.checks[] | "| \(.wall) | `\(.check)` | \(if .ok then "✅" else "❌" end) | \(.detail|gsub("\\|";"\\\\|")) |"' "$REPORT"
+  echo "| Wall | Check | Status | Detail |"
+  echo "|------|-------|:------:|--------|"
+  # Required: ✅ pass / ❌ fail (a real wall). Informational: ℹ️ regardless of ok.
+  jq -r '.checks[] | "| \(.wall) | `\(.check)` | \(if .required == false then "ℹ️" elif .ok then "✅" else "❌" end) | \(.detail|gsub("\\|";"\\\\|")) |"' "$REPORT"
   echo
-  echo "_A ❌ is a wall to clear before enabling the sandbox on reproduce.md; \`php\`/\`mysql\` absence is expected (✅). See \`dev/sandbox-handoff.md\` §3._"
+  echo "_Only ❌ rows are real walls to clear before enabling the sandbox on reproduce.md. ℹ️ rows are informational (e.g. \`localhost\` inside the sandbox, php/mysql presence). See \`dev/sandbox-handoff.md\` §3._"
 } >> "$SUMMARY"
 
 if [ "${failed:-1}" -gt 0 ] || [ "$handoff_ok" != true ]; then

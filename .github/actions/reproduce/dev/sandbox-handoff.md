@@ -111,6 +111,24 @@ honored, but confirm the first sandboxed run's `aw_info.json` shows the expected
 >   **Switched to Sonnet** (`claude-sonnet-4-6`), which reads the file and runs the script reliably
 >   (~32 credits). A truly Haiku-only probe would require changing gh-aw's prompt delivery.
 >
+> **Toward green (applied after the 5-run validation):**
+> - **Wall #2 fix in [`compile.sh`](compile.sh) `[P1]`:** appends the shop's host port **8000** to
+>   awf's `--allow-host-ports` (gh-aw has no frontmatter for this; `service-ports` is for Docker
+>   service containers, not our host process). Applied to the probe lock; a no-op on the unsandboxed
+>   reproduce.md lock. `compile.sh` now takes optional source args so the probe can be recompiled
+>   without churning `reproduce.lock.yml`.
+> - **Check reclassification:** probe checks are now `required` vs `informational`. Only required
+>   failures turn the run red; expected-negative/benign observations (`localhost` inside the sandbox,
+>   the missing PATH shim while the workspace CLI works, `PLAYWRIGHT_BROWSERS_PATH` unset while
+>   browsers resolve, php/mysql presence) render as ℹ️ and never block green. Without this, green was
+>   unreachable even on a healthy sandbox.
+> - **Remaining likely blocker = wall #3 (storefront domain routing).** Once #2 opens, `/admin`,
+>   `/store-api/context` (access-key based) and `/api` (host-agnostic) should pass, but the storefront
+>   `/` is sales-channel-domain-routed and will likely 404 under `Host: host.docker.internal:8000`
+>   until that host is registered as a sales-channel domain (additive; keeps localhost for host-side
+>   legs). Best confirmed by a run before touching Shopware's domain tables — store-api/admin may be
+>   enough for many repros, and the exact storefront behavior should drive the precise fix.
+>
 > **Residuals (cosmetic, non-blocking):** the `agent` job shows `failure` because (a) the verdict
 > step exits red **by design** while walls remain — that is the deliverable, not an error — and
 > (b) "Execute Claude Code CLI" also reports failure because the agent, following gh-aw's injected

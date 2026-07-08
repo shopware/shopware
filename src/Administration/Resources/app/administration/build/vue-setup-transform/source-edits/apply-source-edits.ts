@@ -6,7 +6,7 @@
  * Applies template and script edits to complete SFC source.
  *
  * Callers can pass plain generated strings or structured source chunks; both are flattened into the
- * same replacement stream so future sourcemap support can preserve original ranges uniformly.
+ * same replacement stream that keeps generated and original ranges distinguishable.
  */
 
 import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
@@ -22,7 +22,7 @@ type SourceEdit = {
 };
 
 /**
- * Returned SFC code plus a placeholder for the dedicated sourcemap follow-up.
+ * Transformed SFC code. `map` is always `null`: this step rewrites source without producing a sourcemap.
  */
 type AppliedSourceEdits = {
     code: string;
@@ -39,8 +39,8 @@ function normalizeReplacement(replacement: string | SourceChunk[]): SourceChunk[
 /**
  * Applies non-overlapping source edits and returns transformed code.
  *
- * Sourcemap support is intentionally added by the dedicated sourcemap PR. Until
- * then the transform has the same behavior as a normal string replacement step.
+ * This step does not generate a sourcemap; it behaves like a plain string replacement and returns
+ * `map: null`.
  */
 function applySourceEdits(source: string, _filename: string, edits: SourceEdit[]): AppliedSourceEdits {
     let cursor = 0;

@@ -118,12 +118,16 @@ const userConfigService = {
     search: jest.fn(() => Promise.resolve({ data: {} })),
     upsert: jest.fn(() => Promise.resolve()),
 };
+const customFieldDataProviderService = {
+    getCustomFieldSets: jest.fn(() => Promise.resolve([])),
+};
 
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
 Shopware.Feature = Shopware.Service('feature');
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
+Shopware.Service().register('customFieldDataProviderService', () => customFieldDataProviderService);
 
 // Provide all services
 Shopware.Service()

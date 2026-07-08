@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryExc
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -249,7 +250,9 @@ class DataAbstractionLayerExceptionTest extends TestCase
 
     public function testUnmappedField(): void
     {
-        $e = DataAbstractionLayerException::unmappedField('product.categoriesRo.id', new ProductDefinition());
+        // force the v6.8 path so the factory builds the new Exception\UnmappedFieldException
+        // (with the flag off it returns the deprecated bridge, which is @codeCoverageIgnore'd)
+        $e = Feature::fake(['v6.8.0.0'], static fn () => DataAbstractionLayerException::unmappedField('product.categoriesRo.id', new ProductDefinition()));
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__DBAL_UNMAPPED_FIELD', $e->getErrorCode());

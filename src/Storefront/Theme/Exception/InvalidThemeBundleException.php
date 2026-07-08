@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use {@see ThemeException::invalidThemeBundle} instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class InvalidThemeBundleException extends ShopwareHttpException

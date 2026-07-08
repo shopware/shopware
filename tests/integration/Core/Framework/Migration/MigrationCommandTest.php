@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core;
+namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
@@ -23,7 +22,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[CoversClass(MigrationCommand::class)]
 class MigrationCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

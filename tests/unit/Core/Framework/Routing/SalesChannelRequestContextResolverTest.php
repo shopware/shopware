@@ -24,7 +24,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 {
     public function testEmptyLanguageAndCurrencyHeadersAreIgnored(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
         $contextService
             ->expects($this->once())

@@ -18,9 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Renders the HTML representation of a document via {@see DocumentTemplateRenderer}.
  *
- * Wraps the provider's {@see InvoiceRenderData} in a {@see TemplateContext} together with
- * format-specific overrides (`fileType`, `itemsPerPage`) so the underlying render data stays
- * untouched for any renderer running after this one.
+ * The output doubles as the {@see PdfRenderer} Dompdf input, so browser-only styling
+ * is scoped to `media="screen"` in the templates.
  *
  * @internal
  */
@@ -53,11 +52,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             InvoiceRenderData::class
         );
 
-        $configuration = new TemplateContext(
-            $renderData,
-            fileType: self::FORMAT->fileExtension(),
-            itemsPerPage: 1000,
-        );
+        $configuration = new TemplateContext($renderData);
 
         $template = $renderData->templatePathFor(self::FORMAT->value);
 

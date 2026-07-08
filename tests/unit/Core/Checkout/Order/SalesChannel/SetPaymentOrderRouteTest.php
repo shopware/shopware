@@ -225,11 +225,11 @@ class SetPaymentOrderRouteTest extends TestCase
         $paymentOrderRoute = new SetPaymentOrderRoute(
             $orderService,
             $staticRepository,
-            $this->createMock(OrderConverter::class),
-            $this->createMock(CartRuleLoader::class),
-            $this->createMock(CartService::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(InitialStateIdLoader::class),
+            static::createStub(OrderConverter::class),
+            static::createStub(CartRuleLoader::class),
+            static::createStub(CartService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(InitialStateIdLoader::class),
             $gatewayRoute
         );
 

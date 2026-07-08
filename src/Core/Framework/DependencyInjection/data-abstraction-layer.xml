@@ -756,5 +756,16 @@
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.telemetry.subscriber"/>
         </service>
+
+        <!-- shared entity-name bucketing for telemetry labels (DAL search collectors + HTTP request domain) -->
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver"/>
+
+        <!-- injected into every EntityRepository by EntityCompilerPass; self-gates on the telemetry flag -->
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider"/>
+            <argument>%shopware.telemetry.metrics.enabled%</argument>
+        </service>
     </services>
 </container>

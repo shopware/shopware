@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 trait ColumnExistsTrait
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:behavior-change - Will no longer throw a {@see TableNotFoundException} for missing tables but return false
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will no longer throw a {@see TableNotFoundException} for missing tables but return false
      *
      * @param non-empty-string $table
      */

@@ -183,6 +183,8 @@ The transform rejects these cases loudly:
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode
+- A rest element (`...`) in a `<sw-block extends="...">` default slot scope, because the transform injects override state into that scope and a rest binding would silently stop capturing the injected bindings
+- `__swOverride` as a slot-scope binding on `<sw-block extends="...">`, which is reserved for the generated override-private state channel
 - Top-level bindings using the reserved `__swSetup` prefix, which the transform uses for its generated bindings
 - Additional `<script>` blocks next to Shopware setup blocks
 

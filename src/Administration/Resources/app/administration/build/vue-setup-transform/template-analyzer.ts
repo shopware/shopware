@@ -584,6 +584,38 @@ function assertNoReservedOverrideSlotScope(slotDirective: DirectiveNode | undefi
 }
 
 /**
+ * Rejects a rest element in an extended default slot scope.
+ *
+ * The override transform injects override state as named bindings into this slot scope. Because the
+ * injection is invisible to the author, a rest element would silently stop capturing any binding that
+ * happens to be referenced elsewhere in the template. Requiring explicit named bindings keeps what the
+ * author reads out of the slot scope predictable.
+ */
+function assertNoRestSlotScope(slotDirective: DirectiveNode | undefined): void {
+    if (!slotDirective?.exp?.content) {
+        return;
+    }
+
+    try {
+        const { pattern } = parseBindingPattern(slotDirective.exp.content);
+
+        if (pattern.type !== 'ObjectPattern' || !pattern.properties.some((property) => property.type === 'RestElement')) {
+            return;
+        }
+    } catch {
+        // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
+        return;
+    }
+
+    throw new ShopwareSetupTransformError(
+        'A rest element (...) is not supported in a <sw-block extends="..."> default slot scope. The override ' +
+            'transform injects override state into this slot scope, so a rest binding would silently exclude the ' +
+            'injected bindings. Destructure the slot props you need by name instead.',
+        0,
+    );
+}
+
+/**
  * Returns v-for aliases declared on an element.
  *
  */
@@ -1043,6 +1075,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
         if (isSwBlockExtends(node)) {
             const slotDirective = getDefaultSlotDirective(node);
             assertNoReservedOverrideSlotScope(slotDirective);
+            assertNoRestSlotScope(slotDirective);
 
             const slotScope = collectSlotScopeNames(slotDirective);
             const references = collectTemplateReferences(node.children, slotScope);

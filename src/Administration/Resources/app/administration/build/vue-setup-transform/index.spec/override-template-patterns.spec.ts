@@ -118,30 +118,6 @@ describe('build/vue-setup-transform override template pattern references', () =>
         expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { rows, dynamicKey } } }"`);
     });
 
-    it('keeps a rest element last when injecting before a referenced default', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body" #default="{ info = fallbackInfo, ...rest }">
-                <p>{{ info }} {{ rest }}</p>
-            </sw-block>
-            </template>
-            <script setup>
-            const fallbackInfo = 'fallback';
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'slot-default-rest.override.vue').code;
-        const privateNamespace = getPrivateNamespace(result);
-
-        expect(privateNamespace).toBeDefined();
-        expect(result).toContain(
-            `#default="{ __swOverride: { ${privateNamespace}: { fallbackInfo } }, info = fallbackInfo, ...rest }"`,
-        );
-        expect(isDestructurePatternValid(result)).toBe(true);
-    });
-
     it('does not let child component slot scopes shadow same-element directive references', () => {
         const source = stripIndent`
             <template>
@@ -231,5 +207,27 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         expect(result).not.toMatch(/\n\s+info,/);
         expect(result).toMatch(/\n\s+rows,/);
+    });
+
+    it('rejects a rest element in an extended default slot scope', () => {
+        // The override transform injects override state into this slot scope invisibly, so a rest
+        // element would silently stop capturing any injected binding referenced elsewhere in the
+        // template. That surprise, plus no real use case, is why the pattern is rejected outright.
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default="{ info = fallbackInfo, ...rest }">
+                <p>{{ info }} {{ rest }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const fallbackInfo = 'fallback';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'slot-default-rest.override.vue')).toThrow(
+            'A rest element (...) is not supported in a <sw-block extends="..."> default slot scope.',
+        );
     });
 });

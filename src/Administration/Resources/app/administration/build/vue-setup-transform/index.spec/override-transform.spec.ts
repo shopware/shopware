@@ -214,10 +214,10 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).not.toContain(':data="$dataScope"');
     });
 
-    it('merges private namespaces into existing object default slot scopes', () => {
+    it('merges private namespaces into an existing object default slot scope', () => {
         const source = stripIndent`
             <template>
-            <sw-block extends="sw_example_component_body" #default="{ body, ...previousState }">
+            <sw-block extends="sw_example_component_body" #default="{ body }">
                 <p>{{ body }}</p>
                 <small>{{ info }}</small>
             </sw-block>
@@ -236,7 +236,7 @@ describe('build/vue-setup-transform override transforms', () => {
         const privateNamespace = getPrivateNamespace(result);
 
         expect(privateNamespace).toBeDefined();
-        expect(result).toContain(`#default="{ body, __swOverride: { ${privateNamespace}: { info } }, ...previousState }"`);
+        expect(result).toContain(`#default="{ body, __swOverride: { ${privateNamespace}: { info } } }"`);
     });
 
     it('merges private namespaces into existing identifier default slot scopes', () => {

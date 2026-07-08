@@ -162,13 +162,13 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function fieldCannotBeExcluded(string $field, string $entity): self
+    public static function fieldCannotBeExcluded(string $field, string $entity, string $reason): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::FIELD_CANNOT_BE_EXCLUDED,
-            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded because it is required or write-protected.',
-            ['field' => $field, 'entity' => $entity],
+            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded because {{ reason }}.',
+            ['field' => $field, 'entity' => $entity, 'reason' => $reason],
         );
     }
 

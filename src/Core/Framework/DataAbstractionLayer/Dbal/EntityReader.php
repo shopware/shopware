@@ -123,8 +123,12 @@ class EntityReader implements EntityReaderInterface
                 throw DataAbstractionLayerException::cannotExcludeUnknownField($propertyName, $definition->getEntityName());
             }
 
-            if ($field->is(Required::class) || $field->is(WriteProtected::class)) {
-                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName());
+            if ($field->is(Required::class)) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is required');
+            }
+
+            if ($field->is(WriteProtected::class)) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is write-protected, so its system-managed value is always loaded');
             }
         }
     }

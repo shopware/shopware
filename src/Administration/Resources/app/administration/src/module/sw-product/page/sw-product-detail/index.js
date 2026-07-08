@@ -991,7 +991,10 @@ export default {
                 true,
             ]);
 
-            return this.customFieldDataProviderService
+            const customFieldDataProviderService =
+                this.customFieldDataProviderService ?? Shopware.Service('customFieldDataProviderService');
+
+            return customFieldDataProviderService
                 .getCustomFieldSets('product')
                 .then((res) => {
                     Shopware.Store.get('swProductDetail').customFieldSets = res;

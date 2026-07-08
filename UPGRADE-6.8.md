@@ -176,10 +176,6 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## `CustomerGroupEntity` translated getters are now nullable
-
-The translated properties of `Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity` — `registrationTitle`, `registrationIntroduction`, `registrationOnlyCompanyRegistration`, `registrationSeoMetaDescription` — and their getters are now nullable (`?string` / `?bool`), matching `CustomerGroupTranslationEntity`. A translated value can be absent for the selected language, so the getters return `null` in that case instead of throwing on an uninitialised property. Adjust callers that assumed a non-null return, and any subclass overriding these getters with a non-nullable return type.
-
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
 
 `EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.

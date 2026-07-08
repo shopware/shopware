@@ -32,3 +32,52 @@ shopware:
                     description: 'Number of database locks'
                     enabled: true
                     type: 'counter'
+
+                cart.calculation.duration:
+                    description: 'Cart calculation wall time'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 2500]
+                    labels:
+                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
+                        sales_channel_type:
+                            policy: open
+                        has_promotions:
+                            allowed_values: ['yes', 'no']
+
+                cart.line_items.count:
+                    description: 'Line items at end of cart calculation'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 5, 20, 50, 100, 250]
+                    labels:
+                        sales_channel_type:
+                            policy: open
+
+                cart.errors.count:
+                    # per-calculation count of warning/error entries (notices excluded); spikes flag checkout friction
+                    description: 'Warning/error cart errors present after calculation (informational notices excluded)'
+                    type: 'counter'
+
+                order.placed.count:
+                    description: 'Orders placed'
+                    type: 'counter'
+                    labels:
+                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
+                        sales_channel_type:
+                            policy: open
+                        # Payment method technical name. Default core config allows its built-in methods; every other
+                        # (plugin/app) method collapses to the `other` replacement value, while `none` marks orders
+                        # with no attributable payment method. Deployments widen this list to surface further providers.
+                        payment_method:
+                            allowed_values: [payment_invoicepayment, payment_prepayment, payment_cashpayment, none, other]
+
+                order.line_items.count:
+                    description: 'Line items per placed order'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 2, 5, 10, 20, 50, 100, 250]
+                    labels:
+                        sales_channel_type:
+                            policy: open

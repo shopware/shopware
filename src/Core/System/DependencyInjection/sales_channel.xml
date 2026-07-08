@@ -373,5 +373,8 @@
         <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenanceIpAllowlistSyncSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics) -->
+        <service id="Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver"/>
     </services>
 </container>

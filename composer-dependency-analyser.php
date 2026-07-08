@@ -84,7 +84,7 @@ return $config
     /** Used via Symfony Framework bundle */
     ->ignoreErrorsOnPackage('symfony/runtime', [ErrorType::UNUSED_DEPENDENCY])
 
-    /**  */
+    /** Somehow triggered in our CI job and might not be valid locally */
     ->ignoreErrorsOnPackage('symfony/polyfill-php83', [ErrorType::UNUSED_DEPENDENCY])
 
     /** Can this be removed? */

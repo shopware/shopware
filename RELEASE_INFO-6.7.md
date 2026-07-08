@@ -1782,8 +1782,6 @@ Because of the side-effects with large combined selectors, we have added a new s
 The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
 If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
 
-## App System
-
 ## Hosting & Configuration
 
 ### Add custom HTML element configuration for HTML Sanitizer

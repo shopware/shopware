@@ -50,8 +50,8 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             $configurationService,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(SystemConfigValidator::class)
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
         );
 
         $request = new Request();
@@ -70,7 +70,7 @@ class SystemConfigControllerTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testCheckConfigurationDeprecated(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
             ->method('checkConfiguration')
             ->willReturn(true);
@@ -100,8 +100,8 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             $configurationService,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(SystemConfigValidator::class)
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
         );
 
         $request = new Request();
@@ -120,7 +120,7 @@ class SystemConfigControllerTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testGetConfigurationDeprecated(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
             ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);
@@ -150,8 +150,8 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             $configurationService,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(SystemConfigValidator::class)
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
         );
 
         $request = new Request();
@@ -169,7 +169,7 @@ class SystemConfigControllerTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testGetConfigurationWithNameDeprecated(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
             ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);

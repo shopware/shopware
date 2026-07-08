@@ -74,10 +74,9 @@ readonly class Service
 
     private static function label(AppEntity $app): string
     {
-        $label = $app->getLabel();
-        \assert($label !== null);
+        $label = $app->getTranslation('label');
 
-        return $label;
+        return \is_string($label) && $label !== '' ? $label : $app->getName();
     }
 
     private static function description(AppEntity $app): ?string

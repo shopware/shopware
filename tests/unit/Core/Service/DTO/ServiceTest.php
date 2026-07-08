@@ -20,8 +20,9 @@ class ServiceTest extends TestCase
         $createdAt = new \DateTimeImmutable('2026-01-01 12:00:00');
         $updatedAt = new \DateTimeImmutable('2026-01-02 12:00:00');
         $app = AppFixture::createAppEntity(name: 'MyService', id: 'service-id');
-        $app->setLabel('My service');
+        $app->setLabel('My plain label');
         $app->setTranslated([
+            'label' => 'My translated label',
             'description' => 'My translated description',
         ]);
         $app->setIcon('service-icon');
@@ -39,7 +40,7 @@ class ServiceTest extends TestCase
 
         static::assertSame('service-id', $service->id);
         static::assertSame('MyService', $service->name);
-        static::assertSame('My service', $service->label);
+        static::assertSame('My translated label', $service->label);
         static::assertTrue($service->active);
         static::assertSame('service-icon', $service->icon);
         static::assertSame('My translated description', $service->description);
@@ -66,5 +67,32 @@ class ServiceTest extends TestCase
         static::assertSame([], $service->domains);
         static::assertSame([], $service->requirements);
         static::assertSame(State::INACTIVE, $service->state);
+    }
+
+    public function testLabelUsesTranslationWhenRequestedLanguageHasNoLabel(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyService');
+        $app->setLabel(null);
+        $app->setTranslated(['label' => 'My translated label']);
+
+        static::assertSame('My translated label', Service::fromApp($app)->label);
+    }
+
+    public function testLabelFallsBackToNameWhenNoTranslationResolves(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyService');
+        $app->setLabel(null);
+        $app->setTranslated([]);
+
+        static::assertSame('MyService', Service::fromApp($app)->label);
+    }
+
+    public function testLabelFallsBackToNameWhenTranslationIsEmpty(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyService');
+        $app->setLabel(null);
+        $app->setTranslated(['label' => '']);
+
+        static::assertSame('MyService', Service::fromApp($app)->label);
     }
 }

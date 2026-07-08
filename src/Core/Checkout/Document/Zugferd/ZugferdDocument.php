@@ -296,6 +296,8 @@ class ZugferdDocument
         string $documentNumber,
         string $isoCode,
     ): self {
+        $this->currentDocumentType = ZugferdInvoiceType::INVOICE;
+
         $this->zugferdBuilder
             ->setDocumentInformation($documentNumber, ZugferdInvoiceType::INVOICE, new \DateTime($documentDate), $isoCode)
             ->setDocumentSupplyChainEvent($deliveryDate);

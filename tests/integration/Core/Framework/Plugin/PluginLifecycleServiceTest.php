@@ -560,6 +560,20 @@ class PluginLifecycleServiceTest extends TestCase
         }
     }
 
+    public function testInstallPluginWithSystemConfigTabsFeatureEnabled(): void
+    {
+        Feature::withFeatureEnabled('SYSTEM_CONFIG_TABS', function (): void {
+            $this->installPluginTest($this->context);
+        });
+    }
+
+    public function testUninstallPluginWithSystemConfigTabsFeatureEnabled(): void
+    {
+        Feature::withFeatureEnabled('SYSTEM_CONFIG_TABS', function (): void {
+            $this->uninstallPlugin($this->context);
+        });
+    }
+
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
         $pluginRepository = static::getContainer()->get('plugin.repository');

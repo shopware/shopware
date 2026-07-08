@@ -97,7 +97,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -112,7 +112,7 @@ class OrderServiceTest extends TestCase
         );
 
         /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $deliveries = $updatedOrder->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -197,7 +197,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -313,7 +313,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('transactions.stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -326,7 +326,7 @@ class OrderServiceTest extends TestCase
         );
 
         /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $updatedOrder->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         static::assertNotNull($transaction->getStateMachineState());
@@ -405,7 +405,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -454,7 +454,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -486,7 +486,7 @@ class OrderServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -537,7 +537,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $cancelledOrder */
-        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $state = $cancelledOrder->getStateMachineState();
 
         static::assertNotNull($state);

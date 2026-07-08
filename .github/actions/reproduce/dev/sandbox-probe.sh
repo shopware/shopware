@@ -169,6 +169,42 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Wall #8 — `repro try` (the Playwright runner) can create its run dir + execute a spec IN-SANDBOX.
+# The real reproduce run failed here: RUNNER_TEMP exists but is READ-ONLY in the box, so runner.mjs's
+# mkdir under it threw ("cannot create output directory"). runner.mjs now falls back to a cwd-local
+# dir. Measure (a) that RUNNER_TEMP really is read-only in-sandbox (documents the wall — info) and
+# (b) that `npx playwright test` runs from a workspace-local dir, the fallback target (required).
+# ---------------------------------------------------------------------------
+rt="${RUNNER_TEMP:-}"
+if [ -n "$rt" ] && ( mkdir -p "$rt/.probe-wtest" && : > "$rt/.probe-wtest/x" ) 2>/dev/null; then
+  rm -rf "$rt/.probe-wtest" 2>/dev/null; rt_state=true
+else
+  rt_state=false
+fi
+add "#8" runner_temp_writable info "$rt_state" \
+  "RUNNER_TEMP=${rt:-<unset>} ($([ "$rt_state" = true ] && echo writable || echo 'read-only in-sandbox — runner falls back to cwd'))"
+
+trydir="${WORKSPACE}/.repro-playwright-probe"
+rm -rf "$trydir" 2>/dev/null
+if mkdir -p "$trydir" 2>/dev/null; then
+  [ -d "${WORKSPACE}/node_modules" ] && ln -sfn "${WORKSPACE}/node_modules" "$trydir/node_modules" 2>/dev/null
+  cat > "$trydir/playwright.config.ts" <<'CFG'
+import { defineConfig } from '@playwright/test';
+export default defineConfig({ testDir: '.', reporter: [['json', { outputFile: 'pw.json' }]], use: { headless: true } });
+CFG
+  cat > "$trydir/probe.spec.ts" <<'SPEC'
+import { test, expect } from '@playwright/test';
+test('probe blank page renders', async ({ page }) => { await page.goto('about:blank'); expect(true).toBe(true); });
+SPEC
+  out=$(cd "$trydir" && timeout 150 npx playwright test --config playwright.config.ts 2>&1); rc=$?
+  ok8=$( { [ "$rc" -eq 0 ] && [ -f "$trydir/pw.json" ]; } && echo true || echo false )
+  add "#8" cwd_playwright_runs req "$ok8" "npx playwright test from workspace-local dir: rc=$rc $(printf '%s' "$out" | tr '\n' ' ' | head -c 140)"
+  rm -rf "$trydir" 2>/dev/null
+else
+  add "#8" cwd_playwright_runs req false "could not create workspace-local run dir $trydir"
+fi
+
+# ---------------------------------------------------------------------------
 # Walls #5 / #6 — php / mysql inside the agent environment. On this runner the sandbox is
 # host-chroot + firewall (not a clean container), so they are PRESENT — a bonus that keeps direct/
 # phpunit `repro try` + demodata viable. Informational either way (absence would not block the CLI's

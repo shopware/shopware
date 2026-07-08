@@ -32,17 +32,36 @@ export class PlaywrightRunner {
   }
 
   /**
+   * Creates the disposable Playwright project directory in the first writable location.
+   *
+   * `RUNNER_TEMP` keeps the project out of the git workspace on host-side legs, but under the agent
+   * sandbox it exists yet is READ-ONLY — so `mkdir` there throws ("cannot create output directory")
+   * and `repro try` fails. Prefer `RUNNER_TEMP` when it is actually writable, otherwise fall back to
+   * a workspace-local dir, which the sandbox leaves writable.
+   */
+  createRunDir(suffix) {
+    const candidates = [
+      process.env.RUNNER_TEMP ? path.join(process.env.RUNNER_TEMP, `repro-playwright${suffix}`) : null,
+      `.repro-playwright${suffix}`,
+    ].filter(Boolean);
+    for (const dir of candidates) {
+      try {
+        fs.rmSync(dir, { recursive: true, force: true });
+        fs.mkdirSync(dir, { recursive: true });
+        return dir;
+      } catch {
+        // Not writable here (e.g. read-only RUNNER_TEMP under the sandbox) — try the next candidate.
+      }
+    }
+    throw new Error('repro: could not create a writable Playwright run directory (RUNNER_TEMP and cwd both unwritable)');
+  }
+
+  /**
    * Materializes a disposable Playwright project and returns the parsed JSON report for verdict runs.
    */
   runSpec(spec, storageState, { video, viewport }) {
     const suffix = video ? '-video' : '';
-    const hasRunnerTemp = process.env.RUNNER_TEMP && fs.existsSync(process.env.RUNNER_TEMP);
-    const runDir = hasRunnerTemp
-      ? path.join(process.env.RUNNER_TEMP, `repro-playwright${suffix}`)
-      : `.repro-playwright${suffix}`;
-
-    fs.rmSync(runDir, { recursive: true, force: true });
-    fs.mkdirSync(runDir, { recursive: true });
+    const runDir = this.createRunDir(suffix);
     const runNodeModules = path.join(runDir, 'node_modules');
     if (fs.existsSync('node_modules') && !fs.existsSync(runNodeModules)) {
       fs.symlinkSync(path.resolve('node_modules'), runNodeModules);

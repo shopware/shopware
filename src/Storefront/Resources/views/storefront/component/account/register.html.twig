@@ -20,15 +20,20 @@
                       data-form-handler="true">
                     {% block component_account_register_violations %}
                         {% if formViolations is defined %}
+                            {% set formLevelViolations = [] %}
                             {% for violation in formViolations.getViolations() %}
-                                {# Form-level violations not bound to a field (e.g. captcha). #}
+                                {# Collect violations not bound to a field (e.g. captcha) into one grouped alert. #}
                                 {% if violation.propertyPath is empty %}
-                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                        type: 'danger',
-                                        content: "error.#{violation.code}"|trans|sw_sanitize
-                                    } %}
+                                    {% set formLevelViolations = formLevelViolations|merge(["error.#{violation.code}"|trans]) %}
                                 {% endif %}
                             {% endfor %}
+
+                            {% if formLevelViolations is not empty %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: 'danger',
+                                    list: formLevelViolations
+                                } %}
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
 

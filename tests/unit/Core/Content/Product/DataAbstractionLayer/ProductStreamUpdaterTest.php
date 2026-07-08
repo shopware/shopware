@@ -14,7 +14,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -375,7 +375,7 @@ class ProductStreamUpdaterTest extends TestCase
             static function (Criteria $actualCriteria, Context $context) use ($criteria): array {
                 static::assertEquals($criteria, $actualCriteria);
 
-                throw new UnmappedFieldException('non-existing-field', new ProductDefinition());
+                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
             },
             static fn () => [],
         ], $definition);

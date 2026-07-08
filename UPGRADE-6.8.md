@@ -866,6 +866,20 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 
 </details>
 
+## Moved `UnmappedFieldException`
+
+`DataAbstractionLayerException::unmappedField()` now returns the new `\Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`. The old `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException` is deprecated and will be removed; it now extends the new exception, so existing `catch` blocks keep working during the deprecation.
+
+Catch the new exception class instead of the deprecated one:
+
+```php
+// Before
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+
+// After
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+```
+
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
 
 The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.

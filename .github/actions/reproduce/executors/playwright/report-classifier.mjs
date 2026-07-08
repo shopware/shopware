@@ -72,7 +72,11 @@ function classifyUnexpectedFailure({ plan, unexpected, errors, short, pretty }) 
       'the failure was a strict-mode locator error, not an assertion on one issue-specific state',
     );
   }
-  if (/element\(s\) not found|waiting for (?:selector|locator).*to be visible|waiting for .*locator/i.test(errors)) {
+  // Only inconclusive when the element genuinely never resolved (missing/hidden = surface not
+  // reached, could be cross-version drift). If Playwright logged "locator resolved to", the element
+  // was found and a failed value assertion on it (empty/wrong text) is a real symptom → reproduced.
+  const elementResolved = /locator resolved to/i.test(errors);
+  if (!elementResolved && /element\(s\) not found|waiting for (?:selector|locator).*to be visible/i.test(errors)) {
     return outcome(
       'inconclusive',
       `${unexpected} failing (locator/precondition)`,

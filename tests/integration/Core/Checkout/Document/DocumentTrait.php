@@ -179,7 +179,7 @@ trait DocumentTrait
         return $cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 
-    private function createShippingMethod(): string
+    private function createShippingMethod(float $price = 10.0): string
     {
         $shippingMethodId = Uuid::randomHex();
         $repository = static::getContainer()->get('shipping_method.repository');
@@ -201,8 +201,8 @@ trait DocumentTrait
                 'name' => 'Std',
                 'currencyPrice' => [[
                     'currencyId' => Defaults::CURRENCY,
-                    'net' => 10.00,
-                    'gross' => 10.00,
+                    'net' => $price,
+                    'gross' => $price,
                     'linked' => false,
                 ]],
                 'currencyId' => Defaults::CURRENCY,

@@ -38,19 +38,20 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    private string $customerId;
+
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
 
         $priceRuleId = Uuid::randomHex();
-        $shippingMethodId = $this->createShippingMethod();
         $shippingAddressId = Uuid::randomHex();
 
-        $options = [
+        $customerOptions = [
             'defaultShippingAddressId' => $shippingAddressId,
         ];
 
-        $additionalAddress = [
+        $additionalShippingAddress = [
             'id' => $shippingAddressId,
             'countryId' => $this->getValidCountryId(),
             'salutationId' => $this->getValidSalutationId(),
@@ -61,15 +62,8 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
             'city' => 'Schöppingen',
         ];
 
-        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer($options, $additionalAddress),
-                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
-            ]
-        );
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->customerId = $this->createCustomer($customerOptions, $additionalShippingAddress);
+        $this->salesChannelContext = $this->createSalesChannelContext($this->createShippingMethod(), [$priceRuleId]);
 
         $this->renderer = static::getContainer()->get(ZugferdCancellationInvoiceRenderer::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
@@ -80,28 +74,12 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
         $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
-        $config = [
-            'vatId' => 'DE123456789',
-            'bankBic' => 'DEUTDEDBFRA',
-            'bankIban' => 'DE89370400440532013000',
-            'bankName' => 'Deutsche Bank',
-            'taxNumber' => '123/456/7890',
-            'taxOffice' => 'Finanzamt Musterstadt',
-            'companyUrl' => 'https://www.example.com',
-            'companyName' => 'Example Company',
-            'companyEmail' => 'mail@example.com',
-            'companyPhone' => '+49 123 4567890',
-            'paymentDueDate' => '+30 days',
-            'executiveDirector' => 'Max Mustermann',
-            'placeOfFulfillment' => 'Musterstadt',
-            'placeOfJurisdiction' => 'Musterstadt',
-            'documentDate' => '2023-11-24T12:00:00+00:00',
-        ];
+        $config = $this->createDocumentConfig();
 
         $invoiceConfig = new DocumentConfiguration();
         $invoiceConfig->setDocumentNumber('1001');
 
-        $invoicOperation = new DocumentGenerateOperation(
+        $invoiceOperation = new DocumentGenerateOperation(
             $orderId,
             FileTypes::PDF,
             $invoiceConfig->jsonSerialize()
@@ -109,7 +87,7 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
         $invoice = $this->documentGenerator->generate(
             InvoiceRenderer::TYPE,
-            [$orderId => $invoicOperation],
+            [$orderId => $invoiceOperation],
             $this->context
         )->getSuccess()->first();
 
@@ -142,5 +120,82 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
                 'actual' => $content,
             ],
         ]);
+    }
+
+    public function testDocumentOmitsDeliveryChargeForZeroShippingCosts(): void
+    {
+        $this->salesChannelContext = $this->createSalesChannelContext(
+            $this->createShippingMethod(0.0),
+            $this->salesChannelContext->getRuleIds()
+        );
+
+        $cart = $this->generateDemoCartWithTaxes([7]);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $invoice = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize())],
+            $this->context
+        )->getSuccess()->first();
+
+        static::assertNotNull($invoice);
+
+        $processedTemplate = $this->renderer->render(
+            [$orderId => new DocumentGenerateOperation($orderId, FileTypes::XML, $this->createDocumentConfig(), $invoice->getId())],
+            $this->context,
+            new DocumentRendererConfig(),
+        );
+
+        $renderedDocument = $processedTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
+
+        $content = $renderedDocument->getContent();
+        static::assertIsString($content);
+        static::assertStringNotContainsString('<ram:SpecifiedTradeAllowanceCharge>', $content);
+    }
+
+    /**
+     * @param array<string> $ruleIds
+     */
+    private function createSalesChannelContext(string $shippingMethodId, array $ruleIds): SalesChannelContext
+    {
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $this->customerId,
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
+            ]
+        );
+        $salesChannelContext->setRuleIds($ruleIds);
+
+        return $salesChannelContext;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function createDocumentConfig(): array
+    {
+        return [
+            'vatId' => 'DE123456789',
+            'bankBic' => 'DEUTDEDBFRA',
+            'bankIban' => 'DE89370400440532013000',
+            'bankName' => 'Deutsche Bank',
+            'taxNumber' => '123/456/7890',
+            'taxOffice' => 'Finanzamt Musterstadt',
+            'companyUrl' => 'https://www.example.com',
+            'companyName' => 'Example Company',
+            'companyEmail' => 'mail@example.com',
+            'companyPhone' => '+49 123 4567890',
+            'paymentDueDate' => '+30 days',
+            'executiveDirector' => 'Max Mustermann',
+            'placeOfFulfillment' => 'Musterstadt',
+            'placeOfJurisdiction' => 'Musterstadt',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
     }
 }

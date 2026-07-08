@@ -254,7 +254,7 @@ class ApiController extends AbstractController
             throw ApiException::missingPrivileges($permissions);
         }
 
-        $entity = $context->scope(Context::CRUD_API_SCOPE, static fn (Context $context): ?Entity => $repository->search($criteria, $context)->get($id));
+        $entity = $context->scope(Context::CRUD_API_SCOPE, static fn (Context $context): ?Entity => $repository->search($criteria, $context)->getEntities()->get($id));
 
         if ($entity === null) {
             throw ApiException::resourceNotFound($definition->getEntityName(), ['id' => $id]);
@@ -676,7 +676,7 @@ class ApiController extends AbstractController
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
             $criteria = new Criteria($eventIds);
             $entities = $repository->search($criteria, $context);
-            $entity = $entities->first();
+            $entity = $entities->getEntities()->first();
             \assert($entity instanceof Entity);
 
             return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context);
@@ -718,7 +718,7 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
-            $entity = $entities->first();
+            $entity = $entities->getEntities()->first();
             \assert($entity instanceof Entity);
 
             return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context);
@@ -747,7 +747,7 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($entityIds);
             $entities = $repository->search($criteria, $context);
-            $entity = $entities->first();
+            $entity = $entities->getEntities()->first();
             \assert($entity instanceof Entity);
 
             return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context);
@@ -782,7 +782,7 @@ class ApiController extends AbstractController
         $criteria = new Criteria([$id]);
 
         $entities = $repository->search($criteria, $context);
-        $entity = $entities->first();
+        $entity = $entities->getEntities()->first();
         \assert($entity instanceof Entity);
 
         if ($noContent) {

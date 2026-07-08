@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed with v6.8.0.0
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AuthThrottledException extends ShopwareHttpException

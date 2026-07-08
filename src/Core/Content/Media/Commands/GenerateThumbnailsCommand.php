@@ -147,7 +147,7 @@ class GenerateThumbnailsCommand extends Command
             throw MediaException::mediaFolderNameNotFound($rawInput);
         }
 
-        return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
+        return new EqualsAnyFilter('mediaFolderId', $searchResult->getEntities()->getIds());
     }
 
     /**
@@ -175,7 +175,7 @@ class GenerateThumbnailsCommand extends Command
                     $errors[] = [\sprintf('Cannot process file "%s" (id: %s) due error: %s', $media->getFileName() ?? '', $media->getId(), $e->getMessage())];
                 }
             }
-            $this->io->progressAdvance($result->count());
+            $this->io->progressAdvance($result->getEntities()->count());
         }
 
         return [

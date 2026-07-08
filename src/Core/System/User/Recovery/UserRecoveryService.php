@@ -193,7 +193,7 @@ class UserRecoveryService
         $criteria->setLimit(1);
         $criteria->addFilter(new NotEqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON));
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$salesChannel instanceof SalesChannelEntity) {
             throw UserException::salesChannelNotFound();

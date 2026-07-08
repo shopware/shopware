@@ -125,8 +125,8 @@ if (process.env.MODE === 'incomplete') {
 /**
  * Builds the full two-leg verdict comment context and renders it through the checked-in template.
  *
- * The renderer decides whether to expose the generated bundle based on verdict confidence and
- * whether a leg reproduced, keeping unsure/blocked comments short unless evidence is useful.
+ * The authored bundle (test case + fixtures) is always surfaced when present — including for
+ * inconclusive/blocked verdicts, where seeing what was attempted is what a human needs to judge it.
  */
 function renderVerdict() {
   const art = process.env.ART || 'artifacts';

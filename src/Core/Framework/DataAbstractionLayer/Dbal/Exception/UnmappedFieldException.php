@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use {@see DalUnmappedFieldException} instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class UnmappedFieldException extends DalUnmappedFieldException

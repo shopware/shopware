@@ -400,6 +400,48 @@ class ProductStreamUpdaterTest extends TestCase
         $updater->handle($message);
     }
 
+    public function testUpdateProductsSkipsInvalidFilter(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $apiFilter = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => Uuid::randomBytes(), 'api_filter' => $apiFilter]]);
+
+        // the invalid filter is skipped, so the transaction still runs but inserts nothing
+        $connection
+            ->expects($this->once())
+            ->method('transactional');
+
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository([
+            static function (): array {
+                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
+            },
+        ], $definition);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            true,
+        );
+
+        $updater->updateProducts([Uuid::randomHex()], $context);
+    }
+
     /**
      * @return iterable<string, array<int, array<int, array<string, bool|string>|string>|Criteria>>
      */

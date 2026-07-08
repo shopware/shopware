@@ -487,7 +487,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'alicebluenew'));
-        $property = $propertyRepository->search($criteria, $context);
+        $property = $propertyRepository->search($criteria, $context)->getEntities();
         static::assertCount(1, $property);
     }
 
@@ -526,7 +526,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'MyDefaultNameForProperties'));
-        $property = $propertyRepository->search($criteria, $context);
+        $property = $propertyRepository->search($criteria, $context)->getEntities();
         // import should create 7 properties with default name
         static::assertCount(7, $property);
     }
@@ -660,7 +660,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addAssociation('configuratorSettings');
         $criteria->addFilter(new EqualsFilter('parentId', null));
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductConfiguratorSettingCollection::class, $settings = $product->getConfiguratorSettings());
         static::assertCount(10, $settings);

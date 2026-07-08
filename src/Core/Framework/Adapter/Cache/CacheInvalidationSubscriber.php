@@ -789,7 +789,7 @@ class CacheInvalidationSubscriber
                 continue;
             }
 
-            $crossSellingIds[] = \strlen($crossSellingId) === 16 ? Uuid::fromBytesToHex($crossSellingId) : $crossSellingId;
+            $crossSellingIds[] = Uuid::isValid($crossSellingId) ? $crossSellingId : Uuid::fromBytesToHex($crossSellingId);
         }
 
         return array_values(array_unique($crossSellingIds));
@@ -811,14 +811,14 @@ class CacheInvalidationSubscriber
             $payloadId = $payload['crossSellingId'] ?? $payload['cross_selling_id'] ?? null;
 
             if (\is_string($payloadId)) {
-                $crossSellingIds[] = \strlen($payloadId) === 16 ? Uuid::fromBytesToHex($payloadId) : $payloadId;
+                $crossSellingIds[] = Uuid::isValid($payloadId) ? $payloadId : Uuid::fromBytesToHex($payloadId);
             }
 
             $state = $writeResult->getExistence()?->getState() ?? [];
             $stateId = $state['crossSellingId'] ?? $state['cross_selling_id'] ?? null;
 
             if (\is_string($stateId)) {
-                $crossSellingIds[] = \strlen($stateId) === 16 ? Uuid::fromBytesToHex($stateId) : $stateId;
+                $crossSellingIds[] = Uuid::isValid($stateId) ? $stateId : Uuid::fromBytesToHex($stateId);
             }
         }
 

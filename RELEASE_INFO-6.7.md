@@ -210,6 +210,19 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 `loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
+### FormFieldToggle can toggle related submit button labels
+
+The storefront `FormFieldToggle` plugin now supports optionally updating a related button label when the toggle value changes.
+
+This is useful for dynamic forms (for example subscribe vs unsubscribe flows) where hidden/visible field groups and the submit action label should stay in sync without introducing a dedicated custom plugin.
+
+For extension and theme developers, two optional data attributes are available on the controlling field:
+
+- `data-form-field-toggle-button-target`: CSS selector for the related button.
+- `data-form-field-toggle-button-text`: Alternate button text that is applied when the toggle target is hidden.
+
+If those attributes are not provided, `FormFieldToggle` behaves exactly as before.
+
 ## API
 
 ### Store API OpenAPI: JSON schema files take precedence over generated entity schemas
@@ -1768,18 +1781,6 @@ In addition, we have refactored several places to use direct CSS or SCSS variabl
 Because of the side-effects with large combined selectors, we have added a new stylelint rule `scss/at-extend-no-missing-placeholder` that does not allow the use of `@extend` on generic selectors.
 The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
 If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
-### FormFieldToggle can toggle related submit button labels
-
-The storefront `FormFieldToggle` plugin now supports optionally updating a related button label when the toggle value changes.
-
-This is useful for dynamic forms (for example subscribe vs unsubscribe flows) where hidden/visible field groups and the submit action label should stay in sync without introducing a dedicated custom plugin.
-
-For extension and theme developers, two optional data attributes are available on the controlling field:
-
-- `data-form-field-toggle-button-target`: CSS selector for the related button.
-- `data-form-field-toggle-button-text`: Alternate button text that is applied when the toggle target is hidden.
-
-If those attributes are not provided, `FormFieldToggle` behaves exactly as before.
 
 ## App System
 

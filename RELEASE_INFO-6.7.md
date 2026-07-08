@@ -10,6 +10,7 @@ For cancellation and other correction-style ZUGFeRD documents, delivery amounts 
 - zero-value shipping is omitted from the XML entirely
 
 Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` instances manually should set document metadata via `withDocumentInformation()` before adding deliveries when they expect correction-specific shipping output. The delivery serialization now derives from the document type that was set there.
+
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.

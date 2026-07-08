@@ -111,6 +111,16 @@ honored, but confirm the first sandboxed run's `aw_info.json` shows the expected
 >   **Switched to Sonnet** (`claude-sonnet-4-6`), which reads the file and runs the script reliably
 >   (~32 credits). A truly Haiku-only probe would require changing gh-aw's prompt delivery.
 >
+> **✅ GREEN — run 28927226644: 0 required walls remain.** With `[P1]` (port) + the storefront
+> domain registration + required/informational scoring, every required check passes: the shop is
+> reachable (`/admin` 200), store-api (200) and admin API (401) work, the storefront renders under
+> the sandbox Host header (`/` 200, was 400), browsers/CLI/php/mysql present, workspace handoff works,
+> firewall + immutability enforced. The sandbox environment is ready for `reproduce.md`; the two
+> fixes below (custom allow-host-port + sales-channel domain) are what reproduce.md must adopt to run
+> sandboxed. Sequence of getting there: runs 28922261954 (port collision) → 28922794633 (Opus
+> fallback, first full results) → 28923300796/28923804213 (Haiku can't get the task) → 28924417047
+> (Sonnet, clean) → 28926529644 (port opened, storefront 400 isolated) → **28927226644 (green)**.
+>
 > **Toward green (applied after the 5-run validation):**
 > - **Wall #2 fix in [`compile.sh`](compile.sh) `[P1]`:** appends the shop's host port **8000** to
 >   awf's `--allow-host-ports` (gh-aw has no frontmatter for this; `service-ports` is for Docker

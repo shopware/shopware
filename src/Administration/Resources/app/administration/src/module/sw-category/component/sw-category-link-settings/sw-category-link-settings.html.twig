@@ -75,7 +75,7 @@
     {% endblock %}
 
     {% block sw_category_detail_link_field %}
-    <sw-text-field
+    <sw-url-field
         v-if="isExternal"
         v-model:value="category.externalLink"
         class="sw-category-link-settings__external-link"

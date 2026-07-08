@@ -67,6 +67,10 @@ class CategoryRoute extends AbstractCategoryRoute
                 || $category->getType() === CategoryDefinition::TYPE_LINK)
             && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
         ) {
+            if ($category->getType() === CategoryDefinition::TYPE_LINK) {
+                return new CategoryRouteResponse($category);
+            }
+
             throw CategoryException::categoryNotFound($navigationId);
         }
 

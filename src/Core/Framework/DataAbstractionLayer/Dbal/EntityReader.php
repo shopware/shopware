@@ -128,7 +128,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             if ($field->is(WriteProtected::class)) {
-                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is write-protected, so its system-managed value is always loaded');
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is write-protected and maps to a non-nullable property that would be left uninitialized');
             }
         }
     }

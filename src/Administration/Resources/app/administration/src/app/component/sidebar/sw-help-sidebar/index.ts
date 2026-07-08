@@ -7,6 +7,9 @@ import './sw-help-sidebar.scss';
  * @sw-package framework
  *
  * @private
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement. The help center content
+ * now lives directly in sw-help-center, rendered as an mt-popover instead of a sidebar.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

@@ -41,6 +41,10 @@ _json_escape() {
   s=${s//$'\t'/ }
   s=${s//$'\r'/ }
   s=${s//$'\n'/ }
+  # Strip ANSI colour sequences and any remaining C0 control bytes (e.g. ESC from tool output). An
+  # unescaped control char produces invalid JSON and breaks the host-side report parser (seen when a
+  # captured `npx playwright test` line carried colour codes).
+  s=$(printf '%s' "$s" | LC_ALL=C sed $'s/\x1b\\[[0-9;]*[A-Za-z]//g' | LC_ALL=C tr -d '\000-\037')
   printf '%s' "$s"
 }
 
@@ -196,7 +200,7 @@ CFG
 import { test, expect } from '@playwright/test';
 test('probe blank page renders', async ({ page }) => { await page.goto('about:blank'); expect(true).toBe(true); });
 SPEC
-  out=$(cd "$trydir" && timeout 150 npx playwright test --config playwright.config.ts 2>&1); rc=$?
+  out=$(cd "$trydir" && FORCE_COLOR=0 NO_COLOR=1 timeout 150 npx playwright test --config playwright.config.ts 2>&1); rc=$?
   ok8=$( { [ "$rc" -eq 0 ] && [ -f "$trydir/pw.json" ]; } && echo true || echo false )
   add "#8" cwd_playwright_runs req "$ok8" "npx playwright test from workspace-local dir: rc=$rc $(printf '%s' "$out" | tr '\n' ' ' | head -c 140)"
   rm -rf "$trydir" 2>/dev/null

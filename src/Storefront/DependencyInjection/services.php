@@ -201,9 +201,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services = $containerConfigurator->services();
 
-    $services->defaults()
-        ->autowire();
-
     // Checkout
     $services->set(StorefrontCartFacade::class)
         ->args([
@@ -827,7 +824,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ]);
 
-    $services->set(RobotsDirectiveParser::class);
+    $services->set(RobotsDirectiveParser::class)
+        ->args([
+            service('event_dispatcher'),
+        ]);
 
     $services->set(RobotsPageLoader::class)
         ->args([
@@ -838,6 +838,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(RobotsConfigChangeSubscriber::class)
+        ->args([
+            service(RobotsDirectiveParser::class),
+            service('logger'),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(RobotsRouteScopeWhitelist::class)

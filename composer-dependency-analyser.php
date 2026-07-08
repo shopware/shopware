@@ -10,7 +10,7 @@ require __DIR__ . '/vendor/symfony/dependency-injection/Loader/Configurator/Cont
 $config = new Configuration();
 
 /** Optional dependency and only used if `extension_loaded` is successful in @see \Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass */
-if (extension_loaded('ext-imagick')) {
+if (class_exists(Imagick::class)) {
     /** Differentiation is needed as the CI env has this extension installed */
     $config->ignoreErrorsOnExtension('ext-imagick', [ErrorType::SHADOW_DEPENDENCY]);
 } else {
@@ -83,6 +83,9 @@ return $config
 
     /** Used via Symfony Framework bundle */
     ->ignoreErrorsOnPackage('symfony/runtime', [ErrorType::UNUSED_DEPENDENCY])
+
+    /**  */
+    ->ignoreErrorsOnPackage('symfony/polyfill-php83', [ErrorType::UNUSED_DEPENDENCY])
 
     /** Can this be removed? */
     ->ignoreErrorsOnPackage('symfony/mcp-bundle', [ErrorType::UNUSED_DEPENDENCY])

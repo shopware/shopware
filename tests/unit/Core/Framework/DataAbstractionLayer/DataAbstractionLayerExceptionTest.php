@@ -247,6 +247,15 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
     }
 
+    public function testUnmappedField(): void
+    {
+        $e = DataAbstractionLayerException::unmappedField('product.categoriesRo.id', new ProductDefinition());
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__DBAL_UNMAPPED_FIELD', $e->getErrorCode());
+        static::assertSame('Field "id" in entity "product" was not found.', $e->getMessage());
+    }
+
     public function testConfigNotFound(): void
     {
         $e = DataAbstractionLayerException::configNotFound();

@@ -58,6 +58,8 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_RENDER_VALUE = 'DOCUMENT_V2__INVALID_RENDER_VALUE';
 
+    public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -123,6 +125,16 @@ class DocumentV2Exception extends HttpException
             self::RENDERER_NOT_FOUND,
             'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
             ['format' => $format, 'documentType' => $documentType],
+        );
+    }
+
+    public static function invalidDocumentType(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_DOCUMENT_TYPE,
+            'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
+            ['documentType' => $documentType],
         );
     }
 

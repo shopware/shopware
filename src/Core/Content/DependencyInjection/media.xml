@@ -187,6 +187,15 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Api\MediaDownloadController" public="true">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\DownloadResponseGenerator"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Api\MediaFolderController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaFolderService"/>
             <call method="setContainer">

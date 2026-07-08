@@ -193,6 +193,8 @@ export default {
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
+            // Ids of media entities created via `sync` whose upload has not finished yet.
+            pendingUploadMediaIds: new Set(),
         };
     },
 
@@ -317,6 +319,8 @@ export default {
         },
 
         beforeDestroyComponent() {
+            this.cleanupOrphanedMedia();
+
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
@@ -512,6 +516,12 @@ export default {
 
             await this.mediaRepository.sync(syncEntities, Context.api);
 
+            syncEntities.forEach((entity) => {
+                if (entity.id) {
+                    this.pendingUploadMediaIds.add(entity.id);
+                }
+            });
+
             await this.mediaService.addUploads(this.uploadTag, uploadData);
         },
 
@@ -535,11 +545,43 @@ export default {
             return mediaItem;
         },
 
+        /**
+         * @internal
+         */
+        cleanupOrphanedMedia() {
+            if (this.pendingUploadMediaIds.size === 0) {
+                return;
+            }
+
+            const pendingIds = Array.from(this.pendingUploadMediaIds);
+            this.pendingUploadMediaIds.clear();
+
+            pendingIds.forEach((mediaId) => {
+                Promise.resolve()
+                    .then(() => this.mediaRepository.get(mediaId, Context.api))
+                    .then((media) => {
+                        if (media && !media.hasFile) {
+                            return this.mediaRepository.delete(mediaId, Context.api);
+                        }
+
+                        return null;
+                    })
+                    .catch((error) => {
+                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                    });
+            });
+        },
+
         async getDefaultFolderId() {
             return this.mediaService.getDefaultFolderId(this.defaultFolder);
         },
 
         handleMediaServiceUploadEvent({ action, payload }) {
+            // Keep the id on failure so the orphaned entity is still cleaned up on teardown.
+            if (action === 'media-upload-finish') {
+                this.pendingUploadMediaIds.delete(payload.targetId);
+            }
+
             if (action === 'media-upload-fail') {
                 this.createNotificationError({
                     title: this.$t('global.default.error'),

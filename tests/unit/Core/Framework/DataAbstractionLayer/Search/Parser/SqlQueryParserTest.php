@@ -32,7 +32,7 @@ class SqlQueryParserTest extends TestCase
     {
         $this->expectException(DataAbstractionLayerException::class);
 
-        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), $this->createMock(Connection::class));
+        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), static::createStub(Connection::class));
 
         $parser->parse(
             new ScoreQuery(new ContainsFilter('description', 'test'), 250),
@@ -43,7 +43,7 @@ class SqlQueryParserTest extends TestCase
 
     public function testParseNegatedEqualsAnyFilterKeepsNullableRows(): void
     {
-        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), $this->createMock(Connection::class));
+        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), static::createStub(Connection::class));
 
         $result = $parser->parse(
             new NotFilter(NotFilter::CONNECTION_AND, [
@@ -65,7 +65,7 @@ class SqlQueryParserTest extends TestCase
 
     public function testParseEmptyEqualsAnyFilterOnListFieldMatchesNothing(): void
     {
-        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), $this->createMock(Connection::class));
+        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), static::createStub(Connection::class));
 
         $result = $parser->parse(
             new EqualsAnyFilter('data', []),
@@ -84,8 +84,8 @@ class SqlQueryParserTest extends TestCase
     {
         return new StaticDefinitionInstanceRegistry(
             $definitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 }

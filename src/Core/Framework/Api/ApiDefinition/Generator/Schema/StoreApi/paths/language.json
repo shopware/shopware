@@ -9,7 +9,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch languages",
-                "description": "Perform a filtered search for languages.",
+                "description": "Perform a filtered search for languages.\n\n**Available Associations:**\n- `locale` - Locale defining regional settings (date, time, number formats)\n- `translationCode` - Locale used for translating content\n- `children` - Child languages inheriting from this parent language",
                 "operationId": "readLanguages",
                 "parameters": [
                     {
@@ -25,6 +25,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -58,7 +61,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch languages",
-                "description": "Perform a filtered search for languages.",
+                "description": "Perform a filtered search for languages.\n\n**Available Associations:**\n- `locale` - Locale defining regional settings (date, time, number formats)\n- `translationCode` - Locale used for translating content\n- `children` - Child languages inheriting from this parent language",
                 "operationId": "readLanguagesGet",
                 "parameters": [
                     {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -272,6 +274,60 @@ class ProductCriteriaParserTest extends TestCase
                 'field' => 'categoryTree',
             ],
         ], $queryArray['bool']['must_not'][0]);
+    }
+
+    public function testParseCategoriesRoIdEqualsAnyFilter(): void
+    {
+        $storage = new ArrayKeyValueStorage([
+            ElasticsearchOptimizeSwitch::FLAG => true,
+        ]);
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        $firstCategoryId = Uuid::randomHex();
+        $secondCategoryId = Uuid::randomHex();
+        $filter = new EqualsAnyFilter('categoriesRo.id', [$firstCategoryId, $secondCategoryId]);
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertInstanceOf(TermsQuery::class, $result);
+        static::assertSame([
+            'terms' => [
+                'categoryTree' => [$firstCategoryId, $secondCategoryId],
+            ],
+        ], $result->toArray());
+    }
+
+    public function testParseCategoriesRoIdEqualsAnyFilterCallsParentWhenOptimizationDisabled(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $storage = new ArrayKeyValueStorage();
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        $filter = new EqualsAnyFilter('categoriesRo.id', [Uuid::randomHex()]);
+        $expectedBuilder = static::createStub(BuilderInterface::class);
+
+        $this->decoratedParser
+            ->expects($this->once())
+            ->method('parseFilter')
+            ->with($filter, $this->productDefinition, 'root', $this->context)
+            ->willReturn($expectedBuilder);
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertSame($expectedBuilder, $result);
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

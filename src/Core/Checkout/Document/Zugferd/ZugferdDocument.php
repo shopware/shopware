@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
 use horstoeko\zugferd\codelists\ZugferdAllowanceCodes;
+use horstoeko\zugferd\codelists\ZugferdChargeCodes;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
@@ -27,6 +28,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 #[Package('after-sales')]
@@ -54,6 +56,8 @@ class ZugferdDocument
     protected float $paidAmount = 0.0;
 
     protected bool $allowNegativeProductLineItems = false;
+
+    private string $currentDocumentType = ZugferdInvoiceType::INVOICE;
 
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
@@ -262,6 +266,8 @@ class ZugferdDocument
         string $isoCode,
         string $documentType
     ): self {
+        $this->currentDocumentType = $documentType;
+
         $this->zugferdBuilder->setDocumentInformation(
             $documentNumber,
             $documentType,
@@ -295,21 +301,36 @@ class ZugferdDocument
     public function withDelivery(OrderDeliveryCollection $deliveries): self
     {
         foreach ($deliveries as $delivery) {
-            $this->addMappedPrice(self::CHARGE_AMOUNT, $delivery->getShippingCosts());
+            $shippingCosts = $delivery->getShippingCosts();
 
-            foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
-                $actualAmount = $this->getPriceWithFallback($calculatedTax, $delivery->getShippingCosts());
+            if (FloatComparator::equals($shippingCosts->getTotalPrice(), 0.0)) {
+                continue;
+            }
 
-                $this->addChargeAmount($actualAmount);
+            $isCorrectionDocument = $this->currentDocumentType === ZugferdInvoiceType::CORRECTION;
+            $isCharge = !$isCorrectionDocument || $shippingCosts->getTotalPrice() > 0.0;
+
+            $this->addMappedPrice(
+                $isCharge ? self::CHARGE_AMOUNT : self::ALLOWANCE_AMOUNT,
+                $shippingCosts
+            );
+
+            foreach ($shippingCosts->getCalculatedTaxes() as $calculatedTax) {
+                $actualAmount = $this->getPriceWithFallback($calculatedTax, $shippingCosts);
+                if ($isCharge) {
+                    $this->addChargeAmount(abs($actualAmount));
+                } else {
+                    $this->addAllowanceAmount(abs($actualAmount));
+                }
 
                 $this->zugferdBuilder->addDocumentAllowanceCharge(
-                    $actualAmount,
-                    true,
+                    abs($actualAmount),
+                    $isCharge,
                     $this->getTaxCode($calculatedTax),
                     'VAT',
                     $calculatedTax->getTaxRate(),
-                    reasonCode: 'DL',
-                    reason: 'Delivery'
+                    reasonCode: $this->getDeliveryReasonCode($isCharge, $this->currentDocumentType),
+                    reason: $this->getDeliveryReason($isCharge, $this->currentDocumentType)
                 );
             }
         }
@@ -428,6 +449,32 @@ class ZugferdDocument
         };
     }
 
+    protected function getDeliveryReasonCode(bool $isCharge, string $documentType): string
+    {
+        if ($documentType !== ZugferdInvoiceType::CORRECTION) {
+            return ZugferdChargeCodes::DELIVERY;
+        }
+
+        if ($isCharge) {
+            return ZugferdChargeCodes::RETURN_HANDLING;
+        }
+
+        return ZugferdAllowanceCodes::DISCOUNT;
+    }
+
+    protected function getDeliveryReason(bool $isCharge, string $documentType): string
+    {
+        if ($documentType !== ZugferdInvoiceType::CORRECTION) {
+            return 'Delivery';
+        }
+
+        if ($isCharge) {
+            return 'Return handling';
+        }
+
+        return 'Delivery refund';
+    }
+
     private function summary(OrderEntity $order, AmountCalculator $calculator): void
     {
         if ($this->paidAmount > $order->getAmountTotal() && !$this->allowNegativeProductLineItems) {
@@ -438,10 +485,11 @@ class ZugferdDocument
         $chargeAmount = $this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator);
         $allowanceAmount = $this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator);
 
+        $chargeAmount = abs($chargeAmount);
+        $allowanceAmount = abs($allowanceAmount);
+
         if ($order->getAmountTotal() >= 0.0) {
             $lineTotal = abs($lineTotal);
-            $chargeAmount = abs($chargeAmount);
-            $allowanceAmount = abs($allowanceAmount);
         }
 
         $this->zugferdBuilder

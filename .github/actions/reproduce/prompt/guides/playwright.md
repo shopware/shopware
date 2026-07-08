@@ -128,10 +128,17 @@ import { narrate, mark } from './video-helpers.js';   // stripped from the verdi
 test('discount badge missing in slider', async ({ page }) => {
   await narrate(page, 'Open the category with the product slider');
   await page.goto('/navigation/<seeded-id>');
-  await mark(page, page.locator('.product-slider-item').first(), 'The seeded slider product');
+  await mark(page, page.locator('.product-slider-item').first(), 'the discount badge should show on this card');
   await expect(page.locator('.product-slider-item .badge-discount')).toBeVisible();
 });
 ```
+
+**Give each caption a distinct job — don't just repeat the element's name.** The `narrate` subtitle
+and the `mark` label appear at different moments, so a marker that only re-states what the subtitle
+already named ("Dashboard nav link") is dead weight on screen. Put the *action* in `narrate` and the
+*expectation* in the marker — e.g. `narrate(page, 'Click the Dashboard nav link')` then
+`mark(page, link, 'on a healthy version the sidebar closes')`. If a step warrants only one caption,
+use one; never pad with a label that adds nothing a viewer can't already see.
 
 The verdict run and the code shown in the comment are this spec with the `narrate`/`mark` lines and
 the import **removed** — the actions and the single assertion are byte-identical. So narration only

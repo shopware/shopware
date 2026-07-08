@@ -30,6 +30,8 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
     use DocumentTrait;
     use SnapshotTesting;
 
+    private const TYPE_XML = 'xml';
+
     private SalesChannelContext $salesChannelContext;
 
     private Context $context;

@@ -11,10 +11,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -25,16 +23,19 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[Package('framework')]
 class RecoverAppSecretCommandTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const FIXTURE_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
     private const FIXTURE_APP_NAME = 'test';
+    private const SECOND_APP_DIR = __DIR__ . '/../Manifest/_fixtures/minimal';
+    private const SECOND_APP_NAME = 'minimal';
 
     /**
      * @var EntityRepository<AppCollection>
      */
     private EntityRepository $appRepository;
+
+    private AppFixture $appFixture;
 
     private Context $context;
 
@@ -43,27 +44,35 @@ class RecoverAppSecretCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->appRepository = static::getContainer()->get('app.repository');
+
+        /** @var AppFixture $appFixture */
+        $appFixture = static::getContainer()->get(AppFixture::class);
+        $this->appFixture = $appFixture;
+
         $this->context = Context::createDefaultContext();
         $this->commandTester = new CommandTester(static::getContainer()->get(RecoverAppSecretCommand::class));
+
+        // Reconcile the shop id to this environment before any app holds a secret, exactly as a real install
+        // does. Once an app is registered, a fingerprint mismatch is refused rather than reconciled silently,
+        // so the fixture apps below must be created against an already-settled shop id.
+        static::getContainer()->get(ShopIdProvider::class)->getShopId();
     }
 
     public function testListShowsOnlyAppsWithPendingSecret(): void
     {
-        $this->createPlainApp('WithPending', 'old-secret', 'pending-secret');
-        $this->createPlainApp('WithoutPending', 'old-secret', null);
+        $this->createTestApp('old-secret', 'pending-secret');
+        $this->appFixture->createApp($this->appFixture->loadManifest(self::SECOND_APP_DIR . '/manifest.xml'), 'old-secret');
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
 
         $display = $this->commandTester->getDisplay();
-        static::assertStringContainsString('WithPending', $display);
-        static::assertStringNotContainsString('WithoutPending', $display);
+        static::assertStringContainsString(self::FIXTURE_APP_NAME, $display);
+        static::assertStringNotContainsString(self::SECOND_APP_NAME, $display);
     }
 
     public function testRecoverReReregistersWithThePendingSecretAndCommitsAFreshSecret(): void
     {
-        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', 'pending-secret');
+        $app = $this->createTestApp('current-secret', 'pending-secret');
 
         // The app accepts the first re-registration, signed with the pending secret.
         $this->appendHandshake('recovered-secret');
@@ -72,101 +81,92 @@ class RecoverAppSecretCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME]));
         static::assertStringContainsString('Re-registered', $this->commandTester->getDisplay());
 
-        $recovered = $this->getInstalledApp();
+        $recovered = $this->appFixture->getApp($app->getId());
         static::assertSame('recovered-secret', $recovered->getAppSecret());
         static::assertNull($recovered->getUnconfirmedAppSecrets());
     }
 
     public function testRecoverFallsBackToTheCurrentSecretWhenThePendingOneIsRejected(): void
     {
-        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', 'pending-secret');
+        $app = $this->createTestApp('current-secret', 'pending-secret');
 
         // First attempt (pending secret): the app's confirm definitively rejects it (4xx).
-        $this->appendHandshake('recovered-secret');
+        $this->appendHandshake('minted-from-pending');
         $this->appendNewResponse(new Response(403, []));
         // Second attempt (current secret): accepted.
-        $this->appendHandshake('recovered-secret');
+        $this->appendHandshake('minted-from-current');
         $this->appendNewResponse(new Response(200, []));
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME]));
 
-        $recovered = $this->getInstalledApp();
-        static::assertSame('recovered-secret', $recovered->getAppSecret());
+        // The committed secret is the one minted on the accepted (second) attempt, not the rejected first.
+        $recovered = $this->appFixture->getApp($app->getId());
+        static::assertSame('minted-from-current', $recovered->getAppSecret());
         static::assertNull($recovered->getUnconfirmedAppSecrets());
     }
 
     public function testRecoverLeavesAFreshPendingSecretAndFailsWhenTheConfirmIsAmbiguous(): void
     {
-        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', 'pending-secret');
+        $app = $this->createTestApp('current-secret', 'pending-secret');
 
         // The app accepts the handshake (signed with the pending secret) but the confirm fails without a
         // clear answer (5xx/timeout). Recovery cannot tell whether the app switched, so it leaves the
         // newly created secret pending and reports a failure for the operator to retry, instead of
         // deciding the registration can no longer be recovered.
-        $this->appendHandshake('recovered-secret');
+        $this->appendHandshake('minted-recovery');
         $this->appendNewResponse(new Response(500, []));
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME]));
         static::assertStringContainsString('unknown', $this->commandTester->getDisplay());
 
-        $afterAmbiguous = $this->getInstalledApp();
+        $afterAmbiguous = $this->appFixture->getApp($app->getId());
         // The active secret has not advanced. The freshly re-registered secret heads the pending list, with the
         // original pending secret kept behind it — a later retry still has every secret the app might hold.
         static::assertSame('current-secret', $afterAmbiguous->getAppSecret());
-        static::assertSame(['recovered-secret', 'pending-secret'], $afterAmbiguous->getUnconfirmedAppSecrets());
+        static::assertSame(['minted-recovery', 'pending-secret'], $afterAmbiguous->getUnconfirmedAppSecrets());
     }
 
     public function testRecoverFailsAndPointsAtShopIdChangeWhenBothSecretsAreRejected(): void
     {
-        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', 'pending-secret');
+        $app = $this->createTestApp('current-secret', 'pending-secret');
 
         // Both attempts are definitively rejected (4xx) at the confirm step.
-        $this->appendHandshake('recovered-secret');
+        $this->appendHandshake('minted-from-pending');
         $this->appendNewResponse(new Response(403, []));
-        $this->appendHandshake('recovered-secret');
+        $this->appendHandshake('minted-from-current');
         $this->appendNewResponse(new Response(403, []));
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME]));
         static::assertStringContainsString('app:shop-id:change', $this->commandTester->getDisplay());
 
-        $reverted = $this->getInstalledApp();
+        $reverted = $this->appFixture->getApp($app->getId());
         static::assertSame('current-secret', $reverted->getAppSecret());
         static::assertSame(['pending-secret'], $reverted->getUnconfirmedAppSecrets());
     }
 
     public function testDiscardClearsPendingSecretForShopIdChange(): void
     {
-        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', 'pending-secret');
+        $app = $this->createTestApp('current-secret', 'pending-secret');
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME, '--discard' => true]));
         static::assertStringContainsString('app:shop-id:change', $this->commandTester->getDisplay());
 
-        $discarded = $this->getInstalledApp();
+        $discarded = $this->appFixture->getApp($app->getId());
         static::assertSame('current-secret', $discarded->getAppSecret());
         static::assertNull($discarded->getUnconfirmedAppSecrets());
     }
 
     public function testRecoverOnAppWithoutPendingSecretSucceedsWithNothingToDo(): void
     {
-        $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
-        $app = $this->getInstalledApp();
-        $this->seedSecrets($app->getId(), 'current-secret', null);
-        $requestsAfterInstall = $this->getRequestCount();
+        $app = $this->createTestApp('current-secret', null);
+        $requestsBefore = $this->getRequestCount();
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['name' => self::FIXTURE_APP_NAME]));
         static::assertStringContainsString('no unconfirmed secret', $this->commandTester->getDisplay());
         // it must not have touched the app server
-        static::assertSame($requestsAfterInstall, $this->getRequestCount());
+        static::assertSame($requestsBefore, $this->getRequestCount());
 
-        $unchanged = $this->getInstalledApp();
+        $unchanged = $this->appFixture->getApp($app->getId());
         static::assertSame('current-secret', $unchanged->getAppSecret());
         static::assertNull($unchanged->getUnconfirmedAppSecrets());
     }
@@ -190,6 +190,21 @@ class RecoverAppSecretCommandTest extends TestCase
         ], \JSON_THROW_ON_ERROR)));
     }
 
+    /**
+     * Persists the fixture app (no HTTP install) with a committed secret and, optionally, a pending secret,
+     * so the recover command can be driven against it.
+     */
+    private function createTestApp(string $appSecret, ?string $pendingSecret): AppEntity
+    {
+        $app = $this->appFixture->createApp(
+            $this->appFixture->loadManifest(self::FIXTURE_APP_DIR . '/manifest.xml'),
+            $appSecret,
+        );
+        $this->seedSecrets($app->getId(), $appSecret, $pendingSecret);
+
+        return $app;
+    }
+
     private function seedSecrets(string $appId, string $appSecret, ?string $pendingSecret): void
     {
         $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $appSecret, $pendingSecret): void {
@@ -199,43 +214,5 @@ class RecoverAppSecretCommandTest extends TestCase
                 'unconfirmedAppSecrets' => $pendingSecret === null ? null : [$pendingSecret],
             ]], $context);
         });
-    }
-
-    private function createPlainApp(string $name, string $appSecret, ?string $pendingSecret): string
-    {
-        $id = Uuid::randomHex();
-
-        $this->appRepository->create([[
-            'id' => $id,
-            'name' => $name,
-            'path' => __DIR__,
-            'version' => '0.0.1',
-            'label' => $name,
-            'accessToken' => 'token',
-            'integration' => [
-                'label' => $name,
-                'accessKey' => 'access-' . $id,
-                'secretAccessKey' => 'secret',
-            ],
-            'aclRole' => [
-                'id' => Uuid::randomHex(),
-                'name' => $name,
-            ],
-        ]], $this->context);
-
-        $this->seedSecrets($id, $appSecret, $pendingSecret);
-
-        return $id;
-    }
-
-    private function getInstalledApp(): AppEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addAssociation('integration');
-
-        $app = $this->appRepository->search($criteria, $this->context)->getEntities()->first();
-        static::assertInstanceOf(AppEntity::class, $app);
-
-        return $app;
     }
 }

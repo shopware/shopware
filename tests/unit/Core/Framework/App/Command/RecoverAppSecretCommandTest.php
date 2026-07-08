@@ -12,9 +12,8 @@ use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -29,7 +28,7 @@ class RecoverAppSecretCommandTest extends TestCase
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->method('findAppsWithUnconfirmedSecrets')->willReturn(new AppCollection([]));
 
-        $tester = $this->tester($this->createMock(EntityRepository::class), $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository(), $rotationService);
 
         static::assertSame(Command::SUCCESS, $tester->execute([]));
         static::assertStringContainsString('No apps have an unconfirmed secret.', $tester->getDisplay());
@@ -42,7 +41,7 @@ class RecoverAppSecretCommandTest extends TestCase
         $app->setUnconfirmedAppSecretsUpdatedAt(new \DateTimeImmutable('2025-06-13 12:00:00+00:00'));
         $rotationService->method('findAppsWithUnconfirmedSecrets')->willReturn(new AppCollection([$app]));
 
-        $tester = $this->tester($this->createMock(EntityRepository::class), $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository(), $rotationService);
 
         static::assertSame(Command::SUCCESS, $tester->execute([]));
         $display = $tester->getDisplay();
@@ -53,13 +52,10 @@ class RecoverAppSecretCommandTest extends TestCase
 
     public function testRecoverFailsWhenTheAppDoesNotExist(): void
     {
-        $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->method('search')->willReturn($this->searchResult([]));
-
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->never())->method('recoverNow');
 
-        $tester = $this->tester($appRepository, $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository(), $rotationService);
 
         static::assertSame(Command::FAILURE, $tester->execute(['name' => 'Ghost']));
         static::assertStringContainsString('No app found for "Ghost".', $tester->getDisplay());
@@ -69,16 +65,13 @@ class RecoverAppSecretCommandTest extends TestCase
     {
         $app = $this->app('Recoverable');
 
-        $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->method('search')->willReturn($this->searchResult([$app]));
-
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->once())
             ->method('recoverNow')
             ->with($app->getId(), static::isInstanceOf(Context::class))
             ->willReturn(AppSecretRecoveryResult::Recovered);
 
-        $tester = $this->tester($appRepository, $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository($app), $rotationService);
 
         static::assertSame(Command::SUCCESS, $tester->execute(['name' => 'Recoverable']));
         static::assertStringContainsString('Re-registered app "Recoverable" with a fresh secret.', $tester->getDisplay());
@@ -88,16 +81,13 @@ class RecoverAppSecretCommandTest extends TestCase
     {
         $app = $this->app('Lost');
 
-        $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->method('search')->willReturn($this->searchResult([$app]));
-
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->once())
             ->method('discardNow')
             ->with($app->getId(), static::isInstanceOf(Context::class));
         $rotationService->expects($this->never())->method('recoverNow');
 
-        $tester = $this->tester($appRepository, $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository($app), $rotationService);
 
         static::assertSame(Command::SUCCESS, $tester->execute(['name' => 'Lost', '--discard' => true]));
         static::assertStringContainsString('app:shop-id:change', $tester->getDisplay());
@@ -108,7 +98,7 @@ class RecoverAppSecretCommandTest extends TestCase
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->never())->method('discardNow');
 
-        $tester = $this->tester($this->createMock(EntityRepository::class), $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository(), $rotationService);
 
         static::assertSame(Command::FAILURE, $tester->execute(['--discard' => true]));
         static::assertStringContainsString('--discard requires an app name.', $tester->getDisplay());
@@ -157,13 +147,10 @@ class RecoverAppSecretCommandTest extends TestCase
      */
     private function runRecoverWithResult(string $name, AppSecretRecoveryResult $result): array
     {
-        $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->method('search')->willReturn($this->searchResult([$this->app($name)]));
-
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->method('recoverNow')->willReturn($result);
 
-        $tester = $this->tester($appRepository, $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository($this->app($name)), $rotationService);
 
         return [$tester->execute(['name' => $name]), $tester->getDisplay()];
     }
@@ -175,13 +162,10 @@ class RecoverAppSecretCommandTest extends TestCase
      */
     private function runRecoverWithFailure(string $name, AppException $failure): array
     {
-        $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->method('search')->willReturn($this->searchResult([$this->app($name)]));
-
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->method('recoverNow')->willThrowException($failure);
 
-        $tester = $this->tester($appRepository, $rotationService);
+        $tester = $this->tester(AppFixture::createAppRepository($this->app($name)), $rotationService);
 
         return [$tester->execute(['name' => $name]), $tester->getDisplay()];
     }
@@ -193,22 +177,5 @@ class RecoverAppSecretCommandTest extends TestCase
         $app->setName($name);
 
         return $app;
-    }
-
-    /**
-     * @param list<AppEntity> $apps
-     *
-     * @return EntitySearchResult<AppCollection>
-     */
-    private function searchResult(array $apps): EntitySearchResult
-    {
-        return new EntitySearchResult(
-            'app',
-            \count($apps),
-            new AppCollection($apps),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
     }
 }

@@ -142,7 +142,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -263,7 +263,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -353,7 +353,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -564,7 +564,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;

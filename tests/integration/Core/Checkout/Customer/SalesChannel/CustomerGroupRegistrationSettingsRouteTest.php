@@ -77,7 +77,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
         static::assertSame($this->ids->get('group'), $response['id']);
         static::assertSame('test', $response['registrationTitle']);
         static::assertArrayHasKey('registrationOnlyCompanyRegistration', $response);
-        static::assertFalse($response['registrationOnlyCompanyRegistration']);
+        static::assertNull($response['registrationOnlyCompanyRegistration']);
     }
 
     public function testWithCompanyOnlyRegistrationEnabled(): void

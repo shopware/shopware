@@ -169,7 +169,7 @@ Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and wi
 
 ### Customer group registration config exposes `registrationOnlyCompanyRegistration` at the root
 
-The Store API endpoint `GET /store-api/customer-group-registration/config/{customerGroupId}` now always returns `registrationOnlyCompanyRegistration` as a root-level boolean, defaulting to `false` when unset. Previously it appeared only under `translated` and was omitted from the root for customer groups that never set it.
+The Store API endpoint `GET /store-api/customer-group-registration/config/{customerGroupId}` now always includes `registrationOnlyCompanyRegistration` in the response; previously it was omitted from the root for customer groups that had no translated value. The translated properties of `CustomerGroupEntity` (`registrationTitle`, `registrationIntroduction`, `registrationOnlyCompanyRegistration`, `registrationSeoMetaDescription`) are now nullable to match the translation entity, so their getters return `null` when the value is not translated for the current language instead of leaving the property uninitialised.
 
 ## Storefront
 

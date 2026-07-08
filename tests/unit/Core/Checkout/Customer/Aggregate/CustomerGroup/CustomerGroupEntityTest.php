@@ -14,10 +14,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class CustomerGroupEntityTest extends TestCase
 {
-    public function testRegistrationOnlyCompanyRegistrationDefaultsToFalse(): void
+    public function testTranslatedPropertiesDefaultToNull(): void
     {
         $customerGroup = new CustomerGroupEntity();
 
-        static::assertFalse($customerGroup->getRegistrationOnlyCompanyRegistration());
+        static::assertNull($customerGroup->getName());
+        static::assertNull($customerGroup->getRegistrationTitle());
+        static::assertNull($customerGroup->getRegistrationIntroduction());
+        static::assertNull($customerGroup->getRegistrationOnlyCompanyRegistration());
+        static::assertNull($customerGroup->getRegistrationSeoMetaDescription());
     }
 }

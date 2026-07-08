@@ -6,12 +6,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Framework\Util\UtilException;
 
 trait ColumnExistsTrait
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see UtilException} instead of {@see TableNotFoundException}
+     * @deprecated tag:v6.8.0 - reason:behavior-change - Will no longer throw a {@see TableNotFoundException} for missing tables but return false
      *
      * @param non-empty-string $table
      */

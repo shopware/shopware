@@ -424,11 +424,10 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
 
-## Thrown exception changed in migration helper traits
+## Behavior change in migration helper traits for missing tables
 
-Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
-- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
-- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+`\Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists` no longer throws a `\Doctrine\DBAL\Exception\TableNotFoundException` when the given table does not exist — it returns `false` instead.
+`\Shopware\Core\Framework\Migration\AddColumnTrait::addColumn` still throws a `\Doctrine\DBAL\Exception\TableNotFoundException` for missing tables (from the executed `ALTER TABLE` statement).
 
 ## Cache improvements
 

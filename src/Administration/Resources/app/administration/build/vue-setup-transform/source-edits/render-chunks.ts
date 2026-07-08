@@ -2,6 +2,14 @@
  * @sw-package framework
  */
 
+/**
+ * Renders source chunks while preserving original/generated boundaries.
+ *
+ * The lowerers compose nested trim and indent wrappers around copied source. This renderer expands
+ * those wrappers into flat chunks before joining text so later sourcemap support can reuse the same
+ * flattened representation.
+ */
+
 import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
 
 /**

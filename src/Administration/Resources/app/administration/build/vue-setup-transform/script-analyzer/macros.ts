@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Defines and validates Shopware setup compiler macros.
+ *
+ * The script analyzer uses this module to recognize the top-level marker calls that declare
+ * public base bindings or override replacement bindings before normal runtime state is collected.
+ */
+
 import type { CallExpression, ExpressionStatement, Node as BabelNode, ObjectExpression, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
@@ -9,6 +16,13 @@ import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
 type ShopwareSetupEntryType = 'public' | 'override';
 type StatementMacroCall = ExpressionStatement & { expression: CallExpression };
+
+/**
+ * Groups top-level Vue setup macro calls found during the first script pass.
+ *
+ * The buckets intentionally store only forms Vue compiler-sfc would treat as setup macros, so nested
+ * calls remain normal runtime calls and later diagnostics match native setup behavior.
+ */
 type SetupMacroBuckets = {
     definePropsCalls: CallExpression[];
     defineEmitsCalls: CallExpression[];

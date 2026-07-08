@@ -169,7 +169,10 @@ const getComponentContext = (): SetupContext => {
 };
 
 /**
- * This utility type is used to require the the exact shape of a type.
+ * Requires overrideable public state to match the component API mapping exactly.
+ *
+ * Extra public keys would be accepted structurally by TypeScript, but runtime overrides rely on the
+ * mapping as the stable public contract; private state belongs in the separate `private` result.
  */
 type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends never ? T : never) : never;
 
@@ -229,7 +232,11 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
- * Main function to extend the setup of a component
+ * Creates the runtime setup wrapper used by compiled base setup components.
+ *
+ * The wrapper separates public and private setup state, applies all registered Composition API and
+ * Options API shim overrides once, and returns a data scope that `sw-block` can read during slot
+ * rendering.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createExtendableSetup<
@@ -456,7 +463,7 @@ export function createExtendableSetup<
 }
 
 /**
- * Types for extracting the props of a component
+ * Extracts runtime component props without Vue's framework-level public props.
  */
 type InferComponentProps<T> = T extends new () => { $props: infer P } ? P : never;
 type ExtractedProps<T> = Omit<
@@ -468,7 +475,10 @@ type ExtractedProps<T> = Omit<
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
- * Function to add an override for a specific component
+ * Registers a setup override callback for one extendable component.
+ *
+ * Generated override SFCs call this during their hidden component setup so the base component can
+ * apply replacement bindings when its own extendable setup wrapper runs.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function overrideComponentSetup<TOriginalComponent>() {

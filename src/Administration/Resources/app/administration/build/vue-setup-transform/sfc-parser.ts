@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Parses Vue SFCs and selects files that participate in the Shopware setup transform.
+ *
+ * This boundary deliberately returns `null` for ordinary SFCs and Vue parser errors, while Shopware
+ * setup-specific violations become `ShopwareSetupTransformError` diagnostics with source offsets.
+ */
+
 import { parse as parseWithVue } from '@vue/compiler-sfc';
 import { normalizeShopwareSetupBlock, type ShopwareSetupBlock } from './utils/shopware-setup-block';
 import { toScriptBlock } from './utils/sfc-script-block';

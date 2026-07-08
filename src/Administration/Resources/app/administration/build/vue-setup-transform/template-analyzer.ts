@@ -2,6 +2,14 @@
  * @sw-package framework
  */
 
+/**
+ * Analyzes Shopware setup templates for data-scope and override-private state wiring.
+ *
+ * Base templates receive missing `sw-block` data scopes, while override templates expose only the
+ * setup bindings their override slots actually read. The resulting edits are applied with the script
+ * transform so the Vue compiler sees a normal SFC.
+ */
+
 import crypto from 'crypto';
 import path from 'path';
 import { NodeTypes, parse as parseTemplate } from '@vue/compiler-dom';
@@ -39,12 +47,24 @@ type ElementNode = CoreElementNode & {
     children: TemplateChildNode[];
 };
 
+/**
+ * Carries template source edits plus the private setup bindings that must be returned by an override.
+ *
+ * `privateNamespace` is deterministic per override file so several override SFCs can pass local
+ * fields through the same reserved slot-scope key without colliding.
+ */
 type TemplateAnalysis = {
     edits: TemplateEdit[];
     privateBindings: Set<string>;
     privateNamespace: string | null;
 };
 
+/**
+ * Describes one generated slot-scope source entry.
+ *
+ * `sourceKey` is used to avoid duplicate insertion when a user already declared the same slot prop,
+ * while `source` keeps the exact destructuring text that will be merged.
+ */
 type SlotMapping = {
     sourceKey: string;
     source: string;

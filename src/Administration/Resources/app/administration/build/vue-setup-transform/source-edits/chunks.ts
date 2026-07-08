@@ -2,11 +2,30 @@
  * @sw-package framework
  */
 
+/**
+ * Defines the small source-chunk IR used by the setup transform.
+ *
+ * Generated chunks contain compiler-owned text, original chunks point back into the SFC, and wrapper
+ * chunks delay indentation/trimming until the renderer has access to source text. Keeping this
+ * distinction lets the transform preserve author ranges when sourcemaps are added.
+ */
+
+/** Compiler-owned code with no source location in the original SFC. */
 export type GeneratedChunk = { type: 'generated'; code: string };
+
+/** Absolute source slice copied from the original SFC. */
 export type OriginalChunk = { type: 'original'; start: number; end: number };
+
+/** Deferred indentation wrapper around generated and original chunks. */
 export type IndentChunk = { type: 'indent'; chunks: SourceChunk[]; spaces: number };
+
+/** Deferred trim wrapper that keeps remaining original ranges intact. */
 export type TrimChunk = { type: 'trim'; chunks: SourceChunk[] };
+
+/** Chunk variant that can be rendered without another source-aware expansion pass. */
 export type FlatSourceChunk = GeneratedChunk | OriginalChunk;
+
+/** Recursive chunk tree produced by lowerers before rendering. */
 export type SourceChunk = FlatSourceChunk | IndentChunk | TrimChunk;
 
 type SourceBlock = {

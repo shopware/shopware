@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Lowers base Shopware setup scripts into `Shopware.Component.createExtendableSetup(...)` calls.
+ *
+ * Base lowering owns the public/private state split: public bindings become overrideable API,
+ * private bindings stay available to the component template through the returned data scope.
+ */
+
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';

@@ -2,6 +2,14 @@
  * @sw-package framework
  */
 
+/**
+ * Builds the normalized script model consumed by the Shopware setup lowerers.
+ *
+ * This analysis keeps author source ranges for hoisted declarations, validates compiler-macro
+ * placement, and classifies top-level runtime bindings before template analysis adds
+ * override-private bindings.
+ */
+
 import type { CallExpression, Identifier, ImportDeclaration, Node as BabelNode, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
@@ -44,6 +52,13 @@ type StatementWithCall = {
     call: CallExpression;
 };
 
+/**
+ * Describes one parsed Shopware setup script after macro validation and binding classification.
+ *
+ * Lowering uses this shape as its only script-side input: imports/type declarations are hoisted,
+ * body ranges are removed or replaced, runtime bindings become setup state, and override template
+ * analysis later fills the private binding namespace fields.
+ */
 type ShopwareSetupScriptAnalysis = {
     source: string;
     imports: ImportBlock[];

@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Converts analyzer removal/replacement ranges into source chunks for one script block.
+ *
+ * Lowerers use this to keep untouched author code mapped as original chunks while generated setup
+ * input replacements and removed macro markers stay compiler-owned.
+ */
+
 import { fromSource, generated, trim, type SourceChunk } from './chunks';
 
 type SourceBlock = {

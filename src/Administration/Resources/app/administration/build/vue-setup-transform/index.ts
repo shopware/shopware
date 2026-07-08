@@ -2,6 +2,14 @@
  * @sw-package framework
  */
 
+/**
+ * Converts Shopware's native setup SFC dialect into plain Vue SFC source before Vue compilation.
+ *
+ * This module owns the per-file transform boundary: parse the SFC, analyze script/template semantics,
+ * lower the Shopware setup block, and apply all source edits while leaving cross-file component-name
+ * checks to the build integration.
+ */
+
 import { lowerShopwareSetupBlock } from './lower';
 import { analyzeShopwareSetupScript, type ShopwareSetupScriptAnalysis } from './script-analyzer';
 import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';

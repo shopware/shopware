@@ -2,15 +2,28 @@
  * @sw-package framework
  */
 
+/**
+ * Applies template and script edits to complete SFC source.
+ *
+ * Callers can pass plain generated strings or structured source chunks; both are flattened into the
+ * same replacement stream so future sourcemap support can preserve original ranges uniformly.
+ */
+
 import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
 import { render, toFlatChunks } from './render-chunks';
 
+/**
+ * Describes one replacement in absolute SFC coordinates.
+ */
 type SourceEdit = {
     start: number;
     end: number;
     replacement: string | SourceChunk[];
 };
 
+/**
+ * Returned SFC code plus a placeholder for the dedicated sourcemap follow-up.
+ */
 type AppliedSourceEdits = {
     code: string;
     map: null;

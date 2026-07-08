@@ -2,6 +2,14 @@
  * @sw-package framework
  */
 
+/**
+ * Normalizes Vue setup input macros for Shopware setup lowering.
+ *
+ * Base components may declare props, emits, slots, expose, and options through Vue macros. This
+ * module validates those declarations and records the exact ranges that must be hoisted or replaced
+ * when the setup body is moved into Shopware's extendable callback.
+ */
+
 import type { CallExpression } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
@@ -16,6 +24,12 @@ type SetupInputReplacement = SourceRange & {
 
 type MacroName = 'defineProps' | 'withDefaults' | 'defineEmits' | 'defineSlots' | 'defineOptions';
 
+/**
+ * Captures one hoisted Vue setup macro call and the original source ranges that produced it.
+ *
+ * Lowering reuses the saved source text at module scope while replacing the original in-body call
+ * with generated callback inputs.
+ */
 type SetupMacroSummary = {
     code: string;
     macroName: MacroName;

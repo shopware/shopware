@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Lowers override Shopware setup scripts into hidden components that register setup overrides.
+ *
+ * Override lowering preserves user code inside the generated callback and returns only declared
+ * replacements plus template-used private locals, keeping private override state namespaced per file.
+ */
+
 import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';

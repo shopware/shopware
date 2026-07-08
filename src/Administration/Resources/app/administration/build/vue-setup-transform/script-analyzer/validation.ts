@@ -2,16 +2,22 @@
  * @sw-package framework
  */
 
+/**
+ * Enforces the semantic limits of the Shopware setup dialect.
+ *
+ * These checks keep generated code compatible with the synchronous extendable setup runtime and
+ * prevent user bindings from colliding with compiler-owned helpers or override-private state.
+ */
+
 import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { getNodeRange, isFunctionNode, walk } from './utils';
-import {
-    RESERVED_OVERRIDE_STATE_NAME,
-    SHOPWARE_SETUP_INTERNAL_PREFIX,
-    type ShopwareSetupMacroName,
-} from './macros';
+import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
 
+/**
+ * Carries a declared or imported name with the AST node used for diagnostics.
+ */
 type NamedBinding = {
     name: string;
     node: BabelNode;

@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Shared Babel parsing and traversal helpers for the Shopware setup analyzer.
+ *
+ * The helpers keep source ranges in the script-local coordinate space; callers add the SFC block
+ * offset only when producing diagnostics or original-source chunks.
+ */
+
 import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';

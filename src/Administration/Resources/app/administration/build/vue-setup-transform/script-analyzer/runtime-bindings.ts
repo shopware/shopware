@@ -2,11 +2,21 @@
  * @sw-package framework
  */
 
+/**
+ * Collects top-level values that become Shopware setup runtime state.
+ *
+ * This module separates imported names, setup input helper aliases, and user declarations so lowerers
+ * return only state that should be visible to templates or override callbacks.
+ */
+
 import type { ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { getNodeRange, unwrapTransparentMacroExpression } from './utils';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 
+/**
+ * Represents one top-level runtime value that can be returned as setup state.
+ */
 type RuntimeBinding = {
     name: string;
     node: BabelNode;
@@ -136,8 +146,7 @@ function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetu
  */
 function assertSupportedSetupInputDestructure(declaration: VariableDeclarator, scriptOffset: number): void {
     const init = unwrapTransparentMacroExpression(declaration.init);
-    const calleeName =
-        init?.type === 'CallExpression' && init.callee.type === 'Identifier' ? init.callee.name : null;
+    const calleeName = init?.type === 'CallExpression' && init.callee.type === 'Identifier' ? init.callee.name : null;
     const index = scriptOffset + getNodeRange(declaration.id, scriptOffset).start;
 
     if (calleeName === 'defineProps') {
@@ -218,8 +227,18 @@ function collectRuntimeBinding(
                     return;
                 }
 
-                if (mode === 'base' && isExposableSetupMacroDeclaration(declaration) && declaration.id.type === 'Identifier') {
-                    addRuntimeBinding(runtimeBindings, runtimeBindingNames, declaration.id.name, declaration.id, scriptOffset);
+                if (
+                    mode === 'base' &&
+                    isExposableSetupMacroDeclaration(declaration) &&
+                    declaration.id.type === 'Identifier'
+                ) {
+                    addRuntimeBinding(
+                        runtimeBindings,
+                        runtimeBindingNames,
+                        declaration.id.name,
+                        declaration.id,
+                        scriptOffset,
+                    );
                 }
 
                 return;

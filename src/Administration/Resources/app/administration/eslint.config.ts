@@ -2,6 +2,13 @@
  * @sw-package admin
  */
 
+/**
+ * ESLint flat-config entrypoint for Administration and Storefront administration sources.
+ *
+ * The config keeps legacy Shopware rule behavior while running on ESLint 9, including compatibility
+ * patches for plugins that still expose pre-flat-config rule metadata.
+ */
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
@@ -59,6 +66,12 @@ const filenameRulesPatched = {
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
 
+/**
+ * Shared rule policy applied to normal source files and TypeScript-specific overrides.
+ *
+ * Keep cross-cutting Shopware rules here so JS, TS, Vue, and Twig sections only override parser or
+ * file-type-specific behavior.
+ */
 const baseRules = {
     'file-progress/activate': 0,
     'max-len': [

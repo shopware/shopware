@@ -2,9 +2,22 @@
  * @sw-package framework
  */
 
+/**
+ * Reconstructs SFC script block source boundaries missing from Vue's descriptor shape.
+ *
+ * Vue reports content offsets, but the transform must replace the whole script block including its
+ * opening tag. This module finds that tag and exposes a shared block model for normalization.
+ */
+
 import type { SFCScriptBlock } from '@vue/compiler-sfc';
 import { ShopwareSetupTransformError } from './transform-error';
 
+/**
+ * Describes a script block with both full-tag and content-only source boundaries.
+ *
+ * `start` and `end` cover the complete SFC block replacement range, while `contentStart` anchors
+ * analyzer ranges that are relative to the script body.
+ */
 type ScriptBlock = {
     type: 'script' | 'scriptSetup';
     start: number;

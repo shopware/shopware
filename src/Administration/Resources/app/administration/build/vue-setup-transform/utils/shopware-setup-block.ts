@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Normalizes parsed SFC script blocks into Shopware setup metadata.
+ *
+ * The transform derives base/override mode and component name from the filename convention so later
+ * stages can work with a single block shape instead of repeating path parsing.
+ */
+
 import type { ScriptBlock } from './sfc-script-block';
 
 type ShopwareSetupMode = 'base' | 'override';
@@ -11,6 +18,12 @@ type ShopwareSetupTemplate = {
     contentStart: number;
 };
 
+/**
+ * Represents a `<script setup>` block plus the Shopware component identity inferred for it.
+ *
+ * Base files use `<name>.vue` or `index.vue`; override files use `<name>.override.vue` or
+ * `index.override.vue`. The component name is what runtime registration and overrides share.
+ */
 type ShopwareSetupBlock = ScriptBlock & {
     mode: ShopwareSetupMode;
     componentName: string;

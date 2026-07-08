@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Jest configuration shared by Administration unit tests and Storefront administration tests.
+ *
+ * It includes build-time TypeScript helpers such as `vue-setup-transform` so transform tests run in
+ * the same project-level module aliases and coverage collection as application code.
+ */
+
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 import type { Config } from 'jest';

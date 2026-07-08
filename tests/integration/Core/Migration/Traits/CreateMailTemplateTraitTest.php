@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core;
+namespace Shopware\Tests\Integration\Core\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -20,7 +19,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(CreateMailTemplateTrait::class)]
 class CreateMailTemplateTraitTest extends TestCase
 {
     use CreateMailTemplateTrait;
@@ -43,7 +41,7 @@ class CreateMailTemplateTraitTest extends TestCase
         $this->testDirectoryName = Uuid::randomHex();
 
         $this->filesystem = new Filesystem();
-        $this->targetDirectory = __DIR__ . '/../../../src/Core/Migration/Fixtures/mails/' . $this->testDirectoryName;
+        $this->targetDirectory = __DIR__ . '/../../../../../src/Core/Migration/Fixtures/mails/' . $this->testDirectoryName;
         $this->filesystem->mkdir($this->targetDirectory);
 
         $this->filesystem->touch([

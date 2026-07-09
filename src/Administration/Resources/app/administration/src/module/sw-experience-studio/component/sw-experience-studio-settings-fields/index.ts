@@ -8,6 +8,7 @@ import {
     getInitialPropertyValue,
     getPropertyControlType,
 } from '../../util/element-settings.util';
+import { normalizeBoxSpacingCSSValue } from '../../util/box-spacing.util';
 import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
@@ -514,6 +515,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         normalizeResponsiveValue(property: ContentSystemElementTypeProperty, value: unknown): PrimitiveValue {
+            if (this.getControlType(property) === 'box-spacing') {
+                return normalizeBoxSpacingCSSValue(value);
+            }
+
             if (this.getControlType(property) === 'responsive-number' || this.getControlType(property) === 'number') {
                 const limits = this.getResponsiveLimits(property);
 
@@ -543,6 +548,18 @@ export default Shopware.Component.wrapComponentConfig({
 
         getResponsiveFallbackValue(property: ContentSystemElementTypeProperty): PrimitiveValue {
             const initialValue = getInitialPropertyValue(property, undefined);
+
+            if (this.getControlType(property) === 'box-spacing') {
+                if (typeof initialValue === 'string' || typeof initialValue === 'number') {
+                    return normalizeBoxSpacingCSSValue(initialValue);
+                }
+
+                if (typeof property.default === 'string') {
+                    return property.default;
+                }
+
+                return '';
+            }
 
             if (this.getControlType(property) === 'responsive-number' || this.getControlType(property) === 'number') {
                 const limits = this.getResponsiveLimits(property);

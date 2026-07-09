@@ -42,21 +42,28 @@
             {% endif %}
 
             {% set elementStyleClasses = '' %}
-
-            {# {{ dump(element.style) }} #}
+            {% set elementInlineStyle = '' %}
 
             {% if element.style is not empty and element.style.values is not empty %}
                 {% for optionName, optionValue in element.style.values %}
                     {% if optionValue is mapping %}
-                        {% for viewport, value in optionValue %}
-                            {% if value is not empty and value is not null and value is not same as(false) %}
-                                {% if value is same as(true) %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                {% else %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
+                        {% if optionName is same as('padding') or optionName is same as('margin') %}
+                            {% for viewport, value in optionValue %}
+                                {% if value is not empty and value is not null and value is not same as(false) %}
+                                    {% set elementInlineStyle = elementInlineStyle ~ '--sw-element-' ~ optionName ~ '-' ~ viewport ~ ': ' ~ value ~ ';' %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                            {% for viewport, value in optionValue %}
+                                {% if value is not empty and value is not null and value is not same as(false) %}
+                                    {% if value is same as(true) %}
+                                        {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
+                                    {% else %}
+                                        {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     {% elseif optionValue is not empty %}
                         {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
                     {% endif %}
@@ -65,6 +72,10 @@
 
             {% if elementStyleClasses is not empty %}
                 {% set elementProperties = elementProperties|merge({ 'class': elementStyleClasses|trim }) %}
+            {% endif %}
+
+            {% if elementInlineStyle is not empty %}
+                {% set elementProperties = elementProperties|merge({ 'style': elementInlineStyle|trim }) %}
             {% endif %}
 
             {{ component(element.component, elementProperties) }}

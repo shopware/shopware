@@ -77,6 +77,12 @@
         "noEditableProperties": "This element does not provide editable primitive properties.",
         "noEditableStyleOptions": "No layout style options are available.",
         "viewportSettings": "Viewport settings",
+        "boxSpacingTop": "Top",
+        "boxSpacingRight": "Right",
+        "boxSpacingBottom": "Bottom",
+        "boxSpacingLeft": "Left",
+        "boxSpacingLinkSides": "Edit all sides together",
+        "boxSpacingUnlinkSides": "Edit sides individually",
         "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
         "inlineTextEditingActive": "Inline editing is currently active in the preview."
       },

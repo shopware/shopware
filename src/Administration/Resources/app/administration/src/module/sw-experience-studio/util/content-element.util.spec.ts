@@ -127,35 +127,84 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
             default: null,
             breakpointAware: true,
             adminUI: {
-                component: 'text',
+                component: 'box-spacing',
                 label: 'Padding',
             },
         };
 
         layoutWithStyle[0].slots!.content[0].style = {
-            padding: '0 8px',
+            padding: '20px 40px 20px 40px',
             'col-span': { lg: 6 },
         };
 
         const sanitizedLayout = sanitizeContentElementLayoutForWrite(layoutWithStyle, {
             padding: paddingOption,
             'col-span': {
-                ...paddingOption,
                 type: 'integer',
+                enum: null,
                 range: { min: 1, max: 12 },
+                maxLength: null,
+                default: null,
+                breakpointAware: true,
+                adminUI: {
+                    component: 'number',
+                    label: 'Column Span',
+                },
             },
         });
 
         expect(sanitizedLayout[0].slots!.content[0].style).toEqual({
             padding: {
-                xs: '0 8px',
-                sm: '0 8px',
-                md: '0 8px',
-                lg: '0 8px',
-                xl: '0 8px',
-                xxl: '0 8px',
+                xs: '20px 40px 20px 40px',
+                sm: '20px 40px 20px 40px',
+                md: '20px 40px 20px 40px',
+                lg: '20px 40px 20px 40px',
+                xl: '20px 40px 20px 40px',
+                xxl: '20px 40px 20px 40px',
             },
             'col-span': { lg: 6 },
+        });
+    });
+
+    it('normalizes legacy numeric padding maps when sanitizing elements for write', () => {
+        const layoutWithStyle = cloneDeep(layout);
+        const paddingOption: ContentSystemStyleOptionSpecification = {
+            type: 'string',
+            enum: null,
+            range: null,
+            maxLength: 64,
+            default: null,
+            breakpointAware: true,
+            adminUI: {
+                component: 'box-spacing',
+                label: 'Padding',
+            },
+        };
+
+        layoutWithStyle[0].slots!.content[0].style = {
+            padding: {
+                xs: 20,
+                sm: 20,
+                md: 20,
+                lg: 20,
+                xl: 20,
+                xxl: 20,
+            },
+        };
+
+        const sanitizedLayout = sanitizeContentElementLayoutForWrite(layoutWithStyle, {
+            padding: paddingOption,
+        });
+
+        expect(sanitizedLayout[0].slots!.content[0].style).toEqual({
+            padding: {
+                xs: '20px 20px 20px 20px',
+                sm: '20px 20px 20px 20px',
+                md: '20px 20px 20px 20px',
+                lg: '20px 20px 20px 20px',
+                xl: '20px 20px 20px 20px',
+                xxl: '20px 20px 20px 20px',
+            },
         });
     });
 

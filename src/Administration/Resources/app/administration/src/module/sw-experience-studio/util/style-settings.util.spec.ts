@@ -44,6 +44,19 @@ describe('module/sw-experience-studio/util/style-settings.util', () => {
         },
     };
 
+    const paddingOption: ContentSystemStyleOptionSpecification = {
+        type: 'string',
+        enum: null,
+        range: null,
+        maxLength: 64,
+        default: null,
+        breakpointAware: true,
+        adminUI: {
+            component: 'box-spacing',
+            label: 'Padding',
+        },
+    };
+
     it('maps style option adminUI labels to property titles', () => {
         const property = styleOptionToElementProperty('col-span', colSpanOption);
 
@@ -60,6 +73,13 @@ describe('module/sw-experience-studio/util/style-settings.util', () => {
             max: 12,
             step: 1,
         });
+    });
+
+    it('keeps box-spacing controls on breakpoint-aware string options', () => {
+        const property = styleOptionToElementProperty('padding', paddingOption);
+
+        expect(property.adminUI?.component).toBe('box-spacing');
+        expect(getPropertyControlType(property)).toBe('box-spacing');
     });
 
     it('keeps breakpoint-aware non-numeric options on their base control', () => {
@@ -180,6 +200,30 @@ describe('module/sw-experience-studio/util/style-settings.util', () => {
             ...displayOption,
             type: 'string',
         })).toEqual(wrapBreakpointAwareStyleValue('0 8px'));
+    });
+
+    it('normalizes box-spacing breakpoint maps to CSS strings on write', () => {
+        expect(normalizeStyleValueForWrite('padding', {
+            xs: 20,
+            sm: 20,
+            md: '20px 40px 20px 40px',
+            lg: '20px 40px 20px 40px',
+            xl: '20px 40px 20px 40px',
+            xxl: '20px 40px 20px 40px',
+        }, paddingOption)).toEqual({
+            xs: '20px 20px 20px 20px',
+            sm: '20px 20px 20px 20px',
+            md: '20px 40px 20px 40px',
+            lg: '20px 40px 20px 40px',
+            xl: '20px 40px 20px 40px',
+            xxl: '20px 40px 20px 40px',
+        });
+    });
+
+    it('wraps normalized box-spacing scalars into breakpoint maps for write', () => {
+        expect(normalizeStyleValueForWrite('padding', '20px 40px 20px 40px', paddingOption)).toEqual(
+            wrapBreakpointAwareStyleValue('20px 40px 20px 40px'),
+        );
     });
 
     it('omits unset style values during write normalization', () => {

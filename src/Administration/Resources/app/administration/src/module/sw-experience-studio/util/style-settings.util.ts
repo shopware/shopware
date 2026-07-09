@@ -1,6 +1,10 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import {
+    isBoxSpacingStyleOption,
+    normalizeBoxSpacingStyleValueForWrite,
+} from './box-spacing.util';
+import {
     getPropertyControlType,
     isPropertyVisible,
 } from './element-settings.util';
@@ -177,23 +181,27 @@ export function normalizeStyleValueForWrite(
     value: unknown,
     option: ContentSystemStyleOptionSpecification | undefined,
 ): unknown {
-    if (isEmptyStyleValueForWrite(value, option)) {
+    const resolvedValue = isBoxSpacingStyleOption(option)
+        ? normalizeBoxSpacingStyleValueForWrite(value)
+        : value;
+
+    if (isEmptyStyleValueForWrite(resolvedValue, option)) {
         return undefined;
     }
 
     if (!option?.breakpointAware) {
-        return value;
+        return resolvedValue;
     }
 
-    if (isBreakpointMapValue(value)) {
+    if (isBreakpointMapValue(resolvedValue)) {
         if (option.default !== null && option.default !== undefined) {
-            return expandBreakpointMapForWrite(value, option);
+            return expandBreakpointMapForWrite(resolvedValue, option);
         }
 
-        return value;
+        return resolvedValue;
     }
 
-    return wrapBreakpointAwareStyleValue(value);
+    return wrapBreakpointAwareStyleValue(resolvedValue);
 }
 
 /**
@@ -268,7 +276,11 @@ export function styleOptionToElementProperty(
 
     let mappedComponent = adminComponent;
 
-    if (option.breakpointAware && (option.type === 'integer' || option.type === 'number' || adminComponent === 'number')) {
+    if (
+        option.breakpointAware
+        && adminComponent !== 'box-spacing'
+        && (option.type === 'integer' || option.type === 'number' || adminComponent === 'number')
+    ) {
         mappedComponent = 'responsive-number';
     }
 

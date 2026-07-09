@@ -1,4 +1,5 @@
 import template from './sw-experience-studio-preview.html.twig';
+import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
 import { sanitizeContentElementLayoutForWrite } from 'src/module/sw-experience-studio/util/content-element.util';
 import './sw-experience-studio-preview.scss';
@@ -74,6 +75,11 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
+        },
+        styleOptions: {
+            type: Object as PropType<Record<string, ContentSystemStyleOptionSpecification>>,
+            required: false,
+            default: () => ({}),
         },
     },
 
@@ -493,7 +499,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.previewLoadError = null;
 
             try {
-                const previewLayout = sanitizeContentElementLayoutForWrite(serializedLayout as ContentElementNode[]);
+                const styleOptions = this.styleOptions as Record<string, ContentSystemStyleOptionSpecification>;
+                const previewLayout = sanitizeContentElementLayoutForWrite(
+                    serializedLayout as ContentElementNode[],
+                    styleOptions,
+                );
 
                 const previewUrl = await previewService.previewEntityUrl({
                     layout: previewLayout,

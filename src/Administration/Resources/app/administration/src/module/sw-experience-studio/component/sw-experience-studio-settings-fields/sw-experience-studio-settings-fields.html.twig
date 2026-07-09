@@ -76,6 +76,16 @@
                     </sw-button-group>
                 </div>
 
+                <sw-experience-studio-box-spacing-field
+                    v-else-if="getControlType(field.property) === 'box-spacing'"
+                    :field-key="field.key"
+                    :label="field.property.title"
+                    :help-text="getPropertyHelpText(field.property)"
+                    :model-value="String(getResponsiveGlobalValue(field.key, field.property, field) ?? '')"
+                    :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
+                    @update:model-value="onUpdateResponsiveGlobalProperty(field.key, field.property, field, $event)"
+                />
+
                 <mt-text-field
                     v-else
                     v-bind="getControlProps(field.property)"
@@ -111,8 +121,18 @@
                         />
                         <span class="sw-experience-studio-settings-fields__viewport-label">{{ viewport.toUpperCase() }}</span>
 
+                        <sw-experience-studio-box-spacing-field
+                            v-if="getControlType(field.property) === 'box-spacing'"
+                            class="sw-experience-studio-settings-fields__viewport-control"
+                            compact
+                            :field-key="`${field.key}-${viewport}`"
+                            :model-value="String(getResponsiveViewportValue(field.key, viewport, field.property, field) ?? '')"
+                            :disabled="!allowEdit || undefined"
+                            @update:model-value="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, $event)"
+                        />
+
                         <mt-slider
-                            v-if="getControlType(field.property) === 'responsive-number'"
+                            v-else-if="getControlType(field.property) === 'responsive-number'"
                             class="sw-experience-studio-settings-fields__responsive-slider-input"
                             label=""
                             :min="getResponsiveLimits(field.property).min"
@@ -297,6 +317,16 @@
                 v-else-if="getControlType(field.property) === 'richtext'"
                 v-bind="getControlProps(field.property)"
                 :model-value="getPropertyValue(field.key, field.property)"
+                :disabled="!allowEdit || undefined"
+                @update:model-value="onUpdateField(field.key, $event)"
+            />
+
+            <sw-experience-studio-box-spacing-field
+                v-else-if="getControlType(field.property) === 'box-spacing'"
+                :field-key="field.key"
+                :label="field.property.title"
+                :help-text="getPropertyHelpText(field.property)"
+                :model-value="String(getPropertyValue(field.key, field.property) ?? '')"
                 :disabled="!allowEdit || undefined"
                 @update:model-value="onUpdateField(field.key, $event)"
             />

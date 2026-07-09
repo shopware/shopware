@@ -88,6 +88,15 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-box-spacing-field',
+    () => import('./component/sw-experience-studio-box-spacing-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-element-picker',
     () => import('./component/sw-experience-studio-element-picker'),
 );

@@ -105,6 +105,13 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 component: 'text',
             },
         })).toBe('text');
+
+        expect(getPropertyControlType({
+            ...stringProperty,
+            adminUI: {
+                component: 'box-spacing',
+            },
+        })).toBe('box-spacing');
     });
 
     it('maps entity select properties to entity controls', () => {

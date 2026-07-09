@@ -13,7 +13,8 @@ export type ElementPropertyControlType =
     | 'media'
     | 'richtext'
     | 'text'
-    | 'responsive-number';
+    | 'responsive-number'
+    | 'box-spacing';
 
 const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType> = {
     // Meteor/basic
@@ -36,6 +37,7 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'media-field': 'media',
     'sw-media-field': 'media',
     'responsive-number': 'responsive-number',
+    'box-spacing': 'box-spacing',
 };
 
 /**

@@ -39,8 +39,6 @@ class DeliveryCalculator
 
     final public const CALCULATION_BY_VOLUME = 4;
 
-    private const FEATURE_SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION = 'SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION';
-
     /**
      * @internal
      */
@@ -169,7 +167,7 @@ class DeliveryCalculator
             default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->getTotalPriceAmount() / 100,
         };
 
-        if ($calculation === self::CALCULATION_BY_PRICE && Feature::isActive(self::FEATURE_SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION)) {
+        if ($calculation === self::CALCULATION_BY_PRICE && Feature::isActive('SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION')) {
             $value = $this->convertToDefaultCurrency($value, $context);
         }
 

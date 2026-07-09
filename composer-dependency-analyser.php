@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 use ShipMonk\ComposerDependencyAnalyser\Config\Configuration;
 use ShipMonk\ComposerDependencyAnalyser\Config\ErrorType;
+use Symfony\Component\Filesystem\Filesystem;
 
 require __DIR__ . '/vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php'; // function declarations inside
 
 $config = new Configuration();
 
-/** Optional dependency and only used if `extension_loaded` is successful in @see \Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass */
-if (class_exists(Imagick::class)) {
-    /** Differentiation is needed as the CI env has this extension installed */
-    $config->ignoreErrorsOnExtension('ext-imagick', [ErrorType::SHADOW_DEPENDENCY]);
-} else {
-    $config->ignoreUnknownClasses(['Imagick', 'ImagickPixel']);
-}
+configureImagickSupport($config);
+considerXMLServiceConfigFiles($config);
 
 return $config
     /** Only used if `class_exists` is successful in @see \Shopware\Core\Profiling\Integration\Datadog */
@@ -78,19 +74,12 @@ return $config
     /** Used for debugging */
     ->ignoreErrorsOnPackages(['symfony/debug-bundle', 'symfony/error-handler'], [ErrorType::UNUSED_DEPENDENCY])
 
-    /** Provides Twig functions just in templates */
-    ->ignoreErrorsOnPackage('twig/string-extra', [ErrorType::UNUSED_DEPENDENCY])
-
-    /** Used via Symfony Framework bundle */
-    ->ignoreErrorsOnPackage('symfony/runtime', [ErrorType::UNUSED_DEPENDENCY])
-
     /** Somehow triggered in our CI job and might not be valid locally */
     ->ignoreErrorsOnPackage('symfony/polyfill-php83', [ErrorType::UNUSED_DEPENDENCY])
 
     /** @deprecated tag:v6.8.0 - Remove these dependencies from the composer.json files */
     ->ignoreErrorsOnPackages([
         'doctrine/inflector',
-        'nyholm/psr7', // Still needed, but only in tests, needs to go to require-dev
         'symfony/monolog-bridge',
         'symfony/proxy-manager-bridge',
     ], [ErrorType::UNUSED_DEPENDENCY])
@@ -98,3 +87,53 @@ return $config
     /** Can this be removed? */
     ->ignoreErrorsOnPackage('symfony/mcp-bundle', [ErrorType::UNUSED_DEPENDENCY])
 ;
+
+function configureImagickSupport(Configuration $config): void
+{
+    /** Optional dependency and only used if `extension_loaded` is successful in @see \Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass */
+    if (class_exists(Imagick::class)) {
+        /** Differentiation is needed as the CI env has this extension installed */
+        $config->ignoreErrorsOnExtension('ext-imagick', [ErrorType::SHADOW_DEPENDENCY]);
+    } else {
+        $config->ignoreUnknownClasses(['Imagick', 'ImagickPixel']);
+    }
+}
+
+/**
+ * @deprecated tag:v6.8.0 - Can be removed once all service definitions are converted to PHP files
+ */
+function considerXMLServiceConfigFiles(Configuration $config): void
+{
+    $classNameRegex = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*'; // https://www.php.net/manual/en/language.oop5.basic.php
+
+    // TODO: Find all service definition XML files in the src directory with the Symfony Finder component.
+    $xmlFilesToCheck = [
+        '/src/Core/Framework/DependencyInjection/services.xml',
+        '/src/Core/Framework/DependencyInjection/api.xml',
+    ];
+
+    $filesystem = new Filesystem();
+    $classNames = [];
+
+    foreach ($xmlFilesToCheck as $file) {
+        $dicFileContents = $filesystem->readFile(__DIR__ . $file);
+
+        preg_match_all(
+            "~$classNameRegex(?:\\\\$classNameRegex)+~", // at least one backslash
+            $dicFileContents,
+            $matches
+        );
+
+        $classNames[] = $matches[0];
+    }
+
+    $classNames = array_merge([], ...$classNames);
+
+    // No need to add Shopware classes
+    $classNames = array_values(array_unique(array_filter(
+        $classNames,
+        static fn (string $className): bool => !str_starts_with($className, 'Shopware\\')
+    )));
+
+    $config->addForceUsedSymbols($classNames);
+}

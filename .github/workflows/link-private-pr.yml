@@ -4,6 +4,10 @@ on:
     types:
       - closed
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   link_pr:
     runs-on: ubuntu-latest

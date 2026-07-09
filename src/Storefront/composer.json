@@ -69,8 +69,5 @@
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
         "twig/twig": "^3.26.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5.19"
     }
 }

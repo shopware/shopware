@@ -49,8 +49,5 @@
         "symfony/messenger": "~7.4.12",
         "symfony/routing": "~7.4.12",
         "symfony/stopwatch": "~7.4.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5.19"
     }
 }

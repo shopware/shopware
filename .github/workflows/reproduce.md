@@ -410,10 +410,11 @@ safe-outputs:
             cp reproduction-plan.json artifacts/repro-plan/ 2>/dev/null || true
             cp fixtures.json artifacts/repro-plan/ 2>/dev/null || true
             cp agent-summary.md workspace-edits.txt artifacts/repro-plan/ 2>/dev/null || true
-            # A dead trunk env (provision failed) leaves no result → synthesize a blocked leg via the
-            # single-sourced bundle contract (bundle.mjs blockedResult) instead of an inline shape.
+            # No trunk result.json → synthesize a blocked leg via the single-sourced bundle contract
+            # (bundle.mjs blockedResult). This covers both a failed trunk provision and a verify that
+            # produced no result; the message stays neutral rather than claiming a specific cause.
             if [ -f result.json ]; then cp result.json artifacts/repro-trunk/; else
-              node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk provisioning failed (dead env)" trunk
+              node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
               cp result.json artifacts/repro-trunk/
             fi
             cp -r test-results playwright-report artifacts/repro-trunk/ 2>/dev/null || true

@@ -5,14 +5,14 @@
  * `full-run.mjs` so the trusted and preview flows share ordering.
  */
 import { FILES, readJson, writeJson, makeResult } from '../bundle.mjs';
-import { executor as httpExecutor } from '../executors/http/index.mjs';
-import { executor as playwrightExecutor } from '../executors/playwright/index.mjs';
-import { executor as directExecutor } from '../executors/direct/index.mjs';
 
+// Executors are imported lazily so a leg only loads the module chain it actually uses. Importing the
+// Playwright executor eagerly pulls in `@playwright/test` (via boilerplate/login-state.mjs), which
+// crashes an http/direct leg on a runner where Playwright was — correctly — not installed.
 const EXECUTORS = {
-  http: httpExecutor,
-  playwright: playwrightExecutor,
-  direct: directExecutor,
+  http: () => import('../executors/http/index.mjs'),
+  playwright: () => import('../executors/playwright/index.mjs'),
+  direct: () => import('../executors/direct/index.mjs'),
 };
 
 /**
@@ -23,8 +23,8 @@ const EXECUTORS = {
  */
 export async function executeBundle({ target, out }) {
   const plan = readJson(FILES.plan);
-  const executor = EXECUTORS[plan.executor];
-  const result = executor ? await executor.run({ plan, target }) : makeResult({
+  const load = EXECUTORS[plan.executor];
+  const result = load ? await (await load()).executor.run({ plan, target }) : makeResult({
     plan,
     target,
     status: 'inconclusive',

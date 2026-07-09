@@ -48,7 +48,7 @@ strict: true
 
 # Per-run AI-credit cap (~$20). The agent verifies its assumptions with cheap tools and stops; it
 # does not run the pipeline, so this is headroom rather than a target.
-max-ai-credits: 2000
+max-ai-credits: 500
 timeout-minutes: 40
 
 tools:

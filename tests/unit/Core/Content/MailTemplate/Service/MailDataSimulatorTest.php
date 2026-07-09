@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -198,10 +200,10 @@ class MailDataSimulatorTest extends TestCase
      * @param array<string, mixed> $expectedFormData
      */
     #[DataProvider('formDataObjectProvider')]
-    public function testGetTemplateDataProvidesKnownFormDataForUnstructuredObjectTypes(string $variableName, array $expectedFormData): void
+    public function testGetTemplateDataProvidesKnownFormDataForFormDataVariables(string $variableName, array $expectedFormData): void
     {
         $simulator = $this->createSimulator([
-            $variableName => (new ObjectType())->toArray(),
+            $variableName => (new FormDataObjectType())->toArray(),
         ]);
 
         $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
@@ -219,16 +221,100 @@ class MailDataSimulatorTest extends TestCase
         }
     }
 
-    public function testGetTemplateDataReturnsEmptyArrayForUnknownUnstructuredObjectTypes(): void
+    public function testGetTemplateDataReturnsEmptyArrayForUnknownFormDataVariables(): void
     {
         $simulator = $this->createSimulator([
-            'unknownFormData' => (new ObjectType())->toArray(),
+            'unknownFormData' => (new FormDataObjectType())->toArray(),
         ]);
 
         $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertArrayHasKey('unknownFormData', $result);
         static::assertSame([], $result['unknownFormData']);
+    }
+
+    public function testPlainObjectTypeVariablesDoNotDispatchFormDataEvent(): void
+    {
+        $dispatchedNames = [];
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$dispatchedNames): object {
+            if ($event instanceof MailDataSimulatorFormDataEvent) {
+                $dispatchedNames[] = $event->variableName;
+            }
+
+            return $event;
+        });
+
+        $simulator = $this->createSimulator(
+            [
+                'customer' => (new ObjectType())->toArray(),
+            ],
+            null,
+            $dispatcher
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertSame([], $dispatchedNames);
+        static::assertSame([], $result['customer']);
+    }
+
+    public function testFormDataEventCanProvideSimulatedDataForUnknownForms(): void
+    {
+        $seededData = 'not-captured';
+        $flowEventName = null;
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$seededData, &$flowEventName): object {
+            if ($event instanceof MailDataSimulatorFormDataEvent && $event->variableName === 'customFormData') {
+                $seededData = $event->getData();
+                $flowEventName = $event->flowEventName;
+                $event->setData(['customField' => 'custom-value']);
+            }
+
+            return $event;
+        });
+
+        $simulator = $this->createSimulator(
+            [
+                'customFormData' => (new FormDataObjectType())->toArray(),
+            ],
+            null,
+            $dispatcher
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertNull($seededData);
+        static::assertSame('test.flow', $flowEventName);
+        static::assertSame(['customField' => 'custom-value'], $result['customFormData']);
+    }
+
+    public function testFormDataEventReceivesKnownFormDataAndCanOverrideIt(): void
+    {
+        $capturedData = null;
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$capturedData): object {
+            if ($event instanceof MailDataSimulatorFormDataEvent && $event->variableName === FlowMailVariables::CONTACT_FORM_DATA) {
+                $capturedData = $event->getData();
+                $event->setData(['firstName' => 'Overridden']);
+            }
+
+            return $event;
+        });
+
+        $simulator = $this->createSimulator(
+            [
+                FlowMailVariables::CONTACT_FORM_DATA => (new FormDataObjectType())->toArray(),
+            ],
+            null,
+            $dispatcher
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertIsArray($capturedData);
+        static::assertSame('Max', $capturedData['firstName']);
+        static::assertSame(['firstName' => 'Overridden'], $result[FlowMailVariables::CONTACT_FORM_DATA]);
     }
 
     public function testGetTemplateDataUsesProviderCriteriaForEntityEventData(): void

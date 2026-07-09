@@ -2,6 +2,10 @@
 
 ## Core
 
+### Enforce "Allow payment change after checkout" when re-paying an order
+
+`Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` now rejects payment methods whose `afterOrderEnabled` ("Allow payment change after checkout") flag is disabled, matching the methods offered on the edit-order page. Previously the flag was only applied as a UI filter, so a payment method that renders its own JavaScript payment button (e.g. PayPal smart buttons) could still be used to pay an existing order. The store-api route `POST /store-api/order/payment` now returns `CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE` (HTTP 403) for such methods. (shopware/shopware#17495)
+
 ### ZUGFeRD correction documents derive shipping handling from document metadata
 
 For cancellation and other correction-style ZUGFeRD documents, delivery amounts are now serialized according to their business meaning:
@@ -206,6 +210,21 @@ When `displayAsGroup` is disabled, matching variants are returned and rendered i
 
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
+
+### Mail template simulation supports form data
+
+Mail template simulation now provides sample data for the `contactFormData`, `reviewFormData` and `revocationRequestFormData` variables, so simulating these form templates no longer fails.
+
+Extensions that add their own forms can supply sample data for their form variables too. Declare the variable as `Shopware\Core\Framework\Event\EventData\FormDataObjectType` (instead of a schemaless `ObjectType`) in the event's `getAvailableData()`, and provide the data via the new `Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent`:
+
+```php
+public function provideFormData(MailDataSimulatorFormDataEvent $event): void
+{
+    if ($event->flowEventName === 'my_custom_form.send' && $event->variableName === 'myCustomFormData') {
+        $event->setData(['field' => 'value']);
+    }
+}
+```
 
 ## Storefront
 

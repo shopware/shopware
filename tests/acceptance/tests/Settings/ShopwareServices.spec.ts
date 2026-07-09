@@ -28,7 +28,7 @@ test.describe('Shopware Services', () => {
                     const enableResponsePromise = AdminShopwareServices.page.waitForResponse(
                         (response) =>
                             response.url().includes('/api/services/enable') && response.request().method() === 'POST',
-                        { timeout: 20000 }
+                        { timeout: 20000 },
                     );
                     await AdminShopwareServices.activateServicesButton.click();
                     await enableResponsePromise;
@@ -52,12 +52,12 @@ test.describe('Shopware Services', () => {
             await ShopAdmin.goesTo(AdminDashboard.url());
             await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toBeVisible();
             await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toContainText(
-                'Introducing Shopware Services'
+                'Introducing Shopware Services',
             );
             await ShopAdmin.expects(AdminDashboard.shopwareServicesExploreNowButton).toBeVisible();
             await AdminDashboard.shopwareServicesExploreNowButton.click();
             await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible();
-        }
+        },
     );
 
     test(
@@ -78,12 +78,14 @@ test.describe('Shopware Services', () => {
             await test.step('Verify the visibility of the services banner for another admin user', async () => {
                 await ShopAdmin.attemptsTo(CheckVisibilityOfServicesBanner());
             });
-        }
+        },
     );
 
+    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(
-        'As a merchant, I want to fully deactivate the Shopware Services feature.',{ 
-            tag: '@Settings', 
+        'As a merchant, I want to fully deactivate the Shopware Services feature.',
+        {
+            tag: '@Settings',
             annotation: {
                 type: 'issue',
                 description: 'https://github.com/shopware/shopware/issues/17082',
@@ -96,16 +98,15 @@ test.describe('Shopware Services', () => {
 
             await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible({ timeout: 10000 });
             await ShopAdmin.expects(AdminShopwareServices.header).toHaveText(
-                'Future proof your store with Shopware Services'
+                'Future proof your store with Shopware Services',
             );
 
             await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeVisible();
             await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeEnabled();
 
             const disableResponsePromise = AdminShopwareServices.page.waitForResponse(
-                (response) =>
-                    response.url().includes('/api/services/disable') && response.request().method() === 'POST',
-                { timeout: 20000 }
+                (response) => response.url().includes('/api/services/disable') && response.request().method() === 'POST',
+                { timeout: 20000 },
             );
 
             await AdminShopwareServices.deactivateServicesButton.click();
@@ -122,7 +123,7 @@ test.describe('Shopware Services', () => {
 
             const enableResponsePromise = AdminShopwareServices.page.waitForResponse(
                 (response) => response.url().includes('/api/services/enable') && response.request().method() === 'POST',
-                { timeout: 20000 }
+                { timeout: 20000 },
             );
 
             await AdminShopwareServices.activateServicesButton.click();
@@ -132,7 +133,7 @@ test.describe('Shopware Services', () => {
             await AdminShopwareServices.page.reload();
             await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeVisible({ timeout: 15000 });
             await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible();
-        }
+        },
     );
 
     test(
@@ -236,6 +237,6 @@ test.describe('Shopware Services', () => {
 
                 await ShopAdmin.attemptsTo(CheckAccessToShopwareServices(user, aclRole));
             });
-        }
+        },
     );
 });

@@ -6,9 +6,10 @@ Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agents
 
 | Skill | Trigger phrases (examples) | What it does |
 |---|---|---|
-| [`bugfixer`](bugfixer/SKILL.md) | "fix issue #X", "create a bugfix PR", "handle qi/bugfixer", "improve Bugfixer PR #N", "/bugfixer improve" | Diagnoses a Shopware issue or Bugfixer PR feedback, applies a focused fix when appropriate, validates narrowly, and reports the change or no-op decision. |
-| [`triage`](triage/SKILL.md) | "triage issue #X", "classify this bug", "is this a duplicate", "what severity is #N" | Triages a Shopware 6 GitHub bug issue — identifies the affected code area, checks for related fixes or duplicates, and emits a Markdown summary (disposition, severity, suggested labels, confidence, evidence). |
+| [`sw-bugfixer`](sw-bugfixer/SKILL.md) | "fix issue #X", "create a bugfix PR", "handle qi/sw-bugfixer", "improve Bugfixer PR #N", "/sw-bugfixer improve" | Diagnoses a Shopware issue or Bugfixer PR feedback, applies a focused fix when appropriate, validates narrowly, and reports the change or no-op decision. |
+| [`sw-triage`](sw-triage/SKILL.md) | "triage issue #X", "classify this bug", "is this a duplicate", "what severity is #N" | Triages a Shopware 6 GitHub bug issue — identifies the affected code area, checks for related fixes or duplicates, and emits a Markdown summary (disposition, severity, suggested labels, confidence, evidence). |
 | [`sw-review`](sw-review/SKILL.md) | "review PR #X", "security review this branch", "review my staged changes" | Reviews a Shopware 6 PR or local diff through calibrated persona lenses, dedupes findings, and emits Markdown or schema-valid JSON depending on invocation mode. |
+| [`nightly-triage`](nightly-triage/SKILL.md) | "triage this nightly run", "identify all failing tests from <Actions run link>", "group the integration-major failures into issues" | Sweeps a failing multi-job PHPUnit CI run — extracts failing tests per shard, clusters them into root causes (with local Docker verification), and files per-domain issues plus a parent tracking issue, routing collateral failures to the root-cause owner. |
 | [`shopware-knowledge-capture`](shopware-knowledge-capture/SKILL.md) | "save this for later", "preserve this knowledge", "where should this information live" | Routes durable Shopware knowledge to the right home without duplicating rules or adding mechanical stubs. |
 | [`shopware-change-scope`](shopware-change-scope/SKILL.md) | "fix this bug", "apply review feedback", "should we clean this up too" | Keeps bug fixes and cleanups scoped to the root cause while catching safe nearby consistency work. |
 | [`shopware-release-docs`](shopware-release-docs/SKILL.md) | "does this need release notes", "add upgrade docs", "public API changed" | Decides whether a change needs developer-facing release info, upgrade notes, or API schema docs. |
@@ -31,7 +32,7 @@ No flags, no plugins — drop into a session and just describe what you want.
 
 A skill can additionally run unattended in CI via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw): a workflow source at `.github/workflows/<name>.md` plus a `runtime-import`-ed policy fragment at `.github/aw/<name>-policy.md`. When both surfaces exist, the shared rubric lives in `.github/aw/shared/<name>-policy.md` and is loaded by both surfaces — they cannot drift on the policy.
 
-Current twins: `triage` and `bugfixer` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
+Current twins: `sw-triage`, `sw-bugfixer`, and `sw-review` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
 
 For the gh aw setup, secrets, and registration mechanics, see [`.github/aw/README.md`](../../.github/aw/README.md).
 

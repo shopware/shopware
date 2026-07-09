@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
@@ -683,6 +684,40 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
+            // @deprecated tag:v6.8.0 - remove this whole "beforeNormalization" block
+            ->beforeNormalization()
+                ->always()->then(static function ($config) {
+                    if (!\is_array($config)) {
+                        return $config;
+                    }
+
+                    if (\array_key_exists('cache_compression', $config) && !\array_key_exists('compress', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'
+                        );
+                        $config['compress'] = $config['cache_compression'];
+                    }
+
+                    if (\array_key_exists('cache_compression_method', $config) && !\array_key_exists('compression_method', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.'
+                        );
+                        $config['compression_method'] = $config['cache_compression_method'];
+                    }
+
+                    // backward compatibility
+                    if (!isset($config['cache_compression']) && isset($config['compress'])) {
+                        $config['cache_compression'] = $config['compress'];
+                    }
+                    if (!isset($config['cache_compression_method']) && isset($config['compression_method'])) {
+                        $config['cache_compression_method'] = $config['compression_method'];
+                    }
+
+                    return $config;
+                })
+            ->end()
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')

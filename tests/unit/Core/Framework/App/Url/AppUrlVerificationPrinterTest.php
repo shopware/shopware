@@ -24,7 +24,7 @@ class AppUrlVerificationPrinterTest extends TestCase
     {
         $shopId = ShopId::v2('shop-id', [AppUrlFingerprint::IDENTIFIER => 'https://example.com']);
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')->willReturn($shopId);
 
         $printer = new AppUrlVerificationPrinter($shopIdProvider);
@@ -59,7 +59,7 @@ class AppUrlVerificationPrinterTest extends TestCase
     public function testPrintsManualAttemptAndTimestamp(): void
     {
         $shopId = ShopId::v2('shop-id', [AppUrlFingerprint::IDENTIFIER => 'https://example.org']);
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')->willReturn($shopId);
 
         $printer = new AppUrlVerificationPrinter($shopIdProvider);

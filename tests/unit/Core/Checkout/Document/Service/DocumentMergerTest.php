@@ -47,7 +47,7 @@ class DocumentMergerTest extends TestCase
         $documentGenerator = $this->createMock(DocumentGenerator::class);
         $documentGenerator->expects($this->never())->method('generate');
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('loadFile')->willReturn(self::PDF_CONTENT);
 
         $documentRepository = $this->createMock(EntityRepository::class);
@@ -66,8 +66,8 @@ class DocumentMergerTest extends TestCase
             $documentRepository,
             $mediaService,
             $documentGenerator,
-            $this->createMock(Fpdi::class),
-            $this->createMock(Filesystem::class),
+            static::createStub(Fpdi::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -118,7 +118,7 @@ class DocumentMergerTest extends TestCase
             $mediaService,
             $documentGenerator,
             $fpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -157,7 +157,7 @@ class DocumentMergerTest extends TestCase
             ),
         ]);
 
-        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator = static::createStub(DocumentGenerator::class);
 
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->exactly(2))
@@ -171,7 +171,7 @@ class DocumentMergerTest extends TestCase
             $mediaService,
             $documentGenerator,
             $fpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -239,8 +239,8 @@ class DocumentMergerTest extends TestCase
             $documentRepository,
             $mediaService,
             $documentGenerator,
-            $this->createMock(Fpdi::class),
-            $this->createMock(Filesystem::class),
+            static::createStub(Fpdi::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -319,8 +319,8 @@ class DocumentMergerTest extends TestCase
             $documentRepository,
             $mediaService,
             $documentGenerator,
-            $this->createMock(Fpdi::class),
-            $this->createMock(Filesystem::class),
+            static::createStub(Fpdi::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -369,9 +369,9 @@ class DocumentMergerTest extends TestCase
         $documentMerger = new DocumentMerger(
             $documentRepository,
             $mediaService,
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $fpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -389,7 +389,7 @@ class DocumentMergerTest extends TestCase
         $firstDocument = $this->createDocument(true);
         $secondDocument = $this->createDocument(true);
 
-        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'document',
@@ -401,7 +401,7 @@ class DocumentMergerTest extends TestCase
             )
         );
 
-        $fpdi = $this->createMock(Fpdi::class);
+        $fpdi = static::createStub(Fpdi::class);
         $fpdi->method('setSourceFile')->willThrowException(new FpdiException('PDF merge failed'));
 
         $filesystem = $this->createMock(Filesystem::class);
@@ -411,8 +411,8 @@ class DocumentMergerTest extends TestCase
 
         $documentMerger = new DocumentMerger(
             $documentRepository,
-            $this->createMock(MediaService::class),
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(MediaService::class),
+            static::createStub(DocumentGenerator::class),
             $fpdi,
             $filesystem,
         );
@@ -439,7 +439,7 @@ class DocumentMergerTest extends TestCase
             'invoice-xml'
         );
 
-        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'document',
@@ -467,7 +467,7 @@ class DocumentMergerTest extends TestCase
         $documentMerger = new DocumentMerger(
             $documentRepository,
             $mediaService,
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $fpdi,
             $filesystem,
         );
@@ -488,7 +488,7 @@ class DocumentMergerTest extends TestCase
         $firstDocument = $this->createDocument(true);
         $secondDocument = $this->createDocument(true);
 
-        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'document',
@@ -500,7 +500,7 @@ class DocumentMergerTest extends TestCase
             )
         );
 
-        $fpdi = $this->createMock(Fpdi::class);
+        $fpdi = static::createStub(Fpdi::class);
         $fpdi->method('setSourceFile')->willThrowException(new FpdiException('PDF merge failed'));
 
         $filesystem = $this->createMock(Filesystem::class);
@@ -515,8 +515,8 @@ class DocumentMergerTest extends TestCase
 
         $documentMerger = new DocumentMerger(
             $documentRepository,
-            $this->createMock(MediaService::class),
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(MediaService::class),
+            static::createStub(DocumentGenerator::class),
             $fpdi,
             $filesystem,
         );
@@ -531,7 +531,7 @@ class DocumentMergerTest extends TestCase
     {
         $document = $this->createDocument(false);
 
-        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'document',
@@ -543,16 +543,16 @@ class DocumentMergerTest extends TestCase
             )
         );
 
-        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator = static::createStub(DocumentGenerator::class);
         $documentGenerator->method('generate')
             ->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(
             $documentRepository,
-            $this->createMock(MediaService::class),
+            static::createStub(MediaService::class),
             $documentGenerator,
-            $this->createMock(Fpdi::class),
-            $this->createMock(Filesystem::class),
+            static::createStub(Fpdi::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -582,7 +582,7 @@ class DocumentMergerTest extends TestCase
             ]
         );
 
-        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'document',
@@ -630,16 +630,16 @@ class DocumentMergerTest extends TestCase
         $mockFpdi->method('useTemplate');
         $mockFpdi->method('Output')->willReturn(self::PDF_CONTENT);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('loadFileStream')
             ->willReturn(Utils::streamFor());
 
         $documentMerger = new DocumentMerger(
             $documentRepository,
             $mediaService,
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
         );
 
         $result = $documentMerger->merge(

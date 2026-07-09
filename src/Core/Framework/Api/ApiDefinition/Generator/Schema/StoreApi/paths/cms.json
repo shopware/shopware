@@ -8,7 +8,7 @@
                     "Content"
                 ],
                 "summary": "Fetch and resolve a CMS page",
-                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.\n\n**Available Associations:**\n- `sections` - Content sections within the CMS page (layout blocks containing slots)\n- `previewMedia` - Preview image for the CMS page in admin panel and page selection\n- `landingPages` - Landing pages using this CMS layout",
                 "operationId": "readCms",
                 "parameters": [
                     {
@@ -34,6 +34,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -84,7 +87,7 @@
                     "Content"
                 ],
                 "summary": "Fetch and resolve a CMS page",
-                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.\n\n**Available Associations:**\n- `sections` - Content sections within the CMS page (layout blocks containing slots)\n- `previewMedia` - Preview image for the CMS page in admin panel and page selection\n- `landingPages` - Landing pages using this CMS layout",
                 "operationId": "readCmsGet",
                 "parameters": [
                     {

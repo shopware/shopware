@@ -106,7 +106,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $resolverContext,
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw CategoryException::pageNotFound($pageId);
         }

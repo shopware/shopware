@@ -31,7 +31,7 @@ a,
 }
 
 /* style inline external links */
-a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-link--external, .mt-link--internal) {
+a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-link--external, .mt-link--internal, .mt-action-menu-item) {
     display: inline-block;
     position: relative;
     color: var(--color-text-brand-default);

@@ -148,14 +148,14 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 
-        $paymentMethods = $response->getPaymentMethods();
+        $paymentMethod = $availablePayments->getPaymentMethods()->get($paymentMethodId);
 
-        if ($paymentMethods->get($paymentMethodId) === null) {
+        if ($paymentMethod === null) {
             throw OrderException::paymentMethodNotAvailable($paymentMethodId);
         }
 
         // Enforce "Allow payment change after checkout" (afterOrderEnabled) server-side, not just in the edit-order UI filter.
-        if (!$paymentMethods->get($paymentMethodId)->getAfterOrderEnabled()) {
+        if (!$paymentMethod->getAfterOrderEnabled()) {
             throw OrderException::paymentMethodNotChangeable();
         }
     }

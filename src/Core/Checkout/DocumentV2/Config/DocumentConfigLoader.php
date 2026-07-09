@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -87,12 +88,22 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     {
         return [
             'document_base_config.written' => 'reset',
+            SystemConfigChangedEvent::class => 'onSystemConfigChanged',
         ];
     }
 
     public function reset(): void
     {
         $this->bundles = [];
+    }
+
+    public function onSystemConfigChanged(SystemConfigChangedEvent $event): void
+    {
+        if (!str_starts_with($event->getKey(), self::COMPANY_INFO_CONFIG_DOMAIN . '.')) {
+            return;
+        }
+
+        $this->reset();
     }
 
     public function load(string $documentType, string $salesChannelId, Context $context): DocumentConfigBundle
@@ -142,7 +153,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private function resolveCompanyInfoFromSystemConfig(string $salesChannelId): ?array
     {
-        $basicInformationConfig = $this->systemConfigService->getDomain(self::COMPANY_INFO_CONFIG_DOMAIN, $salesChannelId);
+        $basicInformationConfig = $this->systemConfigService->getDomain(self::COMPANY_INFO_CONFIG_DOMAIN, $salesChannelId, true);
         $companyInfoConfig = [];
 
         foreach (self::COMPANY_INFO_CONFIG_KEYS as $configKey => $targetKey) {

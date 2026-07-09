@@ -286,7 +286,7 @@ class JsonApiEncoderTest extends TestCase
             ],
         ];
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $productDefinition = new ProductDefinition();
         $productDefinition->compile($definitionRegistry);
@@ -296,7 +296,7 @@ class JsonApiEncoderTest extends TestCase
         $container = new Container();
         $container->set(ProductDefinition::class, $productDefinition);
         $container->set(CustomerDefinition::class, $customerDefinition);
-        $container->set(AttributeEntityDefinition::class, $this->createMock(AttributeEntityDefinition::class));
+        $container->set(AttributeEntityDefinition::class, static::createStub(AttributeEntityDefinition::class));
 
         $attributeEntityDefinition = new AttributeEntityDefinition($meta);
         $attributeEntityDefinition->compile(new DefinitionInstanceRegistry($container, [

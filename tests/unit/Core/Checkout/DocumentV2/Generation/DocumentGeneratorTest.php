@@ -150,7 +150,7 @@ class DocumentGeneratorTest extends TestCase
 
         [$generator] = $this->createGenerator(
             $orderRepository,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             Uuid::randomHex(),
             new DocumentEntity(),
         );
@@ -243,7 +243,7 @@ class DocumentGeneratorTest extends TestCase
             ),
         ]);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
 
         $generator = new DocumentGenerator(

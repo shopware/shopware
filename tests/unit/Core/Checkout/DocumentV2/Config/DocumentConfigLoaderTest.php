@@ -33,20 +33,20 @@ class DocumentConfigLoaderTest extends TestCase
     {
         $matchingSalesChannelId = Uuid::randomHex();
 
-        $globalRow = $this->buildBaseConfig(
+        $globalRow = $this->createBaseConfig(
             global: true,
             pageSize: 'A4',
             companyName: 'Global GmbH',
         );
 
-        $matchingRow = $this->buildBaseConfig(
+        $matchingRow = $this->createBaseConfig(
             global: false,
             pageSize: 'Letter',
             companyName: 'Matching Channel GmbH',
             salesChannelId: $matchingSalesChannelId,
         );
 
-        $otherRow = $this->buildBaseConfig(
+        $otherRow = $this->createBaseConfig(
             global: false,
             pageSize: 'A5',
             companyName: 'Wrong Channel GmbH',
@@ -60,7 +60,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
-            [new CountryCollection([$this->buildCountry()])],
+            [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
         );
 
@@ -78,13 +78,13 @@ class DocumentConfigLoaderTest extends TestCase
 
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
     {
-        $globalRow = $this->buildBaseConfig(
+        $globalRow = $this->createBaseConfig(
             global: true,
             pageSize: 'A4',
             companyName: 'Global GmbH',
         );
 
-        $unrelatedRow = $this->buildBaseConfig(
+        $unrelatedRow = $this->createBaseConfig(
             global: false,
             pageSize: 'A5',
             companyName: 'Unrelated GmbH',
@@ -98,7 +98,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
-            [new CountryCollection([$this->buildCountry()])],
+            [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
         );
 
@@ -116,7 +116,7 @@ class DocumentConfigLoaderTest extends TestCase
 
     public function testLoadRejectsZeroItemsPerPage(): void
     {
-        $globalRow = $this->buildBaseConfig(
+        $globalRow = $this->createBaseConfig(
             global: true,
             pageSize: 'A4',
             companyName: 'Global GmbH',
@@ -131,7 +131,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
-            [new CountryCollection([$this->buildCountry()])],
+            [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
         );
 
@@ -147,7 +147,7 @@ class DocumentConfigLoaderTest extends TestCase
         );
     }
 
-    private function buildBaseConfig(
+    private function createBaseConfig(
         bool $global,
         string $pageSize,
         string $companyName,
@@ -183,7 +183,7 @@ class DocumentConfigLoaderTest extends TestCase
         return $entity;
     }
 
-    private function buildCountry(): CountryEntity
+    private function createCountry(): CountryEntity
     {
         $country = new CountryEntity();
         $country->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);

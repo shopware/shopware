@@ -54,7 +54,7 @@ class BundleTest extends TestCase
     private function captureRouteImports(string $bundlePath, string $environment): array
     {
         $captured = [];
-        $loader = $this->createMock(PhpFileLoader::class);
+        $loader = static::createStub(PhpFileLoader::class);
         $loader->method('import')->willReturnCallback(
             function (mixed $resource, ?string $type = null) use (&$captured): array {
                 $captured[] = [$resource, $type];

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -64,7 +65,7 @@ class StorefrontCartFacadeTest extends TestCase
         $cart = $this->getCart();
         $cart->setErrors($errorCollection);
 
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContextMock();
         $salesChannelContext
             ->expects($this->exactly(2))
             ->method('assign')
@@ -108,7 +109,7 @@ class StorefrontCartFacadeTest extends TestCase
         $cart = $this->getCart();
         $cart->setErrors($errorCollection);
 
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContextMock();
         $salesChannelContext
             ->expects($this->exactly(2))
             ->method('assign')
@@ -153,7 +154,7 @@ class StorefrontCartFacadeTest extends TestCase
         $cart = $this->getCart();
         $cart->setErrors($errorCollection);
 
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContextMock();
         $salesChannelContext
             ->expects($this->exactly(2))
             ->method('assign')
@@ -214,7 +215,7 @@ class StorefrontCartFacadeTest extends TestCase
         $cart = $this->getCart();
         $cart->setErrors($errorCollection);
 
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContextMock();
         $salesChannelContext
             ->expects($this->never())
             ->method('assign')
@@ -252,7 +253,7 @@ class StorefrontCartFacadeTest extends TestCase
         $cart = $this->getCart();
         $cart->setErrors($errorCollection);
 
-        $salesChannelContext = $this->getSalesChannelContext();
+        $salesChannelContext = $this->getSalesChannelContextMock();
         $salesChannelContext
             ->expects($this->never())
             ->method('assign')
@@ -303,7 +304,7 @@ class StorefrontCartFacadeTest extends TestCase
         $ruleIds = ['id'];
         $areaRuleIds = ['area' => ['id']];
 
-        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator = static::createStub(CartCalculator::class);
         $cartCalculator
             ->method('calculate')
             ->willReturnCallback(static function (Cart $cart, SalesChannelContext $context) use ($ruleIds, $areaRuleIds): Cart {
@@ -399,17 +400,17 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = new StorefrontCartFacade(
             $cartService,
-            static::createMock(BlockedShippingMethodSwitcher::class),
-            static::createMock(BlockedPaymentMethodSwitcher::class),
-            static::createMock(ContextSwitchRoute::class),
-            static::createMock(CartCalculator::class),
-            static::createMock(AbstractCartPersister::class),
-            static::createMock(AbstractCheckoutGatewayRoute::class),
+            static::createStub(BlockedShippingMethodSwitcher::class),
+            static::createStub(BlockedPaymentMethodSwitcher::class),
+            static::createStub(ContextSwitchRoute::class),
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(AbstractCheckoutGatewayRoute::class),
         );
 
         $cartFacade->get(
             'token',
-            static::createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             false,
             true
         );
@@ -760,31 +761,31 @@ class StorefrontCartFacadeTest extends TestCase
         ?CartCalculator $cartCalculator = null,
         ?AbstractCheckoutGatewayRoute $checkoutGatewayRoute = null,
     ): StorefrontCartFacade {
-        $cartService = $this->createMock(CartService::class);
+        $cartService = static::createStub(CartService::class);
         $cartService->method('getCart')->willReturn($cart);
 
         $shippingCallback = $shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...);
-        $realShippingSwitcher = new BlockedShippingMethodSwitcher($this->createMock(ShippingMethodRoute::class));
-        $blockedShippingMethodSwitcher = $this->createMock(BlockedShippingMethodSwitcher::class);
+        $realShippingSwitcher = new BlockedShippingMethodSwitcher(static::createStub(ShippingMethodRoute::class));
+        $blockedShippingMethodSwitcher = static::createStub(BlockedShippingMethodSwitcher::class);
         $blockedShippingMethodSwitcher->method('switch')->willReturnCallback(
             static fn (ErrorCollection $errors, SalesChannelContext $context, ?ShippingMethodCollection $methods = null): ShippingMethodEntity => $methods === null ? $shippingCallback($errors, $context) : $realShippingSwitcher->switch($errors, $context, $methods),
         );
 
         $paymentCallback = $paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...);
-        $realPaymentSwitcher = new BlockedPaymentMethodSwitcher($this->createMock(PaymentMethodRoute::class));
-        $blockedPaymentMethodSwitcher = $this->createMock(BlockedPaymentMethodSwitcher::class);
+        $realPaymentSwitcher = new BlockedPaymentMethodSwitcher(static::createStub(PaymentMethodRoute::class));
+        $blockedPaymentMethodSwitcher = static::createStub(BlockedPaymentMethodSwitcher::class);
         $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback(
             static fn (ErrorCollection $errors, SalesChannelContext $context, ?PaymentMethodCollection $methods = null): PaymentMethodEntity => $methods === null ? $paymentCallback($errors, $context) : $realPaymentSwitcher->switch($errors, $context, $methods),
         );
 
-        $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
+        $contextSwitchRoute = static::createStub(ContextSwitchRoute::class);
 
         if (!$cartCalculator) {
-            $cartCalculator = $this->createMock(CartCalculator::class);
+            $cartCalculator = static::createStub(CartCalculator::class);
             $cartCalculator->method('calculate')->willReturnArgument(0);
         }
 
-        $cartPersister = $this->createMock(CartPersister::class);
+        $cartPersister = static::createStub(CartPersister::class);
 
         return new StorefrontCartFacade(
             $cartService,
@@ -793,7 +794,7 @@ class StorefrontCartFacadeTest extends TestCase
             $contextSwitchRoute,
             $cartCalculator,
             $cartPersister,
-            $checkoutGatewayRoute ?? $this->createMock(AbstractCheckoutGatewayRoute::class),
+            $checkoutGatewayRoute ?? static::createStub(AbstractCheckoutGatewayRoute::class),
         );
     }
 
@@ -830,15 +831,33 @@ class StorefrontCartFacadeTest extends TestCase
     }
 
     /**
+     * @return Stub&SalesChannelContext
+     */
+    private function getSalesChannelContext(): Stub
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $this->configureSalesChannelContext($salesChannelContext);
+
+        return $salesChannelContext;
+    }
+
+    /**
      * @return MockObject&SalesChannelContext
      */
-    private function getSalesChannelContext(): MockObject
+    private function getSalesChannelContextMock(): MockObject
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->configureSalesChannelContext($salesChannelContext);
+
+        return $salesChannelContext;
+    }
+
+    private function configureSalesChannelContext(MockObject|Stub $salesChannelContext): void
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
@@ -852,7 +871,5 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
-
-        return $salesChannelContext;
     }
 }

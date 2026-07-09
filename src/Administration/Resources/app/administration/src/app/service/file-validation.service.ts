@@ -4,7 +4,12 @@ type MimeTypes = {
 
 type FileValidationService = {
     extensionByType: MimeTypes;
-    checkByExtension: (file: File, extensionAccept: string, mimeOverride: MimeTypes) => boolean;
+    checkByExtension: (
+        file: File,
+        extensionAccept: string,
+        mimeOverride?: MimeTypes | null,
+        extensionMimeTypesByExtension?: MimeTypes | null,
+    ) => boolean;
     checkByType: (file: File, mimeAccept: string) => boolean;
 };
 
@@ -96,32 +101,80 @@ export default function fileValidationService(): FileValidationService {
      * @example
      * checkByExtension(file, 'png, pdf, svg', {...});
      */
-    function checkByExtension(file: File, extensionAccept: string, mimeOverride: MimeTypes): boolean {
+    function checkByExtension(
+        file: File,
+        extensionAccept: string,
+        mimeOverride: MimeTypes | null = null,
+        extensionMimeTypesByExtension: MimeTypes | null = {},
+    ): boolean {
         if (extensionAccept === '*') {
             return true;
         }
 
-        const fileExtensions: string[] = extensionAccept.replace(/\s/g, '').split(',');
+        const acceptedExtensions = extensionAccept
+            .replace(/\s/g, '')
+            .split(',')
+            .map((extension) => extension.replace(/^\./, '').toLowerCase())
+            .filter((extension) => extension.length > 0);
+        const currentFileExtension = getFileExtension(file);
 
-        const types = Object.assign(extensionByType, mimeOverride);
+        if (!currentFileExtension || !acceptedExtensions.includes(currentFileExtension)) {
+            return false;
+        }
 
-        return fileExtensions.some((extension) => {
-            const currentFileExtension = file.name.split('.').at(-1);
-
-            if (!currentFileExtension) {
-                return false;
+        if (hasExtensionMimeTypeMetadata(extensionMimeTypesByExtension)) {
+            if (!file.type) {
+                return true;
             }
 
-            if (extension !== currentFileExtension) {
-                return false;
-            }
+            return checkByMimeTypesByExtension(file.type, currentFileExtension, extensionMimeTypesByExtension);
+        }
 
-            if (!types.hasOwnProperty(file.type)) {
-                return false;
-            }
+        return checkByLegacyMimeTypeMap(file.type, currentFileExtension, mimeOverride);
+    }
 
-            return types[file.type].includes(currentFileExtension);
-        });
+    function getFileExtension(file: File): string | null {
+        if (!file.name.includes('.')) {
+            return null;
+        }
+
+        return file.name.split('.').at(-1)?.toLowerCase() ?? null;
+    }
+
+    function hasExtensionMimeTypeMetadata(mimeTypesByExtension?: MimeTypes | null): mimeTypesByExtension is MimeTypes {
+        return !!mimeTypesByExtension && Object.keys(mimeTypesByExtension).length > 0;
+    }
+
+    function checkByMimeTypesByExtension(
+        fileType: string,
+        currentFileExtension: string,
+        mimeTypesByExtension: MimeTypes,
+    ): boolean {
+        const allowedMimeTypesForExtension = mimeTypesByExtension[currentFileExtension] ?? [];
+        const knownMimeTypes = new Set(Object.values(mimeTypesByExtension).flat());
+
+        if (!knownMimeTypes.has(fileType)) {
+            return true;
+        }
+
+        return allowedMimeTypesForExtension.includes(fileType);
+    }
+
+    function checkByLegacyMimeTypeMap(
+        fileType: string,
+        currentFileExtension: string,
+        mimeOverride?: MimeTypes | null,
+    ): boolean {
+        const types = {
+            ...extensionByType,
+            ...(mimeOverride ?? {}),
+        };
+
+        if (!Object.hasOwn(types, fileType)) {
+            return false;
+        }
+
+        return types[fileType].includes(currentFileExtension);
     }
 
     /**

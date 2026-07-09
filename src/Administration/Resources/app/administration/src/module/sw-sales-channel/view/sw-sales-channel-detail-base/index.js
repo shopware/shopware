@@ -277,6 +277,14 @@ export default {
                 : 'info';
         },
 
+        primaryUnservedLanguage() {
+            return (
+                this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId) ??
+                this.unservedLanguages[0] ??
+                null
+            );
+        },
+
         storefrontDomainsLoaded() {
             return this.storefrontDomains.length > 0;
         },
@@ -453,12 +461,10 @@ export default {
 
         maintenanceIpAllowlist: {
             get() {
-                // eslint-disable-next-line inclusive-language/use-inclusive-words
-                return this.salesChannel.maintenanceIpWhitelist ?? [];
+                return this.salesChannel.maintenanceIpAllowlist ?? [];
             },
             set(value) {
-                // eslint-disable-next-line inclusive-language/use-inclusive-words
-                this.salesChannel.maintenanceIpWhitelist = value;
+                this.salesChannel.maintenanceIpAllowlist = value;
             },
         },
 
@@ -526,6 +532,10 @@ export default {
 
         serviceCategoryPlaceholder() {
             return this.salesChannel.serviceCategoryId ? '' : this.$t('sw-category.base.link.categoryPlaceholder');
+        },
+
+        businessTimeZoneOptions() {
+            return Shopware.Service('timezoneService').getTimezoneOptions();
         },
 
         salesChannelFavoritesService() {
@@ -906,6 +916,24 @@ export default {
             };
 
             return this.$t(snippet, data, collection.length);
+        },
+
+        onClickCreateDomainForUnservedLanguage() {
+            if (typeof this.$refs.salesChannelDomains?.onClickOpenCreateDomainModal !== 'function') {
+                return;
+            }
+
+            this.$refs.salesChannelDomains.onClickOpenCreateDomainModal({
+                languageId: this.primaryUnservedLanguage?.id,
+                currencyId: this.salesChannel.currencyId,
+            });
+
+            this.$nextTick(() => {
+                this.$refs.salesChannelDomains?.$el?.scrollIntoView?.({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            });
         },
 
         isFavorite() {

@@ -88,6 +88,10 @@ The Agentic Commerce sales channel features — including product export provide
 
 > Install the **Agentic Commerce extension (SwagAgenticCommerce)** from the Shopware Store **before** updating to 6.8 to retain this functionality and preserve any already configured Agentic Commerce sales channels.
 
+## Document rendering no longer falls back to the Storefront browser timezone
+
+When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
+
 </details>
 
 # API
@@ -172,6 +176,67 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
+
+`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.
+
+Changes affecting all three classes:
+
+- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`.
+- The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
+- Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
+- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
+
+`EntitySearchResult`:
+
+- The wrapper is immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed.
+- The constructor signature changed: the `$entity` parameter was removed and the remaining parameters reorder. Code that constructs results manually (test fixtures, custom decorators) must be updated.
+- The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
+
+`ProductListingResult`:
+
+- Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+
+`ProductReviewResult`:
+
+- Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
+- The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+
+## Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The execution orchestration of `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) was moved into the new `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor` service.
+The inline fallback logic in `__invoke()` was removed; the handler now always delegates to a `ScheduledTaskExecutor`.
+
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the `ScheduledTaskExecutorCompilerPass`, so handlers registered through the container — the standard way plugins register them — require no changes.
+
+If you instantiate a `ScheduledTaskHandler` manually (for example in tests), set the executor explicitly:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler($task);
+```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks were **removed**. The executor now owns the status transitions and rescheduling, so overriding these hooks no longer has any effect.
+
+If you previously overrode `rescheduleTask()` to compute a custom next execution time, implement the `Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler` interface instead. The executor asks the handler for the next execution time and persists it for you — the handler only answers the "when", not the "how":
+
+```php
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+
+class MyScheduledTaskHandler extends ScheduledTaskHandler implements DynamicallyScheduledTaskHandler
+{
+    public function getNextExecutionTime(ScheduledTask $task, ScheduledTaskEntity $taskEntity): ?\DateTimeInterface
+    {
+        // return the next execution time, or null to fall back to the default `now + runInterval` schedule
+        return $this->nextPendingRecordTimestamp();
+    }
+}
+```
 ## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
 
 The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
@@ -243,45 +308,6 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
-
-## Product stream builder API changes
-
-The `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` interface has been removed.
-Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` instead.
-
-The `buildFilters()` method has been removed from both `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder`.
-Use `AbstractProductStreamBuilder::enrichCriteria()` instead so the builder can apply both the stream filters and additional criteria state.
-
-### Before
-
-```php
-public function __construct(
-    private readonly ProductStreamBuilderInterface $productStreamBuilder,
-) {
-}
-
-$filters = $this->productStreamBuilder->buildFilters($streamId, $context);
-$criteria->addFilter(...$filters);
-```
-
-### After
-
-```php
-public function __construct(
-    private readonly AbstractProductStreamBuilder $productStreamBuilder,
-) {
-}
-
-$this->productStreamBuilder->enrichCriteria($criteria, $streamId, $context);
-```
-
-## Product streams can disable variant grouping
-
-Product streams no longer always imply grouped variant results.
-When `product_stream.display_as_group` is disabled, category listings, product cross-sellings, and CMS product sliders keep matching variants as individual variants instead of grouping them by `displayGroup` or remapping them to preview/main variants.
-
-The new field defaults to `true`, so existing product streams keep the previous behavior after migration.
-If your extension decorates storefront product stream consumers or adds variant grouping manually, respect `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED` and skip grouping or preview remapping when that state is present on the `Criteria`.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -821,6 +847,23 @@ The following exception classes were removed and replaced by domain exceptions:
 
 Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
+## `render()` removed from the core script `response` service
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` has been removed.
+Rendering Storefront templates from scripts is only available in Storefront script hooks (the `/storefront/script/{hook}` endpoint), where the `response` service is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`.
+
+Type the script `response` service for the hook you implement:
+use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and return JSON or redirects there;
+use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
+
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
+
 </details>
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
@@ -856,9 +899,60 @@ MediaUploadService::validateExternalUrl($url);
 $this->mediaUploadService->assertValidExternalUrl($url);
 ```
 
+## Removed `maintenanceIpWhitelist` wording of the sales channel in favor of `maintenanceIpAllowlist`
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel was removed and replaced by `maintenanceIpAllowlist`:
+
+* `\Shopware\Core\System\SalesChannel\SalesChannelEntity`: `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()` were removed. Use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead.
+* DAL: the field `maintenanceIpWhitelist` was renamed to `maintenanceIpAllowlist` and the database column `sales_channel.maintenance_ip_whitelist` to `sales_channel.maintenance_ip_allowlist`. Update criteria, associations and write payloads accordingly.
+* Admin API: the sales channel field `maintenanceIpWhitelist` was renamed to `maintenanceIpAllowlist`.
+* `\Shopware\Core\SalesChannelRequest`: the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST` was removed. Use `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead.
+* `\Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: the constant `MAINTENANCE_WHITELIST_HEADER` was removed. Use `MAINTENANCE_ALLOWLIST_HEADER` instead.
+
+```php
+// Before
+$salesChannel->getMaintenanceIpWhitelist();
+
+// After
+$salesChannel->getMaintenanceIpAllowlist();
+```
+
 # Administration
 
 <details>
+
+### Block removals
+
+Due to inappropriate block names, the following deprecated blocks have been removed. Use the respective replacements instead:
+
+#### sw-cms-el-config-buy-box.html.twig
+
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-cross-selling.html.twig
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+
+#### sw-cms-el-config-product-box.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-description-reviews.html.twig
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-slider.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+
+#### sw-product-cross-selling-assignment.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 ## Migrating Options API overrides to the Composition API Extension System
 
@@ -1328,6 +1422,12 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) have been removed. Use `loadDomains()` instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.
+
+`loadDomains()` is now abstract. If you decorate `AbstractDomainLoader`, implement `loadDomains()` and return a `DomainCollection`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
 ## Removal of inline microdata in favour of JSON-LD structured data
 
 All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.
@@ -1695,6 +1795,33 @@ State-based invalidation is not supported anymore.
 +{# No replacement #}
 ```
 
+## Inline `<custom-fields>` in `manifest.xml` removed
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is no longer supported.
+Move the definitions into a dedicated `Resources/config/custom-fields.xml` file instead, using the same XML format.
+
+```diff
+// manifest.xml
+- <custom-fields>
+-     <custom-field-set>
+-         <name>swag_example_set</name>
+-         ...
+-     </custom-field-set>
+- </custom-fields>
+```
+
+```xml
+<!-- Resources/config/custom-fields.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>swag_example_set</name>
+        ...
+    </custom-field-set>
+</custom-fields>
+```
+
 </details>
 
 # Hosting & Configuration
@@ -1876,3 +2003,11 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 - Use `getContext()` from the event for framework context data.
 
 </details>
+
+## Dynamic product group: "display as group"
+
+`product_stream` has a `display_as_group` flag (default `true`). When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
+
+`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
+
+If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.

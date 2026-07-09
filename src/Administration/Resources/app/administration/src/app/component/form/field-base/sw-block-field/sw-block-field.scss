@@ -1,11 +1,8 @@
-@import "~scss/variables";
-
-$sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
-
 .sw-block-field {
     .sw-block-field__block {
         border: 1px solid var(--color-border-primary-default);
-        border-radius: $border-radius-default;
+        border-radius: var(--border-radius-xs);
+        background: var(--color-background-primary-default);
         overflow: hidden;
         height: 48px;
     }
@@ -22,10 +19,10 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         min-width: 0;
         padding: 12px 16px;
         border: none;
-        background: var(--color-elevation-surface-raised);
+        background: var(--color-background-primary-default);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
-        transition: $sw-field-transition;
+        transition: border-color 0.3s ease-out, background 0.3s ease;
         color: var(--color-text-primary-default);
         outline: none;
         -webkit-appearance: none;
@@ -38,7 +35,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         }
 
         &:disabled {
-            background: var(--color-background-primary-disabled);
+            background: var(--color-background-tertiary-default);
             border-color: var(--color-border-primary-default);
             cursor: default !important;
         }
@@ -51,7 +48,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
     &.has--focus {
         .sw-block-field__block {
             outline-offset: var(--scale-size-2);
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
         }
     }
 
@@ -63,7 +60,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
             input,
             textarea,
             select {
-                background: var(--color-background-critical);
+                background: var(--color-background-critical-default);
             }
         }
 

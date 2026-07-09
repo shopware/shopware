@@ -103,7 +103,7 @@ class SendMailTemplate
         $criteria->setTitle('send-mail::load-mail-template');
         $criteria->setLimit(1);
 
-        return $this->mailTemplateRepository->search($criteria, $context)->first();
+        return $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

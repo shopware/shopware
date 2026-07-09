@@ -62,12 +62,12 @@ class UserControllerTest extends TestCase
     private function createController(?SsoService $ssoService = null): UserController
     {
         return new UserController(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(UserDefinition::class),
-            $ssoService ?? $this->createMock(SsoService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(UserDefinition::class),
+            $ssoService ?? static::createStub(SsoService::class),
         );
     }
 }

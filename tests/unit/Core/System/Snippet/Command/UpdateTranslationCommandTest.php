@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -22,12 +22,12 @@ class UpdateTranslationCommandTest extends TestCase
 {
     private TranslationLoader&MockObject $translationLoader;
 
-    private TranslationMetadataLoader&MockObject $metadataLoader;
+    private TranslationMetadataStore&MockObject $metadataStore;
 
     protected function setUp(): void
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
-        $this->metadataLoader = $this->createMock(TranslationMetadataLoader::class);
+        $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
     }
 
     public function testExecuteUpdatesAllInstalledTranslations(): void
@@ -61,7 +61,7 @@ class UpdateTranslationCommandTest extends TestCase
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
             });
 
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('save')
             ->with($metadataCollection);
 
@@ -99,7 +99,7 @@ class UpdateTranslationCommandTest extends TestCase
         $this->translationLoader->expects($this->never())
             ->method('load');
 
-        $this->metadataLoader->expects($this->never())
+        $this->metadataStore->expects($this->never())
             ->method('save');
 
         $tester->execute([]);
@@ -141,7 +141,7 @@ class UpdateTranslationCommandTest extends TestCase
             ->method('load')
             ->with('pl-PL');
 
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('save')
             ->with($metadataCollection);
 
@@ -157,12 +157,12 @@ class UpdateTranslationCommandTest extends TestCase
 
     private function getCommand(): UpdateTranslationCommand
     {
-        return new UpdateTranslationCommand($this->translationLoader, $this->metadataLoader);
+        return new UpdateTranslationCommand($this->translationLoader, $this->metadataStore);
     }
 
     private function initMetadataLoader(MetadataCollection $collection): void
     {
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->willReturn($collection);
     }

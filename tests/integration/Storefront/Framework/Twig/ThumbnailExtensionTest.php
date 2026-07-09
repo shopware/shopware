@@ -321,6 +321,7 @@ class ThumbnailExtensionTest extends TestCase
             ),
             static::createStub(ThemeScripts::class),
             'test',
+            [],
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

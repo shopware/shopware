@@ -36,6 +36,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductListingLoader
 {
     /**
+     * Criteria state that suppresses the variant grouping (`displayGroup` field grouping) otherwise
+     * applied to product listings. Set by {@see AbstractProductStreamBuilder::enrichCriteria()}
+     * when a product stream is configured to not display its variants as a group.
+     */
+    final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
+
+    /**
      * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
      * data required by the default storefront product boxes. Nested association fields (e.g.
      * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
@@ -143,7 +150,7 @@ class ProductListingLoader
 
         $ids = $idResult->getIds();
         // no products found, no need to continue
-        if (empty($ids)) {
+        if ($ids === []) {
             $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -314,11 +321,11 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$productSearchResult->has($mapping[$id])) {
+            if (!$productSearchResult->getEntities()->has($mapping[$id])) {
                 continue;
             }
 
-            $product = $productSearchResult->get($mapping[$id]);
+            $product = $productSearchResult->getEntities()->get($mapping[$id]);
 
             // get access to the data of the search result
             $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
@@ -327,7 +334,7 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $displayAsGroup = $this->isDisplayAsGroupEnabled($criteria);
+        $displayAsGroup = !$this->shouldSkipGrouping($criteria);
 
         if ($displayAsGroup) {
             $this->addGrouping($criteria);
@@ -368,7 +375,7 @@ class ProductListingLoader
         $mapping = array_combine($keys, $keys);
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->isDisplayAsGroupEnabled($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -417,8 +424,8 @@ class ProductListingLoader
         return $this->productRepository->search($read, $context);
     }
 
-    private function isDisplayAsGroupEnabled(Criteria $criteria): bool
+    private function shouldSkipGrouping(Criteria $criteria): bool
     {
-        return !$criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        return $criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
     }
 }

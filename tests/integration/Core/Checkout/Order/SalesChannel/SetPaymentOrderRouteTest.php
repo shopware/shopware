@@ -328,7 +328,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testSetPaymentMethodNotAfterOrderEnabled(): void

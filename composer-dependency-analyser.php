@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use ShipMonk\ComposerDependencyAnalyser\Config\Configuration;
 use ShipMonk\ComposerDependencyAnalyser\Config\ErrorType;
-use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 require __DIR__ . '/vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php'; // function declarations inside
 
@@ -106,21 +106,26 @@ function considerXMLServiceConfigFiles(Configuration $config): void
 {
     $classNameRegex = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*'; // https://www.php.net/manual/en/language.oop5.basic.php
 
-    // TODO: Find all service definition XML files in the src directory with the Symfony Finder component.
-    $xmlFilesToCheck = [
-        '/src/Core/Framework/DependencyInjection/services.xml',
-        '/src/Core/Framework/DependencyInjection/api.xml',
-    ];
+    $xmlFilesToCheck = (new Finder())
+        ->files()
+        ->in(__DIR__ . '/src')
+        ->path('DependencyInjection')
+        ->name('*.xml');
 
-    $filesystem = new Filesystem();
     $classNames = [];
 
     foreach ($xmlFilesToCheck as $file) {
-        $dicFileContents = $filesystem->readFile(__DIR__ . $file);
+        $fileName = $file->getBasename();
+        if (str_ends_with($fileName, '_dev.xml')
+            || str_ends_with($fileName, '_e2e.xml')
+            || str_ends_with($fileName, '_test.xml')
+        ) {
+            continue;
+        }
 
         preg_match_all(
             "~$classNameRegex(?:\\\\$classNameRegex)+~", // at least one backslash
-            $dicFileContents,
+            $file->getContents(),
             $matches
         );
 

@@ -206,7 +206,7 @@ class AuthControllerTest extends TestCase
 
     public function testConvertSetsInfoFlashOnRateLimitExceeded(): void
     {
-        $convertGuestRoute = $this->createMock(ConvertGuestRoute::class);
+        $convertGuestRoute = static::createStub(ConvertGuestRoute::class);
 
         $convertGuestRoute->method('convertGuest')
             ->willThrowException(
@@ -214,16 +214,16 @@ class AuthControllerTest extends TestCase
             );
 
         $this->controller = new AuthControllerTestClass(
-            $this->createMock(AccountLoginPageLoader::class),
-            $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
-            $this->createMock(ResetPasswordRoute::class),
-            $this->createMock(LoginRoute::class),
-            $this->createMock(AbstractLogoutRoute::class),
-            $this->createMock(ImitateCustomerRoute::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(AccountRecoverPasswordPageLoader::class),
+            static::createStub(AccountLoginPageLoader::class),
+            static::createStub(AbstractSendPasswordRecoveryMailRoute::class),
+            static::createStub(ResetPasswordRoute::class),
+            static::createStub(LoginRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
+            static::createStub(ImitateCustomerRoute::class),
+            static::createStub(StorefrontCartFacade::class),
+            static::createStub(AccountRecoverPasswordPageLoader::class),
             $convertGuestRoute,
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
         );
 
         $data = new RequestDataBag([
@@ -233,7 +233,7 @@ class AuthControllerTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setGuest(true);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $this->controller->convert($data, $context);

@@ -108,15 +108,31 @@ function write(markdown) {
 
 if (process.env.MODE === 'incomplete') {
   const tpl = fs.readFileSync(path.join(templates, 'comment.incomplete.md'), 'utf8');
+  const art = process.env.ART || 'artifacts';
   const edits = readExtra('workspace-edits.txt');
   // Prefer the agent's own give-up reason (written by `repro giveup` into giveup.txt, carried in the
   // repro-plan artifact). Fall back to the REASON env / generic default only when it's absent.
   const giveup = readExtra('giveup.txt');
+  // A provision health-gate failure (finish-provision.sh) records the specific reason here — e.g. the
+  // reported version's admin did not boot — so the comment says exactly why instead of a generic line.
+  const provisionError = readExtra('provision-error.txt');
+  // Still show the authored bundle when one exists (e.g. a blocked run): the test case + fixtures are
+  // what a human needs to see what was attempted, even though no verdict was reached.
+  const plan = readJson(`${art}/repro-plan/reproduction-plan.json`) || {};
+  const specFile = `${art}/repro-plan/${plan.script_path || 'repro.spec.ts'}`;
+  const script = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '';
+  const fixturesPath = `${art}/repro-plan/fixtures.json`;
+  const hasFixtures = fs.existsSync(fixturesPath);
   write(render(tpl, {
-    REASON: giveup || process.env.REASON || DATA.incomplete_reason_default,
+    REASON: giveup || provisionError || process.env.REASON || DATA.incomplete_reason_default,
     RUN_URL: process.env.RUN_URL || '',
     AGENT_SUMMARY: readExtra('agent-summary.md'),
     EDITS: edits,
+    SCENARIO: scenarioBlock(plan),
+    TESTCASE: script,
+    TESTCASE_LANG: plan.executor === 'direct' ? 'php' : 'ts',
+    TESTCASE_TOOL: (DATA.phrases.testcase_tool && DATA.phrases.testcase_tool[plan.executor]) || plan.executor || 'test',
+    FIXTURES: hasFixtures ? fs.readFileSync(fixturesPath, 'utf8').trim() : '',
   }));
 } else {
   write(renderVerdict());
@@ -152,8 +168,12 @@ function renderVerdict() {
   // Always surface the authored bundle when one exists — including for an inconclusive/blocked
   // verdict. Seeing the exact test case + fixtures that were attempted is precisely what a human
   // needs to judge why it couldn't be reproduced (e.g. a precondition that never rendered).
-  const specLeg = legA || legB;
-  const script = specLeg?.evidence?.script || '';
+  const specLeg = [legA, legB].find((l) => l?.evidence?.script) || legA || legB;
+  // Source the authored test case from the repro-plan artifact so it shows even when the leg that
+  // would carry it blocked before running (a blocked leg records no evidence.script). Fall back to
+  // leg evidence for executors with no spec file on disk (http).
+  const specFile = `${art}/repro-plan/${plan.script_path || 'repro.spec.ts'}`;
+  const script = (fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '') || specLeg?.evidence?.script || '';
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
   const hasFixtures = fs.existsSync(fixturesPath);
   const agentSummary = readExtra('agent-summary.md');

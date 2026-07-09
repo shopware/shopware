@@ -244,6 +244,7 @@ post-steps:
         repro.spec.ts
         ReproTest.php
         giveup.txt
+        provision-error.txt
         agent-summary.md
         workspace-edits.txt
       if-no-files-found: ignore
@@ -314,8 +315,13 @@ safe-outputs:
             else
               has=$([ -f reproduction-plan.json ] && [ -f artifacts/repro-reported/result.json ] && echo true || echo false)
             fi
-            echo "has=$has" >> "$GITHUB_OUTPUT"
-            echo "bundle present: $has"
+            reported_status=$(jq -r '.status // ""' artifacts/repro-reported/result.json 2>/dev/null || echo "")
+            # Skip the trunk leg entirely when the reported leg is blocked: without a reported baseline
+            # a trunk result is meaningless AND a full trunk provision would be wasted. That case posts
+            # the clear "blocked" comment instead (with the authored bundle).
+            run_trunk=$([ "$has" = true ] && [ "$reported_status" != blocked ] && echo true || echo false)
+            { echo "has=$has"; echo "reported_status=$reported_status"; echo "run_trunk=$run_trunk"; } >> "$GITHUB_OUTPUT"
+            echo "bundle=$has reported=$reported_status run_trunk=$run_trunk"
 
         # ---- No bundle → deterministic "incomplete" comment. ----
         - name: Render incomplete comment
@@ -335,7 +341,7 @@ safe-outputs:
         # ---- Bundle present → trunk re-run + verdict + comment. ----
         - name: Derive trunk build flags
           id: plan
-          if: steps.bundle.outputs.has == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true'
           run: |
             set -euo pipefail
             jq -r '"executor=\(.executor // "")"' reproduction-plan.json >> "$GITHUB_OUTPUT"
@@ -345,7 +351,7 @@ safe-outputs:
 
         - name: Provision trunk
           id: provision-setup
-          if: steps.bundle.outputs.has == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true'
           continue-on-error: true
           uses: shopware/setup-shopware@e12701e21d8a6003103426969ba544cdc91bf41c # v2.0.12
           with:
@@ -364,7 +370,7 @@ safe-outputs:
 
         - name: Finish trunk provision
           id: provision
-          if: steps.bundle.outputs.has == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true'
           continue-on-error: true
           env:
             PREVIOUS_OUTCOME: ${{ steps.provision-setup.outcome }}
@@ -373,12 +379,12 @@ safe-outputs:
           run: bash .github/actions/reproduce/steps/finish-provision.sh
 
         - name: Setup Node + Playwright
-          if: steps.bundle.outputs.has == 'true' && steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success'
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success'
           uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
           with:
             node-version: 22
         - name: Install Playwright
-          if: steps.bundle.outputs.has == 'true' && steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success'
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success'
           run: |
             npm init -y >/dev/null
             npm i -D @playwright/test
@@ -386,7 +392,7 @@ safe-outputs:
 
         - name: Verify on trunk
           id: trunk_verify
-          if: steps.bundle.outputs.has == 'true' && steps.provision.outcome == 'success'
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.provision.outcome == 'success'
           continue-on-error: true
           env:
             REPRO_ALLOW_VERIFY: "1"
@@ -397,7 +403,7 @@ safe-outputs:
 
         # Arrange the two legs + the plan the way verdict.mjs / comment.mjs expect.
         - name: Collect artifacts
-          if: steps.bundle.outputs.has == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true'
           run: |
             set -euo pipefail
             mkdir -p artifacts/repro-plan artifacts/repro-trunk
@@ -415,13 +421,13 @@ safe-outputs:
 
         - name: Compute verdict
           id: verdict
-          if: steps.bundle.outputs.has == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true'
           run: ART=artifacts node .github/actions/reproduce/report/verdict.mjs
 
         # Publish screenshots/recordings + write evidence.json BEFORE rendering, so comment.mjs can
         # place them in the Result spoilers.
         - name: Publish evidence
-          if: steps.bundle.outputs.has == 'true' && steps.verdict.outputs.has_results == 'true' && steps.verdict.outputs.verdict != 'blocked'
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.verdict.outputs.has_results == 'true' && steps.verdict.outputs.verdict != 'blocked'
           continue-on-error: true
           env:
             ART: artifacts
@@ -432,7 +438,7 @@ safe-outputs:
           run: bash .github/actions/reproduce/report/embed-evidence.sh
 
         - name: Render comment
-          if: steps.bundle.outputs.has == 'true' && steps.verdict.outputs.has_results == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.verdict.outputs.has_results == 'true'
           env:
             ART: artifacts
             VERDICT: ${{ steps.verdict.outputs.verdict }}
@@ -442,7 +448,28 @@ safe-outputs:
           run: node .github/actions/reproduce/report/comment.mjs
 
         - name: Post comment
-          if: steps.bundle.outputs.has == 'true' && steps.verdict.outputs.has_results == 'true'
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.verdict.outputs.has_results == 'true'
+          env:
+            GH_TOKEN: ${{ github.token }}
+            ISSUE: ${{ github.event.issue.number || inputs.issue_number }}
+          run: gh issue comment "$ISSUE" --repo "${{ github.repository }}" --body-file comment.md
+
+        # ---- Reported leg blocked → skip trunk (a trunk result is meaningless without a reported
+        #      baseline) and post the clear blocked reason alongside the authored bundle. ----
+        - name: Render blocked comment
+          if: steps.bundle.outputs.has == 'true' && steps.bundle.outputs.reported_status == 'blocked'
+          env:
+            MODE: incomplete
+            ART: artifacts
+            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          run: |
+            set -euo pipefail
+            mkdir -p artifacts/repro-plan
+            cp reproduction-plan.json fixtures.json repro.spec.ts ReproTest.php agent-summary.md workspace-edits.txt artifacts/repro-plan/ 2>/dev/null || true
+            REASON="$(jq -r '.blocked_reason // "the reproduction could not be run on the reported version"' artifacts/repro-reported/result.json)" \
+              node .github/actions/reproduce/report/comment.mjs
+        - name: Post blocked comment
+          if: steps.bundle.outputs.has == 'true' && steps.bundle.outputs.reported_status == 'blocked'
           env:
             GH_TOKEN: ${{ github.token }}
             ISSUE: ${{ github.event.issue.number || inputs.issue_number }}

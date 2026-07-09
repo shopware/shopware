@@ -1,7 +1,7 @@
 ## Reproduction: incomplete
 
-The workflow could not confirm or disprove this bug report. No verified reproduction bundle was
-produced, so the deterministic checks could not reach a trusted verdict.
+The workflow could not reach a trusted verdict on this bug report — the reproduction could not be
+run to a conclusion on the reported version.
 
 **Why:** {{REASON}}
 {{#AGENT_SUMMARY}}
@@ -22,5 +22,30 @@ produced, so the deterministic checks could not reach a trusted verdict.
 
 </details>
 {{/EDITS}}
+{{#SCENARIO}}
+<details><summary>📋 Scenario — what the reproduction would exercise</summary>
+
+{{SCENARIO}}
+
+</details>
+{{/SCENARIO}}
+{{#TESTCASE}}
+<details><summary>🧪 Reproduction test ({{TESTCASE_TOOL}}) — authored, not run to a verdict</summary>
+
+```{{TESTCASE_LANG}}
+{{TESTCASE}}
+```
+
+</details>
+{{/TESTCASE}}
+{{#FIXTURES}}
+<details><summary>🌱 Seed data (fixtures.json)</summary>
+
+```json
+{{FIXTURES}}
+```
+
+</details>
+{{/FIXTURES}}
 
 🔁 [Reproduce run]({{RUN_URL}})

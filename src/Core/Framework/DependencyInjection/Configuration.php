@@ -632,6 +632,14 @@ class Configuration implements ConfigurationInterface
                         $config['compression_method'] = $config['cache_compression_method'];
                     }
 
+                    // backward compatibility
+                    if (!isset($config['cache_compression']) && isset($config['compress'])) {
+                        $config['cache_compression'] = $config['compress'];
+                    }
+                    if (!isset($config['cache_compression_method']) && isset($config['compression_method'])) {
+                        $config['cache_compression_method'] = $config['compression_method'];
+                    }
+
                     return $config;
                 })
             ->end()

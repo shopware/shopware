@@ -43,7 +43,7 @@ export default {
 
     provide() {
         return {
-            loadCustomer: this.loadCustomer,
+            loadCustomer: this.loadCustomer.bind(this),
         };
     },
 

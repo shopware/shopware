@@ -231,7 +231,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -252,7 +252,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);

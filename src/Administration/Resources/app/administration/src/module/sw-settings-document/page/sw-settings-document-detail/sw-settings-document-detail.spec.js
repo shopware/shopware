@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { MtCheckbox, MtSwitch } from '@shopware-ag/meteor-component-library';
+import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
 
 /**
  * @sw-package after-sales
@@ -190,6 +191,7 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
 describe('src/module/sw-settings-document/page/sw-settings-document-detail', () => {
     beforeEach(async () => {
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
+        localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
@@ -385,6 +387,32 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
 
         expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
+        expect(localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY)).toBe('true');
+    });
+
+    it('should keep the moved company settings banner hidden after remounting', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
+        await flushPromises();
+
+        const remountedWrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(remountedWrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {

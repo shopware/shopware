@@ -18,6 +18,11 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
 /**
  * @private
  */
+export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
+
+/**
+ * @private
+ */
 export const DOCUMENT_CONFIG_DEFAULTS = {
     pageSize: 'a4',
     pageOrientation: 'portrait',
@@ -389,13 +394,13 @@ export default {
             isSaveSuccessful: false,
             /**
              * @deprecated tag:v6.8.0 - Will be removed without replacement
-             */
+            */
             isShowCountriesSelect: false,
             isLoading: false,
             typeIsLoading: false,
             salesChannels: null,
             customFieldSets: null,
-            showCompanySettingsMovedBanner: true,
+            showCompanySettingsMovedBanner: localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY) !== 'true',
             isShowDisplayNoteDelivery: false,
             isShowDivergentDeliveryAddress: false,
             documentConfigSalesChannels: [],
@@ -755,6 +760,7 @@ export default {
 
         hideCompanySettingsMovedBanner() {
             this.showCompanySettingsMovedBanner = false;
+            localStorage.setItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY, 'true');
         },
 
         /**

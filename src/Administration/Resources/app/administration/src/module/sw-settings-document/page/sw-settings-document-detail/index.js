@@ -394,7 +394,7 @@ export default {
             isSaveSuccessful: false,
             /**
              * @deprecated tag:v6.8.0 - Will be removed without replacement
-            */
+             */
             isShowCountriesSelect: false,
             isLoading: false,
             typeIsLoading: false,

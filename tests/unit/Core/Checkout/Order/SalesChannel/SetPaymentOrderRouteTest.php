@@ -43,13 +43,274 @@ class SetPaymentOrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId($orderId);
 
-        $salesChannelContext = Generator::generateSalesChannelContext(token: 'storefront-token');
-        $orderContext = Generator::generateSalesChannelContext(token: 'restored-order-token');
+        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
+        $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
+        $response = new CheckoutGatewayRouteResponse(
+            new PaymentMethodCollection([$paymentMethod]),
+            new ShippingMethodCollection(),
+            new ErrorCollection()
+        );
+
+        $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $gatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($response);
+
+        $paymentOrderRoute = new SetPaymentOrderRoute(
+            static::createStub(OrderService::class),
+            $staticRepository,
+            static::createStub(OrderConverter::class),
+            static::createStub(CartRuleLoader::class),
+            static::createStub(CartService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(InitialStateIdLoader::class),
+            $gatewayRoute
+        );
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext
+            ->expects($this->once())
+            ->method('getCustomer')
+            ->willReturn($customer);
+
+        $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
+
+        $paymentOrderRoute->setPayment($request, $salesChannelContext);
+    }
+
+    public function testPaymentMethodNotAfterOrderEnabled(): void
+    {
+        $this->expectExceptionObject(OrderException::paymentMethodNotChangeable());
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
+        $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(false);
+        $response = new CheckoutGatewayRouteResponse(
+            new PaymentMethodCollection([$paymentMethod]),
+            new ShippingMethodCollection(),
+            new ErrorCollection()
+        );
+
+        $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $gatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($response);
+
+        $orderService = $this->createMock(OrderService::class);
+        // afterOrderEnabled is enforced before the transaction-state check, so it must not be consulted.
+        $orderService
+            ->expects($this->never())
+            ->method('isPaymentChangeableByTransactionState');
+
+        $paymentOrderRoute = new SetPaymentOrderRoute(
+            $orderService,
+            $staticRepository,
+            static::createStub(OrderConverter::class),
+            static::createStub(CartRuleLoader::class),
+            static::createStub(CartService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(InitialStateIdLoader::class),
+            $gatewayRoute
+        );
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext
+            ->expects($this->once())
+            ->method('getCustomer')
+            ->willReturn($customer);
+
+        $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
+
+        $paymentOrderRoute->setPayment($request, $salesChannelContext);
+    }
+
+    public function testReopenAndCancelTransactions(): void
+    {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
+
+        $transactionState = new OrderTransactionEntity();
+        $transactionState->setId(Uuid::randomHex());
+        $transactionState->setPaymentMethodId(Uuid::randomHex());
+        $transactionState->setStateId(Uuid::randomHex());
+        $transactionState->setAmount(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $transactionStateLastId = Uuid::randomHex();
+        $transactionStateLast = new OrderTransactionEntity();
+        $transactionStateLast->setId($transactionStateLastId);
+        $transactionStateLast->setPaymentMethodId($paymentMethod->getId());
+        $transactionStateLast->setStateId(Uuid::randomHex());
+        $transactionStateLast->setAmount(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setPrimaryOrderTransactionId($transactionStateLastId);
+        $order->setPrimaryOrderTransaction($transactionStateLast);
+        $order->setTransactions(new OrderTransactionCollection([$transactionState, $transactionStateLast]));
+        $order->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE));
+
+        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
+        $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
+
+        $response = new CheckoutGatewayRouteResponse(
+            new PaymentMethodCollection([$paymentMethod]),
+            new ShippingMethodCollection(),
+            new ErrorCollection()
+        );
+
+        $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $gatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($response);
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService
+            ->expects($this->once())
+            ->method('isPaymentChangeableByTransactionState')
+            ->willReturn(true);
+        $orderService
+            ->expects($this->exactly(2))
+            ->method('orderTransactionStateTransition');
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext(customer: $customer);
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
+            ->willReturn($context);
+
+        $paymentOrderRoute = new SetPaymentOrderRoute(
+            $orderService,
+            $staticRepository,
+            $orderConverter,
+            static::createStub(CartRuleLoader::class),
+            static::createStub(CartService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(InitialStateIdLoader::class),
+            $gatewayRoute
+        );
+
+        $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
+
+        $paymentOrderRoute->setPayment($request, $context);
+    }
+
+    public function testSetPaymentMethod(): void
+    {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
+
+        $price = new CartPrice(
+            100,
+            100,
+            100,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            CartPrice::TAX_STATE_FREE
+        );
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setPrice($price);
+
+        $orderLater = new OrderEntity();
+        $orderLater->setId(Uuid::randomHex());
+
+        new EntitySearchResult(
+            'order',
+            1,
+            new OrderCollection([$order]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult(
+                    'order',
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext(),
+                ),
+                new EntitySearchResult(
+                    'order',
+                    1,
+                    new OrderCollection([$orderLater]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext(),
+                )
+            );
+
+        $orderRepository
+            ->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(static function ($payload) use ($orderLater): EntityWrittenContainerEvent {
+                static::assertCount(1, $payload);
+                static::assertCount(1, $payload[0]['transactions']);
+
+                $transactionState = new OrderTransactionEntity();
+                $transactionState->setId($payload[0]['transactions'][0]['id']);
+
+                $orderLater->setTransactions(new OrderTransactionCollection([$transactionState]));
+
+                return new EntityWrittenContainerEvent(
+                    Context::createDefaultContext(),
+                    new NestedEventCollection(),
+                    []
+                );
+            });
+
+        $response = new CheckoutGatewayRouteResponse(
+            new PaymentMethodCollection([$paymentMethod]),
+            new ShippingMethodCollection(),
+            new ErrorCollection()
+        );
+
+        $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+
+        $orderService = $this->createMock(OrderService::class);
+        $orderService
+            ->expects($this->once())
+            ->method('isPaymentChangeableByTransactionState')
+            ->willReturn(true);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext(customer: $customer);
+
+        $gatewayRoute
+            ->expects($this->once())
+            ->method('load')
             ->with(
                 static::identicalTo($order),
                 static::identicalTo($salesChannelContext->getContext()),

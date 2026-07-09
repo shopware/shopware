@@ -181,7 +181,12 @@ steps:
 
 pre-agent-steps:
   - name: Record pre-agent workspace baseline
-    run: git status --porcelain > /tmp/repro-pre-status.txt
+    run: |
+      git status --porcelain > /tmp/repro-pre-status.txt
+      # The provisioned shop is a nested checkout the parent git status can't see. Baseline its source
+      # tree too, so a later diff catches the agent patching shop/src (e.g. working around an env issue
+      # in core) — which makes the reproduction non-self-contained and must not pass as trusted.
+      git -C shop status --porcelain > /tmp/repro-pre-shop-status.txt 2>/dev/null || : > /tmp/repro-pre-shop-status.txt
 
 # --- Publish trusted post-agent outputs. The agent's `try` never writes result.json; the trusted
 #     verify re-runs the reported leg from the IMMUTABLE /tmp CLI copy — so even if the agent touched
@@ -207,6 +212,22 @@ post-steps:
           *) printf '%s\n' "$path" >> workspace-edits.txt ;;
         esac
       done <<< "$new"
+      # Edits inside the provisioned shop's own source (a nested checkout the parent status misses).
+      # Only src/ counts: the direct executor legitimately writes its test into shop/tests and may
+      # touch composer.json, but a change under shop/src means the agent patched Shopware's core to
+      # get the leg to run — so the reported leg ran against a modified shop and the verdict is not
+      # self-contained. Record it as an out-of-bundle edit so the comment flags the run as untrusted.
+      if git -C shop rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        git -C shop status --porcelain > /tmp/repro-post-shop-status.txt
+        shop_new=$(comm -13 <(sort /tmp/repro-pre-shop-status.txt) <(sort /tmp/repro-post-shop-status.txt) || true)
+        while IFS= read -r line; do
+          [ -n "$line" ] || continue
+          path=${line:3}; path=${path#\"}; path=${path%\"}
+          case "$path" in
+            src/*) printf 'shop/%s\n' "$path" >> workspace-edits.txt ;;
+          esac
+        done <<< "$shop_new"
+      fi
       if [ -s workspace-edits.txt ]; then echo "::warning::agent changed files outside the bundle:"; cat workspace-edits.txt; else echo "no stray edits"; fi
 
   - name: Extract agent summary

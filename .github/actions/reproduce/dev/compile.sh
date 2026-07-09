@@ -14,21 +14,18 @@
 #        `host.docker.internal`). The default list is unusable for us: 8080 is gh-aw's own MCP
 #        Gateway and 80/443 need privilege/TLS. gh-aw v0.81.2 exposes NO frontmatter to extend this
 #        general list (its `service-ports` maps to `--allow-host-service-ports`, which is for Docker
-#        service containers, not a host process), so we append ${SHOP_PORT} here. This is the fix for
-#        the probe's wall #2 (shop unreachable). No-op on an unsandboxed lock (no allowlist present).
-#        Confirmed necessary by sandbox-probe run 28924417047 — see dev/sandbox-handoff.md §2/§3.2.
+#        service containers, not a host process), so we append ${SHOP_PORT} here. No-op on an
+#        unsandboxed lock (no allowlist present).
 #
 #   [P2] Run the deterministic trunk/report job whenever the agent job ran (reproduce.md only).
 #        gh-aw gates safe-output jobs on the agent emitting a matching safe-output handoff. We want
 #        the trunk re-run + verdict job to run unconditionally after the agent job, because it reads
 #        the uploaded artifacts and decides the outcome itself (the agent never decides). We strip
-#        the `&& contains(needs.agent.outputs.output_types, 'reproduce_on_trunk')` gate. No-op on the
-#        probe (it has no such job).
+#        the `&& contains(needs.agent.outputs.output_types, 'reproduce_on_trunk')` gate.
 #
 # Usage: bash .github/actions/reproduce/dev/compile.sh [source.md ...]
 #   No args → compile+patch every source in SOURCES below.
-#   With args → compile+patch only the given source(s), e.g. just the probe while iterating on it
-#   without churning the production reproduce.lock.yml. Run from the repo root; needs `gh aw`.
+#   With args → compile+patch only the given source(s). Run from the repo root; needs `gh aw`.
 set -euo pipefail
 
 # Host port Symfony serves the shop on (see steps/finish-provision.sh: SYMFONY_PORT). Keeping the
@@ -36,14 +33,12 @@ set -euo pipefail
 # shared provision script (which the unsandboxed reproduce.md legs also use).
 SHOP_PORT=8000
 
-# Every reproduce gh-aw source whose lock we own. The probe is temporary (delete once reproduce.md
-# runs sandboxed and green); reproduce.md is the real workflow. Override via CLI args (see Usage).
+# The reproduce gh-aw source whose lock we own. Override via CLI args (see Usage).
 if [ "$#" -gt 0 ]; then
   SOURCES=("$@")
 else
   SOURCES=(
     .github/workflows/reproduce.md
-    .github/workflows/reproduce-sandbox-probe.md
   )
 fi
 

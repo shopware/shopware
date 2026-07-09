@@ -40,10 +40,9 @@ engine:
   id: claude
   model: claude-sonnet-4-6
 
-# Sandboxed agent. Validated by the reproduce-sandbox-probe workflow (green run 28927226644): the
-# agent runs behind awf (network firewall + host-chroot), reaches the shop at host.docker.internal
-# (see "Export shop coordinates" + the sales-channel-domain step below), and its bundle is handed
-# back to the trusted post-steps via the workspace. Two things the probe proved are REQUIRED and are
+# Sandboxed agent: it runs behind awf (network firewall + host-chroot), reaches the shop at
+# host.docker.internal (see "Export shop coordinates" + the sales-channel-domain step below), and its
+# bundle is handed back to the trusted post-steps via the workspace. Two things this requires are
 # applied by dev/compile.sh [P1] (host port 8000 on awf --allow-host-ports) and the domain step.
 strict: true
 
@@ -122,8 +121,8 @@ steps:
       DEMODATA: "false"
     run: bash .github/actions/reproduce/steps/finish-provision.sh
 
-  # Sandbox wall #3: register the agent's host.docker.internal URL as an additional storefront
-  # domain, else the storefront 400s on the sandbox Host header. Additive — host-side legs keep
+  # Sandbox: register the agent's host.docker.internal URL as an additional storefront domain, else
+  # the storefront 400s on the sandbox Host header. Additive — host-side legs keep
   # using the localhost domain. Port 8000 matches finish-provision.sh and compile.sh [P1].
   - name: Register sandbox host as a storefront sales-channel domain
     env:
@@ -167,7 +166,7 @@ steps:
   # Immutable copy of the CLI + a `repro` shim on PATH. The agent's feedback tools and the trusted
   # post-step verifier both run from this copy; the agent can't edit it. The shim goes in
   # /usr/local/bin (not /tmp/reproduce-bin + GITHUB_PATH): GITHUB_PATH does NOT propagate into the awf
-  # sandbox, but /usr/local/bin is on the sandbox PATH (confirmed by reproduce-sandbox-probe). /tmp is
+  # sandbox, but /usr/local/bin is on the sandbox PATH. /tmp is
   # bind-mounted read-only into the sandbox, so the shim's exec target resolves there.
   - name: Install reproduce CLI
     run: |

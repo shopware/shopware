@@ -3,8 +3,7 @@
 # its host.docker.internal URL. The install only registers the host-side (localhost) URL, so a
 # storefront request arriving with a different Host is rejected with HTTP 400
 # (SalesChannelMappingException). This is additive: the existing localhost domain keeps serving the
-# trusted host-side legs (reported-verify + trunk). Validated by the reproduce-sandbox-probe workflow
-# (green run 28927226644). See dev/sandbox-handoff.md §3 (wall #3).
+# trusted host-side legs (reported-verify + trunk).
 #
 # Env: SHOP_DIR (default shop), SANDBOX_URL (required, e.g. http://host.docker.internal:8000).
 set -euo pipefail

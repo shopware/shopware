@@ -471,7 +471,7 @@ class DeliveryCalculatorTest extends TestCase
         $baseContext = Context::createDefaultContext();
         $baseContext->assign(['currencyFactor' => $currencyFactor]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getRuleIds')->willReturn([]);
         $context->method('getContext')->willReturn($baseContext);
         $context->method('getCurrencyId')->willReturn(Uuid::randomHex());
@@ -483,7 +483,7 @@ class DeliveryCalculatorTest extends TestCase
 
     private function createQuantityPriceCalculator(): QuantityPriceCalculator
     {
-        $quantityPriceCalculator = $this->createMock(QuantityPriceCalculator::class);
+        $quantityPriceCalculator = static::createStub(QuantityPriceCalculator::class);
         $quantityPriceCalculator
             ->method('calculate')
             ->willReturnCallback(static fn (QuantityPriceDefinition $definition): CalculatedPrice => new CalculatedPrice(

@@ -9,7 +9,11 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "symfony/runtime": true
+        }
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues/",

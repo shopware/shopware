@@ -140,22 +140,18 @@ class ContactFormRoute extends AbstractContactFormRoute
             default => $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first(),
         };
 
-        if (!$entity) {
-            return $mailConfigs;
-        }
-
-        if (empty($entity->getSlotConfig()[$slotId])) {
+        if (!$entity || !$entity->getSlotConfig() || !\array_key_exists($slotId, $entity->getSlotConfig())) {
             return $mailConfigs;
         }
 
         $slotConfig = $entity->getSlotConfig()[$slotId];
 
         if (\array_key_exists('mailReceiver', $slotConfig) && \array_key_exists('value', $slotConfig['mailReceiver'])) {
-            $mailConfigs['receivers'] = $entity->getSlotConfig()[$slotId]['mailReceiver']['value'];
+            $mailConfigs['receivers'] = $slotConfig['mailReceiver']['value'];
         }
 
         if (\array_key_exists('confirmationText', $slotConfig) && \array_key_exists('value', $slotConfig['confirmationText'])) {
-            $mailConfigs['message'] = $entity->getSlotConfig()[$slotId]['confirmationText']['value'];
+            $mailConfigs['message'] = $slotConfig['confirmationText']['value'];
         }
 
         return $mailConfigs;

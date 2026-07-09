@@ -153,8 +153,11 @@ class FieldQueryBuilderTest extends TestCase
         $queries = $array['dis_max']['queries'];
         $hasNgram = false;
         foreach ($queries as $q) {
-            if (isset($q['match']) && array_key_first($q['match']) === 'name.ngram') {
+            // n-gram is wrapped in constant_score so a rare fragment can't spike its score.
+            $match = $q['constant_score']['filter']['match'] ?? null;
+            if ($match !== null && array_key_first($match) === 'name.ngram') {
                 $hasNgram = true;
+                static::assertSame(0.4, $q['constant_score']['boost']);
             }
         }
         static::assertTrue($hasNgram);

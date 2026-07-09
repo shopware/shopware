@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch;
 
 use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\Query\Compound\ConstantScoreQuery;
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
@@ -225,13 +226,24 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         return new MatchBoolPrefixQuery($searchField, $token, $matchBoolPrefixParams);
     }
 
-    private function buildNgramQuery(string $token, SearchFieldConfig $config): ?MatchQuery
+    private function buildNgramQuery(string $token, SearchFieldConfig $config): ?BuilderInterface
     {
         if (!$config->tokenize() || mb_strlen($token) < $this->minGram) {
             return null;
         }
 
-        return new MatchQuery($config->getField() . '.ngram', $token, ['boost' => $this->partialBoost]);
+        // n-gram is the weakest, fragment-level fallback: it matches on shared
+        // character n-grams. Because it is scored with BM25, a token whose only
+        // shared fragment is rare (high idf) can out-score a real word match — a
+        // misspelling like "mabrle" then ranks an unrelated product that merely
+        // shares the "abr" fragment above the actual fuzzy "marble" corrections.
+        // Wrap it in constant_score so every n-gram hit contributes the same
+        // fixed, low weight: enough to surface fragment matches for recall, never
+        // enough to outrank an exact / fuzzy / prefix word match.
+        return new ConstantScoreQuery(
+            new MatchQuery($config->getField() . '.ngram', $token),
+            ['boost' => $this->partialBoost],
+        );
     }
 
     /**

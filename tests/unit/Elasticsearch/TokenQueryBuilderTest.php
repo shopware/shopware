@@ -283,7 +283,7 @@ class TokenQueryBuilderTest extends TestCase
                 self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 2),
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4, 'AUTO:5,10', 'or', 20),
                 self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4),
-                self::matchSimple('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
+                self::ngramConstantScore('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
             ], 1000),
         ];
 
@@ -942,6 +942,25 @@ class TokenQueryBuilderTest extends TestCase
                     'query' => $query,
                     'boost' => $boost,
                 ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{constant_score: array{filter: array{match: array<string, array{query: string}>}, boost: float}}
+     */
+    private static function ngramConstantScore(string $field, string $query, float $boost): array
+    {
+        return [
+            'constant_score' => [
+                'filter' => [
+                    'match' => [
+                        $field => [
+                            'query' => $query,
+                        ],
+                    ],
+                ],
+                'boost' => $boost,
             ],
         ];
     }

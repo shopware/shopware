@@ -149,6 +149,39 @@ class DataAbstractionLayerException extends HttpException
     public const ENTITY_HYDRATOR_ERROR = 'FRAMEWORK__DAL_ENTITY_HYDRATOR_ERROR';
     public const UNABLE_TO_LOAD_PATH = 'FRAMEWORK__DAL_UNABLE_TO_LOAD_PATH';
 
+    public const CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE = 'FRAMEWORK__DAL_CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE';
+    public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
+    public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
+
+    public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE,
+            'Criteria::addFields() (allowlist) and Criteria::excludeFields() (denylist) cannot be combined on the same criteria.',
+        );
+    }
+
+    public static function fieldCannotBeExcluded(string $field, string $entity, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FIELD_CANNOT_BE_EXCLUDED,
+            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded because {{ reason }}.',
+            ['field' => $field, 'entity' => $entity, 'reason' => $reason],
+        );
+    }
+
+    public static function cannotExcludeUnknownField(string $field, string $entity): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CANNOT_EXCLUDE_UNKNOWN_FIELD,
+            'Field "{{ field }}" cannot be excluded: it is not a top-level field of entity "{{ entity }}".',
+            ['field' => $field, 'entity' => $entity],
+        );
+    }
+
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
         return new self(

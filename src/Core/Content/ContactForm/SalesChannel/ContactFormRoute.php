@@ -83,7 +83,7 @@ class ContactFormRoute extends AbstractContactFormRoute
             $data->set('salutation', $salutationSearchResult->getEntities()->first());
         }
 
-        if (empty($mailConfigs['receivers'])) {
+        if ($this->isEmptyReceivers($mailConfigs['receivers'])) {
             $mailConfigs['receivers'][] = $this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannelId());
         }
 
@@ -148,8 +148,15 @@ class ContactFormRoute extends AbstractContactFormRoute
             return $mailConfigs;
         }
 
-        $mailConfigs['receivers'] = $entity->getSlotConfig()[$slotId]['mailReceiver']['value'];
-        $mailConfigs['message'] = $entity->getSlotConfig()[$slotId]['confirmationText']['value'];
+        $slotConfig = $entity->getSlotConfig()[$slotId];
+
+        if (\array_key_exists('mailReceiver', $slotConfig) && \array_key_exists('value', $slotConfig['mailReceiver'])) {
+            $mailConfigs['receivers'] = $entity->getSlotConfig()[$slotId]['mailReceiver']['value'];
+        }
+
+        if (\array_key_exists('confirmationText', $slotConfig) && \array_key_exists('value', $slotConfig['confirmationText'])) {
+            $mailConfigs['message'] = $entity->getSlotConfig()[$slotId]['confirmationText']['value'];
+        }
 
         return $mailConfigs;
     }
@@ -169,7 +176,7 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         if ($navigationId) {
             $mailConfigs = $this->getSlotConfig($slotId, $navigationId, $context, $entityName);
-            if (!empty($mailConfigs['receivers'])) {
+            if (!$this->isEmptyReceivers($mailConfigs['receivers']) && !$this->isEmptyMessage($mailConfigs['message'])) {
                 return $mailConfigs;
             }
         }
@@ -182,9 +189,24 @@ class ContactFormRoute extends AbstractContactFormRoute
             return $mailConfigs;
         }
 
-        $mailConfigs['receivers'] = $slot->getTranslated()['config']['mailReceiver']['value'];
-        $mailConfigs['message'] = $slot->getTranslated()['config']['confirmationText']['value'];
+        if ($this->isEmptyReceivers($mailConfigs['receivers'])) {
+            $mailConfigs['receivers'] = $slot->getTranslated()['config']['mailReceiver']['value'];
+        }
+
+        if ($this->isEmptyMessage($mailConfigs['message'])) {
+            $mailConfigs['message'] = $slot->getTranslated()['config']['confirmationText']['value'];
+        }
 
         return $mailConfigs;
+    }
+
+    private function isEmptyReceivers(mixed $receivers): bool
+    {
+        return !\is_array($receivers) || $receivers === [];
+    }
+
+    private function isEmptyMessage(mixed $message): bool
+    {
+        return !\is_string($message) || $message === '';
     }
 }

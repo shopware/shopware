@@ -188,6 +188,82 @@ class ContactFormRouteTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
+    /**
+     * @param array<string, array{source: string, value: array<int, string>|string}> $slotConfig
+     */
+    #[DataProvider('partialSlotConfigProvider')]
+    public function testContactFormSendMailUsesInheritedSlotConfigFieldsIndependently(array $slotConfig, string $expectedRecipient, string $expectedSuccessMessage): void
+    {
+        $formSlotId = $this->ids->create('form-slot');
+        $this->createCmsFormData($formSlotId, ['inherited@example.com'], 'Inherited success message');
+        [$landingPageId] = $this->createLandingPageData($formSlotId, $slotConfig);
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+        $recipients = [];
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, &$recipients): void {
+            $eventDidRun = true;
+            $recipients = $event->getRecipients();
+        };
+
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/contact-form',
+                [
+                    'salutationId' => $this->getValidSalutationId(),
+                    'navigationId' => $landingPageId,
+                    'slotId' => $formSlotId,
+                    'entityName' => LandingPageDefinition::ENTITY_NAME,
+                    'firstName' => 'Firstname',
+                    'lastName' => 'Lastname',
+                    'email' => 'test@shopware.com',
+                    'phone' => '12345/6789',
+                    'subject' => 'Subject',
+                    'comment' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('individualSuccessMessage', $response);
+        static::assertSame($expectedSuccessMessage, $response['individualSuccessMessage']);
+
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertArrayHasKey($expectedRecipient, $recipients);
+    }
+
+    public static function partialSlotConfigProvider(): \Generator
+    {
+        yield 'custom receiver inherits confirmation text' => [
+            [
+                'mailReceiver' => [
+                    'source' => 'static',
+                    'value' => ['child@example.com'],
+                ],
+            ],
+            'child@example.com',
+            'Inherited success message',
+        ];
+
+        yield 'custom confirmation text inherits receiver' => [
+            [
+                'confirmationText' => [
+                    'source' => 'static',
+                    'value' => 'Child success message',
+                ],
+            ],
+            'inherited@example.com',
+            'Child success message',
+        ];
+    }
+
     #[DataProvider('contactFormWithDomainProvider')]
     public function testContactFormWithInvalid(string $firstName, string $lastName, \Closure $expectClosure): void
     {
@@ -291,7 +367,10 @@ class ContactFormRouteTest extends TestCase
         return [$contactCategoryId, $slotId];
     }
 
-    private function createCmsFormData(string $slotId): void
+    /**
+     * @param array<int, string> $receivers
+     */
+    private function createCmsFormData(string $slotId, array $receivers = ['h.mac@example.com'], string $confirmationText = ''): void
     {
         $cmsData = [
             [
@@ -315,11 +394,11 @@ class ContactFormRouteTest extends TestCase
                                         'config' => [
                                             'mailReceiver' => [
                                                 'source' => 'static',
-                                                'value' => ['h.mac@example.com'],
+                                                'value' => $receivers,
                                             ],
                                             'confirmationText' => [
                                                 'source' => 'static',
-                                                'value' => '',
+                                                'value' => $confirmationText,
                                             ],
                                         ],
                                     ],
@@ -335,23 +414,23 @@ class ContactFormRouteTest extends TestCase
     }
 
     /**
+     * @param array<string, array{source: string, value: array<int, string>|string}>|null $slotConfig
+     *
      * @return array<int, string>
      */
-    private function createLandingPageData(): array
+    private function createLandingPageData(?string $slotId = null, ?array $slotConfig = null): array
     {
         $landingPageId = $this->ids->get('contact-landingpage-test');
 
-        $slotId = $this->ids->create('form-slot');
-        $slotConfig = [
-            $slotId => [
-                'mailReceiver' => [
-                    'source' => 'static',
-                    'value' => ['h.mac@example.com'],
-                ],
-                'confirmationText' => [
-                    'source' => 'static',
-                    'value' => '',
-                ],
+        $slotId ??= $this->ids->create('form-slot');
+        $slotConfig ??= [
+            'mailReceiver' => [
+                'source' => 'static',
+                'value' => ['h.mac@example.com'],
+            ],
+            'confirmationText' => [
+                'source' => 'static',
+                'value' => '',
             ],
         ];
 
@@ -363,7 +442,9 @@ class ContactFormRouteTest extends TestCase
                 'salesChannels' => [
                     ['id' => TestDefaults::SALES_CHANNEL],
                 ],
-                'slotConfig' => $slotConfig,
+                'slotConfig' => [
+                    $slotId => $slotConfig,
+                ],
             ],
         ];
         static::getContainer()->get('landing_page.repository')->create($data, Context::createDefaultContext());

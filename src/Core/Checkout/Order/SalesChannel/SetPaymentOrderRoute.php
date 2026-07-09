@@ -12,11 +12,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotChangeableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -259,14 +261,14 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $order = $this->orderRepository->search($criteria, $context->getContext())->first();
 
         if ($order === null) {
-            throw OrderException::orderNotFound($orderId);
+            throw new EntityNotFoundException('order', $orderId);
         }
 
         return $order;
     }
 
     /**
-     * @throws OrderException
+     * @throws PaymentMethodNotChangeableException
      */
     private function validatePaymentState(OrderEntity $order): void
     {
@@ -274,6 +276,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             return;
         }
 
-        throw OrderException::paymentMethodNotChangeable();
+        throw new PaymentMethodNotChangeableException($order->getId());
     }
 }

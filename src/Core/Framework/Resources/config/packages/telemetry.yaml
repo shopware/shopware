@@ -58,7 +58,7 @@ shopware:
                     type: 'counter'
 
                 http.server.request.duration:
-                    description: 'Master HTTP request wall time'
+                    description: 'Main HTTP request wall time'
                     type: 'histogram'
                     unit: 'ms'
                     parameters:
@@ -78,7 +78,7 @@ shopware:
                             allowed_values: ['2xx', '3xx', '4xx', '5xx']
 
                 http.server.request.queries.count:
-                    description: 'SQL statements per master request'
+                    description: 'SQL statements per main request'
                     type: 'histogram'
                     parameters:
                         # a handful of queries on cached/store-api requests up to thousands on import-export, indexing and sync
@@ -92,7 +92,7 @@ shopware:
                             allowed_values: [read, write, delete, none]
 
                 http.server.request.memory.peak:
-                    description: 'Peak memory per master request'
+                    description: 'Peak memory per main request'
                     type: 'histogram'
                     unit: 'byte'
                     parameters:

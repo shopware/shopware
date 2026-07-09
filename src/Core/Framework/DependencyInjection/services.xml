@@ -239,7 +239,7 @@ frame-ancestors 'none';
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <!-- Telemetry: per-master-request HTTP metrics and their label resolvers -->
+        <!-- Telemetry: per-main-request HTTP metrics and their label resolvers -->
         <service id="Shopware\Core\Framework\Routing\Telemetry\AreaResolver"/>
 
         <service id="Shopware\Core\Framework\Routing\Telemetry\DomainResolver">

@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Emits per-master-request HTTP metrics on kernel.terminate, which fires once per master request
+ * Emits per-main-request HTTP metrics on kernel.terminate, which fires once per main request
  * (sub-requests excluded). Resolves the `area`, `domain` and `operation` labels once and reuses them
  * across all metrics.
  *

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Resolves the polymorphic `domain` label of a master HTTP request (the `area` label disambiguates the
+ * Resolves the polymorphic `domain` label of a main HTTP request (the `area` label disambiguates the
  * overlapping values, so a single `other` default is enough).
  *
  * By route shape:

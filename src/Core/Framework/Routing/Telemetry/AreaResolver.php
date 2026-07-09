@@ -9,7 +9,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Resolves the coarse application `area` of a master HTTP request.
+ * Resolves the coarse application `area` of a main HTTP request.
  *
  * Two routes are special-cased by name because their load/performance profile requires separate
  * instrumentation: `api.action.sync` (admin route scope) → sync-api, and `payment.finalize.transaction` (no scope) → payment.

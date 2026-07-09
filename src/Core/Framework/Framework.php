@@ -74,10 +74,11 @@ class Framework extends Bundle
         $container->setParameter('locale', 'en-GB');
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
-        $loader->load('acl.xml');
+        $phpLoader->load('acl.php');
         $loader->load('cache.xml');
-        $loader->load('api.xml');
+        $phpLoader->load('api.php');
         $loader->load('app.xml');
         $loader->load('custom-field.xml');
         $loader->load('data-abstraction-layer.xml');
@@ -93,19 +94,18 @@ class Framework extends Bundle
         $loader->load('script.xml');
         $loader->load('language.xml');
         $loader->load('update.xml');
-        $loader->load('validation.xml');
+        $phpLoader->load('validation.php');
         $loader->load('seo.xml');
         $loader->load('webhook.xml');
-        $loader->load('rate-limiter.xml');
+        $phpLoader->load('rate-limiter.php');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
         $loader->load('health.xml');
         $loader->load('telemetry.xml');
         $loader->load('notification.xml');
-        $loader->load('sso.xml');
+        $phpLoader->load('sso.php');
 
         // @codeCoverageIgnoreStart
-        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('mcp.php');
         // @codeCoverageIgnoreEnd
 

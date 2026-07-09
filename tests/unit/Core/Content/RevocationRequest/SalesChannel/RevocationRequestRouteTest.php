@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\RevocationRequest\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -11,6 +12,13 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -72,6 +80,125 @@ class RevocationRequestRouteTest extends TestCase
         $result = $this->createRevocationRequestRoute([$cmsSlot])->request($dataBag, $this->createSalesChannelContext());
 
         static::assertSame($successMessage, $result->getIndividualSuccessMessage());
+    }
+
+    public function testRequestShouldReturnLandingPageSuccessMessage(): void
+    {
+        $successMessage = 'landing page success message';
+        $slotId = Uuid::randomHex();
+
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId(Uuid::randomHex());
+        $landingPage->setSlotConfig($this->createSlotConfig($slotId, $successMessage, ['landing-page@example.com']));
+
+        $dispatchedEvent = null;
+        $eventDispatcher = $this->createEventDispatcherCapturingRevocationRequestEvent($dispatchedEvent);
+
+        $dataBag = new RequestDataBag($this->createValidFormData($slotId, $landingPage->getId(), LandingPageDefinition::ENTITY_NAME));
+
+        $revocationRequestRoute = $this->createRevocationRequestRoute(
+            landingPageEntities: [$landingPage],
+            eventDispatcher: $eventDispatcher,
+        );
+
+        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
+        static::assertInstanceOf(RevocationRequestEvent::class, $dispatchedEvent);
+        static::assertSame(['landing-page@example.com' => 'landing-page@example.com'], $dispatchedEvent->getMailStruct()->getRecipients());
+    }
+
+    public function testRequestShouldReturnProductSuccessMessage(): void
+    {
+        $successMessage = 'product success message';
+        $slotId = Uuid::randomHex();
+
+        $product = new ProductEntity();
+        $product->setId(Uuid::randomHex());
+        $product->setSlotConfig($this->createSlotConfig($slotId, $successMessage, ['product@example.com']));
+
+        $dispatchedEvent = null;
+        $eventDispatcher = $this->createEventDispatcherCapturingRevocationRequestEvent($dispatchedEvent);
+
+        $dataBag = new RequestDataBag($this->createValidFormData($slotId, $product->getId(), ProductDefinition::ENTITY_NAME));
+
+        $revocationRequestRoute = $this->createRevocationRequestRoute(
+            productEntities: [$product],
+            eventDispatcher: $eventDispatcher,
+        );
+
+        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+
+        static::assertSame($successMessage, $result->getIndividualSuccessMessage());
+        static::assertInstanceOf(RevocationRequestEvent::class, $dispatchedEvent);
+        static::assertSame(['product@example.com' => 'product@example.com'], $dispatchedEvent->getMailStruct()->getRecipients());
+    }
+
+    /**
+     * @param array<string, array{value: array<int, string>|string}> $slotConfig
+     */
+    #[DataProvider('partialSlotConfigProvider')]
+    public function testRequestShouldUseInheritedSlotConfigFieldsIndependently(array $slotConfig, string $expectedRecipient, string $expectedSuccessMessage): void
+    {
+        $slotId = Uuid::randomHex();
+
+        $cmsSlot = new CmsSlotEntity();
+        $cmsSlot->setId($slotId);
+        $cmsSlot->setTranslated(['config' => $this->createSlotConfig($slotId, 'Inherited success message', ['inherited@example.com'])[$slotId]]);
+
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId(Uuid::randomHex());
+        $landingPage->setSlotConfig([$slotId => $slotConfig]);
+
+        $dispatchedEvent = null;
+        $eventDispatcher = $this->createEventDispatcherCapturingRevocationRequestEvent($dispatchedEvent);
+
+        $dataBag = new RequestDataBag($this->createValidFormData($slotId, $landingPage->getId(), LandingPageDefinition::ENTITY_NAME));
+
+        $revocationRequestRoute = $this->createRevocationRequestRoute(
+            slotEntities: [$cmsSlot],
+            landingPageEntities: [$landingPage],
+            eventDispatcher: $eventDispatcher,
+        );
+
+        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+
+        static::assertSame($expectedSuccessMessage, $result->getIndividualSuccessMessage());
+        static::assertInstanceOf(RevocationRequestEvent::class, $dispatchedEvent);
+        static::assertArrayHasKey($expectedRecipient, $dispatchedEvent->getMailStruct()->getRecipients());
+    }
+
+    public static function partialSlotConfigProvider(): \Generator
+    {
+        yield 'custom receiver inherits confirmation text' => [
+            [
+                'mailReceiver' => [
+                    'value' => ['child@example.com'],
+                ],
+            ],
+            'child@example.com',
+            'Inherited success message',
+        ];
+
+        yield 'custom confirmation text inherits receiver' => [
+            [
+                'confirmationText' => [
+                    'value' => 'Child success message',
+                ],
+            ],
+            'inherited@example.com',
+            'Child success message',
+        ];
+
+        yield 'empty custom confirmation text is not inherited' => [
+            [
+                'confirmationText' => [
+                    'value' => '',
+                ],
+            ],
+            'inherited@example.com',
+            '',
+        ];
     }
 
     public function testRequestWithoutSlotIdShouldReturnDefaultsMessage(): void
@@ -142,9 +269,16 @@ class RevocationRequestRouteTest extends TestCase
     /**
      * @param array<int, CmsSlotEntity>|null $slotEntities
      * @param array<int, CategoryEntity>|null $categoryEntities
+     * @param array<int, LandingPageEntity>|null $landingPageEntities
+     * @param array<int, ProductEntity>|null $productEntities
      */
-    private function createRevocationRequestRoute(?array $slotEntities = [], ?array $categoryEntities = []): RevocationRequestRoute
-    {
+    private function createRevocationRequestRoute(
+        ?array $slotEntities = [],
+        ?array $categoryEntities = [],
+        ?array $landingPageEntities = [],
+        ?array $productEntities = [],
+        ?EventDispatcherInterface $eventDispatcher = null,
+    ): RevocationRequestRoute {
         $validatorFactoryMock = static::createStub(DataValidationFactoryInterface::class);
 
         $validatorMock = $this->createValidatorMock();
@@ -152,13 +286,17 @@ class RevocationRequestRouteTest extends TestCase
         $requestStackMock = $this->createRequestStackMock();
 
         $rateLimiterMock = static::createStub(RateLimiter::class);
-        $eventDispatcherMock = static::createStub(EventDispatcherInterface::class);
+        $eventDispatcherMock = $eventDispatcher ?? static::createStub(EventDispatcherInterface::class);
         $systemConfigServiceMock = static::createStub(SystemConfigService::class);
 
         /** @var StaticEntityRepository<CmsSlotCollection> $cmsSlotRepository */
         $cmsSlotRepository = new StaticEntityRepository([$slotEntities], new CmsSlotDefinition());
         /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
         $categoryRepository = new StaticEntityRepository([$categoryEntities], new CategoryDefinition());
+        /** @var StaticEntityRepository<LandingPageCollection> $landingPageRepository */
+        $landingPageRepository = new StaticEntityRepository([$landingPageEntities], new LandingPageDefinition());
+        /** @var StaticEntityRepository<ProductCollection> $productRepository */
+        $productRepository = new StaticEntityRepository([$productEntities], new ProductDefinition());
 
         return new RevocationRequestRoute(
             $validatorFactoryMock,
@@ -169,7 +307,9 @@ class RevocationRequestRouteTest extends TestCase
             $systemConfigServiceMock,
             $cmsSlotRepository,
             $categoryRepository,
-            new NativeClock()
+            new NativeClock(),
+            $landingPageRepository,
+            $productRepository,
         );
     }
 
@@ -185,14 +325,30 @@ class RevocationRequestRouteTest extends TestCase
     }
 
     /**
+     * @param array<int, string> $receivers
+     *
      * @return array<string, array{
-     *     mailReceiver: array{value: string},
+     *     mailReceiver: array{value: array<int, string>},
      *     confirmationText: array{value: string}
      * }>
      */
-    private function createSlotConfig(string $slotId, string $successMessage): array
+    private function createSlotConfig(string $slotId, string $successMessage, array $receivers = ['admin']): array
     {
-        return [$slotId => ['mailReceiver' => ['value' => 'admin'], 'confirmationText' => ['value' => $successMessage]]];
+        return [$slotId => ['mailReceiver' => ['value' => $receivers], 'confirmationText' => ['value' => $successMessage]]];
+    }
+
+    private function createEventDispatcherCapturingRevocationRequestEvent(?RevocationRequestEvent &$dispatchedEvent): EventDispatcherInterface
+    {
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnCallback(static function (object $event, ?string $eventName = null) use (&$dispatchedEvent): object {
+            if ($event instanceof RevocationRequestEvent) {
+                $dispatchedEvent = $event;
+            }
+
+            return $event;
+        });
+
+        return $eventDispatcher;
     }
 
     /**
@@ -204,9 +360,10 @@ class RevocationRequestRouteTest extends TestCase
      *     comment: string,
      *     slotId?: string,
      *     navigationId?: string,
+     *     entityName?: string,
      * }
      */
-    private function createValidFormData(?string $cmsSlotId = null, ?string $navigationId = null): array
+    private function createValidFormData(?string $cmsSlotId = null, ?string $navigationId = null, ?string $entityName = null): array
     {
         $forData = [
             'firstName' => 'Max',
@@ -222,6 +379,10 @@ class RevocationRequestRouteTest extends TestCase
 
         if ($navigationId !== null) {
             $forData['navigationId'] = $navigationId;
+        }
+
+        if ($entityName !== null) {
+            $forData['entityName'] = $entityName;
         }
 
         return $forData;

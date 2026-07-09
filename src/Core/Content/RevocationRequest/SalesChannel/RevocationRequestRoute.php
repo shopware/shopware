@@ -5,8 +5,11 @@ namespace Shopware\Core\Content\RevocationRequest\SalesChannel;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,6 +38,8 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     /**
      * @param EntityRepository<CmsSlotCollection> $cmsSlotRepository
      * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<LandingPageCollection> $landingPageRepository
+     * @param EntityRepository<ProductCollection> $productRepository
      *
      * @internal
      */
@@ -48,6 +53,8 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
         private readonly EntityRepository $cmsSlotRepository,
         private readonly EntityRepository $categoryRepository,
         private readonly ClockInterface $clock,
+        private readonly EntityRepository $landingPageRepository,
+        private readonly EntityRepository $productRepository,
     ) {
     }
 
@@ -70,6 +77,12 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
 
         $mailConfig = $this->getMailConfig($context, $dataBag);
 
+        if (!\is_array($mailConfig['receivers']) || $mailConfig['receivers'] === []) {
+            $mailConfig['receivers'] = [$this->systemConfigService->getString('core.basicInformation.email', $context->getSalesChannelId()) => 'Admin'];
+        } else {
+            $mailConfig['receivers'] = \array_combine($mailConfig['receivers'], $mailConfig['receivers']);
+        }
+
         $merchantMailRecipientStruct = new MailRecipientStruct($mailConfig['receivers']);
         $merchantEvent = new RevocationRequestEvent($context->getContext(), $context->getSalesChannelId(), $merchantMailRecipientStruct, $dataBag);
         $this->eventDispatcher->dispatch($merchantEvent, RevocationRequestEvent::EVENT_NAME);
@@ -88,88 +101,75 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     }
 
     /**
-     * @return array{receivers: array<string, string>, message?: string|null}
+     * @return array{receivers: array<int, string>|null, message: string|null}
      */
     private function getMailConfig(SalesChannelContext $context, RequestDataBag $dataBag): array
     {
         $slotId = $dataBag->get('slotId');
         $navigationId = $dataBag->get('navigationId');
-        $mailConfig = ['receivers' => []];
+        $entityName = $dataBag->get('entityName');
+
+        $mailConfig = ['receivers' => null, 'message' => null];
 
         if (!$slotId) {
-            return $this->createDefaultConfig($context, $mailConfig);
+            return $mailConfig;
         }
 
         if ($navigationId) {
-            $criteria = new Criteria([$navigationId]);
-            $categoryEntity = $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first();
+            $mailConfig = $this->getSlotConfig($slotId, $navigationId, $context, $entityName);
 
-            if ($categoryEntity instanceof CategoryEntity && !empty($categoryEntity->getSlotConfig()[$slotId])) {
-                $categoryEntityConfig = $categoryEntity->getSlotConfig()[$slotId];
-                $this->addReceivers($mailConfig, $categoryEntityConfig);
-                $mailConfig['message'] = $this->getStringMessage($categoryEntityConfig['confirmationText']['value']);
+            if (\is_array($mailConfig['receivers']) && \is_string($mailConfig['message'])) {
+                return $mailConfig;
             }
-        }
-
-        if (!empty($mailConfig['receivers'])) {
-            return $mailConfig;
         }
 
         $criteria = new Criteria([$slotId]);
         $slotEntity = $this->cmsSlotRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$slotEntity) {
-            return $this->createDefaultConfig($context, $mailConfig);
+            return $mailConfig;
         }
 
-        $slotConfig = $slotEntity->getTranslated()['config'];
-        $this->addReceivers($mailConfig, $slotConfig);
-        $mailConfig['message'] = $this->getStringMessage($slotConfig['confirmationText']['value']);
+        if (!\is_array($mailConfig['receivers'])) {
+            $mailConfig['receivers'] = $slotEntity->getTranslated()['config']['mailReceiver']['value'];
+        }
 
-        if (empty($mailConfig['receivers'])) {
-            return $this->createDefaultConfig($context, $mailConfig);
+        if (!\is_string($mailConfig['message'])) {
+            $mailConfig['message'] = $slotEntity->getTranslated()['config']['confirmationText']['value'];
         }
 
         return $mailConfig;
     }
 
     /**
-     * @param array<string, mixed> $config
-     *
-     * @return array{receivers: array<string>, message?: string|null}
+     * @return array{receivers: array<int, string>|null, message: string|null}
      */
-    private function createDefaultConfig(SalesChannelContext $context, array $config): array
+    private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $entityName = null): array
     {
-        $config['receivers'][$this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannelId())] = 'Admin';
+        $mailConfig = ['receivers' => null, 'message' => null];
 
-        return $config;
-    }
+        $criteria = new Criteria([$navigationId]);
 
-    /**
-     * @param array<string, mixed> $mailConfig
-     * @param array<string, mixed> $slotConfig
-     */
-    private function addReceivers(array &$mailConfig, array $slotConfig): void
-    {
-        $receivers = $slotConfig['mailReceiver']['value'] ?? null;
+        $entity = match ($entityName) {
+            ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->getEntities()->first(),
+            LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->getEntities()->first(),
+            default => $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first(),
+        };
 
-        if (\is_array($receivers)) {
-            foreach ($receivers as $receiver) {
-                $mailConfig['receivers'][$receiver] = $receiver;
-            }
-        }
-    }
-
-    private function getStringMessage(mixed $value): string
-    {
-        if ($value === null) {
-            return '';
+        if (!$entity || !$entity->getSlotConfig() || !\array_key_exists($slotId, $entity->getSlotConfig())) {
+            return $mailConfig;
         }
 
-        if (\is_string($value)) {
-            return $value;
+        $slotConfig = $entity->getSlotConfig()[$slotId];
+
+        if (\array_key_exists('mailReceiver', $slotConfig) && \array_key_exists('value', $slotConfig['mailReceiver'])) {
+            $mailConfig['receivers'] = $slotConfig['mailReceiver']['value'];
         }
 
-        return (string) $value;
+        if (\array_key_exists('confirmationText', $slotConfig) && \array_key_exists('value', $slotConfig['confirmationText'])) {
+            $mailConfig['message'] = $slotConfig['confirmationText']['value'];
+        }
+
+        return $mailConfig;
     }
 }

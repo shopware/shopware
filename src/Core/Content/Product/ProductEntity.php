@@ -793,7 +793,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string, array<string, array<string, string>>>|null
+     * @return array<string, mixed>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -801,7 +801,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string, array<string, array<string, string>>> $slotConfig
+     * @param array<string, mixed> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

@@ -43,16 +43,7 @@ test(
 
         const versionResponse = await AdminApiContext.get('./_info/config');
         expect(versionResponse.ok(), '/_info/config request failed').toBeTruthy();
-        const configResponseText = await versionResponse.text();
-        let config: { version: string };
-
-        try {
-            config = JSON.parse(configResponseText) as { version: string };
-        } catch (error) {
-            console.error('/_info/config returned invalid JSON:', configResponseText);
-
-            throw error;
-        }
+        const config = (await versionResponse.json()) as { version: string };
 
         await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
             timeout: 60000,

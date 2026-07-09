@@ -244,7 +244,6 @@ post-steps:
         repro.spec.ts
         ReproTest.php
         giveup.txt
-        provision-error.txt
         agent-summary.md
         workspace-edits.txt
       if-no-files-found: ignore

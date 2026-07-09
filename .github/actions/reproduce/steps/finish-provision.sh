@@ -31,25 +31,12 @@ fi
 ( cd "$SHOP_DIR"; SYMFONY_DAEMON=1 SYMFONY_NO_TLS=1 SYMFONY_ALLOW_HTTP=1 SYMFONY_PORT=8000 SYMFONY_ALLOW_ALL_IP=1 symfony server:start )
 
 APP_URL="http://localhost:8000"
-# Wait for the admin to boot HEALTHILY — a 5xx (or no response) means it isn't up yet or is booting
-# into an error, so keep waiting rather than treating the first byte as "ready".
 for i in $(seq 1 60); do
   code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$APP_URL/admin" || echo 000)
-  case "$code" in
-    000|5*) sleep 1 ;;
-    *) echo "admin responding (HTTP $code) after ${i}s"; ready=1; break ;;
-  esac
+  [ "$code" != "000" ] && { echo "server responding (HTTP $code) after ${i}s"; ready=1; break; }
+  sleep 1
 done
-# Health gate: a reported version whose admin never boots non-5xx is un-runnable in this environment
-# (e.g. a PHP/dependency incompatibility for that version — issue #6: 6.7.9.0 admin 500 under PHP 8.4
-# + Twig 3.28). Fail fast with the reason instead of wasting the agent and the trunk leg on a dead
-# shop. provision-error.txt carries the reason to the report.
-if [ "${ready:-0}" != 1 ]; then
-  final=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$APP_URL/admin" || echo 000)
-  reason="reported shop admin did not boot within 60s (last HTTP ${final} at ${APP_URL}/admin) — likely a PHP/dependency incompatibility for this Shopware version in this CI environment"
-  printf '%s\n' "$reason" > provision-error.txt
-  echo "::error::${reason}"; exit 1
-fi
+[ "${ready:-0}" = 1 ] || { echo "::error::shop not ready after 60s"; exit 1; }
 
 # rawurldecode user/pass so a percent-encoded userinfo (e.g. p%40ss -> p@ss) authenticates — matches
 # reset.mjs, which decodeURIComponent()s the same components.

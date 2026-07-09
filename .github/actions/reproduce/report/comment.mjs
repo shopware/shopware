@@ -113,9 +113,6 @@ if (process.env.MODE === 'incomplete') {
   // Prefer the agent's own give-up reason (written by `repro giveup` into giveup.txt, carried in the
   // repro-plan artifact). Fall back to the REASON env / generic default only when it's absent.
   const giveup = readExtra('giveup.txt');
-  // A provision health-gate failure (finish-provision.sh) records the specific reason here — e.g. the
-  // reported version's admin did not boot — so the comment says exactly why instead of a generic line.
-  const provisionError = readExtra('provision-error.txt');
   // Still show the authored bundle when one exists (e.g. a blocked run): the test case + fixtures are
   // what a human needs to see what was attempted, even though no verdict was reached.
   const plan = readJson(`${art}/repro-plan/reproduction-plan.json`) || {};
@@ -124,7 +121,7 @@ if (process.env.MODE === 'incomplete') {
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
   const hasFixtures = fs.existsSync(fixturesPath);
   write(render(tpl, {
-    REASON: giveup || provisionError || process.env.REASON || DATA.incomplete_reason_default,
+    REASON: giveup || process.env.REASON || DATA.incomplete_reason_default,
     RUN_URL: process.env.RUN_URL || '',
     AGENT_SUMMARY: readExtra('agent-summary.md'),
     EDITS: edits,

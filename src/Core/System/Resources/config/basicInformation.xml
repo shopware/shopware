@@ -68,7 +68,7 @@
         <subtitle>This company information is used for generated documents and appears on document templates where applicable.</subtitle>
         <subtitle lang="de-DE">Diese Unternehmensinformationen werden für generierte Dokumente verwendet und erscheinen, wo zutreffend, in Dokumentvorlagen.</subtitle>
 
-        <component name="sw-media-compact-upload-v2">
+        <component name="sw-system-config-media-upload">
             <name>companyLogoId</name>
             <label>Company logo</label>
             <label lang="de-DE">Firmenlogo</label>

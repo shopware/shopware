@@ -10,6 +10,7 @@
             grid-column: 1 / -1;
             width: 50%;
             min-width: 200px;
+            margin-bottom: var(--scale-size-32);
         }
 
         .mt-card__content > :nth-last-child(-n+3) {

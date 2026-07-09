@@ -125,6 +125,7 @@
       "labelMaxPurchase": "Max. order quantity",
       "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Manufacturer product number",
+      "labelGuaranteeMonths": "Guarantee duration in months",
       "labelStock": "Stock",
       "labelActive": "Active for all selected Sales Channels",
       "labelShippingFree": "Free shipping",
@@ -148,6 +149,7 @@
       "placeholderRestockTime": "Enter restock time in days...",
       "placeholderEan": "Enter GTIN/EAN...",
       "placeholderManufacturerNumber": "Enter product number...",
+      "placeholderGuaranteeMonths": "e.g. 30, 36 or 42...",
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },

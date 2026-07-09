@@ -35,6 +35,7 @@ export default {
             'maxPurchase',
             'ean',
             'manufacturerNumber',
+            'guaranteeMonths',
             'shippingFree',
             'markAsTopseller',
         ]),

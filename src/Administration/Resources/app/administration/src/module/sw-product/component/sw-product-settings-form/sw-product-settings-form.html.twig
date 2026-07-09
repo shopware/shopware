@@ -81,6 +81,35 @@
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block sw_product_settings_form_guarantee_months_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.guaranteeMonths"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.guaranteeMonths"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :allow-empty="true"
+                    :min="30"
+                    :step="6"
+                    :error="productGuaranteeMonthsError"
+                    :label="$t('sw-product.settingsForm.labelGuaranteeMonths')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderGuaranteeMonths')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
     </sw-container>
     {% endblock %}
 </div>

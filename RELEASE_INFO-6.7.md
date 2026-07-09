@@ -2,6 +2,10 @@
 
 ## Core
 
+### Store API route for product GARAN label rendering
+
+Products now support a `guaranteeMonths` field to store the commercial durability guarantee duration in months. The Store API provides `GET /store-api/product/{productId}/garan-label` to render an EU GARAN label SVG for products with complete label data.
+
 ### Enforce "Allow payment change after checkout" when re-paying an order
 
 `Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` now rejects payment methods whose `afterOrderEnabled` ("Allow payment change after checkout") flag is disabled, matching the methods offered on the edit-order page. Previously the flag was only applied as a UI filter, so a payment method that renders its own JavaScript payment button (e.g. PayPal smart buttons) could still be used to pay an existing order. The store-api route `POST /store-api/order/payment` now returns `CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE` (HTTP 403) for such methods. (shopware/shopware#17495)

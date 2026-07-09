@@ -123,6 +123,7 @@
         "shopware/conflicts": "0.6.1",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
+        "swag/paypal": "10.7.0",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.12",
         "symfony/cache-contracts": "~3.6.0",

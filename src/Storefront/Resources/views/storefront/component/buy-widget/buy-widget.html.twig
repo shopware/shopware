@@ -300,5 +300,22 @@
                 </div>
             {% endif %}
         {% endblock %}
+
+        {% block buy_widget_garan_label %}
+            {% set garanGuaranteeMonths = product.guaranteeMonths %}
+            {% set garanGuarantee = garanGuaranteeMonths|sw_garan_label_duration %}
+            {% set garanManufacturer = product.manufacturer.translated.name ?? product.manufacturer.name ?? null %}
+            {% set garanModelIdentifier = product.manufacturerNumber ?? product.productNumber %}
+
+            {% if garanGuarantee and garanManufacturer and garanModelIdentifier %}
+                <div class="product-detail-garan-label">
+                    {% sw_include '@Framework/garan/label.svg.twig' with {
+                        manufacturer: garanManufacturer,
+                        productNumber: garanModelIdentifier,
+                        guarantee: garanGuarantee
+                    } only %}
+                </div>
+            {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}

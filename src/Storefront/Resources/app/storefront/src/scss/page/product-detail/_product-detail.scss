@@ -51,6 +51,16 @@
     margin-bottom: $spacer;
 }
 
+.product-detail-garan-label {
+    margin-bottom: $spacer;
+
+    svg {
+        width: 100%;
+        max-width: 260px;
+        height: auto;
+    }
+}
+
 .product-block-prices-grid {
     thead {
         background-color: $gray-100;

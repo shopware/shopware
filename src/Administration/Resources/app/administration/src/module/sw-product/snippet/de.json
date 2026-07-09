@@ -125,6 +125,7 @@
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Hersteller-Produktnummer",
+      "labelGuaranteeMonths": "Garantiedauer in Monaten",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
@@ -148,6 +149,7 @@
       "placeholderRestockTime": "Wiederauffüllintervall ...",
       "placeholderEan": "Gib die GTIN/EAN ein ...",
       "placeholderManufacturerNumber": "Produktnummer eingeben ...",
+      "placeholderGuaranteeMonths": "z. B. 30, 36 oder 42 ...",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },

@@ -62,8 +62,7 @@
         "columnRankingPoints": "Rangpunktzahl",
         "columnContent": "Inhalt",
         "columnSplitKeywords": "Suchbegriffe trennen",
-        "textResetRanking": "Rangpunktzahl zurücksetzen",
-        "textRemove": "Entfernen"
+        "textResetRanking": "Rangpunktzahl zurücksetzen"
       },
       "configFields": {
         "name": "Produktname",

@@ -29,7 +29,7 @@ class ManufacturerFilterHandlerTest extends TestCase
         $request = new Request();
         $request->request->set('manufacturer-filter', false);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $filter = $this->handler->create($request, $context);
 
@@ -43,7 +43,7 @@ class ManufacturerFilterHandlerTest extends TestCase
         $request = new Request();
         $request->query->set('manufacturer', \implode('|', $manufacturerIds));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $filter = $this->handler->create($request, $context);
 
@@ -71,7 +71,7 @@ class ManufacturerFilterHandlerTest extends TestCase
         $request->request->set('manufacturer-filter', true);
         $request->request->set('manufacturer', '');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $filter = $this->handler->create($request, $context);
 

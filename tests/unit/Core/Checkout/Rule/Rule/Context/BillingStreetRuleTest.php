@@ -34,7 +34,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setStreet('example street');
@@ -57,7 +57,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setStreet('example street');
@@ -80,7 +80,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setStreet('test street');
@@ -103,7 +103,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -122,7 +122,7 @@ class BillingStreetRuleTest extends TestCase
             $this->expectException(CustomerException::class);
         }
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setStreet('test street');
@@ -167,7 +167,7 @@ class BillingStreetRuleTest extends TestCase
     {
         try {
             $rule = new BillingStreetRule();
-            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $salesChannelContext = static::createStub(SalesChannelContext::class);
             $customer = new CustomerEntity();
             $customer->setActiveBillingAddress(new CustomerAddressEntity());
             $salesChannelContext->method('getCustomer')->willReturn($customer);
@@ -182,7 +182,7 @@ class BillingStreetRuleTest extends TestCase
     public function testRuleNotMatchingWithoutAddress(): void
     {
         $rule = (new BillingStreetRule())->assign(['streetName' => 'foo', 'operator' => Rule::OPERATOR_EQ]);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
 
@@ -196,7 +196,7 @@ class BillingStreetRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $billingStreet, bool $noCustomer = false, bool $noAddress = false): void
     {
         $streetName = 'kyln123';
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setStreet($billingStreet);
 

@@ -4,7 +4,9 @@
     "paths": {
         "/handle-payment": {
             "post": {
-                "tags": ["Payment & Shipping"],
+                "tags": [
+                    "Payment & Shipping"
+                ],
                 "summary": "Initiate a payment for an order",
                 "description": "This generic endpoint is should be called to initiate a payment flow after an order has been created. The details of the payment flow can differ depending on the payment integration and might require calling additional operations or the setup of webhooks.\n\nThe endpoint internally calls the payment handler of the payment method currently set for the order.",
                 "operationId": "handlePaymentMethod",
@@ -13,7 +15,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["orderId"],
+                                "required": [
+                                    "orderId"
+                                ],
                                 "properties": {
                                     "orderId": {
                                         "description": "Identifier of an order",
@@ -46,7 +50,9 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["redirectUrl"]
+                                    "required": [
+                                        "redirectUrl"
+                                    ]
                                 }
                             }
                         }
@@ -56,10 +62,17 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "get": {
-                "tags": ["Payment & Shipping"],
+                "tags": [
+                    "Payment & Shipping"
+                ],
                 "summary": "Initiate a payment for an order",
                 "description": "This generic endpoint is should be called to initiate a payment flow after an order has been created. The details of the payment flow can differ depending on the payment integration and might require calling additional operations or the setup of webhooks.\n\nThe endpoint internally calls the payment handler of the payment method currently set for the order. Please prefer the POST version of this endpoint.",
                 "operationId": "handlePaymentMethodGet",
@@ -89,6 +102,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -103,17 +119,19 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["redirectUrl"]
+                                    "required": [
+                                        "redirectUrl"
+                                    ]
                                 }
                             }
                         }
                     }
                 },
                 "security": [
-                {
-                  "ApiKey": []
-                }
-              ]
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         }
     }

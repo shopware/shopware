@@ -296,7 +296,7 @@ class RuleValidator implements EventSubscriberInterface
         $script = null;
         if (isset($payload['script_id'])) {
             $scriptId = Uuid::fromBytesToHex($payload['script_id']);
-            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->get($scriptId);
+            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->getEntities()->get($scriptId);
         } elseif ($condition && $condition->getAppScriptCondition()) {
             $script = $condition->getAppScriptCondition();
         }

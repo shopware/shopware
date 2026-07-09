@@ -18,7 +18,6 @@
       "errorBackRoutingTitle": "Ungültiger Seitenauruf"
     },
     "detail": {
-      "buttonSave": "Speichern",
       "cardGeneralTitle": "Informationen",
       "cardSnippetSetsTitle": "Übersetzungen",
       "labelContent": "Textbaustein-Set: {name}",
@@ -40,7 +39,6 @@
       "columnKey": "Name",
       "columnValue": "Wert",
       "contextMenuDelete": "Löschen | Zurücksetzen",
-      "contextMenuEdit": "Bearbeiten",
       "columnHeaderGridColumnTitleSet": "Textbaustein-Set",
       "columnHeaderResetTo": "Original",
       "checkboxDeleteAll": "Für alle Textbaustein-Sets löschen | Für alle Textbaustein-Sets zurücksetzen",
@@ -69,9 +67,6 @@
       "columnIso": "Locale",
       "columnChangedAt": "Letzte Änderung",
       "columnName": "Name",
-      "contextMenuClone": "Duplizieren",
-      "contextMenuDelete": "Löschen",
-      "contextMenuEdit": "Bearbeiten",
       "deleteNoteErrorMessage": "Das Textbaustein-Set konnte nicht gelöscht werden.",
       "deleteNoteSuccessMessage": "Das Textbaustein-Set wurde erfolgreich gelöscht.",
       "inlineEditErrorMessage": "Das Textbaustein-Set konnte nicht gespeichert werden | Das Textbaustein-Set für \"{name}\" konnte nicht gespeichert werden.",

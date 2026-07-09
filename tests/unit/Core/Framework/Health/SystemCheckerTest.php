@@ -19,19 +19,21 @@ class SystemCheckerTest extends TestCase
 {
     public function testRunAllChecks(): void
     {
-        $checks = [
-            $this->createMock(BaseCheck::class),
-            $this->createMock(BaseCheck::class),
-        ];
+        $firstCheck = $this->createMock(BaseCheck::class);
+        $secondCheck = $this->createMock(BaseCheck::class);
+        $checks = [$firstCheck, $secondCheck];
 
         $checker = new SystemChecker($checks);
         $context = SystemCheckExecutionContext::WEB;
         $result = new Result('test', Status::OK, 'test', true, []);
-        foreach ($checks as $check) {
-            $check->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
-            $check->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
-            $check->expects($this->once())->method('run')->willReturn($result);
-        }
+
+        $firstCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+        $firstCheck->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
+        $firstCheck->expects($this->once())->method('run')->willReturn($result);
+
+        $secondCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+        $secondCheck->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
+        $secondCheck->expects($this->once())->method('run')->willReturn($result);
 
         $results = $checker->check($context);
         static::assertCount(2, $results);
@@ -42,23 +44,22 @@ class SystemCheckerTest extends TestCase
 
     public function testDoNotRunCheckThatIsNotAllowed(): void
     {
-        $checks = [
-            $this->createMock(BaseCheck::class),
-            $this->createMock(BaseCheck::class),
-        ];
+        $firstCheck = $this->createMock(BaseCheck::class);
+        $secondCheck = $this->createMock(BaseCheck::class);
+        $checks = [$firstCheck, $secondCheck];
 
         $checker = new SystemChecker($checks);
         $context = SystemCheckExecutionContext::WEB;
         $resultForRunningTest = new Result('test', Status::OK, 'test', true, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check not allowed to run in this execution context: WEB', null, []);
-        $checks[0]->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(false);
-        $checks[0]->expects($this->once())->method('name')->willReturn('test');
-        $checks[0]->expects($this->never())->method('run');
-        $checks[0]->expects($this->never())->method('category');
+        $firstCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(false);
+        $firstCheck->expects($this->once())->method('name')->willReturn('test');
+        $firstCheck->expects($this->never())->method('run');
+        $firstCheck->expects($this->never())->method('category');
 
-        $checks[1]->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
-        $checks[1]->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
-        $checks[1]->expects($this->once())->method('run')->willReturn($resultForRunningTest);
+        $secondCheck->expects($this->once())->method('allowedToRunIn')->with($context)->willReturn(true);
+        $secondCheck->expects($this->once())->method('category')->willReturn(Category::SYSTEM);
+        $secondCheck->expects($this->once())->method('run')->willReturn($resultForRunningTest);
 
         $results = $checker->check($context);
         static::assertCount(2, $results);

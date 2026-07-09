@@ -44,7 +44,7 @@ class PaymentMethodLifecycleHandlerTest extends TestCase
         $this->persister = new PaymentMethodLifecycleHandler(
             $this->paymentMethodRepository,
             $this->mediaRepository,
-            $this->createMock(MediaService::class),
+            static::createStub(MediaService::class),
         );
     }
 

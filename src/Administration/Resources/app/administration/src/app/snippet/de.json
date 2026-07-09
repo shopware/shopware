@@ -73,6 +73,8 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
+      "triggerAriaLabel": "Mitteilungen",
+      "optionsAriaLabel": "Mitteilungsoptionen",
       "emptyText": "Nicht viel los hier.",
       "deleteModal": {
         "title": "Mitteilungen löschen",
@@ -269,9 +271,6 @@
       "nextPage": "Zur nächsten Seite gehen",
       "page": "Gehe zu Seite {page}"
     },
-    "sw-modal": {
-      "labelClose": "Schließen"
-    },
     "sw-text-preview": {
       "showMoreButton": "Mehr zeigen"
     },
@@ -339,6 +338,9 @@
         },
         "coverSaveError": {
           "message": "Cover-Bild konnte nicht gespeichert werden."
+        },
+        "downloadError": {
+          "message": "Fehler beim Herunterladen."
         }
       },
       "labelUploading": "Wird hochgeladen ..."
@@ -575,12 +577,6 @@
       "placeholderSearch": "Suchen ...",
       "labelLoadMore": "Mehr laden"
     },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Entfernen"
-    },
-    "sw-media-list-selection-item-v2": {
-      "buttonRemove": "Entfernen"
-    },
     "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
@@ -713,9 +709,7 @@
         "quantity": "Menge",
         "isNet": "Netto / Brutto",
         "isNumeric": "Vergleichsmodus",
-        "fromDate": "Von",
         "toDate": "Bis",
-        "fromTime": "Von",
         "toTime": "Bis",
         "useTime": "Zeitmodus",
         "timezone": "Zeitzone",
@@ -1030,7 +1024,6 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonRemove": "Entfernen",
         "buttonPreviewImage": "Vorschau-Bild"
       }
     },
@@ -1205,7 +1198,6 @@
       "Reduced rate 2": "Stark ermäßigter Satz"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Mehrfachänderung",
       "startBulkEdit": "Mehrfachänderung starten",
       "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     },
@@ -1362,8 +1354,7 @@
   },
   "sw-error": {
     "general": {
-      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden.",
-      "textLink": "Zurück"
+      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
   "sw-property-search": {
@@ -1402,8 +1393,7 @@
     "ignorePlugin": "Dauerhaft ignorieren",
     "successfullyDeleted": "Erweiterung wurde gelöscht",
     "table": {
-      "plugin": "Erweiterung",
-      "warning": "Warnung"
+      "plugin": "Erweiterung"
     }
   },
   "sw-sales-channel-switch": {
@@ -1649,14 +1639,8 @@
     }
   },
   "sw-wizard": {
-    "backButton": "Zurück",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
-  },
-  "sw-meteor": {
-    "navigation": {
-      "backButton": "Zurück"
-    }
   },
   "sw-base-filter": {
     "resetButton": "Zurücksetzen"

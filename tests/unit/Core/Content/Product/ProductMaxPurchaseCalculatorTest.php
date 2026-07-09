@@ -22,7 +22,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
     {
         parent::setUp();
 
-        $configService = $this->createMock(SystemConfigService::class);
+        $configService = static::createStub(SystemConfigService::class);
         $configService->method('getInt')->willReturn(10);
         $this->service = new ProductMaxPurchaseCalculator($configService);
     }
@@ -36,7 +36,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
         $entity = new PartialEntity();
         $entity->assign($entityData);
 
-        static::assertSame($expected, $this->service->calculate($entity, $this->createMock(SalesChannelContext::class)));
+        static::assertSame($expected, $this->service->calculate($entity, static::createStub(SalesChannelContext::class)));
     }
 
     public static function cases(): \Generator

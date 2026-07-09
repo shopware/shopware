@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\Cms\AbstractProductDetailCmsElementResolver;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -91,6 +92,8 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $criteria = $definition['product_slot-1'];
         static::assertInstanceOf(Criteria::class, $criteria);
         static::assertSame('cms::product-detail-static', $criteria->getTitle());
+        static::assertArrayHasKey('properties', $criteria->getAssociations());
+        static::assertArrayHasKey('group', $criteria->getAssociations()['properties']->getAssociations());
     }
 
     public function testGetSlotProductReturnsNullIfNoSearchResultProvided(): void
@@ -109,11 +112,13 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
 
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())
-            ->method('get')
-            ->with('product-1')
-            ->willReturn(new SalesChannelProductEntity());
+        $entity = new SalesChannelProductEntity();
+        $entity->setUniqueIdentifier('product-1');
+
+        $collection = new SalesChannelProductCollection([$entity]);
+
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn($collection);
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);

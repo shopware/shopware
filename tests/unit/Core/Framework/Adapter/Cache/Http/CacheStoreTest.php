@@ -47,12 +47,12 @@ class CacheStoreTest extends TestCase
 
         $store = new CacheStore(
             $cache,
-            $this->createMock(CacheStateValidator::class),
+            static::createStub(CacheStateValidator::class),
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
             new CollectingMessageBus(),
             $clock
@@ -84,9 +84,9 @@ class CacheStoreTest extends TestCase
             $stateValidator,
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
             new CollectingMessageBus(),
             new NativeClock()
@@ -111,12 +111,12 @@ class CacheStoreTest extends TestCase
 
         $store = new CacheStore(
             $cache,
-            $this->createMock(CacheStateValidator::class),
+            static::createStub(CacheStateValidator::class),
             new EventDispatcher(),
             $keyGenerator,
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
             new CollectingMessageBus(),
             new NativeClock()
@@ -350,7 +350,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -400,7 +400,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -453,7 +453,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -505,7 +505,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()
@@ -550,7 +550,7 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
             $bus,
             new NativeClock()

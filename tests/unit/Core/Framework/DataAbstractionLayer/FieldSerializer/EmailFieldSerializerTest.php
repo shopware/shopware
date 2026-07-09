@@ -31,7 +31,7 @@ class EmailFieldSerializerTest extends TestCase
     {
         $this->serializer = new EmailFieldSerializer(
             Validation::createValidator(),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 

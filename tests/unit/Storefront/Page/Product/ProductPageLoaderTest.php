@@ -113,7 +113,7 @@ class ProductPageLoaderTest extends TestCase
             static::assertSame(1, $reviewData->getTotal());
             static::assertSame($productId, $reviewData->getProductId());
 
-            $loadedReview = $reviewData->first();
+            $loadedReview = $reviewData->getEntities()->first();
             static::assertNotNull($loadedReview);
             static::assertSame('Great product', $loadedReview->getTitle());
         } else {
@@ -328,17 +328,19 @@ class ProductPageLoaderTest extends TestCase
         $review->setTitle('myReviewTitle');
         $review->setComment('this product changed my life');
 
-        $productReviewResult = new ProductReviewResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        return ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                ProductReviewDefinition::ENTITY_NAME,
+                1,
+                new ProductReviewCollection([$review]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
+            Uuid::randomHex(),
             1,
-            new ProductReviewCollection([$review]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
         );
-        $productReviewResult->setMatrix(new RatingMatrix([]));
-
-        return $productReviewResult;
     }
 
     private function getReviewBlock(SalesChannelProductEntity $productEntity): CmsBlockEntity

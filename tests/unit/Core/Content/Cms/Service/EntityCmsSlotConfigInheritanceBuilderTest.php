@@ -133,8 +133,8 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
      */
     private function createConnectionWithParentLanguageIds(array $parentLanguageIds): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
 
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('from')->willReturnSelf();
@@ -142,7 +142,7 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
         $queryBuilder->method('setParameter')->willReturnSelf();
 
         $results = array_map(function (?string $parentLanguageId): Result {
-            $result = $this->createMock(Result::class);
+            $result = $this->createStub(Result::class);
             $result->method('fetchOne')->willReturn($parentLanguageId);
 
             return $result;

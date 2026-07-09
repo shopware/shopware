@@ -10,7 +10,9 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -54,7 +56,8 @@ class XmlRendererTest extends TestCase
     {
         $rendered = '<root/>';
 
-        $renderData = $this->createRenderData(filenamePrefix: 'zugferd_invoice_');
+        $meta = $this->createMeta(filenamePrefix: 'zugferd_invoice_');
+        $renderData = $this->createRenderData();
 
         $finder = $this->createMock(TemplateFinder::class);
         $finder->expects($this->once())
@@ -67,7 +70,9 @@ class XmlRendererTest extends TestCase
             ->method('renderWithTimezoneOverride')
             ->with(
                 self::ZUGFERD_TEMPLATE_PATH,
-                static::callback(function (array $parameters) use ($renderData): bool {
+                static::callback(function (array $parameters) use ($meta, $renderData): bool {
+                    static::assertArrayHasKey('meta', $parameters);
+                    static::assertSame($meta, $parameters['meta']);
                     static::assertArrayHasKey('renderData', $parameters);
                     static::assertSame($renderData, $parameters['renderData']);
 
@@ -80,7 +85,7 @@ class XmlRendererTest extends TestCase
         $renderer = $this->createRenderer($finder, $env);
 
         $result = $renderer->renderToString(
-            $this->createInput($renderData),
+            $this->createInput($meta, $renderData),
             new RenderState(),
             Context::createDefaultContext(),
         );
@@ -95,8 +100,6 @@ class XmlRendererTest extends TestCase
 
     public function testRenderToStringThrowsWhenTemplateProducesMalformedXml(): void
     {
-        $renderData = $this->createRenderData();
-
         $finder = $this->createMock(TemplateFinder::class);
         $finder->method('find')->willReturn(self::ZUGFERD_TEMPLATE_PATH);
 
@@ -105,11 +108,11 @@ class XmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, $env);
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/Generated XML is malformed/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/Generated XML is malformed/');
 
         $renderer->renderToString(
-            $this->createInput($renderData),
+            $this->createInput($this->createMeta(), $this->createRenderData()),
             new RenderState(),
             Context::createDefaultContext(),
         );
@@ -117,8 +120,6 @@ class XmlRendererTest extends TestCase
 
     public function testResolvesTemplateByDocumentType(): void
     {
-        $renderData = $this->createRenderData();
-
         $expectedTemplate = '@Framework/documents/zugferd/credit_note.xml.twig';
 
         $finder = $this->createMock(TemplateFinder::class);
@@ -137,7 +138,10 @@ class XmlRendererTest extends TestCase
                 DocumentType::CREDIT_NOTE->value,
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $renderData],
+                [
+                    DocumentMetaProvider::KEY => $this->createMeta(),
+                    InvoiceDataProvider::KEY => $this->createRenderData(),
+                ],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -151,14 +155,17 @@ class XmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, $this->createMock(TwigEnvironment::class));
 
-        static::expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
 
         $renderer->renderToString(
             new RenderInput(
                 '../invoice',
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $this->createRenderData()],
+                [
+                    DocumentMetaProvider::KEY => $this->createMeta(),
+                    InvoiceDataProvider::KEY => $this->createRenderData(),
+                ],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -179,8 +186,8 @@ class XmlRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString(
@@ -214,19 +221,22 @@ class XmlRendererTest extends TestCase
         return $order;
     }
 
-    private function createInput(InvoiceRenderData $data): RenderInput
+    private function createInput(DocumentMetaRenderData $meta, InvoiceRenderData $data): RenderInput
     {
         return new RenderInput(
             DocumentType::INVOICE->value,
             '12345',
             $this->createOrder(),
-            [InvoiceDataProvider::KEY => $data],
+            [
+                DocumentMetaProvider::KEY => $meta,
+                InvoiceDataProvider::KEY => $data,
+            ],
         );
     }
 
-    private function createRenderData(?string $filenamePrefix = null): InvoiceRenderData
+    private function createMeta(?string $filenamePrefix = null): DocumentMetaRenderData
     {
-        return new InvoiceRenderData(
+        return new DocumentMetaRenderData(
             config: new DocumentConfig(
                 pageSize: 'a4',
                 pageOrientation: 'portrait',
@@ -244,6 +254,12 @@ class XmlRendererTest extends TestCase
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
+        );
+    }
+
+    private function createRenderData(): InvoiceRenderData
+    {
+        return new InvoiceRenderData(
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: new TradePartyView(

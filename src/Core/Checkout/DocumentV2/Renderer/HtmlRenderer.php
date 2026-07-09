@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -50,12 +50,15 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
-        $renderData = $input->requireData(
-            InvoiceDataProvider::KEY,
-            InvoiceRenderData::class
+        $meta = $input->requireData(
+            DocumentMetaProvider::KEY,
+            DocumentMetaRenderData::class,
         );
 
-        $configuration = new TemplateContext($renderData);
+        $typeData = $input->getAllData();
+        unset($typeData[DocumentMetaProvider::KEY]);
+
+        $configuration = new TemplateContext($meta, $typeData);
 
         if (\preg_match('/^[a-z0-9_]+$/D', $input->documentType) !== 1) {
             throw DocumentV2Exception::invalidDocumentType($input->documentType);
@@ -73,7 +76,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             ],
         );
 
-        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber);
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
 
         return new RenderResult(
             self::FORMAT->value,

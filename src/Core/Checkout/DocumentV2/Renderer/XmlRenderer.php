@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
@@ -18,9 +20,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Renders a document into XRechnung 3.0 (CII) XML.
  *
- * Data + math live in {@see InvoiceDataProvider}; the same DTO feeds the HTML and Zugferd
- * renderers. After Twig produces the raw markup it is piped through {@see XmlFormatter} for
- * deterministic pretty-printing + well-formedness validation.
+ * Consumes the shared meta and the invoice render data; the raw Twig markup is then piped through
+ * {@see XmlFormatter} for deterministic pretty-printing and well-formedness validation.
  *
  * @internal
  */
@@ -51,6 +52,11 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
+        $meta = $input->requireData(
+            DocumentMetaProvider::KEY,
+            DocumentMetaRenderData::class,
+        );
+
         $renderData = $input->requireData(
             InvoiceDataProvider::KEY,
             InvoiceRenderData::class,
@@ -66,7 +72,10 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
             $template,
             $input,
             $context,
-            ['renderData' => $renderData],
+            [
+                'meta' => $meta,
+                'renderData' => $renderData,
+            ],
         );
 
         $content = $this->xmlFormatter->format($raw);
@@ -74,7 +83,7 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
         return new RenderResult(
             format: self::FORMAT->value,
             content: $content,
-            fileName: $renderData->config->buildFileStem($renderData->documentNumber),
+            fileName: $meta->config->buildFileStem($meta->documentNumber),
             fileExtension: self::FORMAT->fileExtension(),
             mimeType: self::FORMAT->mimeType(),
         );

@@ -106,12 +106,6 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);
 
         return new InvoiceRenderData(
-            config: $bundle->config,
-            company: $bundle->company,
-            display: $bundle->display,
-            documentDate: $generationRequest->documentDate,
-            documentNumber: $documentNumber,
-            documentComment: $generationRequest->documentComment,
             typeCode: TypeCode::INVOICE,
             buyerReference: $order->getOrderNumber() ?? '',
             buyer: TradePartyView::buyerFromOrder($order),
@@ -135,7 +129,6 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             ),
             intraCommunityDelivery: $isIntraCommunityDelivery,
             custom: ['invoiceNumber' => $documentNumber],
-            legacyConfig: $bundle->legacyConfig,
         );
     }
 

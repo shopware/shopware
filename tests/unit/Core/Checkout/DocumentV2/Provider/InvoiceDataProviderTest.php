@@ -137,8 +137,6 @@ class InvoiceDataProviderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertSame('2026-05-05T12:00:00+00:00', $result->documentDate);
-        static::assertSame('12345', $result->documentNumber);
         static::assertSame('12345', $result->custom['invoiceNumber']);
         static::assertSame($expectedIntraCommunityDelivery, $result->intraCommunityDelivery);
     }

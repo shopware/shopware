@@ -262,6 +262,17 @@ class ContactFormRouteTest extends TestCase
             'inherited@example.com',
             'Child success message',
         ];
+
+        yield 'empty custom confirmation text is not inherited' => [
+            [
+                'confirmationText' => [
+                    'source' => 'static',
+                    'value' => '',
+                ],
+            ],
+            'inherited@example.com',
+            '',
+        ];
     }
 
     #[DataProvider('contactFormWithDomainProvider')]

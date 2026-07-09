@@ -83,20 +83,16 @@ class ContactFormRoute extends AbstractContactFormRoute
             $data->set('salutation', $salutationSearchResult->getEntities()->first());
         }
 
-        if ($this->isEmptyReceivers($mailConfigs['receivers'])) {
-            $mailConfigs['receivers'][] = $this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannelId());
+        if (!\is_array($mailConfigs['receivers']) || $mailConfigs['receivers'] === []) {
+            $mailConfigs['receivers'] = [$this->systemConfigService->getString('core.basicInformation.email', $context->getSalesChannelId()) => 'Admin'];
+        } else {
+            $mailConfigs['receivers'] = \array_combine($mailConfigs['receivers'], $mailConfigs['receivers']);
         }
 
-        $recipientStructs = [];
-        foreach ($mailConfigs['receivers'] as $mail) {
-            $recipientStructs[$mail] = $mail;
-        }
-
-        /** @var array<string, mixed> $recipientStructs */
         $event = new ContactFormEvent(
             $context->getContext(),
             $context->getSalesChannelId(),
-            new MailRecipientStruct($recipientStructs),
+            new MailRecipientStruct($mailConfigs['receivers']),
             $data
         );
 
@@ -124,13 +120,11 @@ class ContactFormRoute extends AbstractContactFormRoute
     }
 
     /**
-     * @return array<string, string|array<int, string>>
+     * @return array{receivers: array<int, string>|null, message: string|null}
      */
     private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $entityName = null): array
     {
-        $mailConfigs = [];
-        $mailConfigs['receivers'] = [];
-        $mailConfigs['message'] = '';
+        $mailConfigs = ['receivers' => null, 'message' => null];
 
         $criteria = new Criteria([$navigationId]);
 
@@ -158,13 +152,11 @@ class ContactFormRoute extends AbstractContactFormRoute
     }
 
     /**
-     * @return array<string, array<string, array<int, mixed>|bool|float|int|string|null>|string|mixed>
+     * @return array{receivers: array<int, string>|null, message: string|null}
      */
     private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $entityName = null): array
     {
-        $mailConfigs = [];
-        $mailConfigs['receivers'] = [];
-        $mailConfigs['message'] = '';
+        $mailConfigs = ['receivers' => null, 'message' => null];
 
         if (!$slotId) {
             return $mailConfigs;
@@ -172,37 +164,27 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         if ($navigationId) {
             $mailConfigs = $this->getSlotConfig($slotId, $navigationId, $context, $entityName);
-            if (!$this->isEmptyReceivers($mailConfigs['receivers']) && !$this->isEmptyMessage($mailConfigs['message'])) {
+
+            if (\is_array($mailConfigs['receivers']) && \is_string($mailConfigs['message'])) {
                 return $mailConfigs;
             }
         }
 
         $criteria = new Criteria([$slotId]);
-
         $slot = $this->cmsSlotRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$slot) {
             return $mailConfigs;
         }
 
-        if ($this->isEmptyReceivers($mailConfigs['receivers'])) {
+        if (!\is_array($mailConfigs['receivers'])) {
             $mailConfigs['receivers'] = $slot->getTranslated()['config']['mailReceiver']['value'];
         }
 
-        if ($this->isEmptyMessage($mailConfigs['message'])) {
+        if (!\is_string($mailConfigs['message'])) {
             $mailConfigs['message'] = $slot->getTranslated()['config']['confirmationText']['value'];
         }
 
         return $mailConfigs;
-    }
-
-    private function isEmptyReceivers(mixed $receivers): bool
-    {
-        return !\is_array($receivers) || $receivers === [];
-    }
-
-    private function isEmptyMessage(mixed $message): bool
-    {
-        return !\is_string($message) || $message === '';
     }
 }

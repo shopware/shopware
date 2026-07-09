@@ -24,7 +24,6 @@ async function createWrapper(additionalOptions = {}) {
                     'mt-text-field': {
                         template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
                     },
-                    'sw-media-compact-upload-v2': true,
                     'sw-contextual-field': true,
                     'sw-block-field': true,
                     'sw-base-field': true,
@@ -128,5 +127,4 @@ describe('components/form/sw-form-field-renderer', () => {
 
         expect(wrapper.vm.bind.enableMultiSelection).toBe(true);
     });
-
 });

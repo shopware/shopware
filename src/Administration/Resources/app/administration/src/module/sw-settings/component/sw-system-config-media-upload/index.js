@@ -1,9 +1,9 @@
-/**
- * @sw-package framework
- */
 import template from './sw-system-config-media-upload.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @sw-package framework
+ * @private
+ */
 export default {
     template,
 

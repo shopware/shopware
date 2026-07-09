@@ -14,10 +14,13 @@ configureImagickSupport($config);
 considerXMLServiceConfigFiles($config);
 
 return $config
+    /** Scanned as prod, which might cause some false positives */
+    ->addPathToScan('config/bundles.php', isDev: false)
+
     /** Only used if `class_exists` is successful in @see \Shopware\Core\Profiling\Integration\Datadog */
     ->ignoreUnknownClassesRegex('~^DDTrace~')
     /** Test plugins used in @see \Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour */
-    ->ignoreUnknownClassesRegex('~^SwagTest~')
+    ->ignoreUnknownClassesRegex('~^Swag~')
     /** Only used if `class_exists` is successful in @see \Shopware\Core\Profiling\Integration\Tideways */
     ->ignoreUnknownClasses(['Tideways\Profiler'])
     /** Only used if compression method is `zstd` @see \Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor */
@@ -72,7 +75,10 @@ return $config
     ->ignoreErrorsOnExtension('ext-redis', [ErrorType::SHADOW_DEPENDENCY])
 
     /** Used for debugging */
-    ->ignoreErrorsOnPackages(['symfony/debug-bundle', 'symfony/error-handler'], [ErrorType::UNUSED_DEPENDENCY])
+    ->ignoreErrorsOnPackage('symfony/error-handler', [ErrorType::UNUSED_DEPENDENCY])
+
+    /** Only used in dev envs. @see config/bundles.php which is scanned as prod */
+    ->ignoreErrorsOnPackage('symfony/web-profiler-bundle', [ErrorType::DEV_DEPENDENCY_IN_PROD])
 
     /** Somehow triggered in our CI job and might not be valid locally */
     ->ignoreErrorsOnPackage('symfony/polyfill-php83', [ErrorType::UNUSED_DEPENDENCY])
@@ -83,9 +89,6 @@ return $config
         'symfony/monolog-bridge',
         'symfony/proxy-manager-bridge',
     ], [ErrorType::UNUSED_DEPENDENCY])
-
-    /** Can this be removed? */
-    ->ignoreErrorsOnPackage('symfony/mcp-bundle', [ErrorType::UNUSED_DEPENDENCY])
 ;
 
 function configureImagickSupport(Configuration $config): void

@@ -1375,6 +1375,34 @@ The indexing progress notifications in the Administration notification center ha
 
 We've restructured the document settings to make them more intuitive and user-friendly.
 
+### Company information moved from document settings to Basic information
+
+Document company data is now managed globally in the Administration under:
+
+`Settings > Basic information > Company information`
+
+This information is no longer configured per document type in `sw-settings-document-detail`.
+Only document-specific display options such as `Company address`, `Return address`, and `Payment due date` remain in the document settings.
+
+> [!IMPORTANT]
+> Before or immediately after upgrading to 6.8, review and populate the new Company information section in Basic information.
+> Document rendering now uses these global values as the source of truth for company data.
+
+If your extension or customization previously:
+
+- read company fields from document-specific configuration in `document_base_config.config`
+- customized the old company-information UI in `sw-settings-document-detail`
+- assumed company information could differ per document type
+
+you need to migrate that logic to the global Basic information configuration instead.
+
+The new company settings are stored as flat system-config entries under `core.basicInformation.*`, for example:
+
+- `core.basicInformation.companyName`
+- `core.basicInformation.companyStreet`
+- `core.basicInformation.companyCountryId`
+- `core.basicInformation.companyLogoId`
+
 As part of this update, the following administration component parts have been deprecated:
 * `src/module/sw-settings-document/page/sw-settings-document-detail`:
   * computed `expandButtonClass` was deprecated without replacement

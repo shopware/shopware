@@ -403,6 +403,16 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "The customer is not a guest customer.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [

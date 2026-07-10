@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
@@ -85,6 +86,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
@@ -162,7 +164,7 @@ class MailDataSimulator
                 continue;
             }
 
-            $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context, $name);
+            $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context, $name, $flowEvent);
         }
 
         return $templateData;
@@ -172,7 +174,7 @@ class MailDataSimulator
      * @param array<string,mixed> $dataType
      * @param array<string, Entity> $entityCache
      */
-    private function generateEventDataTypeData(array $dataType, array &$entityCache, Context $context, ?string $name = null): mixed
+    private function generateEventDataTypeData(array $dataType, array &$entityCache, Context $context, ?string $name = null, ?string $flowEventName = null): mixed
     {
         if ($dataType['type'] === ArrayType::TYPE) {
             return [];
@@ -193,10 +195,13 @@ class MailDataSimulator
 
         if ($dataType['type'] === ObjectType::TYPE) {
             $objectData = $dataType['data'] ?? null;
-            if (($objectData === null || $objectData === []) && $name !== null) {
-                $knownFormData = $this->getKnownFormData($name);
-                if ($knownFormData !== null) {
-                    return $knownFormData;
+            if (($dataType[FormDataObjectType::MARKER] ?? false) === true && $name !== null && $flowEventName !== null) {
+                $event = new MailDataSimulatorFormDataEvent($name, $flowEventName, $context, $this->getKnownFormData($name));
+                $this->eventDispatcher->dispatch($event);
+
+                $formData = $event->getData();
+                if ($formData !== null) {
+                    return $formData;
                 }
             }
 

@@ -2,6 +2,14 @@
 
 ## Core
 
+### Cache invalidated on cross-selling updates and deletions
+
+Editing or deleting a product cross-selling entry, including assigned products and translations, now correctly invalidates the product detail route cache and prevents stale storefront results.
+
+### Enforce "Allow payment change after checkout" when re-paying an order
+
+`Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` now rejects payment methods whose `afterOrderEnabled` ("Allow payment change after checkout") flag is disabled, matching the methods offered on the edit-order page. Previously the flag was only applied as a UI filter, so a payment method that renders its own JavaScript payment button (e.g. PayPal smart buttons) could still be used to pay an existing order. The store-api route `POST /store-api/order/payment` now returns `CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE` (HTTP 403) for such methods. (shopware/shopware#17495)
+
 ### ZUGFeRD correction documents derive shipping handling from document metadata
 
 For cancellation and other correction-style ZUGFeRD documents, delivery amounts are now serialized according to their business meaning:
@@ -64,11 +72,24 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 {# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
 ```
 
+### Deprecated unused Composer dependencies
+
+The following Composer dependencies are deprecated as Shopware dependencies and will be removed with the next major version:
+
+- `doctrine/inflector`
+- `symfony/monolog-bridge`
+- `symfony/proxy-manager-bridge`
+
+If your extension uses classes from one of these packages, declare the package explicitly in your extension's `composer.json`.
+Generally, do not rely on Shopware dependencies being installed transitively.
+
 ### Declarative custom fields via `Resources/config/custom-fields.xml`
 
-Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
+Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file.
+Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
 
-This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins. For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
+This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins.
+For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
 
 The XML format is the same one already used by apps in the manifest:
 
@@ -207,7 +228,42 @@ When `displayAsGroup` is disabled, matching variants are returned and rendered i
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
+### New `Criteria::excludeFields()` for reduced entity reads
+
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::excludeFields()` is a denylist counterpart to `addFields()`: it loads the full, typed entity (and its associations) but omits the named storage columns from the read — useful to skip heavy, off-page columns (for example a large `product.description`) without loading them for every row.
+
+Unlike `addFields()`, which is an allowlist that returns `PartialEntity` instances and drops everything not listed, `excludeFields()` returns the regular entity type (e.g. `ProductEntity`) with the excluded properties left at their default value. Typed getters, `instanceof` checks and `*.loaded` subscribers therefore keep working. It cannot be combined with `addFields()` on the same criteria, and required or write-protected top-level fields cannot be excluded — attempting to exclude one (e.g. `stock`) or an unknown field throws a `DataAbstractionLayerException`.
+
+Product listings now use this instead of the previous field allowlist: when reduced listing loading (`core.listing.partialDataLoading`) is enabled, listings load full product entities minus `description`, `keywords` and `customSearchKeywords`, so `customFields`, associations and other data remain available. As a result the `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PARTIAL_LISTING_FIELDS` constant is deprecated and will be removed in `v6.8.0.0`.
+### Mail template simulation supports form data
+
+Mail template simulation now provides sample data for the `contactFormData`, `reviewFormData` and `revocationRequestFormData` variables, so simulating these form templates no longer fails.
+
+Extensions that add their own forms can supply sample data for their form variables too. Declare the variable as `Shopware\Core\Framework\Event\EventData\FormDataObjectType` (instead of a schemaless `ObjectType`) in the event's `getAvailableData()`, and provide the data via the new `Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent`:
+
+```php
+public function provideFormData(MailDataSimulatorFormDataEvent $event): void
+{
+    if ($event->flowEventName === 'my_custom_form.send' && $event->variableName === 'myCustomFormData') {
+        $event->setData(['field' => 'value']);
+    }
+}
+```
+
+### Deprecated `UnmappedFieldException` in the DBAL sub-namespace
+
+`Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException` is deprecated in favor of the new `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`. The deprecated class keeps working and will be removed in Shopware 6.8.
+
+`DataAbstractionLayerException::unmappedField()` returns the deprecated class while the `v6.8.0.0` flag is off and the new class once it is active. Prepare your code now:
+
+- Switch your `use` and `catch` statements to the new `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`.
+- While you still support the deprecated version, catch both classes, since they do not share a common parent.
+
 ## Storefront
+
+### Link categories get SEO URLs again and redirect to their target
+
+Categories of type "link" are no longer excluded from SEO URL generation in `NavigationPageSeoUrlRoute`. Since link categories redirect to their configured target when opened, their own SEO URL (e.g. from an old bookmark, an external link, or a category that was switched from type "page" to "link") now resolves to that redirect instead of a 404. Categories of type "folder" remain excluded, and link categories are still omitted from the sitemap. Existing shops get the URLs (re)generated with the next category indexing, e.g. via `bin/console dal:refresh:index`.
 
 ### robots.txt allows crawling product feed tracking URLs
 
@@ -303,8 +359,26 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
 
+## Hosting & Configuration
+
+### New `GENERATE_SOURCEMAPS` environment variable for production builds
+
+A new `GENERATE_SOURCEMAPS` environment variable controls whether JavaScript sourcemaps are emitted during production builds. Set it to `true` to generate sourcemaps when `NODE_ENV=production`; omit it or set it to any other value to keep the default behaviour (no sourcemaps in production).
+
+This applies to the Storefront webpack build and all Vite builds (Administration core, Administration extension plugins, and Storefront components).
+
+In non-production environments sourcemaps are always generated regardless of this variable.
+
+```bash
+GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:admin
+GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
+```
+
 ## Administration
 
+### Reworked search behaviour options
+
+The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.
 ### Digital product upload validation uses backend private media metadata
 
 Administration upload validation for digital products now derives private upload MIME metadata from the effective backend private extension allowlist. Extensions added through `shopware.filesystem.private_allowed_extensions` or `MediaFileExtensionWhitelistEvent` are reflected in `/api/_info/config` and in the digital-product upload UI.

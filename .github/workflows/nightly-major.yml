@@ -1,0 +1,19 @@
+name: Nightly Major
+
+# Runs the "major" acceptance tests (for the upcoming major version) on their own schedule while
+# they are still being stabilised, so the regular Nightly can stay green. Once the major tests are
+# green, fold them back into nightly.yml (drop `major: exclude` there) and delete this workflow.
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # every day at 03:00, offset from the regular nightly (01:00)
+  workflow_dispatch:
+
+jobs:
+  acceptance:
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      nightly: true
+      major: only

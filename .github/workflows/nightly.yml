@@ -58,6 +58,9 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
+      # Major acceptance tests are run by the dedicated nightly-major workflow while the next
+      # major is prepared. Once they are green, drop this line to fold them back into nightly.
+      major: exclude
   visual-tests:
     uses: ./.github/workflows/visual-tests.yml
     secrets: inherit

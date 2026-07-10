@@ -10,7 +10,10 @@ Shopware.Component.register('sw-settings-storefront-index', () => import('./page
 /**
  * @deprecated tag:v6.8.0 - Will be removed without replacement.
  */
-Shopware.Component.register('sw-settings-storefront-configuration', () => import('./component/sw-settings-storefront-configuration'));
+Shopware.Component.register(
+    'sw-settings-storefront-configuration',
+    () => import('./component/sw-settings-storefront-configuration'),
+);
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-storefront', {

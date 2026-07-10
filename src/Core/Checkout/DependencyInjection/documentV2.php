@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -45,6 +46,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document_base_config.repository'),
             service('country.repository'),
+            service('media.repository'),
+            service(SystemConfigService::class),
         ])
         ->tag('kernel.event_subscriber');
 

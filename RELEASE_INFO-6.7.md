@@ -2,6 +2,14 @@
 
 ## Core
 
+### New "Age verification" Shopping Experiences (CMS) element
+
+A new CMS element `age-verification` is available in the Shopping Experiences editor (under the "Text" block category). Merchants can place it on any CMS layout (home, category, product, or landing page) to show a blocking age gate before the page content becomes accessible — useful for shops selling age-restricted goods (alcohol, tobacco, etc.).
+
+The element renders a Bootstrap modal in the storefront with a confirm and a decline action. Confirming stores the choice in the strictly-necessary `age-verified` cookie (registered as a hidden entry in the required cookie group) for a configurable number of days; declining redirects to a configurable URL or back to the previous page. All texts (title, content, button labels) are per-language slot configuration and fall back to translated defaults derived from a configurable minimum age when left empty.
+
+**Extension developers:** the element follows the standard CMS element pattern and can be extended like any other. The struct `Shopware\Core\Content\Cms\SalesChannel\Struct\AgeVerificationStruct` (API alias `cms_age_verification`) is exposed as `element.data` in the storefront template `@Storefront/storefront/element/cms-element-age-verification.html.twig`, and the storefront behavior lives in the overridable `AgeVerification` plugin. The gate is client-side, so it is a soft (SEO-friendly) age gate, not a hard access restriction.
+
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.

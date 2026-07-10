@@ -46,6 +46,14 @@
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\DataResolver\Element\AgeVerificationCmsElementResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Cookie\AgeVerificationCookieCollectListener">
+            <tag name="kernel.event_listener"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\DataResolver\Element\FormCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>

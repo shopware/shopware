@@ -659,6 +659,30 @@
         "config": {
           "warning": "Ungefilterter HTML-Code kann zu Sicherheitsrisiken führen. Bitte füge nur HTML-Code von vertrauenswürdigen Quellen ein und teste deine Änderung vor der Veröffentlichung."
         }
+      },
+      "ageVerification": {
+        "label": "Altersverifikation",
+        "config": {
+          "minimumAge": "Mindestalter",
+          "minimumAgeHelp": "Das erforderliche Mindestalter zum Ansehen der Seite. Wird in den Standardtexten unten verwendet.",
+          "title": "Titel",
+          "content": "Inhalt",
+          "contentPlaceholder": "Leer lassen, um den Standardtext basierend auf dem Mindestalter zu verwenden.",
+          "confirmButtonText": "Text des Bestätigungsbuttons",
+          "confirmButtonTextPlaceholder": "Leer lassen, um die Standardbeschriftung zu verwenden.",
+          "declineButtonText": "Text des Ablehnungsbuttons",
+          "declineButtonTextPlaceholder": "Leer lassen, um die Standardbeschriftung zu verwenden.",
+          "declineUrl": "Weiterleitungs-URL bei Ablehnung",
+          "declineUrlHelp": "Wohin Besucher bei Ablehnung geleitet werden. Leer lassen, um sie zur vorherigen Seite zurückzuschicken.",
+          "cookieLifetime": "Auswahl merken (Tage)",
+          "cookieLifetimeHelp": "Wie viele Tage die Bestätigung gespeichert wird, bevor Besucher erneut gefragt werden."
+        },
+        "preview": {
+          "title": "Altersverifikation",
+          "content": "Du musst mindestens {age} Jahre alt sein, um diese Seite anzusehen.",
+          "confirm": "Ich bin {age} oder älter",
+          "decline": "Verlassen"
+        }
       }
     },
     "blocks": {
@@ -745,6 +769,9 @@
       "text": {
         "text": {
           "label": "Text"
+        },
+        "ageVerification": {
+          "label": "Altersverifikation"
         },
         "textHero": {
           "label": "Text-Banner"

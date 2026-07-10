@@ -1,0 +1,56 @@
+{% block element_age_verification %}
+    {% set minimumAge = element.data.minimumAge ?? 18 %}
+
+    {% set ageVerificationTitle = element.data.title ?: 'cms.ageVerification.defaultTitle'|trans({'%minimumAge%': minimumAge})|trim %}
+    {% set ageVerificationContent = element.data.content ?: 'cms.ageVerification.defaultContent'|trans({'%minimumAge%': minimumAge})|trim %}
+    {% set ageVerificationConfirm = element.data.confirmButtonText ?: 'cms.ageVerification.defaultConfirm'|trans({'%minimumAge%': minimumAge})|trim %}
+    {% set ageVerificationDecline = element.data.declineButtonText ?: 'cms.ageVerification.defaultDecline'|trans|trim %}
+
+    {% set ageVerificationOptions = {
+        cookieName: 'age-verified',
+        cookieLifetime: element.data.cookieLifetime ?? 30,
+        declineUrl: element.data.declineUrl
+    } %}
+
+    <div class="cms-element-{{ element.type }}">
+        {% block element_age_verification_modal %}
+            <div class="age-verification-modal modal fade"
+                 tabindex="-1"
+                 aria-hidden="true"
+                 aria-labelledby="ageVerificationTitle-{{ element.id }}"
+                 data-age-verification="true"
+                 data-age-verification-options="{{ ageVerificationOptions|json_encode }}">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        {% block element_age_verification_header %}
+                            <div class="modal-header age-verification-modal-header">
+                                <h5 class="modal-title" id="ageVerificationTitle-{{ element.id }}">
+                                    {{ ageVerificationTitle }}
+                                </h5>
+                            </div>
+                        {% endblock %}
+
+                        {% block element_age_verification_body %}
+                            <div class="modal-body age-verification-modal-body">
+                                {{ ageVerificationContent|nl2br }}
+                            </div>
+                        {% endblock %}
+
+                        {% block element_age_verification_footer %}
+                            <div class="modal-footer age-verification-modal-footer">
+                                <button type="button"
+                                        class="btn btn-primary js-age-verification-confirm">
+                                    {{ ageVerificationConfirm }}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-outline-secondary js-age-verification-decline">
+                                    {{ ageVerificationDecline }}
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

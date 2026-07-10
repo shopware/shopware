@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 
+import './age-verification';
 import './buy-box';
 import './category-name';
 import './cross-selling';

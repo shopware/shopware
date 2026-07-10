@@ -33,6 +33,7 @@ import './sidebar/sidebar-filter';
 import './sidebar/category-navigation';
 
 import './text/text';
+import './text/age-verification';
 import './text/text-hero';
 import './text/text-teaser';
 import './text/text-teaser-section';

@@ -1,0 +1,28 @@
+{% block sw_cms_el_age_verification %}
+<div class="sw-cms-el-age-verification">
+    <div class="sw-cms-el-age-verification__dialog">
+        {% block sw_cms_el_age_verification_title %}
+        <h3 class="sw-cms-el-age-verification__title">
+            {{ element.config.title.value || $t('sw-cms.elements.ageVerification.preview.title') }}
+        </h3>
+        {% endblock %}
+
+        {% block sw_cms_el_age_verification_content %}
+        <p class="sw-cms-el-age-verification__content">
+            {{ element.config.content.value || $t('sw-cms.elements.ageVerification.preview.content', { age: element.config.minimumAge.value }) }}
+        </p>
+        {% endblock %}
+
+        {% block sw_cms_el_age_verification_actions %}
+        <div class="sw-cms-el-age-verification__actions">
+            <span class="sw-cms-el-age-verification__button is--primary">
+                {{ element.config.confirmButtonText.value || $t('sw-cms.elements.ageVerification.preview.confirm', { age: element.config.minimumAge.value }) }}
+            </span>
+            <span class="sw-cms-el-age-verification__button">
+                {{ element.config.declineButtonText.value || $t('sw-cms.elements.ageVerification.preview.decline') }}
+            </span>
+        </div>
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

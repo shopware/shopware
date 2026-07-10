@@ -1,0 +1,71 @@
+{% block sw_cms_el_config_age_verification %}
+<div class="sw-cms-el-config-age-verification">
+    {% block sw_cms_el_config_age_verification_minimum_age %}
+    <mt-number-field
+        :model-value="element.config.minimumAge.value"
+        number-type="int"
+        :min="1"
+        :label="$t('sw-cms.elements.ageVerification.config.minimumAge')"
+        :help-text="$t('sw-cms.elements.ageVerification.config.minimumAgeHelp')"
+        @update:model-value="(value) => onFieldChange('minimumAge', value)"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_config_age_verification_title %}
+    <mt-text-field
+        :model-value="element.config.title.value"
+        :label="$t('sw-cms.elements.ageVerification.config.title')"
+        :placeholder="$t('sw-cms.elements.ageVerification.preview.title')"
+        @update:model-value="(value) => onFieldChange('title', value)"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_config_age_verification_content %}
+    <mt-textarea
+        :model-value="element.config.content.value"
+        :label="$t('sw-cms.elements.ageVerification.config.content')"
+        :placeholder="$t('sw-cms.elements.ageVerification.config.contentPlaceholder')"
+        @update:model-value="(value) => onFieldChange('content', value)"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_config_age_verification_confirm_button %}
+    <mt-text-field
+        :model-value="element.config.confirmButtonText.value"
+        :label="$t('sw-cms.elements.ageVerification.config.confirmButtonText')"
+        :placeholder="$t('sw-cms.elements.ageVerification.config.confirmButtonTextPlaceholder')"
+        @update:model-value="(value) => onFieldChange('confirmButtonText', value)"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_config_age_verification_decline_button %}
+    <mt-text-field
+        :model-value="element.config.declineButtonText.value"
+        :label="$t('sw-cms.elements.ageVerification.config.declineButtonText')"
+        :placeholder="$t('sw-cms.elements.ageVerification.config.declineButtonTextPlaceholder')"
+        @update:model-value="(value) => onFieldChange('declineButtonText', value)"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_config_age_verification_decline_url %}
+    <mt-text-field
+        :model-value="element.config.declineUrl.value"
+        :label="$t('sw-cms.elements.ageVerification.config.declineUrl')"
+        :help-text="$t('sw-cms.elements.ageVerification.config.declineUrlHelp')"
+        placeholder="https://"
+        @update:model-value="(value) => onFieldChange('declineUrl', value)"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_config_age_verification_cookie_lifetime %}
+    <mt-number-field
+        :model-value="element.config.cookieLifetime.value"
+        number-type="int"
+        :min="1"
+        :label="$t('sw-cms.elements.ageVerification.config.cookieLifetime')"
+        :help-text="$t('sw-cms.elements.ageVerification.config.cookieLifetimeHelp')"
+        @update:model-value="(value) => onFieldChange('cookieLifetime', value)"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

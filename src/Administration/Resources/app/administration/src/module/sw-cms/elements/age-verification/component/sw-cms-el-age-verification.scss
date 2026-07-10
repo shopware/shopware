@@ -1,0 +1,47 @@
+.sw-cms-el-age-verification {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 180px;
+    padding: 24px;
+    background-color: var(--color-background-primary-default, #f9fafb);
+
+    &__dialog {
+        width: 100%;
+        max-width: 420px;
+        padding: 24px;
+        text-align: center;
+        background-color: var(--color-elements-primary-default, #fff);
+        border: 1px solid var(--color-border-primary-default, #d1d9e0);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 8%);
+    }
+
+    &__title {
+        margin-bottom: 8px;
+    }
+
+    &__content {
+        margin-bottom: 16px;
+        color: var(--color-text-secondary-default, #52667a);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    &__button {
+        padding: 8px 16px;
+        border: 1px solid var(--color-border-primary-default, #d1d9e0);
+        border-radius: 4px;
+
+        &.is--primary {
+            color: #fff;
+            background-color: var(--color-interactive-primary-default, #0870ff);
+            border-color: var(--color-interactive-primary-default, #0870ff);
+        }
+    }
+}

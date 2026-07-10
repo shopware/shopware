@@ -799,6 +799,7 @@
     "groupRequiredTimezone": "Zeitzone",
     "groupRequiredCookieHash": "Cookie-Konfiguration-Hash",
     "groupRequiredAccepted": "Cookie-Einstellungen",
+    "groupRequiredAgeVerification": "Altersverifikation",
     "groupRequiredCaptcha": "CAPTCHA-Integration",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",
@@ -858,6 +859,12 @@
       }
     },
     "cms": {
+      "ageVerification": {
+        "defaultTitle": "Altersverifikation",
+        "defaultContent": "Du musst mindestens %minimumAge% Jahre alt sein, um diese Seite anzusehen.",
+        "defaultConfirm": "Ich bin %minimumAge% oder älter",
+        "defaultDecline": "Verlassen"
+      },
       "video": {
         "notSupported": "Dein Browser unterstützt das Abspielen von HTML5-Videos nicht.",
         "ariaLabelPlay": "Video abspielen"

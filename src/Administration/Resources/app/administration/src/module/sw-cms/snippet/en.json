@@ -659,6 +659,30 @@
         "config": {
           "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
         }
+      },
+      "ageVerification": {
+        "label": "Age verification",
+        "config": {
+          "minimumAge": "Minimum age",
+          "minimumAgeHelp": "The minimum age required to view the page. Used in the default texts below.",
+          "title": "Title",
+          "content": "Content",
+          "contentPlaceholder": "Leave empty to use the default text based on the minimum age.",
+          "confirmButtonText": "Confirm button text",
+          "confirmButtonTextPlaceholder": "Leave empty to use the default confirmation label.",
+          "declineButtonText": "Decline button text",
+          "declineButtonTextPlaceholder": "Leave empty to use the default decline label.",
+          "declineUrl": "Decline redirect URL",
+          "declineUrlHelp": "Where visitors are sent when they decline. Leave empty to send them back to the previous page.",
+          "cookieLifetime": "Remember choice (days)",
+          "cookieLifetimeHelp": "How many days the confirmation is stored before visitors are asked again."
+        },
+        "preview": {
+          "title": "Age verification",
+          "content": "You must be at least {age} years old to view this page.",
+          "confirm": "I am {age} or older",
+          "decline": "Leave"
+        }
       }
     },
     "blocks": {
@@ -745,6 +769,9 @@
       "text": {
         "text": {
           "label": "Text"
+        },
+        "ageVerification": {
+          "label": "Age verification"
         },
         "textHero": {
           "label": "Text banner"

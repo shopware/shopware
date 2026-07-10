@@ -35,6 +35,9 @@ return [
         // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
 
+        // Additive: appended when a new request criteria parameter is supported (e.g. exclude-fields)
+        preg_quote('Value of constant Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder::KNOWN_FIELDS', '/'),
+
         // Intentional rename of the technical-term analyzer chain so the public
         // identifier matches how the chain is referenced everywhere else
         // (constants, `buildTextFieldConfig(technicalTerms: true)`, the

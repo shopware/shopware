@@ -265,7 +265,10 @@ class RequestCriteriaBuilder
                     \gettype($payload['exclude-fields'])
                 );
             }
-            $criteria->excludeFields($payload['exclude-fields']);
+
+            /** @var list<string> $excludeFields */
+            $excludeFields = array_values($payload['exclude-fields']);
+            $criteria->excludeFields($excludeFields);
         }
 
         $searchException->tryToThrow();

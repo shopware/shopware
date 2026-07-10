@@ -71,9 +71,7 @@ class ServiceController
     {
         $this->validateActivationAccess($context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
-            $this->serviceLifecycle->activate($serviceName, $context);
-        });
+        $this->serviceLifecycle->activate($serviceName, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -90,9 +88,7 @@ class ServiceController
     {
         $this->validateActivationAccess($context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
-            $this->serviceLifecycle->deactivate($serviceName, $context);
-        });
+        $this->serviceLifecycle->deactivate($serviceName, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -114,9 +110,7 @@ class ServiceController
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->serviceLifecycle->uninstall($service->name, $context);
-        });
+        $this->serviceLifecycle->uninstall($service->name, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

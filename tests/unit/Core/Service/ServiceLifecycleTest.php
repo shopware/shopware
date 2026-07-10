@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
@@ -428,6 +430,21 @@ class ServiceLifecycleTest extends TestCase
         $this->createLifecycle($this->buildAppRepository([$app]))->activate('MyCoolService', $context);
     }
 
+    public function testActivateRunsAppWriteInSystemScope(): void
+    {
+        // A service is a self-managed app; the app write must be elevated to the system scope even
+        // when the caller's context is not, otherwise the service write protection rejects it.
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->stateChangePermitted(true);
+
+        $this->appManager->expects($this->once())
+            ->method('activate')
+            ->with($app, static::callback($this->isSystemScope()));
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->activate('MyCoolService', $context);
+    }
+
     public function testActivateThrowsExceptionWhenServiceDoesNotExist(): void
     {
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
@@ -456,6 +473,19 @@ class ServiceLifecycleTest extends TestCase
         $this->stateChangePermitted(true);
 
         $this->appManager->expects($this->once())->method('deactivate')->with($app, $context);
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->deactivate('MyCoolService', $context);
+    }
+
+    public function testDeactivateRunsAppWriteInSystemScope(): void
+    {
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->stateChangePermitted(true);
+
+        $this->appManager->expects($this->once())
+            ->method('deactivate')
+            ->with($app, static::callback($this->isSystemScope()));
 
         $this->createLifecycle($this->buildAppRepository([$app]))->deactivate('MyCoolService', $context);
     }
@@ -493,6 +523,18 @@ class ServiceLifecycleTest extends TestCase
         $this->createLifecycle($this->buildAppRepository([$app]))->uninstall('MyCoolService', $context);
     }
 
+    public function testUninstallRunsAppWriteInSystemScope(): void
+    {
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
+
+        $this->appManager->expects($this->once())
+            ->method('uninstall')
+            ->with($app, static::callback($this->isSystemScope()), true);
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->uninstall('MyCoolService', $context);
+    }
+
     public function testUninstallThrowsExceptionWhenServiceDoesNotExist(): void
     {
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
@@ -521,6 +563,11 @@ class ServiceLifecycleTest extends TestCase
     private function stateChangePermitted(bool $allowed): void
     {
         $this->requirementsValidator->method('permitsStateChange')->willReturn($allowed);
+    }
+
+    private function isSystemScope(): \Closure
+    {
+        return static fn (Context $context): bool => $context->getScope() === Context::SYSTEM_SCOPE;
     }
 
     /**

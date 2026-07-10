@@ -25,6 +25,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * lifecycle and its requirement gate.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Service\Subscriber\ServiceWriteProtectionSubscriberTest
  */
 #[Package('framework')]
 readonly class ServiceWriteProtectionSubscriber implements EventSubscriberInterface

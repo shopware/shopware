@@ -117,8 +117,6 @@ class ProductCriteriaParserTest extends TestCase
 
     public function testParseProductAvailableFilterWithOptimizationDisabled(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $storage = new ArrayKeyValueStorage();
         $parser = new ProductCriteriaParser(
             $this->helper,
@@ -137,7 +135,9 @@ class ProductCriteriaParserTest extends TestCase
             ->with($filter, $this->productDefinition, 'root', $this->context)
             ->willReturn($expectedBuilder);
 
-        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+        // Feature::fake([]) forces the flag off so the deprecated pre-v6.8 branch is exercised
+        // regardless of the suite's ambient v6.8.0.0 state (the test runs under major too).
+        $result = Feature::fake([], fn () => $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context));
 
         static::assertSame($expectedBuilder->toArray(), $result->toArray());
     }
@@ -306,8 +306,6 @@ class ProductCriteriaParserTest extends TestCase
 
     public function testParseCategoriesRoIdEqualsAnyFilterCallsParentWhenOptimizationDisabled(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $storage = new ArrayKeyValueStorage();
         $parser = new ProductCriteriaParser(
             $this->helper,
@@ -325,9 +323,33 @@ class ProductCriteriaParserTest extends TestCase
             ->with($filter, $this->productDefinition, 'root', $this->context)
             ->willReturn($expectedBuilder);
 
-        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+        // Feature::fake([]) forces the flag off so the deprecated pre-v6.8 branch is exercised
+        // regardless of the suite's ambient v6.8.0.0 state (the test runs under major too).
+        $result = Feature::fake([], fn () => $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context));
 
         static::assertSame($expectedBuilder, $result);
+    }
+
+    public function testParseFilterCallsParentForUnhandledProductFilter(): void
+    {
+        $storage = new ArrayKeyValueStorage();
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        // an Equals filter on a field other than categoriesRo.id is none of the handled product
+        // cases, so it falls through to the parent CriteriaParser instead of the decorated one
+        $filter = new EqualsFilter('productNumber', 'test');
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertInstanceOf(TermQuery::class, $result);
+        static::assertContains('test', $result->toArray()['term']);
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

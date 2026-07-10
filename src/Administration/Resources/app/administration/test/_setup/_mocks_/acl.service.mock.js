@@ -9,7 +9,9 @@ global.activeAclRoles = [];
 
 const aclService = {
     can: (key) => {
-        if (!key) { return true; }
+        if (!key) {
+            return true;
+        }
 
         return global.activeAclRoles.includes(key);
     },

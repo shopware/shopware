@@ -160,6 +160,8 @@ frame-ancestors 'none';
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="console.command"/>
         </service>
 

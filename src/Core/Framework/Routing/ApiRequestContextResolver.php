@@ -277,6 +277,13 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId !== null && $integrationId !== null) {
+            if ($this->isAdminIntegration($integrationId)) {
+                $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
+                $source->setIsAdmin($this->isAdmin($userId));
+
+                return $source;
+            }
+
             $permissions = $this->fetchIntegrationPermissions($integrationId);
 
             if (!$this->isAdmin($userId)) {

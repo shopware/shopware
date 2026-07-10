@@ -79,6 +79,7 @@ class HoneypotCaptcha extends AbstractCaptcha
             return \count($this->validator->validate($this)) < 1;
         }
 
-        return $request->request->get(self::CAPTCHA_REQUEST_PARAMETER, '') === '';
+        // A present-but-null parameter counts as empty, like a browser submitting the untouched field.
+        return ($request->request->get(self::CAPTCHA_REQUEST_PARAMETER) ?? '') === '';
     }
 }

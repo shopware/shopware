@@ -4,63 +4,67 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
-class GoogleReCaptchaV2 extends AbstractCaptcha implements ResetInterface
+class GoogleReCaptchaV2 extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'googleReCaptchaV2';
     final public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v2';
     private const GOOGLE_CAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
-
-    private ConstraintViolationList $violations;
 
     /**
      * @internal
      */
     public function __construct(private readonly ClientInterface $client)
     {
-        $this->violations = new ConstraintViolationList();
     }
 
-    public function isValid(Request $request, array $captchaConfig): bool
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        $this->violations = new ConstraintViolationList();
+        $violations = new ConstraintViolationList();
 
         if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             // No token: recoverable for a real customer (cookies not accepted yet).
-            $this->violations->add($this->createViolation(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION));
+            $violations->add($this->createViolation(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION));
 
-            return false;
+            return $violations;
         }
 
-        if ($this->verify($request, $captchaConfig)) {
-            return true;
+        if (!$this->verify($request, $captchaConfig)) {
+            // Token present but not verifiable: surface a generic error instead of a 403.
+            $violations->add($this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR));
         }
 
-        // Token present but not verifiable: surface a generic error instead of a 403.
-        $this->violations->add($this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR));
+        return $violations;
+    }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
+     */
+    public function isValid(Request $request, array $captchaConfig): bool
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
+        return $this->validate($request, $captchaConfig)->count() === 0;
+    }
+
+    /**
+     * reCAPTCHA failures always carry customer-facing violations, so they are rendered
+     * as form errors instead of breaking the request.
+     */
+    public function shouldBreak(): bool
+    {
         return false;
     }
 
     public function getName(): string
     {
         return self::CAPTCHA_NAME;
-    }
-
-    public function getViolations(): ConstraintViolationList
-    {
-        return $this->violations;
-    }
-
-    public function reset(): void
-    {
-        $this->violations = new ConstraintViolationList();
     }
 
     /**

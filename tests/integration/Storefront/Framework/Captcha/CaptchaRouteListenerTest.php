@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -142,5 +143,45 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertIsString($content);
         // Check that we're on the register page by looking for the register form
         static::assertStringContainsString('action="/account/register"', $content);
+    }
+
+    public function testRecaptchaFailureRendersFormErrorInsteadOfErrorPage(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => ['secretKey' => 'secret123'],
+            ],
+        ]);
+
+        // Non-AJAX registration without a reCAPTCHA token, e.g. because the technically
+        // required cookies were not accepted, so the reCAPTCHA script never ran (#17472).
+        $data = [
+            'email' => 'recaptcha-test@shopware.com',
+            'errorRoute' => 'frontend.account.register.page',
+        ];
+
+        $browser = $this->createCustomSalesChannelBrowser();
+        $browser->request(
+            'POST',
+            '/account/register',
+            $this->tokenize('frontend.account.register.save', $data)
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        // The registration page is re-rendered with a form error instead of a 403 error page
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('action="/account/register"', $content);
+        static::assertStringContainsString('Please accept the technically required cookies to enable the reCAPTCHA verification.', $content);
+        // The entered form data is preserved across the failed submit
+        static::assertStringContainsString('recaptcha-test@shopware.com', $content);
     }
 }

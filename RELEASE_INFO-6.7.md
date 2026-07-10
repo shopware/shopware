@@ -204,6 +204,10 @@ Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and wi
 
 A failed Google reCAPTCHA on a non-AJAX form (e.g. registration) is now rendered as a form error instead of a `403` error page. A missing token — typically because the technically required cookies were not accepted — asks the customer to accept the cookies; other verification failures show a generic captcha error. The bot-only honeypot still fails silently with `403`. A new `component_account_register_violations` Twig block renders form-level violations on the registration page (also used by the checkout registration page via template inheritance).
 
+Custom captchas extending `Shopware\Storefront\Framework\Captcha\AbstractCaptcha` should implement the new `validate(Request $request, array $captchaConfig): ConstraintViolationList` method — an empty list means the captcha is valid. The previous `isValid()`/`getViolations()` pair is deprecated and will be removed with 6.8; until then, a default `validate()` implementation delegates to the deprecated methods, so existing captchas keep working unchanged. `shouldBreak()` keeps its meaning: a breaking captcha (e.g. the honeypot) fails non-AJAX requests with a `403` instead of rendering its violations.
+
+Note: all core captchas now implement `validate()` natively, so subclasses of e.g. `GoogleReCaptchaV2`/`GoogleReCaptchaV3` that override only `isValid()` are no longer called through that method — override `validate()` instead.
+
 ### robots.txt allows crawling product feed tracking URLs
 
 The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.

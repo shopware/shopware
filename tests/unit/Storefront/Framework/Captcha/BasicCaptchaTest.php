@@ -37,7 +37,7 @@ class BasicCaptchaTest extends TestCase
 
         $captcha = new BasicCaptcha($requestStack, static::createStub(SystemConfigService::class));
 
-        static::assertSame($expected, $captcha->isValid(new Request(request: $request), []));
+        static::assertSame($expected, $captcha->validate(new Request(request: $request), [])->count() === 0);
     }
 
     #[DataProvider('supportsProvider')]

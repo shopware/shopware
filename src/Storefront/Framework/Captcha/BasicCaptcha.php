@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Captcha;
 
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,7 +46,69 @@ class BasicCaptcha extends AbstractCaptcha
             && $activeCaptchas[self::CAPTCHA_NAME]['isActive'];
     }
 
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+    {
+        $violations = new ConstraintViolationList();
+
+        if (!$this->checkCaptcha($request)) {
+            $violations->add(new ConstraintViolation(
+                '',
+                '',
+                [],
+                '',
+                '/' . self::CAPTCHA_REQUEST_PARAMETER,
+                '',
+                null,
+                self::INVALID_CAPTCHA_CODE
+            ));
+        }
+
+        return $violations;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
+     */
     public function isValid(Request $request, array $captchaConfig): bool
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
+        return $this->checkCaptcha($request);
+    }
+
+    public function shouldBreak(): bool
+    {
+        return false;
+    }
+
+    public function getName(): string
+    {
+        return self::CAPTCHA_NAME;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
+     */
+    public function getViolations(): ConstraintViolationList
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
+        $violations = new ConstraintViolationList();
+        $violations->add(new ConstraintViolation(
+            '',
+            '',
+            [],
+            '',
+            '/' . self::CAPTCHA_REQUEST_PARAMETER,
+            '',
+            null,
+            self::INVALID_CAPTCHA_CODE
+        ));
+
+        return $violations;
+    }
+
+    private function checkCaptcha(Request $request): bool
     {
         $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
 
@@ -62,32 +125,5 @@ class BasicCaptcha extends AbstractCaptcha
         }
 
         return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
-    }
-
-    public function shouldBreak(): bool
-    {
-        return false;
-    }
-
-    public function getName(): string
-    {
-        return self::CAPTCHA_NAME;
-    }
-
-    public function getViolations(): ConstraintViolationList
-    {
-        $violations = new ConstraintViolationList();
-        $violations->add(new ConstraintViolation(
-            '',
-            '',
-            [],
-            '',
-            '/' . self::CAPTCHA_REQUEST_PARAMETER,
-            '',
-            null,
-            self::INVALID_CAPTCHA_CODE
-        ));
-
-        return $violations;
     }
 }

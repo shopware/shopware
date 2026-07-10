@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
@@ -61,7 +62,7 @@ class GoogleReCaptchaV3Test extends TestCase
     }
 
     #[DataProvider('requestDataIsValidProvider')]
-    public function testIsValid(Request $request, MockHandler $mockHandler, bool $shouldBeValid, ?string $secretKey = null, ?string $configThreshold = null): void
+    public function testValidate(Request $request, MockHandler $mockHandler, bool $shouldBeValid, ?string $secretKey = null, ?string $configThreshold = null): void
     {
         $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', [
             GoogleReCaptchaV3::CAPTCHA_NAME => [
@@ -78,7 +79,7 @@ class GoogleReCaptchaV3Test extends TestCase
         static::assertIsArray($activeCaptchaConfig);
         $captcha = $this->getCaptcha($mockHandler);
 
-        static::assertSame($captcha->isValid($request, $activeCaptchaConfig[$captcha->getName()]), $shouldBeValid);
+        static::assertSame($captcha->validate($request, $activeCaptchaConfig[$captcha->getName()])->count() === 0, $shouldBeValid);
     }
 
     /**
@@ -204,9 +205,7 @@ class GoogleReCaptchaV3Test extends TestCase
     {
         $captcha = $this->getCaptcha();
 
-        static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
-
-        $violations = $captcha->getViolations();
+        $violations = $captcha->validate(self::getRequest(), $this->getCaptchaConfig());
         static::assertCount(1, $violations);
 
         $violation = $violations->get(0);
@@ -222,13 +221,11 @@ class GoogleReCaptchaV3Test extends TestCase
         ]);
         $captcha = $this->getCaptcha($mockHandler);
 
-        static::assertFalse($captcha->isValid(
+        // Present-but-invalid token (score below threshold) -> generic captcha violation.
+        $violations = $captcha->validate(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
-        ));
-
-        // Present-but-invalid token (score below threshold) -> generic captcha violation.
-        $violations = $captcha->getViolations();
+        );
         static::assertCount(1, $violations);
 
         $violation = $violations->get(0);
@@ -236,7 +233,18 @@ class GoogleReCaptchaV3Test extends TestCase
         static::assertSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
     }
 
-    public function testViolationsAreResetBetweenChecks(): void
+    public function testShouldBreakReturnsFalse(): void
+    {
+        // reCAPTCHA failures always carry customer-facing violations, so they must be
+        // rendered as form errors instead of breaking the request with a 403.
+        static::assertFalse($this->getCaptcha()->shouldBreak());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedIsValidDelegatesToValidate(): void
     {
         $mockHandler = new MockHandler([
             new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
@@ -244,25 +252,10 @@ class GoogleReCaptchaV3Test extends TestCase
         $captcha = $this->getCaptcha($mockHandler);
 
         static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
-        static::assertCount(1, $captcha->getViolations());
-
         static::assertTrue($captcha->isValid(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         ));
-        static::assertCount(0, $captcha->getViolations());
-    }
-
-    public function testResetClearsViolations(): void
-    {
-        $captcha = $this->getCaptcha();
-
-        static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
-        static::assertCount(1, $captcha->getViolations());
-
-        $captcha->reset();
-
-        static::assertCount(0, $captcha->getViolations());
     }
 
     /**
@@ -278,7 +271,7 @@ class GoogleReCaptchaV3Test extends TestCase
 
     /**
      * Returns the active captcha config in the same shape as the system config service,
-     * so the value passed to {@see GoogleReCaptchaV3::isValid()} keeps a `mixed` type.
+     * so the value passed to {@see GoogleReCaptchaV3::validate()} keeps a `mixed` type.
      */
     private function getCaptchaConfig(string $secretKey = 'secret123'): mixed
     {

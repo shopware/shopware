@@ -1428,6 +1428,12 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 `loadDomains()` is now abstract. If you decorate `AbstractDomainLoader`, implement `loadDomains()` and return a `DomainCollection`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
+## Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`
+
+`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means the captcha is valid, a non-empty list describes the failure and is rendered as a form error in the storefront.
+
+`validate()` is now abstract. If your captcha previously returned `false` from `isValid()` without providing violations, return a `ConstraintViolationList` with a violation whose code maps to an `error.*` storefront snippet. Keep `shouldBreak()` returning `true` only if a failure should abort non-AJAX requests with a `403` instead of rendering the violations (like the bot-only honeypot); `supports()`, `getName()`, and `getData()` remain unchanged.
+
 ## Removal of inline microdata in favour of JSON-LD structured data
 
 All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.

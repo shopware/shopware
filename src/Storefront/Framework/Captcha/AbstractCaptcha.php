@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('framework')]
@@ -30,7 +32,33 @@ abstract class AbstractCaptcha
     }
 
     /**
+     * validate checks the captcha contained in the request and returns the violations
+     * describing the failure. An empty list means the captcha is valid.
+     *
+     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract, the default implementation that delegates to the deprecated isValid()/getViolations() will be removed
+     *
+     * @param array<string, bool> $captchaConfig
+     */
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+    {
+        if (Feature::silent('v6.8.0.0', fn (): bool => $this->isValid($request, $captchaConfig))) {
+            return new ConstraintViolationList();
+        }
+
+        $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
+        if ($violations->count() === 0) {
+            // An empty list signals a valid captcha, so captchas that do not provide any
+            // violation details (e.g. the honeypot) still need a generic violation.
+            $violations->add(new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR));
+        }
+
+        return $violations;
+    }
+
+    /**
      * isValid returns true, when the captcha contained in the request is valid.
+     *
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, implement validate() instead
      *
      * @param array<string, bool> $captchaConfig
      */
@@ -62,8 +90,13 @@ abstract class AbstractCaptcha
         return null;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
+     */
     public function getViolations(): ConstraintViolationList
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
         return new ConstraintViolationList();
     }
 }

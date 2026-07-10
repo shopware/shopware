@@ -12,7 +12,6 @@ use Shopware\Storefront\Controller\ErrorController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * @internal
@@ -63,38 +62,26 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
         foreach ($this->captchas as $captcha) {
             $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
             $request = $event->getRequest();
-            if (
-                $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
-            ) {
-                $violations = $captcha->getViolations();
-
-                // Only hard-fail breaking captchas that expose no actionable violation
-                // (e.g. the bot-only honeypot): non-AJAX throws a 403, AJAX gets a generic
-                // alert. Captchas that provide a violation (reCAPTCHA) are always rendered
-                // gracefully via the error controller instead of an error page.
-                if ($captcha->shouldBreak() && $violations->count() === 0) {
-                    $exception = CaptchaException::invalid($captcha);
-                    if (!$request->isXmlHttpRequest()) {
-                        throw $exception;
-                    }
-
-                    $violations->add(new ConstraintViolation(
-                        $exception->getMessage(),
-                        'Invalid captcha',
-                        $exception->getParameters(),
-                        '',
-                        '',
-                        '',
-                        null,
-                        $exception->getErrorCode()
-                    ));
-                }
-
-                $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));
-
-                // Return on first invalid captcha
-                return;
+            if (!$captcha->supports($request, $captchaConfig)) {
+                continue;
             }
+
+            $violations = $captcha->validate($request, $captchaConfig);
+            if ($violations->count() === 0) {
+                continue;
+            }
+
+            // Breaking captchas (e.g. the bot-only honeypot) hard-fail non-AJAX requests
+            // with a 403; all other failures render the violations gracefully via the
+            // error controller instead of an error page.
+            if ($captcha->shouldBreak() && !$request->isXmlHttpRequest()) {
+                throw CaptchaException::invalid($captcha);
+            }
+
+            $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));
+
+            // Return on first invalid captcha
+            return;
         }
     }
 }

@@ -315,7 +315,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
 
-    public function testCachingWithInvalidationState(): void
+    public function testCachingIsBypassedForLoggedInCustomer(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 

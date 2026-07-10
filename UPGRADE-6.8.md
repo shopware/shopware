@@ -1883,6 +1883,15 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 - Client-side caching (browser cache) now respects your configured policies.
 - Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
+The following extension points that only existed to steer this listener were removed together with it:
+
+- `Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent`
+- `Shopware\Administration\Controller\AdministrationController::CACHE_ID_HEADER` and `::CACHE_ID_ADMINISTRATION`
+
+The `X-Shopware-Cache-Id: administration` response header is therefore no longer emitted for administration responses.
+
+Migration: A listener on `BeforeCacheControlEvent` that called `skipCacheControl()` to protect its own `Cache-Control` headers is no longer needed, because those headers are now sent as-is; remove the listener. If you matched on the `X-Shopware-Cache-Id` response header (for example in a CDN or reverse-proxy rule) to detect administration responses, match on other attributes.
+
 ### Removed HTTP cache reverse proxy configuration options
 
 The following HTTP cache reverse proxy configuration options have been removed as they had no effect anymore:

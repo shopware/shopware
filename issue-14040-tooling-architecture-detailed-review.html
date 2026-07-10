@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Issue #14040 — Detailed architecture review and recommended solution</title>
+  <style>
+    :root,
+    [data-theme="light"] {
+      --bg: #f4f1ea;
+      --surface: #fffdf8;
+      --surface-2: #ebe6dc;
+      --surface-3: #dfd8ca;
+      --border: rgba(25, 42, 57, 0.14);
+      --border-strong: rgba(25, 42, 57, 0.27);
+      --text: #172635;
+      --text-dim: #65717a;
+      --blue: #164f70;
+      --blue-soft: rgba(22, 79, 112, 0.10);
+      --gold: #a66b16;
+      --gold-soft: rgba(166, 107, 22, 0.12);
+      --rust: #a43e2a;
+      --rust-soft: rgba(164, 62, 42, 0.10);
+      --green: #397052;
+      --green-soft: rgba(57, 112, 82, 0.11);
+      --red: #a52c34;
+      --red-soft: rgba(165, 44, 52, 0.10);
+      --shadow: 0 14px 34px rgba(31, 44, 53, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg: #11181d;
+      --surface: #182229;
+      --surface-2: #202d35;
+      --surface-3: #2a3942;
+      --border: rgba(226, 234, 236, 0.10);
+      --border-strong: rgba(226, 234, 236, 0.22);
+      --text: #edf1ef;
+      --text-dim: #a8b3b6;
+      --blue: #75b5d4;
+      --blue-soft: rgba(117, 181, 212, 0.12);
+      --gold: #e0ad5d;
+      --gold-soft: rgba(224, 173, 93, 0.13);
+      --rust: #ef927b;
+      --rust-soft: rgba(239, 146, 123, 0.12);
+      --green: #82c19b;
+      --green-soft: rgba(130, 193, 155, 0.12);
+      --red: #f18389;
+      --red-soft: rgba(241, 131, 137, 0.12);
+      --shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 82% -8%, var(--gold-soft), transparent 34%),
+        linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), var(--border) calc(100% - 1px));
+      background-color: var(--bg);
+      background-size: auto, 28px 28px;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.62;
+      overflow-wrap: break-word;
+    }
+
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: var(--rust); }
+    code, pre, .mono, .eyebrow, .section-index, .badge, .toc, th, .metric-label {
+      font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+    }
+    code {
+      padding: 0.12em 0.38em;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface-2);
+      color: var(--blue);
+      font-size: 0.86em;
+    }
+    pre {
+      margin: 18px 0;
+      padding: 18px 20px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: color-mix(in srgb, var(--bg) 68%, var(--surface) 32%);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.62;
+    }
+    pre code { padding: 0; border: 0; background: transparent; color: inherit; font-size: inherit; }
+
+    .reading-progress {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 500;
+      height: 3px;
+      transform: scaleX(0);
+      transform-origin: left;
+      background: var(--rust);
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 450;
+      padding: 8px 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      background: var(--surface);
+      color: var(--text);
+      font: 600 11px/1 "SFMono-Regular", Menlo, monospace;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    .theme-toggle:hover { border-color: var(--blue); color: var(--blue); }
+
+    .wrap {
+      width: min(1500px, calc(100% - 56px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 218px minmax(0, 1fr);
+      gap: 0 44px;
+    }
+    .main { min-width: 0; padding: 54px 0 96px; }
+    .toc {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      grid-row: 1 / -1;
+      max-height: calc(100dvh - 44px);
+      overflow-y: auto;
+      padding: 22px 0;
+      font-size: 10px;
+    }
+    .toc-title {
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+    .toc a {
+      display: block;
+      margin: 1px 0;
+      padding: 5px 8px;
+      border-left: 2px solid transparent;
+      border-radius: 0 5px 5px 0;
+      color: var(--text-dim);
+      text-decoration: none;
+      line-height: 1.35;
+    }
+    .toc a:hover { color: var(--text); background: var(--surface-2); }
+    .toc a.active { color: var(--text); border-left-color: var(--rust); background: var(--rust-soft); }
+    .toc-actions { margin-top: 16px; padding-top: 13px; border-top: 1px solid var(--border); }
+    .toc-actions button {
+      width: 100%;
+      margin: 3px 0;
+      padding: 7px 8px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text-dim);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .toc-actions button:hover { color: var(--text); border-color: var(--border-strong); }
+
+    .hero {
+      position: relative;
+      padding: 44px 46px 38px;
+      overflow: hidden;
+      border: 1px solid var(--border-strong);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -90px;
+      top: -100px;
+      border: 38px solid var(--blue-soft);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .eyebrow, .section-index {
+      margin: 0 0 13px;
+      color: var(--rust);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.65px;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, h4 {
+      font-family: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      text-wrap: balance;
+    }
+    h1 {
+      max-width: 970px;
+      margin: 0;
+      font-size: clamp(40px, 5.6vw, 70px);
+      line-height: 0.99;
+      letter-spacing: -2.6px;
+      font-weight: 700;
+    }
+    .dek {
+      max-width: 75ch;
+      margin: 25px 0 0;
+      color: var(--text-dim);
+      font-size: 18px;
+      line-height: 1.62;
+    }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 27px; }
+    .chip, .badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .chip {
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+
+    .section { margin-top: 70px; scroll-margin-top: 28px; }
+    .section-head { scroll-margin-top: 28px; }
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(31px, 3.7vw, 48px);
+      line-height: 1.06;
+      letter-spacing: -1.3px;
+    }
+    h3 { margin: 28px 0 10px; font-size: 23px; line-height: 1.2; }
+    h4 { margin: 20px 0 8px; font-size: 17px; }
+    p { margin: 0 0 15px; }
+    .lead { max-width: 76ch; color: var(--text-dim); font-size: 18px; line-height: 1.7; }
+    .small { color: var(--text-dim); font-size: 12px; }
+
+    .verdict {
+      margin-top: 28px;
+      border: 1px solid color-mix(in srgb, var(--blue) 38%, var(--border));
+      border-left: 5px solid var(--blue);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--surface) 91%, var(--blue) 9%);
+      box-shadow: var(--shadow);
+    }
+    .verdict-top { padding: 24px 28px 18px; border-bottom: 1px solid var(--border); }
+    .verdict-top h3 { margin: 8px 0 0; font-size: 29px; }
+    .verdict-body { padding: 22px 28px 24px; }
+    .decision-line {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr);
+      gap: 18px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .decision-line:last-child { border-bottom: 0; }
+    .decision-line b { color: var(--blue); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .metric {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+    }
+    .metric-value { color: var(--blue); font-family: Charter, Georgia, serif; font-size: 32px; font-weight: 700; line-height: 1; }
+    .metric-label { margin-top: 8px; color: var(--text-dim); font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .metric-note { margin-top: 8px; color: var(--text-dim); font-size: 11px; }
+
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid > * { min-width: 0; }
+    .card {
+      padding: 20px 21px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+    .card h3, .card h4 { margin-top: 8px; }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .card--blue { border-top: 3px solid var(--blue); }
+    .card--rust { border-top: 3px solid var(--rust); }
+    .card--green { border-top: 3px solid var(--green); }
+    .card--gold { border-top: 3px solid var(--gold); }
+
+    ul, ol { margin: 12px 0 18px; padding-left: 1.55em; }
+    li { margin: 7px 0; }
+    .compact li { margin: 4px 0; }
+
+    .badge { padding: 4px 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.55px; text-transform: uppercase; }
+    .badge--good { color: var(--green); background: var(--green-soft); }
+    .badge--warn { color: var(--gold); background: var(--gold-soft); }
+    .badge--major { color: var(--rust); background: var(--rust-soft); }
+    .badge--block { color: var(--red); background: var(--red-soft); }
+    .badge--info { color: var(--blue); background: var(--blue-soft); }
+
+    .architecture { display: grid; gap: 12px; margin: 24px 0; }
+    .arch-layer {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 14px;
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--surface);
+    }
+    .arch-name {
+      padding: 8px 10px;
+      color: var(--blue);
+      font: 700 10px/1.45 "SFMono-Regular", Menlo, monospace;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .arch-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 9px; }
+    .arch-node {
+      min-width: 0;
+      padding: 12px 13px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font-size: 12px;
+      line-height: 1.48;
+    }
+    .arch-node strong { display: block; margin-bottom: 4px; color: var(--text); }
+    .arch-arrow { color: var(--text-dim); font: 600 10px/1.4 "SFMono-Regular", Menlo, monospace; text-align: center; text-transform: uppercase; }
+
+    .table-wrap {
+      max-width: 100%;
+      margin: 22px 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.52; }
+    caption { padding: 12px 15px; color: var(--text-dim); text-align: left; font-size: 11px; }
+    th {
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border-strong);
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    td { min-width: 130px; padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface) 94%, var(--blue) 6%); }
+    tbody tr:last-child td { border-bottom: 0; }
+    td:first-child { min-width: 175px; font-weight: 650; }
+    .edge-a { color: var(--blue); font-weight: 700; }
+    .edge-b { color: var(--rust); font-weight: 700; }
+    .edge-c { color: var(--green); font-weight: 700; }
+
+    .finding {
+      margin: 16px 0;
+      padding: 21px 23px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--rust);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .finding.blocking { border-left-color: var(--red); }
+    .finding.minor { border-left-color: var(--gold); }
+    .finding-title { margin: 10px 0 12px; font: 700 20px/1.28 Charter, Georgia, serif; }
+    .finding-meta { color: var(--text-dim); font: 10px/1.5 "SFMono-Regular", Menlo, monospace; }
+    .finding-evidence, .finding-fix {
+      margin-top: 13px;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .finding-evidence { background: var(--surface-2); }
+    .finding-fix { background: var(--green-soft); }
+    .finding-evidence b, .finding-fix b { color: var(--text); }
+
+    .callout {
+      margin: 22px 0;
+      padding: 17px 20px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 7px;
+      background: var(--blue-soft);
+    }
+    .callout.warn { border-left-color: var(--gold); background: var(--gold-soft); }
+    .callout.danger { border-left-color: var(--red); background: var(--red-soft); }
+    .callout.good { border-left-color: var(--green); background: var(--green-soft); }
+    .callout p:last-child { margin-bottom: 0; }
+
+    details {
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    summary {
+      padding: 13px 16px;
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 650;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: "+"; display: inline-block; width: 18px; color: var(--rust); font-family: monospace; }
+    details[open] summary::before { content: "−"; }
+    .details-body { padding: 16px 18px; border-top: 1px solid var(--border); }
+
+    .risk-row {
+      display: grid;
+      grid-template-columns: 72px minmax(180px, 0.9fr) minmax(240px, 1.8fr) minmax(220px, 1.35fr);
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+    .risk-row > * { min-width: 0; }
+    .risk-row:last-child { border-bottom: 0; }
+    .risk-head { color: var(--text-dim); font: 700 9px/1.4 "SFMono-Regular", Menlo, monospace; letter-spacing: 1px; text-transform: uppercase; }
+
+    .timeline { margin: 22px 0; padding-left: 24px; border-left: 2px solid var(--border-strong); }
+    .timeline-item { position: relative; padding: 0 0 24px 18px; }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -30px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--bg);
+      border-radius: 50%;
+      background: var(--rust);
+      box-shadow: 0 0 0 1px var(--rust);
+    }
+    .timeline-item h3 { margin: 4px 0 7px; }
+    .timeline-label { color: var(--rust); font: 700 9px/1.4 "SFMono-Regular", Menlo, monospace; letter-spacing: 1px; text-transform: uppercase; }
+
+    .footer {
+      margin-top: 70px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+    }
+    @media (max-width: 1080px) {
+      body { background-size: auto, 22px 22px; }
+      .wrap { width: min(100% - 36px, 1050px); grid-template-columns: 1fr; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 400;
+        display: flex;
+        gap: 3px;
+        align-items: center;
+        max-height: none;
+        margin: 0 -18px;
+        padding: 9px 18px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in srgb, var(--bg) 94%, transparent);
+        backdrop-filter: blur(9px);
+      }
+      .toc-title, .toc-actions { display: none; }
+      .toc a { flex: 0 0 auto; padding: 6px 8px; border-left: 0; border-bottom: 2px solid transparent; border-radius: 4px; white-space: nowrap; }
+      .toc a.active { border-left: 0; border-bottom-color: var(--rust); }
+      .main { padding-top: 28px; }
+      .section, .section-head { scroll-margin-top: 54px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .theme-toggle { top: auto; bottom: 16px; }
+    }
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 24px, 720px); }
+      .hero { padding: 30px 24px 27px; border-radius: 12px; }
+      h1 { font-size: clamp(36px, 12vw, 52px); letter-spacing: -1.8px; }
+      .dek { font-size: 16px; }
+      .grid-2, .grid-3, .metrics { grid-template-columns: 1fr; }
+      .arch-layer { grid-template-columns: 1fr; }
+      .arch-name { padding: 0; }
+      .decision-line { grid-template-columns: 1fr; gap: 3px; }
+      .risk-row { grid-template-columns: 1fr; gap: 5px; }
+      .risk-head { display: none; }
+      .section { margin-top: 54px; }
+      td { min-width: 170px; }
+    }
+    @media print {
+      .toc, .theme-toggle, .reading-progress, .toc-actions { display: none !important; }
+      .wrap { display: block; width: 100%; }
+      .main { padding: 0; }
+      body { background: white; color: black; font-size: 11pt; }
+      .hero, .card, .finding, .table-wrap, .arch-layer, details { break-inside: avoid; box-shadow: none; }
+      details > .details-body { display: block; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"></div>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light and dark theme">Theme</button>
+
+  <div class="wrap">
+    <nav class="toc" id="toc" aria-label="Report sections">
+      <div class="toc-title">Decision review</div>
+      <a href="#verdict">00 · Verdict</a>
+      <a href="#problem">01 · Actual problem</a>
+      <a href="#candidates">02 · Two candidates</a>
+      <a href="#matrix">03 · Comparison</a>
+      <a href="#blockers">04 · Decision blockers</a>
+      <a href="#proposal-review">05 · Proposal review</a>
+      <a href="#branch-review">06 · Branch review</a>
+      <a href="#better-solution">07 · Better solution</a>
+      <a href="#roadmap">08 · Delivery plan</a>
+      <a href="#verification">09 · Verification</a>
+      <a href="#release">10 · Release contract</a>
+      <a href="#sources">11 · Sources &amp; limits</a>
+      <div class="toc-actions">
+        <button type="button" id="detailsToggle">Expand all evidence</button>
+        <button type="button" onclick="window.print()">Print / PDF</button>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="hero">
+        <p class="eyebrow">Independent architecture decision review · 10 July 2026</p>
+        <h1>Keep the facade. Redesign the contract. Do not merge either implementation as-is.</h1>
+        <p class="dek">
+          A source-level review of <a href="./issue-14040-tooling-architecture-research.html">the generated local-facade proposal</a>
+          and its working-tree proof of concept against branch
+          <code>temporary-test-branch-new-admin-package-contract</code> at <code>abcb46850a4</code>.
+          The newer proposal is the better foundation, but its current “passing” story hides unresolved product and
+          editor-contract questions. The comparison branch contains valuable compatibility lessons, yet its committed
+          implementation does not satisfy its own Composer/Flex claim and exposes far too much Administration internals.
+        </p>
+        <div class="meta-row">
+          <span class="chip">Current tree: temporary-test-branch-new-admin-package-contract-v2</span>
+          <span class="chip">Comparison commit: abcb46850a4</span>
+          <span class="chip">Review lens: architecture + compatibility + release</span>
+          <span class="chip">Local PoC tests rerun</span>
+          <span class="chip">Browser rendering unavailable; static HTML validation used</span>
+        </div>
+      </header>
+
+      <section class="section" id="verdict" aria-labelledby="verdict-title">
+        <p class="section-index">00 / Executive verdict</p>
+        <h2 class="section-head" id="verdict-title">The proposal is good research and the right direction—not yet a shippable solution</h2>
+        <p class="lead">
+          The root cause is not “the package.json sits too deep.” The root cause is the absence of an explicit,
+          version-aligned extension-development contract that survives the Composer subtree split and that produces
+          the same result in editors, CI, and the Vite runtime. Both candidates see part of that truth. Only the
+          generated-facade proposal preserves the release boundary and creates a semantic gate without making every
+          installed plugin part of one npm trust domain.
+        </p>
+
+        <div class="verdict">
+          <div class="verdict-top">
+            <span class="badge badge--info">Recommended decision</span>
+            <h3>Continue from proposal A; retire branch B as an implementation; salvage B’s compatibility evidence and consumer-fixture idea.</h3>
+          </div>
+          <div class="verdict-body">
+            <div class="decision-line"><b>Proposal A</b><span>Approve the architectural direction. Request changes before productization: governed config modes, an editor-compatible migration lane, API conformance, all-installed-plugin discovery, schema fallback, stable baselines, and real Flex/Storefront acceptance.</span></div>
+            <div class="decision-line"><b>Branch B</b><span>Do not merge as the end-state. Its public package shape, wildcard exports, live private type graph, phantom dependency mappings, CommonJS preset, and actual source-checkout-only linker are structurally unsafe.</span></div>
+            <div class="decision-line"><b>Better option</b><span>Ship a dedicated Administration extension contract with a generated projector and verifier, plus a tightly scoped, time-boxed legacy type adapter. Keep the Admin application package private and keep runtime dependency truth separate from type convenience.</span></div>
+          </div>
+        </div>
+
+        <div class="metrics" aria-label="Key evidence">
+          <div class="metric"><div class="metric-value">5 / 5</div><div class="metric-label">Current PoC tests</div><div class="metric-note">Three focused Jest suites passed when rerun with Watchman disabled.</div></div>
+          <div class="metric"><div class="metric-value">19,357</div><div class="metric-label">Claimed migrated diagnostics</div><div class="metric-note">Evidence of a working ratchet, but also evidence the strict public surface is not rollout-ready.</div></div>
+          <div class="metric"><div class="metric-value">131</div><div class="metric-label">Live-type imports</div><div class="metric-note"><code>global.types.ts</code> imports roughly 131 internal/external symbols across 621 lines.</div></div>
+          <div class="metric"><div class="metric-value">0</div><div class="metric-label">Branch contract tests</div><div class="metric-note">The comparison commit contains no committed fixture, CI guardrail, or test for its new contract.</div></div>
+        </div>
+
+        <div class="callout warn">
+          <p><strong>Advice:</strong> treat the current document as an ADR candidate and feasibility PoC, not as approval to land the code. Its statement that “only engineering details remain” is too strong: public API scope, legacy compatibility, runtime-provided modules, root-config ownership, baseline policy, inactive-plugin discovery, schema failure behavior, and Storefront co-design are product/contract decisions.</p>
+        </div>
+      </section>
+
+      <section class="section" id="problem" aria-labelledby="problem-title">
+        <p class="section-index">01 / Problem framing</p>
+        <h2 class="section-head" id="problem-title">What #14040 actually needs to solve</h2>
+        <div class="grid grid-2">
+          <article class="card card--blue">
+            <span class="badge badge--good">Root cause</span>
+            <h3>A portable development contract</h3>
+            <p>Extension code needs supported types, compiler policy, ESLint/Twig/SFC behavior, project discovery, and a semantic gate tied to the installed Shopware version. That contract must exist in source checkouts and in <code>vendor/shopware/administration</code>.</p>
+          </article>
+          <article class="card card--rust">
+            <span class="badge badge--block">Not the root cause</span>
+            <h3>A root npm workspace</h3>
+            <p>The repository root is absent after <code>src/Administration</code> is subtree-split. Dynamically joining arbitrary merchant plugins to a root workspace would also change lock ownership, lifecycle-script trust, hoisting, and reproducibility.</p>
+          </article>
+        </div>
+
+        <h3>Non-negotiable constraints</h3>
+        <div class="table-wrap"><div class="table-scroll">
+          <table>
+            <thead><tr><th>Constraint</th><th>Why it is architectural</th><th>Review consequence</th></tr></thead>
+            <tbody>
+              <tr><td>Composer split is the release boundary</td><td><code>.github/bin/split.bash</code> splits <code>src/Administration/</code>; monorepo-root files do not ship with <code>shopware/administration</code>.</td><td>The durable contract must live in the Administration subtree. Root files may only be generated projection.</td></tr>
+              <tr><td>Vite is not a type checker</td><td>The plugin build creates one Vite root per extension and transpiles TypeScript. Semantic errors need a separate <code>vue-tsc</code>/<code>tsc</code> gate.</td><td>A solution without an explicit check command does not meet “type checking works.”</td></tr>
+              <tr><td>Runtime imports and type resolution differ</td><td>The current externals plugin aliases only bare <code>vue</code> to <code>window.Shopware.Vue</code>.</td><td>A tsconfig may not map <code>pinia</code>, <code>axios</code>, router, or test utilities to Admin dependencies and then call them host-provided.</td></tr>
+              <tr><td>Plugins have several ownership shapes</td><td>Conventional plugins, Composer/vendor packages, inactive plugins, path installs, and multi-bundle suites do not share one package root.</td><td>Filesystem heuristics and <code>custom/plugins/*</code> loops are insufficient as the source of truth.</td></tr>
+              <tr><td>Existing ecosystem code is not a clean public-API consumer</td><td>First-party plugins rely on deep paths, private globals, and duplicated tooling.</td><td>Rollout needs an explicit migration policy; neither “everything is public” nor “baseline 19k errors” is acceptable as the default.</td></tr>
+              <tr><td>Storefront must be co-designed, not merged</td><td>The issue explicitly says to work with a Storefront specialist, while Storefront has distinct engines, builds, security choices, and release ownership.</td><td>Keep dependency graphs separate, but require Storefront owner sign-off and a shared projection/lifecycle protocol before closing the issue.</td></tr>
+            </tbody>
+          </table>
+        </div></div>
+
+        <div class="callout good">
+          <p><strong>Scope conclusion from the Shopware change-scope lens:</strong> the smallest root-cause fix is an Administration-distributed contract plus project-local discovery—not a repository-wide JavaScript reorganization. A Storefront implementation can remain separate, but the protocol and acceptance criteria must be designed jointly because the issue explicitly requires that collaboration.</p>
+        </div>
+      </section>
+
+      <section class="section" id="candidates" aria-labelledby="candidates-title">
+        <p class="section-index">02 / Candidate architectures</p>
+        <h2 class="section-head" id="candidates-title">The two ideas agree on version authority and disagree on the boundary</h2>
+
+        <h3>A · Generated local facade (research document + current PoC)</h3>
+        <div class="architecture" aria-label="Generated facade architecture">
+          <div class="arch-layer"><div class="arch-name">Committed authority</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Curated public API</strong><code>public-api.d.ts</code> models supported <code>window.Shopware</code> services without importing the entire application graph.</div>
+            <div class="arch-node"><strong>Type and lint policy</strong>ESNext/Bundler tsconfig, Vue/SFC typed linting, transitional Twig processor, private-source import ban.</div>
+            <div class="arch-node"><strong>Setup and check commands</strong>Read bundle metadata, generate projects/facade, run <code>vue-tsc</code> and ESLint, compare migration baselines.</div>
+          </div></div>
+          <div class="arch-arrow">Project setup projects the installed Administration contract downward</div>
+          <div class="arch-layer"><div class="arch-name">Disposable projection</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Private local package</strong><code>node_modules/@shopware-ag/administration-extension-tooling</code> contains proxy files, not a whole-package symlink.</div>
+            <div class="arch-node"><strong>Editor discovery</strong>Generated root <code>tsconfig.json</code> and <code>eslint.config.mjs</code>.</div>
+            <div class="arch-node"><strong>Check state</strong>Manifest, per-extension projects, caches/baselines under <code>var/admin-extension-tooling</code> and extension roots.</div>
+          </div></div>
+          <div class="arch-arrow">Default extensions consume zero files; advanced extensions may own configs</div>
+          <div class="arch-layer"><div class="arch-name">Verification</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Isolated TypeScript</strong>One <code>vue-tsc</code> invocation per unique project config.</div>
+            <div class="arch-node"><strong>File-relative ESLint</strong>ESLint 9 feature flag mirrors ESLint 10 nearest-config lookup.</div>
+            <div class="arch-node"><strong>Exact baseline ratchet</strong>Known diagnostics pass, new diagnostics fail, stale entries warn.</div>
+          </div></div>
+        </div>
+
+        <h3>B · Administration package contract (comparison branch)</h3>
+        <div class="architecture" aria-label="Package contract branch architecture">
+          <div class="arch-layer"><div class="arch-name">Whole Admin package</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Renamed package</strong><code>@shopware-ag/administration</code> becomes the application name and apparent extension package.</div>
+            <div class="arch-node"><strong>Live types</strong><code>types/index.d.ts</code> imports <code>global.types.ts</code>, entity schema, HTML/Vue shims, and Node ambient types.</div>
+            <div class="arch-node"><strong>Broad exports</strong>A runtime default points at <code>src/core/shopware.ts</code>; <code>./*</code> exposes every subpath.</div>
+          </div></div>
+          <div class="arch-arrow">A relative symlink makes the entire Admin package visible inside each plugin</div>
+          <div class="arch-layer"><div class="arch-name">Plugin-owned setup</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Two explicit configs</strong>Each plugin extends/imports the package tsconfig and ESLint preset.</div>
+            <div class="arch-node"><strong>Link lifecycle</strong>The proposal describes a per-plugin postinstall resolver; the commit only adds a Bash bulk linker.</div>
+            <div class="arch-node"><strong>No semantic runner</strong>No committed check command, migration ratchet, fixture job, or release integration exists in the branch.</div>
+          </div></div>
+        </div>
+
+        <div class="callout">
+          <p><strong>The key difference:</strong> A treats the installed Administration as the authority but publishes a small local facade. B treats the Administration application itself as the facade. The first can evolve toward a stable public contract; the second makes private implementation reachability part of the contract before Shopware has decided what it supports.</p>
+        </div>
+      </section>
+
+      <section class="section" id="matrix" aria-labelledby="matrix-title">
+        <p class="section-index">03 / Head-to-head comparison</p>
+        <h2 class="section-head" id="matrix-title">A wins the structural decisions; B mainly wins legacy compatibility and simplicity</h2>
+        <div class="table-wrap"><div class="table-scroll">
+          <table>
+            <caption>“Recommended C” is the architecture proposed later in this report.</caption>
+            <thead><tr><th>Dimension</th><th>A · Generated facade</th><th>B · Package branch</th><th>C · Recommended</th><th>Decision</th></tr></thead>
+            <tbody>
+              <tr><td>Composer/Flex authority</td><td>Contract ships inside Administration; current recipe work is still missing.</td><td>Proposal says yes; committed linker hardcodes source checkout.</td><td>Administration contract + clean split/recipe acceptance test.</td><td class="edge-c">C/A</td></tr>
+              <tr><td>Zero-config default</td><td>Yes for discovered active extensions when root discovery files can be managed.</td><td>No; requires plugin configs and the proposed postinstall package setup.</td><td>Yes, with explicit conflict state when root/custom configs are unmanaged.</td><td class="edge-c">C</td></tr>
+              <tr><td>Semantic gate</td><td><code>vue-tsc</code> + ESLint + baseline runner.</td><td>Absent from committed code.</td><td>Same gate, authoritative config validation, bounded parallelism and cache.</td><td class="edge-c">C/A</td></tr>
+              <tr><td>Public API boundary</td><td>Curated and intentionally narrow, but incomplete and manually duplicated.</td><td>Entire live source graph and wildcard exports.</td><td>Curated interface is internal source of truth; runtime implements it; legacy adapter is explicit and expiring.</td><td class="edge-c">C</td></tr>
+              <tr><td>Existing plugin IDE compatibility</td><td>Poor until public types are completed; baselines do not affect editors.</td><td>Strong because the old private graph remains visible.</td><td>Time-boxed legacy adapter for existing plugins; strict contract for new code.</td><td class="edge-c">C</td></tr>
+              <tr><td>Runtime dependency truth</td><td>Maps only Vue today, matching the actual external alias.</td><td>Maps router, Pinia, axios, Vuex and test utils as “host-provided” without a matching runtime external contract.</td><td>Machine-readable categories; only modules with a real runtime adapter are host externals.</td><td class="edge-c">C/A</td></tr>
+              <tr><td>Compiler model</td><td>ESNext + Bundler matches Vite.</td><td>CommonJS with implicit legacy Node resolution.</td><td>ESNext + Bundler, version-tested against supported TS/vue-tsc.</td><td class="edge-a">A/C</td></tr>
+              <tr><td>Plugin isolation</td><td>Preserved; no root workspace membership.</td><td>Preserved, but whole Admin symlink widens reachable dependencies.</td><td>Preserved; explicit per-extension project ownership.</td><td class="edge-c">C/A</td></tr>
+              <tr><td>Cross-platform mechanism</td><td>Proxy files avoid required symlinks.</td><td>Committed implementation uses Bash <code>ln</code>; Windows path is unimplemented.</td><td>Proxy projection; junction/symlink not required for correctness.</td><td class="edge-c">C/A</td></tr>
+              <tr><td>Inactive/standalone discovery</td><td>Not covered: current manifest source is active-only <code>var/plugins.json</code>.</td><td>Filesystem loop covers custom plugin folders but misses vendor and nonstandard layouts.</td><td>Backend-generated all-installed manifest + explicit standalone path.</td><td class="edge-c">C</td></tr>
+              <tr><td>Custom configs</td><td>Respected but not validated; can bypass the contract.</td><td>Always explicit, but still unvalidated.</td><td>Managed/custom/unmanaged states per tool; resolved-config conformance is checked.</td><td class="edge-c">C</td></tr>
+              <tr><td>Entity schema</td><td>Wired to installed schema, but missing schema silently loses type safety under <code>skipLibCheck</code>.</td><td>Imports the ignored generated file with no lifecycle.</td><td>Project-local generated schema + committed core fallback + strict CI mode.</td><td class="edge-c">C</td></tr>
+              <tr><td>Twig transition</td><td>Supports both suffixes and disables known unreliable rules; root scope is too broad.</td><td>Only <code>html.twig</code>; applies recommended Vue rules wholesale.</td><td>Corpus-tested compatibility preset scoped only to discovered Admin extension templates.</td><td class="edge-c">C</td></tr>
+              <tr><td>Migration baseline</td><td>Exists, but exact line fingerprints scale poorly and cannot solve editor errors.</td><td>Absent.</td><td>Baseline only plugin debt; contract/tooling errors never suppressible; stable partial fingerprints.</td><td class="edge-c">C</td></tr>
+              <tr><td>Committed evidence</td><td>Three suites / five tests pass; real Flex and external repo results remain partly report-only.</td><td>No tests or fixture committed; key mechanisms only described in Markdown.</td><td>Clean split package, production recipe, first-party corpus, platform matrix and consumer fixture in CI.</td><td class="edge-c">C</td></tr>
+              <tr><td>Storefront obligation</td><td>Build kept unchanged and migration deferred.</td><td>Deferred.</td><td>Separate build/dependency graph, jointly designed manifest/lifecycle and Storefront owner acceptance.</td><td class="edge-c">C</td></tr>
+            </tbody>
+          </table>
+        </div></div>
+      </section>
+
+      <section class="section" id="blockers" aria-labelledby="blockers-title">
+        <p class="section-index">04 / Five decision blockers</p>
+        <h2 class="section-head" id="blockers-title">What must change before an implementation PR can be approved</h2>
+
+        <article class="finding blocking">
+          <span class="badge badge--block">Blocking · compatibility</span>
+          <div class="finding-title">A’s 19,357-diagnostic baseline is not an adoption plan because editor diagnostics remain visible</div>
+          <p>The check runner can classify diagnostics as known, but TypeScript Server and the ESLint editor extension do not read <code>.shopware-admin-baseline.json</code>. The document itself says the high counts demonstrate that the curated <code>Shopware</code> surface is incomplete. Calling the corpus “passing” before contract-caused errors are separated from plugin-owned debt would produce green CI and unusable IDEs.</p>
+          <div class="finding-evidence"><b>Evidence:</b> research §09 reports 13,272 diagnostics for Commercial and 6,062 for PayPal; <a href="./src/Administration/Resources/app/administration/extension-tooling/public-api.d.ts">public-api.d.ts</a> intentionally leaves many namespaces as <code>Record&lt;string, unknown&gt;</code>. A local AST comparison found 7 of 16 runtime <code>Shopware.Component</code> members intentionally absent from the curated interface. Confidence 0.96.</div>
+          <div class="finding-fix"><b>Required change:</b> define a rollout gate and a migration lane. Contract gaps, unsupported-private usage, and plugin code debt must be different categories. Existing first-party plugins may use a clearly named, removal-versioned <code>legacy-internal-types</code> adapter; new plugins default to strict public types. Do not baseline contract/tooling errors.</div>
+        </article>
+
+        <article class="finding blocking">
+          <span class="badge badge--block">Blocking · correctness</span>
+          <div class="finding-title">A can report a custom project as covered even when its tsconfig or ESLint config does not compose the Shopware contract</div>
+          <p>Discovery marks a project custom whenever either config exists. TypeScript then runs the existing tsconfig directly, and ESLint 10 intentionally stops at the nearest config. Nothing verifies strictness, facade types, required import boundaries, Twig/SFC coverage, or even that the config matches the source files. Existing root configs are likewise preserved with a warning while the zero-config promise quietly stops working.</p>
+          <div class="finding-evidence"><b>Evidence:</b> <a href="./src/Administration/Resources/app/administration/scripts/extensionTooling/setup.ts">setup.ts:169–180, 199–201, 386–393</a>; <a href="./src/Administration/Resources/app/administration/scripts/extensionTooling/check.ts">check.ts:331–357, 393–429</a>. ESLint 10’s documented algorithm starts from each linted file and uses its nearest <code>eslint.config.*</code>. Confidence 0.95.</div>
+          <div class="finding-fix"><b>Required change:</b> model TypeScript and ESLint ownership separately as <code>managed-default</code>, <code>managed-custom</code>, or <code>unmanaged</code>. Use <code>--showConfig</code>/compiler sentinels and <code>--print-config</code> to prove the contract is composed. An unmanaged project must be visibly skipped or fail the authoritative check—never count as green coverage.</div>
+        </article>
+
+        <article class="finding blocking">
+          <span class="badge badge--block">Blocking · implementation gap</span>
+          <div class="finding-title">B’s committed linker does not implement the branch proposal’s central “every layout” claim</div>
+          <p>The branch document describes a cross-layout postinstall resolver, Flex recipe steps, Shopware CLI support, and a fixture plugin. None exists in commit <code>abcb46850a4</code>. The only linker hardcodes <code>src/Administration/Resources/app/administration</code> and loops over <code>custom/plugins/*</code>. In a production project it creates a link toward a path that does not exist; vendor packages and nonstandard layouts are skipped.</p>
+          <div class="finding-evidence"><b>Evidence:</b> branch <code>bin/install-extension-npm:60–89</code>, especially <code>ADMIN_APP_PATH</code> at line 66 and the custom-plugin loop at line 78. The branch diff contains 10 files and no test/fixture/recipe change. Confidence 1.00.</div>
+          <div class="finding-fix"><b>Required change:</b> do not repair this branch incrementally. Its best ideas—stable local specifier, lifecycle healing, consumer-shaped CI—fit better inside A’s projector. Use backend-discovered paths, not a second filesystem walker.</div>
+        </article>
+
+        <article class="finding blocking">
+          <span class="badge badge--block">Blocking · public contract</span>
+          <div class="finding-title">B turns the Administration application and its private source graph into an importable runtime/public package</div>
+          <p>The package is renamed to an official scope but is not marked private. Its root export has a runtime default pointing at <code>src/core/shopware.ts</code>, and <code>"./*": "./*"</code> explicitly exposes every subpath. The type entry imports the 621-line <code>global.types.ts</code> graph. This contradicts the accompanying <code>no-src-imports</code> rule and would make internal refactors ecosystem compatibility events.</p>
+          <div class="finding-evidence"><b>Evidence:</b> branch <code>package.json:2–15</code>, <code>types/index.d.ts:12–19</code>, and <code>tsconfig.plugin.json:23–27</code>. Node’s package documentation recommends explicit exports so the public interface is well-defined; wildcard subpaths do the opposite here. Confidence 1.00.</div>
+          <div class="finding-fix"><b>Required change:</b> keep the Admin application package identity unchanged/private. Use a dedicated local tooling facade with explicit type/config-only exports and no runtime default. Any legacy live-type adapter must be opt-in, explicitly unstable, and must not export arbitrary source paths.</div>
+        </article>
+
+        <article class="finding blocking">
+          <span class="badge badge--block">Blocking · runtime correctness</span>
+          <div class="finding-title">B’s “host-provided modules” map can make TypeScript pass imports that Shopware does not provide at runtime</div>
+          <p>The branch maps Vue Router, Pinia, Vuex, axios, and <code>@vue/test-utils</code> to the Administration’s <code>node_modules</code>. The actual Vite external adapter only replaces bare <code>vue</code> with <code>window.Shopware.Vue</code>. Admin using a dependency in its own bundle does not make that dependency a public module import for plugins; test utilities are especially not a browser runtime contract.</p>
+          <div class="finding-evidence"><b>Evidence:</b> branch <code>tsconfig.plugin.json:29–39</code> versus <a href="./src/Administration/Resources/app/administration/build/vite-plugins/externals-plugin/index.ts">externals-plugin/index.ts:37–43</a>. The branch also uses <code>module: CommonJS</code> without modern module resolution. Confidence 0.98.</div>
+          <div class="finding-fix"><b>Required change:</b> maintain one typed runtime-contract manifest with categories: platform external, plugin-bundled dependency, public type dependency, and test-only. A module becomes “host-provided” only when the build has a matching runtime adapter and compatibility policy. Today, keep Vue as the only such external.</div>
+        </article>
+      </section>
+
+      <section class="section" id="proposal-review" aria-labelledby="proposal-review-title">
+        <p class="section-index">05 / Detailed review of A</p>
+        <h2 class="section-head" id="proposal-review-title">Generated facade: the strongest foundation, with several hidden contract gaps</h2>
+
+        <h3>What is genuinely strong</h3>
+        <div class="grid grid-3">
+          <article class="card card--green"><span class="badge badge--good">Keep</span><h4>Correct release authority</h4><p>The committed implementation lives under the Administration subtree, so it can ship with the Composer package. Root files are correctly treated as projection.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Keep</span><h4>Semantic checks are explicit</h4><p><code>vue-tsc --noEmit</code> and ESLint are separate from Vite. The PoC injects a real type error and proves it fails before baseline update.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Keep</span><h4>Private-source boundary</h4><p>The strict preset has no <code>src/*</code> mapping and lint rules reject direct Administration-internal imports.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Keep</span><h4>Proxy files, not package symlinks</h4><p>The local facade re-exports the installed source through tiny proxies, avoiding required junction/symlink semantics and duplicate package identity.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Keep</span><h4>Modern compiler model</h4><p><code>module: ESNext</code> and <code>moduleResolution: Bundler</code> reflect Vite and align with current TypeScript guidance.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Keep</span><h4>Real migration mechanics</h4><p>Baselined/new/stale diagnostics are a useful ratchet concept once classification and fingerprint stability are fixed.</p></article>
+        </div>
+
+        <h3>Detailed risk register</h3>
+        <div class="card">
+          <div class="risk-row risk-head"><span>ID</span><span>Risk</span><span>Evidence and impact</span><span>Suggested correction</span></div>
+          <div class="risk-row"><span class="badge badge--block">A-01</span><strong>Baseline does not reach IDE</strong><span>19,357 known findings can make CLI green while editors remain red. Many findings are likely contract gaps, unresolved dependencies, or private API use—not equivalent plugin debt.</span><span>Add a legacy migration adapter and diagnostic ownership taxonomy; block release on platform-owned contract gaps.</span></div>
+          <div class="risk-row"><span class="badge badge--block">A-02</span><strong>Custom config bypass</strong><span>Existing tsconfig/ESLint files are used directly. Nearest-config semantics mean the shared policy may never run.</span><span>Separate per-tool modes; validate resolved configs; make unmanaged state explicit.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-03</span><strong>Active-only discovery</strong><span><code>BundleConfigGenerator</code> filters deactivated plugins before writing <code>var/plugins.json</code>. A newly created or inactive plugin receives no “zero-config” project.</span><span>Create a tooling-specific backend manifest containing all installed plugins plus active/build status; support <code>--extension-path</code> for standalone repos.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-04</span><strong>Missing schema silently erases type safety</strong><span><code>types.d.ts</code> imports a gitignored schema while the preset enables <code>skipLibCheck</code>. An in-memory check with the installed TypeScript 5.7.3 confirmed that a missing schema produced zero diagnostics and allowed <code>Entity&lt;"product"&gt;</code> to behave as <code>any</code>.</span><span>Generate schema into project state; ship a core-only fallback; expose degraded/strict modes and never silently pass.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-05</span><strong>Root ownership conflict</strong><span>User root configs are preserved with warnings, but then default projects may not receive the contract. The worktree also ignores canonical root config names globally, making a later user-owned config awkward to commit.</span><span>Make root state <code>managed</code>/<code>conflict</code>; fail authoritative checks when zero-config projects lack discovery; provide an explicit takeover/composition command.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-06</span><strong>IDE/CLI program mismatch</strong><span>The root tsconfig merges all default extensions; CLI checks isolated per-extension configs. Global interface augmentations can leak between plugins in the editor but fail in isolated CI. A TypeScript experiment reproduced this exact asymmetry.</span><span>Spike a Vue-compatible solution-style project with per-extension references, or deliberately run both aggregate integration and isolated portability gates and document the difference.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-07</span><strong>Root ESLint scope bleeds into Storefront</strong><span>The generated root factory enables legacy Twig globally, so an editor may apply the Twig-as-Vue processor to real Storefront Twig outside Administration extension paths.</span><span>Generate file patterns from the discovered manifest and scope every template rule to Administration extension sources.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-08</span><strong>Baseline scale and churn</strong><span>The key includes line and column. The 41-entry Storefront baseline is 14,182 bytes (~346 bytes/diagnostic); 19,357 entries would be roughly 6.7 MB before normal Git history. Line shifts create new+stale pairs.</span><span>Use SARIF-style partial fingerprints: tool/code/message plus normalized source-token window and occurrence count. Keep exact mode for small baselines.</span></div>
+          <div class="risk-row"><span class="badge badge--warn">A-09</span><strong>Cold sequential runner</strong><span><code>spawnSync</code> launches one <code>vue-tsc</code> process per unique project sequentially, without timeout, build info, or ESLint cache.</span><span>Bounded parallelism, project build info/cache under <code>var</code>, cancellation/timeouts, full-CI and changed-local modes.</span></div>
+          <div class="risk-row"><span class="badge badge--warn">A-10</span><strong>Facade lifecycle and metadata duplication</strong><span>Root npm operations may prune the untracked facade. The committed <code>extension-tooling/package.json</code> is not used; setup reconstructs a second export map in code.</span><span>Anchor generated configs in <code>var</code>, keep the node_modules package as a healable compatibility shim, and generate both manifests from one typed source.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-11</span><strong>Manual public API can drift</strong><span><code>public-api.d.ts</code> is independent of <code>ShopwareClass</code> and borrows some types from the Admin SDK. No compile-time conformance test binds the declaration to runtime.</span><span>Move the supported interface into a dependency-light internal source file; make <code>ShopwareClass</code> implement/satisfy it and re-export only that contract.</span></div>
+          <div class="risk-row"><span class="badge badge--warn">A-12</span><strong>Evidence wording outruns committed proof</strong><span>The rerun tests prove setup/check/build behavior in a synthetic vendor path, but the fixture symlinks Admin <code>node_modules</code> and rule directories from the source checkout. No clean production recipe, Windows job, or live plugin DAL dump is committed here.</span><span>Label “mechanism proven” versus “release topology proven”; add clean split-package and production-template jobs before calling Composer/Flex covered.</span></div>
+          <div class="risk-row"><span class="badge badge--major">A-13</span><strong>Tool diagnostics can be incompletely parsed</strong><span>TypeScript output parsing only records file-position lines. If a failed invocation emits both parsed file diagnostics and an unparsed global/configuration diagnostic, the latter is dropped because fallback only runs when zero file diagnostics were parsed.</span><span>Use the compiler/SARIF API where supported or parse structured output; always represent a nonzero process status and unparsed residual stderr as a non-baselineable tooling diagnostic.</span></div>
+          <div class="risk-row"><span class="badge badge--warn">A-14</span><strong>Mode is too coarse</strong><span>A project with only an ESLint config is labeled <code>custom</code> even though TypeScript is generated-default; the inverse is also possible.</span><span>Persist <code>typescriptMode</code>, <code>eslintMode</code>, <code>typeSurface</code>, <code>schemaMode</code>, and conformance status separately.</span></div>
+        </div>
+
+        <details>
+          <summary>Tests rerun and what they actually cover</summary>
+          <div class="details-body">
+            <p><strong>Command:</strong> <code>./node_modules/.bin/jest --config jest.config.js --runInBand --no-watchman scripts/extensionTooling</code></p>
+            <p><strong>Result:</strong> 3 suites passed, 5 tests passed in 14.389 seconds.</p>
+            <ul>
+              <li><code>setup.spec.ts</code>: source/custom/vendor path discovery, proxy generation, generated-root files, preservation of user-owned root configs.</li>
+              <li><code>check.spec.ts</code>: TypeScript/ESLint diagnostic parsing and exact baseline new/known/stale behavior.</li>
+              <li><code>poc.spec.ts</code>: zero-config TypeScript, Vue SFC, legacy Twig, custom config, multi-bundle owner, generated-shaped plugin entity, injected TS failure, baseline update, and actual plugin Vite build.</li>
+            </ul>
+            <p><strong>Not covered:</strong> invalid/unmanaged custom configs, inactive plugins, project roots with managed npm, facade pruning, root ESLint Storefront bleed, missing-schema degradation, clean Composer package install, real Flex recipe, real DB schema generation, Windows, IDE automation, or external first-party repositories.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="branch-review" aria-labelledby="branch-review-title">
+        <p class="section-index">06 / Detailed review of B</p>
+        <h2 class="section-head" id="branch-review-title">Package-contract branch: useful migration evidence, unsafe product boundary, incomplete commit</h2>
+
+        <h3>Ideas worth preserving</h3>
+        <div class="grid grid-2">
+          <article class="card card--green"><span class="badge badge--good">Salvage</span><h4>Installed-version alignment</h4><p>A local package name pointing at the installed Composer/source version solves trunk-to-plugin drift without waiting for npm publishing.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Salvage</span><h4>Consumer-shaped contract fixture</h4><p>The proposal’s <code>link → typecheck → lint → build → test</code> fixture is the right CI philosophy, even though it is not committed on the branch.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Salvage</span><h4>Heal at the breaking lifecycle</h4><p>Regeneration after package-manager operations is operationally sound. A should add lifecycle healing without adopting whole-package symlinks.</p></article>
+          <article class="card card--green"><span class="badge badge--good">Salvage carefully</span><h4>Legacy compatibility observation</h4><p>Live types explain why existing first-party plugins retain parity. Recast this as a temporary migration adapter, not the permanent public contract.</p></article>
+        </div>
+
+        <h3>Detailed risk register</h3>
+        <div class="card">
+          <div class="risk-row risk-head"><span>ID</span><span>Risk</span><span>Evidence and impact</span><span>Suggested correction</span></div>
+          <div class="risk-row"><span class="badge badge--block">B-01</span><strong>Proposal/commit mismatch</strong><span>Postinstall resolver, Flex recipe, shopware-cli integration, fixture CI, and plugin migrations are prose-only. The branch has no tests.</span><span>Evaluate branch code as a partial sketch, not a validated solution. Port only selected ideas into A.</span></div>
+          <div class="risk-row"><span class="badge badge--block">B-02</span><strong>Source-only hardcoded linker</strong><span><code>ADMIN_APP_PATH</code> is fixed to the monorepo path and the loop only visits <code>custom/plugins/*</code>.</span><span>Replace with backend manifest projection; do not add more path probes.</span></div>
+          <div class="risk-row"><span class="badge badge--block">B-03</span><strong>Unbounded exports</strong><span>Runtime default + <code>./*</code> turns private source into importable package API. Package is not <code>private</code>.</span><span>Dedicated private type/config facade, explicit exports only, no runtime entry.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-04</span><strong>Live graph freezes internals</strong><span><code>global.types.ts</code> imports 131 implementation/external symbols; plugin checking now depends on Admin private refactors and pulls the large graph.</span><span>Use only in expiring legacy adapter; strict contract derives from supported runtime interfaces.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-05</span><strong>Browser types polluted by Node</strong><span>The type entry includes <code>/// &lt;reference types="node" /&gt;</code>, allowing browser plugin code to type-check accidental <code>process</code>/<code>Buffer</code> usage.</span><span>Public browser preset must not import Node ambients. Isolate build/test configs that require them.</span></div>
+          <div class="risk-row"><span class="badge badge--block">B-06</span><strong>Phantom host dependencies</strong><span>Type paths bless dependencies the runtime adapter does not provide; <code>@vue/test-utils</code> is listed as if host-runtime-visible.</span><span>Require plugin dependencies unless an explicit runtime external adapter exists.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-07</span><strong>Wrong module model</strong><span><code>module: CommonJS</code> and implicit legacy Node resolution do not model Vite ESM and can break exports-only packages, <code>import.meta</code>, or top-level await.</span><span>Use ESNext/Bundler as in A.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-08</span><strong>No zero-config or gate</strong><span>Plugins still need configs and the proposed postinstall machinery. No semantic runner or debt migration lands.</span><span>Use A’s projector/checker; plugin-owned config becomes an optional advanced mode.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-09</span><strong>Symlink/platform fragility</strong><span>The actual code is Bash <code>ln -sfn</code>, not the proposal’s Node junction resolver. npm pruning and Windows remain unresolved.</span><span>Use proxy files as correctness mechanism; treat node_modules shims as disposable and self-healing.</span></div>
+          <div class="risk-row"><span class="badge badge--warn">B-10</span><strong>Twig false positives</strong><span>The legacy subpath maps full Vue recommended config to <code>html.twig</code> and does not cover <code>vue.twig</code> or disable known unreliable virtual-template rules.</span><span>Keep A’s narrower transitional preset and add a corpus test suite.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-11</span><strong>Generated schema has no lifecycle</strong><span>Type entry imports the ignored entity declaration but the branch adds no generation/fallback/strictness integration.</span><span>Project-local schema lifecycle as in recommended C.</span></div>
+          <div class="risk-row"><span class="badge badge--major">B-12</span><strong>No release/deprecation story</strong><span>Renaming the package and presenting new official exports affects extension authors but no <code>RELEASE_INFO</code>, upgrade path, or deprecation contract exists.</span><span>Avoid the rename. Document the dedicated facade and migration modes in release notes and extension guides.</span></div>
+        </div>
+
+        <details>
+          <summary>Committed branch inventory versus proposal promises</summary>
+          <div class="details-body">
+            <div class="table-wrap"><div class="table-scroll"><table>
+              <thead><tr><th>Promise in issue-14040-proposal.md</th><th>Present in commit abcb46850a4?</th><th>Review</th></tr></thead>
+              <tbody>
+                <tr><td>Scoped Admin package, type/config exports</td><td>Yes</td><td>Implemented, but boundary is unsafe.</td></tr>
+                <tr><td>Cross-layout postinstall resolver</td><td>No</td><td>Only source-hardcoded Bash bulk link exists.</td></tr>
+                <tr><td>Composer/vendor and Flex recipe integration</td><td>No</td><td>Central topology claim remains unimplemented.</td></tr>
+                <tr><td>shopware-cli integration</td><td>No</td><td>Roadmap only.</td></tr>
+                <tr><td>Fixture plugin + CI guardrail</td><td>No</td><td>Roadmap only; zero committed tests.</td></tr>
+                <tr><td>SwagPayPal/Commercial conversions</td><td>No</td><td>Results are described, not part of this branch tree.</td></tr>
+                <tr><td>Semantic typecheck command</td><td>No</td><td>Extending a tsconfig is not a CI gate by itself.</td></tr>
+                <tr><td>Entity schema lifecycle</td><td>No</td><td>Explicitly deferred.</td></tr>
+                <tr><td>Windows support</td><td>No</td><td>Actual implementation is Unix shell.</td></tr>
+              </tbody>
+            </table></div></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="better-solution" aria-labelledby="better-title">
+        <p class="section-index">07 / Recommended architecture C</p>
+        <h2 class="section-head" id="better-title">A governed extension contract: contract + projector + verifier + migration lanes</h2>
+        <p class="lead">
+          The better solution retains A’s release-boundary and zero-config architecture, uses B’s evidence only as a
+          migration bridge, and adds explicit ownership so the system can never claim a project is checked when it is
+          not. The Admin application remains an application; the extension contract is a dedicated, private,
+          type/config-only surface.
+        </p>
+
+        <div class="architecture" aria-label="Recommended architecture">
+          <div class="arch-layer"><div class="arch-name">1 · Backend manifest</div><div class="arch-nodes">
+            <div class="arch-node"><strong>All installed extensions</strong>PHP emits active and inactive plugins, core bundles, source roots, owner roots, entry mode and Composer identity.</div>
+            <div class="arch-node"><strong>Build subset</strong>Active status remains available so build and check scopes can differ intentionally.</div>
+            <div class="arch-node"><strong>Standalone override</strong>CLI accepts explicit extension paths for separate repositories without a running shop.</div>
+          </div></div>
+          <div class="arch-arrow">One authoritative manifest; no second custom/plugins walker</div>
+          <div class="arch-layer"><div class="arch-name">2 · Committed Admin contract</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Public interface source of truth</strong>A dependency-light TypeScript interface lives with the runtime. <code>ShopwareClass</code> implements/satisfies it; facade declarations re-export it.</div>
+            <div class="arch-node"><strong>Strict extension preset</strong>ESNext/Bundler, browser-only globals, Vue SFCs, public entity generics, explicit exports only.</div>
+            <div class="arch-node"><strong>Legacy internal adapter</strong>Explicit opt-in, unstable, no runtime exports, no wildcard, fixed removal major. Intended for migration—not new extensions.</div>
+            <div class="arch-node"><strong>ESLint factory</strong>Scoped Admin extension patterns, typed rules, transitional Twig, public-source boundary, config conformance marker.</div>
+            <div class="arch-node"><strong>Runtime module contract</strong>Machine-readable categories distinguish Vue external from plugin-bundled, public-type-only, and test-only packages.</div>
+          </div></div>
+          <div class="arch-arrow">Idempotent projector materializes the installed contract</div>
+          <div class="arch-layer"><div class="arch-name">3 · Project state</div><div class="arch-nodes">
+            <div class="arch-node"><strong><code>var/admin-extension-tooling</code></strong>Manifest, facade payload, per-extension configs, entity schema, diagnostics, caches and atomic generation metadata.</div>
+            <div class="arch-node"><strong>Package-name shim</strong>A tiny private package in root <code>node_modules</code> exists only for advanced plugin config resolution and is regenerated on setup/check/build/install.</div>
+            <div class="arch-node"><strong>Root editor adapters</strong>Generated only when absent or generator-owned; patterns/references are derived from exact extension paths.</div>
+            <div class="arch-node"><strong>Explicit conflict state</strong>User-owned root config is never silently treated as successful zero-config coverage.</div>
+          </div></div>
+          <div class="arch-arrow">Per-tool ownership selects one governed lane</div>
+          <div class="arch-layer"><div class="arch-name">4 · Consumer lanes</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Strict managed</strong>Default for new extensions. Curated public types, no baseline, isolated portability check.</div>
+            <div class="arch-node"><strong>Legacy managed</strong>Existing extension opts into live-compatible declarations with warnings and a removal target; no new private imports allowed.</div>
+            <div class="arch-node"><strong>Custom managed</strong>Local configs compose the contract and pass resolved-config conformance.</div>
+            <div class="arch-node"><strong>Unmanaged</strong>Detected and reported. It may build, but the Shopware checker does not certify it.</div>
+          </div></div>
+          <div class="arch-arrow">Independent gates produce honest status</div>
+          <div class="arch-layer"><div class="arch-name">5 · Verification</div><div class="arch-nodes">
+            <div class="arch-node"><strong>Contract conformance</strong>Runtime satisfies public interface; public surface snapshot reviewed; no accidental expansion.</div>
+            <div class="arch-node"><strong>Isolated + aggregate programs</strong>Portable plugin check and installed-shop integration check are separate, named results.</div>
+            <div class="arch-node"><strong>Debt ownership</strong>Only plugin-owned diagnostics can be baselined; tooling/config/contract failures cannot.</div>
+            <div class="arch-node"><strong>Clean consumer fixtures</strong>Source checkout, split Composer package, production recipe, inactive plugin, external path repo, Windows/Linux/macOS and Storefront non-regression.</div>
+          </div></div>
+        </div>
+
+        <h3>Design decisions in concrete terms</h3>
+        <div class="grid grid-2">
+          <article class="card card--blue">
+            <h4>Do not rename the Administration application package</h4>
+            <p>Keep a dedicated local name such as <code>@shopware-ag/administration-extension-tooling</code>, set <code>private: true</code>, and export only types, tsconfig variants, ESLint factories and future compiler adapters. There is no root runtime export.</p>
+          </article>
+          <article class="card card--blue">
+            <h4>Make the public interface executable</h4>
+            <p>Move supported interface definitions out of the disconnected PoC declaration and into a dependency-light internal module. <code>ShopwareClass</code> must structurally satisfy it in the normal Admin typecheck. The facade then re-exports the same type source.</p>
+          </article>
+          <article class="card card--gold">
+            <h4>Compatibility is a migration tool, not API expansion</h4>
+            <p>A legacy adapter may re-expose the current global type graph for existing plugins, but it is opt-in, emits a deprecation warning, has an announced removal major, and never adds <code>./*</code> or a runtime entry. New extensions cannot select it by default.</p>
+          </article>
+          <article class="card card--gold">
+            <h4>Do not confuse Admin dependencies with host modules</h4>
+            <p>Only Vue has a runtime external adapter today. Router, Pinia, axios and test utilities remain plugin/test dependencies unless Shopware deliberately adds runtime globals/adapters and a BC policy.</p>
+          </article>
+          <article class="card card--rust">
+            <h4>Generate schema outside vendor</h4>
+            <p>Write plugin-aware schema types to project state and have the facade import that generated file. Ship a core-only fallback for offline editor bootstrap; require plugin-aware generation in strict CI. This supports read-only vendor deployments.</p>
+          </article>
+          <article class="card card--rust">
+            <h4>Make “checked” a provable state</h4>
+            <p>The manifest records resolved-config evidence and tool versions. If custom configs omit strict types or the required ESLint boundary, status is unmanaged. A warning is not converted into a successful certification.</p>
+          </article>
+        </div>
+
+        <h3>Baseline policy that scales</h3>
+        <div class="table-wrap"><div class="table-scroll"><table>
+          <thead><tr><th>Diagnostic owner</th><th>May baseline?</th><th>Examples</th><th>Required response</th></tr></thead>
+          <tbody>
+            <tr><td>Tooling/configuration</td><td>No</td><td>Missing vue-tsc, unparsed nonzero exit, config not included, missing facade</td><td>Fix tooling; check remains red.</td></tr>
+            <tr><td>Platform contract gap</td><td>No for release fixtures</td><td>Supported runtime property missing from public types, generated schema unavailable in strict mode</td><td>Fix the Administration contract or explicitly classify API as unsupported.</td></tr>
+            <tr><td>Unsupported private API use</td><td>No in strict; legacy lane only</td><td>Direct <code>src/*</code> import, private Shopware member</td><td>Migrate or temporarily select the expiring legacy adapter.</td></tr>
+            <tr><td>Plugin-owned existing debt</td><td>Yes</td><td>Unsafe assignment, stale Options API usage, local type mismatch</td><td>Stable partial fingerprint; new occurrences fail; stale entries are removable.</td></tr>
+            <tr><td>Warning-only product debt</td><td>Policy-specific</td><td>Deprecated Twig rule known to mis-map fixes</td><td>Visible count with owner and removal target; never silently omitted.</td></tr>
+          </tbody>
+        </table></div></div>
+
+        <div class="callout danger">
+          <p><strong>One thing not to copy from an earlier hybrid suggestion:</strong> do not blindly adopt B’s entire “host-provided modules” list into A. The type-level map must follow runtime truth, not observed accidental usage. The correct salvage from B is the need to make that decision explicit—not the particular list.</p>
+        </div>
+      </section>
+
+      <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+        <p class="section-index">08 / Delivery and migration plan</p>
+        <h2 class="section-head" id="roadmap-title">Land decisions and evidence before broad migration machinery</h2>
+
+        <div class="timeline">
+          <article class="timeline-item"><span class="timeline-label">Phase 0 · ADR and acceptance reset</span><h3>Freeze the public contract, lanes, ownership and non-goals</h3><p>Record: Administration subtree is authority; no dynamic third-party workspace; Admin and Storefront dependency graphs remain separate; strict is default; legacy adapter removal version; runtime module categories; inactive plugin requirement; root-config conflict behavior; baseline ownership policy. Update #14040 acceptance criteria from “move root files” to outcome-based gates.</p></article>
+          <article class="timeline-item"><span class="timeline-label">Phase 1 · Contract source of truth</span><h3>Make runtime and public types agree</h3><p>Introduce dependency-light extension API interfaces, make <code>ShopwareClass</code> satisfy them, keep entity generics separate, add public API snapshots, and build strict plus legacy declaration fixtures. Do not add wildcard exports or a runtime package entry.</p></article>
+          <article class="timeline-item"><span class="timeline-label">Phase 2 · Manifest and projector</span><h3>Replace active-only/path-heuristic discovery</h3><p>Add a tooling-specific backend manifest for all installed extensions and explicit standalone paths. Generate atomic project state, scoped root adapters, per-tool ownership/status, schema fallback, and healable package shim.</p></article>
+          <article class="timeline-item"><span class="timeline-label">Phase 3 · Authoritative verifier</span><h3>Prove configs and classify diagnostics</h3><p>Validate resolved custom configs, run isolated and aggregate programs, refuse to baseline tooling/contract failures, introduce stable fingerprints, caches, timeouts and bounded parallelism. Add failure tests for every bypass described in this report.</p></article>
+          <article class="timeline-item"><span class="timeline-label">Phase 4 · Clean release topology</span><h3>Wire source Composer scripts and Flex recipe together</h3><p>Test a real split <code>shopware/administration</code> package in a clean production-template install, with its own npm install—not a symlink to source dependencies. Exercise read-only vendor, root npm pruning and regeneration, plugin add/remove/update, Linux/macOS/Windows and Docker paths.</p></article>
+          <article class="timeline-item"><span class="timeline-label">Phase 5 · First-party migration</span><h3>Adopt legacy lane, then ratchet toward strict</h3><p>Classify PayPal/Commercial/LanguagePack diagnostics. Platform contract gaps become Administration issues; unsupported internals become migration tasks; only genuine plugin debt enters baseline. New plugins start strict and baseline-free.</p></article>
+          <article class="timeline-item"><span class="timeline-label">Phase 6 · Storefront and release</span><h3>Jointly validate the protocol, then document the product</h3><p>Storefront keeps separate build/tool versions but signs off on the common manifest/projector lifecycle and non-regression matrix. Ship scaffolder/docs, RELEASE_INFO, upgrade guidance where required, troubleshooting and ownership.</p></article>
+        </div>
+
+        <h3>Suggested pull-request split</h3>
+        <div class="table-wrap"><div class="table-scroll"><table>
+          <thead><tr><th>PR</th><th>Scope</th><th>Merge gate</th><th>Do not include yet</th></tr></thead>
+          <tbody>
+            <tr><td>1 · Contract</td><td>Public interface source, strict declaration/preset, conformance and fixture</td><td>Runtime satisfies type contract; no private graph import; explicit exports</td><td>Baselines, recipes, broad corpus</td></tr>
+            <tr><td>2 · Discovery/projector</td><td>All-installed manifest, generated project state, managed/conflict modes</td><td>Source/vendor/path/inactive/multi-bundle tests</td><td>First-party debt baselines</td></tr>
+            <tr><td>3 · Verifier</td><td>vue-tsc/ESLint runner, config conformance, diagnostic taxonomy/fingerprints</td><td>Cannot certify unmanaged configs; nonzero/unparsed failures stay red</td><td>Legacy adapter defaulting</td></tr>
+            <tr><td>4 · Recipes</td><td>Source Composer and shopware/recipes production integration</td><td>Clean split package + production-template CI; root npm prune recovery</td><td>Storefront dependency merge</td></tr>
+            <tr><td>5 · Legacy migration</td><td>Expiring adapter, first-party adoption, reviewed baselines</td><td>IDE parity for selected legacy repos; strict migration metric visible</td><td>General recommendation of private APIs</td></tr>
+            <tr><td>6 · Docs/release/scaffolding</td><td>Generator defaults, extension guide, release and upgrade notes</td><td>Fresh external-developer acceptance on supported IDEs/platforms</td><td>Claims not backed by CI</td></tr>
+          </tbody>
+        </table></div></div>
+      </section>
+
+      <section class="section" id="verification" aria-labelledby="verification-title">
+        <p class="section-index">09 / Evidence and acceptance</p>
+        <h2 class="section-head" id="verification-title">What is verified now, what is claimed, and what must still be proven</h2>
+        <div class="table-wrap"><div class="table-scroll"><table>
+          <thead><tr><th>Claim / axis</th><th>Evidence level</th><th>Result</th><th>Release-grade next step</th></tr></thead>
+          <tbody>
+            <tr><td>A focused test suites</td><td><span class="badge badge--good">Rerun locally</span></td><td>3 suites, 5 tests passed in 14.389s with <code>--no-watchman</code>.</td><td>Keep; add negative cases from risk register.</td></tr>
+            <tr><td>A semantic error detection</td><td><span class="badge badge--good">Committed test</span></td><td>Injected <code>TS2322</code> fails, baseline update passes, repeated check passes.</td><td>Add editor/CLI parity and unparsed-process-failure tests.</td></tr>
+            <tr><td>A vendor/Flex path mechanism</td><td><span class="badge badge--warn">Synthetic fixture</span></td><td>Vendor-shaped path works, but dependencies/rules are symlinked from source Admin.</td><td>Clean Composer split package and real recipe install.</td></tr>
+            <tr><td>A plugin entity types</td><td><span class="badge badge--warn">Generated-shaped fixture</span></td><td>Custom entity declaration is consumed; live DB registration/dump not run.</td><td>Integration DB fixture and project-local output.</td></tr>
+            <tr><td>A real plugin corpus counts</td><td><span class="badge badge--info">Document claim</span></td><td>19,357 baselined diagnostics reported; external baseline files/repos not reproducible from this tree.</td><td>Publish taxonomy and reproducible CI artifacts; do not compare raw counts as quality scores.</td></tr>
+            <tr><td>A missing-schema behavior</td><td><span class="badge badge--good">Measured here</span></td><td>With <code>skipLibCheck</code>, missing schema yielded zero compiler diagnostics and collapsed entity generic safety.</td><td>Add explicit degraded state and strict failure test.</td></tr>
+            <tr><td>A aggregate/isolated augmentation</td><td><span class="badge badge--good">Measured here</span></td><td>A global interface augmentation passed aggregate program and failed isolated program with TS2339.</td><td>Choose and test deliberate editor/CI topology.</td></tr>
+            <tr><td>B cross-layout link</td><td><span class="badge badge--block">Contradicted by code</span></td><td>Committed linker hardcodes source Admin and custom plugins.</td><td>Do not rely on branch; move healing into A projector.</td></tr>
+            <tr><td>B fixture/CI guardrail</td><td><span class="badge badge--info">Proposal only</span></td><td>No fixture/test exists in commit.</td><td>Implement a link-free consumer fixture under C.</td></tr>
+            <tr><td>Storefront non-regression</td><td><span class="badge badge--info">Document claim</span></td><td>Research reports successful builds; not represented as a committed cross-platform acceptance job here.</td><td>Joint owner CI in source and production layouts.</td></tr>
+            <tr><td>Rendered report QA</td><td><span class="badge badge--warn">Unavailable</span></td><td>In-app browser was unavailable in this session.</td><td>Static HTML validation, overflow safeguards and link checks were used; open once manually for final visual sign-off.</td></tr>
+          </tbody>
+        </table></div></div>
+
+        <h3>Minimum release acceptance matrix</h3>
+        <div class="grid grid-2">
+          <article class="card"><h4>Topologies</h4><ul class="compact"><li>Source checkout</li><li>Clean split Composer package</li><li>shopware/production + Flex recipe</li><li>custom plugin, static plugin, vendor plugin</li><li>Composer path/symlink outside project root</li><li>standalone extension repo</li></ul></article>
+          <article class="card"><h4>Ownership states</h4><ul class="compact"><li>Zero config</li><li>Only tsconfig</li><li>Only ESLint config</li><li>Valid custom composition</li><li>Invalid/unmanaged custom config</li><li>User-owned root config conflict</li></ul></article>
+          <article class="card"><h4>Language surfaces</h4><ul class="compact"><li>JS, TS, TSX</li><li>Vue SFC and script setup</li><li><code>html.twig</code> and <code>vue.twig</code></li><li>Generated entity and plugin entity</li><li>Private import rejection</li><li>Plugin-owned runtime dependency</li></ul></article>
+          <article class="card"><h4>Operational matrix</h4><ul class="compact"><li>Linux, macOS, Windows</li><li>Docker bind mount / canonical paths</li><li>Root and plugin npm install/prune</li><li>read-only vendor deployment</li><li>plugin activate/deactivate/add/remove</li><li>VS Code and PhpStorm clean-project discovery</li></ul></article>
+        </div>
+      </section>
+
+      <section class="section" id="release" aria-labelledby="release-title">
+        <p class="section-index">10 / Public release and operating contract</p>
+        <h2 class="section-head" id="release-title">This feature requires release documentation and long-term ownership</h2>
+        <p class="lead">The proposed change directly affects extension authors, public type/API expectations, generated project files, build/watch/setup lifecycle, supported tool versions, and migration behavior. It is not an implementation-only refactor.</p>
+
+        <div class="grid grid-3">
+          <article class="card card--blue"><h4>RELEASE_INFO</h4><p>Add an upcoming-version Administration entry explaining zero-config discovery, supported source types, check command, generated state, strict/legacy/custom modes, Node/npm/TS/ESLint compatibility and Flex availability.</p></article>
+          <article class="card card--rust"><h4>UPGRADE guidance</h4><p>Required if existing first-party/developer configs must change, if a package name/export changes, if Twig rules or private imports become errors, or if the legacy adapter has a removal timeline. Provide exact before/after migration.</p></article>
+          <article class="card card--green"><h4>Extension docs + scaffolding</h4><p>Update <code>plugin:create</code> and Shopware CLI templates, CI examples, custom config composition, dependency rules, baseline review, offline schema behavior and troubleshooting. Documentation must match generated files byte-for-byte.</p></article>
+        </div>
+
+        <h3>Operating ownership</h3>
+        <div class="table-wrap"><div class="table-scroll"><table>
+          <thead><tr><th>Surface</th><th>Owner obligation</th><th>Compatibility signal</th></tr></thead>
+          <tbody>
+            <tr><td>Public <code>Shopware</code> interface</td><td>Administration Framework owns additions/deprecations and runtime conformance.</td><td>API snapshot + compile-time implementation check + release notes.</td></tr>
+            <tr><td>Entity schema types</td><td>Core/DAL and Administration tooling jointly own generation order and fallback.</td><td>Plugin-entity integration fixture; explicit schema mode in manifest.</td></tr>
+            <tr><td>ESLint/Twig/SFC preset</td><td>Administration tooling owns parser patches, rules, version matrix and corpus tests.</td><td>ESLint 9/10 print-config snapshots and representative template fixtures.</td></tr>
+            <tr><td>Runtime-provided modules</td><td>Admin build/runtime owner approves each external and its BC surface.</td><td>Single manifest drives types, Vite adapter and docs.</td></tr>
+            <tr><td>Projector/checker</td><td>Named maintainer owns generated-state schema, CLI exit codes, cache, platform matrix and support.</td><td>Manifest version and consumer acceptance suite.</td></tr>
+            <tr><td>Legacy adapter</td><td>Framework group owns removal version and migration dashboard.</td><td>Deprecation on every check; per-extension usage metric; UPGRADE path.</td></tr>
+            <tr><td>Storefront coordination</td><td>Storefront specialist co-owns shared lifecycle protocol and non-regression acceptance.</td><td>Separate build matrix with joint sign-off; no forced dependency graph merge.</td></tr>
+          </tbody>
+        </table></div></div>
+
+        <div class="callout good">
+          <p><strong>Release-doc decision:</strong> <code>RELEASE_INFO</code> is mandatory. <code>UPGRADE</code> is mandatory for any breaking enforcement, rename, required config migration or scheduled removal. The branch package rename would trigger documentation immediately; the recommended dedicated new facade avoids that unnecessary break.</p>
+        </div>
+      </section>
+
+      <section class="section" id="sources" aria-labelledby="sources-title">
+        <p class="section-index">11 / Sources, method and limitations</p>
+        <h2 class="section-head" id="sources-title">Evidence trail</h2>
+
+        <h3>Primary local sources</h3>
+        <ul>
+          <li><a href="./issue-14040-tooling-architecture-research.html"><code>issue-14040-tooling-architecture-research.html</code></a> — read in full, including proposal, PoC map, decision matrix, validation and limitations.</li>
+          <li>Branch <code>temporary-test-branch-new-admin-package-contract</code>, commit <code>abcb46850a442a61278e3d6d480a2f640748e5d1</code> — full diff and <code>issue-14040-proposal.md</code> inspected with <code>git show</code>, without checking out or altering the branch.</li>
+          <li><a href="./src/Administration/Resources/app/administration/extension-tooling/public-api.d.ts">Current PoC contract files</a>, <a href="./src/Administration/Resources/app/administration/scripts/extensionTooling/setup.ts">setup.ts</a>, <a href="./src/Administration/Resources/app/administration/scripts/extensionTooling/check.ts">check.ts</a> and all three focused specs.</li>
+          <li><a href="./src/Core/Framework/Plugin/BundleConfigGenerator.php">BundleConfigGenerator</a>, <a href="./src/Administration/Resources/app/administration/build/plugins.vite.ts">plugins.vite.ts</a>, <a href="./src/Administration/Resources/app/administration/build/vite-plugins/externals-plugin/index.ts">Vue externals adapter</a>, entity schema converter, Composer scripts and subtree split script.</li>
+        </ul>
+
+        <h3>Current external primary documentation</h3>
+        <ul>
+          <li><a href="https://github.com/shopware/shopware/issues/14040">Shopware issue #14040</a> — goals, root-workspace sketch, acceptance criteria and explicit Storefront-specialist requirement.</li>
+          <li><a href="https://github.com/shopware/shopware/issues/14706">Admin extension reliability initiative #14706</a> — stable boundaries and early-feedback outcome.</li>
+          <li><a href="https://eslint.org/docs/latest/use/migrate-to-10.0.0">ESLint 10 migration</a> and <a href="https://eslint.org/docs/latest/use/configure/configuration-files">configuration lookup</a> — nearest config from each linted file and removal of the v10 feature flag.</li>
+          <li><a href="https://typescript-eslint.io/packages/parser/">typescript-eslint parser/project service</a> — nearest tsconfig behavior and out-of-project cost.</li>
+          <li><a href="https://github.com/microsoft/TypeScript/blob/v6.0.2/src/compiler/commandLineParser.ts">TypeScript 6 config path resolution source</a> — inherited <code>paths</code> retain the declaring config directory; Bundler/ESNext behavior was checked against TypeScript 6.0.2 docs/source.</li>
+          <li><a href="https://nodejs.org/api/packages.html">Node package exports</a> — explicit exports define and encapsulate a public package interface; subpath wildcards broaden it.</li>
+          <li><a href="https://docs.npmjs.com/cli/using-npm/workspaces/">npm workspaces</a> — workspace packages participate in one install/linking domain.</li>
+        </ul>
+
+        <h3>Repository knowledge-graph checks</h3>
+        <p>The indexed code graph was used before text fallback to locate and inspect:</p>
+        <ul class="compact">
+          <li><code>BundleConfigGenerator::generatePluginConfigs()</code> and its active-plugin filter.</li>
+          <li><code>loadExtensions()</code>, <code>getBaseConfig()</code> and <code>plugins.vite.ts::main()</code>.</li>
+          <li><code>viteExternalsPlugin()</code>, confirming only Vue receives a runtime alias.</li>
+          <li><code>EntitySchemaConverter::convert()</code> and the generated schema path.</li>
+          <li><code>ShopwareClass</code>, including top-level and Component runtime members used for contract comparison.</li>
+        </ul>
+
+        <h3>Limitations</h3>
+        <ul>
+          <li>The current working tree already contained user/uncommitted changes and an existing <code>issue-14040-architecture-review.html</code>. This report uses a new filename and does not overwrite either artifact or modify the PoC.</li>
+          <li>External SwagPayPal, SwagCommercial and SwagLanguagePack working trees/baselines referenced by the research document were not part of this repository snapshot; their reported counts and timing are treated as proposal evidence, not independently rerun facts.</li>
+          <li>No live backend DB entity-schema dump, clean production/Flex install, Storefront full build, Windows job, or IDE automation was run in this review.</li>
+          <li>The in-app browser was unavailable, so the final report could not be visually opened in-session. The file was instead checked with HTML validators and source-level responsive/overflow/accessibility rules. A manual open remains appropriate before presenting it externally.</li>
+          <li>Scores were intentionally avoided. The recommendation follows hard constraints and verified failure modes rather than a weighted total that could hide a release blocker.</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Bottom line:</strong> proposal A has the right skeleton. The best solution is not “A plus all of B”; it is A plus governed migration and conformance, while explicitly rejecting B’s wildcard/public application package and its incorrect host-dependency assumptions.</p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>Detailed architecture review for Shopware issue #14040 · generated in the project root on 10 July 2026.</p>
+        <p>Source file: <code>issue-14040-tooling-architecture-detailed-review.html</code></p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var themeButton = document.getElementById("themeToggle");
+      var detailsButton = document.getElementById("detailsToggle");
+      var progress = document.querySelector(".reading-progress");
+      var toc = document.getElementById("toc");
+      var links = Array.prototype.slice.call(toc.querySelectorAll("a"));
+      var sections = links.map(function (link) {
+        return document.getElementById(link.getAttribute("href").slice(1));
+      }).filter(Boolean);
+      var expanded = false;
+
+      try {
+        var savedTheme = localStorage.getItem("issue-14040-detailed-review-theme");
+        if (savedTheme === "light" || savedTheme === "dark") root.setAttribute("data-theme", savedTheme);
+      } catch (error) {}
+
+      themeButton.addEventListener("click", function () {
+        var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("issue-14040-detailed-review-theme", next); } catch (error) {}
+      });
+
+      detailsButton.addEventListener("click", function () {
+        expanded = !expanded;
+        document.querySelectorAll("details").forEach(function (item) { item.open = expanded; });
+        detailsButton.textContent = expanded ? "Collapse all evidence" : "Expand all evidence";
+      });
+
+      function updateProgress() {
+        var maximum = document.documentElement.scrollHeight - window.innerHeight;
+        var ratio = maximum > 0 ? Math.min(1, window.scrollY / maximum) : 0;
+        progress.style.transform = "scaleX(" + ratio + ")";
+      }
+
+      updateProgress();
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      window.addEventListener("resize", updateProgress);
+
+      if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            links.forEach(function (link) {
+              var active = link.getAttribute("href") === "#" + entry.target.id;
+              link.classList.toggle("active", active);
+              if (active && window.innerWidth <= 1080) {
+                link.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+              }
+            });
+          });
+        }, { rootMargin: "-12% 0px -78% 0px", threshold: 0 });
+        sections.forEach(function (section) { observer.observe(section); });
+      }
+    }());
+  </script>
+</body>
+</html>

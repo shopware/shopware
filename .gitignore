@@ -53,6 +53,9 @@ yalc.lock
 /auth.json
 /vendor/*
 /composer.lock
+/node_modules/
+/tsconfig.json
+/eslint.config.mjs
 
 # Generated database schema files
 /schema

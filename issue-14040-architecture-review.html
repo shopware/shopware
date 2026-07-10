@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Issue #14040 — Review: Facade proposal vs. Package-Contract branch</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --surface: #ffffff;
+      --surface-2: #efefeb;
+      --ink: #1c2126;
+      --muted: #5d6670;
+      --line: #d9d9d2;
+      --accent: #0f62fe;
+      --accent-soft: #e3ecfd;
+      --good: #1f7a4d;
+      --good-soft: #e0f0e7;
+      --warn: #9a6700;
+      --warn-soft: #fbf0d9;
+      --bad: #b3362a;
+      --bad-soft: #f9e4e1;
+      --violet: #6941c6;
+      --violet-soft: #ece6f9;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --radius: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14181c;
+        --surface: #1c2228;
+        --surface-2: #232b33;
+        --ink: #e8ecef;
+        --muted: #9aa6b0;
+        --line: #333d47;
+        --accent: #6ea8ff;
+        --accent-soft: #1d2c46;
+        --good: #58c58b;
+        --good-soft: #17362a;
+        --warn: #e2b04a;
+        --warn-soft: #3a2f14;
+        --bad: #ee8b7d;
+        --bad-soft: #43221e;
+        --violet: #b197f5;
+        --violet-soft: #2b2344;
+      }
+    }
+    html[data-theme="dark"] {
+      --bg: #14181c; --surface: #1c2228; --surface-2: #232b33; --ink: #e8ecef; --muted: #9aa6b0;
+      --line: #333d47; --accent: #6ea8ff; --accent-soft: #1d2c46; --good: #58c58b; --good-soft: #17362a;
+      --warn: #e2b04a; --warn-soft: #3a2f14; --bad: #ee8b7d; --bad-soft: #43221e; --violet: #b197f5; --violet-soft: #2b2344;
+    }
+    html[data-theme="light"] {
+      --bg: #f7f7f5; --surface: #ffffff; --surface-2: #efefeb; --ink: #1c2126; --muted: #5d6670;
+      --line: #d9d9d2; --accent: #0f62fe; --accent-soft: #e3ecfd; --good: #1f7a4d; --good-soft: #e0f0e7;
+      --warn: #9a6700; --warn-soft: #fbf0d9; --bad: #b3362a; --bad-soft: #f9e4e1; --violet: #6941c6; --violet-soft: #ece6f9;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-wrap: break-word;
+    }
+    a { color: var(--accent); text-underline-offset: .15em; }
+    code {
+      font-family: var(--mono);
+      font-size: .86em;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: .08em .32em;
+      overflow-wrap: anywhere;
+    }
+    pre {
+      background: #14202b;
+      color: #e6eef4;
+      border-radius: 10px;
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.15rem;
+      overflow-x: auto;
+      font-size: .82rem;
+      line-height: 1.5;
+    }
+    pre code { background: none; border: 0; padding: 0; color: inherit; }
+    h1, h2, h3, h4 { line-height: 1.2; text-wrap: balance; }
+    h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); letter-spacing: -.02em; margin: .4rem 0 .8rem; }
+    h2 { font-size: clamp(1.45rem, 3vw, 2.1rem); letter-spacing: -.015em; margin: 0 0 1rem; }
+    h3 { font-size: 1.2rem; margin: 1.8rem 0 .6rem; }
+    h4 { font-size: 1rem; margin: 1.3rem 0 .4rem; }
+    p { max-width: 82ch; }
+    ul, ol { padding-left: 1.3rem; max-width: 85ch; }
+    li + li { margin-top: .35rem; }
+
+    .topnav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .55rem clamp(1rem, 4vw, 3rem);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      overflow-x: auto;
+      scrollbar-width: thin;
+      white-space: nowrap;
+    }
+    .topnav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .78rem;
+      font-weight: 650;
+      padding: .35rem .6rem;
+      border-radius: 999px;
+    }
+    .topnav a:hover { color: var(--ink); background: var(--surface-2); }
+    .topnav button {
+      margin-left: auto;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 999px;
+      font: 650 .74rem/1 var(--sans);
+      padding: .45rem .7rem;
+      cursor: pointer;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 5rem; }
+
+    .hero { padding: clamp(2.2rem, 6vw, 4.5rem) 0 1.5rem; }
+    .kicker {
+      color: var(--accent);
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .dek { color: var(--muted); font-size: clamp(1.02rem, 2vw, 1.2rem); max-width: 78ch; margin: .4rem 0 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.2rem; }
+    .chip {
+      font-size: .72rem;
+      font-weight: 650;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      background: var(--surface);
+    }
+
+    section { padding: clamp(2rem, 5vw, 3.4rem) 0 0; scroll-margin-top: 4rem; }
+    .sec-num { color: var(--violet); font: 750 .74rem/1 var(--mono); letter-spacing: .08em; margin: 0 0 .4rem; }
+    .lead { color: var(--muted); font-size: 1.05rem; max-width: 80ch; }
+
+    .card, .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+    }
+    .grid { display: grid; gap: .9rem; margin: 1.2rem 0; }
+    .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card h3, .card h4 { margin-top: .2rem; }
+    .card p { font-size: .92rem; margin: .4rem 0; }
+    .metric b { display: block; font-size: 1.7rem; color: var(--accent); }
+    .metric span { color: var(--muted); font-size: .78rem; }
+
+    .verdict {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 1.4rem 0;
+    }
+    .verdict-head {
+      background: var(--accent-soft);
+      padding: 1.2rem 1.4rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .verdict-head h3 { margin: 0; font-size: 1.3rem; }
+    .verdict-body { background: var(--surface); padding: 1.1rem 1.4rem 1.3rem; }
+    .verdict-body p { margin: .55rem 0; }
+
+    .badge {
+      display: inline-block;
+      font-size: .66rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border-radius: 5px;
+      padding: .16rem .45rem;
+      vertical-align: .12em;
+      white-space: nowrap;
+    }
+    .b-blocker { background: var(--bad-soft); color: var(--bad); }
+    .b-major { background: var(--warn-soft); color: var(--warn); }
+    .b-minor { background: var(--surface-2); color: var(--muted); }
+    .b-good { background: var(--good-soft); color: var(--good); }
+    .b-info { background: var(--accent-soft); color: var(--accent); }
+    .b-keep { background: var(--violet-soft); color: var(--violet); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      margin: 1.1rem 0 1.6rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th {
+      text-align: left;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .7rem .75rem;
+      white-space: nowrap;
+    }
+    td { padding: .7rem .75rem; border-top: 1px solid var(--line); vertical-align: top; }
+    td:first-child { font-weight: 650; }
+    .win { color: var(--good); font-weight: 750; }
+    .lose { color: var(--bad); font-weight: 750; }
+    .tie { color: var(--warn); font-weight: 750; }
+
+    .finding {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      padding: .95rem 1.1rem;
+      margin: .7rem 0;
+    }
+    .finding > .f-title { font-weight: 720; margin: 0 0 .3rem; }
+    .finding p { font-size: .9rem; margin: .35rem 0; }
+    .finding .loc { font-family: var(--mono); font-size: .76rem; color: var(--muted); }
+    .fix { border-left: 3px solid var(--good); padding-left: .7rem; }
+    .fix strong { color: var(--good); }
+
+    .arch {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 1.1rem 1.2rem;
+      margin: 1.3rem 0;
+    }
+    .layer { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr); gap: .8rem; margin: .55rem 0; align-items: stretch; }
+    .layer-name {
+      display: flex; align-items: center; justify-content: center;
+      background: var(--violet-soft); color: var(--violet);
+      font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+      border-radius: 8px; padding: .6rem; text-align: center;
+    }
+    .layer-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .5rem; }
+    .node {
+      border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2);
+      padding: .55rem .65rem; font-size: .78rem; line-height: 1.4;
+    }
+    .node strong { display: block; color: var(--accent); margin-bottom: .15rem; }
+    .arrow { margin: .1rem 0 .1rem 11.3rem; color: var(--muted); font: 700 .74rem/1.3 var(--mono); }
+
+    .callout {
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      background: var(--surface);
+      padding: 1rem 1.2rem;
+      margin: 1.3rem 0;
+      max-width: 88ch;
+    }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.bad { border-left-color: var(--bad); }
+    .callout.good { border-left-color: var(--good); }
+    .callout p:last-child { margin-bottom: 0; }
+    .callout p:first-child { margin-top: 0; }
+
+    .num-list { counter-reset: item; list-style: none; padding: 0; }
+    .num-list > li {
+      counter-increment: item;
+      display: grid;
+      grid-template-columns: 2rem minmax(0, 1fr);
+      gap: .7rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      margin: .6rem 0;
+    }
+    .num-list > li::before {
+      content: counter(item, decimal-leading-zero);
+      color: var(--violet);
+      font: 800 .78rem/1.9 var(--mono);
+    }
+    .small { font-size: .8rem; color: var(--muted); }
+    footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    @media (max-width: 880px) {
+      .cols-2, .cols-3 { grid-template-columns: 1fr; }
+      .layer { grid-template-columns: 1fr; }
+      .arrow { margin-left: .4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topnav" aria-label="Sections">
+    <a href="#verdict">Verdict</a>
+    <a href="#candidates">Candidates</a>
+    <a href="#review-a">Review A: Facade</a>
+    <a href="#review-b">Review B: Contract</a>
+    <a href="#matrix">Head-to-head</a>
+    <a href="#tension">The real tension</a>
+    <a href="#v3">Better solution</a>
+    <a href="#actions">Prioritized actions</a>
+    <a href="#method">Method &amp; limits</a>
+    <button type="button" id="themeToggle">Theme</button>
+  </nav>
+
+  <div class="wrap">
+    <header class="hero">
+      <p class="kicker">Independent review · Shopware issue #14040 · 10 July 2026</p>
+      <h1>Two working answers to plugin tooling — and the one that should ship is neither, unmodified.</h1>
+      <p class="dek">
+        A detailed review of the <em>generated local facade</em> proposal
+        (<code>issue-14040-tooling-architecture-research.html</code> + the PoC in this working tree) against the
+        <em>admin package contract</em> implemented on branch
+        <code>temporary-test-branch-new-admin-package-contract</code>. Both were read at source level; every finding
+        below cites the file it came from.
+      </p>
+      <div class="chips">
+        <span class="chip">Solution A: generated facade (v2, this tree)</span>
+        <span class="chip">Solution B: package contract (v1, branch)</span>
+        <span class="chip">12 findings on A · 10 findings on B</span>
+        <span class="chip">Recommendation: A's backbone + B's compatibility layer</span>
+      </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <section id="verdict">
+      <p class="sec-num">00 / VERDICT</p>
+      <h2>Is the facade proposal good? Yes — it is the right architecture. It is not yet the right product.</h2>
+
+      <div class="verdict">
+        <div class="verdict-head">
+          <h3>Solution A wins on architecture; Solution B wins on adoption-day experience. Ship A's skeleton with B's compatibility tier grafted on.</h3>
+        </div>
+        <div class="verdict-body">
+          <p>
+            <strong>Solution A (generated local facade)</strong> gets the two hardest constraints right, and it is the only
+            one of the two that even attempts them: the repository root does not exist in a Composer/Flex install
+            (so the contract must ship inside the Administration package), and a build that transpiles without
+            type-checking is not a gate (so a separate <code>vue-tsc</code> + baseline check is required). Its
+            zero-config default, symlink-free projection, and tested multi-topology story are genuinely better
+            engineering than anything in Solution B.
+          </p>
+          <p>
+            <strong>But A has one strategic flaw and a cluster of operational ones.</strong> The strategic flaw: its curated
+            type surface is so far from what real plugins use that the same evidence it presents as success —
+            <em>19,357 baselined diagnostics</em> across SwagPayPal, SwagCommercial and SwagLanguagePack — is better read
+            as a failed compatibility test. Baselines silence the CLI, <em>not the editor</em>: the day this ships,
+            every developer of an existing plugin opens an IDE full of red squiggles that the check command has
+            quietly agreed to ignore. Solution B proved the alternative: typed against the live installed sources,
+            SwagPayPal converts with <em>zero</em> new TypeScript errors.
+          </p>
+          <p>
+            <strong>Solution B is the wrong end-state.</strong> It makes the entire Administration internals public API
+            (<code>"./*": "./*"</code> exports, <code>src/*</code> path mapping, <code>global.types.ts</code> as the types
+            entry), requires per-plugin <code>package.json</code> + postinstall + two configs (so it is not zero-config),
+            has a real <code>module: CommonJS</code> misconfiguration, and ships no semantic gate and no migration
+            mechanism at all — the type-aware lint findings it newly surfaces on Commercial have nowhere to land.
+          </p>
+          <p>
+            <strong>The better solution (§06)</strong> keeps A's committed-contract / generated-projection / baseline
+            architecture and adds three things, two of them from B: an explicit, deprecated-from-birth
+            <em>compatibility type tier</em> (live-source types, opt-in) so existing plugins are green in the IDE on day
+            one; a <em>conformance guardrail</em> (compile-time assertion binding the curated declaration to the real
+            <code>Shopware</code> object, plus B's fixture-plugin CI job); and the <em>host-provided-modules</em> decision
+            executed as one source of truth. Plus fixes for A's operational findings (facade pruning, entity-schema
+            bootstrap, merged root program, baseline churn, sequential checks).
+          </p>
+        </div>
+      </div>
+
+      <div class="grid cols-3">
+        <div class="card metric"><b>A−</b><span>Solution A as architecture — right constraints, right mechanisms, real tests</span></div>
+        <div class="card metric"><b>C+</b><span>Solution A as shippable product today — the 19k-diagnostic cliff is unresolved</span></div>
+        <div class="card metric"><b>B−</b><span>Solution B — excellent pragmatic patch, structurally wrong as an end-state</span></div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="candidates">
+      <p class="sec-num">01 / CANDIDATES</p>
+      <h2>What is actually being compared</h2>
+      <p class="lead">
+        Both artifacts answer issue #14040 (“TypeScript and ESLint should work naturally for Administration
+        plugins”), and both reject the issue's original sketch of a repository-root monorepo — for the same correct
+        reason. They diverge on everything after that.
+      </p>
+
+      <div class="grid cols-2">
+        <article class="card">
+          <span class="badge b-info">Solution A</span>
+          <h3>Generated local facade</h3>
+          <p><strong>Where:</strong> <code>issue-14040-tooling-architecture-research.html</code> + uncommitted PoC in this
+          working tree (<code>extension-tooling/</code>, <code>scripts/extensionTooling/</code>, composer wiring).</p>
+          <p><strong>Idea:</strong> the Administration package commits a curated public type declaration, a strict TS/SFC
+          preset, an ESLint flat-config factory and setup/check commands. A setup step reads
+          <code>var/plugins.json</code> and <em>generates</em> a disposable project projection: a private facade package
+          (<code>node_modules/@shopware-ag/administration-extension-tooling</code>, proxy files — no symlinks), root
+          <code>tsconfig.json</code> / <code>eslint.config.mjs</code> for IDE discovery, and per-extension check projects.
+          Existing debt is fenced by exact, committed per-extension baselines; a <code>vue-tsc</code>-based check command
+          becomes the semantic gate. Default plugins need <em>zero</em> tooling files.</p>
+        </article>
+        <article class="card">
+          <span class="badge b-keep">Solution B</span>
+          <h3>Admin package contract</h3>
+          <p><strong>Where:</strong> branch <code>temporary-test-branch-new-admin-package-contract</code>
+          (commit <code>abcb46850a4</code>) + <code>issue-14040-proposal.md</code> on that branch.</p>
+          <p><strong>Idea:</strong> rename the admin app to <code>@shopware-ag/administration</code> and make it a real,
+          self-describing package: a <code>types</code> entry aggregating the <em>live source graph</em>
+          (<code>global.types.ts</code> + entity schema + shims), a shared <code>tsconfig.plugin.json</code> with a
+          host-provided-modules <code>paths</code> list, and an ESLint preset whose flat-config <em>objects</em> carry the
+          patched Twig parser along. Each plugin gets one generated relative symlink in its <code>node_modules</code>
+          (healed by a per-plugin postinstall resolver + bulk step in <code>bin/install-extension-npm</code>) and two
+          tiny config files. A fixture plugin in CI guards the contract.</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <p><strong>Shared ground (both correct):</strong> the root-workspace idea from the issue is rejected because the
+        monorepo root is not a release boundary (<code>split.bash</code> ships <code>src/Administration</code> alone) and
+        because dynamically adopting third-party plugins into one npm workspace changes lock ownership, lifecycle-script
+        trust and <code>npm ci</code> reproducibility. Both solutions resolve Shopware by <em>package name</em> instead of
+        relative path ladders, and both exploit the same key ESLint property: flat config passes parsers/plugins as
+        objects, so the patched Twig stack never needs to be installable by plugins.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="review-a">
+      <p class="sec-num">02 / REVIEW — SOLUTION A</p>
+      <h2>The facade proposal: strong skeleton, five real gaps</h2>
+      <p class="lead">
+        The research document itself is excellent — evidence-first, honest about limitations, and it labels facts vs.
+        inferences. The review below is of the <em>solution</em>, based on the document plus the actual PoC source in
+        this tree.
+      </p>
+
+      <h3>What it gets right</h3>
+      <ul>
+        <li><span class="badge b-good">Right constraint</span> The contract ships inside the Administration subtree, so
+          <code>vendor/shopware/administration</code> receives it. This is the single most important architectural fact in
+          the whole problem space, and A is built around it. Three topologies (checkout, Composer vendor, Flex) are
+          explicitly designed for and fixture-tested; the Flex <em>recipe</em> is treated as part of the feature, not an
+          afterthought.</li>
+        <li><span class="badge b-good">Zero-config is real</span> A plugin with only <code>src/main.ts</code> + an SFC + a
+          Twig template gets IDE discovery and CLI checks with no <code>package.json</code>, no tsconfig, no ESLint config.
+          Solution B cannot do this at all.</li>
+        <li><span class="badge b-good">The missing gate exists</span> <code>vue-tsc --noEmit</code> per project plus ESLint
+          with v10 file-relative config lookup (<code>check.ts:405</code> correctly feature-flags ESLint 9). The fixture
+          proves the gate catches a deliberately injected <code>TS2322</code> that Vite happily builds — the exact defect
+          behind SwagCommercial&nbsp;#2734.</li>
+        <li><span class="badge b-good">No symlinks</span> The facade is proxy <em>files</em> (re-export shims +
+          <code>extends</code> hops), so Windows junctions, Docker bind-mount realpath drift, and tsserver duplicate-path
+          identity issues are avoided by construction. This quietly retires the riskiest mechanism in Solution B.</li>
+        <li><span class="badge b-good">Correct compiler policy</span> <code>extension-tooling/tsconfig.json</code> uses
+          <code>module: ESNext</code> / <code>moduleResolution: Bundler</code> — the truthful model of the Vite runtime.
+          (B ships CommonJS; see finding B2.)</li>
+        <li><span class="badge b-good">User-owned files are respected</span> <code>writeManagedFile()</code>
+          (<code>setup.ts:233</code>) only overwrites files carrying the generated marker; existing root configs are
+          preserved with a warning.</li>
+        <li><span class="badge b-good">Real engineering hygiene</span> Multi-bundle owner walking to the nearest
+          <code>composer.json</code>, macOS <code>/var → /private/var</code> canonicalization in
+          <code>check.ts:36</code>, stale-baseline reporting, and three Jest suites including a full Flex-style
+          end-to-end fixture. The Storefront build is verified untouched.</li>
+      </ul>
+
+      <h3>Findings</h3>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-blocker">A1 · Strategic</span> Baselines silence the CLI — not the IDE. The 19,357 baselined diagnostics are a compatibility failure being reported as a migration feature.</p>
+        <p>
+          The curated <code>public-api.d.ts</code> types most of the <code>Shopware</code> namespaces as
+          <code>Record&lt;string, unknown&gt;</code> stubs (Mixin, Filter, Utils, Store, State, ApiService, …). Against
+          that surface, SwagPayPal produces 6,062 diagnostics and SwagCommercial 13,272 — dominated by
+          <code>TS2339</code> (“property does not exist”) and unsafe-<code>any</code> lint findings, i.e. precisely
+          the gap between the curated contract and what plugins demonstrably use. The baseline makes the <em>check
+          command</em> pass, but tsserver and the ESLint IDE plugin know nothing about baselines: every existing
+          plugin developer gets thousands of red markers on day one, with no way to fix them (the missing types are
+          Shopware's to add, not theirs). Under Solution B, the same SwagPayPal conversion produced <strong>zero</strong>
+          new TypeScript errors, because live sources <em>are</em> the types.
+        </p>
+        <p class="loc">extension-tooling/public-api.d.ts:100–143 · research doc §09 “Real extension corpus”</p>
+        <p class="fix"><strong>Fix:</strong> add an opt-in, deprecated-from-birth <em>compatibility tier</em> that types
+          against the live source graph (exactly what B's <code>types/index.d.ts</code> does), so existing plugins are
+          IDE-green immediately while the curated surface is grown using the baseline counts as the prioritization
+          signal. Strict curated stays the default for new plugins. Details in §06.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">A2 · Contract integrity</span> Nothing binds <code>public-api.d.ts</code> to the runtime. The curated declaration can silently drift from what <code>window.Shopware</code> actually is.</p>
+        <p>
+          The declaration is hand-written and structurally independent from <code>src/core/shopware.ts</code>. A rename
+          or signature change in the real object leaves the contract stale with no failing check anywhere. The roadmap
+          mentions “API declaration snapshots” but snapshots only prevent <em>accidental expansion</em>, not drift from
+          the implementation. Related: the public <code>Criteria</code> is borrowed from
+          <code>@shopware-ag/meteor-admin-sdk</code> (<code>public-api.d.ts:10</code>) rather than the class plugins
+          actually receive at runtime — a second, independent drift axis.
+        </p>
+        <p class="loc">extension-tooling/public-api.d.ts · no conformance test exists in scripts/extensionTooling/*.spec.ts</p>
+        <p class="fix"><strong>Fix:</strong> one line inside the admin's own (full-graph) type-check:
+          <code>const _contract: ShopwareExtensionApi = Shopware;</code> in a dedicated conformance spec. Every internal
+          refactor that breaks the public contract then fails the admin's <em>own</em> CI, at the PR that caused it. Add
+          B's fixture-plugin CI job for the end-to-end variant (setup → check → build on a scaffold-identical plugin).</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">A3 · Resolution</span> The host-provided-modules list is missing: only <code>vue</code> is typed. Real plugins import <code>pinia</code>, <code>vue-router</code>, <code>vue-i18n</code>, <code>axios</code>.</p>
+        <p>
+          <code>extension-tooling/tsconfig.json:22</code> maps only <code>vue</code> and <code>@vue/*</code> into the
+          admin's <code>node_modules</code>. The 423 unresolved modules in the Commercial baseline are largely this
+          gap. Solution B made the deliberate product decision A still defers: enumerate which packages the host
+          platform <em>commits</em> to providing to plugins (types now, runtime externalization where applicable) —
+          and B's list (<code>vue</code>, <code>@vue/runtime-core</code>, <code>vue-router</code>, <code>vue-i18n</code>,
+          <code>pinia</code>, <code>vuex</code>, <code>axios</code>, <code>@vue/test-utils</code>) is the right starting
+          candidate set because it was derived from what real plugins rely on.
+        </p>
+        <p class="loc">extension-tooling/tsconfig.json:22–25 vs. branch tsconfig.plugin.json paths block</p>
+        <p class="fix"><strong>Fix:</strong> adopt B's curated list, but keep it in <em>one</em> machine-readable source of
+          truth in the Administration (JSON), consumed by (a) the generated tsconfig paths, (b) the Vite
+          externals/aliases in <code>build/plugins.vite.ts</code>, and (c) documentation — so the type-level and
+          runtime-level contracts cannot diverge.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">A4 · Operations</span> Any plain <code>npm install</code> at the project root deletes the facade; healing is tied to the wrong lifecycle.</p>
+        <p>
+          The bridge package lives in the project root's <code>node_modules</code> (<code>setup.ts:249</code>). npm
+          prunes packages it does not know from the tree it manages — and a Flex project may well have its own root
+          <code>package.json</code> for unrelated tooling. Solution A regenerates only via composer scripts
+          (<code>build:js:admin</code>, <code>watch:admin</code>, <code>init:js</code>); between an npm operation and the
+          next composer run, root configs and every plugin-owned <code>extends</code> of the package name resolve to
+          nothing. Solution B healed at exactly the lifecycle point that causes the breakage (npm
+          <code>postinstall</code>) — architecturally uglier, operationally smarter.
+        </p>
+        <p class="loc">scripts/extensionTooling/setup.ts:248–327</p>
+        <p class="fix"><strong>Fix:</strong> make the <em>generated</em> root configs reference the contract by relative
+          path into <code>var/admin-extension-tooling/</code> (npm never touches <code>var/</code>), and keep the
+          <code>node_modules</code> facade only as the stable specifier for plugin-owned configs — recreated by setup,
+          by <code>check</code> (already implicit), and by a bulk step in <code>bin/install-extension-npm</code>
+          (B's belt-and-braces move, minus the symlinks).</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">A5 · Bootstrap</span> A fresh checkout hard-fails with <code>TS2307</code> in every plugin program, and <code>init:js</code> now requires a working backend.</p>
+        <p>
+          <code>extension-tooling/types.d.ts:10</code> unconditionally imports
+          <code>../src/entity-schema-definition</code>, which is gitignored
+          (<code>administration/.gitignore:18</code>). Setup only <em>warns</em> when it is missing
+          (<code>setup.ts:396</code>), but the missing import is a hard error inside every generated program — the
+          zero-config first-run experience is a cryptic module-not-found, not the warning. Separately, wiring
+          <code>@admin:generate-entity-schema-types</code> into <code>init:js</code> (composer.json) makes plain JS
+          bootstrap depend on <code>framework:schema:dump</code>, i.e. on a bootable kernel/DB — a regression for
+          JS-only CI jobs and first-time contributors.
+        </p>
+        <p class="loc">extension-tooling/types.d.ts:10 · setup.ts:383–398 · composer.json init:js block</p>
+        <p class="fix"><strong>Fix:</strong> commit a core-only fallback schema declaration (or have setup emit a stub
+          with a <code>@generated</code> marker when the real one is absent) so programs always compile; keep a
+          <code>--strict-schema</code> mode for CI where plugin entities must be present. Drop the schema step from
+          <code>init:js</code>; keep it in build/watch where a backend exists.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">A6 · Correctness</span> The IDE checks a different program than the CLI: one merged root tsconfig vs. per-extension check projects.</p>
+        <p>
+          <code>createRootTsconfig()</code> (<code>setup.ts:329</code>) merges <em>all</em> zero-config extensions into a
+          single <code>include</code> — one TS program. Global augmentations are the intended plugin extension mechanism
+          (<code>CustomShopwareServices</code>, <code>CustomShopwareProperties</code>), so in the merged IDE program
+          plugin A's augmentations leak into plugin B's checking, while the CLI checks each extension in an isolated
+          program (<code>setup.ts:189</code>). Result: the editor and the gate can legitimately disagree in both
+          directions.
+        </p>
+        <p class="loc">scripts/extensionTooling/setup.ts:329–354 vs. 189–231</p>
+        <p class="fix"><strong>Fix:</strong> generate the root tsconfig as a solution-style file with
+          <code>references</code> to the same per-extension configs the checker uses (vue-tsc and tsserver both support
+          references). One program topology, two consumers.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">A7 · Migration mechanics</span> Exact line/column fingerprints make the baseline a churn machine at this scale.</p>
+        <p>
+          The fingerprint is <code>tool|file|line|column|code|message</code> (<code>check.ts:64</code>). Commercial's
+          baseline would hold ~13k entries — a megabytes-large JSON committed into the plugin repo, invalidated in
+          bulk by any edit that shifts lines above a diagnostic. Every unrelated refactor produces
+          new-plus-stale pairs; teams will learn to run <code>--update-baseline all</code> reflexively, which quietly
+          converts the “no new debt” guarantee into “whatever the last update said”. The research doc names this risk;
+          it underprices it at this entry count.
+        </p>
+        <p class="loc">scripts/extensionTooling/check.ts:64–73, 280–302</p>
+        <p class="fix"><strong>Fix:</strong> fingerprint on <code>file|code|hash(normalized source line)</code> with a
+          per-file+code <em>count</em> as the coarse fallback (the suppression-file model TypeScript/Dart/Betterer use).
+          Line moves stop churning; genuinely new occurrences still fail. Keep exact mode as an option for small
+          baselines.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">A8 · Performance</span> Sequential <code>spawnSync</code> per extension, no incremental state.</p>
+        <p>
+          <code>runTypeScript()</code> (<code>check.ts:345</code>) runs one cold <code>vue-tsc</code> process per project,
+          serially, and ESLint re-lints everything every time. Fine for the PoC; painful for an agency project with
+          fifteen plugins in a watch loop.
+        </p>
+        <p class="fix"><strong>Fix:</strong> parallelize project checks (they are independent), write
+          <code>tsBuildInfo</code>/ESLint caches under <code>var/admin-extension-tooling/cache/</code>, and offer a
+          changed-extensions-only mode for local runs.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">A9 · IDE hazard</span> The generated root ESLint config force-enables the Twig-as-Vue parser project-wide.</p>
+        <p>
+          <code>createRootEslintConfig()</code> hardcodes <code>legacyTwig: true</code> and the preset matches
+          <code>**/*.html.twig</code> globally. The CLI only ever lints extension source paths, but the IDE ESLint
+          plugin discovers the root config for <em>any</em> open file — including Storefront's genuine (non-Vue) Twig
+          templates under <code>src/Storefront/Resources/views/</code>, which the Vue parser will report as fatal parse
+          errors. In a source checkout this is a daily-annoyance bug.
+        </p>
+        <p class="loc">setup.ts:356–369 · extension-tooling/eslint.mjs:149</p>
+        <p class="fix"><strong>Fix:</strong> scope the generated root config's Twig (and ideally all) file patterns to the
+          discovered extension source paths, which setup already knows from the manifest.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">A10 · API detail</span> <code>tsconfigRootDir</code> defaults to <code>process.cwd()</code>.</p>
+        <p>
+          <code>shopwareAdminExtension()</code> (<code>eslint.mjs:32</code>) makes typed-lint behavior depend on the
+          invocation directory when a consumer omits the option. The generated root config passes it correctly; a
+          hand-written plugin config that forgets it gets confusing project-service errors.
+        </p>
+        <p class="fix"><strong>Fix:</strong> require it (throw with a helpful message) or derive it from the config file
+          location convention documented for plugins.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">A11 · Scope of rules</span> The factory exposes fewer building blocks than B's preset.</p>
+        <p>
+          B re-exports <code>swCoreRules</code> and <code>swTestRules</code> alongside the deprecation/plugin rules so
+          complex suites can compose the exact admin rule set; A exports only
+          <code>pluginVue, swDeprecationRules, swPluginRules, tseslint</code> (<code>eslint.mjs:156</code>). Commercial
+          will want the rest.
+        </p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">A12 · Cost of ownership</span> ~1,000 lines of new generator/checker code is a product, and it overlaps three open PRs.</p>
+        <p>
+          setup + check + manifest + baselines constitute a permanent tooling surface with its own bug classes (several
+          are listed above). The research doc correctly flags coordination with #17578 (config-to-TS migration touching
+          the same ESLint files), #18070 (native setup templates) and #16805 (Volar/SFC) — this needs an explicit owner
+          and landing order <em>before</em> the code lands, or the repo grows a third parallel bridge.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="review-b">
+      <p class="sec-num">03 / REVIEW — SOLUTION B</p>
+      <h2>The package contract: the best patch you shouldn't make permanent</h2>
+      <p class="lead">
+        B's proposal document frames the problem perfectly — “the defect is how plugins <em>address</em> the admin, not
+        where configs live” — and its PoC evidence (SwagPayPal and Commercial converted with parity) is strong. Its
+        problem is what it makes permanent along the way.
+      </p>
+
+      <h3>What it gets right — and what must survive into any final solution</h3>
+      <ul>
+        <li><span class="badge b-keep">Keep</span> <strong>Adoption-day parity.</strong> Typing against live installed
+          sources means converted plugins keep exactly the diagnostics they had. SwagPayPal: 43 hack-lines →
+          2-line config, semantically identical output, equal check time. That is what “out of the box” feels like to an
+          existing plugin team, and A currently has nothing comparable.</li>
+        <li><span class="badge b-keep">Keep</span> <strong>The fixture-plugin CI guardrail.</strong> A scaffold-identical
+          plugin consumed adversarially in CI (link → tsc → eslint → build → jest) turns “types happen to work for
+          plugins” into a tested platform feature. A's roadmap has fixtures for its own machinery but no consumer-shaped
+          contract job.</li>
+        <li><span class="badge b-keep">Keep</span> <strong>The host-provided-modules curation.</strong> Replacing the
+          plugins' wildcard <code>node_modules</code> mapping with a deliberate list of what the host provides is the
+          type-level twin of the runtime externals list — a real API decision B makes and A defers (finding A3).</li>
+        <li><span class="badge b-keep">Keep</span> <strong>Healing at the breaking lifecycle.</strong> The postinstall
+          resolver heals on the exact operation that causes breakage (finding A4 shows A misses this), and the relative-link
+          insight (“relative paths survive Docker bind mounts”) was learned the hard way and documented.</li>
+        <li><span class="badge b-good">Good</span> Defusing the squatted <code>administration</code> npm name (SwagPayPal's
+          <code>optionalDependency</code> silently resolving to a stranger's package) — a genuine supply-chain fix both
+          solutions inherit; deleting the bogus dependency is the actual cure.</li>
+      </ul>
+
+      <h3>Findings</h3>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-blocker">B1 · Boundary</span> Everything reachable becomes public API — by construction, in three redundant ways.</p>
+        <p>
+          The exports map ends with <code>"./*": "./*"</code> (every internal file importable by specifier), the shared
+          tsconfig maps <code>src/*</code> into the admin source, and <code>types/index.d.ts</code> aggregates
+          <code>global.types.ts</code> — a ~621-line file importing ~131 internal symbols. B's own downsides list admits
+          it (“everything reachable is implicitly API”) and defers the curated surface as “an optimization to earn”.
+          But this is not an optimization question: it is the difference between Shopware being able to refactor its
+          admin internals and not. The contradiction is visible inside the branch itself: the ESLint preset ships
+          <code>plugin-rules/no-src-imports: error</code> while the tsconfig deliberately makes those same imports
+          type-resolve.
+        </p>
+        <p class="loc">branch: package.json exports block · tsconfig.plugin.json paths.src · types/index.d.ts</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">B2 · Misconfiguration</span> <code>tsconfig.plugin.json</code> sets <code>module: CommonJS</code> with no <code>moduleResolution</code>.</p>
+        <p>
+          Plugin admin code is ESM bundled by Vite. CommonJS + implied <code>node10</code> resolution cannot see
+          <code>exports</code>-map-only packages, forbids <code>import.meta</code> and top-level await, and generally
+          models a runtime that does not exist here. A's preset (<code>ESNext</code>/<code>Bundler</code>) is the correct
+          one; this alone would surface as mysterious plugin-side errors the moment a modern dependency is used.
+        </p>
+        <p class="loc">branch: src/Administration/Resources/app/administration/tsconfig.plugin.json:7</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">B3 · DX ceiling</span> Not zero-config — and the plugins that need help most get none.</p>
+        <p>
+          Every plugin needs a <code>package.json</code> (for the postinstall hook), the committed resolver script, and
+          two config files. That is a fine deal for SwagPayPal; it does nothing for the SwagLanguagePack class of
+          plugin — TS and Twig files, zero tooling — which simply stays dark unless someone hand-adds four files. A's
+          plugins.json-driven discovery covers those plugins with literally no action from their authors.
+        </p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">B4 · No gate, no landing zone</span> New findings surface with nowhere to go.</p>
+        <p>
+          B ships no check command, no baseline, no CI story beyond the fixture. Its own validation shows the
+          consequence: type-aware linting “ran for the first time ever” on Commercial and immediately produced hundreds
+          of findings (and thousands of TS errors in the end-to-end run). Without a migration mechanism the predictable
+          outcome is what happened last time: teams disable the rules again. A's baseline machinery is precisely the
+          missing piece.
+        </p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">B5 · Mechanism fragility</span> Whole-package symlinks carry known failure modes.</p>
+        <p>
+          Pruned by npm in <code>--ignore-scripts</code> flows; Windows junction behavior untested (their own downside
+          #10); and one subtle one the branch does not mention: tsserver sees admin files through two paths (real and
+          linked), which is a classic source of duplicate-identity/“two copies of the same type” diagnostics in mixed
+          plugin+core editing sessions. A's proxy-file projection avoids the whole class.
+        </p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-major">B6 · Product identity</span> The scoped rename creates a package that looks published but never is.</p>
+        <p>
+          <code>@shopware-ag/administration</code> in every plugin's config strongly implies an npm artifact; its absence
+          from the registry will generate support noise and invites someone to “helpfully” publish it. The rename also
+          churns the package-lock and any tooling matching the old name. A keeps a facade-only name that is explicitly
+          <code>private: true</code> and never leaves the machine — the better shape.
+        </p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">B7 · Phantom dependencies</span> The symlinked package exposes the admin's entire <code>node_modules</code> for deep imports, and <code>"./*"</code> blesses it.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">B8 · Topology coverage</span> The resolver probes three fixed layouts and exits silently otherwise.</p>
+        <p>Composer path-repositories, non-standard vendor dirs and multi-project monorepos fall through without a
+        message; A's manifest-driven discovery both finds more shapes and reports what it found.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">B9 · Twig rules</span> The legacy-twig subpath keeps Vue's indentation and structure rules on virtualized Twig.</p>
+        <p>A's PoC learned these produce false positives on processor-virtualized templates and disables the
+        specific unreliable rules (<code>legacy-twig.mjs:34–42</code> in this tree); B applies
+        <code>flat/recommended</code> wholesale to <code>**/*.html.twig</code>.</p>
+      </div>
+
+      <div class="finding">
+        <p class="f-title"><span class="badge b-minor">B10 · Schema staleness</span> Entity types are only as fresh as the checked-in schema; plugin-defined entities are explicitly out of scope (their downside #8) — where A wires the backend dump into the lifecycle and covers plugin entities.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="matrix">
+      <p class="sec-num">04 / HEAD-TO-HEAD</p>
+      <h2>Comparison matrix</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>A · Generated facade</th><th>B · Package contract</th><th>Edge</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Addressing mechanism</td><td>Generated proxy-file facade, package name resolves locally</td><td>Whole-package relative symlink per plugin</td><td class="win">A — no symlink failure class</td></tr>
+            <tr><td>Zero-config default</td><td>Yes — no plugin files at all; root projection for IDE</td><td>No — package.json + postinstall + 2 configs per plugin</td><td class="win">A</td></tr>
+            <tr><td>Composer/Flex topology</td><td>Designed + fixture-tested; recipes named as part of the feature</td><td>Resolver probes 3 layouts; recipes mentioned</td><td class="win">A</td></tr>
+            <tr><td>Type surface</td><td>Curated, minimal — too small today (A1)</td><td>Live source graph — everything is API (B1)</td><td class="tie">Neither; two-tier needed</td></tr>
+            <tr><td>Existing plugin, day one in the IDE</td><td>Thousands of un-fixable red markers (baselines don't reach editors)</td><td>Green — parity with the previous hacks</td><td class="win">B</td></tr>
+            <tr><td>Semantic gate (CI)</td><td><code>vue-tsc</code> + ESLint check command + baselines</td><td>None (fixture job guards the contract, not consumers)</td><td class="win">A</td></tr>
+            <tr><td>Migration mechanism</td><td>Exact baselines, new/stale reporting (churn risk, A7)</td><td>None — new findings have nowhere to land (B4)</td><td class="win">A</td></tr>
+            <tr><td>Compiler policy</td><td>ESNext / Bundler — models Vite truthfully</td><td>CommonJS, implied node10 (B2)</td><td class="win">A</td></tr>
+            <tr><td>Twig transition</td><td>Patched stack carried as objects; unreliable rules disabled</td><td>Same object trick; recommended rules applied wholesale (B9)</td><td class="win">A (narrowly)</td></tr>
+            <tr><td>Self-healing</td><td>Composer-script lifecycle only — npm prune window (A4)</td><td>postinstall = heals at the breaking operation</td><td class="win">B</td></tr>
+            <tr><td>Internals encapsulation</td><td>Strong: no <code>src/*</code> alias, import ban enforced &amp; consistent</td><td>None: <code>"./*"</code> + <code>src/*</code> + live-graph types</td><td class="win">A</td></tr>
+            <tr><td>Contract-drift guardrails</td><td>None binding declaration ↔ runtime (A2)</td><td>Fixture-plugin CI job — good, consumer-shaped</td><td class="win">B</td></tr>
+            <tr><td>Host-provided modules</td><td>Only <code>vue</code>/<code>@vue/*</code> (A3)</td><td>Curated 8-package list, argued from real usage</td><td class="win">B</td></tr>
+            <tr><td>Plugin-entity schema types</td><td>Backend dump wired into lifecycle (fragile bootstrap, A5)</td><td>Explicitly deferred</td><td class="win">A</td></tr>
+            <tr><td>Typecheck cost</td><td>Small programs (curated surface), sequential runner (A8)</td><td>Full admin graph per plugin (~22s Commercial)</td><td class="win">A</td></tr>
+            <tr><td>New maintenance surface</td><td>~1,000 LOC generator/checker + generated-state lifecycle</td><td>~150 LOC (script + preset + configs)</td><td class="win">B</td></tr>
+            <tr><td>Validation depth</td><td>Jest suites, Flex fixture, injected-failure test, 3 real repos, Storefront regression run</td><td>2 real repos converted with parity, deletion test, Docker build</td><td class="win">A</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Score by rows is beside the point — the rows B wins are cheap to graft onto A; the rows A wins are structural and expensive to retrofit onto B. That asymmetry is the recommendation.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="tension">
+      <p class="sec-num">05 / ANALYSIS</p>
+      <h2>The real tension: the two solutions answer different questions</h2>
+      <p class="lead">
+        Strip the mechanisms away and the disagreement is about one variable: <strong>what are the types?</strong>
+      </p>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>B answers the addressing question</h3>
+          <p>“Plugins already type-check fine against live admin sources — only the <em>path</em> to them is broken. Fix
+          the addressing (a name instead of seven <code>../</code>), keep the types as they are.” Consequence: perfect
+          continuity, zero boundary. Shopware can never again refactor internals without breaking someone's
+          type-check, and the <code>no-src-imports</code> rule polices a door the tsconfig holds open.</p>
+        </div>
+        <div class="card">
+          <h3>A answers the contract question</h3>
+          <p>“What plugins may rely on must be a curated, versioned surface — the global <code>Shopware</code> object and
+          the entity schema — and everything else must fail to resolve.” Consequence: a real boundary Shopware can
+          maintain, but measured against reality it is off by 19,357 diagnostics, and the baseline mechanism only
+          hides that from CI, not from humans in editors.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        <p><strong>The uncomfortable truth both documents avoid saying plainly:</strong> the ecosystem's de-facto API today
+        <em>is</em> the internal source graph. A boundary you declare but that rejects the entire existing ecosystem on
+        day one is not a boundary — it's a fork. A boundary you never declare is not an architecture — it's an
+        accident. The only path that is both adoptable and ownable is to ship <em>both surfaces at once, with an
+        explicit gradient between them</em>: live-graph typing as a deprecated compatibility tier, curated typing as the
+        default and the destination, and the baseline counts as the public measure of every plugin's distance from the
+        destination.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="v3">
+      <p class="sec-num">06 / RECOMMENDATION</p>
+      <h2>The better solution: A's backbone, B's on-ramp, and guardrails neither has</h2>
+      <p class="lead">
+        Working title: <strong>the two-tier extension contract</strong>. Everything below is a delta on the code already
+        in this working tree — none of it requires abandoning either PoC.
+      </p>
+
+      <div class="arch" aria-label="Recommended architecture">
+        <div class="layer">
+          <div class="layer-name">Committed in Administration</div>
+          <div class="layer-body">
+            <div class="node"><strong>public-api.d.ts</strong>Curated surface (Tier&nbsp;0). Grown using baseline TS2339 counts as the backlog.</div>
+            <div class="node"><strong>compat.d.ts <em>(new, from B)</em></strong>Live-graph aggregator: global.types + schema + shims. Deprecated from birth.</div>
+            <div class="node"><strong>host-modules.json <em>(new)</em></strong>One source of truth → tsconfig paths, Vite externals, docs.</div>
+            <div class="node"><strong>TS preset + ESLint factory</strong>ESNext/Bundler; factory gains <code>compat</code> + core/test rule exports.</div>
+            <div class="node"><strong>setup / check</strong>As in A, with A4–A8 fixes.</div>
+            <div class="node"><strong>Conformance <em>(new)</em></strong><code>const _: ShopwareExtensionApi = Shopware</code> in admin CI + fixture-plugin job (from B).</div>
+          </div>
+        </div>
+        <div class="arrow">↓ composer script (source) · Flex recipe (production) · healed by install-extension-npm + check</div>
+        <div class="layer">
+          <div class="layer-name">Generated projection</div>
+          <div class="layer-body">
+            <div class="node"><strong>var/admin-extension-tooling/</strong>Contract copy + per-extension projects + caches. Root configs point <em>here</em> (prune-immune).</div>
+            <div class="node"><strong>node_modules facade</strong>Kept solely as the stable specifier for plugin-owned configs.</div>
+            <div class="node"><strong>Root tsconfig w/ references</strong>Same program topology for IDE and CLI (fixes A6).</div>
+            <div class="node"><strong>Root eslint config</strong>File patterns scoped to discovered extension paths (fixes A9).</div>
+          </div>
+        </div>
+        <div class="arrow">↓ per-extension tier selection (manifest flag or plugin-owned config)</div>
+        <div class="layer">
+          <div class="layer-name">Consumers</div>
+          <div class="layer-body">
+            <div class="node"><strong>Tier 0 · strict (default)</strong>New plugins. Curated types, full rules, no baseline. Zero config files.</div>
+            <div class="node"><strong>Tier 1 · compat (opt-in)</strong>Existing plugins. Live-graph types, unsafe-* rules downgraded, small baseline. IDE-green on day one.</div>
+            <div class="node"><strong>Custom</strong>Own configs composing the same factory/preset names — unchanged from A.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Why this beats both, concretely</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Failure it removes</th><th>Present in</th><th>How v3 removes it</th></tr></thead>
+          <tbody>
+            <tr><td>19k red markers in existing plugins' IDEs</td><td>A</td><td>Tier 1 types against live sources → parity (B's measured result); baseline shrinks to near-zero for compat plugins</td></tr>
+            <tr><td>Internals frozen as API forever</td><td>B</td><td>Tier 1 is explicitly deprecated and per-extension; Tier 0 is the default and the only long-term-supported surface; the tier flag is the migration ratchet</td></tr>
+            <tr><td>Contract drift from runtime</td><td>A &amp; B</td><td>Compile-time conformance assertion in admin CI + consumer-shaped fixture-plugin job</td></tr>
+            <tr><td>Unresolvable <code>pinia</code>/<code>vue-router</code>/… imports</td><td>A</td><td>host-modules.json feeds tsconfig paths <em>and</em> Vite externals from one file — type and runtime contract cannot diverge</td></tr>
+            <tr><td>Facade vanishes after <code>npm install</code></td><td>A</td><td>Generated configs reference <code>var/</code> by relative path; node_modules name is convenience only, healed in three lifecycles</td></tr>
+            <tr><td>Fresh checkout hard-fails on missing schema</td><td>A</td><td>Committed core-only fallback / generated stub + <code>--strict-schema</code> in CI</td></tr>
+            <tr><td>IDE and CLI check different programs</td><td>A</td><td>Root tsconfig uses <code>references</code> to the checker's own project files</td></tr>
+            <tr><td>Baseline churn at 13k entries</td><td>A</td><td>content-hash + per-file/rule-count fingerprints</td></tr>
+            <tr><td>No path for plugins with zero tooling</td><td>B</td><td>Unchanged from A: plugins.json discovery, zero files needed</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>What Tier 1 looks like (smallest possible mechanism)</h3>
+      <pre><code>// facade export map gains two entries (committed in extension-tooling/):
+"./tsconfig-compat": "./tsconfig-compat.json",   // extends ./tsconfig.json, adds:
+                                                 //   "types": ["…/compat"],  "paths": { "src/*": ["../src/*"] }
+"./compat":          "./compat.d.ts"             // import '../src/global.types'; import '../src/entity-schema-definition'; …
+
+// eslint factory:
+shopwareAdminExtension({ compat: true, tsconfigRootDir })
+//   → unsafe-* family + no-explicit-any: 'warn'; no-src-imports stays 'error'
+//     (compat types resolve internals, but new *imports* of them remain forbidden — the
+//      inconsistency B shipped becomes an intentional, documented ratchet)
+
+// zero-config plugins select the tier without adopting any config file:
+//   var/plugins.json is generated from composer.json → one extra flag in the
+//   plugin's composer.json extra section, e.g. "shopware-admin-tooling": "compat"</code></pre>
+      <p class="small">
+        Sunset story: Tier 1 ships with a target major version for removal in its deprecation notice. Every check run
+        prints per-extension tier + baseline size — the number every team watches shrink.
+      </p>
+
+      <h3>Sequencing (delta to A's roadmap)</h3>
+      <ol class="num-list">
+        <li><div><strong>Phase 1 gains three items:</strong> compat tier (tsconfig-compat + compat.d.ts + factory flag), the conformance assertion, host-modules.json wired into preset generation. Gate: SwagPayPal on Tier 1 = zero new diagnostics <em>in the IDE</em>, not just in the gated CLI.</div></li>
+        <li><div><strong>Phase 1.5 (hardening, before recipes):</strong> A4 var/-anchored configs, A5 schema fallback, A6 references, A7 fingerprint format, A9 scoped root lint config. These are cheap now and breaking-change-shaped later.</div></li>
+        <li><div><strong>Phase 2 unchanged</strong> (Flex recipes) but the recipe also appends the generated-file entries to the project's <code>.gitignore</code> — this tree's root <code>.gitignore</code> additions solve it only for the monorepo.</div></li>
+        <li><div><strong>Phase 3 (corpus)</strong> becomes: first-party plugins adopt Tier 1 with reviewed baselines, then per-module Tier-0 promotion as the curated surface grows — the TS2339 histogram from the existing 19k corpus is literally the prioritized backlog for <code>public-api.d.ts</code>.</div></li>
+        <li><div><strong>Drop from B:</strong> the package rename, the <code>"./*"</code> export, the per-plugin symlink + postinstall machinery, <code>module: CommonJS</code>. Keep from B: fixture CI job, host-module list, install-extension-npm bulk healing, the squat-cleanup guidance for plugin manifests.</div></li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="actions">
+      <p class="sec-num">07 / ACTIONS</p>
+      <h2>Prioritized recommendations</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Priority</th><th>Action</th><th>Origin</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge b-blocker">P0</span></td><td>Add the compatibility type tier before any rollout to existing plugins — baselines do not reach IDEs (A1)</td><td>Graft from B</td></tr>
+            <tr><td><span class="badge b-blocker">P0</span></td><td>Bind <code>public-api.d.ts</code> to runtime with a compile-time conformance assertion in admin CI (A2)</td><td>New</td></tr>
+            <tr><td><span class="badge b-major">P1</span></td><td>Decide + centralize host-provided modules; wire into tsconfig paths and Vite externals from one JSON (A3)</td><td>Graft from B</td></tr>
+            <tr><td><span class="badge b-major">P1</span></td><td>Anchor generated configs in <code>var/</code>; heal the node_modules facade in <code>install-extension-npm</code> (A4)</td><td>Fix A / graft B</td></tr>
+            <tr><td><span class="badge b-major">P1</span></td><td>Ship a fallback entity-schema declaration; remove the DB dependency from <code>init:js</code> (A5)</td><td>Fix A</td></tr>
+            <tr><td><span class="badge b-major">P1</span></td><td>Root tsconfig via project <code>references</code>; scope root ESLint patterns to discovered extensions (A6, A9)</td><td>Fix A</td></tr>
+            <tr><td><span class="badge b-major">P1</span></td><td>Add B's fixture-plugin consumer CI job (link-free: setup → check → build → jest)</td><td>Graft from B</td></tr>
+            <tr><td><span class="badge b-minor">P2</span></td><td>Content-hash/count baseline fingerprints (A7); parallel + incremental check runner (A8)</td><td>Fix A</td></tr>
+            <tr><td><span class="badge b-minor">P2</span></td><td>Require <code>tsconfigRootDir</code>; export core/test rule building blocks from the factory (A10, A11)</td><td>Fix A / graft B</td></tr>
+            <tr><td><span class="badge b-minor">P2</span></td><td>Settle landing order with #17578 / #18070 / #16805 owners before merging the tooling (A12)</td><td>Process</td></tr>
+            <tr><td><span class="badge b-minor">P2</span></td><td>Abandon branch v1's rename/symlink mechanism; salvage its docs framing (“fix the addressing”) for the issue write-up</td><td>Decision</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="method">
+      <p class="sec-num">08 / METHOD &amp; LIMITS</p>
+      <h2>How this review was produced, and what it could not verify</h2>
+      <ul>
+        <li>Read in full: the 2,058-line research document; the complete v2 PoC in this tree
+          (<code>extension-tooling/*</code>, <code>scripts/extensionTooling/setup.ts</code> and <code>check.ts</code>,
+          composer/package/eslint/tsconfig diffs vs. trunk); the complete v1 branch diff
+          (<code>abcb46850a4</code>: <code>bin/install-extension-npm</code>, <code>tsconfig.plugin.json</code>,
+          <code>types/index.d.ts</code>, <code>eslint-config-plugin/*</code>, package.json changes) and its 323-line
+          <code>issue-14040-proposal.md</code>.</li>
+        <li>Findings A1–A12 and B1–B10 come from source reading, not from re-running either PoC. In particular:
+          the npm-prune behavior of the facade (A4), the tsserver duplicate-identity risk under symlinks (B5) and the
+          IDE behavior on Storefront Twig files (A9) are inferred from documented tool behavior and were not
+          reproduced in this session.</li>
+        <li>Neither PoC's Jest suites were re-executed for this review; both documents' own measured results
+          (19,357 baselined diagnostics; SwagPayPal parity; Commercial 12s→22s) are taken at face value and used
+          comparatively.</li>
+        <li>The diagnostic-count comparison between A and B is directional, not apples-to-apples: A's counts come from
+          a strict curated preset including type-aware lint; B's “parity” claims compare against each plugin's
+          pre-existing hack configuration.</li>
+        <li>This is a technical review; product decisions (deprecation horizon for the compat tier, host-module
+          commitments, ownership of ~1,000 LOC of tooling) are flagged but belong to the Framework group.</li>
+      </ul>
+      <footer>
+        <p>
+          Review artifact for Shopware issue #14040 · generated 10 July 2026 in the project root ·
+          compares <code>issue-14040-tooling-architecture-research.html</code> (+ working-tree PoC on
+          <code>temporary-test-branch-new-admin-package-contract-v2</code>) with branch
+          <code>temporary-test-branch-new-admin-package-contract</code>.
+          Source file: <code>issue-14040-architecture-review.html</code>.
+        </p>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var button = document.getElementById("themeToggle");
+      try {
+        var saved = localStorage.getItem("issue-14040-review-theme");
+        if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+      } catch (e) {}
+      button.addEventListener("click", function () {
+        var dark = root.getAttribute("data-theme") === "dark" ||
+          (!root.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var next = dark ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("issue-14040-review-theme", next); } catch (e) {}
+      });
+    }());
+  </script>
+</body>
+</html>

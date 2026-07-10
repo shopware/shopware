@@ -33,6 +33,7 @@
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",
+    "./scripts/extensionTooling/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts"
   ],

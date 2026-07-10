@@ -1,0 +1,334 @@
+{
+  "version": 1,
+  "typescript": [],
+  "eslint": [
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/sw-sales-channel-detail-theme.html.twig",
+      "line": 1,
+      "column": 51,
+      "code": "vue/max-attributes-per-line",
+      "message": "':is-loading' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/sw-sales-channel-detail-theme.html.twig",
+      "line": 7,
+      "column": 13,
+      "code": "vuejs-accessibility/click-events-have-key-events",
+      "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/sw-sales-channel-detail-theme.html.twig",
+      "line": 7,
+      "column": 13,
+      "code": "vuejs-accessibility/no-static-element-interactions",
+      "message": "Visible, non-interactive elements should not have an interactive handler."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/sw-sales-channel-detail-theme.html.twig",
+      "line": 34,
+      "column": 71,
+      "code": "vue/max-attributes-per-line",
+      "message": "':class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/sw-sales-channel-detail-theme.html.twig",
+      "line": 40,
+      "column": 35,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/sw-sales-channel-detail-theme.html.twig",
+      "line": 46,
+      "column": 56,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.html.twig",
+      "line": 1,
+      "column": 33,
+      "code": "vue/max-attributes-per-line",
+      "message": "':class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.html.twig",
+      "line": 8,
+      "column": 5,
+      "code": "vuejs-accessibility/click-events-have-key-events",
+      "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.html.twig",
+      "line": 8,
+      "column": 5,
+      "code": "vuejs-accessibility/no-static-element-interactions",
+      "message": "Visible, non-interactive elements should not have an interactive handler."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.html.twig",
+      "line": 16,
+      "column": 17,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.html.twig",
+      "line": 28,
+      "column": 9,
+      "code": "vuejs-accessibility/click-events-have-key-events",
+      "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.html.twig",
+      "line": 28,
+      "column": 9,
+      "code": "vuejs-accessibility/no-static-element-interactions",
+      "message": "Visible, non-interactive elements should not have an interactive handler."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-modal/sw-theme-modal.html.twig",
+      "line": 26,
+      "column": 36,
+      "code": "vue/html-closing-bracket-spacing",
+      "message": "Expected a space before '/>', but not found."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-modal/sw-theme-modal.html.twig",
+      "line": 45,
+      "column": 63,
+      "code": "vue/max-attributes-per-line",
+      "message": "'@update:checked' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-modal/sw-theme-modal.html.twig",
+      "line": 66,
+      "column": 40,
+      "code": "vue/max-attributes-per-line",
+      "message": "'@click' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/component/sw-theme-modal/sw-theme-modal.html.twig",
+      "line": 69,
+      "column": 38,
+      "code": "vue/max-attributes-per-line",
+      "message": "'@click' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 124,
+      "column": 21,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 155,
+      "column": 52,
+      "code": "vue/max-attributes-per-line",
+      "message": "'name' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 155,
+      "column": 82,
+      "code": "vue/html-closing-bracket-spacing",
+      "message": "Expected a space before '/>', but not found."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 159,
+      "column": 55,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 162,
+      "column": 61,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 178,
+      "column": 82,
+      "code": "vue/max-attributes-per-line",
+      "message": "':style' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 183,
+      "column": 85,
+      "code": "vue/singleline-html-element-content-newline",
+      "message": "Expected 1 line break after opening tag (`<div>`), but no line breaks found."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 183,
+      "column": 101,
+      "code": "vue/singleline-html-element-content-newline",
+      "message": "Expected 1 line break before closing tag (`</div>`), but no line breaks found."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 184,
+      "column": 87,
+      "code": "vue/singleline-html-element-content-newline",
+      "message": "Expected 1 line break after opening tag (`<div>`), but no line breaks found."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 184,
+      "column": 105,
+      "code": "vue/singleline-html-element-content-newline",
+      "message": "Expected 1 line break before closing tag (`</div>`), but no line breaks found."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 185,
+      "column": 67,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 462,
+      "column": 54,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 554,
+      "column": 77,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 558,
+      "column": 29,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 562,
+      "column": 81,
+      "code": "vue/max-attributes-per-line",
+      "message": "':key' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 573,
+      "column": 63,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 577,
+      "column": 29,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig",
+      "line": 581,
+      "column": 67,
+      "code": "vue/max-attributes-per-line",
+      "message": "':key' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.spec.js",
+      "line": 4,
+      "column": 1,
+      "code": "sw-test-rules/test-file-max-lines-warning",
+      "message": "Test file has 567 lines. Split test files with 500 lines or more into smaller specs. See adr/2026-05-06-split-large-administration-test-files.md."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.html.twig",
+      "line": 44,
+      "column": 21,
+      "code": "vuejs-accessibility/click-events-have-key-events",
+      "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.html.twig",
+      "line": 44,
+      "column": 21,
+      "code": "vuejs-accessibility/no-static-element-interactions",
+      "message": "Visible, non-interactive elements should not have an interactive handler."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.html.twig",
+      "line": 67,
+      "column": 57,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.html.twig",
+      "line": 180,
+      "column": 53,
+      "code": "vue/max-attributes-per-line",
+      "message": "'class' should be on a new line."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/snippet/en.json",
+      "line": 26,
+      "column": 15,
+      "code": "sw-core-rules/require-global-default-use",
+      "message": "Snippet Key `sw-theme.Storefront.default.statusColors.default.sw-color-success.label` duplicates `global.default.success`. Please remove it and use `global.default.success` instead (src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/snippet/en.json)."
+    },
+    {
+      "tool": "eslint",
+      "file": "Resources/app/administration/src/modules/sw-theme-manager/snippet/en.json",
+      "line": 29,
+      "column": 15,
+      "code": "sw-core-rules/require-global-default-use",
+      "message": "Snippet Key `sw-theme.Storefront.default.statusColors.default.sw-color-danger.label` duplicates `global.default.error`. Please remove it and use `global.default.error` instead (src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/snippet/en.json)."
+    }
+  ]
+}

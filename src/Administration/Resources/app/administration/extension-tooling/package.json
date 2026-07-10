@@ -1,0 +1,14 @@
+{
+    "name": "@shopware-ag/administration-extension-tooling",
+    "private": true,
+    "type": "module",
+    "types": "./types.d.ts",
+    "exports": {
+        ".": {
+            "types": "./types.d.ts"
+        },
+        "./eslint": "./eslint.mjs",
+        "./eslint/legacy-twig": "./legacy-twig.mjs",
+        "./tsconfig": "./tsconfig.json"
+    }
+}

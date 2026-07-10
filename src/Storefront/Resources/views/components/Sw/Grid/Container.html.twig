@@ -307,13 +307,18 @@
     {% set gridStyle = gridStyle ~ 'grid-template-columns: repeat(' ~ mode ~ ', minmax(' ~ itemMinWidth ~ ', 1fr));' %}
 {% endif %}
 
-<div
-    {{ attributes.defaults(attributeDefaults) }}
-    {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
+{% if gridStyle is not empty %}
+    {% set externalStyle = attributes.all()['style'] %}
+    {% set gridStyle = gridStyle ~ externalStyle %}
 
-     {% block content %}
+    {% set attributeDefaults = attributeDefaults|merge({ style: gridStyle }) %}
+{% endif %}
+
+<div {{ attributes.without('style').defaults(attributeDefaults) }}>
+
+    {% block content %}
         {% for name, slot in slots %}
             <twig:Slot :name="name"></twig:Slot>
         {% endfor %}
-     {% endblock %}
+    {% endblock %}
 </div>

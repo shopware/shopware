@@ -88,6 +88,14 @@
                             "description": "Name of a field"
                         }
                     },
+                    "exclude-fields": {
+                        "type": "array",
+                        "description": "Storage fields to omit from the database read while still returning the full entity type. A denylist counterpart to `fields`, useful to skip heavy columns (e.g. a large description). Excluding a required or write-protected field results in a 400 response.",
+                        "items": {
+                            "type": "string",
+                            "description": "Name of a field"
+                        }
+                    },
                     "total-count-mode": {
                         "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
                         "type": "string",

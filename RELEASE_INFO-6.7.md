@@ -868,6 +868,17 @@ If those attributes are not provided, `FormFieldToggle` behaves exactly as befor
 
 ## API
 
+### New `exclude-fields` criteria parameter for Store and Admin API
+
+Search/list requests now accept an `exclude-fields` criteria parameter — a denylist counterpart to the existing `fields` allowlist. Unlike `fields` (which returns `PartialEntity` instances) and `includes`/`excludes` (which shape the response payload), `exclude-fields` shapes the **database read**: it omits the named top-level storage columns while still returning the full entity type. This is useful to skip heavy columns (for example a large `product.description`) without loading them, while keeping typed getters, `instanceof` checks and `*.loaded` subscribers working. Only nullable/defaulted fields may be excluded; excluding a required or write-protected field (or an unknown field) results in a `400` response.
+
+```json
+{
+  "limit": 25,
+  "exclude-fields": ["description"]
+}
+```
+
 ### Store API OpenAPI: JSON schema files take precedence over generated entity schemas
 
 The `StoreApiGenerator` now checks whether a component schema already exists in the JSON schema files before using the OpenAPI schema generated from the PHP `EntityDefinition`. If a match is found, the PHP-generated OpenAPI component is ignored.

@@ -53,6 +53,7 @@ class RequestCriteriaBuilder
         'aggregations',
         'associations',
         'fields',
+        'exclude-fields',
     ];
 
     private const TOTAL_COUNT_MODE_MAPPING = [
@@ -255,6 +256,16 @@ class RequestCriteriaBuilder
 
         if (isset($payload['fields'])) {
             $criteria->addFields($payload['fields']);
+        }
+
+        if (isset($payload['exclude-fields'])) {
+            if (!\is_array($payload['exclude-fields'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'exclude-fields',
+                    \gettype($payload['exclude-fields'])
+                );
+            }
+            $criteria->excludeFields($payload['exclude-fields']);
         }
 
         $searchException->tryToThrow();

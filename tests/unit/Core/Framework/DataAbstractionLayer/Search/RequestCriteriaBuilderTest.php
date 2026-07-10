@@ -980,6 +980,33 @@ class RequestCriteriaBuilderTest extends TestCase
         );
     }
 
+    public function testExcludeFieldsAreAddedToCriteria(): void
+    {
+        $criteria = $this->requestCriteriaBuilder->fromArray(
+            ['exclude-fields' => ['description', 'keywords']],
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(['description', 'keywords'], $criteria->getExcludedFields());
+    }
+
+    public function testExcludeFieldsArrayValidation(): void
+    {
+        $request = new Request([], ['exclude-fields' => 'string_instead_of_array'], [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('exclude-fields', 'string'));
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
+
     /**
      * @param array<string, mixed> $data
      */

@@ -95,6 +95,14 @@
                             "description": "Name of a field"
                         }
                     },
+                    "exclude-fields": {
+                        "type": "array",
+                        "description": "Storage fields to omit from the database read while still returning the full entity type. A denylist counterpart to `fields`, useful to skip heavy columns (e.g. a large description). Excluding a required or write-protected field results in a 400 response.",
+                        "items": {
+                            "type": "string",
+                            "description": "Name of a field"
+                        }
+                    },
                     "grouping": {
                         "type": "array",
                         "description": "Perform groupings over certain fields",

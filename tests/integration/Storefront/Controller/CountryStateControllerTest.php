@@ -60,6 +60,13 @@ class CountryStateControllerTest extends TestCase
         static::assertCount(16, \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['states']);
     }
 
+    public function testGetCountryDataFromQueryParameter(): void
+    {
+        $response = $this->countryStateController->getCountryData(new Request(['countryId' => $this->countryIdDE]), $this->salesChannelContext);
+
+        static::assertCount(16, \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['states']);
+    }
+
     public function testEmptyCountryId(): void
     {
         $this->expectExceptionObject(RoutingException::missingRequestParameter('countryId'));

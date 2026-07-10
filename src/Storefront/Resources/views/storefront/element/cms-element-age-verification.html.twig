@@ -1,10 +1,10 @@
 {% block element_age_verification %}
     {% set minimumAge = element.data.minimumAge ?? 18 %}
 
-    {% set ageVerificationTitle = element.data.title ?: 'cms.ageVerification.defaultTitle'|trans({'%minimumAge%': minimumAge})|trim %}
-    {% set ageVerificationContent = element.data.content ?: 'cms.ageVerification.defaultContent'|trans({'%minimumAge%': minimumAge})|trim %}
-    {% set ageVerificationConfirm = element.data.confirmButtonText ?: 'cms.ageVerification.defaultConfirm'|trans({'%minimumAge%': minimumAge})|trim %}
-    {% set ageVerificationDecline = element.data.declineButtonText ?: 'cms.ageVerification.defaultDecline'|trans|trim %}
+    {% set ageVerificationTitle = element.data.title ?: 'component.cms.ageVerification.defaultTitle'|trans({'%minimumAge%': minimumAge})|trim %}
+    {% set ageVerificationContent = element.data.content ?: 'component.cms.ageVerification.defaultContent'|trans({'%minimumAge%': minimumAge})|trim %}
+    {% set ageVerificationConfirm = element.data.confirmButtonText ?: 'component.cms.ageVerification.defaultConfirm'|trans({'%minimumAge%': minimumAge})|trim %}
+    {% set ageVerificationDecline = element.data.declineButtonText ?: 'component.cms.ageVerification.defaultDecline'|trans|trim %}
 
     {% set ageVerificationOptions = {
         cookieName: 'age-verified',

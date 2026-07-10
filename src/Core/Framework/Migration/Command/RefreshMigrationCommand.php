@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -20,6 +21,7 @@ class RefreshMigrationCommand extends Command
 {
     public function __construct(
         private readonly Filesystem $filesystem,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct();
     }
@@ -29,7 +31,7 @@ class RefreshMigrationCommand extends Command
      * @throws MigrationException
      */
     public function __invoke(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         #[Argument('Path to migration file')]
         string $path,
     ): int {
@@ -43,9 +45,9 @@ class RefreshMigrationCommand extends Command
         }
 
         $timestamp = $this->getCurrentTimestamp($filename);
-        $newTimestamp = (string) time();
+        $newTimestamp = (string) $this->clock->now()->getTimestamp();
 
-        $newPath = str_replace($timestamp, $newTimestamp, (string) $path);
+        $newPath = str_replace($timestamp, $newTimestamp, $path);
 
         $search = [
             pathinfo($filename, \PATHINFO_FILENAME),
@@ -59,14 +61,14 @@ class RefreshMigrationCommand extends Command
 
         $this->updateMigrationFile($path, $search, $replace);
 
-        rename($path, $newPath);
+        $this->filesystem->rename($path, $newPath);
 
         return Command::SUCCESS;
     }
 
     private function getCurrentTimestamp(string $filename): string
     {
-        if (!preg_match('/Migration(\d+).*?\.php/i', $filename, $matches)) {
+        if (!preg_match('/Migration(\d+).*?\.php$/i', $filename, $matches)) {
             throw MigrationException::couldNotDetermineTimestamp();
         }
 

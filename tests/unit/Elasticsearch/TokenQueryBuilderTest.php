@@ -137,6 +137,7 @@ class TokenQueryBuilderTest extends TestCase
                         'term' => 'foo',
                         'ranking' => 500,
                         'type' => 'exact',
+                        'weighted' => true,
                     ]),
                 ],
                 '_name' => json_encode([
@@ -144,6 +145,7 @@ class TokenQueryBuilderTest extends TestCase
                     'term' => 'foo',
                     'ranking' => 500,
                     'type' => 'exact',
+                    'weighted' => true,
                 ]),
             ]),
         ]);
@@ -692,7 +694,8 @@ class TokenQueryBuilderTest extends TestCase
         static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][0]);
         static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][1]);
         static::assertArrayHasKey('match_bool_prefix', $queryArray['dis_max']['queries'][2]);
-        static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][3]);
+        // n-gram is wrapped in constant_score so a rare fragment can't spike its score
+        static::assertArrayHasKey('constant_score', $queryArray['dis_max']['queries'][3]);
     }
 
     public function testTieBreakerRewardsMultiLanguageMatch(): void
@@ -927,21 +930,6 @@ class TokenQueryBuilderTest extends TestCase
         return [
             'match' => [
                 $field => $filtered,
-            ],
-        ];
-    }
-
-    /**
-     * @return array{match: array<string, array{query: string, boost: float}>}
-     */
-    private static function matchSimple(string $field, string $query, float $boost): array
-    {
-        return [
-            'match' => [
-                $field => [
-                    'query' => $query,
-                    'boost' => $boost,
-                ],
             ],
         ];
     }

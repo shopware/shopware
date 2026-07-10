@@ -250,6 +250,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="shopware.rate_limiter"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
@@ -329,6 +331,14 @@
             <argument type="service" id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.entity_indexer" priority="100"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Api\ConvertGuestController" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">

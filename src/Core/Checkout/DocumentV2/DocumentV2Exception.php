@@ -54,11 +54,11 @@ class DocumentV2Exception extends HttpException
 
     public const MALFORMED_XML = 'DOCUMENT_V2__MALFORMED_XML';
 
-    public const TEMPLATE_PATH_NOT_FOUND = 'DOCUMENT_V2__TEMPLATE_PATH_NOT_FOUND';
-
     public const INVALID_ORDER_DATA = 'DOCUMENT_V2__INVALID_ORDER_DATA';
 
     public const INVALID_RENDER_VALUE = 'DOCUMENT_V2__INVALID_RENDER_VALUE';
+
+    public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -125,6 +125,16 @@ class DocumentV2Exception extends HttpException
             self::RENDERER_NOT_FOUND,
             'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
             ['format' => $format, 'documentType' => $documentType],
+        );
+    }
+
+    public static function invalidDocumentType(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_DOCUMENT_TYPE,
+            'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
+            ['documentType' => $documentType],
         );
     }
 
@@ -266,16 +276,6 @@ class DocumentV2Exception extends HttpException
                 'count' => $count,
                 'errors' => json_encode($errors),
             ],
-        );
-    }
-
-    public static function templatePathNotFound(string $format): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::TEMPLATE_PATH_NOT_FOUND,
-            'No template path registered for format "{{ format }}".',
-            ['format' => $format],
         );
     }
 

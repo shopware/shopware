@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
     name: 'database:refresh-migration',
@@ -17,18 +18,25 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class RefreshMigrationCommand extends Command
 {
-    protected function configure(): void
-    {
-        $this->addArgument('path', InputArgument::REQUIRED, 'Path to migration file');
+    public function __construct(
+        private readonly Filesystem $filesystem,
+    ) {
+        parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $path = $input->getArgument('path');
-        $filename = basename((string) $path);
+    /**
+     * @throws IOException
+     * @throws MigrationException
+     */
+    public function __invoke(
+        ShopwareStyle $io,
+        #[Argument('Path to migration file')]
+        string $path,
+    ): int {
+        $filename = basename($path);
         $className = pathinfo($filename, \PATHINFO_FILENAME);
 
-        $output->writeln('Updating timestamp of migration: ' . $filename);
+        $io->writeln('Updating timestamp of migration: ' . $filename);
 
         if (!\is_file($path)) {
             throw MigrationException::migrationFileDoesNotExist($path);
@@ -53,7 +61,7 @@ class RefreshMigrationCommand extends Command
 
         rename($path, $newPath);
 
-        return self::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function getCurrentTimestamp(string $filename): string
@@ -68,15 +76,14 @@ class RefreshMigrationCommand extends Command
     /**
      * @param list<string> $search
      * @param list<string> $replace
+     *
+     * @throws IOException
      */
     private function updateMigrationFile(string $path, array $search, array $replace): void
     {
-        $content = file_get_contents($path);
-        if ($content === false) {
-            return;
-        }
+        $content = $this->filesystem->readFile($path);
 
         $content = str_replace($search, $replace, $content);
-        file_put_contents($path, $content);
+        $this->filesystem->dumpFile($path, $content);
     }
 }

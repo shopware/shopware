@@ -28,7 +28,7 @@ verify`, which only the deterministic steps run (gated by `REPRO_ALLOW_VERIFY=1`
   Playwright harness assets and storage-state scripts live in `executors/playwright/boilerplate/`.
 - `bundle.mjs` — shared bundle contract, placeholder helpers, and canonical result construction.
 - `admin-api.mjs` — Admin API transport used by seeding and HTTP placeholder resolution.
-- `steps/` — thin bash glue for the GitHub-Actions-only concerns (fetch/version/provision/proxy/snapshot/context).
+- `steps/` — thin bash glue for the GitHub-Actions-only concerns (fetch/version/provision/snapshot/context, plus the sandbox sales-channel-domain + legacy-alias helpers).
 - `report/` — `verdict.mjs` (two legs → verdict) and `comment.mjs` (render from `templates/`).
 - `templates/` — `verdicts.json` (all comment copy, as data) + `comment.*.md` layouts.
 - `dev/compile.sh` — MAINTAINER tool: regenerate the committed lock from the gh-aw source.

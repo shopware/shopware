@@ -7,6 +7,14 @@ name: Reproduce Issue Artifact Cleanup
 # committed png/webm blobs that has NO auto-expiry and grows one commit per run. The branch is pruned
 # by rebuilding it as a fresh orphan (dropping closed-issue runs/) and force-pushing with lease, so
 # the dropped blobs become unreferenced and GitHub's periodic GC reclaims them.
+#
+# How a stored item is traced back to its issue (both passes share this chain, so the cutoff can key
+# off the issue's closed_at):
+#   run title — reproduce.md sets run-name "Reproduce #<n>", so each run's display_title (fallback:
+#               name / head_branch) carries the issue number; parseIssueNumber extracts it with /#(\d+)/.
+#   artifacts — each artifact belongs to a workflow_run: artifact.workflow_run.id -> run -> title -> issue.
+#   evidence  — embed-evidence.sh commits blobs under runs/<RUN_ID>/*.{png,webm}, so the directory NAME
+#               is the run id: runs/<RUN_ID> -> run -> title -> issue -> closed_at.
 on:
   schedule:
     - cron: '23 3 * * 1'   # weekly, Monday 03:23 UTC

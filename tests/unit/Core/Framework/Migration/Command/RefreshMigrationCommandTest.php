@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(RefreshMigrationCommand::class)]
 class RefreshMigrationCommandTest extends TestCase
 {
-    private const MIGRATION_PATH = __DIR__ . '/_fixtures/Migration1772030791Test.php';
+    private const MIGRATION_PATH = __DIR__ . '/_fixtures/Migration1772030791FooBar.php';
     private const OLD_TIMESTAMP = '1772030791';
     private const NEW_TIMESTAMP = '1783669827';
     private const MIGRATION_CONTENT = '<?php declare(strict_types=1);
@@ -25,7 +25,7 @@ class RefreshMigrationCommandTest extends TestCase
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration%%TIMESTAMP%%Test extends MigrationStep
+class Migration%%TIMESTAMP%%FooBar extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -70,9 +70,12 @@ class Migration%%TIMESTAMP%%Test extends MigrationStep
             ->method('rename')
             ->with(self::MIGRATION_PATH, str_replace(self::OLD_TIMESTAMP, self::NEW_TIMESTAMP, self::MIGRATION_PATH));
 
+        $mockDate = \DateTimeImmutable::createFromFormat('U', self::NEW_TIMESTAMP);
+        static::assertNotFalse($mockDate);
+
         $command = new RefreshMigrationCommand(
             $mockedFilesystem,
-            new MockClock(\DateTimeImmutable::createFromFormat('U', self::NEW_TIMESTAMP)),
+            new MockClock($mockDate),
         );
 
         $result = (new CommandTester($command))->execute(['path' => self::MIGRATION_PATH]);

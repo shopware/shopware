@@ -19,6 +19,9 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('framework')]
 class RefreshMigrationCommand extends Command
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Filesystem $filesystem,
         private readonly ClockInterface $clock,
@@ -35,14 +38,14 @@ class RefreshMigrationCommand extends Command
         #[Argument('Path to migration file')]
         string $path,
     ): int {
+        if (!\is_file($path)) {
+            throw MigrationException::migrationFileDoesNotExist($path);
+        }
+
         $filename = basename($path);
         $className = pathinfo($filename, \PATHINFO_FILENAME);
 
         $io->writeln('Updating timestamp of migration: ' . $filename);
-
-        if (!\is_file($path)) {
-            throw MigrationException::migrationFileDoesNotExist($path);
-        }
 
         $timestamp = $this->getCurrentTimestamp($filename);
         $newTimestamp = (string) $this->clock->now()->getTimestamp();

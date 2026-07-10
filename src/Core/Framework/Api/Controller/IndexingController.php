@@ -75,7 +75,7 @@ class IndexingController extends AbstractController
 
         $ids = $request->request->all('ids');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             throw ApiException::invalidIdsParameter();
         }
 

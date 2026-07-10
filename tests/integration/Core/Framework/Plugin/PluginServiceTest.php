@@ -12,9 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -50,7 +50,7 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/SwagTestPlugin.php';
         require_once $this->fixturePath . 'plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = static::getContainer()->get('plugin.repository');
@@ -100,19 +100,21 @@ class PluginServiceTest extends TestCase
 
         static::assertTrue($errors->count() > 0);
 
-        $composerJsonException = $errors->filter(fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
+        $composerJsonException = $errors->filter(static fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
 
-        static::assertNotEmpty($composerJsonException);
+        static::assertNotSame(0, $composerJsonException->count());
+        static::assertContainsOnlyInstancesOf(PluginComposerJsonInvalidException::class, $composerJsonException);
 
         $errorFound = false;
         $errorString = 'Plugin composer.json has invalid "type" (must be "shopware-platform-plugin"), or invalid "extra/shopware-plugin-class" value, or missing extra.label property';
 
-        foreach ($composerJsonException->getIterator() as $exception) {
-            if (empty($exception->getParameters()['composerJsonPath']) || !str_contains($exception->getParameters()['composerJsonPath'], '/plugins/SwagTestNoExtraLabelProperty/composer.json')) {
+        foreach ($composerJsonException as $exception) {
+            $parameters = $exception->getParameters();
+            if (!\array_key_exists('composerJsonPath', $parameters) || !str_contains($parameters['composerJsonPath'], '/plugins/SwagTestNoExtraLabelProperty/composer.json')) {
                 continue;
             }
 
-            if (!empty($exception->getParameters()['errorsString']) && $exception->getParameters()['errorsString'] === $errorString) {
+            if (\array_key_exists('errorsString', $parameters) && $parameters['errorsString'] === $errorString) {
                 $errorFound = true;
             }
         }
@@ -244,8 +246,7 @@ class PluginServiceTest extends TestCase
     {
         $this->createPlugin($this->pluginRepo, $this->context);
 
-        $this->expectException(PluginNotFoundException::class);
-        $this->expectExceptionMessage('Plugin by name "SwagFoo" not found');
+        $this->expectExceptionObject(PluginException::notFound('SwagFoo'));
         $this->pluginService->getPluginByName('SwagFoo', $this->context);
     }
 

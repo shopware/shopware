@@ -1,9 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-// eslint-disable-next-line
 import fs from 'fs';
-// eslint-disable-next-line
 import path from 'path';
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
@@ -56,7 +54,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     it('should contain the header titles', async () => {
         const wrapper = await createWrapper();
 
-        // eslint-disable-next-line max-len
         const headerEntries = wrapper.findAll(
             '.sw-users-permissions-detailed-permissions-grid__entry-header .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper',
         );
@@ -79,7 +76,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             // skip default values
             if (
                 [
+                    'currency',
+                    'country',
                     'language',
+                    'log_entry',
                     'locale',
                     'message_queue_stats',
                 ].includes(entityName)
@@ -109,6 +109,22 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             expect(entityUpdateInput.element.checked).toBeFalsy();
             expect(entityDeleteInput.element.checked).toBeFalsy();
             expect(entityCreateInput.element.checked).toBeFalsy();
+        });
+    });
+
+    it('should render default user privileges as selected and disabled', async () => {
+        const wrapper = await createWrapper();
+
+        [
+            'currency',
+            'language',
+            'locale',
+        ].forEach((entityName) => {
+            const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
+            const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
+
+            expect(entityReadInput.attributes().disabled).toBeDefined();
+            expect(entityReadInput.element.checked).toBe(true);
         });
     });
 

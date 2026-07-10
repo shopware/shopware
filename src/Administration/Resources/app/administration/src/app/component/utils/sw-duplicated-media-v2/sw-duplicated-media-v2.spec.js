@@ -43,6 +43,11 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                             };
                         },
                     },
+                    mediaPresignedUploadService: {
+                        prepareUpload: jest.fn(),
+                        uploadToPresignedUrl: jest.fn(),
+                        finalizeUpload: jest.fn(),
+                    },
                     mediaService: {
                         addDefaultListener: jest.fn(),
                         removeDefaultListener: jest.fn(),

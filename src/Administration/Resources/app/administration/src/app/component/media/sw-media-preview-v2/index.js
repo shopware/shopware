@@ -56,7 +56,7 @@ export default {
         },
         text: {
             csv: 'icons-multicolor-file-thumbnail-csv',
-            plain: 'icons-multicolor-file-thumbnail-csv',
+            plain: 'icons-multicolor-file-thumbnail-txt',
         },
         image: {
             gif: 'icons-multicolor-file-thumbnail-gif',
@@ -69,7 +69,6 @@ export default {
     },
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         source: {
             required: true,
         },
@@ -89,21 +88,18 @@ export default {
         transparency: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         useThumbnails: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         hideTooltip: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -252,7 +248,7 @@ export default {
 
         mediaName() {
             if (!this.trueSource) {
-                return this.$tc('global.sw-media-preview-v2.textNoMedia');
+                return this.$t('global.sw-media-preview-v2.textNoMedia');
             }
 
             return this.mediaNameFilter(this.trueSource, this.trueSource.fileName);

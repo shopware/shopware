@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
@@ -82,8 +83,8 @@ class ServiceClientTest extends TestCase
 
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
-        $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 
@@ -100,8 +101,7 @@ class ServiceClientTest extends TestCase
 
     public function testLatestInfoThrowsExceptionWhenTransportErrorOccurs(): void
     {
-        static::expectException(ServiceException::class);
-        static::expectExceptionMessage('Error performing request. Error: host unreachable');
+        $this->expectExceptionObject(ServiceException::requestTransportError(new \Exception('host unreachable')));
 
         $httpClient = new MockHttpClient([
             new MockResponse('', ['error' => 'host unreachable']),
@@ -125,6 +125,7 @@ class ServiceClientTest extends TestCase
                 'app-zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                 'app-hash-algorithm' => 'sha256',
                 'app-min-shop-supported-version' => '6.6.0.0',
+                'app-requirements' => ['service_consent'],
             ])),
         ]);
         $client = new ServiceClient(
@@ -140,5 +141,29 @@ class ServiceClientTest extends TestCase
         static::assertSame('a5b32', $appInfo->hash);
         static::assertSame('6.6.0.0-a5b32', $appInfo->revision);
         static::assertSame('https://example.com/service/lifecycle/app-zip/6.6.0.0', $appInfo->zipUrl);
+        static::assertSame(['service_consent'], $appInfo->requirements);
+    }
+
+    public function testLatestInfoUsesDefaultRequirementsWhenMissing(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse((string) json_encode([
+                'app-version' => '6.6.0.0',
+                'app-hash' => 'a5b32',
+                'app-revision' => '6.6.0.0-a5b32',
+                'app-zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
+                'app-hash-algorithm' => 'sha256',
+                'app-min-shop-supported-version' => '6.6.0.0',
+            ])),
+        ]);
+        $client = new ServiceClient(
+            $httpClient,
+            '6.6.0.0',
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/app-endpoint')
+        );
+
+        $appInfo = $client->latestAppInfo();
+
+        static::assertSame([ServiceConsentRequirement::NAME], $appInfo->requirements);
     }
 }

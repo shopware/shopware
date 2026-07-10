@@ -22,6 +22,7 @@ use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use OpenSearchDSL\Query\TermLevel\WildcardQuery;
 use OpenSearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\NestedSort;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
@@ -138,7 +139,7 @@ class CriteriaParser
         $path = $this->getNestedPath($definition, $sorting->getField());
 
         if ($path) {
-            $fieldSort->addParameter('nested', ['path' => $path]);
+            $fieldSort->setNestedFilter(new NestedSort($path));
         }
 
         return $fieldSort;
@@ -151,7 +152,7 @@ class CriteriaParser
         $fields = $aggregation->getFields();
 
         $path = null;
-        if (\count($fields) > 0) {
+        if ($fields !== []) {
             $path = $this->getNestedPath($definition, $fields[0]);
         }
 
@@ -233,7 +234,7 @@ class CriteriaParser
 
         // nested aggregation should have filters - we have to remap the nesting
         $mapped = $nested;
-        if (\count($bool->getQueries()) > 0 && $nested instanceof NestedAggregation) {
+        if ($bool->getQueries() !== [] && $nested instanceof NestedAggregation) {
             $real = $nested->getAggregation($nested->getName());
             if (!$real instanceof AbstractAggregation) {
                 throw ElasticsearchException::nestedAggregationParseError($aggregation->getName());
@@ -567,11 +568,21 @@ class CriteriaParser
                 foreach ($context->getLanguageIdChain() as $languageId) {
                     $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
-            } else {
-                $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+                return $this->createNestedQuery($query, $definition, $filter->getField());
             }
 
-            return $this->createNestedQuery($query, $definition, $filter->getField());
+            $path = $this->getNestedPath($definition, $filter->getField());
+
+            if ($path) {
+                $query->add(new NestedQuery($path, new ExistsQuery($fieldName)), BoolQuery::MUST_NOT);
+
+                return $query;
+            }
+
+            $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+            return $query;
         }
 
         $value = $this->parseValue($definition, $filter, $filter->getValue());
@@ -639,7 +650,7 @@ class CriteriaParser
         }
 
         $boolQuery = new BoolQuery();
-        if (!empty($nonNullValues)) {
+        if ($nonNullValues !== []) {
             $boolQuery->add(new TermsQuery($fieldName, $nonNullValues), BoolQuery::SHOULD);
         }
 
@@ -817,7 +828,7 @@ class CriteriaParser
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
         $bool = new BoolQuery();
-        if (\count($filter->getQueries()) === 0) {
+        if ($filter->getQueries() === []) {
             return $bool;
         }
 
@@ -968,7 +979,7 @@ class CriteriaParser
             $path[] = $field->getPropertyName();
         }
 
-        if (empty($path)) {
+        if ($path === []) {
             return null;
         }
 
@@ -994,7 +1005,7 @@ class CriteriaParser
         if ($field instanceof BoolField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (bool) $value, $value),
+                \is_array($value) => \array_map(static fn ($value) => (bool) $value, $value),
                 default => (bool) $value,
             };
         }
@@ -1002,7 +1013,7 @@ class CriteriaParser
         if ($field instanceof DateTimeField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (new \DateTime($value))->format('Y-m-d H:i:s.000'), $value),
+                \is_array($value) => \array_map(static fn ($value) => (new \DateTime($value))->format('Y-m-d H:i:s.000'), $value),
                 default => (new \DateTime($value))->format('Y-m-d H:i:s.000'),
             };
         }
@@ -1010,7 +1021,7 @@ class CriteriaParser
         if ($field instanceof FloatField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (float) $value, $value),
+                \is_array($value) => \array_map(static fn ($value) => (float) $value, $value),
                 default => (float) $value,
             };
         }
@@ -1018,7 +1029,7 @@ class CriteriaParser
         if ($field instanceof IntField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (int) $value, $value),
+                \is_array($value) => \array_map(static fn ($value) => (int) $value, $value),
                 default => (int) $value,
             };
         }

@@ -10,9 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
- * @phpstan-type DefaultExceptionData array{code: string, status: string, title: string, detail: string|null, meta?: array{trace: array<int|string, mixed>, file: string, line: int, previous?: mixed}}
- *
- * @phpstan-import-type ErrorData from ShopwareHttpException as ShopwareExceptionData
+ * @phpstan-import-type ErrorData from ShopwareHttpException
  */
 #[Package('framework')]
 class ErrorResponseFactory
@@ -32,7 +30,7 @@ class ErrorResponseFactory
     }
 
     /**
-     * @return array<DefaultExceptionData|ShopwareExceptionData>
+     * @return array<ErrorData>
      */
     public function getErrorsFromException(\Throwable $exception, bool $debug = false): array
     {
@@ -42,9 +40,7 @@ class ErrorResponseFactory
                 $errors[] = $error;
             }
 
-            $errors = $this->convert($errors);
-
-            return $errors;
+            return $this->convert($errors);
         }
 
         return [$this->convertExceptionToError($exception, $debug)];
@@ -56,11 +52,11 @@ class ErrorResponseFactory
             return $exception->getHttpStatusCode();
         }
 
-        if ($exception instanceof ShopwareHttpException || $exception instanceof HttpException) {
+        if ($exception instanceof HttpException) {
             return $exception->getStatusCode();
         }
 
-        return 500;
+        return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
     /**
@@ -72,7 +68,7 @@ class ErrorResponseFactory
     }
 
     /**
-     * @return DefaultExceptionData
+     * @return ErrorData
      */
     private function convertExceptionToError(\Throwable $exception, bool $debug = false): array
     {
@@ -81,7 +77,7 @@ class ErrorResponseFactory
         $error = [
             'code' => (string) $exception->getCode(),
             'status' => (string) $statusCode,
-            'title' => (string) (Response::$statusTexts[$statusCode] ?? 'unknown status'),
+            'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
             'detail' => $exception->getMessage(),
         ];
 
@@ -106,9 +102,9 @@ class ErrorResponseFactory
     }
 
     /**
-     * @param array<string|int, mixed> $array
+     * @param array<int, mixed> $array
      *
-     * @return array<string|int, mixed>
+     * @return array<int, mixed>
      */
     private function convert(array $array): array
     {

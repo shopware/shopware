@@ -54,7 +54,7 @@
                 {% block element_product_listing_row %}
                     {% if searchResult.total > searchResult.limit %}
                         {% set ariaLiveText = 'listing.filterPanelAriaLivePaginated'|trans({
-                            '%count%': searchResult.elements|length,
+                            '%count%': searchResult.entities|length,
                             '%total%': searchResult.total}
                         )|sw_sanitize %}
                     {% else %}
@@ -64,13 +64,21 @@
                     <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
-                                {% for product in searchResult %}
+                                {% for product in searchResult.entities %}
                                     <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
-                                            {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                layout: boxLayout,
-                                                displayMode: displayMode
-                                            } %}
+                                            {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                                                {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                    layout: boxLayout,
+                                                    displayMode: displayMode,
+                                                    referrerCategoryId: config('core.listing.buildBreadcrumbByReferrerCategory') ? shopware.navigation.id : null,
+                                                } %}
+                                            {% else %}
+                                                {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                    layout: boxLayout,
+                                                    displayMode: displayMode
+                                                } %}
+                                            {% endif %}
                                         {% endblock %}
                                     </div>
                                 {% endfor %}

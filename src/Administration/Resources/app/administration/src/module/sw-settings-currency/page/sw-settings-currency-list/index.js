@@ -82,13 +82,13 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', { name: currency.name }, 0),
+                        message: this.$t('sw-settings-currency.detail.messageSaveSuccess', { name: currency.name }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-currency.detail.messageSaveError'),
+                        message: this.$t('sw-settings-currency.detail.messageSaveError'),
                     });
                 });
         },

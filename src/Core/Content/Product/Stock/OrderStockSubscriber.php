@@ -63,7 +63,7 @@ final readonly class OrderStockSubscriber implements EventSubscriberInterface
 
         $ids = $this->getAffectedIds($event);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

@@ -1,21 +1,21 @@
 .sw-manufacturer-detail {
     .sw-manufacturer-detail__container {
-        margin-bottom: 16px;
+        margin-bottom: var(--scale-size-16);
     }
 
     .sw-manufacturer-detail__logo-upload {
         .sw-media-upload-v2 {
             &__header {
                 margin-bottom: 0;
-                min-height: 24px;
+                min-height: var(--scale-size-24);
             }
 
             &__dropzone {
-                min-height: 150px;
+                min-height: calc(var(--scale-size-128) + var(--scale-size-22));
             }
 
             &__url-form {
-                padding-left: 24px;
+                padding-left: var(--scale-size-24);
             }
         }
     }

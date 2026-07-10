@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -56,7 +58,12 @@ class NewsletterRecipientDefinition extends EntityDefinition
             (new StringField('zip_code', 'zipCode'))->setDescription('Zipcode of the recipient\'s address.'),
             (new StringField('city', 'city'))->setDescription('City of the recipient.'),
             (new StringField('street', 'street'))->setDescription('Street of the recipient.'),
-            (new StringField('status', 'status'))->addFlags(new Required())->setDescription('When status is set, the NewsletterRecipient is made visible.'),
+            (new StringField('status', 'status'))->addFlags(new Required(), new Choice([
+                NewsletterSubscribeRoute::STATUS_NOT_SET,
+                NewsletterSubscribeRoute::STATUS_OPT_IN,
+                NewsletterSubscribeRoute::STATUS_OPT_OUT,
+                NewsletterSubscribeRoute::STATUS_DIRECT,
+            ]))->setDescription('When status is set, the NewsletterRecipient is made visible.'),
             (new StringField('hash', 'hash'))->addFlags(new Required())->setDescription('Password hash for account recovery.'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new DateTimeField('confirmed_at', 'confirmedAt'))->setDescription('Date and time when the Newsletter was received.'),

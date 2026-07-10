@@ -68,7 +68,7 @@ class S3FilesystemVisibilityCommand extends Command
 
     private function setVisibility(FilesystemOperator $filesystem, ShopwareStyle $style, string $visibility): void
     {
-        $files = array_filter($filesystem->listContents('/', true)->toArray(), fn (StorageAttributes $object): bool => $object->type() === 'file');
+        $files = array_filter($filesystem->listContents('/', true)->toArray(), static fn (StorageAttributes $object): bool => $object->type() === 'file');
         ProgressBar::setFormatDefinition('custom', '[%bar%] %current%/%max% -- %message%');
         $progressBar = new ProgressBar($style, \count($files));
         $progressBar->setFormat('custom');

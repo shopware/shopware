@@ -118,6 +118,7 @@ export default defineConfig({
             name: 'Visual',
             use: {
                 ...devices['Desktop Chrome'],
+                channel: 'chromium',
             },
             dependencies: [],
             grep: /@Visual/,

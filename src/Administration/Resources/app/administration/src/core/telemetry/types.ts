@@ -15,6 +15,7 @@ type AnalyticsEvents = {
         to: RouteLocation;
     };
     programmatic: {
+        eventName: string;
         [key: string]: TrackableType;
     };
     identify: {
@@ -22,7 +23,8 @@ type AnalyticsEvents = {
         locale: string | null;
         isAdmin: boolean | null;
     };
-    reset: object;
+    login: object;
+    logout: object;
 };
 
 type EventTypes = keyof AnalyticsEvents;

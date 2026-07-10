@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -29,7 +30,7 @@ class DoctrineSQLHandlerTest extends TestCase
     {
         $this->connection->expects($this->once())->method('insert')->willReturn(1);
 
-        $handler = new DoctrineSQLHandler($this->connection);
+        $handler = new DoctrineSQLHandler($this->connection, new MockClock());
 
         $record = new LogRecord(
             new \DateTimeImmutable(),
@@ -47,7 +48,7 @@ class DoctrineSQLHandlerTest extends TestCase
         $insertData = null;
 
         $this->connection->expects($this->exactly(2))->method('insert')
-            ->willReturnCallback(function (string $table, array $data = []) use (&$exceptionThrown, &$insertData): int {
+            ->willReturnCallback(static function (string $table, array $data = []) use (&$exceptionThrown, &$insertData): int {
                 static::assertSame('log_entry', $table);
                 static::assertNotEmpty($data['id']);
                 static::assertNotEmpty($data['created_at']);
@@ -72,7 +73,7 @@ class DoctrineSQLHandlerTest extends TestCase
                 return 1;
             });
 
-        $handler = new DoctrineSQLHandler($this->connection);
+        $handler = new DoctrineSQLHandler($this->connection, new MockClock());
 
         $record = new LogRecord(
             new \DateTimeImmutable(),

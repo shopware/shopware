@@ -56,6 +56,10 @@ class TaxDetector extends AbstractTaxDetector
             return false;
         }
 
+        if (!$shippingLocationCountry->getIsEu()) {
+            return true;
+        }
+
         $vatPattern = $shippingLocationCountry->getVatIdPattern();
         $vatIds = array_filter($customer->getVatIds() ?? []);
 

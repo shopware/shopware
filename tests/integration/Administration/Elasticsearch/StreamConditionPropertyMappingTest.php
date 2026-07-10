@@ -41,7 +41,7 @@ class StreamConditionPropertyMappingTest extends TestCase
         $regex = '/product:(.*?)\[(.*?)]/s';
         preg_match($regex, $js, $matches);
 
-        if (empty($matches[2])) {
+        if ($matches === [] || $matches[2] === '') {
             static::fail('could not find product properties in product-stream-condition.service.js');
         }
 

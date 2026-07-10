@@ -77,14 +77,14 @@ class PluginUpdateAllCommandTest extends TestCase
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
             ->expects($this->once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
-            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
+            ->willReturnCallback(static function (PluginEntity $plugin, Context $context) use ($updateMock) {
                 $plugin->setVersion((string) $plugin->getUpgradeVersion());
                 $plugin->setUpgradeVersion(null);
                 static::assertFalse($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));
@@ -113,14 +113,14 @@ class PluginUpdateAllCommandTest extends TestCase
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
             ->expects($this->once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
-            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
+            ->willReturnCallback(static function (PluginEntity $plugin, Context $context) use ($updateMock) {
                 $plugin->setVersion((string) $plugin->getUpgradeVersion());
                 $plugin->setUpgradeVersion(null);
                 static::assertTrue($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Checkout\Gateway;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayException;
 use Shopware\Core\Framework\App\AppCollection;
@@ -26,7 +25,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[CoversClass(AppCheckoutGatewayTest::class)]
 #[Package('checkout')]
 class AppCheckoutGatewayTest extends TestCase
 {

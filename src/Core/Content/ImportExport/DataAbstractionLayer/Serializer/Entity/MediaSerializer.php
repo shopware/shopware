@@ -62,7 +62,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $url = $entity['url'] ?? null;
 
-        if (empty($url)) {
+        if ($url === null || $url === '') {
             return $deserialized;
         }
 
@@ -129,7 +129,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
      */
     public function persistMedia(EntityWrittenEvent $event): void
     {
-        if (empty($this->cacheMediaFiles)) {
+        if ($this->cacheMediaFiles === []) {
             return;
         }
 

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -255,6 +256,40 @@ class ProductRatingAverageIndexerTest extends TestCase
     }
 
     /**
+     * tests that reviews on both parent and variant product are averaged correctly
+     */
+    #[Group('reviews')]
+    public function testRatingAverageIsCorrectWhenReviewsExistOnParentAndVariant(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $this->createProduct($parentId);
+
+        $this->productRepository->create(
+            [
+                [
+                    'id' => $variantId,
+                    'productNumber' => $variantId,
+                    'stock' => 1,
+                    'active' => true,
+                    'type' => ProductDefinition::TYPE_PHYSICAL,
+                    'parentId' => $parentId,
+                ],
+            ],
+            $this->salesChannel->getContext()
+        );
+
+        $this->createReview(Uuid::randomHex(), 5.0, $parentId, true);
+        $this->createReview(Uuid::randomHex(), 4.0, $variantId, true);
+
+        $products = $this->productRepository->search(new Criteria([$parentId]), $this->salesChannel->getContext());
+
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($parentId));
+        static::assertSame(4.5, $product->getRatingAverage());
+    }
+
+    /**
      * tests that the full index works
      */
     #[Group('reviews')]
@@ -370,7 +405,6 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 
         $customer = [
@@ -388,12 +422,12 @@ SQL;
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => $email,
+            'email' => $customerID . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerID,
         ];
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());

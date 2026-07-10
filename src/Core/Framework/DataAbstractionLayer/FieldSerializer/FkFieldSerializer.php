@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\DoNotUseContext;
@@ -54,7 +55,8 @@ class FkFieldSerializer extends AbstractFieldSerializer
         if ($this->shouldUseContext($field, $data->isRaw(), $value)) {
             try {
                 $value = $parameters->getContext()->get($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField());
-            } catch (\InvalidArgumentException) {
+            } catch (\InvalidArgumentException|UnableToLoadPathException) {
+                /** @deprecated tag:v6.8.0 - Remove InvalidArgumentException from catch as it is not thrown anymore */
                 if ($this->requiresValidation($field, $existence, $value, $parameters)) {
                     $this->validate($this->getConstraints($field), $data, $parameters->getPath());
                 }

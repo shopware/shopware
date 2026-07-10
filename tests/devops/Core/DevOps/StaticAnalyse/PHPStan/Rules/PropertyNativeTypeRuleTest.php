@@ -6,7 +6,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PropertyNativeTypeRule;
 
 /**
@@ -14,7 +13,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PropertyNativeTypeRule;
  *
  * @extends  RuleTestCase<PropertyNativeTypeRule>
  */
-#[CoversClass(PropertyNativeTypeRule::class)]
 class PropertyNativeTypeRuleTest extends RuleTestCase
 {
     public function testRule(): void

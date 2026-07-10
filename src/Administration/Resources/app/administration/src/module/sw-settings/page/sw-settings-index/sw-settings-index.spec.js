@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -114,7 +116,7 @@ async function createWrapper(
         {
             global: {
                 mocks: {
-                    $tc: (path) => {
+                    $t: (path) => {
                         if (typeof path !== 'string') {
                             return `${path}`;
                         }

@@ -54,7 +54,7 @@ class TaxRuleCollection extends Collection
         $new = new self($this->elements);
 
         $rules->map(
-            function (TaxRule $rule) use ($new): void {
+            static function (TaxRule $rule) use ($new): void {
                 if (!$new->exists($rule)) {
                     $new->add($rule);
                 }
@@ -66,7 +66,7 @@ class TaxRuleCollection extends Collection
 
     public function highestRate(): ?TaxRule
     {
-        return $this->reduce(fn (?TaxRule $result, TaxRule $item) => $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result);
+        return $this->reduce(static fn (?TaxRule $result, TaxRule $item) => $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result);
     }
 
     public function getApiAlias(): string

@@ -54,7 +54,7 @@ class CreateEntitiesCommand extends Command
 
         foreach ($classes as $domain => $domainClasses) {
             foreach ($domainClasses as $entityClasses) {
-                if (empty($entityClasses)) {
+                if ($entityClasses === null || $entityClasses === []) {
                     continue;
                 }
 

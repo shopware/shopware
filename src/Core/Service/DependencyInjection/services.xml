@@ -29,7 +29,8 @@
 
         <service id="Shopware\Core\Service\ServiceRegistry\Client">
             <argument>%env(SERVICE_REGISTRY_URL)%</argument>
-            <argument type="service" id="http_client"/>
+            <argument>%env(APP_URL)%</argument>
+            <argument type="service" id="service_registry.http_client"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -44,6 +45,7 @@
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceClientFactory">
@@ -125,14 +127,34 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\ServiceHookableEventDescriber">
+            <tag name="shopware.hookable_event.describer"/>
         </service>
 
         <service id="Shopware\Core\Service\Permission\PermissionsService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Requirement\ServiceConsentRequirement">
+            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Requirement\ShopwareAccountRequirement">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Requirement\RequirementsValidator">
+            <argument type="tagged_iterator" tag="shopware.service.requirement" default-index-method="getName"/>
         </service>
 
         <service id="Shopware\Core\Service\LifecycleManager">
@@ -145,6 +167,7 @@
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber">
@@ -155,6 +178,12 @@
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>

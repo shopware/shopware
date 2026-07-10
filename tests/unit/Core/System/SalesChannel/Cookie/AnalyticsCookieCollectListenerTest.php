@@ -10,7 +10,6 @@ use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\Cookie\AnalyticsCookieCollectListener;
@@ -41,35 +40,40 @@ class AnalyticsCookieCollectListenerTest extends TestCase
 
     public function testSalesChannelHasNoAnalyticsId(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
-        $salesChannel = $this->createMock(SalesChannelEntity::class);
-        $salesChannel->expects($this->once())->method('getAnalyticsId')->willReturn(null);
-        $salesChannel->expects($this->never())->method('getAnalytics');
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('test-id');
 
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
-        $event = new CookieGroupCollectEvent(new CookieGroupCollection(), new Request(), $context);
+        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        $event = new CookieGroupCollectEvent(new CookieGroupCollection([$statisticalGroup, $marketingGroup]), new Request(), $context);
 
         $this->listener->__invoke($event);
+
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL)?->getEntries()?->get('google-analytics-enabled'));
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING)?->getEntries()?->get('google-ads-enabled'));
     }
 
     public function testSalesChannelNeedsToLoadAnalyticsButIsNotActive(): void
     {
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-        $salesChannel->setAnalyticsId(Uuid::randomHex());
+        $salesChannel->setId('sales-channel-id');
+        $salesChannel->setAnalyticsId('analytics-id');
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
-        $cookieCollection = $this->createMock(CookieGroupCollection::class);
-        $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), $context);
+        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        $event = new CookieGroupCollectEvent(new CookieGroupCollection([$statisticalGroup, $marketingGroup]), new Request(), $context);
 
         $analyticsEntity = $this->createChannelAnalyticsEntity(active: false);
 
         $this->analyticsRepo->addSearch(new SalesChannelAnalyticsCollection([$analyticsEntity]));
 
         $this->listener->__invoke($event);
+
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL)?->getEntries()?->get('google-analytics-enabled'));
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING)?->getEntries()?->get('google-ads-enabled'));
     }
 
     public function testStatisticalAndMarketingCookieGroupsNotPresent(): void
@@ -106,7 +110,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
     private function createChannelAnalyticsEntity(bool $active = true): SalesChannelAnalyticsEntity
     {
         $analyticsEntity = new SalesChannelAnalyticsEntity();
-        $analyticsEntity->setId(Uuid::randomHex());
+        $analyticsEntity->setId('analytics-id');
         $analyticsEntity->setActive($active);
 
         return $analyticsEntity;
@@ -117,7 +121,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
         $analyticsEntity = $this->createChannelAnalyticsEntity();
 
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setId('sales-channel-id');
         $salesChannel->setAnalyticsId($analyticsEntity->getId());
         $salesChannel->setAnalytics($analyticsEntity);
 

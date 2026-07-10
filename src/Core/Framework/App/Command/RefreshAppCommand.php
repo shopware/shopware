@@ -122,7 +122,7 @@ class RefreshAppCommand extends Command
             }
         }
 
-        if (\count($invalids) > 0) {
+        if ($invalids !== []) {
             foreach ($invalids as $invalid) {
                 $io->error($invalid);
             }
@@ -138,7 +138,7 @@ class RefreshAppCommand extends Command
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
     {
         $default = true;
-        if (!empty($refreshableApps->getToBeDeleted())) {
+        if ($refreshableApps->getToBeDeleted() !== []) {
             $default = false;
         }
 

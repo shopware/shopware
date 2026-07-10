@@ -10,6 +10,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
@@ -17,6 +18,8 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -50,11 +53,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidate([]);
@@ -90,11 +94,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             $logger,
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             true,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a')
+            $this->createBacktraceCollectorMock('Foo', 'a'),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -130,11 +135,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             $logger,
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a')
+            $this->createBacktraceCollectorMock('Foo', 'a'),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -165,11 +171,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             $logger,
             new RequestStack([$request]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             true,
             false,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -193,11 +200,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -224,11 +232,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             false,
             true,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidateExpired();
@@ -262,6 +271,9 @@ class CacheInvalidatorTest extends TestCase
                 ]
             );
 
+        $reverseProxyGateway = $this->createMock(AbstractReverseProxyGateway::class);
+        $reverseProxyGateway->expects($this->once())->method('flush');
+
         $invalidator = new CacheInvalidator(
             [
                 $tagAwareAdapter,
@@ -270,11 +282,13 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             $logger,
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            new NativeClock(),
+            $reverseProxyGateway,
         );
 
         $invalidator->invalidateExpired();
@@ -301,6 +315,8 @@ class CacheInvalidatorTest extends TestCase
                 ]
             );
 
+        $clock = new MockClock('2025-06-13 12:00:00');
+
         $adapter = new ArrayAdapter();
         $invalidator = new CacheInvalidator(
             [],
@@ -312,7 +328,8 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            $clock
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -320,9 +337,7 @@ class CacheInvalidatorTest extends TestCase
         static::assertTrue($adapter->hasItem('http_invalidation_foo_timestamp'));
 
         $itemValue = $adapter->getItem('http_invalidation_foo_timestamp')->get();
-        static::assertIsInt($itemValue);
-
-        static::assertTrue(time() >= $itemValue, 'Timestamp should be set to current time or later');
+        static::assertSame($clock->now()->getTimestamp(), $itemValue);
     }
 
     public function testInvalidBacktraceHandling(): void
@@ -341,7 +356,7 @@ class CacheInvalidatorTest extends TestCase
         $adapter = new ArrayAdapter();
         $invalidator = new CacheInvalidator(
             [],
-            $this->createMock(RedisInvalidatorStorage::class),
+            static::createStub(RedisInvalidatorStorage::class),
             new EventDispatcher(),
             $logger,
             new RequestStack([new Request()]),
@@ -349,7 +364,8 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock()
+            $this->createBacktraceCollectorMock(),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -374,7 +390,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -410,11 +427,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             $logger,
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -448,11 +466,12 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             $logger,
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class)
+            static::createStub(BacktraceCollector::class),
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);

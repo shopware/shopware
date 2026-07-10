@@ -2,11 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,7 +25,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(MediaVisibilityRestrictionSubscriber::class)]
 class MediaVisibilityRestrictionSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -41,6 +39,8 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
      */
     private EntityRepository $mediaFolderRepository;
 
+    private Connection $connection;
+
     private Context $salesChannelContext;
 
     private IdsCollection $ids;
@@ -49,6 +49,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
     {
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->ids = new IdsCollection();
 
         $this->salesChannelContext = Context::createDefaultContext(new SalesChannelApiSource($this->ids->get('sales-channel')));
@@ -69,7 +70,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicMediaInPrivateFolder,
         ]);
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
-        $mediaIds = array_map(fn ($media) => $media->getId(), $result->getEntities()->getElements());
+        $mediaIds = array_map(static fn ($media) => $media->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateMediaId, $mediaIds, 'Private media should not be found');
         static::assertContains($publicMediaInPrivateFolder, $mediaIds, 'Public media in private folder should be found');
         static::assertContains($publicMediaId, $mediaIds, 'Public media should be found');
@@ -91,10 +92,34 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         ]);
         $criteria->addFilter(new EqualsFilter('private', true));
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
-        $mediaIds = array_map(fn ($media) => $media->getId(), $result->getEntities()->getElements());
+        $mediaIds = array_map(static fn ($media) => $media->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateMediaId, $mediaIds, 'Private media should not be found');
         static::assertNotContains($publicMediaId, $mediaIds, 'Public media should not be found when filtering for private');
         static::assertCount(0, $mediaIds, 'No media should be returned when searching for private media');
+    }
+
+    public function testSearchPrivateProductDownloadMediaIsAllowed(): void
+    {
+        $privateFolderId = $this->createMediaFolder('private-media-folder', 'private-folder', true);
+        $productDownloadFolderId = $this->getProductDownloadFolderId();
+
+        $privateMediaId = $this->createMedia('private-media', 'private-file', $privateFolderId, true);
+        $privateProductDownloadMediaId = $this->createMedia(
+            'private-product-download-media',
+            'private-product-download-file',
+            $productDownloadFolderId,
+            true
+        );
+
+        $criteria = new Criteria([
+            $privateMediaId,
+            $privateProductDownloadMediaId,
+        ]);
+        $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
+        $mediaIds = array_map(static fn ($media) => $media->getId(), $result->getEntities()->getElements());
+
+        static::assertNotContains($privateMediaId, $mediaIds, 'Private media outside the product download folder should not be found');
+        static::assertContains($privateProductDownloadMediaId, $mediaIds, 'Private product download media should be found');
     }
 
     public function testSearchPublicMediaFolderIsFound(): void
@@ -107,7 +132,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             $publicFolderId,
         ]);
         $result = $this->mediaFolderRepository->search($criteria, $this->salesChannelContext);
-        $folderIds = array_map(fn ($folder) => $folder->getId(), $result->getEntities()->getElements());
+        $folderIds = array_map(static fn ($folder) => $folder->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateFolderId, $folderIds, 'Private folder should not be found');
         static::assertContains($publicFolderId, $folderIds, 'Public folder should be found');
     }
@@ -123,7 +148,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         ]);
         $criteria->addFilter(new EqualsFilter('configuration.private', true));
         $result = $this->mediaFolderRepository->search($criteria, $this->salesChannelContext);
-        $folderIds = array_map(fn ($folder) => $folder->getId(), $result->getEntities()->getElements());
+        $folderIds = array_map(static fn ($folder) => $folder->getId(), $result->getEntities()->getElements());
         static::assertNotContains($privateFolderId, $folderIds, 'Private folder should not be found');
         static::assertNotContains($publicFolderId, $folderIds, 'Public folder should not be found when filtering for private');
         static::assertCount(0, $folderIds, 'No folder should be returned when searching for private folders');
@@ -212,11 +237,11 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         $termsResult = $result->getAggregations()->get('private-media-terms');
         static::assertInstanceOf(TermsResult::class, $termsResult);
         $buckets = $termsResult->getBuckets();
-        $bucketValues = array_map(fn (Bucket $b) => $b->getKey(), $buckets);
+        $bucketValues = array_map(static fn (Bucket $b) => $b->getKey(), $buckets);
         static::assertNotContains('1', $bucketValues, 'There should be no bucket for private media');
         static::assertContains('0', $bucketValues, 'There should be a bucket for public media');
 
-        $publicBucket = array_filter($buckets, fn (Bucket $b) => $b->getKey() === '0');
+        $publicBucket = array_filter($buckets, static fn (Bucket $b) => $b->getKey() === '0');
         static::assertCount(1, $publicBucket, 'There should be exactly one public media bucket');
         $publicCount = $publicBucket[0];
         static::assertInstanceOf(Bucket::class, $publicCount);
@@ -255,5 +280,23 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         ], $this->salesChannelContext);
 
         return $id;
+    }
+
+    private function getProductDownloadFolderId(): string
+    {
+        $folderId = $this->connection->fetchOne(
+            <<<'SQL'
+                SELECT LOWER(HEX(`media_folder`.`id`))
+                FROM `media_folder`
+                INNER JOIN `media_default_folder`
+                    ON `media_default_folder`.`id` = `media_folder`.`default_folder_id`
+                WHERE `media_default_folder`.`entity` = :entity
+            SQL,
+            ['entity' => 'product_download']
+        );
+
+        static::assertIsString($folderId);
+
+        return $folderId;
     }
 }

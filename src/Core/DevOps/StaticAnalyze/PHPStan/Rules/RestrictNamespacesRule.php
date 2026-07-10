@@ -26,7 +26,8 @@ class RestrictNamespacesRule
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace(self::NAMESPACE_ADMINISTRATION))
-            ->shouldNotDependOn()
+            ->shouldNot()
+            ->dependOn()
             ->classes(
                 Selector::inNamespace(self::NAMESPACE_ELASTICSEARCH),
                 Selector::inNamespace(self::NAMESPACE_STOREFRONT),
@@ -38,7 +39,8 @@ class RestrictNamespacesRule
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace(self::NAMESPACE_CORE))
-            ->shouldNotDependOn()
+            ->shouldNot()
+            ->dependOn()
             ->classes(
                 Selector::inNamespace(self::NAMESPACE_ADMINISTRATION),
                 Selector::inNamespace(self::NAMESPACE_ELASTICSEARCH),
@@ -51,7 +53,8 @@ class RestrictNamespacesRule
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace(self::NAMESPACE_ELASTICSEARCH))
-            ->shouldNotDependOn()
+            ->shouldNot()
+            ->dependOn()
             ->classes(
                 Selector::inNamespace(self::NAMESPACE_ADMINISTRATION),
                 Selector::inNamespace(self::NAMESPACE_STOREFRONT),
@@ -63,7 +66,8 @@ class RestrictNamespacesRule
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace(self::NAMESPACE_STOREFRONT))
-            ->shouldNotDependOn()
+            ->shouldNot()
+            ->dependOn()
             ->classes(
                 Selector::inNamespace(self::NAMESPACE_ADMINISTRATION),
                 Selector::inNamespace(self::NAMESPACE_ELASTICSEARCH),

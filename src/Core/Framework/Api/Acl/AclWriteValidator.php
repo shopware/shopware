@@ -91,7 +91,7 @@ class AclWriteValidator implements EventSubscriberInterface
      */
     private function tryToThrow(array $missingPrivileges): void
     {
-        if (!empty($missingPrivileges)) {
+        if ($missingPrivileges !== []) {
             throw ApiException::missingPrivileges($missingPrivileges);
         }
     }

@@ -8,12 +8,11 @@
     <mt-button
         v-if="shortened"
         class="sw-text-preview__expand-button"
-        ghost
         size="x-small"
         variant="secondary"
         @click.prevent="openModal"
     >
-        {{ $tc('global.sw-text-preview.showMoreButton') }}
+        {{ $t('global.sw-text-preview.showMoreButton') }}
     </mt-button>
     {% endblock %}
 
@@ -34,7 +33,7 @@
                 variant="secondary"
                 @click="closeModal"
             >
-                {{ $tc('global.sw-modal.labelClose') }}
+                {{ $t('global.default.close') }}
             </mt-button>
             {% endblock %}
         </template>

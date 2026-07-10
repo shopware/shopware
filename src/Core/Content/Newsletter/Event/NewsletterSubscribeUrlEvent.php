@@ -12,6 +12,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
         private string $subscribeUrl,

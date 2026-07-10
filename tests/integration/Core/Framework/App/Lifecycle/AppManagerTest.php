@@ -1,0 +1,1633 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
+
+use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Media\File\FileLoader;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
+use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptLoader;
+use Shopware\Core\Framework\Script\ScriptCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+/**
+ * @internal
+ */
+class AppManagerTest extends TestCase
+{
+    use GuzzleTestClientBehaviour;
+
+    private AppManager $appManager;
+
+    /**
+     * @var EntityRepository<AppCollection>
+     */
+    private EntityRepository $appRepository;
+
+    private Context $context;
+
+    /**
+     * @var EntityRepository<ActionButtonCollection>
+     */
+    private EntityRepository $actionButtonRepository;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->actionButtonRepository = static::getContainer()->get('app_action_button.repository');
+
+        $this->appManager = static::getContainer()->get(AppManager::class);
+
+        $userId = static::getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $source = new AdminApiSource($userId);
+        $source->setIsAdmin(true);
+        $this->context = Context::createDefaultContext($source);
+
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+
+        $cache = static::getContainer()->get('cache.object');
+        $item = $cache->getItem(ScriptLoader::CACHE_KEY);
+        $cache->save(CacheCompressor::compress($item, []));
+
+        $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testInstall(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $eventWasReceived = false;
+        $appId = null;
+        $onAppInstalled = static function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
+            $eventWasReceived = true;
+            $appId = $event->getApp()->getId();
+            static::assertSame($manifest, $event->getManifest());
+        };
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
+
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
+        static::assertSame('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
+
+        static::assertTrue($eventWasReceived);
+        $this->eventDispatcher->removeListener(AppInstalledEvent::class, $onAppInstalled);
+        $criteria = new Criteria();
+        $criteria->addAssociation('integration');
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame(
+            base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            $appEntity->getIcon()
+        );
+        // assert formatting with \n and \t is preserved
+        static::assertSame(
+            'Following personal information will be processed on shopware AG\'s servers:
+
+- Name
+- Billing address
+- Order value',
+            $appEntity->getPrivacyPolicyExtensions()
+        );
+
+        static::assertSame($appId, $appEntity->getId());
+        static::assertFalse($appEntity->isConfigurable());
+        static::assertTrue($appEntity->getAllowDisable());
+        $integrationEntity = $appEntity->getIntegration();
+        static::assertNotNull($integrationEntity);
+        static::assertFalse($integrationEntity->getAdmin());
+        static::assertSame(100, $appEntity->getTemplateLoadPriority());
+        static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
+
+        $this->assertDefaultActionButtons();
+        $this->assertDefaultModules($appEntity);
+        $this->assertDefaultPrivileges($appEntity->getAclRoleId());
+        $this->assertDefaultWebhooks($appEntity->getId());
+        $this->assertDefaultTemplate($appEntity->getId());
+        $this->assertDefaultScript($appEntity->getId());
+        $this->assertDefaultPaymentMethods($appEntity->getId());
+        $this->assertDefaultCmsBlocks($appEntity->getId());
+        $this->assertAssetExists($appEntity->getName());
+        $this->assertFlowActionExists($appEntity->getId());
+        $this->assertDefaultHosts($appEntity);
+        $this->assertShippingMethodsExists($appEntity->getId());
+    }
+
+    public function testInstallRollbacksRegistrationFailure(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $this->appendNewResponse(new Response(500));
+
+        $wasThrown = false;
+
+        try {
+            $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+        } catch (AppRegistrationException) {
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getTotal();
+
+        static::assertSame(0, $apps);
+    }
+
+    public function testInstallMinimalManifest(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('minimal', $appEntity->getName());
+    }
+
+    public function testInstallOnlyCallsAppLifecycleScriptsForAffectedApps(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
+        static::assertCount(1, $traces[AppInstalledHook::HOOK_NAME]);
+        static::assertSame('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
+        static::assertCount(1, $traces[AppInstalledHook::HOOK_NAME]);
+    }
+
+    public function testInstallWithoutDescription(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('withoutDescription', $appEntity->getName());
+        static::assertNull($appEntity->getDescription());
+    }
+
+    public function testInstallWithSystemDefaultLanguageNotProvidedByApp(): void
+    {
+        $this->setNewSystemLanguage('nl-NL');
+        $this->setNewSystemLanguage('en-GB');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame('Test for App System', $appEntity->getDescription());
+    }
+
+    public function testInstallSavesConfig(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('withConfig', $appEntity->getName());
+        static::assertTrue($appEntity->isConfigurable());
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+    }
+
+    public function testInstallThrowsIfConfigContainsComponentElement(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
+
+        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+    }
+
+    public function testInstallThrowsIfAppIsAlreadyInstalled(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $this->expectExceptionObject(AppException::alreadyInstalled($manifest->getMetadata()->getName()));
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+    }
+
+    public function testUpdateInactiveApp(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'test',
+            'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'Swag App',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'modules' => [
+                [
+                    'label' => [
+                        'en-GB' => 'will be overwritten',
+                    ],
+                    'source' => 'https://example.com',
+                ],
+            ],
+            'actionButtons' => [
+                [
+                    'action' => 'test',
+                    'entity' => 'order',
+                    'view' => 'detail',
+                    'label' => 'test',
+                    'url' => 'test.com',
+                ],
+                [
+                    'action' => 'viewOrder',
+                    'entity' => 'should',
+                    'view' => 'get',
+                    'label' => 'updated',
+                    'url' => 'test.com',
+                ],
+            ],
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'test',
+            ],
+            'webhooks' => [
+                [
+                    'name' => 'hook1',
+                    'url' => 'oldUrl.com',
+                    'eventName' => 'testEvent',
+                ],
+                [
+                    'name' => 'shouldGetDeleted',
+                    'url' => 'test.com',
+                    'eventName' => 'anotherTest',
+                ],
+            ],
+            'templates' => [
+                [
+                    'path' => 'storefront/layout/header/logo.html.twig',
+                    'template' => 'will be overwritten',
+                    'active' => false,
+                ],
+                [
+                    'path' => 'storefront/got/removed',
+                    'template' => 'will be removed',
+                    'active' => false,
+                ],
+            ],
+            'paymentMethods' => [
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\myMethod',
+                        'name' => 'My method',
+                        'technicalName' => 'payment_test',
+                        'active' => false,
+                        'media' => [
+                            'private' => true,
+                        ],
+                    ],
+                    'appName' => 'test',
+                    'identifier' => 'myMethod',
+                ],
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\toBeRemoved',
+                        'name' => 'This method shall be removed',
+                        'technicalName' => 'payment_removed',
+                        'active' => false,
+                    ],
+                    'appName' => 'test',
+                    'identifier' => 'toBeRemoved',
+                ],
+            ],
+        ]], $context);
+
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
+        $permissions = Permissions::fromArray([
+            'permissions' => [
+                'product' => ['update'],
+            ],
+        ]);
+
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $eventWasReceived = false;
+        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
+            $eventWasReceived = true;
+            static::assertSame($id, $event->getApp()->getId());
+            static::assertSame($manifest, $event->getManifest());
+        };
+        $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
+        static::assertSame('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
+
+        static::assertTrue($eventWasReceived);
+        $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame(
+            base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            $appEntity->getIcon()
+        );
+        static::assertSame('1.0.0', $appEntity->getVersion());
+        static::assertNotSame('test', $appEntity->getTranslation('label'));
+        static::assertTrue($appEntity->getAllowDisable());
+
+        $this->assertDefaultActionButtons();
+        $this->assertDefaultModules($appEntity);
+        $this->assertDefaultPrivileges($appEntity->getAclRoleId());
+        $this->assertDefaultWebhooks($appEntity->getId());
+        $this->assertDefaultTemplate($appEntity->getId(), false);
+        $this->assertDefaultScript($appEntity->getId(), false);
+        $this->assertDefaultPaymentMethods($appEntity->getId());
+        $this->assertAssetExists($appEntity->getName());
+        $this->assertFlowActionExists($appEntity->getId());
+        $this->assertDefaultHosts($appEntity);
+        $this->assertFlowEventExists($appEntity->getId());
+    }
+
+    public function testUpdateActiveApp(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'test',
+            'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'Swag App',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'baseAppUrl' => 'toBeUpdated',
+            'active' => true,
+            'modules' => [
+                [
+                    'label' => [
+                        'en-GB' => 'will be overwritten',
+                    ],
+                    'source' => 'https://example.com',
+                ],
+            ],
+            'actionButtons' => [
+                [
+                    'action' => 'test',
+                    'entity' => 'order',
+                    'view' => 'detail',
+                    'label' => 'test',
+                    'url' => 'test.com',
+                ],
+                [
+                    'action' => 'viewOrder',
+                    'entity' => 'should',
+                    'view' => 'get',
+                    'label' => 'updated',
+                    'url' => 'test.com',
+                ],
+            ],
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'test',
+            ],
+            'webhooks' => [
+                [
+                    'name' => 'hook1',
+                    'url' => 'oldUrl.com',
+                    'eventName' => 'testEvent',
+                ],
+                [
+                    'name' => 'shouldGetDeleted',
+                    'url' => 'test.com',
+                    'eventName' => 'anotherTest',
+                ],
+            ],
+            'templates' => [
+                [
+                    'path' => 'storefront/layout/header/logo.html.twig',
+                    'template' => 'will be overwritten',
+                    'active' => true,
+                ],
+                [
+                    'path' => 'storefront/got/removed',
+                    'template' => 'will be removed',
+                    'active' => true,
+                ],
+            ],
+            'paymentMethods' => [
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\myMethod',
+                        'name' => 'My method',
+                        'technicalName' => 'payment_test',
+                        'active' => true,
+                        'media' => [
+                            'private' => false,
+                        ],
+                    ],
+                    'appName' => 'test',
+                    'identifier' => 'myMethod',
+                ],
+                [
+                    'paymentMethod' => [
+                        'handlerIdentifier' => 'app\\test\\toBeRemoved',
+                        'name' => 'This method shall be removed',
+                        'technicalName' => 'payment_removed',
+                        'active' => true,
+                    ],
+                    'appName' => 'test',
+                    'identifier' => 'toBeRemoved',
+                ],
+            ],
+        ]], $context);
+
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
+        $permissions = Permissions::fromArray([
+            'permissions' => [
+                'product' => ['update'],
+            ],
+        ]);
+
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $eventWasReceived = false;
+        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
+            $eventWasReceived = true;
+            static::assertSame($id, $event->getApp()->getId());
+            static::assertSame($manifest, $event->getManifest());
+        };
+        $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
+        static::assertSame('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
+
+        static::assertTrue($eventWasReceived);
+        $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame(
+            base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            $appEntity->getIcon()
+        );
+        static::assertSame('1.0.0', $appEntity->getVersion());
+        static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
+        static::assertNotSame('test', $appEntity->getTranslation('label'));
+        static::assertTrue($appEntity->getAllowDisable());
+
+        $this->assertDefaultActionButtons();
+        $this->assertDefaultModules($appEntity);
+        $this->assertDefaultPrivileges($appEntity->getAclRoleId());
+        $this->assertDefaultWebhooks($appEntity->getId());
+        $this->assertDefaultTemplate($appEntity->getId());
+        $this->assertDefaultScript($appEntity->getId());
+        $this->assertDefaultPaymentMethods($appEntity->getId());
+        $this->assertAssetExists($appEntity->getName());
+        $this->assertFlowActionExists($appEntity->getId());
+        $this->assertDefaultHosts($appEntity);
+        $this->assertFlowEventExists($appEntity->getId());
+    }
+
+    public function testUpdateDoesRunRegistrationIfNecessary(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+        $this->appRepository->create([[
+            'id' => $id,
+            'active' => true,
+            'name' => 'test',
+            'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'Swag App',
+            'accessToken' => 'test',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'test',
+            ],
+            'templates' => [
+                [
+                    'path' => 'storefront/layout/header/logo.html.twig',
+                    'template' => 'will be overwritten',
+                    'active' => true,
+                ],
+                [
+                    'path' => 'storefront/got/removed',
+                    'template' => 'will be removed',
+                    'active' => true,
+                ],
+            ],
+        ]], $context);
+
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
+        $permissions = Permissions::fromArray([
+            'permissions' => [
+                'product' => ['update'],
+            ],
+        ]);
+
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        static::assertTrue($this->didRegisterApp());
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('actionButtons');
+        $criteria->addAssociation('webhooks');
+        $criteria->addAssociation('paymentMethods');
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+
+        $this->assertDefaultActionButtons();
+        $app1 = $apps->first();
+        static::assertNotNull($app1);
+        $this->assertDefaultModules($app1);
+        $this->assertDefaultPrivileges($app1->getAclRoleId());
+        $this->assertDefaultWebhooks($app1->getId());
+        $this->assertDefaultTemplate($app1->getId());
+        $this->assertDefaultScript($app1->getId());
+        $this->assertDefaultPaymentMethods($app1->getId());
+        $this->assertAssetExists($app1->getName());
+        $this->assertFlowActionExists($app1->getId());
+        $this->assertDefaultHosts($app1);
+        $this->assertFlowEventExists($app1->getId());
+    }
+
+    public function testUpdateSetsConfiguration(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'withConfig',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'withConfig',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertTrue($appEntity->isConfigurable());
+    }
+
+    public function testUpdateDoesNotOverrideConfiguration(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'withConfig',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'withConfig',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('withConfig.config.email', 'my-shop@test.com');
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        static::assertSame([
+            'withConfig.config.email' => 'my-shop@test.com',
+        ], $systemConfigService->getDomain('withConfig.config'));
+    }
+
+    public function testUpdateSetsConfiguratableToFalseIfConfigurationWasRemoved(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'test',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'configurable' => true,
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'test',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertFalse($appEntity->isConfigurable());
+    }
+
+    public function testUpdateDoesClearJsonFieldsIfTheyAreNotPresentInManifest(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'withConfig',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'modules' => [['test']],
+            'cookies' => [['test']],
+            'mainModule' => ['test'],
+            'appSecret' => 'iamsecret',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'SwagApp',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
+
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertEmpty($appEntity->getModules());
+        static::assertEmpty($appEntity->getCookies());
+        static::assertNull($appEntity->getMainModule());
+    }
+
+    public function testDelete(): void
+    {
+        $appId = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        $this->appRepository->create([[
+            'id' => $appId,
+            'name' => 'Test',
+            'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'actionButtons' => [
+                [
+                    'entity' => 'order',
+                    'view' => 'detail',
+                    'action' => 'test',
+                    'label' => 'test',
+                    'url' => 'test.com',
+                ],
+            ],
+            'integration' => [
+                'id' => $integrationId,
+                'label' => 'test',
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'Test',
+            ],
+            'scripts' => [
+                [
+                    'name' => 'app-deleted/delete.script.twig',
+                    'hook' => 'app-deleted',
+                    'script' => '{% do debug.dump(\'deleted\') %}',
+                    'active' => true,
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $appId,
+            'roleId' => $roleId,
+        ];
+
+        $deletedAppIds = [];
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
+            $deletedAppIds[] = $event->getAppId();
+        };
+        $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
+
+        $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
+
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
+        static::assertSame('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
+
+        static::assertSame([$appId], $deletedAppIds);
+        $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
+        $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
+        static::assertCount(0, $apps);
+
+        $roles = static::getContainer()->get('acl_role.repository')->searchIds(new Criteria([$roleId]), $this->context)->getIds();
+        static::assertCount(1, $roles);
+
+        $integrations = static::getContainer()->get('integration.repository')
+            ->searchIds(new Criteria([$integrationId]), $this->context)->getIds();
+        static::assertCount(1, $integrations);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
+        static::assertCount(0, $apps);
+    }
+
+    public function testDeleteRemovesInstalledAppAssets(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(1, $apps);
+
+        $filesystem = static::getContainer()->get('shopware.filesystem.asset');
+        static::assertTrue($filesystem->fileExists('bundles/test/asset.txt'));
+        $app = $apps->first();
+        static::assertNotNull($app);
+
+        $this->appManager->uninstall($app, $this->context);
+
+        $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
+        static::assertCount(0, $apps);
+
+        static::assertFalse($filesystem->fileExists('bundles/test/asset.txt'));
+    }
+
+    public function testDeleteAppDeletesConfigWhenUserDataShouldNotBeKept(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('withConfig', $appEntity->getName());
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+
+        $this->appManager->uninstall($appEntity, $this->context);
+
+        static::assertSame([], $systemConfigService->getDomain('withConfig.config'));
+    }
+
+    public function testDeleteAppDoesNotDeleteConfigWhenUserDataShouldBeKept(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('withConfig', $appEntity->getName());
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+
+        $this->appManager->uninstall($appEntity, $this->context, true);
+
+        static::assertSame([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+    }
+
+    public function testInstallWithUpdateAclRole(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $userId = Uuid::randomHex();
+        $this->createUser($userId);
+
+        $aclRoleId = Uuid::randomHex();
+        $this->createAclRole($aclRoleId, ['app.all']);
+
+        $this->createAclUserRole($userId, $aclRoleId);
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('integration');
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $appEntity = $apps->first();
+        static::assertNotNull($appEntity);
+        static::assertSame('test', $appEntity->getName());
+
+        $privileges = $connection->fetchOne('
+            SELECT `privileges`
+            FROM `acl_role`
+            WHERE `id` = :aclRoleId
+        ', ['aclRoleId' => Uuid::fromHexToBytes($aclRoleId)]);
+
+        static::assertIsString($privileges);
+        $privileges = json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertContains('app.' . $appEntity->getName(), $privileges);
+    }
+
+    public function testDeleteWithDeleteAclRole(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(1, $apps);
+
+        $aclRoleId = Uuid::randomHex();
+        $app = $apps->first();
+        static::assertNotNull($app);
+        $appPrivilege = 'app.' . $app->getName();
+        $this->createAclRole($aclRoleId, [$appPrivilege]);
+
+        $this->appManager->uninstall($app, $this->context);
+
+        $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
+        static::assertCount(0, $apps);
+
+        /** @var EntityRepository<AclRoleCollection> $aclRoleRepository */
+        $aclRoleRepository = static::getContainer()->get('acl_role.repository');
+        $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->getEntities()->first();
+        static::assertNotNull($aclRole);
+
+        static::assertNotContains($appPrivilege, $aclRole->getPrivileges());
+    }
+
+    public function testInstallWithAllowedHosts(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withAllowedHosts/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $app = $apps->first();
+        static::assertNotNull($app);
+        static::assertSame('withAllowedHosts', $app->getName());
+
+        $allowedHosts = $app->getAllowedHosts();
+        static::assertIsArray($allowedHosts);
+        static::assertCount(2, $allowedHosts);
+        static::assertContains('shopware.com', $allowedHosts);
+        static::assertContains('example.com', $allowedHosts);
+    }
+
+    public function testUninstallFlowEventUsedInFlowBuilder(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($flowEvents);
+        static::assertArrayHasKey(0, $flowEvents);
+        static::assertIsArray($flowEvents[0]);
+        static::assertArrayHasKey('id', $flowEvents[0]);
+
+        $flowId = Uuid::randomHex();
+        $this->createFlow($flowId, 'checkout.order.place.custom', $flowEvents[0]['id']);
+
+        $sequenceId = Uuid::randomHex();
+        $this->createSequence($sequenceId, $flowId);
+
+        $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
+        static::assertNotNull($flow);
+
+        $app = [
+            'id' => $appId,
+        ];
+
+        $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
+
+        $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
+        static::assertNull($flow);
+    }
+
+    private function assertShippingMethodsExists(string $appId): void
+    {
+        $criteria = new Criteria([$appId]);
+        $criteria->addAssociation('appShippingMethods.shippingMethod');
+
+        $app = $this->appRepository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(AppEntity::class, $app);
+
+        $appShippingMethods = $app->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+        static::assertCount(2, $appShippingMethods);
+
+        foreach ($appShippingMethods as $appShippingMethod) {
+            static::assertInstanceOf(AppShippingMethodEntity::class, $appShippingMethod);
+            $shippingMethod = $appShippingMethod->getShippingMethod();
+            static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+        }
+    }
+
+    private function getAppFlowEventFromFlow(string $appFlowEventId): ?string
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('event_name');
+        $query->from('flow');
+        $query->where('app_flow_event_id = :appFlowEventId');
+        $query->setParameter('appFlowEventId', Uuid::fromHexToBytes($appFlowEventId));
+
+        return $query->executeQuery()->fetchOne() ?: null;
+    }
+
+    private function createFlow(string $flowId, string $eventName = 'checkout.order.placed', ?string $appEventId = null): void
+    {
+        $this->connection->insert('flow', [
+            'id' => Uuid::fromHexToBytes($flowId),
+            'app_flow_event_id' => $appEventId ? Uuid::fromHexToBytes($appEventId) : null,
+            'name' => 'Test Flow',
+            'event_name' => $eventName,
+            'priority' => 1,
+            'active' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function createSequence(string $sequenceId, string $flowId, ?string $appFlowActionId = null): void
+    {
+        $this->connection->insert('flow_sequence', [
+            'id' => Uuid::fromHexToBytes($sequenceId),
+            'flow_id' => Uuid::fromHexToBytes($flowId),
+            'app_flow_action_id' => $appFlowActionId ? Uuid::fromHexToBytes($appFlowActionId) : null,
+            'action_name' => 'app.telegram.send.message',
+            'position' => 1,
+            'display_group' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function getAppId(): ?string
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('lower(hex(id))');
+        $query->from('app');
+
+        return $query->executeQuery()->fetchOne() ?: null;
+    }
+
+    private function assertDefaultActionButtons(): void
+    {
+        $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(2, $actionButtons);
+
+        $actionNames = $actionButtons->map(static fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
+
+        static::assertContains('viewOrder', $actionNames);
+        static::assertContains('doStuffWithProducts', $actionNames);
+    }
+
+    private function assertDefaultModules(AppEntity $app): void
+    {
+        static::assertCount(2, $app->getModules());
+
+        static::assertEquals([
+            [
+                'name' => 'first-module',
+                'label' => [
+                    'de-DE' => 'Mein erstes eigenes Modul',
+                    'en-GB' => 'My first own module',
+                ],
+                'parent' => 'sw-test-structure-module',
+                'source' => 'https://test.com',
+                'position' => 10,
+            ], [
+                'name' => 'structure-module',
+                'label' => [
+                    'de-DE' => 'Mein Menüeintrag für Module',
+                    'en-GB' => 'My menu entry for modules',
+                ],
+                'parent' => 'sw-catalogue',
+                'source' => null,
+                'position' => 50,
+            ],
+        ], $app->getModules());
+    }
+
+    private function assertDefaultPrivileges(string $roleId): void
+    {
+        $privileges = static::getContainer()->get(Connection::class)->fetchOne('
+            SELECT `privileges`
+            FROM `acl_role`
+            WHERE `id` = :aclRoleId
+        ', ['aclRoleId' => Uuid::fromHexToBytes($roleId)]);
+
+        $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(16, $privileges);
+
+        static::assertContains('product:read', $privileges);
+        static::assertContains('product:create', $privileges);
+        static::assertContains('product:update', $privileges);
+        static::assertContains('product:delete', $privileges);
+        static::assertContains('category:read', $privileges);
+        static::assertContains('category:delete', $privileges);
+        static::assertContains('product_manufacturer:read', $privileges);
+        static::assertContains('product_manufacturer:create', $privileges);
+        static::assertContains('product_manufacturer:delete', $privileges);
+        static::assertContains('tax:read', $privileges);
+        static::assertContains('tax:create', $privileges);
+        static::assertContains('language:read', $privileges);
+        static::assertContains('custom_field_set:read', $privileges);
+        static::assertContains('custom_field_set:update', $privileges);
+        static::assertContains('order:read', $privileges);
+        static::assertContains('user_change_me', $privileges);
+    }
+
+    private function assertDefaultWebhooks(string $appId): void
+    {
+        $webhooks = $this->connection->fetchAllAssociative('SELECT url, event_name FROM webhook WHERE app_id = ?', [Uuid::fromHexToBytes($appId)]);
+
+        static::assertCount(3, $webhooks);
+        \usort($webhooks, static fn (array $a, array $b) => $a['url'] <=> $b['url']);
+
+        $firstWebhook = $webhooks[0];
+        static::assertSame('https://test-flow.com', $firstWebhook['url']);
+        static::assertSame('telegram.send.message', $firstWebhook['event_name']);
+
+        $secondWebhook = $webhooks[1];
+        static::assertSame('https://test.com/hook', $secondWebhook['url']);
+        static::assertSame('checkout.customer.before.login', $secondWebhook['event_name']);
+
+        $thirdWebhook = $webhooks[2];
+        static::assertSame('https://test.com/hook2', $thirdWebhook['url']);
+        static::assertSame('checkout.order.placed', $thirdWebhook['event_name']);
+    }
+
+    private function assertDefaultTemplate(string $appId, bool $active = true): void
+    {
+        /** @var EntityRepository<TemplateCollection> $templateRepository */
+        $templateRepository = static::getContainer()->get('app_template.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addSorting(new FieldSorting('path', FieldSorting::ASCENDING));
+        $templates = $templateRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(3, $templates);
+        $templates = array_values($templates->getElements());
+
+        $template = $templates[0];
+        static::assertSame('storefront/layout/header/header.html.twig', $template->getPath());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/header.html.twig',
+            $template->getTemplate()
+        );
+        static::assertSame($active, $template->isActive());
+
+        $template = $templates[1];
+        static::assertSame('storefront/layout/header/logo.html.twig', $template->getPath());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
+            $template->getTemplate()
+        );
+        static::assertSame($active, $template->isActive());
+    }
+
+    private function assertDefaultScript(string $appId, bool $active = true): void
+    {
+        /** @var EntityRepository<ScriptCollection> $scriptRepository */
+        $scriptRepository = static::getContainer()->get('script.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::DESCENDING));
+        $scripts = $scriptRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(6, $scripts);
+
+        $script = $scripts->first();
+        static::assertNotNull($script);
+        static::assertSame('product-page-loaded/product-page-script.twig', $script->getName());
+        static::assertSame('product-page-loaded', $script->getHook());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/scripts/product-page-loaded/product-page-script.twig',
+            $script->getScript()
+        );
+        static::assertSame($active, $script->isActive());
+
+        $cache = static::getContainer()->get('cache.object');
+        static::assertTrue($cache->hasItem(ScriptLoader::CACHE_KEY));
+
+        $item = $cache->getItem(ScriptLoader::CACHE_KEY);
+        $cachedScripts = CacheCompressor::uncompress($item);
+        static::assertArrayHasKey('product-page-loaded', $cachedScripts);
+        static::assertCount(1, $cachedScripts['product-page-loaded']);
+        static::assertInstanceOf(Script::class, $cachedScripts['product-page-loaded'][0]);
+        static::assertSame($script->getName(), $cachedScripts['product-page-loaded'][0]->getName());
+        static::assertSame($active, $cachedScripts['product-page-loaded'][0]->isActive());
+    }
+
+    private function assertDefaultPaymentMethods(string $appId): void
+    {
+        /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */
+        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('appPaymentMethod');
+        $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
+
+        $paymentMethods = $paymentMethodRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(2, $paymentMethods);
+
+        $paymentMethod = $paymentMethods->filterByProperty('name', 'The app payment method')->first();
+        static::assertNotNull($paymentMethod);
+        static::assertSame('The app payment method', $paymentMethod->getName());
+        static::assertSame('handler_app_test_mymethod', $paymentMethod->getFormattedHandlerIdentifier());
+        static::assertNotNull($paymentMethod->getMediaId());
+        $fileLoader = static::getContainer()->get(FileLoader::class);
+        static::assertNotEmpty($fileLoader->loadMediaFile($paymentMethod->getMediaId(), $this->context));
+        $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
+        static::assertNotNull($appPaymentMethod);
+        static::assertSame('test', $appPaymentMethod->getAppName());
+        static::assertSame('myMethod', $appPaymentMethod->getIdentifier());
+        static::assertSame('https://payment.app/payment/process', $appPaymentMethod->getPayUrl());
+        static::assertSame('https://payment.app/payment/finalize', $appPaymentMethod->getFinalizeUrl());
+    }
+
+    private function assertDefaultCmsBlocks(string $appId): void
+    {
+        /** @var EntityRepository<AppCmsBlockCollection> $cmsBlockRepository */
+        $cmsBlockRepository = static::getContainer()->get('app_cms_block.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('appId', $appId)
+        );
+
+        $cmsBlocks = $cmsBlockRepository->search($criteria, $this->context)->getEntities();
+        static::assertCount(2, $cmsBlocks);
+
+        $firstCmsBlock = $cmsBlocks->filterByProperty('name', 'my-first-block')->first();
+        static::assertNotNull($firstCmsBlock);
+        static::assertSame('my-first-block', $firstCmsBlock->getName());
+        static::assertSame('First block from app', $firstCmsBlock->getLabel());
+        $firstBlockJson = json_encode($firstCmsBlock->getBlock(), \JSON_THROW_ON_ERROR);
+        static::assertIsString($firstBlockJson);
+        static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json', $firstBlockJson);
+        static::assertSame(
+            $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/preview.html')),
+            $this->stripWhitespace($firstCmsBlock->getTemplate())
+        );
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/styles.css',
+            $firstCmsBlock->getStyles()
+        );
+
+        $secondCmsBlock = $cmsBlocks->filterByProperty('name', 'my-second-block')->first();
+        static::assertNotNull($secondCmsBlock);
+        static::assertSame('my-second-block', $secondCmsBlock->getName());
+        static::assertSame('Second block from app', $secondCmsBlock->getLabel());
+        $cmsBlockJson = json_encode($secondCmsBlock->getBlock(), \JSON_THROW_ON_ERROR);
+        static::assertIsString($cmsBlockJson);
+        static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedSecondCmsBlock.json', $cmsBlockJson);
+        static::assertSame(
+            $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html')),
+            $this->stripWhitespace($secondCmsBlock->getTemplate())
+        );
+        static::assertSame(
+            $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/styles.css')),
+            $this->stripWhitespace($secondCmsBlock->getStyles())
+        );
+    }
+
+    private function stripWhitespace(string $text): string
+    {
+        return (string) \preg_replace('/\s/m', '', $text);
+    }
+
+    private function setNewSystemLanguage(string $iso): void
+    {
+        $languageRepository = static::getContainer()->get('language.repository');
+
+        $localeId = $this->getIsoId($iso);
+        $languageRepository->update(
+            [
+                [
+                    'id' => Defaults::LANGUAGE_SYSTEM,
+                    'name' => $iso,
+                    'localeId' => $localeId,
+                    'translationCodeId' => $localeId,
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+    }
+
+    private function getIsoId(string $iso): string
+    {
+        /** @var EntityRepository<LocaleCollection> $localeRepository */
+        $localeRepository = static::getContainer()->get('locale.repository');
+
+        $criteria = new Criteria();
+
+        $criteria->addFilter(new EqualsFilter('code', $iso));
+
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($locale);
+
+        return $locale->getId();
+    }
+
+    private function createUser(string $userId): void
+    {
+        static::getContainer()->get(Connection::class)->insert('user', [
+            'id' => Uuid::fromHexToBytes($userId),
+            'first_name' => 'test',
+            'last_name' => '',
+            'email' => 'test@example.com',
+            'username' => 'userTest',
+            'password' => password_hash('123456', \PASSWORD_BCRYPT),
+            'locale_id' => Uuid::fromHexToBytes($this->getLocaleIdOfSystemLanguage()),
+            'active' => 1,
+            'admin' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    /**
+     * @param array<string> $privileges
+     */
+    private function createAclRole(string $aclRoleId, array $privileges): void
+    {
+        static::getContainer()->get(Connection::class)->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($aclRoleId),
+            'name' => 'aclTest',
+            'privileges' => \json_encode($privileges, \JSON_THROW_ON_ERROR),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function createAclUserRole(string $userId, string $aclRoleId): void
+    {
+        static::getContainer()->get(Connection::class)->insert('acl_user_role', [
+            'user_id' => Uuid::fromHexToBytes($userId),
+            'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function assertAssetExists(string $appName): void
+    {
+        $filesystem = static::getContainer()->get('shopware.filesystem.asset');
+
+        static::assertTrue($filesystem->has('bundles/' . strtolower($appName) . '/asset.txt'));
+    }
+
+    private function assertFlowActionExists(string $appId): void
+    {
+        $appFlowAction = static::getContainer()
+            ->get(Connection::class)
+            ->executeQuery('SELECT * FROM `app_flow_action` WHERE `app_id` = :id', [
+                'id' => Uuid::fromHexToBytes($appId),
+            ])->fetchAssociative();
+
+        static::assertIsArray($appFlowAction);
+        static::assertSame($appFlowAction['name'], 'telegram.send.message');
+        static::assertSame($appFlowAction['url'], 'https://test-flow.com');
+        static::assertSame($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
+        $parameters = json_decode((string) $appFlowAction['parameters'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($parameters);
+        static::assertEquals(
+            [
+                [
+                    'name' => 'message',
+                    'type' => 'string',
+                    'value' => 'string message',
+                    'extensions' => [],
+                ],
+            ],
+            $parameters
+        );
+
+        $config = json_decode((string) $appFlowAction['config'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($config);
+        static::assertEquals(
+            [
+                [
+                    'name' => 'text',
+                    'type' => 'text',
+                    'label' => [
+                        'de-DE' => 'Text DE',
+                        'en-GB' => 'Text',
+                    ],
+                    'options' => [],
+                    'helpText' => [
+                        'de-DE' => 'Help DE',
+                        'en-GB' => 'Help Text',
+                    ],
+                    'required' => true,
+                    'extensions' => [],
+                    'placeHolder' => [
+                        'de-DE' => 'Enter Text DE...',
+                        'en-GB' => 'Enter Text...',
+                    ],
+                    'defaultValue' => 'Hello',
+                ],
+            ],
+            $config
+        );
+
+        $headers = json_decode((string) $appFlowAction['headers'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($headers);
+        static::assertEquals(
+            [
+                [
+                    'name' => 'content-type',
+                    'type' => 'string',
+                    'value' => 'application/json',
+                    'extensions' => [],
+                ],
+            ],
+            $headers
+        );
+
+        $requirements = json_decode((string) $appFlowAction['requirements'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($requirements);
+        static::assertEquals(
+            [
+                'orderAware',
+                'customerAware',
+            ],
+            $requirements
+        );
+
+        $headlines = static::getContainer()
+            ->get(Connection::class)
+            ->executeQuery('SELECT `headline` FROM `app_flow_action_translation` WHERE `app_flow_action_id` = :id', [
+                'id' => $appFlowAction['id'],
+            ])->fetchAllAssociativeIndexed();
+
+        static::assertContains('The headline App Flow Action', \array_keys($headlines));
+        static::assertContains('Die Überschrift App Flow Action', \array_keys($headlines));
+    }
+
+    private function assertDefaultHosts(AppEntity $app): void
+    {
+        static::assertSame([
+            'my.app.com',
+            'test.com',
+            'base-url.com',
+            'main-module',
+            'swag-test.com',
+            'payment.app',
+            'tax-provider.app',
+            'tax-provider-2.app',
+        ], $app->getAllowedHosts());
+    }
+
+    private function loadApp(string $id): AppEntity
+    {
+        $app = $this->appRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+        \assert($app instanceof AppEntity);
+
+        return $app;
+    }
+
+    /**
+     * @return array<int, mixed>|null
+     */
+    private function getAppFlowEvents(string $appId): ?array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('lower(hex(id)) AS id');
+        $query->from('app_flow_event');
+        $query->where('app_id = :appId');
+        $query->setParameter('appId', Uuid::fromHexToBytes($appId));
+
+        return $query->executeQuery()->fetchAllAssociative() ?: null;
+    }
+
+    private function assertFlowEventExists(string $appId): void
+    {
+        $appFlowEvent = static::getContainer()
+            ->get(Connection::class)
+            ->executeQuery('SELECT * FROM `app_flow_event` WHERE `app_id` = :id', [
+                'id' => Uuid::fromHexToBytes($appId),
+            ])->fetchAssociative();
+
+        static::assertIsArray($appFlowEvent);
+        static::assertSame($appFlowEvent['name'], 'checkout.order.place.custom');
+
+        $aware = json_decode($appFlowEvent['aware'], true);
+        static::assertNotNull($aware);
+        static::assertSame(
+            [
+                'orderAware',
+                'customerAware',
+            ],
+            $aware
+        );
+    }
+}

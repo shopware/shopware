@@ -40,14 +40,13 @@ class AssetBundleRegistrationCompilerPassTest extends TestCase
         $container->addCompilerPass($compilerPass);
         $compilerPass->process($container);
 
-        $container->set('shopware.asset.asset_without_versioning', $this->createMock(Package::class));
+        $container->set('shopware.asset.asset_without_versioning', static::createStub(Package::class));
 
         $assetService = $container->get('assets.packages');
 
         $assetService->getPackage('@Framework');
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('There is no "@FrameworkBundle" asset package.');
+        $this->expectExceptionObject(new InvalidArgumentException('There is no "@FrameworkBundle" asset package.'));
         $assetService->getPackage('@FrameworkBundle');
     }
 }

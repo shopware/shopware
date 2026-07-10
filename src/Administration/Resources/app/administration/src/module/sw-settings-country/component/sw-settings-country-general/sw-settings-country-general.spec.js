@@ -27,7 +27,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
 
             global: {
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',

@@ -23,17 +23,16 @@
       "buttonAddOrder": "Bestellung anlegen",
       "textOrders": "Bestellungen",
       "textOrdersTotal": "Keine Bestellungen | Eine Bestellung | {count} Bestellungen",
-      "contextMenuView": "Anzeigen",
-      "contextMenuDelete": "Löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
-      "buttonDelete": "Löschen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
-      "labelManualOrder": "Erstellt von Admin"
+      "labelManualOrder": "Erstellt von Admin",
+      "tooltipCustomerComment": "Zusätzliche Informationen: {comment}",
+      "tooltipInternalComment": "Interner Kommentar: {comment}"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",
@@ -93,8 +92,7 @@
       "labelToggleAutomaticPromotions": "Automatische hinzugefügte Rabattaktionen deaktivieren",
       "labelPromotions": "Rabattaktionen",
       "generalTab": {
-        "labelLineItemsCard": "Positionen",
-        "labelGeneralInfoCard": "Info"
+        "labelLineItemsCard": "Positionen"
       },
       "detailsTab": {
         "labelTransactionCard": "Zahlung",
@@ -197,7 +195,6 @@
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Positionen",
-      "cardTitleGeneralInfo": "Info",
       "cardTitlePromotions": "Rabattaktionen",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
@@ -234,7 +231,6 @@
       "buttonAddProduct": "Produkt hinzufügen",
       "buttonAddBlankProduct": "Leere Position hinzufügen",
       "buttonAddCredit": "Gutschrift hinzufügen",
-      "buttonEditAddress": "Bearbeiten",
       "tooltipNestedLineItemsButton": "Diese Bestellposition enthält Unterpositionen.",
       "labelNoPhoneNumber": "Keine",
       "labelNoEmail": "Keine",
@@ -316,18 +312,17 @@
       "emptySearchResults": "Keine Adressen gefunden."
     },
     "leavePageModal": {
-      "headline": "Warnung",
       "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
       "confirmButton": "Seite verlassen",
       "cancelButton": "Auf Seite bleiben"
     },
     "saveChangesBeforehandModal": {
-      "headline": "Warnung",
       "statusDescription": "Bevor der Status geändert werden kann, müssen die Änderungen der Bestellung gespeichert werden. Möchtest Du jetzt deine Änderungen speichern?",
       "confirmButton": "Änderungen speichern"
     },
     "stateCard": {
       "cardTitle": "Statusverlauf",
+      "cartTitleChangeState": "Status ändern",
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
       "headlineDeliveryState": "Lieferstatus",
@@ -337,6 +332,7 @@
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
+      "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
       "labelSendMailSwitch": "E-Mail an Kunden senden",
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
@@ -384,7 +380,8 @@
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."
-      }
+      },
+      "confirmDeleteText": "Dieses Dokument gehört zu einer Bestellung und kann steuerlich relevant sein. Durch das Löschen kann die Nachvollziehbarkeit Deiner Buchführung beeinträchtigt werden. Prüfe bitte, ob die Löschung rechtlich zulässig ist. Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "generalTab": {
       "info": {
@@ -434,10 +431,10 @@
       "selectInvoiceNumber": "Rechnung wählen",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
+      "labelCreateDownload": "Erstellen und herunterladen",
       "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
-      "labelCancel": "Schließen",
       "labelPreview": "Vorschau",
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Gesamt",
@@ -453,7 +450,6 @@
       "labelRecipient": "E-Mail-Adresse",
       "labelContent": "Inhalt",
       "labelSubject": "Betreff",
-      "labelClose": "Schließen",
       "errorMessage": "Beim Versenden der E-Mail ist etwas schiefgelaufen."
     },
     "stateModal": {
@@ -469,7 +465,8 @@
         "user": "Geändert von",
         "transaction": "Zahlung",
         "delivery": "Versand",
-        "order": "Bestellung"
+        "order": "Bestellung",
+        "internalComment": "Interner Kommentar"
       }
     },
     "newCustomerModal": {
@@ -499,7 +496,6 @@
         "buttonAddNewCustomer": "Kunden anlegen",
         "placeholderSearchCustomer": "Kundennamen eingeben ...",
         "textEmptySearch": "Keine Daten für {name} vorhanden",
-        "contextOpenButton": "Öffnen",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",
         "columnSalesChannel": "Verkaufskanal",
@@ -538,11 +534,21 @@
       "orderDateFilter": {
         "label": "Bestelldatum",
         "options": {
-          "lastYear": "Letztes Jahr",
-          "lastQuarter": "Letzes Quartal",
-          "lastMonth": "Letzter Monat",
-          "lastWeek": "Letzte Woche",
-          "lastDay": "Letzter Tag",
+          "today": "Heute",
+          "yesterday": "Gestern",
+          "currentWeek": "Aktuelle Woche",
+          "lastWeek": "Letzte 7 Tage",
+          "lastCalendarWeek": "Vorherige Woche",
+          "currentMonth": "Aktueller Monat",
+          "lastMonth": "Letzte 30 Tage",
+          "lastCalendarMonth": "Vorheriger Monat",
+          "currentQuarter": "Aktuelles Quartal",
+          "lastQuarter": "Vorheriges Quartal",
+          "last3Months": "Letzte 3 Monate",
+          "last6Months": "Letzte 6 Monate",
+          "last12Months": "Letzte 12 Monate",
+          "currentYear": "Aktuelles Jahr",
+          "previousYear": "Vorheriges Jahr",
           "custom": "Benutzerdefiniert"
         }
       },
@@ -620,9 +626,14 @@
       "selectDocumentTypeModal": {
         "title": "Dokument erstellen",
         "primaryAction": "Dokument erstellen",
+        "showZugferd": "ZUGFeRD-Varianten anzeigen",
         "helpText": {
           "storno": "Eine Stornorechnung kann nicht ohne Rechnung erstellt werden.",
-          "credit_note": "Um eine Gutschrift zu erstellen, fügen Sie zunächst eine Gutschriftsposition hinzu."
+          "credit_note": "Um eine Gutschrift zu erstellen, sind eine Rechnung und mindestens eine Gutschriftsposition erforderlich.",
+          "zugferd_cancellation_invoice": "Eine ZUGFeRD-Stornorechnung kann nicht ohne Rechnung erstellt werden.",
+          "zugferd_embedded_cancellation_invoice": "Eine eingebettete ZUGFeRD-Stornorechnung kann nicht ohne Rechnung erstellt werden.",
+          "zugferd_credit_note": "Um eine ZUGFeRD-Gutschrift zu erstellen, sind eine Rechnung und mindestens eine Gutschriftsposition erforderlich.",
+          "zugferd_embedded_credit_note": "Um eine eingebettete ZUGFeRD-Gutschrift zu erstellen, sind eine Rechnung und mindestens eine Gutschriftsposition erforderlich."
         }
       }
     }

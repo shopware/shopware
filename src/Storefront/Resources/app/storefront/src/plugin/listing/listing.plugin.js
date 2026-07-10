@@ -38,6 +38,9 @@ export default class ListingPlugin extends Plugin {
         scrollTopListingWrapper: true,
         // how much px the scrolling should be offset
         scrollOffset: 15,
+        // Skip popstate handling for hash-only changes (fixes anchor links)
+        // Set to false to disable this fix for testing
+        ignoreHashOnlyPopstate: true,
     };
 
     init() {
@@ -54,7 +57,7 @@ export default class ListingPlugin extends Plugin {
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
             this._showResetAll = false;
-            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector
+            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector,
             );
             this.ariaLiveContainer = document.querySelector(this.options.ariaLiveSelector);
         }
@@ -63,6 +66,9 @@ export default class ListingPlugin extends Plugin {
         this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
 
         this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
+
+        // Track current path for hash-only popstate detection
+        this._lastPathWithoutHash = this._getPathWithoutHash();
 
         this._registerEvents();
     }
@@ -252,6 +258,9 @@ export default class ListingPlugin extends Plugin {
     _updateHistory(queryParams) {
         const url = this._buildUrl(window.location.pathname, queryParams);
         window.history.pushState({}, '', url);
+
+        // Update tracked path for hash-only popstate detection
+        this._lastPathWithoutHash = this._getPathWithoutHash();
     }
 
     /**
@@ -293,11 +302,15 @@ export default class ListingPlugin extends Plugin {
     createResetAllButton() {
         this.activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
 
-        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector
+        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector,
         );
 
-        resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
-        resetAllButtonEl.addEventListener('click', this.resetAllFilter.bind(this));
+        if (!this._boundResetAllFilter) {
+            this._boundResetAllFilter = this.resetAllFilter.bind(this);
+        }
+
+        resetAllButtonEl.removeEventListener('click', this._boundResetAllFilter);
+        resetAllButtonEl.addEventListener('click', this._boundResetAllFilter);
 
         if (!this._showResetAll) {
             resetAllButtonEl.remove();
@@ -428,10 +441,33 @@ export default class ListingPlugin extends Plugin {
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
-            .then((response) => response.text())
+            .then((response) => {
+                if (response.ok) {
+                    return response.text();
+                }
+
+                const error = new Error('Could not fetch listing data.');
+                error.response = response;
+
+                throw error;
+            })
             .then((response) => {
                 this.renderResponse(response);
+            })
+            .catch((error) => {
+                if (error.response?.status === 403) {
+                    const loginPageUrl = this._getLoginPageUrl(filterParams);
 
+                    if (loginPageUrl) {
+                        this._navigateTo(loginPageUrl);
+                    }
+
+                    return;
+                }
+
+                throw error;
+            })
+            .finally(() => {
                 if (this._filterPanelActive) {
                     this.removeLoadingIndicatorClass();
                     this._updateAriaLive();
@@ -522,6 +558,15 @@ export default class ListingPlugin extends Plugin {
      * @private
      */
     _onWindowPopstate() {
+        // Skip if this is just an anchor/hash navigation (not a filter/page change)
+        // Browsers fire popstate for hash changes
+        if (this.options.ignoreHashOnlyPopstate && this._lastPathWithoutHash) {
+            const currentPathWithoutHash = this._getPathWithoutHash();
+            if (this._lastPathWithoutHash === currentPathWithoutHash) {
+                return;
+            }
+        }
+
         this.refreshRegistry();
 
         this._registry.forEach(filterItem => {
@@ -537,6 +582,17 @@ export default class ListingPlugin extends Plugin {
 
         this.changeListing(false);
     }
+    /**
+     * Get current path without hash (pathname + search).
+     * Used for hash-only popstate detection (Safari/Firefox anchor link fix).
+     *
+     * @private
+     * @return {string}
+     */
+    _getPathWithoutHash() {
+        return window.location.pathname + window.location.search;
+    }
+
     /**
      * @private
      * @param {string} pathname
@@ -554,5 +610,55 @@ export default class ListingPlugin extends Plugin {
         }
 
         return url.toString();
+    }
+
+    /**
+     * @private
+     * @param {URLSearchParams} filterParams
+     * @return {string|null}
+     */
+    _getLoginPageUrl(filterParams) {
+        const loginPageUrl = window.router?.['frontend.account.login.page'];
+        const parameters = new URLSearchParams();
+
+        if (!loginPageUrl) {
+            return null;
+        }
+
+        if (!window.activeRoute) {
+            return loginPageUrl;
+        }
+
+        parameters.set('redirectTo', window.activeRoute);
+        parameters.set('redirectParameters', JSON.stringify(this._getLoginRedirectParameters(filterParams)));
+
+        return `${loginPageUrl}?${parameters.toString()}`;
+    }
+
+    /**
+     * @private
+     * @param {URLSearchParams} filterParams
+     * @return {Object}
+     */
+    _getLoginRedirectParameters(filterParams) {
+        let routeParameters = {};
+
+        try {
+            routeParameters = JSON.parse(window.activeRouteParameters || '{}');
+        } catch {
+            routeParameters = {};
+        }
+
+        return {
+            ...routeParameters,
+            ...Object.fromEntries(filterParams.entries()),
+        };
+    }
+
+    /**
+     * @private
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 }

@@ -46,7 +46,7 @@ class StockStorage extends AbstractStockStorage
             return;
         }
 
-        if (\count($changes) === 0) {
+        if ($changes === []) {
             return;
         }
 
@@ -93,7 +93,7 @@ class StockStorage extends AbstractStockStorage
     {
         $ids = array_filter(array_unique($ids));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -142,7 +142,7 @@ class StockStorage extends AbstractStockStorage
             }
         }
 
-        if (!empty($updated)) {
+        if ($updated !== []) {
             $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($updated, $context));
         }
     }

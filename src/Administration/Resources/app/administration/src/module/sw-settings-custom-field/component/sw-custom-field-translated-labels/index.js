@@ -72,7 +72,7 @@ export default {
 
         getLabel(label, locale) {
             const snippet = this.getInlineSnippet(label);
-            const language = this.$tc(`locale.${locale}`);
+            const language = this.$t(`locale.${locale}`);
 
             return `${snippet} (${language})`;
         },

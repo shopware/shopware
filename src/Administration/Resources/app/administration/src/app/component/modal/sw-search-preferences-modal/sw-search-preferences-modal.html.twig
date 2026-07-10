@@ -2,14 +2,14 @@
 {% block sw_search_preferences_modal %}
 <sw-modal
     class="sw-search-preferences-modal"
-    :title="$tc('global.sw-search-preferences-modal.title')"
+    :title="$t('global.sw-search-preferences-modal.title')"
     :is-loading="isLoading"
     @modal-close="onClose"
 >
     {% block sw_search_preferences_modal_description %}
     <p
         class="sw-search-preferences-modal__description"
-        v-html="$tc('global.sw-search-preferences-modal.description')"
+        v-html="$t('global.sw-search-preferences-modal.description')"
     >
     </p>
     {% endblock %}
@@ -47,7 +47,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -59,7 +59,7 @@
             :disabled="isLoading"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

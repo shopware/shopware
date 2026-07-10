@@ -5,7 +5,7 @@
 The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/intro).
 
 ## Prerequisites
-- Node.js 18-22
+- Node.js LTS, matching the version configured by the project `.nvmrc`
 
 ## Setup
 
@@ -84,6 +84,11 @@ Reduce worker count
 
 ```
 npx playwright test --workers 4
+```
+
+Running tests in UI Mode
+```
+npx playwright test --ui --project="Platform" product.spec.ts
 ```
 
 ### Running with admin watcher

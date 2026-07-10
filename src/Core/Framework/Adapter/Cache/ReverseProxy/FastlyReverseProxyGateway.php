@@ -105,7 +105,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
         $pool = new Pool($this->client, $list, [
             'concurrency' => $this->concurrency,
-            'rejected' => function (TransferException $reason): void {
+            'rejected' => static function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
                     throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }

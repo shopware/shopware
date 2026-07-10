@@ -54,7 +54,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $groupIds = $request->request->all(self::PROPERTY_GROUP_IDS_REQUEST_PARAM);
 
-        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true) && empty($groupIds)) {
+        if (!$request->request->get(self::FILTER_ENABLED_REQUEST_PARAM, true) && $groupIds === []) {
             return null;
         }
 
@@ -65,7 +65,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $ids = $this->collectOptionIds($result);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -108,7 +108,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
             $groupResult = $this->groupRepository->search($cloned, $context->getContext());
 
-            $groups->fill($groupResult->getElements());
+            $groups->fill($groupResult->getEntities()->getElements());
         }
 
         foreach ($groups as $group) {
@@ -159,7 +159,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $aggregations = [$propertyAggregation, $optionAggregation];
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return new Filter('properties', false, $aggregations, new AndFilter([]), [], false);
         }
 

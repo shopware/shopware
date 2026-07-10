@@ -487,7 +487,7 @@ export default class CookieConfiguration extends Plugin {
                     CookieStorage.setItem(
                         cookieData.cookie,
                         cookieData.value,
-                        cookieData.expiration || this._getDefaultCookieExpiration()
+                        cookieData.expiration || this._getDefaultCookieExpiration(),
                     );
                 }
             }
@@ -551,6 +551,14 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
+     * @private
+     * @returns {boolean}
+     */
+    _isLastStateEmpty() {
+        return this.lastState.active.length === 0 && this.lastState.inactive.length === 0;
+    }
+
+    /**
      * Compare the current in-/active cookies to the initialState and return updated cookies only
      *
      * @param active
@@ -560,6 +568,15 @@ export default class CookieConfiguration extends Plugin {
     _getUpdatedCookies(active, inactive) {
         const { lastState } = this;
         const updated = {};
+
+        // When accepting all cookies from the cookie bar, the offcanvas was never opened
+        // and therefore lastState is empty. Treat all cookies as changed in that case.
+        if (this._isLastStateEmpty()) {
+            active.forEach(cookie => { updated[cookie] = true; });
+            inactive.forEach(cookie => { updated[cookie] = false; });
+
+            return updated;
+        }
 
         active.forEach(currentCheckbox => {
             if (lastState.inactive.includes(currentCheckbox)) {
@@ -902,7 +919,7 @@ export default class CookieConfiguration extends Plugin {
             cookieGroups,
             'selected',
             selectedCookiesFromDOM,
-            data.languageId
+            data.languageId,
         );
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
@@ -1023,9 +1040,17 @@ export default class CookieConfiguration extends Plugin {
     /**
      * @private
      */
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _navigateTo(url) {
+        window.location.href = url;
+    }
+
     _onLogin() {
         AjaxOffCanvas.close();
-        window.location.href = window.router['frontend.account.login.page'];
+        this._navigateTo(window.router['frontend.account.login.page']);
     }
 
     /**
@@ -1048,7 +1073,7 @@ export default class CookieConfiguration extends Plugin {
             }
             offcanvasElement.addEventListener('hidden.bs.offcanvas',
                 this._restoreFocus.bind(this),
-                { once: true }
+                { once: true },
             );
         });
     }

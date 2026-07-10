@@ -81,6 +81,11 @@ export default {
             required: false,
             default: false,
         },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {

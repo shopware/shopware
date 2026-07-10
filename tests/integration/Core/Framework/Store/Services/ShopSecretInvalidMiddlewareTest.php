@@ -3,12 +3,15 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -30,48 +33,6 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
-    public function testKeepsStoreTokensAndReturnsResponse(): void
-    {
-        $this->setAllUserStoreTokens('secret_token');
-        $this->systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t-token');
-
-        $response = new Response(200, [], '{"payload":"data"}');
-        $request = new Psr7Request('GET', '/');
-
-        $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
-
-        $handledResponse = $middleware($response, $request);
-
-        static::assertSame($response, $handledResponse);
-
-        foreach ($this->fetchAllUserStoreTokens() as $token) {
-            static::assertSame('secret_token', $token['store_token']);
-        }
-
-        static::assertSame('shop-s3cr3t-token', $this->systemConfigService->get('core.store.shopSecret'));
-    }
-
-    public function testKeepsStoreTokensAndReturnsResponseWithRewoundBody(): void
-    {
-        $this->setAllUserStoreTokens('secret_token');
-        $this->systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t-token');
-
-        $response = new Response(401, [], '{"payload":"data"}');
-        $request = new Psr7Request('GET', '/');
-
-        $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
-
-        $handledResponse = $middleware($response, $request);
-
-        static::assertSame($response, $handledResponse);
-
-        foreach ($this->fetchAllUserStoreTokens() as $token) {
-            static::assertSame('secret_token', $token['store_token']);
-        }
-
-        static::assertSame('shop-s3cr3t-token', $this->systemConfigService->get('core.store.shopSecret'));
-    }
-
     public function testThrowsAndDeletesStoreTokensIfApiRespondsWithTokenExpiredException(): void
     {
         $this->setAllUserStoreTokens('secret_token');
@@ -81,8 +42,11 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
-        $this->expectException(ShopSecretInvalidException::class);
-        $middleware($response, $request);
+        $this->expectExceptionObject(StoreException::shopSecretInvalid());
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+        $promise->wait();
 
         foreach ($this->fetchAllUserStoreTokens() as $token) {
             static::assertNull($token['store_token']);

@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
-final class ProductTypeRegistry
+final class ProductTypeRegistry implements FieldEnumProviderInterface
 {
     /**
      * @var list<string>
@@ -42,5 +43,18 @@ final class ProductTypeRegistry
     public function hasType(string $type): bool
     {
         return \in_array($type, $this->types, true);
+    }
+
+    public function isSupported(string $entity, string $fieldName): bool
+    {
+        return $entity === ProductDefinition::ENTITY_NAME && $fieldName === 'type';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getChoices(): array
+    {
+        return $this->types;
     }
 }

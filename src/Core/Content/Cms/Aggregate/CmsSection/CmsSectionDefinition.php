@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -29,6 +30,16 @@ use Shopware\Core\Framework\Log\Package;
 class CmsSectionDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'cms_section';
+
+    /**
+     * Default section type used for regular CMS content.
+     */
+    final public const TYPE_DEFAULT = 'default';
+
+    /**
+     * Sidebar section type used for layouts with a sidebar column.
+     */
+    final public const TYPE_SIDEBAR = 'sidebar';
 
     public function getEntityName(): string
     {
@@ -63,7 +74,10 @@ class CmsSectionDefinition extends EntityDefinition
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()),
 
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required())->setDescription('Position of occurrence of each section denoted by numerical values 0, 1, 2...'),
-            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required())->setDescription('Types of sections can be `sidebar` or `fullwidth`.'),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required(), new Choice([
+                self::TYPE_DEFAULT,
+                self::TYPE_SIDEBAR,
+            ]))->setDescription('Types of sections can be `default` or `sidebar`.'),
             new LockedField(),
             (new StringField('name', 'name'))->addFlags(new ApiAware())->setDescription('Name of the CMS section defined.'),
             (new StringField('sizing_mode', 'sizingMode'))->addFlags(new ApiAware())->setDescription('Sizing mode can be `boxed` or `full_width`.'),

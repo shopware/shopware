@@ -46,7 +46,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         yield 'simple event' => [
             'my-tag',
-            function (ContainerInterface $container) use ($ids): void {
+            static function (ContainerInterface $container) use ($ids): void {
                 $manufacturerRepo = $container->get('product_manufacturer.repository');
 
                 $manufacturerRepo->upsert([[
@@ -60,7 +60,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         yield 'filter by entity name invalidates for correct entity' => [
             'my-manufacturer-' . $ids->get('m1'),
-            function (ContainerInterface $container) use ($ids): void {
+            static function (ContainerInterface $container) use ($ids): void {
                 $manufacturerRepo = $container->get('product_manufacturer.repository');
 
                 $manufacturerRepo->upsert([[
@@ -74,7 +74,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         yield 'filter by entity name does not invalidate for wrong entity' => [
             'my-manufacturer-' . $ids->get('m1'),
-            function (ContainerInterface $container) use ($ids): void {
+            static function (ContainerInterface $container) use ($ids): void {
                 $productRepo = $container->get('product.repository');
 
                 $productRepo->upsert([[
@@ -88,7 +88,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         yield 'complex filter correctly invalidates' => [
             'my-product-' . $ids->get('v4.1'),
-            function (ContainerInterface $container) use ($ids): void {
+            static function (ContainerInterface $container) use ($ids): void {
                 $productRepo = $container->get('product.repository');
 
                 $product4 = (new ProductBuilder($ids, 'p4'))
@@ -106,7 +106,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         yield 'complex filter does not invalidate wrong operation' => [
             'my-product-' . $ids->get('p2'),
-            function (ContainerInterface $container) use ($ids): void {
+            static function (ContainerInterface $container) use ($ids): void {
                 $productRepo = $container->get('product.repository');
 
                 $productRepo->delete([['id' => $ids->get('p2')]], Context::createDefaultContext());
@@ -117,7 +117,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         yield 'complex filter does not invalidate with missing payload' => [
             'my-product-' . $ids->get('p4'),
-            function (ContainerInterface $container) use ($ids): void {
+            static function (ContainerInterface $container) use ($ids): void {
                 $productRepo = $container->get('product.repository');
 
                 $product4 = (new ProductBuilder($ids, 'p4'))

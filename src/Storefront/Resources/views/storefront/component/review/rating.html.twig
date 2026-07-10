@@ -10,7 +10,7 @@
     {% set blank = 5 - full - half %}
 
     {% if altText is not defined %}
-        {% set altText = 'detail.reviewAvgRatingAltText'|trans({ '%points%': points|round(1, 'floor'), '%maxPoints%': 5 }) %}
+        {% set altText = 'detail.reviewAvgRatingAltText'|trans({ '%points%': points|round(2), '%maxPoints%': 5 }) %}
     {% endif %}
 
     {% block component_review_rating_output %}

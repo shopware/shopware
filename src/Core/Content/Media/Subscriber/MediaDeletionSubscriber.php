@@ -13,6 +13,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -60,19 +61,20 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     {
         /** @var array<string> $affected */
         $affected = $event->getIds(MediaThumbnailDefinition::ENTITY_NAME);
-        if (!empty($affected)) {
+        if (\count($affected) > 0) {
             $this->handleThumbnailDeletion($event, $affected, $event->getContext());
         }
 
         /** @var array<string> $affected */
         $affected = $event->getIds(MediaFolderDefinition::ENTITY_NAME);
-        if (!empty($affected)) {
-            $this->handleFolderDeletion($affected, $event->getContext());
+        if (\count($affected) > 0) {
+            $folderIds = $this->fetchChildrenIds($affected);
+            $this->handleFolderDeletion($folderIds, $event->getContext());
         }
 
         /** @var array<string> $affected */
         $affected = $event->getIds(MediaDefinition::ENTITY_NAME);
-        if (!empty($affected)) {
+        if (\count($affected) > 0) {
             $this->handleMediaDeletion($affected, $event->getContext());
         }
     }
@@ -93,10 +95,15 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if ($mediaEntity->isPrivate()) {
-                $privatePaths[] = $mediaEntity->getPath();
-            } else {
-                $publicPaths[] = $mediaEntity->getPath();
+            $path = $mediaEntity->getPath();
+
+            // Check if the path is an external URL, if so, don't attempt to delete the file (don't add the path)
+            if (!MediaUploadService::isExternalUrl($path)) {
+                if ($mediaEntity->isPrivate()) {
+                    $privatePaths[] = $path;
+                } else {
+                    $publicPaths[] = $path;
+                }
             }
 
             if ($this->remoteThumbnailsEnable || !$mediaEntity->getThumbnails()) {
@@ -119,23 +126,17 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $affected
+     * @param non-empty-list<string> $folderIds
      */
-    private function handleFolderDeletion(array $affected, Context $context): void
+    private function handleFolderDeletion(array $folderIds, Context $context): void
     {
-        $ids = $this->fetchChildrenIds($affected);
-
-        if (empty($ids)) {
-            return;
-        }
-
         $media = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media WHERE media_folder_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Uuid::fromHexToBytesList($folderIds)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($media)) {
+        if ($media === []) {
             return;
         }
 
@@ -143,20 +144,21 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param non-empty-array<string> $ids
      *
-     * @return array<string>
+     * @return non-empty-list<string>
      */
     private function fetchChildrenIds(array $ids): array
     {
+        $ids = \array_values($ids);
         $children = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM media_folder WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($children)) {
-            return \array_merge($ids, $children);
+        if ($children === []) {
+            return $ids;
         }
 
         $nested = $this->fetchChildrenIds($children);
@@ -182,10 +184,17 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
                 continue;
             }
 
+            $path = $thumbnail->getPath();
+
+            // Skip external thumbnails as they are hosted externally and should not be deleted from the filesystem
+            if (MediaUploadService::isExternalUrl($path)) {
+                continue;
+            }
+
             if ($media->isPrivate()) {
-                $privatePaths[] = $thumbnail->getPath();
+                $privatePaths[] = $path;
             } else {
-                $publicPaths[] = $thumbnail->getPath();
+                $publicPaths[] = $path;
             }
         }
 
@@ -219,11 +228,11 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
 
         if ($context->hasState(self::SYNCHRONE_FILE_DELETE)) {
-            $this->deleteFileHandler->__invoke(new DeleteFileMessage($paths, $visibility));
+            $this->deleteFileHandler->__invoke(new DeleteFileMessage($paths, $visibility, true));
 
             return;
         }
 
-        $this->messageBus->dispatch(new DeleteFileMessage($paths, $visibility));
+        $this->messageBus->dispatch(new DeleteFileMessage($paths, $visibility, true));
     }
 }

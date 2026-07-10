@@ -47,7 +47,7 @@ class MakeCoverageTestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $filteredClasses = $this->filterExcludedClasses(array_unique($classes), $input, $io);
 
-        if (empty($filteredClasses)) {
+        if ($filteredClasses === []) {
             $io->note('No coverage tests are created');
 
             return self::SUCCESS;
@@ -75,7 +75,7 @@ class MakeCoverageTestCommand extends Command
             if (str_contains($reflection->getShortName(), 'Migration1')) {
                 $testPath = str_replace('/tests/unit', '/tests/migration', $testPath);
                 $testStub = $migrationTestStub;
-                $namespaceParts = array_values(array_filter($namespaceParts, fn ($part) => !str_contains($part, 'Migration')));
+                $namespaceParts = array_values(array_filter($namespaceParts, static fn ($part) => !str_contains($part, 'Migration')));
             }
 
             $namespace = implode('\\', $namespaceParts);
@@ -101,7 +101,7 @@ class MakeCoverageTestCommand extends Command
             $tests[] = $testFileName;
         }
 
-        if (empty($tests)) {
+        if ($tests === []) {
             $io->note('No coverage tests are created');
 
             return self::SUCCESS;
@@ -152,13 +152,13 @@ class MakeCoverageTestCommand extends Command
                     continue;
                 }
 
-                if (!empty($excludedDir->prefix()) && str_ends_with($fileName, $excludedDir->prefix())) {
+                if ($excludedDir->prefix() !== '' && str_ends_with($fileName, $excludedDir->prefix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
 
                     continue;
                 }
 
-                if (!empty($excludedDir->suffix()) && str_ends_with($fileName, $excludedDir->suffix())) {
+                if ($excludedDir->suffix() !== '' && str_ends_with($fileName, $excludedDir->suffix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
                 }
             }

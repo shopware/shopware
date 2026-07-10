@@ -24,6 +24,11 @@ class Migration1702479623RemoveEsMultilingualFlagTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1702479623, (new Migration1702479623RemoveEsMultilingualFlag())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $storage = new MySQLKeyValueStorage($this->connection);

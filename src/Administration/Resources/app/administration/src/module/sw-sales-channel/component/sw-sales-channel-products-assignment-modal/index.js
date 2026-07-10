@@ -96,7 +96,6 @@ export default {
         },
 
         getProductContainerStyle() {
-            // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.product?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.productContainerStyle['grid-template-rows'] =
@@ -106,7 +105,6 @@ export default {
         getCategoryContainerStyle() {
             const tabContentGutter = '20px';
             const alertHeight = `${this.$refs?.category?.$refs?.alert?.$el?.offsetHeight ?? 0}px`;
-            // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.category?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.categoryContainerStyle['grid-template-rows'] =
@@ -118,7 +116,6 @@ export default {
         getProductGroupContainerStyle() {
             const tabContentGutter = '20px';
             const alertHeight = `${this.$refs?.productGroup?.$refs?.alert?.$el?.offsetHeight ?? 0}px`;
-            // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.productGroup?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.productGroupContainerStyle['grid-template-rows'] =

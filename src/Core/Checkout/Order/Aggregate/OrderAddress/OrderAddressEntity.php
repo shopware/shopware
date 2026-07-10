@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -40,6 +41,9 @@ class OrderAddressEntity extends Entity
 
     protected ?string $title = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     protected ?string $vatId = null;
 
     protected ?string $phoneNumber = null;
@@ -53,6 +57,8 @@ class OrderAddressEntity extends Entity
     protected ?CountryStateEntity $countryState = null;
 
     protected ?OrderEntity $order = null;
+
+    protected ?OrderEntity $billingAddressOrder = null;
 
     protected ?SalutationEntity $salutation = null;
 
@@ -174,13 +180,29 @@ class OrderAddressEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function getVatId(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->vatId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function setVatId(?string $vatId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->vatId = $vatId;
     }
 
@@ -242,6 +264,16 @@ class OrderAddressEntity extends Entity
     public function setOrder(OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function getBillingAddressOrder(): ?OrderEntity
+    {
+        return $this->billingAddressOrder;
+    }
+
+    public function setBillingAddressOrder(?OrderEntity $billingAddressOrder): void
+    {
+        $this->billingAddressOrder = $billingAddressOrder;
     }
 
     public function getSalutation(): ?SalutationEntity

@@ -35,7 +35,8 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             $this->productDefinition,
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
-            true
+            true,
+            'productId'
         );
     }
 
@@ -55,7 +56,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         $categories = $product->get('mainCategories') ?? null;
         if ($categories instanceof EntityCollection && $salesChannel !== null) {
             $filtered = $categories->filter(
-                fn (Entity $category) => $category->get('salesChannelId') === $salesChannel->getId()
+                static fn (Entity $category) => $category->get('salesChannelId') === $salesChannel->getId()
             );
 
             $product->assign(['mainCategories' => $filtered]);
@@ -65,7 +66,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 
         return new SeoUrlMapping(
             $product,
-            ['productId' => $product->getId()],
+            $this->getConfig()->getPrimaryKeyParameter($product->getId()),
             [
                 'product' => $productJson,
             ]

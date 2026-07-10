@@ -73,7 +73,7 @@ class CheapestPriceContainer extends Struct
             }
         }
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return null;
         }
 

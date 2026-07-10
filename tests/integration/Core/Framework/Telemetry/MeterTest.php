@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Telemetry;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Exception\MissingMetricConfigurationException;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
@@ -53,7 +52,7 @@ class MeterTest extends TestCase
     {
         Feature::skipTestIfInActive('TELEMETRY_METRICS', $this);
 
-        $definitions = array_filter($this->definitions, fn (array $definition) => ($definition['enabled'] ?? true) === true);
+        $definitions = array_filter($this->definitions, static fn (array $definition) => ($definition['enabled'] ?? true) === true);
 
         $this->traceableTransport->reset();
         foreach ($definitions as $name => $definition) {
@@ -73,16 +72,5 @@ class MeterTest extends TestCase
         $this->traceableTransport->reset();
         $this->meter->emit(new ConfiguredMetric(name: $firstConfiguredMetric, value: 1, labels: []));
         static::assertEmpty($this->traceableTransport->getEmittedMetrics());
-    }
-
-    public function testMeterCannotEmitInConfiguredMetrics(): void
-    {
-        Feature::skipTestIfInActive('TELEMETRY_METRICS', $this);
-        $this->expectException(MissingMetricConfigurationException::class);
-        // update the name to a non-configured metric
-        $configuredMetric = new ConfiguredMetric(name: 'random-metric-that-is-not-there', value: random_int(1, 10), labels: []);
-        $this->meter->emit($configuredMetric);
-        $transportedMetrics = $this->traceableTransport->getEmittedMetrics();
-        static::assertEmpty($transportedMetrics);
     }
 }

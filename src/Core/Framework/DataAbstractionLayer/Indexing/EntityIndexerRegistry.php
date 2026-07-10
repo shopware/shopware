@@ -89,7 +89,7 @@ class EntityIndexerRegistry
                 continue;
             }
 
-            if (\count($only) > 0 && !\in_array($indexer->getName(), $only, true)) {
+            if ($only !== [] && !\in_array($indexer->getName(), $only, true)) {
                 continue;
             }
 
@@ -198,14 +198,14 @@ class EntityIndexerRegistry
      */
     public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
-        if (empty($indexer)) {
+        if ($indexer === []) {
             $indexer = [];
             foreach ($this->indexer as $loop) {
                 $indexer[] = $loop->getName();
             }
         }
 
-        if (empty($indexer)) {
+        if ($indexer === []) {
             return;
         }
 

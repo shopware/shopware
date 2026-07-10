@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Bulk edit",
       "descriptionTextModule": "Module to bulk edit data",
       "defaultChangeLabel": "Change:"
     },
@@ -83,7 +82,9 @@
       },
       "property": {
         "cardTitle": "Properties",
-        "changeLabel": "Change: Properties"
+        "changeLabel": "Change: Properties",
+        "titleEmptyState": "No property changes selected yet.",
+        "descriptionEmptyState": "Bulk edit only lists properties that will be changed. Existing product properties are not shown here."
       },
       "deliverability": {
         "cardTitle": "Deliverability",
@@ -259,7 +260,21 @@
         "description": "Bulk edit finished.",
         "instruction": "The bulk edit has been finished successfully.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "No documents found"
+        "messageNoDocumentsFound": "No documents found",
+        "documentGenerationSkipped": "{count} document was not generated because it already exists. | {count} documents were not generated because they already exist.",
+        "documentGenerationFailed": "{count} document could not be generated. | {count} documents could not be generated.",
+        "failedDocuments": {
+          "columnOrder": "Order",
+          "columnDocumentType": "Document type",
+          "downloadResult": "Download result",
+          "downloadHeadline": "Failed documents",
+          "documentTypes": {
+            "invoice": "Invoice",
+            "cancellationInvoice": "Cancellation invoice",
+            "creditNote": "Credit note",
+            "deliveryNote": "Delivery note"
+          }
+        }
       },
       "error": {
         "title": "Bulk edit - Error",
@@ -269,6 +284,7 @@
         }
       },
       "warningText": "Please wait for the bulk edit to complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied. You can run the bulk edit again at any time.",
+      "warningTextDocumentDeletion": "Documents are a part of an order and may be relevant for tax purposes. Deleting them may affect the traceability of your accounting records. Please ensure that deletion is legally permitted." ,
       "messageBeforeTabLeave": "Bulk edits are being made. If you close the tab, not all changes may be applied."
     },
     "order": {
@@ -293,6 +309,9 @@
         "order": {
           "label": "Change: Order status",
           "placeholder": "Select order status..."
+        },
+        "transitionInternalComment": {
+          "label": "Internal comment on status change"
         },
         "statusMails": {
           "label": "Send: Status emails",
@@ -321,8 +340,7 @@
           "label": "Generate: Invoice",
           "helpText": "This action increases the value of the corresponding number range.",
           "labelDatePicker": "Date",
-          "labelTextarea": "Comment",
-          "placeholderTextarea": ""
+          "labelTextarea": "Comment"
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",
@@ -342,6 +360,10 @@
         "downloadDocuments": {
           "label": "Download: Documents",
           "helpText": "With this option, the most recent documents available are offered for download. Multiple documents are merged into the same file. The download is available after the multiple change has been completed."
+        },
+        "deleteDocuments": {
+          "label": "Delete: Documents",
+          "helpText": "With this option, all selected types of documents will be deleted."
         },
         "forceDocumentCreation": "Force document creation",
         "forceDocumentCreationHelpText": "The document is also generated if the order already contains a document of this type."

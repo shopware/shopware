@@ -5,7 +5,7 @@
 
     <mt-switch
         v-model="addTableHead"
-        :label="$tc('sw-text-editor-toolbar.table.addHeading')"
+        :label="$t('sw-text-editor-toolbar.table.addHeading')"
     />
     {% endblock %}
 
@@ -16,7 +16,7 @@
             number-type="int"
             :min="0"
             :max="colMaxLimit"
-            :label="$tc('sw-text-editor-toolbar.table.cols')"
+            :label="$t('sw-text-editor-toolbar.table.cols')"
             @input-change="setSelectedCols"
             @update:model-value="setSelectedCols"
         />
@@ -30,7 +30,7 @@
             number-type="int"
             :min="0"
             :max="rowMaxLimit"
-            :label="$tc('sw-text-editor-toolbar.table.rows')"
+            :label="$t('sw-text-editor-toolbar.table.rows')"
             @input-change="setSelectedRows"
             @update:model-value="setSelectedRows"
         />
@@ -38,7 +38,7 @@
     {% endblock %}
 
     <p class="sw-text-editor-toolbar-table-button__grid-info">
-        {{ $tc('sw-text-editor-toolbar.table.editInfo') }}
+        {{ $t('sw-text-editor-toolbar.table.editInfo') }}
     </p>
 
     {% block sw_text_editor_toolbar_table_button_table %}
@@ -108,7 +108,7 @@
             variant="primary"
             @click="emitTable"
         >
-            {{ $tc('global.default.add') }}
+            {{ $t('global.default.add') }}
         </mt-button>
     </div>
     {% endblock %}

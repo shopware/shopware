@@ -3,7 +3,7 @@
     ref="swMediaModal"
     class="sw-media-save-modal"
     variant="full"
-    :title="$tc('sw-media.sw-media-save-modal.titleModal')"
+    :title="$t('sw-media.sw-media-save-modal.titleModal')"
     :closable="!isLoading"
     @modal-close="onEmitModalClosed"
 >
@@ -59,7 +59,7 @@
             :disabled="isLoading"
             @click="onEmitModalClosed"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -70,7 +70,7 @@
             :is-loading="isLoading"
             @click="onSaveMedia"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

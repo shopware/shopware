@@ -34,6 +34,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -77,7 +78,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->connection = static::getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class), new NativeClock());
         $this->ids = new IdsCollection();
     }
 
@@ -351,7 +352,7 @@ class SalesChannelProxyControllerTest extends TestCase
         // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertArrayHasKey('permissions', $payload);
-        static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
+        static::assertEquals(\array_fill_keys($permissions, true), $payload['permissions']);
     }
 
     public function testModifyShippingCostsWithoutChannelId(): void
@@ -856,7 +857,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertArrayHasKey('lineItems', $cart);
         static::assertCount(3, $cart['lineItems']);
 
-        $creditLineItems = array_filter($cart['lineItems'], fn ($lineItem) => $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE);
+        $creditLineItems = array_filter($cart['lineItems'], static fn ($lineItem) => $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE);
 
         // assert there is credit item in cart
         static::assertNotEmpty($creditLineItems);
@@ -864,12 +865,12 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert there is calculated taxes for product and custom items in cart
         static::assertCount(2, $calculatedTaxes = $creditLineItem['price']['calculatedTaxes']);
-        $calculatedTaxForCustomItem = array_filter($calculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
+        $calculatedTaxForCustomItem = array_filter($calculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($calculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForProductItem);
+        $calculatedTaxForProductItem = array_filter($calculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -1187,7 +1188,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 'name' => 'test language ' . $fallbackId,
                 'locale' => [
                     'id' => $fallbackLocaleId,
-                    'code' => 'x-tst_' . $fallbackLocaleId,
+                    'code' => 'de-DE-' . $fallbackLocaleId,
                     'name' => 'Test locale ' . $fallbackLocaleId,
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
@@ -1205,7 +1206,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'parentId' => $fallbackId,
             'locale' => [
                 'id' => $localeId,
-                'code' => 'x-tst_' . $localeId,
+                'code' => 'de-DE-' . $localeId,
                 'name' => 'Test locale ' . $localeId,
                 'territory' => 'Test territory ' . $localeId,
             ],

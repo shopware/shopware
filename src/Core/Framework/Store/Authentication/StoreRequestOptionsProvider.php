@@ -83,7 +83,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private function getTokenFromSystem(Context $context): ?string
     {
         $contextSource = $context->getSource();
-        if (!($contextSource instanceof SystemSource)) {
+        if (!$contextSource instanceof SystemSource) {
             throw StoreException::invalidContextSource(SystemSource::class, $contextSource::class);
         }
 
@@ -95,7 +95,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
     private function fetchUserStoreToken(Criteria $criteria, Context $context): ?string
     {
-        return $this->userRepository->search($criteria, $context)->first()?->getStoreToken();
+        return $this->userRepository->search($criteria, $context)->getEntities()->first()?->getStoreToken();
     }
 
     private function getLicenseDomain(): string

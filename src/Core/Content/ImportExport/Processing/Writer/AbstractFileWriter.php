@@ -24,7 +24,6 @@ abstract class AbstractFileWriter extends AbstractWriter
 
     public function __construct(protected FilesystemOperator $filesystem)
     {
-        $this->initTempFile();
         $this->initBuffer();
     }
 
@@ -33,11 +32,7 @@ abstract class AbstractFileWriter extends AbstractWriter
         rewind($this->buffer);
 
         if (!\is_resource($this->tempFile)) {
-            $file = fopen($this->tempPath, 'a+');
-            if (!\is_resource($file)) {
-                throw ImportExportException::couldNotOpenFile($this->tempPath);
-            }
-            $this->tempFile = $file;
+            $this->initTempFile();
         }
 
         $bytesCopied = stream_copy_to_stream($this->buffer, $this->tempFile);
@@ -56,10 +51,10 @@ abstract class AbstractFileWriter extends AbstractWriter
     {
         $this->flush($config, $targetPath);
 
-        fclose($this->tempFile);
+        if (\is_resource($this->tempFile)) {
+            fclose($this->tempFile);
+        }
         unlink($this->tempPath);
-
-        $this->initTempFile();
     }
 
     private function initTempFile(): void

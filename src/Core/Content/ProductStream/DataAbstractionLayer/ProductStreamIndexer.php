@@ -56,7 +56,7 @@ class ProductStreamIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -65,7 +65,12 @@ class ProductStreamIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $updates = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        $updates = [
+            ...$event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME),
+            ...ProductStreamWriteResultHelper::getAffectedStreamIds($event),
+        ];
+
+        $updates = array_unique($updates);
 
         if (!$updates) {
             return null;
@@ -82,7 +87,7 @@ class ProductStreamIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

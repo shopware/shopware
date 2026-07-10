@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
@@ -39,8 +38,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailIllegalFileType(): void
     {
-        $this->expectException(StorefrontFrameworkException::class);
-        $this->expectExceptionMessage('Type "application/vnd.ms-excel" of provided file is not allowed for documents');
+        $this->expectExceptionObject(StorefrontFrameworkException::fileTypeNotAllowed('application/vnd.ms-excel', 'documents'));
 
         $file = $this->getUploadFixture('empty.xls');
         $this->getUploadService()->upload($file, 'test', 'documents', Context::createDefaultContext());
@@ -48,8 +46,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailFilenameContainsPhp(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided filename "contains.php.pdf" is not permitted: contains PHP related file extension');
+        $this->expectExceptionObject(MediaException::illegalFileName('contains.php.pdf', 'contains PHP related file extension'));
 
         $file = $this->getUploadFixture('contains.php.pdf');
         $this->getUploadService()->upload($file, 'test', 'documents', Context::createDefaultContext());
@@ -67,8 +64,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailIllegalImageType(): void
     {
-        $this->expectException(StorefrontFrameworkException::class);
-        $this->expectExceptionMessage('Type "image/webp" of provided file is not allowed for images');
+        $this->expectExceptionObject(StorefrontFrameworkException::fileTypeNotAllowed('image/webp', 'images'));
 
         $file = $this->getUploadFixture('image.webp');
         $this->getUploadService()->upload($file, 'test', 'images', Context::createDefaultContext());
@@ -76,8 +72,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadUnknownType(): void
     {
-        $this->expectException(MediaValidatorMissingException::class);
-        $this->expectExceptionMessage('No validator for notExistingType was found.');
+        $this->expectExceptionObject(StorefrontFrameworkException::mediaValidatorMissing('notExistingType'));
 
         $file = $this->getUploadFixture('image.png');
         $this->getUploadService()->upload($file, 'test', 'notExistingType', Context::createDefaultContext());

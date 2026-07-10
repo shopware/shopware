@@ -1,9 +1,6 @@
 import template from './sw-condition-date-range.html.twig';
 import './sw-condition-date-range.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -21,11 +18,11 @@ export default {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.sw-condition.condition.withTime'),
+                    label: this.$t('global.sw-condition.condition.withTime'),
                     value: true,
                 },
                 {
-                    label: this.$tc('global.sw-condition.condition.withoutTime'),
+                    label: this.$t('global.sw-condition.condition.withoutTime'),
                     value: false,
                 },
             ];
@@ -54,7 +51,7 @@ export default {
         fromDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.fromDate || null;
+                return this.condition.value.fromDate ? `${this.condition.value.fromDate}.000Z` : null;
             },
             set(fromDate) {
                 this.ensureValueExist();
@@ -69,7 +66,7 @@ export default {
         toDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.toDate || null;
+                return this.condition.value.toDate ? `${this.condition.value.toDate}.000Z` : null;
             },
             set(toDate) {
                 this.ensureValueExist();
@@ -100,24 +97,8 @@ export default {
             return this.useTime ? 'datetime' : 'date';
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.useTime',
-            'value.fromDate',
-            'value.toDate',
-            'value.timezone',
-        ]),
-
         timezoneOptions() {
             return Shopware.Service('timezoneService').getTimezoneOptions();
-        },
-
-        currentError() {
-            return (
-                this.conditionValueUseTimeError ||
-                this.conditionValueFromDateError ||
-                this.conditionValueToDateError ||
-                this.conditionValueTimezoneError
-            );
         },
     },
 

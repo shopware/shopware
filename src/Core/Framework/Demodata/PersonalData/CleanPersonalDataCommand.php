@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Demodata\PersonalData;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -43,7 +44,8 @@ class CleanPersonalDataCommand extends Command
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly EntityRepository $customerRepository
+        private readonly EntityRepository $customerRepository,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -68,7 +70,7 @@ class CleanPersonalDataCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $types = array_filter(($input->getOption('all')) ? self::VALID_TYPES : [$input->getArgument('type')]);
-        if (\count($types) === 0 || \count(\array_diff($types, self::VALID_TYPES)) > 0) {
+        if ($types === [] || \array_diff($types, self::VALID_TYPES) !== []) {
             throw new \InvalidArgumentException(
                 'Please add the argument "type=guests" to remove guests without orders or the argument "type=carts" to remove canceled carts. Use --all to clean both.'
             );
@@ -82,16 +84,16 @@ class CleanPersonalDataCommand extends Command
                 ->addFilter(new EqualsFilter('guest', true))
                 ->addFilter(new EqualsFilter('orderCustomers.id', null))
                 ->addFilter(new RangeFilter('createdAt', [
-                    RangeFilter::LTE => (new \DateTime())->modify(-abs($days) . ' Day')
+                    RangeFilter::LTE => $this->clock->now()->modify(-abs($days) . ' Day')
                         ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]));
 
             $context = Context::createCLIContext();
             $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
 
-            if (\count($ids) > 0) {
+            if ($ids !== []) {
                 $this->customerRepository->delete(
-                    array_map(fn ($id) => ['id' => $id], $ids),
+                    array_map(static fn ($id) => ['id' => $id], $ids),
                     $context
                 );
             }

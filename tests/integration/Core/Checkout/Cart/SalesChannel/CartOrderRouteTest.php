@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -18,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -40,7 +39,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[CoversClass(CartOrderRoute::class)]
 #[Group('store-api')]
 #[Package('checkout')]
 class CartOrderRouteTest extends TestCase
@@ -142,6 +140,46 @@ class CartOrderRouteTest extends TestCase
         static::assertSame('order', $response['apiAlias']);
         static::assertSame(10, $response['transactions'][0]['amount']['totalPrice']);
         static::assertCount(1, $response['lineItems']);
+    }
+
+    public function testOrderRouteDoesNotExposePurchasePricesInLineItemPayload(): void
+    {
+        $this->productRepository->update([
+            [
+                'id' => $this->ids->get('p1'),
+                'purchasePrices' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->createCustomerAndLogin();
+        $this->addProductToCart();
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $order = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayNotHasKey('purchasePrices', $order['lineItems'][0]['payload']);
+
+        $criteria = new Criteria([$order['id']]);
+        $criteria->addAssociation('lineItems');
+
+        $this->browser->request(
+            'POST',
+            '/store-api/order',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            \json_encode(static::getContainer()->get(RequestCriteriaBuilder::class)->toArray($criteria), \JSON_THROW_ON_ERROR) ?: ''
+        );
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayNotHasKey('purchasePrices', $response['orders']['elements'][0]['lineItems'][0]['payload']);
     }
 
     public function testOrderWithComment(): void

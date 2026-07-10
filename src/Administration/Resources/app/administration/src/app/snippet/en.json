@@ -18,6 +18,7 @@
       "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
       "THEME__INVALID_SCSS_VAR": "SCSS value \"{value}\" is not valid for type \"{type}\"."
     },
     "default": {
@@ -49,7 +50,8 @@
       "back": "Back",
       "discard": "Discard",
       "submit": "Submit",
-      "attention": "Warning"
+      "attention": "Warning",
+      "configure": "Configure"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -71,6 +73,8 @@
     },
     "notification-center": {
       "title": "Notifications",
+      "triggerAriaLabel": "Notifications",
+      "optionsAriaLabel": "Notification options",
       "emptyText": "Nothing going on lately.",
       "deleteModal": {
         "title": "Delete notifications",
@@ -181,7 +185,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
-        "notificationCopyFailureMessage": "Text could not be copied to clipboard."
+        "notificationCopyFailureMessage": "Text could not be copied to clipboard. Make sure you're accessing the administration via a secure connection (HTTPS) and try again."
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
@@ -201,6 +205,9 @@
       "notification": {
         "invalidFileType": {
           "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
+        },
+        "invalidFileExtension": {
+          "message": "The selected file \"{name}\" has an unsupported file extension. Please use one of the following file extensions: {supportedExtensions}."
         },
         "invalidFileSize": {
           "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
@@ -263,9 +270,6 @@
       "previousPage": "Go to previous page",
       "nextPage": "Go to next page",
       "page": "Go to page {page}"
-    },
-    "sw-modal": {
-      "labelClose": "Close"
     },
     "sw-text-preview": {
       "showMoreButton": "Show more"
@@ -334,6 +338,9 @@
         },
         "coverSaveError": {
           "message": "Cover image could not be saved."
+        },
+        "downloadError": {
+          "message": "Error downloading file."
         }
       },
       "labelUploading": "Uploading..."
@@ -570,12 +577,6 @@
       "placeholderSearch": "Search...",
       "labelLoadMore": "Load more items"
     },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Remove"
-    },
-    "sw-media-list-selection-item-v2": {
-      "buttonRemove": "Remove"
-    },
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
@@ -663,7 +664,7 @@
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
-        "sales-channel": " | A S",
+        "sales-channel": "&nbsp; | A S",
         "cms": "G E | A E",
         "dashboard": "G H | &nbsp;",
         "product-stream": "G D | &nbsp;",
@@ -697,7 +698,36 @@
         "isNoneOf": "Is none of | Are none of",
         "gross": "Gross",
         "net": "Net",
-        "empty": "Is empty | Are empty"
+        "empty": "Is empty | Are empty",
+        "between": "Is between | Are between"
+      },
+      "field": {
+        "amount": "Amount",
+        "operator": "Operator",
+        "type": "Condition",
+        "count": "Quantity",
+        "quantity": "Quantity",
+        "isNet": "Net / Gross",
+        "isNumeric": "Comparison mode",
+        "toDate": "Until",
+        "toTime": "Until",
+        "useTime": "Time mode",
+        "timezone": "Time zone",
+        "categoryIds": "Category",
+        "identifiers": "Selection",
+        "zipCodes": "Postal code",
+        "selectedField": "Custom field",
+        "selectedFieldSet": "Custom field set",
+        "renderedField": "Custom field",
+        "renderedFieldValue": "Value",
+        "isAlwaysValid": "Always valid"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Product"
+      },
+      "errors": {
+        "prefix": "Invalid value:",
+        "andMore": "+{count} more"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
@@ -749,26 +779,27 @@
         "customerCampaignCodeRule": "Campaign code (customer)",
         "orderAffiliateCodeRule": "Affiliate code (order)",
         "orderCampaignCodeRule": "Campaign code (order)",
-        "cartAmountRule": "Grand total",
-        "cartPositionPrice": "Total",
-        "goodsCountRule": "Total quantity of distinct products",
-        "goodsPriceRule": "Subtotal of all items",
-        "cartTotalPurchasePrice": "Total of all purchase prices",
+        "cartAmountRule": "Cart total (incl. shipping)",
+        "cartPositionPrice": "Cart sum of items (excl. shipping)",
+        "goodsCountRule": "Number of distinct products",
+        "goodsPriceRule": "Subtotal of goods (excl. discounts/fees)",
+        "cartTotalPurchasePrice": "Sum of purchase prices",
         "lineItemOfTypeRule": {
           "label": "Item of type",
           "product": "Product",
           "discount_surcharge": "Discount / surcharge"
         },
         "lineItemRule": "Items in cart",
-        "lineItemsInCartCountRule": "Quantity of distinct items",
-        "promotionsInCartCountRule": "Quantity of discounts",
+        "lineItemsInCartCountRule": "Number of distinct items",
+        "promotionsInCartCountRule": "Number of discounts",
         "lineItemUnitPriceRule": "Item unit price",
-        "lineItemTotalPriceRule": "Item subtotal",
-        "lineItemWithQuantityRule": "Item quantity",
+        "lineItemTotalPriceRule": "Item total (qty × price)",
+        "lineItemWithQuantityRule": "Item with quantity",
+        "lineItemPerItemQuantityRule": "Quantity per item",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
-        "orderDeliveryStatusRule": "Delivery status (flow)",
-        "orderCreatedByAdminRule": "Order created by administrator (flow)",
+        "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by administrator",
         "adminSalesChannelSourceRule": "Applicable in Administration",
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
@@ -834,7 +865,7 @@
         "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
-        "lineItemGoodsTotalRule": "Total quantity of all products",
+        "lineItemGoodsTotalRule": "Total product quantity (units)",
         "orderTotalAmountRule": "Total value of completed (done) orders",
         "promotionValueRule": "Subtotal of all discounts",
         "promotionCodeOfType": "Promotions with code option",
@@ -895,6 +926,14 @@
         }
       },
       "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "cartLineItemPurchasePrice": {
         "type": {
           "options": {
             "gross": "Gross",
@@ -985,7 +1024,6 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Use as cover",
-        "buttonRemove": "Remove",
         "buttonPreviewImage": "Preview image"
       }
     },
@@ -1099,6 +1137,7 @@
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
       "customer_password_changed": "Customer password changed",
+      "revocation_request_sent": "The revocation request form has been sent.",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",
@@ -1159,7 +1198,6 @@
       "Reduced rate 2": "Super-reduced rate"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Bulk edit",
       "startBulkEdit": "Start bulk edit",
       "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
     },
@@ -1316,8 +1354,7 @@
   },
   "sw-error": {
     "general": {
-      "messagePlaceholder": "Oops, something went terribly wrong.",
-      "textLink": "Back"
+      "messagePlaceholder": "Oops, something went terribly wrong."
     }
   },
   "sw-property-search": {
@@ -1356,8 +1393,7 @@
     "ignorePlugin": "Ignore permanently",
     "successfullyDeleted": "Extension has been deleted",
     "table": {
-      "plugin": "Extension",
-      "warning": "Warning"
+      "plugin": "Extension"
     }
   },
   "sw-sales-channel-switch": {
@@ -1579,7 +1615,7 @@
         },
         "strategies": {
           "move-shop-permanently": {
-            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.",
+            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.",
             "name": "Keep the shop identifier"
           },
           "reinstall-apps": {
@@ -1603,15 +1639,8 @@
     }
   },
   "sw-wizard": {
-    "backButton": "Back",
-    "closeButton": "Close",
     "finishButton": "Finish",
     "nextButton": "Next"
-  },
-  "sw-meteor": {
-    "navigation": {
-      "backButton": "Back"
-    }
   },
   "sw-base-filter": {
     "resetButton": "Reset"
@@ -1721,5 +1750,40 @@
   },
   "sw-context-button": {
     "ariaLabel": "Open context menu"
+  },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Lock uniform scale",
+    "unlock-uniform-scale": "Unlock uniform scale"
+  },
+  "sw-model-editor": {
+    "titleModal": "Model Editor",
+    "open-model-editor-tooltip": "Open Model Editor",
+    "edit-options": {
+      "move-tooltip": "Move object",
+      "rotate-tooltip": "Rotate object",
+      "scale-tooltip": "Scale object"
+    },
+    "properties": {
+      "transformation": {
+        "label":"Transformation",
+        "position": {
+          "label": "Position"
+        },
+        "rotation": {
+          "label": "Rotation"
+        },
+        "scale": {
+          "label": "Scale"
+        }
+      }
+    }
+  },
+  "sw-request-consent-modal": {
+    "title": "Consent required",
+    "message": "The extension {appName} requests your consent for the following topic: {consentName}",
+    "readMore": "For more information see:",
+    "acceptButton": "Accept",
+    "declineButton": "Decline",
+    "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
   }
 }

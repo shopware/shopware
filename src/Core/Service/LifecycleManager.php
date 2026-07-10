@@ -3,6 +3,7 @@
 namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -26,6 +28,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * Stopped: The service is not running. The underlying application backing the service is in a Pending Permission state.
  *
  * @internal
+ *
+ * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
  */
 #[Package('framework')]
 class LifecycleManager
@@ -47,6 +51,7 @@ class LifecycleManager
         private readonly AllServiceInstaller $serviceInstaller,
         private readonly PermissionsService $permissionsService,
         private readonly Client $client,
+        private readonly RequirementsValidator $requirementsValidator,
     ) {
     }
 
@@ -75,12 +80,17 @@ class LifecycleManager
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $service));
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $app = $this->repository->search($criteria, $context)->first();
+        $app = $this->repository->search($criteria, $context)->getEntities()->first();
         if ($app === null) {
             throw ServiceException::serviceNotInstalled($service);
         }
 
-        if ($this->permissionsService->areGranted()) {
+        $this->syncPrivileges($app, $context);
+    }
+
+    public function syncPrivileges(AppEntity $app, Context $context): void
+    {
+        if ($this->requirementsValidator->isSatisfied($app)) {
             $this->privileges->acceptAllForApps([$app->getId()], $context);
         } else {
             $this->privileges->revokeAllForApps([$app->getId()], $context);
@@ -88,31 +98,17 @@ class LifecycleManager
     }
 
     /**
-     * This method grants requested permissions for all self-managed services (apps backing services).
-     * Essentially, putting them into a state where the offered 'service' is in a working state.
+     * Re-evaluate all services that list the given requirement.
+     * Called when a requirement's state changes.
      */
-    public function start(Context $context): void
+    public function syncRequirement(string $requirementName, Context $context): void
     {
-        if (!$this->permissionsService->areGranted()) {
-            throw ServiceException::invalidServicesState();
+        foreach ($this->getAllServices($context) as $app) {
+            $requirements = $this->getRequirements($app);
+            if (\in_array($requirementName, $requirements, true)) {
+                $this->syncPrivileges($app, $context);
+            }
         }
-
-        /** @var list<string> $serviceIds */
-        $serviceIds = $this->getAllServices($context)->getIds();
-
-        $this->privileges->acceptAllForApps($serviceIds, $context);
-    }
-
-    /**
-     * This method revokes all permissions for all self-managed services (apps backing services).
-     * Essentially, putting them into a state where the 'service' is pending permissions and not in a fully functional state.
-     */
-    public function stop(Context $context): void
-    {
-        /** @var list<string> $serviceIds */
-        $serviceIds = $this->getAllServices($context)->getIds();
-
-        $this->privileges->revokeAllForApps($serviceIds, $context);
     }
 
     /**
@@ -121,7 +117,7 @@ class LifecycleManager
      */
     public function enable(): void
     {
-        $this->systemConfigService->delete(self::CONFIG_KEY_SERVICES_DISABLED);
+        $this->systemConfigService->delete(self::CONFIG_KEY_SERVICES_DISABLED, null, true);
 
         $this->serviceInstaller->scheduleInstall();
     }
@@ -132,11 +128,11 @@ class LifecycleManager
     public function disable(Context $context): void
     {
         foreach ($this->getAllServices($context) as $service) {
-            $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+            $this->appLifecycle->uninstall($service->getName(), ['id' => $service->getId()], $context);
         }
 
         $this->permissionsService->revoke($context);
-        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true);
+        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
     }
 
     public function enabled(): bool
@@ -148,7 +144,7 @@ class LifecycleManager
     {
         $registryServices = $this->client->getAll();
 
-        if (\count($registryServices) === 0) {
+        if ($registryServices === []) {
             // this is not safe to do if there are zero services.
             // it could be a transient error or a misconfiguration.
             return;
@@ -161,7 +157,7 @@ class LifecycleManager
 
         foreach ($services as $service) {
             if (!isset($registryServiceNames[$service->getName()])) {
-                $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+                $this->appLifecycle->uninstall($service->getName(), ['id' => $service->getId()], $context);
             }
         }
     }
@@ -188,5 +184,16 @@ class LifecycleManager
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
 
         return $this->repository->search($criteria, $context)->getEntities();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getRequirements(AppEntity $app): array
+    {
+        /** @var ServiceSourceConfig $sourceConfig */
+        $sourceConfig = $app->getSourceConfig();
+
+        return AppInfo::fromNameAndSourceConfig($app->getName(), $sourceConfig)->requirements;
     }
 }

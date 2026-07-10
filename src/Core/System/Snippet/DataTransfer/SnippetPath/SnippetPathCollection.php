@@ -33,7 +33,7 @@ class SnippetPathCollection extends Collection
      */
     public function toLocationArray(): array
     {
-        return \array_values($this->map(fn (SnippetPath $snippetPath) => $snippetPath->location));
+        return \array_values($this->map(static fn (SnippetPath $snippetPath) => $snippetPath->location));
     }
 
     protected function getExpectedClass(): ?string

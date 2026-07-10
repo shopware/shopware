@@ -12,7 +12,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     emits: [
         'reset',
@@ -152,7 +155,7 @@ export default {
             const isShippingAvailable = this.order.addresses[0].country.shippingAvailable;
             if (!isShippingAvailable && typeof isShippingAvailable === 'boolean') {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageShippingNotAvailable'),
+                    message: this.$t('sw-order.detail.messageShippingNotAvailable'),
                 });
 
                 this.isLoading = false;
@@ -177,7 +180,7 @@ export default {
                         })
                         .catch(() => {
                             this.createNotificationError({
-                                message: this.$tc('sw-order.detail.messageSaveError'),
+                                message: this.$t('sw-order.detail.messageSaveError'),
                             });
                         })
                         .finally(() => {

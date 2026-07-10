@@ -84,7 +84,7 @@ class CreateHydratorCommand extends Command
         $services = [];
 
         $whitelist = $input->getArgument('whitelist');
-        if (empty($whitelist)) {
+        if ($whitelist === []) {
             $whitelist = [];
 
             $startsWith = ['product', 'category', 'property'];
@@ -345,7 +345,7 @@ EOF;
         $entity = array_pop($entity);
 
         $callTemplate = '';
-        if (!empty($calls)) {
+        if ($calls !== []) {
             $callTemplate = "\n        " . implode("\n        ", $calls);
         }
 

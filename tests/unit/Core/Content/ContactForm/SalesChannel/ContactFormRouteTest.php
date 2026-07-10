@@ -38,7 +38,7 @@ class ContactFormRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
     }
 
     /**
@@ -68,8 +68,8 @@ class ContactFormRouteTest extends TestCase
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->expects($this->once())->method('search')->willReturn($salutationEntitySearchResult);
 
-        $mock = $this->createMock(DataValidator::class);
-        $mock->method('validate')->willReturnCallback(function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
+        $mock = static::createStub(DataValidator::class);
+        $mock->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
                 static::assertSame($value, $data[$propertyName] ?? null);
                 static::assertSame($definition->getProperties()[$propertyName] ?? null, $constraints);
@@ -77,17 +77,17 @@ class ContactFormRouteTest extends TestCase
         });
 
         $contactFormRoute = new ContactFormRoute(
-            $this->createMock(DataValidationFactoryInterface::class),
+            static::createStub(DataValidationFactoryInterface::class),
             $mock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
-            $this->createMock(RequestStack::class),
-            $this->createMock(RateLimiter::class)
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class)
         );
 
         $contactFormRoute->load($requestData, $this->salesChannelContext);

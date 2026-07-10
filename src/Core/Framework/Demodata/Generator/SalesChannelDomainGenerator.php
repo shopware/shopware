@@ -112,7 +112,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
             [
                 'id' => $salesChannelId,
                 'languages' => array_map(
-                    fn (string $languageId) => ['id' => $languageId],
+                    static fn (string $languageId) => ['id' => $languageId],
                     $languageIds
                 ),
             ],

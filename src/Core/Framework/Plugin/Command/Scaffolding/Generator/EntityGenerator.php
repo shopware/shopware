@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
@@ -29,7 +30,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
     EOL;
 
-    public function __construct(private readonly \DateTimeImmutable $now = new \DateTimeImmutable())
+    public function __construct(private readonly ClockInterface $clock)
     {
     }
 
@@ -40,7 +41,7 @@ class EntityGenerator implements ScaffoldingGenerator
     ): void {
         $entities = $input->getOption(self::OPTION_NAME);
 
-        if (!empty($entities)) {
+        if (\is_string($entities) && $entities !== '') {
             $this->processEntities($config, $entities);
 
             return;
@@ -48,7 +49,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
         $entities = $this->askForEntities($io);
 
-        if (empty($entities)) {
+        if ($entities === null || $entities === '') {
             return;
         }
 
@@ -60,7 +61,7 @@ class EntityGenerator implements ScaffoldingGenerator
         StubCollection $stubCollection
     ): void {
         if (!$configuration->hasOption(self::OPTION_NAME)
-            || empty($configuration->getOption(self::OPTION_NAME))
+            || $configuration->getOption(self::OPTION_NAME) === []
             || !\is_array($configuration->getOption(self::OPTION_NAME))
         ) {
             return;
@@ -86,7 +87,7 @@ class EntityGenerator implements ScaffoldingGenerator
     private function createMigration(PluginScaffoldConfiguration $configuration, string $entityName): Stub
     {
         $tableName = $this->getTableName($entityName);
-        $timeStamp = (string) $this->now->getTimestamp();
+        $timeStamp = (string) $this->clock->now()->getTimestamp();
 
         $migrationPath = \sprintf(
             'src/Migration/Migration%sCreate%sTable.php',
@@ -172,7 +173,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $entitiesProvided = $io->confirm('Do you want to create entities?');
 
-        if (!$entitiesProvided) {
+        if ($entitiesProvided === false) {
             return null;
         }
 
@@ -183,7 +184,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $parsed = $this->parseEntities($entities);
 
-        if (!empty($parsed)) {
+        if ($parsed !== []) {
             $config->addOption(self::OPTION_NAME, $this->parseEntities($entities));
         }
     }
@@ -197,7 +198,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
         $entities = explode(',', $entities);
 
-        return array_filter(array_map(function (string $entity) {
+        return array_filter(array_map(static function (string $entity) {
             return ucfirst(trim($entity));
         }, $entities));
     }

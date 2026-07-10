@@ -20,11 +20,12 @@ export default class ConsentApiService extends ApiService {
         });
     }
 
-    accept(consent: string) {
+    accept(consent: string, revision?: string | null) {
         return this.httpClient.post<ConsentDTO>(
             `${this.getApiBasePath()}/accept`,
             {
                 consent,
+                revision,
             },
             {
                 headers: this.getBasicHeaders(),

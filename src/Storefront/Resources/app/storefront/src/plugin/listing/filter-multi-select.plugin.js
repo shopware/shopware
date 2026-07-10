@@ -268,7 +268,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
 
         this.mainFilterButton.setAttribute(
             'aria-label',
-            `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCount.replace('%count%', this.selection.length.toString())})`
+            `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCount.replace('%count%', this.selection.length.toString())})`,
         );
     }
 }

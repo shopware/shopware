@@ -35,6 +35,8 @@ export interface ContextState {
                 appUrlReachable: boolean;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
+                firstMigrationDate?: string | null;
+                minSearchTermLength: number;
             };
             version: null | string;
             versionRevision: null | string;
@@ -51,6 +53,7 @@ export interface ContextState {
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
         windowId: null | string;
+        analyticsGatewayUrl: null | string;
     };
     api: {
         apiPath: null | string;
@@ -96,6 +99,7 @@ const state: ContextState = reactive({
         systemCurrencyId: null,
         systemCurrencyISOCode: null,
         windowId: null,
+        analyticsGatewayUrl: null,
     },
     api: {
         apiPath: null,

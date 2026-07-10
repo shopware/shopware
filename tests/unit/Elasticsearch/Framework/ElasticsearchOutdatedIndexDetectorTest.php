@@ -30,7 +30,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $indices
             ->expects($this->exactly(2))
             ->method('get')
-            ->willReturnCallback(fn () => [
+            ->willReturnCallback(static fn () => [
                 Uuid::randomHex() => [
                     'aliases' => [
                         'test',
@@ -51,24 +51,24 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
                 ],
             ]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
 
-        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $registry = static::createStub(ElasticsearchRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition, $definition]);
 
-        $makeLanguage = fn () => (new LanguageEntity())->assign(['id' => Uuid::randomHex()]);
+        $makeLanguage = static fn () => (new LanguageEntity())->assign(['id' => Uuid::randomHex()]);
 
         $collection = new EntitySearchResult('test', 1, new LanguageCollection([$makeLanguage(), $makeLanguage(), $makeLanguage()]), null, new Criteria(), Context::createDefaultContext());
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository
             ->method('search')
             ->willReturn($collection);
 
-        $esHelper = $this->createMock(ElasticsearchHelper::class);
+        $esHelper = static::createStub(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         $arr = $detector->get();
@@ -83,14 +83,14 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $indices
             ->expects($this->exactly(0))
             ->method('get')
-            ->willReturnCallback(fn () => []);
+            ->willReturnCallback(static fn () => []);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
-        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $registry = static::createStub(ElasticsearchRegistry::class);
 
-        $esHelper = $this->createMock(ElasticsearchHelper::class);
+        $esHelper = static::createStub(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         static::assertEmpty($detector->get());

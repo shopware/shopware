@@ -9,7 +9,7 @@
         <template #toolbar>
             {% block sw_settings_tag_detail_assignments_toolbar %}
             <sw-card-filter
-                :placeholder="$tc('sw-settings-tag.detail.assignments.searchPlaceholder')"
+                :placeholder="$t('sw-settings-tag.detail.assignments.searchPlaceholder')"
                 @sw-card-filter-term-change="onTermChange"
             />
             {% endblock %}
@@ -26,7 +26,7 @@
                 <mt-switch
                     v-model="showSelected"
                     :disabled="isLoading"
-                    :label="$tc('sw-settings-tag.detail.assignments.showSelected')"
+                    :label="$t('sw-settings-tag.detail.assignments.showSelected')"
                 />
             </sw-card-section>
             {% endblock %}
@@ -35,7 +35,7 @@
                 class="sw-settings-tag-detail-assignments__total-selected"
                 divider="bottom"
             >
-                {{ totalAssignments }} {{ $tc('sw-settings-tag.detail.assignments.selected') }}
+                {{ totalAssignments }} {{ $t('sw-settings-tag.detail.assignments.selected') }}
             </sw-card-section>
             {% endblock %}
         </sw-container>
@@ -85,7 +85,7 @@
                                     class="associations-grid__count"
                                 >
                                     {{ getCount(item.assignment) }}
-                                    {{ $tc('sw-settings-tag.detail.assignments.assignments', {}, getCount(item.assignment)) }}
+                                    {{ $t('sw-settings-tag.detail.assignments.assignments', {}, getCount(item.assignment)) }}
                                 </span>
                             </mt-button>
                             {% endblock %}

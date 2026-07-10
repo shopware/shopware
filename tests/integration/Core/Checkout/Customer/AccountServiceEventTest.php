@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -45,27 +46,47 @@ class AccountServiceEventTest extends TestCase
 
     private LogoutRoute $logoutRoute;
 
+    private EventDispatcherInterface $dispatcher;
+
+    private bool $eventDidRun = false;
+
+    /**
+     * @var \Closure(CustomerBeforeLoginEvent): void
+     */
+    private \Closure $emailListenerClosure;
+
+    /**
+     * @var \Closure(CustomerLoginEvent|CustomerLogoutEvent): void
+     */
+    private \Closure $customerListenerClosure;
+
     protected function setUp(): void
     {
         $this->accountService = static::getContainer()->get(AccountService::class);
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->logoutRoute = static::getContainer()->get(LogoutRoute::class);
         $this->loginRoute = static::getContainer()->get(LoginRoute::class);
+        $this->dispatcher = static::getContainer()->get('event_dispatcher');
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->createCustomer('info@example.com');
+
+        $this->emailListenerClosure = function (CustomerBeforeLoginEvent $event): void {
+            $this->eventDidRun = true;
+            static::assertSame('info@example.com', $event->getEmail());
+        };
+
+        $this->customerListenerClosure = function (CustomerLoginEvent|CustomerLogoutEvent $event): void {
+            $this->eventDidRun = true;
+            static::assertSame('info@example.com', $event->getCustomer()->getEmail());
+        };
     }
 
-    public function testLoginBeforeEventNotDispatchedIfNoCredentialsGiven(): void
+    public function testLoginBeforeEventNotDispatchedIfNoCredentialsGivenViaLoginRoute(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-
-        $listenerClosure = $this->getEmailListenerClosure($eventDidRun);
-        $this->addEventListener($dispatcher, CustomerBeforeLoginEvent::class, $listenerClosure);
+        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -73,69 +94,87 @@ class AccountServiceEventTest extends TestCase
             'password' => 'shopware',
         ]);
 
+        $this->expectExceptionObject(new BadCredentialsException());
+
         try {
             $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-            $this->accountService->loginByCredentials('', 'shopware', $this->salesChannelContext);
-        } catch (BadCredentialsException) {
-            // nth
+        } finally {
+            static::assertFalse($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
+            $this->dispatcher->removeListener(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
         }
-        static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
-
-        $dispatcher->removeListener(CustomerBeforeLoginEvent::class, $listenerClosure);
     }
 
-    public function testLoginEventsDispatched(): void
+    public function testLoginBeforeEventNotDispatchedIfNoCredentialsGivenViaAccountService(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
-        $eventsToTest = [
-            CustomerBeforeLoginEvent::class,
-            CustomerLoginEvent::class,
-        ];
+        $this->expectExceptionObject(new BadCredentialsException());
 
-        foreach ($eventsToTest as $eventClass) {
-            $eventDidRun = false;
-
-            switch ($eventClass) {
-                case CustomerBeforeLoginEvent::class:
-                    $listenerClosure = $this->getEmailListenerClosure($eventDidRun);
-
-                    break;
-                case CustomerLoginEvent::class:
-                default:
-                    $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
-            }
-
-            $this->addEventListener($dispatcher, $eventClass, $listenerClosure);
-
-            $dataBag = new DataBag();
-            $dataBag->add([
-                'username' => 'info@example.com',
-                'password' => 'shopware',
-            ]);
-
-            $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-            static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
-
-            $eventDidRun = false;
-
-            $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
-            /** @phpstan-ignore staticMethod.impossibleType ($eventDidRun modified by listener) */
-            static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
-
-            $dispatcher->removeListener($eventClass, $listenerClosure);
+        try {
+            $this->accountService->loginByCredentials('', 'shopware', $this->salesChannelContext);
+        } finally {
+            static::assertFalse($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
+            $this->dispatcher->removeListener(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
         }
+    }
+
+    public function testCustomerBeforeLoginEventDispatchedViaLoginRoute(): void
+    {
+        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+
+        $dataBag = new DataBag();
+        $dataBag->add([
+            'username' => 'info@example.com',
+            'password' => 'shopware',
+        ]);
+
+        $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
+        static::assertTrue($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
+
+        $this->dispatcher->removeListener(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+    }
+
+    public function testCustomerBeforeLoginEventDispatchedViaAccountService(): void
+    {
+        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+
+        $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
+        static::assertTrue($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
+
+        $this->dispatcher->removeListener(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+    }
+
+    public function testCustomerLoginEventDispatchedViaLoginRoute(): void
+    {
+        $this->addEventListener($this->dispatcher, CustomerLoginEvent::class, $this->customerListenerClosure);
+
+        $dataBag = new DataBag();
+        $dataBag->add([
+            'username' => 'info@example.com',
+            'password' => 'shopware',
+        ]);
+
+        $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
+        static::assertTrue($this->eventDidRun, 'Event "' . CustomerLoginEvent::class . '" did not run');
+
+        $this->dispatcher->removeListener(CustomerLoginEvent::class, $this->customerListenerClosure);
+    }
+
+    public function testCustomerLoginEventDispatchedViaAccountService(): void
+    {
+        $this->addEventListener($this->dispatcher, CustomerLoginEvent::class, $this->customerListenerClosure);
+
+        $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
+        static::assertTrue($this->eventDidRun, 'Event "' . CustomerLoginEvent::class . '" did not run');
+
+        $this->dispatcher->removeListener(CustomerLoginEvent::class, $this->customerListenerClosure);
     }
 
     public function testLogoutEventsDispatched(): void
     {
         $email = 'info@example.com';
-        $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $eventDidRun = false;
-
-        $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
-        $this->addEventListener($dispatcher, CustomerLogoutEvent::class, $listenerClosure);
+        $this->addEventListener($this->dispatcher, CustomerLogoutEvent::class, $this->customerListenerClosure);
 
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),
@@ -149,30 +188,8 @@ class AccountServiceEventTest extends TestCase
 
         $this->logoutRoute->logout($this->salesChannelContext, new RequestDataBag());
 
-        static::assertTrue($eventDidRun, 'Event "' . CustomerLogoutEvent::class . '" did not run');
+        static::assertTrue($this->eventDidRun, 'Event "' . CustomerLogoutEvent::class . '" did not run');
 
-        $dispatcher->removeListener(CustomerLogoutEvent::class, $listenerClosure);
-    }
-
-    /**
-     * @return callable(CustomerBeforeLoginEvent): void
-     */
-    private function getEmailListenerClosure(bool &$eventDidRun): callable
-    {
-        return static function (CustomerBeforeLoginEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertSame('info@example.com', $event->getEmail());
-        };
-    }
-
-    /**
-     * @return callable(CustomerLoginEvent|CustomerLogoutEvent): void
-     */
-    private function getCustomerListenerClosure(bool &$eventDidRun): callable
-    {
-        return static function (CustomerLoginEvent|CustomerLogoutEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertSame('info@example.com', $event->getCustomer()->getEmail());
-        };
+        $this->dispatcher->removeListener(CustomerLogoutEvent::class, $this->customerListenerClosure);
     }
 }

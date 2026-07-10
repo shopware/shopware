@@ -169,6 +169,8 @@
         "placeholderDescription": "Enter rule description...",
         "labelType": "Type",
         "placeholderType": "Select rule type...",
+        "deprecatedConditionWarning": "The condition \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
+        "deprecatedConditionWarningNoReplacement": "The condition \"{label}\" is deprecated and will be removed in {version}.",
         "placeholderDelayType": "Select delay..."
       },
       "tag": {
@@ -250,6 +252,7 @@
         "labelAdmin": "Admin",
         "labelCustom": "Custom",
         "labelContactFormMail": "Inquirer",
+        "labelRevocationRequestFormMail": "Inquirer",
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient...",
         "useDifferentReplyToLabel": "Sender",
@@ -292,7 +295,6 @@
       }
     },
     "leavePageModal": {
-      "headline": "Warning",
       "description": "There are unsaved changes. Are you sure you want to leave this page?",
       "confirmButton": "Leave page"
     },
@@ -304,6 +306,8 @@
       "paymentMethod": "Payment method",
       "contactForm": "Contact form",
       "reviewForm": "Product review",
+      "revocationRequestMerchant": "Revocation request received",
+      "revocationRequestCustomer": "Revocation request sent",
       "group": "Group",
       "recovery": "Recovery",
       "registration": "Registration",
@@ -335,7 +339,6 @@
       "request": "Request",
       "message": "Message",
       "sent": "Sent",
-      "confirm": "Confirm",
       "unsubscribe": "Unsubscribe",
       "log": "Log",
       "cancelled": "Cancelled",

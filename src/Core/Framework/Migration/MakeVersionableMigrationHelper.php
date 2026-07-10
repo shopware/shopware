@@ -180,7 +180,7 @@ EOD;
 
         $referencedColumns = array_map(static fn (UnqualifiedName $column): string => $column->getIdentifier()->getValue(), $constraint->getReferencedColumnNames());
 
-        return \count(array_diff($referencedColumns, $foreignFieldNames)) === 0;
+        return array_diff($referencedColumns, $foreignFieldNames) === [];
     }
 
     /**
@@ -353,7 +353,7 @@ EOD;
         $indexedColumns = $this->getPrimaryKeyColumns($tableName);
         $indexedColumns = array_map(static fn (UnqualifiedName $column): string => $column->getIdentifier()->getValue(), $indexedColumns);
 
-        if (\count(array_intersect($indexedColumns, $keyStructure['COLUMN_NAME']))) {
+        if (array_intersect($indexedColumns, $keyStructure['COLUMN_NAME']) !== []) {
             return \sprintf(
                 self::MODIFY_PRIMARY_KEY_IN_RELATION,
                 $tableName,

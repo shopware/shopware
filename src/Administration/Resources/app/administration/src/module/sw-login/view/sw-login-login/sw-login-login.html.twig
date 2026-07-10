@@ -6,7 +6,7 @@
     <div v-if="loginConfigLoaded">
         {% block sw_login_login_form_headline %}
         <h2 class="sw-login__content-headline">
-            {{ $tc('sw-login.index.headlineForm') }}
+            {{ $t('sw-login.index.headlineForm') }}
         </h2>
         {% endblock %}
 
@@ -27,8 +27,8 @@
                 v-model="username"
                 v-autofocus
                 name="sw-field--username"
-                :label="$tc('sw-login.index.labelUsername')"
-                :placeholder="$tc('sw-login.index.placeholderUsername')"
+                :label="$t('sw-login.index.labelUsername')"
+                :placeholder="$t('sw-login.index.placeholderUsername')"
                 :disabled="showLoginAlert"
                 required
             />
@@ -38,8 +38,8 @@
             <mt-password-field
                 v-model="password"
                 name="sw-field--password"
-                :label="$tc('sw-login.index.labelPassword')"
-                :placeholder="$tc('sw-login.index.placeholderPassword')"
+                :label="$t('sw-login.index.labelPassword')"
+                :placeholder="$t('sw-login.index.placeholderPassword')"
                 :disabled="showLoginAlert"
                 required
             />
@@ -56,14 +56,14 @@
                     :block="true"
                     type="submit"
                 >
-                    {{ $tc('sw-login.index.buttonLogin') }}
+                    {{ $t('sw-login.index.buttonLogin') }}
                 </mt-button>
                 {% endblock %}
 
                 <div class="sw-login__submit-container">
                     <mt-checkbox
                         v-model:checked="rememberMe"
-                        :label="$tc('sw-login.index.labelKeepLoggedIn')"
+                        :label="$t('sw-login.index.labelKeepLoggedIn')"
                     />
 
                     {% block sw_login_login_forgot_password %}
@@ -71,7 +71,7 @@
                         :to="{ name: 'sw.login.index.recovery' }"
                         class="sw-login__forgot-password-action"
                     >
-                        {{ $tc('sw-login.index.forgottenPasswordLink') }}
+                        {{ $t('sw-login.index.forgottenPasswordLink') }}
                     </mt-link>
                     {% endblock %}
                 </div>
@@ -85,7 +85,7 @@
         >
             <div class="sw-login__sso-divider">
                 <span class="sw-login__sso-divider-text">
-                    {{ $tc('sw-login.index.orContinueWith') }}
+                    {{ $t('sw-login.index.orContinueWith') }}
                 </span>
             </div>
 
@@ -106,7 +106,7 @@
                     />
                 </template>
 
-                {{ $tc('sw-login.index.buttonSsoLogin') }}
+                {{ $t('sw-login.index.buttonSsoLogin') }}
             </mt-button>
         </div>
     </div>

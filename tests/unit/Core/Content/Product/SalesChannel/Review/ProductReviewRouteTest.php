@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -26,18 +27,20 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductReviewRoute::class)]
 class ProductReviewRouteTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<ProductReviewCollection> */
-    private MockObject&EntityRepository $repository;
+    /**
+     * @var Stub&EntityRepository<ProductReviewCollection>
+     */
+    private Stub&EntityRepository $repository;
 
     private StaticSystemConfigService $config;
 
-    private MockObject&CacheTagCollector $cacheTagCollector;
+    private CacheTagCollector&Stub $cacheTagCollector;
 
     private ProductReviewRoute $route;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = static::createStub(EntityRepository::class);
         $this->config = new StaticSystemConfigService([
             'test' => [
                 'core.listing.showReview' => true,
@@ -49,13 +52,9 @@ class ProductReviewRouteTest extends TestCase
             ],
         ]);
 
-        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
 
-        $this->route = new ProductReviewRoute(
-            $this->repository,
-            $this->config,
-            $this->cacheTagCollector,
-        );
+        $this->route = $this->createRoute();
     }
 
     public function testLoad(): void
@@ -85,17 +84,19 @@ class ProductReviewRouteTest extends TestCase
             ])
         );
 
-        $this->repository
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
             ->expects($this->once())
             ->method('search')
             ->with($expectedCriteria, $context);
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with($this->route::buildName($productId));
 
-        $this->route->load(
+        $this->createRoute($repository, $cacheTagCollector)->load(
             $productId,
             new Request(),
             $salesChannelContext,
@@ -115,6 +116,20 @@ class ProductReviewRouteTest extends TestCase
             new Request(),
             $salesChannelContext,
             new Criteria(),
+        );
+    }
+
+    /**
+     * @param (EntityRepository<ProductReviewCollection>&MockObject)|null $repository
+     */
+    private function createRoute(
+        ?EntityRepository $repository = null,
+        ?CacheTagCollector $cacheTagCollector = null,
+    ): ProductReviewRoute {
+        return new ProductReviewRoute(
+            $repository ?? $this->repository,
+            $this->config,
+            $cacheTagCollector ?? $this->cacheTagCollector,
         );
     }
 }

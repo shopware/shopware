@@ -58,8 +58,8 @@ class ComparisonExtension extends AbstractExtension
         $matches = array_intersect($value, $comparable);
 
         return match ($operator) {
-            Rule::OPERATOR_EQ => !empty($matches),
-            Rule::OPERATOR_NEQ => empty($matches),
+            Rule::OPERATOR_EQ => $matches !== [],
+            Rule::OPERATOR_NEQ => $matches === [],
             default => throw throw AdapterException::unsupportedOperator($operator, self::class),
         };
     }

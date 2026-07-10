@@ -76,7 +76,7 @@ class AppLifecycleIterator
             }
         }
 
-        if (empty($installAppNames)) {
+        if ($installAppNames === []) {
             $this->deleteNotFoundAndFailedInstallApps($this->getRegisteredApps($context), $successfulUpdates, $appLifecycle, $context);
         }
 
@@ -129,7 +129,7 @@ class AppLifecycleIterator
             unset($appsFromDb[$app]);
         }
         foreach ($appsFromDb as $appName => $app) {
-            $appLifecycle->delete($appName, $app, $context);
+            $appLifecycle->uninstall($appName, $app, $context);
         }
     }
 }

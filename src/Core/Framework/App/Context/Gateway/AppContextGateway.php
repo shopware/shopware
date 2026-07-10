@@ -92,13 +92,18 @@ class AppContextGateway
         $collected = new ContextGatewayCommandCollection();
 
         foreach ($response->getCommands() as $payload) {
-            if (!isset($payload['command'], $payload['payload'])) {
-                $this->logger->logOrThrowException(GatewayException::payloadInvalid($payload['command'] ?? null));
+            if (!isset($payload['command'])) {
+                $this->logger->logOrThrowException(GatewayException::payloadInvalid());
 
                 continue;
             }
 
             $commandKey = $payload['command'];
+            if (!isset($payload['payload'])) {
+                $this->logger->logOrThrowException(GatewayException::payloadInvalid($commandKey));
+
+                continue;
+            }
 
             if (!$this->registry->hasAppCommand($commandKey)) {
                 $this->logger->logOrThrowException(GatewayException::handlerNotFound($commandKey));

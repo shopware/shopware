@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,7 +20,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
@@ -67,7 +70,9 @@ class NewsletterControllerTest extends TestCase
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
-        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $container = static::getContainer();
+
+        $systemConfigService = $container->get(SystemConfigService::class);
         static::assertNotNull($systemConfigService);
         $systemConfigService->set('core.newsletter.doubleOptInRegistered', true);
 
@@ -88,16 +93,22 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $repo = static::getContainer()->get('newsletter_recipient.repository');
+        $repo = $container->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
+        $context = Context::createDefaultContext();
         /** @var NewsletterRecipientEntity $recipientEntry */
-        $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
+        $recipientEntry = $repo->search($criteria, $context)->first();
+
+        $params = [
+            'em' => Hasher::hash('nltest@example.com', 'sha1'),
+            'hash' => $recipientEntry->getHash(),
+        ];
 
         $browser->request(
             'GET',
-            '/newsletter-subscribe?em=' . Hasher::hash('nltest@example.com', 'sha1') . '&hash=' . $recipientEntry->getHash()
+            '/newsletter-subscribe?' . http_build_query($params)
         );
 
         $response = $browser->getResponse();
@@ -109,10 +120,38 @@ class NewsletterControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         /** @var NewsletterRecipientEntity $recipientEntry */
-        $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
+        $recipientEntry = $repo->search($criteria, $context)->first();
 
-        static::assertSame('optIn', (string) $recipientEntry->getStatus());
+        static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);
+
+        // Reset status and test again with redirect
+        $repo->update([
+            [
+                'id' => $recipientEntry->getId(),
+                'status' => NewsletterSubscribeRoute::STATUS_NOT_SET,
+            ],
+        ], $context);
+
+        $params['redirectTo'] = 'frontend.home.page';
+
+        $browser->request(
+            'GET',
+            '/newsletter-subscribe?' . http_build_query($params)
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/', $response->getTargetUrl());
+
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $success = $session->getFlashBag()->get('success');
+
+        static::assertNotEmpty($success);
+        static::assertSame($container->get('translator')->trans('newsletter.subscriptionCompleted'), $success[0]);
     }
 
     private function login(): KernelBrowser

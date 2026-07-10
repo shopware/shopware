@@ -52,6 +52,7 @@ class ProductConfiguratorLoader
         );
 
         $current = $this->buildCurrentOptions($product, $groups);
+        $emptyGroupIds = [];
 
         foreach ($groups as $group) {
             $options = $group->getOptions();
@@ -70,6 +71,14 @@ class ProductConfiguratorLoader
 
                 $option->setCombinable($combinable);
             }
+
+            if ($options->count() === 0) {
+                $emptyGroupIds[] = $group->getId();
+            }
+        }
+
+        foreach ($emptyGroupIds as $groupId) {
+            $groups->remove($groupId);
         }
 
         return $groups;
@@ -190,8 +199,30 @@ class ProductConfiguratorLoader
 
         $sortedGroupIds = array_column($config, 'id');
 
+        $remainingGroupIds = array_values(array_diff($collection->getIds(), $sortedGroupIds));
+        usort(
+            $remainingGroupIds,
+            static function (string $leftId, string $rightId) use ($collection): int {
+                $left = $collection->get($leftId);
+                $right = $collection->get($rightId);
+
+                if ($left === null || $right === null) {
+                    return 0;
+                }
+
+                $leftPosition = $left->getTranslation('position') ?? $left->getPosition() ?? 0;
+                $rightPosition = $right->getTranslation('position') ?? $right->getPosition() ?? 0;
+
+                if ($leftPosition !== $rightPosition) {
+                    return $leftPosition <=> $rightPosition;
+                }
+
+                return strnatcmp((string) $left->getTranslation('name'), (string) $right->getTranslation('name'));
+            }
+        );
+
         // ensure all ids are in the array (but only once)
-        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $collection->getIds()));
+        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $remainingGroupIds));
 
         $collection->sortByIdArray($sortedGroupIds);
 
@@ -227,7 +258,8 @@ class ProductConfiguratorLoader
      */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
-        if (empty($product->getOptionIds())) {
+        $optionIds = $product->getOptionIds();
+        if ($optionIds === null || $optionIds === []) {
             return [];
         }
 
@@ -235,7 +267,7 @@ class ProductConfiguratorLoader
 
         $current = [];
 
-        foreach ($product->getOptionIds() as $optionId) {
+        foreach ($optionIds as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

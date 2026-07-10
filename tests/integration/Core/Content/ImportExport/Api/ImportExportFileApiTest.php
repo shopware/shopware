@@ -84,7 +84,7 @@ class ImportExportFileApiTest extends TestCase
     {
         foreach ([0, 5] as $num) {
             $data = $this->prepareImportExportFileTestData($num);
-            if (!empty($data)) {
+            if ($data !== []) {
                 $this->repository->create(array_values($data), $this->context);
             }
 

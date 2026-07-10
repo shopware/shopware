@@ -65,7 +65,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -118,7 +118,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -146,7 +146,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -188,7 +188,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $scope = new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertFalse($this->rule->match($scope));
@@ -197,7 +197,7 @@ class LineItemActualStockRuleTest extends TestCase
     public function testMatchWithWrongScopeShouldReturnFalse(): void
     {
         $goodsCountRule = new LineItemActualStockRule();
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($goodsCountRule->match($wrongScope));
     }
@@ -207,15 +207,14 @@ class LineItemActualStockRuleTest extends TestCase
         $goodsCountRule = new LineItemActualStockRule();
         $scope = new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(UnsupportedValueException::class);
+            $this->expectExceptionObject(new UnsupportedValueException('NULL', LineItemActualStockRule::class));
         } else {
-            $this->expectException(CartException::class);
+            $this->expectExceptionObject(CartException::unsupportedValue('NULL', LineItemActualStockRule::class));
         }
-        $this->expectExceptionMessage('Unsupported value of type NULL in Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule');
 
         $goodsCountRule->match($scope);
     }
@@ -241,7 +240,7 @@ class LineItemActualStockRuleTest extends TestCase
         (new LineItemActualStockRule())->match(
             new LineItemScope(
                 new LineItem(Uuid::randomHex(), 'product'),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
     }

@@ -126,7 +126,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.pageTypes.map((pageType) => {
                 return {
                     id: pageType.name,
-                    label: this.$tc(pageType.title),
+                    label: this.$t(pageType.title),
                     value: pageType.name,
                     disabled: this.isDisabledPageType(pageType) || undefined,
                 };
@@ -235,7 +235,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsBlockCategories.map((category) => {
                 return {
                     value: category.value,
-                    label: this.$tc(category.label),
+                    label: this.$t(category.label),
                 };
             });
         },
@@ -246,10 +246,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
-                return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
+                return this.$t('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
+            return this.$t('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageSections() {
@@ -258,15 +258,15 @@ export default Shopware.Component.wrapComponentConfig({
 
         sidebarItemSettings() {
             if (this.selectedBlock !== null) {
-                return this.$tc('sw-cms.detail.sidebar.titleBlockSettings');
+                return this.$t('sw-cms.detail.sidebar.titleBlockSettings');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleSectionSettings');
+            return this.$t('sw-cms.detail.sidebar.titleSectionSettings');
         },
 
         tooltipDisabled() {
             return {
-                message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
+                message: this.$t('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
                 disabled: this.page.type !== 'product_detail',
             };
         },

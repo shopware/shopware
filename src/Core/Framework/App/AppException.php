@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -42,9 +43,11 @@ class AppException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
     final public const APP_PAYMENT_INVALID_TRANSACTION_ID = 'APP_PAYMENT__INVALID_TRANSACTION_ID';
     final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
+    final public const APP_PAYMENT_GATEWAY_REQUEST_FAILED = 'FRAMEWORK__APP_PAYMENT_GATEWAY_REQUEST_FAILED';
     public const NO_SOURCE_SUPPORTS = 'FRAMEWORK__APP_NO_SOURCE_SUPPORTS';
     public const CANNOT_MOUNT_APP_FILESYSTEM = 'FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM';
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+    public const APP_TAX_PROVIDER_RESPONSE_INVALID = 'FRAMEWORK__APP_TAX_PROVIDER_RESPONSE_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
@@ -66,6 +69,9 @@ class AppException extends HttpException
     final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
+    final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
+    final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
+    final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -280,6 +286,26 @@ class AppException extends HttpException
             'The transaction with id {{ transactionId }} is invalid or could not be found.',
             ['transactionId' => $transactionId],
             $e
+        );
+    }
+
+    public static function paymentGatewayRequestFailed(string $appName, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_GATEWAY_REQUEST_FAILED,
+            'Request from app "{{ appName }}" to payment gateway failed.',
+            ['appName' => $appName],
+            $previous
+        );
+    }
+
+    public static function invalidTaxProviderResponse(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_TAX_PROVIDER_RESPONSE_INVALID,
+            'Tax provider response contains malformed tax data.'
         );
     }
 
@@ -545,5 +571,44 @@ class AppException extends HttpException
     public static function shopIdChangeResolveStrategyNotFound(string $strategy): self
     {
         return new ShopIdChangeStrategyNotFoundException($strategy);
+    }
+
+    public static function invalidAppUrl(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_URL_INVALID,
+            'APP_URL is invalid: ' . $reason
+        );
+    }
+
+    public static function manifestNotFound(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MANIFEST_NOT_FOUND,
+            'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
+            ['path' => $path],
+        );
+    }
+
+    public static function requirementsNotMet(UnmetRequirement ...$violations): self
+    {
+        $violationDetails = array_map(
+            fn (UnmetRequirement $v) => \sprintf(
+                'App "%s" - Requirement "%s": %s',
+                $v->appName,
+                $v->requirementName,
+                $v->actionableResolution
+            ),
+            $violations
+        );
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_REQUIREMENTS_NOT_MET,
+            'The app requirements are not met: {{ violations }}',
+            ['violations' => implode('; ', $violationDetails)]
+        );
     }
 }

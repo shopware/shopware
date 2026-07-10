@@ -33,7 +33,7 @@ class TranslatorTest extends TestCase
     #[DataProvider('getCatalogueRequestProvider')]
     public function testGetCatalogueIsCachedCorrectly(?string $snippetSetId, ?Request $request, ?string $expectedCacheKey, ?string $injectSalesChannelId = null): void
     {
-        $decorated = $this->createMock(SymfonyTranslator::class);
+        $decorated = static::createStub(SymfonyTranslator::class);
         $originCatalogue = new MessageCatalogue('en-GB', [
             'messages' => [
                 'global.title' => 'This is a title',
@@ -41,7 +41,7 @@ class TranslatorTest extends TestCase
             ],
         ]);
 
-        $decorated->method('getCatalogue')->with('en-GB')->willReturn($originCatalogue);
+        $decorated->method('getCatalogue')->willReturn($originCatalogue);
         $decorated->method('getLocale')->willReturn('en-GB');
 
         $requestStack = new RequestStack();
@@ -63,29 +63,29 @@ class TranslatorTest extends TestCase
             $snippetServiceMock->expects($this->never())->method('getStorefrontSnippets');
         }
 
-        $localeCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $localeCodeProvider->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
+        $localeCodeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $localeCodeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([$snippetSetId]);
 
         $translator = new Translator(
             $decorated,
             $requestStack,
             $cache,
-            $this->createMock(MessageFormatterInterface::class),
+            static::createStub(MessageFormatterInterface::class),
             'prod',
             $connection,
             $localeCodeProvider,
             $snippetServiceMock,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $item = new CacheItem();
         $property = new \ReflectionProperty(CacheItem::class, 'isTaggable');
         $property->setValue($item, true);
 
-        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
+        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(static function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertSame($expectedCacheKey, $key);
 
             return $callback($item);
@@ -130,15 +130,15 @@ class TranslatorTest extends TestCase
         $connection->expects($locale ? $this->once() : $this->never())->method('fetchFirstColumn')->willReturn($dbSnippetSetIds);
 
         $translator = new Translator(
-            $this->createMock(SymfonyTranslator::class),
+            static::createStub(SymfonyTranslator::class),
             $requestStack,
-            $this->createMock(CacheInterface::class),
-            $this->createMock(MessageFormatterInterface::class),
+            static::createStub(CacheInterface::class),
+            static::createStub(MessageFormatterInterface::class),
             'prod',
             $connection,
-            $this->createMock(LanguageLocaleCodeProvider::class),
-            $this->createMock(SnippetService::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
+            static::createStub(SnippetService::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $snippetSetId = $translator->getSnippetSetId($locale);
@@ -166,18 +166,18 @@ class TranslatorTest extends TestCase
         $snippetService->expects($this->once())->method('findSnippetSetId')->with(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB')->willReturn($injectSnippetSetId);
 
         $translator = new Translator(
-            $this->createMock(SymfonyTranslator::class),
+            static::createStub(SymfonyTranslator::class),
             $requestStack,
             new ArrayCache([
                 $key1 => [],
                 $key2 => [],
             ]),
-            $this->createMock(MessageFormatterInterface::class),
+            static::createStub(MessageFormatterInterface::class),
             'prod',
             $connection,
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             $snippetService,
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $translator->injectSettings(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
@@ -188,6 +188,35 @@ class TranslatorTest extends TestCase
         $requestStack->push(self::createRequest(TestDefaults::SALES_CHANNEL, $domainSnippetSetId));
         $translator->reset();
         static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
+    }
+
+    public function testResetRestoresConfiguredFallbackLocalesAndLocale(): void
+    {
+        $decorated = $this->createMock(SymfonyTranslator::class);
+        $decorated->method('getLocale')->willReturn('en_GB');
+        $decorated->method('getFallbackLocales')->willReturn(['de-DE', 'en-GB', 'en']);
+
+        $decorated->expects($this->once())
+            ->method('setFallbackLocales')
+            ->with(['de_DE', 'en_GB', 'en']);
+
+        $decorated->expects($this->once())
+            ->method('setLocale')
+            ->with('en_GB');
+
+        $translator = new Translator(
+            $decorated,
+            new RequestStack(),
+            static::createStub(CacheInterface::class),
+            static::createStub(MessageFormatterInterface::class),
+            'prod',
+            static::createStub(Connection::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
+            static::createStub(SnippetService::class),
+            static::createStub(CacheTagCollector::class),
+        );
+
+        $translator->reset();
     }
 
     /**
@@ -280,23 +309,6 @@ class TranslatorTest extends TestCase
             'expectedSnippetSetId' => $expectedSnippetSetId,
             'locale' => 'de-DE',
             'requestSnippetSetId' => $expectedSnippetSetId,
-        ];
-    }
-
-    public static function provideTracingExamples(): \Generator
-    {
-        yield 'disabled' => [
-            false,
-            [
-                'shopware.translator',
-            ],
-        ];
-
-        yield 'enabled' => [
-            true,
-            [
-                'translator.foo',
-            ],
         ];
     }
 

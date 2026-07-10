@@ -22,6 +22,7 @@ use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
@@ -38,6 +39,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -92,7 +94,7 @@ class ProductExportGeneratorTest extends TestCase
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $productExportProductCriteriaEventDispatched = false;
-        $productExportProductCriteriaCallback = function () use (
+        $productExportProductCriteriaCallback = static function () use (
             &$productExportProductCriteriaEventDispatched
         ): void {
             $productExportProductCriteriaEventDispatched = true;
@@ -103,7 +105,7 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $productExportRenderBodyContextEventDispatched = false;
-        $productExportRenderBodyContextCallback = function () use (
+        $productExportRenderBodyContextCallback = static function () use (
             &$productExportRenderBodyContextEventDispatched
         ): void {
             $productExportRenderBodyContextEventDispatched = true;
@@ -114,7 +116,7 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $productExportChangeEncodingEventDispatched = false;
-        $productExportChangeEncodingCallback = function () use (
+        $productExportChangeEncodingCallback = static function () use (
             &$productExportChangeEncodingEventDispatched
         ): void {
             $productExportChangeEncodingEventDispatched = true;
@@ -167,7 +169,7 @@ class ProductExportGeneratorTest extends TestCase
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $productExportProductCriteriaEventDispatched = false;
-        $productExportProductCriteriaCallback = function (ProductExportProductCriteriaEvent $event) use (
+        $productExportProductCriteriaCallback = static function (ProductExportProductCriteriaEvent $event) use (
             &$productExportProductCriteriaEventDispatched
         ): void {
             $productExportProductCriteriaEventDispatched = true;
@@ -181,7 +183,7 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $productExportLoggingEventDispatched = false;
-        $productExportLoggingCallback = function () use (
+        $productExportLoggingCallback = static function () use (
             &$productExportLoggingEventDispatched
         ): void {
             $productExportLoggingEventDispatched = true;
@@ -282,6 +284,54 @@ class ProductExportGeneratorTest extends TestCase
         yield 'British pound iso code' => ['GBP'];
     }
 
+    /**
+     * @param list<string> $expectedIds
+     */
+    #[DataProvider('exportResultProductIdDataProvider')]
+    public function testExportWithIncludedAndExcludedVariants(bool $includeVariants, array $expectedIds): void
+    {
+        $ids = $this->createMixedVariantAndStandAloneProducts();
+        $productStreamId = $this->getProductStreamId(array_values($ids->all()));
+
+        $productExportId = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $productExportId,
+                'fileName' => 'Testexport.csv',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                'interval' => 0,
+                'headerTemplate' => 'id',
+                'bodyTemplate' => '{{ product.id }}',
+                'productStreamId' => $productStreamId,
+                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'includeVariants' => $includeVariants,
+            ],
+        ], $this->context);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        $expectedContent = 'id' . \PHP_EOL . implode(\PHP_EOL, $ids->getList($expectedIds)) . \PHP_EOL;
+        static::assertSame($expectedContent, $exportResult->getContent());
+    }
+
+    public static function exportResultProductIdDataProvider(): \Generator
+    {
+        yield 'included variants' => [true, ['variant-1', 'variant-2', 'stand-alone-1']];
+        yield 'excluded variants' => [false, ['parent-1', 'stand-alone-1']];
+    }
+
     private function createProductExportCriteria(string $id): Criteria
     {
         $criteria = new Criteria([$id]);
@@ -336,8 +386,8 @@ class ProductExportGeneratorTest extends TestCase
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
-                'headerTemplate' => 'name,stock',
-                'bodyTemplate' => '{{ product.name }},{{ product.stock }}',
+                'headerTemplate' => 'name,stock,category',
+                'bodyTemplate' => '{{ product.name }},{{ product.stock }},{%- if product.categories.count > 0 -%}{{ product.categories.first.name }}{%- endif -%}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
@@ -431,11 +481,65 @@ class ProductExportGeneratorTest extends TestCase
                         ],
                     ],
                 ],
+                'categories' => [
+                    ['id' => Uuid::randomHex(), 'name' => 'Foobar', 'active' => $i % 2 === 0],
+                ],
             ];
         }
 
         $productRepository->create($products, $this->context);
 
         return $products;
+    }
+
+    /**
+     * @param list<string> $productIds
+     */
+    private function getProductStreamId(array $productIds): string
+    {
+        $id = Uuid::randomHex();
+
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $id,
+                'filters' => [
+                    [
+                        'type' => 'equalsAny',
+                        'field' => 'id',
+                        'value' => implode('|', $productIds),
+                    ],
+                ],
+                'name' => 'testStream',
+            ],
+        ], $this->context);
+
+        return $id;
+    }
+
+    private function createMixedVariantAndStandAloneProducts(): IdsCollection
+    {
+        $ids = new IdsCollection();
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $products = [
+            (new ProductBuilder($ids, 'parent-1'))
+                ->price(100)
+                ->visibility($this->getSalesChannelDomain()->getSalesChannelId())
+                ->variant(
+                    (new ProductBuilder($ids, 'variant-1'))->build()
+                )
+                ->variant(
+                    (new ProductBuilder($ids, 'variant-2'))->build()
+                )
+                ->build(),
+            (new ProductBuilder($ids, 'stand-alone-1'))
+                ->price(100)
+                ->visibility($this->getSalesChannelDomain()->getSalesChannelId())
+                ->build(),
+        ];
+
+        $productRepository->create($products, Context::createDefaultContext());
+
+        return $ids;
     }
 }

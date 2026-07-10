@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
 use Faker\Factory;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -52,12 +51,13 @@ class DemodataCommand extends Command
     private array $defaults = [];
 
     /**
-     * @internal
+     * @param list<class-string> $requiredClasses
      */
     public function __construct(
         private readonly DemodataService $demodataService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $kernelEnv
+        private readonly string $kernelEnv,
+        private readonly array $requiredClasses = [Factory::class, Commerce::class],
     ) {
         parent::__construct();
     }
@@ -80,8 +80,6 @@ class DemodataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->ensureAllDependenciesArePresent();
-
         if ($this->kernelEnv !== 'prod') {
             $output->writeln('Demo data command requires the app environment set to production to run. Execute it with: `APP_ENV=prod bin/console framework:demodata`');
 
@@ -90,6 +88,10 @@ class DemodataCommand extends Command
 
         $io = new ShopwareStyle($input, $output);
         $io->title('Demodata Generator');
+
+        if (!$this->ensureAllDependenciesArePresent($io)) {
+            return self::FAILURE;
+        }
 
         $context = Context::createCLIContext();
 
@@ -132,6 +134,8 @@ class DemodataCommand extends Command
             $demoContext->getTimings()
         );
 
+        $io->info('Run "bin/console dal:refresh:index" to refresh all indices after generating demo data.');
+
         return self::SUCCESS;
     }
 
@@ -164,17 +168,16 @@ class DemodataCommand extends Command
         return $this->defaults[$name] ?? 0;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    private function ensureAllDependenciesArePresent(): void
+    private function ensureAllDependenciesArePresent(ShopwareStyle $io): bool
     {
-        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
-
-        foreach ($classes as $class) {
+        foreach ($this->requiredClasses as $class) {
             if (!class_exists($class)) {
-                throw new \RuntimeException('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+                $io->error('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+
+                return false;
             }
         }
+
+        return true;
     }
 }

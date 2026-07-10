@@ -64,7 +64,7 @@ class EntityDefinitionQueryHelper
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
     /**
@@ -82,7 +82,7 @@ class EntityDefinitionQueryHelper
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
     /**
@@ -95,14 +95,7 @@ class EntityDefinitionQueryHelper
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::tableExists instead')
         );
 
-        return !empty(
-            $connection->fetchOne(
-                'SHOW TABLES LIKE :table',
-                [
-                    'table' => $table,
-                ]
-            )
-        );
+        return $connection->fetchOne('SHOW TABLES LIKE :table', ['table' => $table]) !== false;
     }
 
     /**
@@ -336,7 +329,7 @@ class EntityDefinitionQueryHelper
             $path[] = $field->getPropertyName();
         }
 
-        if (empty($path)) {
+        if ($path === []) {
             return null;
         }
 
@@ -372,7 +365,7 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
+                static fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
@@ -470,7 +463,11 @@ class EntityDefinitionQueryHelper
      *
      * @param array<string, mixed> $partial
      */
-    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = []): void
+    /**
+     * @param array<string, mixed> $partial
+     * @param list<string> $excludedFields
+     */
+    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = [], array $excludedFields = []): void
     {
         $translationDefinition = $definition->getTranslationDefinition();
 
@@ -479,11 +476,15 @@ class EntityDefinitionQueryHelper
         }
 
         $fields = $translationDefinition->getFields()->filter(
-            fn (Field $field) => $field instanceof StorageAware
+            static fn (Field $field) => $field instanceof StorageAware
                 && $definition->getFields()->get($field->getPropertyName()) instanceof TranslatedField,
         );
-        if (!empty($partial)) {
-            $fields = $fields->filter(fn (Field $field) => isset($partial[$field->getPropertyName()]));
+        if ($partial !== []) {
+            $fields = $fields->filter(static fn (Field $field) => isset($partial[$field->getPropertyName()]));
+        }
+        if ($excludedFields !== []) {
+            // honor Criteria::excludeFields() for translated columns (e.g. product description)
+            $fields = $fields->filter(static fn (Field $field) => !\in_array($field->getPropertyName(), $excludedFields, true));
         }
 
         $translationChain = self::buildTranslationChain(
@@ -596,7 +597,7 @@ class EntityDefinitionQueryHelper
         $primaryKeys = $criteria->getIds();
         $primaryKeys = array_values($primaryKeys);
 
-        if (empty($primaryKeys)) {
+        if ($primaryKeys === []) {
             return;
         }
 

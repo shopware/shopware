@@ -249,7 +249,7 @@ class AppServiceTest extends TestCase
         );
         $refreshableApps = $appService->getRefreshableAppInfo($this->context);
 
-        static::assertCount(7, $refreshableApps->getToBeInstalled());
+        static::assertCount(8, $refreshableApps->getToBeInstalled());
         static::assertCount(1, $refreshableApps->getToBeUpdated());
         static::assertCount(1, $refreshableApps->getToBeDeleted());
 
@@ -281,9 +281,8 @@ class AppServiceTest extends TestCase
 
         $fails = $appService->doRefreshApps(new AppInstallParameters(), $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-
-        static::assertCount(8, $manifests); // 2 are not parsable
-        static::assertCount(6, $apps);
+        static::assertCount(9, $manifests); // 2 are not parsable (withRequirements still passes as requirements are not asserted in test env)
+        static::assertCount(7, $apps);
         static::assertCount(2, $fails);
     }
 
@@ -292,7 +291,7 @@ class AppServiceTest extends TestCase
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
 
-        $actionNames = $actionButtons->map(fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
+        $actionNames = $actionButtons->map(static fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);

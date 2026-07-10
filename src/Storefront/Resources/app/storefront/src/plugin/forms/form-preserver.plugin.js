@@ -31,6 +31,13 @@ export default class FormPreserverPlugin extends Plugin {
         ignoredElementTypes: ['button', 'file', 'hidden', 'image', 'password', 'reset', 'submit'],
 
         /**
+         * Form element names which should not be considered for preserving
+         *
+         * @type Array
+         */
+        ignoredElementNames: [],
+
+        /**
          * Form element types which should be preserved with a delay once the input event is triggered.
          * Other types are preserved on the change event immediately. By default, these types are:
          * ['checkbox', 'color', 'radio', 'select-one', 'select-multiple']
@@ -70,6 +77,10 @@ export default class FormPreserverPlugin extends Plugin {
         this.formElements.forEach((formElement) => {
             const elementType = formElement.type;
             if (this.options.ignoredElementTypes.includes(elementType)) {
+                return;
+            }
+
+            if (this.options.ignoredElementNames.includes(formElement.name)) {
                 return;
             }
 
@@ -201,7 +212,7 @@ export default class FormPreserverPlugin extends Plugin {
         }
 
         const values = Array.from(selectedOptions).map(
-            selectedOption => selectedOption.value
+            selectedOption => selectedOption.value,
         );
         this.storage.setItem(key, values);
     }

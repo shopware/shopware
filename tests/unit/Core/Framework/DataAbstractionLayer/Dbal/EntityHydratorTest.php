@@ -68,8 +68,8 @@ class EntityHydratorTest extends TestCase
                 SingleEntityDependencyTestDependencySubDefinition::class,
                 ToManyAssociationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -416,7 +416,7 @@ class EntityHydratorTest extends TestCase
     }
 
     /**
-     * @param list<non-falsy-string> $additionalLanguages
+     * @param list<non-empty-string> $additionalLanguages
      */
     private function createContext(bool $inheritance = true, array $additionalLanguages = []): Context
     {

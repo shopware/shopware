@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Twig\Cache\FilesystemCache;
+use Twig\Cache\CacheInterface;
 
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type TwigOptions array{cache?: FilesystemCache, debug?: bool, auto_reload?: bool}
+ * @phpstan-type TwigOptions array{cache?: CacheInterface, debug?: bool, auto_reload?: bool}
  */
 #[Package('framework')]
 class Script extends Struct

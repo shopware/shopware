@@ -65,5 +65,9 @@ export default {
         getList() {
             // Required by listing mixin
         },
+
+        onCreateMailTemplate() {
+            this.$router.push({ name: 'sw.mail.template.create' });
+        },
     },
 };

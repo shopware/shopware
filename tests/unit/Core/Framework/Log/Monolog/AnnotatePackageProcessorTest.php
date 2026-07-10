@@ -30,7 +30,7 @@ class AnnotatePackageProcessorTest extends TestCase
     public function testOnlyController(): void
     {
         $requestStack = new RequestStack();
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
         $packageService = new PackageService($requestStack, $container);
         $handler = new AnnotatePackageProcessor($packageService);
 
@@ -123,7 +123,7 @@ class AnnotatePackageProcessorTest extends TestCase
     public function testExceptionInController(): void
     {
         $requestStack = new RequestStack();
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
         $packageService = new PackageService($requestStack, $container);
         $handler = new AnnotatePackageProcessor($packageService);
 
@@ -162,7 +162,7 @@ class AnnotatePackageProcessorTest extends TestCase
     public function testNoPackageAttributes(): void
     {
         $requestStack = new RequestStack();
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
         $packageService = new PackageService($requestStack, $container);
         $handler = new AnnotatePackageProcessor($packageService);
 
@@ -202,13 +202,13 @@ class AnnotatePackageProcessorTest extends TestCase
 
         try {
             $command = new TestCommand();
-            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+            $command->run(static::createStub(InputInterface::class), static::createStub(OutputInterface::class));
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        $container = $this->createMock(ContainerInterface::class);
-        $requestStack = $this->createMock(RequestStack::class);
+        $container = static::createStub(ContainerInterface::class);
+        $requestStack = static::createStub(RequestStack::class);
         $packageService = new PackageService($requestStack, $container);
         $handler = new AnnotatePackageProcessor($packageService);
 
@@ -246,13 +246,13 @@ class AnnotatePackageProcessorTest extends TestCase
 
         try {
             $command = new TestNestedCommand();
-            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+            $command->run(static::createStub(InputInterface::class), static::createStub(OutputInterface::class));
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        $container = $this->createMock(ContainerInterface::class);
-        $requestStack = $this->createMock(RequestStack::class);
+        $container = static::createStub(ContainerInterface::class);
+        $requestStack = static::createStub(RequestStack::class);
         $packageService = new PackageService($requestStack, $container);
         $handler = new AnnotatePackageProcessor($packageService);
 
@@ -286,8 +286,8 @@ class AnnotatePackageProcessorTest extends TestCase
 
     public function testAnnotateCommandWithBogusLogData(): void
     {
-        $container = $this->createMock(ContainerInterface::class);
-        $requestStack = $this->createMock(RequestStack::class);
+        $container = static::createStub(ContainerInterface::class);
+        $requestStack = static::createStub(RequestStack::class);
         $packageService = new PackageService($requestStack, $container);
         $handler = new AnnotatePackageProcessor($packageService);
 

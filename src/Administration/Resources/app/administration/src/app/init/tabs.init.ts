@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-named-default
 import type { Router, RouteRecordRaw } from 'vue-router';
 
 /**
@@ -97,7 +96,6 @@ export default function initializeTabs(): void {
             router.addRoute(parentRoute.name ?? '', newRoute);
 
             // Reload current route after adding the new route
-            // eslint-disable-next-line consistent-return
             return { path: to.fullPath };
         });
     });

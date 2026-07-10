@@ -70,7 +70,7 @@ class VideoCoverServiceTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $updates) use ($videoId, $coverId) {
+                static::callback(static function (array $updates) use ($videoId, $coverId) {
                     static::assertCount(1, $updates);
                     static::assertSame($videoId, $updates[0]['id']);
                     static::assertSame(['video' => ['coverMediaId' => $coverId]], $updates[0]['metaData']);
@@ -104,7 +104,7 @@ class VideoCoverServiceTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $updates) use ($videoId) {
+                static::callback(static function (array $updates) use ($videoId) {
                     static::assertCount(1, $updates);
                     static::assertSame($videoId, $updates[0]['id']);
                     static::assertNull($updates[0]['metaData']);
@@ -126,8 +126,7 @@ class VideoCoverServiceTest extends TestCase
             ->method('search')
             ->willReturn($this->createSearchResult(null));
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find media with id "%s"', $videoId));
+        $this->expectExceptionObject(MediaException::mediaNotFound($videoId));
 
         $this->service->assignCoverToVideo($videoId, Uuid::randomHex(), $this->context);
     }
@@ -144,8 +143,7 @@ class VideoCoverServiceTest extends TestCase
             ->method('search')
             ->willReturn($this->createSearchResult($media));
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(\sprintf('Media with id %s must be of type "video".', $mediaId));
+        $this->expectExceptionObject(MediaException::mediaFileTypeNotSupported($mediaId, 'video'));
 
         $this->service->assignCoverToVideo($mediaId, $coverId, $this->context);
     }
@@ -169,8 +167,7 @@ class VideoCoverServiceTest extends TestCase
                 return $this->createSearchResult(null);
             });
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find media with id "%s"', $coverId));
+        $this->expectExceptionObject(MediaException::mediaNotFound($coverId));
 
         $this->service->assignCoverToVideo($videoId, $coverId, $this->context);
     }
@@ -198,8 +195,7 @@ class VideoCoverServiceTest extends TestCase
                 return $this->createSearchResult(null);
             });
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(\sprintf('Media with id %s must be of type "image".', $coverId));
+        $this->expectExceptionObject(MediaException::mediaFileTypeNotSupported($coverId, 'image'));
 
         $this->service->assignCoverToVideo($videoId, $coverId, $this->context);
     }
@@ -236,7 +232,7 @@ class VideoCoverServiceTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $updates) use ($videoId, $coverId) {
+                static::callback(static function (array $updates) use ($videoId, $coverId) {
                     static::assertCount(1, $updates);
                     static::assertSame($videoId, $updates[0]['id']);
                     static::assertSame(

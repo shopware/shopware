@@ -219,7 +219,6 @@ describe('module/sw-customer/page/sw-customer-create', () => {
 
     it('should throw exception when the customer creation fails', async () => {
         const customerRepositorySaveMock = jest.fn(() =>
-            // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
                     data: {

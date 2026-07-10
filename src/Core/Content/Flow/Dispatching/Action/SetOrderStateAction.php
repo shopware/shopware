@@ -69,7 +69,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
      */
     private function update(Context $context, array $config, string $orderId): void
     {
-        if (empty($config)) {
+        if ($config === []) {
             return;
         }
 

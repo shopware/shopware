@@ -71,7 +71,6 @@ export default {
         popoverResizeWidth: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -84,7 +83,7 @@ export default {
 
     computed: {
         emptyMessageText() {
-            return this.emptyMessage || this.$tc('global.sw-select-result-list.messageNoResults');
+            return this.emptyMessage || this.$t('global.sw-select-result-list.messageNoResults');
         },
 
         popoverClass() {

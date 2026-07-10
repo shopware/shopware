@@ -503,7 +503,7 @@ class PromotionEntity extends Entity
                 // add the rule to our main rule
                 $requirements->addRule($personaCustomerOR);
             }
-        } elseif ($this->getPersonaRules() !== null && \count($this->getPersonaRules()->getElements()) > 0) {
+        } elseif ($this->getPersonaRules() !== null && $this->getPersonaRules()->getElements() !== []) {
             // we use persona rules.
             // check if we have persona rules and add them
             // to our persona OR as a separate OR rule with all configured rules
@@ -517,7 +517,7 @@ class PromotionEntity extends Entity
             $requirements->addRule($personaRuleOR);
         }
 
-        if ($this->getCartRules() !== null && \count($this->getCartRules()->getElements()) > 0) {
+        if ($this->getCartRules() !== null && $this->getCartRules()->getElements() !== []) {
             $cartOR = new OrRule([]);
 
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
@@ -555,7 +555,7 @@ class PromotionEntity extends Entity
             $requirements->addRule($groupsRootRule);
         }
 
-        if ($this->getOrderRules() !== null && \count($this->getOrderRules()->getElements()) > 0) {
+        if ($this->getOrderRules() !== null && $this->getOrderRules()->getElements() !== []) {
             $orderOR = new OrRule([]);
 
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {

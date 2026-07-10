@@ -83,7 +83,7 @@ export default {
                 discountType === DiscountTypes.ABSOLUTE &&
                 Math.abs(totalPrice) < value
             ) {
-                return this.$tc(`${snippet}.absoluteUpto`, 0, {
+                return this.$t(`${snippet}.absoluteUpto`, 0, {
                     value: format.currency(Number(value), this.currency.isoCode),
                     totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
                 });
@@ -92,7 +92,7 @@ export default {
             const discountValue =
                 discountType === DiscountTypes.PERCENTAGE ? value : format.currency(Number(value), this.currency.isoCode);
 
-            return this.$tc(`${snippet}.${discountType}`, 0, {
+            return this.$t(`${snippet}.${discountType}`, 0, {
                 value: discountValue,
                 groupId,
             });

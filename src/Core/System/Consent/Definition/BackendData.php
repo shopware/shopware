@@ -14,9 +14,11 @@ use Shopware\Core\System\Consent\ConsentScope;
 #[Package('data-services')]
 class BackendData implements ConsentDefinition
 {
+    public const NAME = 'backend_data';
+
     public function getName(): string
     {
-        return 'backend_data';
+        return self::NAME;
     }
 
     public function getScopeName(): string
@@ -32,5 +34,10 @@ class BackendData implements ConsentDefinition
     public function getRequiredPermissions(): array
     {
         return ['system.system_config'];
+    }
+
+    public function getLatestRevision(): ?string
+    {
+        return null;
     }
 }

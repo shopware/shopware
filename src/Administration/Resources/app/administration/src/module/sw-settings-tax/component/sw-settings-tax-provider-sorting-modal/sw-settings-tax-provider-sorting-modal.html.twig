@@ -1,12 +1,12 @@
 {% block sw_settings_tax_provider_sorting_modal %}
 <sw-modal
     class="sw-settings-tax-provider-sorting-modal"
-    :title="$tc('sw-settings-tax.list.taxProvider.sorting-modal.modalTitle')"
+    :title="$t('sw-settings-tax.list.taxProvider.sorting-modal.modalTitle')"
     @modal-close="closeModal"
 >
     <template #body>
         <div class="sw-modal__body sw-settings-tax-provider-sorting-modal__subtitle">
-            {{ $tc('sw-settings-tax.list.taxProvider.sorting-modal.subTitle') }}
+            {{ $t('sw-settings-tax.list.taxProvider.sorting-modal.subTitle') }}
         </div>
 
         <div class="sw-modal__body">
@@ -40,7 +40,7 @@
             variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
 
         <sw-button-process
@@ -51,7 +51,7 @@
             :process-success="false"
             @click="applyChanges"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
     </template>
 </sw-modal>

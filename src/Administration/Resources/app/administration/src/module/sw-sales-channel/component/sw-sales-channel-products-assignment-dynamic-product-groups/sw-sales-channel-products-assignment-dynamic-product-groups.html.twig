@@ -5,7 +5,7 @@
 >
     {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text %}
     <mt-banner ref="alert">
-        {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.infoText') }}
+        {{ $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.infoText') }}
     </mt-banner>
     {% endblock %}
 
@@ -28,7 +28,7 @@
                         v-model:value="term"
                         variant="form"
                         size="small"
-                        :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.searchFieldPlaceholder')"
+                        :placeholder="$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.searchFieldPlaceholder')"
                         @search-term-change="onSearch"
                     />
                     {% endblock %}
@@ -70,7 +70,7 @@
                                 @click="onOpen(item)"
                                 @keydown.enter="onOpen(item)"
                             >
-                                {{ $tc('global.default.open') }}
+                                {{ $t('global.default.open') }}
                             </span>
                             {% endblock %}
                         </template>
@@ -93,8 +93,8 @@
                         v-if="productStreams.length <= 0"
                         :show-description="false"
                         :title="productStreams.length <= 0 && term
-                            ? $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
-                            : $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
+                            ? $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
+                            : $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
                         "
                     >
                         <template #icon>

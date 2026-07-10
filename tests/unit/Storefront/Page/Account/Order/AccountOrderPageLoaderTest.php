@@ -80,7 +80,7 @@ class AccountOrderPageLoaderTest extends TestCase
             ->expects($this->once())
             ->method('load')
             ->with(
-                static::callback(fn (Request $request) => $request->query->get('email') === 'test@example.com' && $request->query->get('zipcode') === '12345' && $request->query->get('login') === true),
+                static::callback(static fn (Request $request) => $request->query->get('email') === 'test@example.com' && $request->query->get('zipcode') === '12345' && $request->query->get('login') === true),
                 $context,
                 static::isInstanceOf(Criteria::class),
             )
@@ -102,7 +102,7 @@ class AccountOrderPageLoaderTest extends TestCase
 
         $page = $this->pageLoader->load(new Request(['email' => 'test@example.com', 'zipcode' => '12345']), $context);
 
-        static::assertSame($order, $page->getOrders()->first());
+        static::assertSame($order, $page->getOrders()->getEntities()->first());
         $metaInformation = $page->getMetaInformation();
         static::assertNotNull($metaInformation);
         static::assertSame('translated | testshop', $metaInformation->getMetaTitle());

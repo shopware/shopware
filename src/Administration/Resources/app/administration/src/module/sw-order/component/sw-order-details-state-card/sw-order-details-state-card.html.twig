@@ -17,7 +17,7 @@
             {% block sw_order_detail_state_card_state_select %}
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -38,6 +38,7 @@
                 v-if="lastStateChange"
                 class="sw-order-detail-state-card__state-history-text"
             >
+                {% block sw_order_detail_state_card_state_history_text_label %}
                 <i18n-t
                     keypath="sw-order.stateCard.labelHistory"
                     scope="local"
@@ -52,6 +53,16 @@
                         {{ lastChangeAuthorLabel }}
                     </template>
                 </i18n-t>
+                {% endblock %}
+
+                {% block sw_order_detail_state_card_state_history_text_internal_comment %}
+                <mt-icon
+                    v-if="lastStateChange.internalComment"
+                    v-tooltip="lastStateChange.internalComment"
+                    name="regular-comment"
+                    size="14"
+                />
+                {% endblock %}
             </div>
             <div v-else></div>
             {% endblock %}
@@ -62,7 +73,7 @@
                 icon="regular-long-arrow-right"
                 @click="onShowStatusHistory"
             >
-                {{ $tc('sw-order.stateCard.labelShowHistoryModal') }}
+                {{ $t('sw-order.stateCard.labelShowHistoryModal') }}
             </sw-external-link>
             {% endblock %}
 

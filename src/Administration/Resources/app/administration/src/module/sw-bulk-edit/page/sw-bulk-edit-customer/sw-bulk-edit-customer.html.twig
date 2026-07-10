@@ -8,7 +8,7 @@
 
     {% block sw_bulk_edit_customer_smart_bar_header %}
     <template #smart-bar-header>
-        <h2>{{ $tc('sw-bulk-edit.customer.textTitle', { customerTotal: selectedIds.length }), selectedIds.length }}</h2>
+        <h2>{{ $t('sw-bulk-edit.customer.textTitle', { customerTotal: selectedIds.length }, selectedIds.length) }}</h2>
     </template>
     {% endblock %}
 
@@ -29,7 +29,7 @@
             :disabled="isLoading || !hasChanges"
             @click="openModal"
         >
-            {{ $tc('sw-bulk-edit.applyChanges') }}
+            {{ $t('sw-bulk-edit.applyChanges') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -44,7 +44,7 @@
             <mt-card
                 class="sw-bulk-edit-customer-base__account"
                 position-identifier="sw-bulk-edit-customer-account"
-                :title="$tc('sw-bulk-edit.customer.account.cardTitle')"
+                :title="$t('sw-bulk-edit.customer.account.cardTitle')"
                 :is-loading="isLoading"
             >
                 <template #grid>
@@ -63,7 +63,7 @@
             <mt-card
                 class="sw-bulk-edit-customer-base__tags"
                 position-identifier="sw-bulk-edit-customer-tags"
-                :title="$tc('sw-bulk-edit.customer.tags.cardTitle')"
+                :title="$t('sw-bulk-edit.customer.tags.cardTitle')"
                 :is-loading="isLoading"
             >
                 <template #grid>
@@ -83,7 +83,7 @@
                 v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-customer-base__custom_fields"
                 position-identifier="sw-bulk-edit-customer-custom-field"
-                :title="$tc('sw-bulk-edit.customer.customFields.cardTitle')"
+                :title="$t('sw-bulk-edit.customer.customFields.cardTitle')"
                 :is-loading="isLoading"
             >
                 <template #grid>
@@ -101,8 +101,8 @@
         <mt-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
             icon="solid-users"
-            :headline="$tc('sw-bulk-edit.customer.messageEmptyTitle')"
-            :description="$tc('sw-bulk-edit.customer.messageEmptySubline')"
+            :headline="$t('sw-bulk-edit.customer.messageEmptyTitle')"
+            :description="$t('sw-bulk-edit.customer.messageEmptySubline')"
         />
         {% endblock %}
 

@@ -3,7 +3,7 @@
  * @private
  */
 export default () => {
-    /* eslint-disable sw-deprecation-rules/private-feature-declarations, max-len */
+    /* eslint-disable sw-deprecation-rules/private-feature-declarations */
     Shopware.Component.register('sw-wizard-page', () => import('src/app/component/wizard/sw-wizard-page/index'));
     Shopware.Component.register(
         'sw-wizard-dot-navigation',
@@ -138,7 +138,15 @@ export default () => {
         'sw-condition-operator-select',
         () => import('src/app/component/rule/sw-condition-operator-select/index'),
     );
+    Shopware.Component.register(
+        'sw-condition-value-between-date',
+        () => import('src/app/component/rule/sw-condition-value-between-date/index'),
+    );
     Shopware.Component.register('sw-condition-modal', () => import('src/app/component/rule/sw-condition-modal/index'));
+    Shopware.Component.register(
+        'sw-condition-field-errors',
+        () => import('src/app/component/rule/sw-condition-field-errors/index'),
+    );
     Shopware.Component.register('sw-condition-base', () => import('src/app/component/rule/sw-condition-base/index'));
     Shopware.Component.register(
         'sw-condition-and-container',
@@ -495,7 +503,14 @@ export default () => {
     Shopware.Component.register('sw-media-modal-move', () => import('src/app/component/media/sw-media-modal-move'));
     Shopware.Component.register('sw-media-modal-replace', () => import('src/app/component/media/sw-media-modal-replace'));
     Shopware.Component.register('sw-media-preview-v2', () => import('src/app/component/media/sw-media-preview-v2'));
+    Shopware.Component.register('sw-model-editor', () => import('src/app/component/media/sw-model-editor'));
+    Shopware.Component.extend(
+        'sw-model-editor-collapse',
+        'sw-collapse',
+        () => import('src/app/component/media/sw-model-editor-collapse'),
+    );
     Shopware.Component.register('sw-model-viewer', () => import('src/app/component/media/sw-model-viewer'));
+    Shopware.Component.register('sw-vector-field', () => import('src/app/component/media/sw-vector-field'));
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
     Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
     Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));
@@ -508,6 +523,7 @@ export default () => {
         'sw-media-modal-renderer',
         () => import('src/app/component/structure/sw-media-modal-renderer/index'),
     );
+    Shopware.Component.register('sw-request-consent-modal', () => import('./structure/sw-request-consent-modal'));
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',
@@ -677,5 +693,5 @@ export default () => {
     Shopware.Component.extend('sw-one-to-many-grid', 'sw-data-grid', () => import('./entity/sw-one-to-many-grid/index'));
     Shopware.Component.extend('sw-entity-listing', 'sw-data-grid', () => import('./entity/sw-entity-listing/index'));
     Shopware.Component.extend('sw-price-preview', 'sw-price-field', () => import('./base/sw-price-preview/index'));
-    /* eslint-enable sw-deprecation-rules/private-feature-declarations, max-len */
+    /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 };

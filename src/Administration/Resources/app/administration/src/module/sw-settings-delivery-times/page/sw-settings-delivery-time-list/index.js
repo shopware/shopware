@@ -62,7 +62,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-delivery-time.list.errorLoad'),
+                        message: this.$t('sw-settings-delivery-time.list.errorLoad'),
                     });
 
                     this.isLoading = false;

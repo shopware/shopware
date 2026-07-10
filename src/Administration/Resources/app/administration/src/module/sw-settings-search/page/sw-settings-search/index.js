@@ -76,7 +76,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -197,7 +197,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 });
         },
@@ -217,14 +217,14 @@ export default {
                 .save(this.productSearchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
+                        message: this.$t('sw-settings-search.notification.saveSuccess'),
                     });
                     this.getProductSearchConfigs();
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {

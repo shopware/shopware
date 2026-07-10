@@ -21,7 +21,7 @@ class TestFinishedSubscriber implements FinishedSubscriber
     {
         $diff = $this->dbState->getDiff();
 
-        if (!empty($diff)) {
+        if ($diff !== []) {
             echo \PHP_EOL . $event->asString() . \PHP_EOL;
 
             print_r($diff);

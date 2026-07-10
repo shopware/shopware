@@ -27,11 +27,13 @@ class AppScriptConditionConstraintsSubscriber implements EventSubscriberInterfac
     {
         foreach ($event->getEntities() as $entity) {
             $constraints = $entity->getConstraints();
-            if ($constraints === null || !\is_string($constraints)) {
+
+            if (!\is_string($constraints)) {
                 continue;
             }
 
-            $entity->setConstraints(unserialize($constraints));
+            /** @phpstan-ignore shopware.unserializeUsage */
+            $entity->setConstraints(\unserialize($constraints));
         }
     }
 }

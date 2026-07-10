@@ -67,11 +67,11 @@ class PrimaryKeyResolver
 
         $updateByField = $updatedBy->getMappedKey();
 
-        if (empty($updateByField) || $definition->getField($updateByField) instanceof IdField) {
+        if ($updateByField === null || $updateByField === '' || $definition->getField($updateByField) instanceof IdField) {
             return $record;
         }
 
-        $idFields = $definition->getPrimaryKeys()->filter(fn (Field $field) => $field instanceof IdField);
+        $idFields = $definition->getPrimaryKeys()->filter(static fn (Field $field) => $field instanceof IdField);
         $idField = $idFields->first();
 
         if ($idFields->count() !== 1 || !$idField) {
@@ -127,12 +127,13 @@ class PrimaryKeyResolver
     /**
      * @param array<string, mixed> $data
      * @param list<string> $keyPath
-     *
-     * @return mixed|null
      */
-    private function getValueFromPath(array $data, array $keyPath)
+    private function getValueFromPath(array $data, array $keyPath): mixed
     {
         $key = array_shift($keyPath);
+        if ($key === null) {
+            return null;
+        }
 
         if (!isset($data[$key])) {
             return null;
@@ -211,7 +212,7 @@ class PrimaryKeyResolver
 
             $updateByField = $updatedBy->getMappedKey();
 
-            if (empty($updateByField) || $definition->getField($updateByField) instanceof IdField) {
+            if ($updateByField === null || $updateByField === '' || $definition->getField($updateByField) instanceof IdField) {
                 continue;
             }
 

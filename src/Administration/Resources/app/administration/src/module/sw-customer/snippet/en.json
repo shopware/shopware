@@ -2,7 +2,10 @@
   "sw-customer": {
     "error": {
       "COMPANY_IS_REQUIRED": "The field company is required for commercial customers.",
-      "passwordDoNotMatch": "Your inputs for the new password and password confirmation do not match."
+      "passwordDoNotMatch": "Your inputs for the new password and password confirmation do not match.",
+      "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
+      "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
+      "VIOLATION::PASSWORD_IS_TOO_SHORT": "The chosen password is too short."
     },
     "notification": {
       "requiredFields": "Please fill in all required fields."
@@ -31,6 +34,7 @@
       }
     },
     "card": {
+      "buttonConvertCustomer": "Convert to registered account",
       "buttonImitateCustomer": "Log in as customer",
       "tooltipImitateCustomerGuest": "Guest customers cannot be imitated.",
       "tooltipImitateCustomerInactive": "Inactive customers cannot be imitated.",
@@ -80,13 +84,8 @@
       "columnActive": "Active",
       "columnCreatedAt": "Created at",
       "emptyBoundSalesChannel": "All",
-      "contextMenuView": "View",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
-      "contextMenuEdit": "Edit",
       "messageEmpty": "No customers yet",
       "textDeleteConfirm": "Are you sure you want to delete the customer \"{name}\"?",
-      "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
@@ -155,15 +154,14 @@
       "titleDefaultBillingAddress": "Default billing address",
       "buttonAddAddress": "Add address",
       "buttonTitleEditAddress": "Edit address",
-      "buttonSave": "Save",
       "buttonEdit": "Edit customer",
       "buttonChangePassword": "Change password",
       "labelAccountActiveField": "Account is active"
     },
     "detailAddresses": {
+      "cardTitle": "Addresses",
+      "filterPlaceholder": "Search addresses...",
       "buttonAddAddress": "Add address",
-      "buttonClose": "Close",
-      "buttonDelete": "Delete",
       "buttonSelect": "Select",
       "buttonSaveAndSelect": "Save and select",
       "modalTitleAddress": "Address",
@@ -179,9 +177,6 @@
       "columnZipCode": "Postal code",
       "columnCity": "City",
       "columnActions": "Actions",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
       "contextMenuDefaultShippingAddress": "Set as default delivery address",
       "contextMenuDefaultBillingAddress": "Set as default billing address"
     },
@@ -203,8 +198,21 @@
       "modalDescription": "Choose the Sales Channel in which you would like to log in as {firstname} {lastname}.",
       "modalInfo": "Please remember to {logout} after you have finished your work.",
       "modalInfoLogout": "log out",
-      "modalInfoNoDomains": "No active domain found. Please check your Sales Channel settings.",
-      "labelCancel": "Close"
+      "modalInfoNoDomains": "No active domain found. Please check your Sales Channel settings."
+    },
+    "convertGuest": {
+      "modalTitle": "Convert user",
+      "mail": {
+        "title": "Send reset email (recommended)",
+        "description": "The customer will receive a secure link to set a new password.",
+        "button": "Send reset email"
+      },
+      "manual": {
+        "title": "Set password manually",
+        "passwordLabel": "New password",
+        "description": "Set a new password for the customer directly. The customer will not be notified.",
+        "button": "Set password"
+      }
     },
     "addressForm": {
       "labelCompany": "Company",
@@ -240,10 +248,9 @@
       "placeholderVatId": "Enter VAT Reg.No..."
     },
     "detail": {
-      "buttonSave": "Save",
-      "buttonEdit": "Edit",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
+      "messageCustomerNotFound": "The customer could not be found. The customer may have been deleted.",
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",

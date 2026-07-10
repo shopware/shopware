@@ -79,7 +79,7 @@ export default {
         createTooltip() {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-import-export.profile.addNewProfileTooltipLanguage'),
+                message: this.$t('sw-import-export.profile.addNewProfileTooltipLanguage'),
                 disabled: !this.isNotSystemLanguage,
             };
         },
@@ -181,7 +181,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },
@@ -209,7 +209,7 @@ export default {
                     this.selectedProfile = null;
                     this.onCloseNewProfileWizard();
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
+                        message: this.$t('sw-import-export.profile.messageSaveSuccess', 0),
                     });
 
                     return this.loadProfiles();
@@ -227,18 +227,18 @@ export default {
             let errorDetails = '';
 
             if (errorCode !== null && this.$te(`sw-import-export.errors.${errorCode}`)) {
-                errorDetails = this.$tc(`sw-import-export.errors.${errorCode}`);
+                errorDetails = this.$t(`sw-import-export.errors.${errorCode}`);
             }
 
             this.createNotificationError({
-                message: `${this.$tc('sw-import-export.profile.messageSaveError', 0)} ${errorDetails}`,
+                message: `${this.$t('sw-import-export.profile.messageSaveError', 0)} ${errorDetails}`,
             });
         },
 
         getTypeLabel(isSystemDefault) {
             return isSystemDefault
-                ? this.$tc('sw-import-export.profile.defaultTypeLabel')
-                : this.$tc('sw-import-export.profile.customTypeLabel');
+                ? this.$t('sw-import-export.profile.defaultTypeLabel')
+                : this.$t('sw-import-export.profile.customTypeLabel');
         },
 
         onCloseNewProfileWizard() {

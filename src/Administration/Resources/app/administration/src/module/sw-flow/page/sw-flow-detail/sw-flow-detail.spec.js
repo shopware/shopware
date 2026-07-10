@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
@@ -120,7 +122,7 @@ const businessEventServiceMock = {
 };
 
 async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
-    return mount(
+    const wrapper = mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
         }),
@@ -236,6 +238,12 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
             },
         },
     );
+
+    // make sure component is properly initialized
+    // e.g., createdComponent promise is settled
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('module/sw-flow/page/sw-flow-detail', () => {

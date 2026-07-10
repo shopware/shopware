@@ -1,0 +1,10 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},</p>
+    <p>We confirm that the payment method for your order has been successfully changed.</p>
+    <p>
+        <strong>Order number:</strong> {{ order.orderNumber }}<br>
+        <strong>New payment method:</strong> {{ order.transactions.last.paymentMethod.translated.name }}
+    </p>
+    <p>Your order will now be processed using the selected payment method.</p>
+    <p>If you have any questions, do not hesitate to contact us.</p>
+</div>

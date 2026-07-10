@@ -47,7 +47,7 @@ class SyncControllerTest extends TestCase
         $service = $this->createMock(SyncService::class);
         $service->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function ($operations) use ($criteria) {
+            ->willReturnCallback(static function ($operations) use ($criteria) {
                 static::assertCount(1, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
 
@@ -82,7 +82,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $validJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -92,14 +92,13 @@ class SyncControllerTest extends TestCase
 
     public function testSyncWithInvalidJson(): void
     {
-        $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Parameter type json is invalid.');
+        $this->expectExceptionObject(ApiException::invalidApiType('json'));
 
         $invalidJson = 'this is not json';
         $request = new Request([], [], [], [], [], [], $invalidJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -108,15 +107,14 @@ class SyncControllerTest extends TestCase
 
     public function testSyncWithInvalidOperation(): void
     {
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('Invalid payload format. Expected an array of operations.');
+        $this->expectExceptionObject(new BadRequestHttpException('Invalid payload format. Expected an array of operations.'));
 
         $operations = ['delete-mapping' => 'action:delete'];
 
         $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 

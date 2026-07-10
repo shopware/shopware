@@ -34,7 +34,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         foreach ($configFields as $configField) {
             $path = $configField['field'];
             $isTokenize = (bool) $configField['tokenize'];
-            $ranking = (int) $configField['ranking'];
+            $ranking = (float) $configField['ranking'];
 
             $values = array_filter($this->resolveEntityValue($product, $path));
             ksort($values);
@@ -98,7 +98,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (\count($parts) > 0) {
+        while ($parts !== []) {
             $part = array_shift($parts);
 
             if ($value === null) {
@@ -108,7 +108,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             try {
                 if ($value instanceof EntityCollection) {
                     $values = [];
-                    if (!empty($parts)) {
+                    if ($parts !== []) {
                         $part .= \sprintf('.%s', implode('.', $parts));
                     }
                     foreach ($value as $item) {
@@ -126,7 +126,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     $value = $value[$part] ?? null;
                 }
 
-                if (\is_array($value) && !empty($parts)) {
+                if (\is_array($value) && $parts !== []) {
                     continue;
                 }
 

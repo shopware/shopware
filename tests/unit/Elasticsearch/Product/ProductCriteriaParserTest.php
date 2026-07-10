@@ -7,6 +7,7 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -38,7 +39,7 @@ class ProductCriteriaParserTest extends TestCase
 {
     private EntityDefinitionQueryHelper $helper;
 
-    private CustomFieldService&MockObject $customFieldService;
+    private CustomFieldService&Stub $customFieldService;
 
     private CriteriaParser&MockObject $decoratedParser;
 
@@ -53,7 +54,7 @@ class ProductCriteriaParserTest extends TestCase
         $registry = $this->getRegistry();
 
         $this->helper = new EntityDefinitionQueryHelper();
-        $this->customFieldService = $this->createMock(CustomFieldService::class);
+        $this->customFieldService = static::createStub(CustomFieldService::class);
         $this->decoratedParser = $this->createMock(CriteriaParser::class);
         $this->productDefinition = $registry->getByEntityName(ProductDefinition::ENTITY_NAME);
         $this->categoryDefinition = $registry->getByEntityName(CategoryDefinition::ENTITY_NAME);
@@ -126,7 +127,7 @@ class ProductCriteriaParserTest extends TestCase
 
         $salesChannelId = Uuid::randomHex();
         $filter = new ProductAvailableFilter($salesChannelId, 30);
-        $expectedBuilder = $this->createMock(BuilderInterface::class);
+        $expectedBuilder = static::createStub(BuilderInterface::class);
 
         $this->decoratedParser
             ->expects($this->once())
@@ -155,6 +156,8 @@ class ProductCriteriaParserTest extends TestCase
         $visibility = 30;
         $filter = new ProductAvailableFilter($salesChannelId, $visibility);
 
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
         $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
 
         static::assertInstanceOf(BoolQuery::class, $result);
@@ -177,6 +180,41 @@ class ProductCriteriaParserTest extends TestCase
         static::assertSame($visibility, $visibilityQuery['range']['visibility_' . $salesChannelId]['gte']);
     }
 
+    public function testParseProductAvailableFilterWithoutActiveFilter(): void
+    {
+        $storage = new ArrayKeyValueStorage([
+            ElasticsearchOptimizeSwitch::FLAG => true,
+        ]);
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        $salesChannelId = Uuid::randomHex();
+        $visibility = 30;
+        $filter = new ProductAvailableFilter($salesChannelId, $visibility);
+
+        $queries = $filter->getQueries();
+        array_pop($queries);
+        $filter->assign(['queries' => $queries]);
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertInstanceOf(BoolQuery::class, $result);
+
+        $queryArray = $result->toArray();
+
+        static::assertSame([
+            'range' => [
+                'visibility_' . $salesChannelId => ['gte' => $visibility],
+            ],
+        ], $queryArray);
+    }
+
     public function testParseCategoriesRoIdEqualsFilter(): void
     {
         $storage = new ArrayKeyValueStorage();
@@ -189,6 +227,8 @@ class ProductCriteriaParserTest extends TestCase
 
         $categoryId = Uuid::randomHex();
         $filter = new EqualsFilter('categoriesRo.id', $categoryId);
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
 
         $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
 
@@ -242,8 +282,8 @@ class ProductCriteriaParserTest extends TestCase
                 CategoryDefinition::class,
                 CategoryTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 }

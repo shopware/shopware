@@ -30,7 +30,6 @@ export default {
         showErrorSummary: {
             type: Boolean,
             require: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

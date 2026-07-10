@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -315,7 +317,6 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
 
-        // eslint-disable-next-line max-len
         const inlineMappingButton = wrapper.find(
             '.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon',
         );
@@ -1121,5 +1122,85 @@ describe('src/app/component/form/sw-text-editor', () => {
         await addTextToEditor(wrapper, contentWithoutMinorNode);
 
         expect(wrapper.vm.hasDirectMinorElements()).toBe(false);
+    });
+
+    it('should preserve selection when clicking inside popover elements', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 11, 'Hello World');
+
+        expect(wrapper.vm.selection).not.toBeNull();
+        expect(wrapper.vm.hasSelection).toBe(true);
+
+        const popoverClasses = [
+            'sw-popover__wrapper',
+            'mt-popover-deprecated__wrapper',
+            'mt-floating-ui__content',
+        ];
+
+        popoverClasses.forEach((popoverClass) => {
+            const popoverElement = document.createElement('div');
+            popoverElement.classList.add(popoverClass);
+            document.body.appendChild(popoverElement);
+
+            const popoverButton = document.createElement('button');
+            popoverButton.textContent = 'Popover Button';
+            popoverElement.appendChild(popoverButton);
+
+            const mousedownEvent = new MouseEvent('mousedown', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+            });
+
+            Object.defineProperty(mousedownEvent, 'target', {
+                value: popoverButton,
+                enumerable: true,
+            });
+
+            wrapper.vm.onSelectionChange(mousedownEvent);
+
+            expect(wrapper.vm.hasSelection).toBe(true);
+            expect(wrapper.vm.selection.toString()).toBe('Hello World');
+
+            document.body.removeChild(popoverElement);
+        });
+    });
+
+    it('should reset selection when clicking outside editor and toolbar', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 11, 'Hello World');
+
+        expect(wrapper.vm.selection).not.toBeNull();
+        expect(wrapper.vm.hasSelection).toBe(true);
+
+        const outsideElement = document.createElement('div');
+        outsideElement.id = 'outside-element';
+        document.body.appendChild(outsideElement);
+
+        const mousedownEvent = new MouseEvent('mousedown', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+        });
+
+        Object.defineProperty(mousedownEvent, 'target', {
+            value: outsideElement,
+            enumerable: true,
+        });
+
+        wrapper.vm.onSelectionChange(mousedownEvent);
+
+        expect(wrapper.vm.hasSelection).toBe(false);
+
+        document.body.removeChild(outsideElement);
     });
 });

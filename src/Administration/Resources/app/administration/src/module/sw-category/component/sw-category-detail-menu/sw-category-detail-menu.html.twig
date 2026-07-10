@@ -2,7 +2,7 @@
 <mt-card
     class="sw-category-detail-base__menu"
     position-identifier="sw-category-detail-menu"
-    :title="$tc('sw-category.base.menu.title')"
+    :title="$t('sw-category.base.menu.title')"
     :is-loading="isLoading"
 >
 
@@ -12,7 +12,7 @@
         v-model="reversedVisibility"
         bordered
         :disabled="!acl.can('category.editor')"
-        :label="$tc('sw-category.base.menu.visible')"
+        :label="$t('sw-category.base.menu.visible')"
     />
     {% endblock %}
 
@@ -25,7 +25,7 @@
     />
     <sw-media-upload-v2
         :key="category.id + 'upload'"
-        :label="$tc('sw-category.base.menu.imageLabel')"
+        :label="$t('sw-category.base.menu.imageLabel')"
         variant="regular"
         :disabled="!acl.can('category.editor')"
         :source="mediaItem"
@@ -58,8 +58,8 @@
         :disabled="!acl.can('category.editor')"
         sanitize-input
         sanitize-field-name="category_translation.description"
-        :label="$tc('sw-category.base.menu.descriptionLabel')"
-        :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+        :label="$t('sw-category.base.menu.descriptionLabel')"
+        :placeholder="$t('sw-category.base.menu.descriptionPlaceholder')"
     />
     <mt-text-editor
         v-else
@@ -70,8 +70,8 @@
         :disabled="!acl.can('category.editor')"
         sanitize-input
         sanitize-field-name="category_translation.description"
-        :label="$tc('sw-category.base.menu.descriptionLabel')"
-        :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+        :label="$t('sw-category.base.menu.descriptionLabel')"
+        :placeholder="$t('sw-category.base.menu.descriptionPlaceholder')"
     />
     {% endblock %}
 </mt-card>

@@ -16,12 +16,12 @@ class PropertyGroupTranslationCollection extends EntityCollection
      */
     public function getPropertyGroupIds(): array
     {
-        return $this->fmap(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getPropertyGroupId());
+        return $this->fmap(static fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getPropertyGroupId());
     }
 
     public function filterByPropertyGroupId(string $id): self
     {
-        return $this->filter(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getPropertyGroupId() === $id);
+        return $this->filter(static fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getPropertyGroupId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class PropertyGroupTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getLanguageId());
+        return $this->fmap(static fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -49,7 +49,7 @@ export default defineConfig(({ command }) => {
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
-    const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const useSourceMap = (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') || (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
 
     if (isProd) {
@@ -135,6 +135,7 @@ export default defineConfig(({ command }) => {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
+                                analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
                                 pageLoadingScreen,
                             },
                         },

@@ -77,19 +77,19 @@ export default {
 
         clearCache() {
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
+                message: this.$t('sw-settings-cache.notifications.clearCache.started'),
             });
 
             this.cacheApiService
                 .clear()
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
+                        message: this.$t('sw-settings-cache.notifications.clearCache.success'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                        message: this.$t('sw-settings-cache.notifications.clearCache.error'),
                     });
                 });
 

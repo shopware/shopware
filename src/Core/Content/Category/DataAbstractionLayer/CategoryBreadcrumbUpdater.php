@@ -39,7 +39,7 @@ class CategoryBreadcrumbUpdater
      */
     public function update(array $ids, Context $context): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

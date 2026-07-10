@@ -42,6 +42,6 @@ class LineItemGroup
      */
     public function hasItems(): bool
     {
-        return \count($this->items) > 0;
+        return $this->items !== [];
     }
 }

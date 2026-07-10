@@ -48,13 +48,13 @@ class BanMediaUrl
             );
         }
 
-        if (empty($params)) {
+        if ($params === []) {
             return;
         }
 
         $urls = $this->generator->generate($params);
 
-        if (empty($urls)) {
+        if ($urls === []) {
             return;
         }
 

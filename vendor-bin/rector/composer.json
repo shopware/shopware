@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "rector/rector": "^1.2.0"
+        "rector/rector": "^2.3.6"
     },
     "sort-packages": true
 }

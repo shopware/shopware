@@ -15,7 +15,7 @@
         {% block sw_manufacturer_list_smart_bar_header_title %}
         <h2>
             {% block sw_manufacturer_list_smart_bar_header_title_text %}
-            {{ $tc('sw-manufacturer.list.textManufacturerOverview') }}
+            {{ $t('sw-manufacturer.list.textManufacturerOverview') }}
             {% endblock %}
 
             {% block sw_manufacturer_list_smart_bar_header_amount %}
@@ -36,7 +36,7 @@
         {% block sw_manufacturer_list_smart_bar_actions %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product_manufacturer.creator'),
                 showOnDisabledElements: true
             }"
@@ -46,7 +46,7 @@
             size="default"
             @click="$router.push({ name: 'sw.manufacturer.create' })"
         >
-            {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
+            {{ $t('sw-manufacturer.list.buttonAddManufacturer') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -20,7 +20,7 @@ export default class FilterBasePlugin extends Plugin {
 
         this.listing = window.PluginManager.getPluginInstanceFromElement(
             parentFilterPanelElement,
-            'Listing'
+            'Listing',
         );
 
         this.listing.registerFilter(this);

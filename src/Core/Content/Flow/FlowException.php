@@ -20,6 +20,7 @@ class FlowException extends HttpException
     final public const CUSTOM_TRIGGER_BY_NAME_NOT_FOUND = 'FLOW_ACTION_CUSTOM_TRIGGER_BY_NAME_NOT_FOUND';
     final public const FLOW_ACTION_STATE_MACHINE_NOT_FOUND = 'FLOW_ACTION_STATE_MACHINE_NOT_FOUND';
     final public const INVALID_SERIALIZER_FIELD = 'FLOW_INVALID_SERIALIZER_FIELD';
+    final public const MISSING_REQUIRED_SEQUENCE_FIELD = 'CONTENT__FLOW_MISSING_REQUIRED_SEQUENCE_FIELD';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -92,6 +93,16 @@ class FlowException extends HttpException
             self::INVALID_SERIALIZER_FIELD,
             'Expected field of type "{{ expectedClass }}" but got "{{ actualClass }}".',
             ['expectedClass' => 'StorageAware', 'actualClass' => $fieldClass, 'serializerClass' => $serializerClass]
+        );
+    }
+
+    public static function missingRequiredSequenceField(string $requiredFieldName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUIRED_SEQUENCE_FIELD,
+            'Required sequence field "{{ name }}" is missing.',
+            ['name' => $requiredFieldName],
         );
     }
 }

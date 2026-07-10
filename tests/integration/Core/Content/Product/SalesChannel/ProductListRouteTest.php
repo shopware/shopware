@@ -224,6 +224,55 @@ class ProductListRouteTest extends TestCase
         static::assertSame('test hidden own review', $reviews[1]['title']);
     }
 
+    public function testListingProductsLimitsChildrenAssociation(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'parent-with-limited-children'))
+            ->price(10)
+            ->visibility($this->ids->get('sales-channel'))
+            ->variant(
+                (new ProductBuilder($this->ids, 'limited-child-1'))
+                    ->price(10)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'limited-child-2'))
+                    ->price(10)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'limited-child-3'))
+                    ->price(10)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('parent-with-limited-children')],
+                'associations' => [
+                    'children' => [
+                        'limit' => 2,
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertCount(1, $response['elements']);
+        static::assertArrayHasKey('children', $response['elements'][0]);
+        static::assertCount(2, $response['elements'][0]['children']);
+    }
+
     private function createData(): void
     {
         $products = [];
@@ -236,7 +285,7 @@ class ProductListRouteTest extends TestCase
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

@@ -73,7 +73,7 @@ export default {
         iconSize: {
             type: String,
             required: false,
-            default: '16px',
+            default: 'var(--scale-size-14)',
         },
 
         disabled: {
@@ -85,7 +85,6 @@ export default {
         autoClose: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

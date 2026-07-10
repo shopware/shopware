@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * Fingerprints are put on the shop ID to detect changes in the environment that might suggest a change in the shop ID.
  * They are stored as part of the system configuration and are matched against the runtime stamps any time the shop ID is requested.
  *
- * @see \Shopware\Core\Framework\App\ShopId\ShopIdProvider::getShopId()
+ * @see ShopIdProvider::getShopId()
  */
 #[Package('framework')]
 interface Fingerprint
@@ -26,7 +26,7 @@ interface Fingerprint
      * A score of 100 indicates a very high certainty that the shop has been permanently moved or cloned to a new environment.
      *
      * @see FingerprintGenerator::STATE_CHANGE_THRESHOLD
-     * @see \Shopware\Core\Framework\App\ShopId\FingerprintGenerator::compare()
+     * @see FingerprintGenerator::compare()
      */
     public function getScore(): int;
 

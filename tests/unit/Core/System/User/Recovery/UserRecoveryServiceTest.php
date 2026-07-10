@@ -27,6 +27,7 @@ use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -37,21 +38,18 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(UserRecoveryService::class)]
 class UserRecoveryServiceTest extends TestCase
 {
-    private RouterInterface&MockObject $router;
-
     private EventDispatcherInterface&MockObject $dispatcher;
-
-    private SalesChannelContextService&MockObject $salesChannelContextService;
 
     protected function setUp(): void
     {
-        $this->router = $this->createMock(RouterInterface::class);
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->salesChannelContextService = $this->createMock(SalesChannelContextService::class);
     }
 
     public function testGenerateUserRecoveryUserNotFound(): void
     {
+        $router = static::createStub(RouterInterface::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
+
         $userEmail = 'nonexistent@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $recoveryEntity = new UserRecoveryEntity();
@@ -80,10 +78,11 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelContextService,
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -93,8 +92,10 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithNoSalesChannel(): void
     {
-        static::expectException(UserException::class);
-        static::expectExceptionMessage('No sales channel found.');
+        $router = $this->createMock(RouterInterface::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
+
+        $this->expectExceptionObject(UserException::salesChannelNotFound());
 
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
@@ -123,7 +124,7 @@ class UserRecoveryServiceTest extends TestCase
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
 
-        $this->router
+        $router
             ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
@@ -135,10 +136,11 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelContextService,
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -148,6 +150,9 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithExistingRecovery(): void
     {
+        $router = $this->createMock(RouterInterface::class);
+        $salesChannelContextService = $this->createMock(SalesChannelContextService::class);
+
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $user = new UserEntity();
@@ -179,15 +184,15 @@ class UserRecoveryServiceTest extends TestCase
             new SalesChannelCollection([$salesChannelEntity]),
         ], new SalesChannelDefinition());
 
-        $this->router
+        $router
             ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
-        $this->salesChannelContextService
+        $salesChannelContextService
             ->expects($this->once())
             ->method('get')
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn(static::createStub(SalesChannelContext::class));
 
         $this->dispatcher
             ->expects($this->once())
@@ -200,10 +205,11 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelContextService,
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -213,6 +219,9 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithoutExistingRecovery(): void
     {
+        $router = $this->createMock(RouterInterface::class);
+        $salesChannelContextService = $this->createMock(SalesChannelContextService::class);
+
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $user = new UserEntity();
@@ -250,15 +259,15 @@ class UserRecoveryServiceTest extends TestCase
             },
         ], new SalesChannelDefinition());
 
-        $this->router
+        $router
             ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
-        $this->salesChannelContextService
+        $salesChannelContextService
             ->expects($this->once())
             ->method('get')
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn(static::createStub(SalesChannelContext::class));
 
         $this->dispatcher
             ->expects($this->once())
@@ -271,10 +280,11 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelContextService,
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);

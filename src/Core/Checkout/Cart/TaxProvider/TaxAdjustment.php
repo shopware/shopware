@@ -42,7 +42,7 @@ class TaxAdjustment
         );
 
         // either take the price from the tax provider result or take the calculated taxes
-        $taxes = $price->getCalculatedTaxes()->filter(fn (CalculatedTax $tax) => $tax->getTax() > 0.0);
+        $taxes = $price->getCalculatedTaxes()->filter(static fn (CalculatedTax $tax) => $tax->getTax() > 0.0);
         $price->setCalculatedTaxes($taxes);
 
         if ($result->getCartPriceTaxes()) {

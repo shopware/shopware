@@ -33,6 +33,7 @@ type OperatorSetIdentifier =
     | 'bool'
     | 'number'
     | 'date'
+    | 'datetime'
     | 'isNet'
     | 'empty'
     | 'zipCode';
@@ -64,6 +65,7 @@ type CustomFieldConditionConfig = {
     type: string;
     componentName: string;
     customFieldType?: string;
+    disabled?: boolean;
 };
 
 /**
@@ -80,6 +82,10 @@ type CustomFieldConditionConfig = {
  */
 export default class RuleConditionService {
     $store: { [key: string]: Condition } = {};
+
+    $deprecations: {
+        [type: string]: { version: string; replacement?: string; label: string };
+    } = {};
 
     awarenessConfiguration: { [key: string]: AwarenessConfiguration } = {};
 
@@ -128,6 +134,10 @@ export default class RuleConditionService {
             identifier: 'empty',
             label: 'global.sw-condition.operator.empty',
         },
+        between: {
+            identifier: 'between',
+            label: 'global.sw-condition.operator.between',
+        },
     };
 
     operatorSets = {
@@ -167,6 +177,16 @@ export default class RuleConditionService {
             this.operators.lowerThan,
             this.operators.lowerThanEquals,
             this.operators.notEquals,
+            this.operators.between,
+        ],
+        datetime: [
+            this.operators.equals,
+            this.operators.greaterThan,
+            this.operators.greaterThanEquals,
+            this.operators.lowerThan,
+            this.operators.lowerThanEquals,
+            this.operators.notEquals,
+            this.operators.between,
         ],
         isNet: [
             this.operators.gross,
@@ -191,6 +211,8 @@ export default class RuleConditionService {
         text: 'string',
         int: 'number',
         bool: 'bool',
+        date: 'date',
+        datetime: 'datetime',
     };
 
     moduleTypes: { [key: string]: ModuleType } = {
@@ -273,6 +295,72 @@ export default class RuleConditionService {
         this.$store[condition.scriptId ?? type] = condition as Condition;
     }
 
+    registerDeprecation(type: string, deprecation: { version: string; replacement?: string; label: string }) {
+        this.$deprecations[type] = deprecation;
+    }
+
+    getDeprecationsInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+        version: string;
+        replacement: { type: string; label: string } | null;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const deprecation = this.$deprecations[type];
+
+            if (!deprecation) {
+                return [];
+            }
+
+            const replacementCondition = deprecation.replacement ? this.$store[deprecation.replacement] : null;
+
+            return [
+                {
+                    type,
+                    label: deprecation.label,
+                    version: deprecation.version,
+                    replacement: replacementCondition
+                        ? { type: replacementCondition.type, label: replacementCondition.label }
+                        : null,
+                },
+            ];
+        });
+    }
+
+    getFlowOnlyTypesInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const scopes = this.$store[type]?.scopes;
+
+            if (!scopes?.length || !scopes.every((scope) => scope === 'flow')) {
+                return [];
+            }
+
+            const label = this.$store[type]?.label;
+
+            return label ? [{ type, label }] : [];
+        });
+    }
+
+    private collectTypes(conditions: Array<{ type: string; children?: unknown }>): string[] {
+        return conditions.flatMap((condition) => {
+            if (!condition.children) {
+                return [condition.type];
+            }
+
+            return [
+                condition.type,
+                ...this.collectTypes(condition.children as Array<{ type: string; children?: unknown }>),
+            ];
+        });
+    }
+
     addScriptConditions(scripts: Script[]) {
         scripts.forEach((script) => {
             this.addCondition('scriptRule', {
@@ -319,6 +407,11 @@ export default class RuleConditionService {
 
         const transformedConfig = { ...config };
 
+        // Custom fields flagged `disabled: true` are read-only on detail pages, but the
+        // rule builder's value selector must stay editable. Strip it so it isn't spread
+        // onto `sw-form-field-renderer` as a prop.
+        delete transformedConfig.disabled;
+
         if (
             [
                 'checkbox',
@@ -351,13 +444,13 @@ export default class RuleConditionService {
         const booleanOptions = [
             {
                 label: {
-                    [locale]: app.$tc('global.default.yes'),
+                    [locale]: app.$t('global.default.yes'),
                 },
                 value: true,
             },
             {
                 label: {
-                    [locale]: app.$tc('global.default.no'),
+                    [locale]: app.$t('global.default.no'),
                 },
                 value: false,
             },
@@ -743,9 +836,9 @@ export default class RuleConditionService {
 
         let text = '';
         violations.forEach((violation, index, allViolations) => {
-            text += `"${app.$tc(violation.label, 1)}"`;
+            text += `"${app.$t(violation.label, 1)}"`;
             if (index + 2 === allViolations.length) {
-                text += ` ${app.$tc(connectionSnippetPath)} `;
+                text += ` ${app.$t(connectionSnippetPath)} `;
             } else if (index + 1 < allViolations.length) {
                 text += ', ';
             }
@@ -781,12 +874,12 @@ export default class RuleConditionService {
             return {
                 showOnDisabledElements: true,
                 disabled: false,
-                message: app.$tc('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip', {
+                message: app.$t('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip', {
                     conditions: this.getTranslatedConditionViolationList(
                         restrictionConfig.notEqualsViolations,
                         'sw-restricted-rules.and',
                     ),
-                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet as string, 2),
+                    entityLabel: app.$t(restrictionConfig.assignmentSnippet as string, 2),
                 }),
             };
         }
@@ -795,12 +888,12 @@ export default class RuleConditionService {
             showOnDisabledElements: true,
             disabled: false,
             width: 400,
-            message: app.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', {
+            message: app.$t('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', {
                 conditions: this.getTranslatedConditionViolationList(
                     restrictionConfig.equalsAnyNotMatched,
                     'sw-restricted-rules.or',
                 ),
-                entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
+                entityLabel: app.$t(restrictionConfig.assignmentSnippet ?? '', 2),
             }),
         };
     }

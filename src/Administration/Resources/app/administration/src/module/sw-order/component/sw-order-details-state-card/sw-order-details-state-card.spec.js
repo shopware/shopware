@@ -72,7 +72,7 @@ async function createWrapper() {
                                 iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
                                 selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
                                 variant: 'neutral',
-                                colorCode: '#94a6b8',
+                                colorCode: 'var(--color-icon-secondary-default)',
                             },
                         };
                     },
@@ -125,6 +125,7 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-loader': true,
+                'mt-icon': true,
             },
         },
     });

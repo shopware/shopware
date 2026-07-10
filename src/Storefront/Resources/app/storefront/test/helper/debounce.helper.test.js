@@ -18,8 +18,8 @@ describe('debouncer helper', () => {
 
         jest.runAllTimers();
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(2);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(2);
     });
 
     test('it calls different callbacks once', () => {
@@ -34,11 +34,11 @@ describe('debouncer helper', () => {
 
         jest.runAllTimers();
 
-        expect(firstSpy).toBeCalledTimes(1);
-        expect(firstSpy).toBeCalledWith(1);
+        expect(firstSpy).toHaveBeenCalledTimes(1);
+        expect(firstSpy).toHaveBeenCalledWith(1);
 
-        expect(secondSpy).toBeCalledTimes(1);
-        expect(secondSpy).toBeCalledWith(2);
+        expect(secondSpy).toHaveBeenCalledTimes(1);
+        expect(secondSpy).toHaveBeenCalledWith(2);
     });
 
     test('is called immediately and delayed with same args', () => {
@@ -50,9 +50,9 @@ describe('debouncer helper', () => {
 
         jest.runAllTimers();
 
-        expect(spy).toBeCalledTimes(2);
-        expect(spy).nthCalledWith(1, 1);
-        expect(spy).nthCalledWith(2, 1);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, 1);
+        expect(spy).toHaveBeenNthCalledWith(2, 1);
     });
 
     test('is called immediately with given args even when cancelled', () => {
@@ -65,8 +65,8 @@ describe('debouncer helper', () => {
 
         jest.runAllTimers();
 
-        expect(spy).toBeCalledTimes(2);
-        expect(spy).nthCalledWith(1, 1);
-        expect(spy).nthCalledWith(2, 2);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, 1);
+        expect(spy).toHaveBeenNthCalledWith(2, 2);
     })
 });

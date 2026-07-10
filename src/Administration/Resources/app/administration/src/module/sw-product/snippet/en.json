@@ -35,6 +35,7 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Description",
+      "hintCoverImageDescription": "Begin the description with one or two short sentences describing the product shown in the cover image. This improves accessibility and the presentation in product listings.",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
       "labelManufacturerCreation": "manufacturer",
@@ -103,7 +104,15 @@
       "placeholderCanonicalProduct": "Select a variant...",
       "helpTextMetaTitle": "The meta title is the most important SEO element and should be unique for each page. You should limit yourself in length to a maximum of 56 characters. Your keyword should ideally be placed at the very front.",
       "helpTextMetaDescription": "With the meta description, you confirm to your customers that they are in the right place in your store. You create incentives, build trust and invite to an action. You should limit yourself to a maximum of 155 characters. Shopware allows a maximum length of 255 characters.",
-      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found."
+      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found.",
+      "titleOpenGraph": "Open Graph",
+      "labelOpenGraphTitle": "OG title",
+      "labelOpenGraphDescription": "OG description",
+      "labelOpenGraphImage": "OG image",
+      "placeholderOpenGraphTitle": "Enter Open Graph title...",
+      "placeholderOpenGraphDescription": "Enter Open Graph description...",
+      "helpTextOpenGraphTitle": "The Open Graph title is used when sharing the product on social media. If left empty, the meta title will be used as a fallback.",
+      "helpTextOpenGraphDescription": "The Open Graph description is used when sharing the product on social media. If left empty, the meta description will be used as a fallback."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",
@@ -177,6 +186,7 @@
       "cardTitleDownloads": "Files",
       "cardSubtitleDownloads": "Add files to your digital product.",
       "downloadsLabel": "File upload",
+      "downloadsContextMenuDownloadFile": "Download file",
       "manageStockLabel": "Manage stock",
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
@@ -200,12 +210,9 @@
       "labelCreatedAt": "Created at",
       "labelPoints": "Stars",
       "labelTitle": "Title",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "modal": {
         "confirmTitle": "Delete review",
-        "confirmText": "Do you really want to delete this review?",
-        "buttonDelete": "Delete"
+        "confirmText": "Do you really want to delete this review?"
       },
       "messageEmptyTitle": "Product not reviewed yet",
       "messageEmptySubline": "Check out other products' reviews instead.",
@@ -225,8 +232,6 @@
       "columnQuantityStart": "Quantity from...",
       "columnQuantityEnd": "to...",
       "columnPrice": "Price (gross / net)",
-      "contextMenuDuplicate": "Duplicate",
-      "contextMenuDelete": "Delete",
       "settingShowListPrices": "Show list prices",
       "toolbarLabel": "Rules"
     },
@@ -234,8 +239,6 @@
       "textProductOverview": "Products",
       "buttonAddProduct": "Add product",
       "buttonAddDownloadableProduct": "Add digital product",
-      "buttonDuplicate": "Duplicate",
-      "buttonDelete": "Delete",
       "columnName": "Name",
       "columnProductNumber": "Product number",
       "columnManufacturer": "Manufacturer",
@@ -253,9 +256,6 @@
       "columnMedia": "Media",
       "columnSales": "Sales",
       "columnDownloadsTooltip": "Digital products must have at least one file attached.",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
       "contextMenuShowVariants": "Show variants",
       "variantIndicatorTooltip": "This product has variants.",
       "variantGridEmptyStateSubline": "No variants were found.",
@@ -278,7 +278,6 @@
     },
     "detail": {
       "textHeadline": "New product",
-      "buttonSave": "Save",
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
@@ -293,10 +292,10 @@
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
       "messageSaveWarning": "No changes detected.",
+      "messageProductNotFound": "The product could not be found. It may have been deleted.",
       "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
     },
     "mediaForm": {
-      "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
       "errorMediaItemDuplicated": "Media item \"{fileName}\" is already assigned.",
       "coverSubline": "Cover",
@@ -358,7 +357,6 @@
       "generateVariationsButton": "Save variants",
       "nextModalButton": "Next",
       "deleteVariationsButton": "Delete all variants",
-      "backVariationsButton": "Back",
       "configuratorCardTitle": "Variant generator",
       "generatedVariationCardTitle": "Variants",
       "variationCard": {
@@ -383,15 +381,14 @@
       "generatedListColumnContentProductState": {
         "is-download": "digital"
       },
-      "generatedListContextMenuEdit": "Edit",
-      "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
       "generatedListDeleteModalMessagePlural": "Do you really want to delete these variants?",
-      "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListMessageDeleteErrorCanonicalUrl": "Variant could not be deleted because it is being used as the canonical url template.",
       "generatedListMessageDeleteSuccess": "Variant has been deleted.",
+      "generatedListMessageDeleteError": "An unexpected error occurred. Please refresh the page to try again.",
+      "generatedListMessageGenerateError": "An unexpected error occurred. Please refresh the page to try again.",
       "overview": {
         "filterReset": "Reset",
         "filter": "Filter",
@@ -418,12 +415,8 @@
         "restrictedCombinations": "Excluded property values",
         "searchRestrictions": "Search excluded values...",
         "addNewRestriction": "Exclude values",
-        "editRestriction": "Edit",
-        "deleteRestriction": "Delete",
         "singleRestrictionSeperation": "And",
-        "deleteCombination": "Delete",
         "isOneFrom": "is one of",
-        "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
         "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there.",
@@ -446,8 +439,7 @@
         "listingExplanationModeSingle": "Choose a variant that will be displayed in listings and preselected on the product detail page.",
         "listingExplanationModeMainProduct": "Choose a variant that will be the preselected on the product detail page.",
         "listingLabelModeExpanded": "Expand property values in product listings",
-        "listingPlaceholderSelectMainVariant": "Choose a variant...",
-        "save": "Save"
+        "listingPlaceholderSelectMainVariant": "Choose a variant..."
       }
     },
     "layout": {
@@ -461,7 +453,6 @@
       "buttonAddCrossSelling": "Add new Cross Selling",
       "newCrossSellingTitle": "New Cross Selling",
       "buttonAddCrossSellingLanguageWarning": "You can only create new cross sellings in your default language",
-      "buttonDeleteCrossSelling": "Delete",
       "inputCrossSellingTitle": "Name",
       "inputCrossSellingActive": "Active",
       "inputCrossSellingType": "Type",
@@ -484,7 +475,6 @@
       "releaseDateDescendingSortingType": "Release date, descending",
       "deleteConfirmTitle": "Delete Cross Selling",
       "deleteConfirmText": "Are you sure you want to delete the Cross Selling configuration?",
-      "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
       "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",

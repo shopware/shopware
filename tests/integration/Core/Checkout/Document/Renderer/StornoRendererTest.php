@@ -118,55 +118,52 @@ class StornoRendererTest extends TestCase
         static::assertNotNull($result);
         $invoiceId = $result->getId();
 
-        $operation = new DocumentGenerateOperation(
+        $config = [
+            'documentComment' => '<script></script>This is a cancellation invoice.',
+            'custom' => [
+                'invoiceNumber' => '1001',
+            ],
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+
+        $operationHtml = new DocumentGenerateOperation(
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
-            [
-                'documentComment' => '<script></script>This is a cancellation invoice.',
-                'custom' => [
-                    'invoiceNumber' => '1001',
-                ],
-                'itemsPerPage' => 10,
-                'displayHeader' => true,
-                'displayFooter' => true,
-                'displayPrices' => true,
-                'displayPageCount' => true,
-                'displayLineItems' => true,
-                'displayCompanyAddress' => true,
-                'displayReturnAddress' => true,
-                'companyName' => 'Example Company',
-                'documentDate' => '2023-11-24T12:00:00+00:00',
-            ],
+            $config,
             $invoiceId
         );
 
-        $processedTemplate = $this->stornoRenderer->render(
-            [$orderId => $operation],
+        $processedHtmlTemplate = $this->stornoRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'storno_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('storno_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**
-     * @param array<string, string> $additionalConfig
+     * @param array{documentNumber: string, fileTypes: list<string>, custom?: array<string, string>} $additionalConfig
      */
     #[DataProvider('stornoNoteRendererDataProvider')]
     public function testRender(array $additionalConfig, \Closure $assertionCallback): void
@@ -190,7 +187,7 @@ class StornoRendererTest extends TestCase
             'displayHeader' => true,
         ];
 
-        if (!empty($additionalConfig)) {
+        if ($additionalConfig !== []) {
             $config = array_merge($config, $additionalConfig);
         }
 
@@ -204,7 +201,7 @@ class StornoRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(StornoOrdersEvent::class, static function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -222,7 +219,6 @@ class StornoRendererTest extends TestCase
         static::assertNotNull($order);
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
         $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
         static::assertStringContainsString('<html lang="en-GB">', $rendered->getContent());
         static::assertStringContainsString('</html>', $rendered->getContent());
         $assertionCallback($rendered);
@@ -251,6 +247,9 @@ class StornoRendererTest extends TestCase
         );
     }
 
+    /**
+     * @return \Generator<string, array{array{documentNumber: string, fileTypes: list<string>, custom?: array<string, string>}, \Closure}>
+     */
     public static function stornoNoteRendererDataProvider(): \Generator
     {
         yield 'render storno successfully' => [
@@ -262,7 +261,7 @@ class StornoRendererTest extends TestCase
                 ],
                 'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
             ],
-            function (?RenderedDocument $rendered = null): void {
+            static function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertStringContainsString('Cancellation no. 1000', $rendered->getContent());
                 static::assertStringContainsString('Cancellation 1000 for Invoice 1001', $rendered->getContent());
@@ -274,7 +273,7 @@ class StornoRendererTest extends TestCase
                 'documentNumber' => 'STORNO_9999',
                 'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
             ],
-            function (?RenderedDocument $rendered = null): void {
+            static function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertSame('STORNO_9999', $rendered->getNumber());
                 static::assertSame('cancellation_invoice_STORNO_9999', $rendered->getName());

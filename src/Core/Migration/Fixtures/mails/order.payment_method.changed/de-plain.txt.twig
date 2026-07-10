@@ -1,0 +1,10 @@
+Hallo {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+wir bestätigen, dass die Zahlungsart für Ihre Bestellung erfolgreich geändert wurde.
+
+Bestellnummer: {{ order.orderNumber }}
+Neue Zahlungsart: {{ order.transactions.last.paymentMethod.translated.name }}
+
+Ihre Bestellung wird nun mit der ausgewählten Zahlungsart weiter verarbeitet.
+
+Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.

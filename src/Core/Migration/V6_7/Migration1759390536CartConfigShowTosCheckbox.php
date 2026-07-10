@@ -31,7 +31,7 @@ class Migration1759390536CartConfigShowTosCheckbox extends MigrationStep
             [$key]
         );
 
-        if (!empty($config)) {
+        if ($config !== []) {
             return;
         }
 

@@ -29,13 +29,13 @@ class SystemUpdateListenerTest extends TestCase
             ->method('update');
 
         $listener = new SystemUpdateListener(
-            $this->createMock(AbstractKeyValueStorage::class),
-            $this->createMock(ElasticsearchIndexer::class),
+            static::createStub(AbstractKeyValueStorage::class),
+            static::createStub(ElasticsearchIndexer::class),
             $messageBus,
             $mappingUpdater
         );
 
-        $listener($this->createMock(UpdatePostFinishEvent::class));
+        $listener(static::createStub(UpdatePostFinishEvent::class));
 
         static::assertCount(0, $messageBus->getMessages());
     }
@@ -49,19 +49,19 @@ class SystemUpdateListenerTest extends TestCase
             ->expects($this->once())
             ->method('update');
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage = static::createStub(AbstractKeyValueStorage::class);
         $storage
             ->method('get')
             ->willReturn(['*']);
 
-        $message = $this->createMock(ElasticsearchIndexingMessage::class);
+        $message = static::createStub(ElasticsearchIndexingMessage::class);
         $message->method('getOffset')
-            ->willReturn($this->createMock(IndexerOffset::class));
+            ->willReturn(static::createStub(IndexerOffset::class));
 
-        $indexer = $this->createMock(ElasticsearchIndexer::class);
+        $indexer = static::createStub(ElasticsearchIndexer::class);
         $indexer
             ->method('iterate')
-            ->willReturnCallback(function ($offset) use ($message) {
+            ->willReturnCallback(static function ($offset) use ($message) {
                 return $offset === null
                     ? $message
                     : null;
@@ -74,7 +74,7 @@ class SystemUpdateListenerTest extends TestCase
             $mappingUpdater
         );
 
-        $listener($this->createMock(UpdatePostFinishEvent::class));
+        $listener(static::createStub(UpdatePostFinishEvent::class));
 
         static::assertCount(1, $messageBus->getMessages());
     }

@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -37,7 +36,6 @@ class CheckoutConfirmPageLoader
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly StorefrontCartFacade $cartService,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
@@ -55,9 +53,9 @@ class CheckoutConfirmPageLoader
         $page = CheckoutConfirmPage::createFrom($page);
         $this->setMetaInformation($page);
 
-        $cart = $this->cartService->get($context->getToken(), $context, false, true);
-
-        $response = $this->checkoutGatewayRoute->load($request, $cart, $context);
+        $cartGatewayResult = $this->cartService->getWithCheckoutGateway($request, $context->getToken(), $context, false, true);
+        $cart = $cartGatewayResult->cart;
+        $response = $cartGatewayResult->gatewayResponse;
 
         $page->setPaymentMethods($response->getPaymentMethods());
         $page->setShippingMethods($response->getShippingMethods());
@@ -69,7 +67,7 @@ class CheckoutConfirmPageLoader
         $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
                 $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
                 $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
             });

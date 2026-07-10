@@ -16,7 +16,7 @@ describe('cookie-storage.helper.js', () => {
     });
 
     test('it throws if you omit the name', () => {
-        expect(() => { CookieStorageHelper.setItem() }).toThrowError();
+        expect(() => { CookieStorageHelper.setItem() }).toThrow();
     });
 
     test('it returns cookie value', () => {

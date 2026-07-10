@@ -33,8 +33,8 @@ class PromotionValidatorTest extends TestCase
     {
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [PromotionDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -102,8 +102,7 @@ class PromotionValidatorTest extends TestCase
             )
             ->willReturn('someId');
 
-        $this->expectException(PromotionException::class);
-        $this->expectExceptionMessage('Promotions cannot be deleted once they have been used in an order.');
+        $this->expectExceptionObject(PromotionException::promotionUsedDeleteRestriction());
         $subscriber = new PromotionValidator($connection);
         $subscriber->validate($event);
     }

@@ -56,7 +56,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mail_template_type.mailTemplates.id', null));
 
-        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
+        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getEntities()->getIds();
 
         $payload = [];
         foreach ($mailTypeIds as $mailTypeId) {
@@ -69,7 +69,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $this->write($payload, $context);
         }
 

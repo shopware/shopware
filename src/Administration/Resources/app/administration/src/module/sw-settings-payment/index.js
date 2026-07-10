@@ -2,7 +2,7 @@ import './init';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-plugin-box', () => import('./component/sw-plugin-box'));
 Shopware.Component.register(
     'sw-settings-payment-sorting-modal',
@@ -16,7 +16,7 @@ Shopware.Component.extend(
     'sw-settings-payment-detail',
     () => import('./page/sw-settings-payment-create'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -29,7 +29,7 @@ Module.register('sw-settings-payment', {
     name: 'settings-payment',
     title: 'sw-settings-payment.general.mainMenuItemGeneral',
     description: 'Payment section in the settings module',
-    color: '#9AA8B5',
+    color: 'var(--color-icon-secondary-default)',
     icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'payment_method',
@@ -48,7 +48,7 @@ Module.register('sw-settings-payment', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.payment.overview',
-                privilege: 'payment.viewer',
+                privilege: 'payment.editor',
             },
         },
         create: {

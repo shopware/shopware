@@ -3,18 +3,21 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Hmac;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -42,7 +45,7 @@ class QuerySignerTest extends TestCase
         $shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('shopId');
+            ->willReturn(ShopId::v2('shopId'));
 
         $app = new AppEntity();
         $app->setName('extension-1');
@@ -50,7 +53,7 @@ class QuerySignerTest extends TestCase
         $app->setId(Uuid::randomHex());
         $app->setVersion('1.0.0');
 
-        $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider, $inAppPurchase);
+        $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider, $inAppPurchase, new NativeClock());
         $signedQuery = $querySigner->signUri('http://app.url/?foo=bar', $app, $context);
 
         \parse_str($signedQuery->getQuery(), $url);
@@ -77,10 +80,9 @@ class QuerySignerTest extends TestCase
         static::assertSame($userId, $url['sw-user-id']);
     }
 
-    public function testUserIdIsEmptyStringWhenSourceIsNotAdminApiSource(): void
+    #[DataProvider('userIdDataProvider')]
+    public function testUserIdInSignedUri(Context $context, string $expectedUserId): void
     {
-        $context = Context::createDefaultContext();
-
         $localeProvider = $this->createMock(LocaleProvider::class);
         $localeProvider
             ->expects($this->once())
@@ -92,7 +94,7 @@ class QuerySignerTest extends TestCase
         $shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('shopId');
+            ->willReturn(ShopId::v2('shopId'));
 
         $app = new AppEntity();
         $app->setName('extension-1');
@@ -106,6 +108,7 @@ class QuerySignerTest extends TestCase
             $localeProvider,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $signedQuery = $querySigner->signUri(
@@ -117,7 +120,7 @@ class QuerySignerTest extends TestCase
         \parse_str($signedQuery->getQuery(), $url);
 
         static::assertArrayHasKey('sw-user-id', $url);
-        static::assertSame('', $url['sw-user-id']);
+        static::assertSame($expectedUserId, $url['sw-user-id']);
     }
 
     public function testThrowsWithoutAppSecret(): void
@@ -129,14 +132,37 @@ class QuerySignerTest extends TestCase
         $querySigner = new QuerySigner(
             'http://shop.url',
             '1.0.0',
-            $this->createMock(LocaleProvider::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(LocaleProvider::class),
+            static::createStub(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App secret is missing for app Foo');
+        $this->expectExceptionObject(AppException::appSecretMissing('Foo'));
 
         $querySigner->signUri('http://app.url/?foo=bar', $app, Context::createDefaultContext());
+    }
+
+    /**
+     * @return \Generator<string, array{Context, string}>
+     */
+    public static function userIdDataProvider(): \Generator
+    {
+        $userId = Uuid::randomHex();
+
+        yield 'admin api source with user' => [
+            new Context(new AdminApiSource($userId)),
+            $userId,
+        ];
+
+        yield 'admin api source without user' => [
+            new Context(new AdminApiSource(null)),
+            '',
+        ];
+
+        yield 'non-admin api source' => [
+            Context::createDefaultContext(),
+            '',
+        ];
     }
 }

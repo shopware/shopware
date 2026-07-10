@@ -24,9 +24,9 @@
                   "versionRevision": "98fcdbeab238fbef3b47bc258340124a1dba4852",
                   "adminWorker": {
                     "enableAdminWorker": true,
-                    "enableQueueStatsWorker": true,
                     "enableNotificationWorker": true,
                     "transports": [
+                      "webhook",
                       "async",
                       "low_priority"
                     ]
@@ -57,6 +57,7 @@
                     "enableUrlFeature": true,
                     "appUrlReachable": true,
                     "appsRequireAppUrl": false,
+                    "firstMigrationDate": "2025-01-01T12:00:00.000Z",
                     "private_allowed_extensions": [
                       "jpg",
                       "jpeg",
@@ -96,8 +97,17 @@
                       "xls",
                       "xlsx",
                       "html",
-                      "xml"
+                      "xml",
+                      "epub"
                     ],
+                    "private_allowed_mime_types_by_extension": {
+                      "pdf": [
+                        "application/pdf"
+                      ],
+                      "epub": [
+                        "application/epub+zip"
+                      ]
+                    },
                     "enableHtmlSanitizer": true,
                     "enableStagingMode": false,
                     "disableExtensionManagement": false

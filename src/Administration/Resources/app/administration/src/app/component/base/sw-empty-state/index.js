@@ -24,7 +24,6 @@ export default {
         },
         showDescription: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -40,7 +39,6 @@ export default {
         },
         absolute: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -62,7 +60,7 @@ export default {
         },
 
         moduleDescription() {
-            return this.subline ?? this.$tc(this.$route.meta.$module.description);
+            return this.subline ?? this.$t(this.$route.meta.$module.description);
         },
 
         moduleIcon() {

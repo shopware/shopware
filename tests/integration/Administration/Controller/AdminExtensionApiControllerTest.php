@@ -96,18 +96,16 @@ class AdminExtensionApiControllerTest extends TestCase
         }
 
         if (!($appName === self::EXISTING_APP_NAME)) {
-            $this->expectException(AppNotFoundException::class);
-            $this->expectExceptionMessage(\sprintf('Could not find app with name "%s"', $appName));
+            $this->expectExceptionObject(AppException::appNotFoundByName($appName));
 
             $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
 
             return;
         }
 
-        if (empty($hosts)) {
+        if ($hosts === []) {
             static::assertIsString($targetUrl);
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(\sprintf('The host "%s" you tried to call is not listed in the allowed hosts in the manifest file for app "%s".', $targetUrl, $appName));
+            $this->expectExceptionObject(AppException::hostNotAllowed($targetUrl, $appName));
         } else {
             $this->executor->expects($this->once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
         }

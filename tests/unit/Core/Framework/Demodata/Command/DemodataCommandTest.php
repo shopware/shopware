@@ -63,10 +63,27 @@ class DemodataCommandTest extends TestCase
     {
         $this->dispatcher = new EventDispatcher();
         $this->command = new DemodataCommand(
-            $this->createMock(DemodataService::class),
+            static::createStub(DemodataService::class),
             $this->dispatcher,
-            $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
+            $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod',
+            [self::class], // always-present class, avoids dependency on shopware/dev-tools in unit tests
         );
+    }
+
+    public function testMissingDependencyReturnsFailure(): void
+    {
+        $command = new DemodataCommand(
+            static::createStub(DemodataService::class),
+            $this->dispatcher,
+            'prod',
+            ['NonExistent\Class\That\DoesNotExist'], // @phpstan-ignore argument.type (non-existent class is intentional for the test)
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        static::assertStringContainsString('Please install composer package "shopware/dev-tools"', $tester->getDisplay());
+        static::assertSame(Command::FAILURE, $tester->getStatusCode());
     }
 
     public function testShowNoticeWhenNotProd(): void

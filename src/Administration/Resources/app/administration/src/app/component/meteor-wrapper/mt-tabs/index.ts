@@ -15,7 +15,6 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-tabs-original': MtTabs,
     },
 

@@ -106,7 +106,7 @@ class SitemapExporter implements SitemapExporterInterface
      */
     private function refreshContextRules(SalesChannelContext $salesChannelContext): SalesChannelContext
     {
-        if (\count($salesChannelContext->getRuleIds()) > 0) {
+        if ($salesChannelContext->getRuleIds() !== []) {
             return $salesChannelContext;
         }
 
@@ -155,7 +155,7 @@ class SitemapExporter implements SitemapExporterInterface
             $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url'], $sitemapDomain['domainId']);
         }
 
-        if (empty($sitemapHandles)) {
+        if ($sitemapHandles === []) {
             throw SitemapException::invalidDomain();
         }
 

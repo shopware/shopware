@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class PluginCreateCommandTest extends TestCase
 {
     /**
-     * @param array<string, string> $arguments
+     * @param array<string, string|true> $arguments
      * @param list<string> $inputs
      * @param array<int, array<string, mixed>> $generators
      */
@@ -34,7 +34,7 @@ class PluginCreateCommandTest extends TestCase
         $generatorMocks = [];
         foreach ($generators as $generator) {
             /** @var MockObject&ScaffoldingGenerator $generatorMock */
-            $generatorMock = $this->createMock(ScaffoldingGenerator::class);
+            $generatorMock = static::createStub(ScaffoldingGenerator::class);
 
             $generatorMock->method('hasCommandOption')->willReturn($generator['hasCommandOption']);
             $generatorMock->method('getCommandOptionName')->willReturn($generator['getCommandOptionName']);
@@ -103,6 +103,21 @@ class PluginCreateCommandTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'with --no-scaffold skips optional generators' => [
+            'arguments' => [
+                'plugin-name' => 'TestPlugin',
+                'plugin-namespace' => 'Test',
+                '--no-scaffold' => true,
+            ],
+            'inputs' => [],
+            'generators' => [
+                [
+                    'hasCommandOption' => true,
+                    'getCommandOptionName' => 'test-option',
+                ],
+            ],
+        ];
     }
 
     /**
@@ -142,6 +157,68 @@ class PluginCreateCommandTest extends TestCase
         ];
     }
 
+    public function testNoScaffoldSkipsOptionalGenerators(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
+        $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $optionalGenerator->method('hasCommandOption')->willReturn(true);
+        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->expects($this->never())->method('addScaffoldConfig');
+
+        /** @var MockObject&ScaffoldingGenerator $requiredGenerator */
+        $requiredGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $requiredGenerator->method('hasCommandOption')->willReturn(false);
+        $requiredGenerator->expects($this->once())->method('addScaffoldConfig');
+
+        $commandTester = $this->getCommandTester([$optionalGenerator, $requiredGenerator]);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--no-scaffold' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testInteractiveScaffoldQuestionNo(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
+        $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $optionalGenerator->method('hasCommandOption')->willReturn(true);
+        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->expects($this->never())->method('addScaffoldConfig');
+
+        $commandTester = $this->getCommandTester([$optionalGenerator]);
+        $commandTester->setInputs(['no']);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testInteractiveScaffoldQuestionYes(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
+        $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $optionalGenerator->method('hasCommandOption')->willReturn(true);
+        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->expects($this->once())->method('addScaffoldConfig');
+
+        $commandTester = $this->getCommandTester([$optionalGenerator]);
+        $commandTester->setInputs(['yes']);
+
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
     public function testDirectoryExists(): void
     {
         $commandTester = $this->getCommandTester([], true);
@@ -162,13 +239,13 @@ class PluginCreateCommandTest extends TestCase
      */
     private function getCommandTester(array $generators = [], bool $directoryExists = false): CommandTester
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn($directoryExists);
 
         $command = new PluginCreateCommand(
             'shopware',
-            $this->createMock(ScaffoldingCollector::class),
-            $this->createMock(ScaffoldingWriter::class),
+            static::createStub(ScaffoldingCollector::class),
+            static::createStub(ScaffoldingWriter::class),
             $filesystem,
             $generators
         );

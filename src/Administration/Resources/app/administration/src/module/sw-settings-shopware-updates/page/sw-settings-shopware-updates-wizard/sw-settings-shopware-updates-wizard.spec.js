@@ -205,21 +205,15 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     it('should show the correct error message, when theme deactivation fails', async () => {
         const stopUpdateProcessSpy = jest.spyOn(wrapper.vm, 'stopUpdateProcess');
         const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
-        const translationSpy = jest.spyOn(wrapper.vm, '$tc');
 
         wrapper.vm.deactivatePlugins(0);
         await flushPromises();
 
         expect(stopUpdateProcessSpy).toHaveBeenCalled();
-        expect(createNotificationWarningSpy).toHaveBeenCalled();
-        expect(translationSpy).toHaveBeenCalledWith(
-            'sw-extension.errors.messageDeactivationFailedThemeAssignment',
-            null,
-            null,
-            {
-                assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
-                themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
-            },
+        expect(createNotificationWarningSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                message: expect.stringContaining('sw-extension.errors.messageDeactivationFailedThemeAssignment'),
+            }),
         );
     });
 

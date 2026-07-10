@@ -103,7 +103,7 @@ class SqlQueryParser
 
         return match (true) {
             $query instanceof EqualsFilter => $this->parseEqualsFilter($query, $definition, $root, $context, $negated),
-            $query instanceof EqualsAnyFilter => $this->parseEqualsAnyFilter($query, $definition, $root, $context),
+            $query instanceof EqualsAnyFilter => $this->parseEqualsAnyFilter($query, $definition, $root, $context, $negated),
             $query instanceof ContainsFilter => $this->parseContainsFilter($query, $definition, $root, $context),
             $query instanceof PrefixFilter => $this->parsePrefixFilter($query, $definition, $root, $context),
             $query instanceof SuffixFilter => $this->parseSuffixFilter($query, $definition, $root, $context),
@@ -197,7 +197,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsAnyFilter(EqualsAnyFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    private function parseEqualsAnyFilter(EqualsAnyFilter $query, EntityDefinition $definition, string $root, Context $context, bool $negated): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -213,6 +213,13 @@ class SqlQueryParser
                 $where[] = \sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
                 $result->addParameter($key, $value);
             }
+
+            if ($where === []) {
+                $result->addWhere('1 = 0');
+
+                return $result;
+            }
+
             $result->addWhere('(' . implode(' OR ', $where) . ')');
 
             return $result;
@@ -228,15 +235,31 @@ class SqlQueryParser
             $value[] = $v;
         }
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = array_filter(array_map(fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
+            $value = array_filter(array_map(static fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
         }
 
-        $result->addParameter($key, $value, ArrayParameterType::STRING);
-        $where = [$select . ' IN (:' . $key . ')'];
+        $where = [];
+        if ($value !== []) {
+            $result->addParameter($key, $value, ArrayParameterType::STRING);
+
+            $inFilter = $select . ' IN (:' . $key . ')';
+            if ($negated && !$hasNulls) {
+                $where[] = '(' . $select . ' IS NOT NULL AND ' . $inFilter . ')';
+            } else {
+                $where[] = $inFilter;
+            }
+        }
 
         if ($hasNulls) {
             $where[] = $select . ' IS NULL';
         }
+
+        if ($where === []) {
+            $result->addWhere('1 = 0');
+
+            return $result;
+        }
+
         $result->addWhere('(' . implode(' OR ', $where) . ')');
 
         return $result;
@@ -293,7 +316,7 @@ class SqlQueryParser
         $result->resetWheres();
 
         $glue = ' ' . $query->getOperator() . ' ';
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('(' . implode($glue, $wheres) . ')');
         }
 
@@ -310,7 +333,7 @@ class SqlQueryParser
 
         $glue = ' ' . $query->getOperator() . ' ';
 
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('NOT (' . implode($glue, $wheres) . ')');
         }
 

@@ -27,7 +27,7 @@ class ExtensionDispatcherTest extends TestCase
             }
         };
 
-        $function = fn (string $param1, int $param2) => $param1 . $param2;
+        $function = static fn (string $param1, int $param2) => $param1 . $param2;
 
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
         $result = $extensionDispatcher->publish('eventName', $extension, $function);
@@ -54,7 +54,7 @@ class ExtensionDispatcherTest extends TestCase
 
         $dispatcher->expects($this->exactly(3))->method('dispatch')->with(
             $extension,
-            static::callback(function ($eventName) use ($extension) {
+            static::callback(static function ($eventName) use ($extension) {
                 if ($eventName === 'eventName.error') {
                     $extension->result = 'handledResult'; // Simulate graceful handling of the exception
                 }
@@ -63,7 +63,7 @@ class ExtensionDispatcherTest extends TestCase
             }),
         );
 
-        $function = fn () => throw new \Exception('Test exception');
+        $function = static fn () => throw new \Exception('Test exception');
 
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
         $result = $extensionDispatcher->publish('eventName', $extension, $function);
@@ -83,12 +83,11 @@ class ExtensionDispatcherTest extends TestCase
             }
         };
 
-        $function = fn () => throw new \Exception('Test exception');
+        $function = static fn () => throw new \Exception('Test exception');
 
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Test exception');
+        $this->expectExceptionObject(new \Exception('Test exception'));
 
         try {
             $extensionDispatcher->publish('eventName', $extension, $function);

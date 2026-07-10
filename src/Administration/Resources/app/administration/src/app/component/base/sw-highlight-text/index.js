@@ -17,19 +17,49 @@ export default {
     template: '',
 
     render(createElement) {
+        const parts = this.getParts();
+
         // Vue2 syntax
         if (typeof createElement === 'function') {
-            return createElement('div', {
-                class: 'sw-highlight-text',
-                domProps: { innerHTML: this.searchAndReplace() },
+            const children = parts.map((part) => {
+                if (!part.highlighted) {
+                    return part.text;
+                }
+
+                return createElement(
+                    'span',
+                    {
+                        class: 'sw-highlight-text__highlight',
+                    },
+                    part.text,
+                );
             });
+
+            return createElement(
+                'div',
+                {
+                    class: 'sw-highlight-text',
+                },
+                children,
+            );
         }
 
-        // Vue3 syntax
-        return h('div', {
-            class: 'sw-highlight-text',
-            innerHTML: this.searchAndReplace(),
+        const children = parts.map((part) => {
+            if (!part.highlighted) {
+                return part.text;
+            }
+
+            return h('span', { class: 'sw-highlight-text__highlight' }, part.text);
         });
+
+        // Vue3 syntax
+        return h(
+            'div',
+            {
+                class: 'sw-highlight-text',
+            },
+            children,
+        );
     },
 
     props: {
@@ -46,33 +76,68 @@ export default {
     },
 
     methods: {
-        searchAndReplace() {
+        getParts() {
             if (!this.text) {
-                return '';
+                return [];
             }
 
             if (!this.searchTerm) {
-                return this.text;
+                return [{ text: this.text, highlighted: false }];
             }
 
-            const prefix = '<span class="sw-highlight-text__highlight">';
-            const suffix = '</span>';
+            const pattern = this.escapeRegExp(this.searchTerm).trim();
 
-            const regExp = new RegExp(this.escapeRegExp(this.searchTerm), 'ig');
-            return this.text.replace(regExp, (str) => `${prefix}${str}${suffix}`);
+            if (!pattern) {
+                return [{ text: this.text, highlighted: false }];
+            }
+
+            const regExp = new RegExp(pattern, 'ig');
+            const parts = [];
+            let currentIndex = 0;
+            let match = regExp.exec(this.text);
+
+            while (match) {
+                if (match.index > currentIndex) {
+                    parts.push({
+                        text: this.text.substring(currentIndex, match.index),
+                        highlighted: false,
+                    });
+                }
+
+                parts.push({
+                    text: match[0],
+                    highlighted: true,
+                });
+
+                currentIndex = regExp.lastIndex;
+                match = regExp.exec(this.text);
+            }
+
+            if (currentIndex < this.text.length) {
+                parts.push({
+                    text: this.text.substring(currentIndex),
+                    highlighted: false,
+                });
+            }
+
+            return parts;
         },
 
         // Remove regex special characters from search string
         escapeRegExp(string) {
+            const escapeRegex = RegExp.escape ?? ((value) => value.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'));
+
             if (Context.app.adminEsEnable) {
-                // remove simple query string syntax
-                return string
-                    .replace(/[+-.*~"|()]/g, '')
-                    .replace(/ AND | and | OR | or |  +/g, ' ')
-                    .replace(/[?^${}[\]\\]/g, '\\$&'); // $& means the whole matched string
+                string = string
+                    .replace(/(?<!\S)[+-]|[+-](?!\S)/g, '') // remove + and - which are not part of a word
+                    .replace(/[.*~"|()]/g, '') // remove special elasticsearch characters
+                    .replace(/\b(AND|OR)\b/gi, ' ') // remove AND and OR bool operators
+                    .replace(/\s+/g, ' '); // replace multiple spaces with single space
+
+                return escapeRegex(string);
             }
 
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+            return escapeRegex(string);
         },
     },
 };

@@ -126,21 +126,20 @@ class ServiceController
         name: 'api.service.uninstall',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
-        $service = $this->loadServiceByName($serviceName, $context);
+        $integrationId = $this->extractIntegrationIdOrFail($context);
+        $service = $this->loadServiceByNameAndIntegrationId($serviceName, $integrationId, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->appLifecycle->delete($service->getId(), ['id' => $service->getId()], $context);
+            $this->appLifecycle->uninstall($service->getId(), ['id' => $service->getId()], $context);
         });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
@@ -210,7 +209,7 @@ class ServiceController
             new EqualsFilter('name', $serviceName),
         )->addAssociation('app.acl_role');
 
-        $service = $this->appRepository->search($criteria, $context)->first();
+        $service = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
         if ($service === null) {
             throw ServiceException::notFound('name', $serviceName);
@@ -233,7 +232,7 @@ class ServiceController
         $criteria->addFilter(new EqualsFilter('selfManaged', true))
             ->addAssociation('app.acl_role');
 
-        return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(fn (AppEntity $app) => [
+        return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(static fn (AppEntity $app) => [
             'id' => $app->getId(),
             'name' => $app->getName(),
             'label' => $app->getTranslated()['label'] ?? $app->getName(),
@@ -265,6 +264,17 @@ class ServiceController
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+        $criteria->setLimit(1);
+
+        return $this->appRepository->search($criteria, $context)->getEntities()->first();
+    }
+
+    private function loadServiceByNameAndIntegrationId(string $name, string $integrationId, Context $context): ?AppEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
         $criteria->setLimit(1);
 

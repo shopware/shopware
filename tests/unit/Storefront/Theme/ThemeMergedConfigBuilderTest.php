@@ -4,12 +4,13 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -29,10 +30,12 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 #[CoversClass(ThemeMergedConfigBuilder::class)]
 class ThemeMergedConfigBuilderTest extends TestCase
 {
-    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
+    private StorefrontPluginRegistry&Stub $storefrontPluginRegistryMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
-    private EntityRepository&MockObject $themeRepositoryMock;
+    /**
+     * @var EntityRepository<ThemeCollection>&Stub
+     */
+    private EntityRepository&Stub $themeRepositoryMock;
 
     private ThemeMergedConfigBuilder $mergedConfigBuilder;
 
@@ -40,8 +43,8 @@ class ThemeMergedConfigBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
-        $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
+        $this->storefrontPluginRegistryMock = static::createStub(StorefrontPluginRegistry::class);
+        $this->themeRepositoryMock = static::createStub(EntityRepository::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -75,8 +78,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
         $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $this->context);
     }
@@ -191,7 +193,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
                 // If the criteria has a filter for a specific ID, find that theme
                 $filters = $criteria->getFilters();
                 foreach ($filters as $filter) {
-                    if ($filter instanceof \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter
+                    if ($filter instanceof EqualsFilter
                         && $filter->getField() === 'id') {
                         $searchId = (string) $filter->getValue();
                         $foundTheme = $themeCollection->get($searchId);

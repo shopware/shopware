@@ -98,7 +98,7 @@
 
                                 {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_label will be moved to add-product-by-number.html.twig #}
                                 {% block page_checkout_cart_add_product_label %}
-                                    <label class="visually-hidden" for="addProductInput">
+                                    <label class="mb-1" for="addProductInput">
                                         {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
                                     </label>
                                 {% endblock %}
@@ -112,10 +112,7 @@
                                                    name="number"
                                                    class="form-control"
                                                    id="addProductInput"
-                                                   placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
-                                                   aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
-                                                   aria-describedby="addProductButton"
-                                                   required="required">
+                                                   placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}">
                                         {% endblock %}
 
                                         {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_submit will be moved to add-product-by-number.html.twig #}
@@ -141,8 +138,15 @@
                               action="{{ path('frontend.checkout.configure') }}"
                               data-form-auto-submit="true">
                             {% block page_checkout_cart_shipping_costs_trigger %}
-                                {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-                                {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                                {% if feature('v6.8.0.0') %}
+                                    {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_PHYSICAL') %}
+                                    {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithProductType(PHYSICAL_STATE) %}
+                                {% else %}
+                                    {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                                    {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                                {% endif %}
+
+                                {% if hasPhysicalItem %}
                                     <a class="btn btn-link cart-shipping-costs-btn"
                                        data-bs-toggle="collapse"
                                        href="#collapseShippingCost"
@@ -251,9 +255,6 @@
                                    class="form-control"
                                    placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
                                    id="addPromotionInput"
-                                   aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
-                                   aria-describedby="addPromotion"
-                                   required="required"
                                    aria-invalid="false">
                         {% endblock %}
 

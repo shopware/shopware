@@ -49,7 +49,7 @@ class EntityDefinitionServiceTest extends TestCase
                     }
                 }
 
-                if (\count($missingIdFields) !== 0) {
+                if ($missingIdFields !== []) {
                     $problematicEntities[] = $entityDefinition->getEntityName();
                 }
             }

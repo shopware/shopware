@@ -118,7 +118,7 @@ trait SalesChannelApiTestBehaviour
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        if (empty($contextToken)) {
+        if ($contextToken === '') {
             throw new \RuntimeException('Cannot login with the given credential account');
         }
 

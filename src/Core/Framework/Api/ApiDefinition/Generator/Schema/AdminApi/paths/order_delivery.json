@@ -60,6 +60,10 @@
                                         "description": "This is the state column within the order delivery database table. There should be no need to change it from the default.",
                                         "type": "string",
                                         "default": "stateId"
+                                    },
+                                    "internalComment": {
+                                        "description": "An optional internal comment that will be saved with the state transition.",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"

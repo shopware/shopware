@@ -4,8 +4,6 @@
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
-{% block base_navigation %}{% endblock %}
-
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
 
@@ -28,7 +26,7 @@
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'danger',
-                        content: snippetName|trans({'%field%': fieldName})|sw_sanitize
+                        content: snippetName|trans(violation.parameters|merge({'%field%': fieldName}))|sw_sanitize
                     } %}
                 {% endfor %}
             {% endblock %}
@@ -53,14 +51,14 @@
                                 {% set revocationSnippetKey = 'checkout.confirmRevocationNoticeModal' %}
 
                                 {{ revocationSnippetKey|trans({
-                                    '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
+                                    '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
                                     '%revocationModalTagClose%': '</button>'
                                 })|raw }}
                             </p>
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control %}
-                            {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
+                            {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                             {% set tosModalTagClose = '</button>' %}
 
                             <div class="form-check">
@@ -128,8 +126,15 @@
                     {% endblock %}
 
                     {% block page_checkout_confirm_shipping %}
-                        {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-                        {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                        {% if feature('v6.8.0.0') %}
+                            {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_PHYSICAL') %}
+                            {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithProductType(PHYSICAL_STATE) %}
+                        {% else %}
+                            {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                            {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                        {% endif %}
+
+                        {% if hasPhysicalItem %}
                             <div class="col-sm-6 confirm-shipping">
                                 {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
                             </div>
@@ -175,38 +180,6 @@
             } %}
         {% endblock %}
     {% endblock %}
-
-    {% if feature('v6.8.0.0') and page.showRevocation() %}
-        <div class="confirm-tos-bottom">
-        {% block page_checkout_confirm_revocation_section %}
-        {% block page_checkout_confirm_revocation_section_header %}
-            <div class="card-title">
-                {{ 'checkout.confirmDigitalContentHeader'|trans|sw_sanitize }}
-            </div>
-        {% endblock %}
-
-        {% block page_checkout_confirm_revocation_section_control %}
-        <div class="form-check mt-2 mb-4">
-            {% block page_checkout_confirm_revocation_section_control_bottom %}
-                <input type="checkbox"
-                       class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
-                       required="required"
-                       id="revocation"
-                       form="confirmOrderForm"
-                       name="revocation">
-            {% endblock %}
-
-            {% block page_checkout_confirm_revocation_section_control_label_bottom %}
-                <label for="revocation"
-                       class="checkout-confirm-revocation-label custom-control-label">
-                    {{ 'checkout.confirmRevocationTerms'|trans() }}
-                </label>
-            {% endblock %}
-        </div>
-        {% endblock %}
-        {% endblock %}
-        </div>
-    {% endif %}
 {% endblock %}
 
 {% block page_checkout_additional %}
@@ -266,14 +239,14 @@
                             {% set revocationSnippetKey = 'checkout.confirmRevocationNoticeModal' %}
 
                             {{ revocationSnippetKey|trans({
-                                '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
+                                '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
                                 '%revocationModalTagClose%': '</button>'
                             })|raw }}
                             </p>
                     {% endblock %}
 
                     {% block page_checkout_confirm_tos_auto_confirmed_bottom %}
-                        {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
+                        {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                         {% set tosModalTagClose = '</button>' %}
 
                         <div class="form-check mt-2 ">
@@ -299,10 +272,10 @@
                     {% endblock %}
                 </div>
             {% else %}
-                {% set tosModalTagOpen = '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
+                {% set tosModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                 {% set tosModalTagClose = '</button>' %}
 
-                {% set revocationModalTagOpen = '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') }) ~ '">' %}
+                {% set revocationModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') }) ~ '">' %}
                 {% set revocationModalTagClose = '</button>' %}
 
                 {% block page_checkout_confirm_tos_auto_confirmed_text %}
@@ -316,13 +289,39 @@
                     </div>
                 {% endblock %}
             {% endif %}
+
+            {% if page.showRevocation() %}
+                {% block page_checkout_confirm_revocation_section_control %}
+                    <div class="form-check mt-2 mb-4">
+                        {% block page_checkout_confirm_revocation_section_control_bottom %}
+                            <input type="checkbox"
+                                   class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
+                                   required="required"
+                                   id="revocation"
+                                   form="confirmOrderForm"
+                                   name="revocation">
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_revocation_section_control_label_bottom %}
+                            <label for="revocation"
+                                   class="checkout-confirm-revocation-label custom-control-label">
+                                {{ 'checkout.confirmRevocationTerms'|trans() }}
+                            </label>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+            {% endif %}
         {% endif %}
     {% endblock %}
 
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
+              data-checkout-customer-storage="true"
+              data-checkout-customer-storage-options="{{ { customerId: context.customer.id }|json_encode }}"
               data-form-preserver="true"
+              data-form-preserver-options="{{ { ignoredElementNames: [constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY'), 'tos'] }|json_encode }}"
               data-form-handler="true"
               data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
               data-form-add-history="true"

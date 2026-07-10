@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
@@ -28,7 +29,8 @@ class CartPersister extends AbstractCartPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
-        private readonly CartCompressor $compressor
+        private readonly CartCompressor $compressor,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -63,6 +65,7 @@ class CartPersister extends AbstractCartPersister
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
         $cart->setErrorHash($cart->getErrors()->getUniqueHash());
+        $cart->setPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -90,11 +93,19 @@ class CartPersister extends AbstractCartPersister
             return;
         }
 
-        $sql = <<<'SQL'
-            INSERT INTO `cart` (`token`, `payload`, `rule_ids`, `compressed`, `created_at`)
-            VALUES (:token, :payload, :rule_ids, :compressed, :now)
-            ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
-        SQL;
+        if (!$cart->isPersisted()) {
+            $sql = <<<'SQL'
+                INSERT INTO `cart` (`token`, `payload`, `rule_ids`, `compressed`, `created_at`)
+                VALUES (:token, :payload, :rule_ids, :compressed, :now)
+                ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
+            SQL;
+        } else {
+            $sql = <<<'SQL'
+                UPDATE `cart`
+                SET `payload` = :payload, `rule_ids` = :rule_ids, `compressed` = :compressed, `created_at` = :now
+                WHERE `token` = :token;
+            SQL;
+        }
 
         [$compressed, $serializeCart] = $this->serializeCart($cart);
 
@@ -102,13 +113,18 @@ class CartPersister extends AbstractCartPersister
             'token' => $cart->getToken(),
             'payload' => $serializeCart,
             'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
-            'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'compressed' => $compressed,
         ];
 
         $query = new RetryableQuery($this->connection, $this->connection->prepare($sql));
-        $query->execute($data);
+        $result = $query->execute($data);
 
+        if ($cart->isPersisted() && (int) $result === 0) {
+            return;
+        }
+
+        $cart->setPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
@@ -131,8 +147,7 @@ class CartPersister extends AbstractCartPersister
 
     public function prune(int $days): void
     {
-        $time = new \DateTime();
-        $time->modify(\sprintf('-%d day', $days));
+        $time = $this->clock->now()->modify(\sprintf('-%d day', $days));
 
         $stmt = $this->connection->prepare(<<<'SQL'
             DELETE FROM cart

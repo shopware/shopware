@@ -40,6 +40,7 @@ class OrderActionController extends AbstractController
     #[Route(
         path: '/api/_action/order/{orderId}/state/{transition}',
         name: 'api.action.order.state_machine.order.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_POST]
     )]
     public function orderStateTransition(
@@ -49,7 +50,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order', $orderId, $documentTypes, $skipSentDocuments);
         } else {
@@ -80,6 +81,7 @@ class OrderActionController extends AbstractController
     #[Route(
         path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}',
         name: 'api.action.order.state_machine.order_transaction.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_transaction:update']],
         methods: [Request::METHOD_POST]
     )]
     public function orderTransactionStateTransition(
@@ -89,7 +91,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_transaction', $orderTransactionId, $documentTypes, $skipSentDocuments);
         } else {
@@ -120,6 +122,7 @@ class OrderActionController extends AbstractController
     #[Route(
         path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}',
         name: 'api.action.order.state_machine.order_delivery.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_delivery:update']],
         methods: [Request::METHOD_POST]
     )]
     public function orderDeliveryStateTransition(
@@ -129,7 +132,7 @@ class OrderActionController extends AbstractController
         Context $context
     ): JsonResponse {
         $documentTypes = $request->request->all('documentTypes');
-        if (\count($documentTypes) > 0) {
+        if ($documentTypes !== []) {
             $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
             $documentIds = $this->getDocumentIds('order_delivery', $orderDeliveryId, $documentTypes, $skipSentDocuments);
         } else {

@@ -4,22 +4,28 @@ namespace Shopware\Tests\Unit\Core\Framework\App\InAppPurchases\Payload;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayload;
 use Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayloadService;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * @internal
@@ -37,14 +43,8 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testRequest(): void
     {
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider
-            ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
-
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->once())
-            ->method('createRequestOptions')
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
                 'request_type' => [
@@ -65,11 +65,9 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR);
 
-        static::assertNotFalse($responseContent);
-
         $filterPayloadService = new InAppPurchasesPayloadService(
             $appPayloadServiceHelper,
-            new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
+            new Client(['handler' => new MockHandler([new Response(SymfonyResponse::HTTP_OK, [], $responseContent)])]),
         );
 
         $url = 'https://example.com/filter-mah-features';
@@ -98,14 +96,8 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testRequestReceiveFilteredResponse(): void
     {
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider
-            ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
-
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->once())
-            ->method('createRequestOptions')
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
                 'request_type' => [
@@ -125,11 +117,9 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR);
 
-        static::assertNotFalse($responseContent);
-
         $filterPayloadService = new InAppPurchasesPayloadService(
             $appPayloadServiceHelper,
-            new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
+            new Client(['handler' => new MockHandler([new Response(SymfonyResponse::HTTP_OK, [], $responseContent)])]),
         );
 
         $url = 'https://example.com/filter-mah-features';
@@ -157,19 +147,18 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testAppSecretMissing(): void
     {
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn(ShopId::v2($this->ids->get('shop-id')));
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
-            $definitionInstanceRegistry,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://test-shop.com'
+            'https://test-shop.com',
+            new MockClock(),
         );
 
         $app = new AppEntity();
@@ -184,14 +173,11 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             new Client(),
         );
 
-        $payload = $this->createMock(InAppPurchasesPayload::class);
-
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App secret is missing');
+        $this->expectExceptionObject(AppException::registrationFailed('Test app', 'App secret is missing'));
 
         $filterPayloadService->request(
             'https://example.com/filter-mah-features',
-            $payload,
+            static::createStub(InAppPurchasesPayload::class),
             $app,
             Context::createDefaultContext()
         );
@@ -199,9 +185,8 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testClientIsUsingPostMethod(): void
     {
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->once())
-            ->method('createRequestOptions')
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
                 'request_type' => [
@@ -214,18 +199,28 @@ class InAppPurchasesPayloadServiceTest extends TestCase
                 'body' => '{"purchases":["purchase-1","purchase-2"]}',
             ]));
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $client = $this->createMock(Client::class);
-        $client
-            ->expects($this->once())
-            ->method('post')
-            ->willReturn(new Response(200, [], \json_encode([
-                'purchases' => [
-                    'purchase-2',
-                ],
-            ], \JSON_THROW_ON_ERROR)));
+        $responseContent = \json_encode([
+            'purchases' => [
+                'purchase-2',
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $mockHandler = new MockHandler([new Response(SymfonyResponse::HTTP_OK, [], $responseContent)]);
+        $handlerStack = HandlerStack::create($mockHandler);
+
+        $history = [];
+        $handlerStack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $handlerStack]);
 
         $inAppPayloadServiceHelper = new InAppPurchasesPayloadService($appPayloadServiceHelper, $client);
         $inAppPayloadServiceHelper->request('https://example.com', new InAppPurchasesPayload([]), new AppEntity(), Context::createDefaultContext());
+
+        static::assertIsArray($history);
+        static::assertCount(1, $history);
+
+        $request = $history[0]['request'];
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame('POST', $request->getMethod());
     }
 }

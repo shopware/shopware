@@ -7,7 +7,6 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import ErrorResolver from 'src/core/data/error-resolver.data';
 import EntityDefinition from 'src/core/data/entity-definition.data';
 import EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 function createService() {

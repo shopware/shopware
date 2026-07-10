@@ -26,9 +26,13 @@ export default {
             isLoading: true,
             cacheInfo: null,
             processes: {
+                refreshCache: false,
                 normalClearCache: false,
                 updateIndexes: false,
             },
+            /**
+             * @deprecated tag:v6.8.0 - will be removed.
+             */
             processSuccess: {
                 normalClearCache: false,
                 updateIndexes: false,
@@ -100,8 +104,8 @@ export default {
             }
 
             return this.cacheInfo.httpCache
-                ? this.$tc('sw-settings-cache.toolbar.httpCacheOn')
-                : this.$tc('sw-settings-cache.toolbar.httpCacheOff');
+                ? this.$t('sw-settings-cache.toolbar.httpCacheOn')
+                : this.$t('sw-settings-cache.toolbar.httpCacheOff');
         },
 
         environmentValue() {
@@ -111,8 +115,8 @@ export default {
             }
 
             return this.cacheInfo.environment === 'dev'
-                ? this.$tc('sw-settings-cache.toolbar.environmentDev')
-                : this.$tc('sw-settings-cache.toolbar.environmentProd');
+                ? this.$t('sw-settings-cache.toolbar.environmentDev')
+                : this.$t('sw-settings-cache.toolbar.environmentProd');
         },
 
         cacheAdapterValue() {
@@ -127,11 +131,11 @@ export default {
         indexingMethodOptions() {
             return [
                 {
-                    label: this.$tc('sw-settings-cache.section.indexingModeOptionSkipLabel'),
+                    label: this.$t('sw-settings-cache.section.indexingModeOptionSkipLabel'),
                     value: 'skip',
                 },
                 {
-                    label: this.$tc('sw-settings-cache.section.indexingModeOptionOnlyLabel'),
+                    label: this.$t('sw-settings-cache.section.indexingModeOptionOnlyLabel'),
                     value: 'only',
                 },
             ];
@@ -151,6 +155,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed.
+         */
         resetButtons() {
             this.processSuccess = {
                 normalClearCache: false,
@@ -168,34 +175,34 @@ export default {
 
         clearDataCache() {
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-cache.notifications.clearDataCache.started'),
+                message: this.$t('sw-settings-cache.notifications.clearDataCache.started'),
             });
 
-            this.processes.normalClearCache = true;
+            this.processes.refreshCache = true;
             this.cacheApiService
                 .delayed()
                 .then(() => {
                     this.processSuccess.normalClearCache = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-cache.notifications.clearDataCache.success'),
+                        message: this.$t('sw-settings-cache.notifications.clearDataCache.success'),
                     });
                 })
                 .catch(() => {
                     this.processSuccess.normalClearCache = false;
 
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-cache.notifications.clearDataCache.error'),
+                        message: this.$t('sw-settings-cache.notifications.clearDataCache.error'),
                     });
                 })
                 .finally(() => {
-                    this.processes.normalClearCache = false;
+                    this.processes.refreshCache = false;
                 });
         },
 
         clearCache() {
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
+                message: this.$t('sw-settings-cache.notifications.clearCache.started'),
             });
 
             this.processes.normalClearCache = true;
@@ -205,14 +212,14 @@ export default {
                     this.processSuccess.normalClearCache = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
+                        message: this.$t('sw-settings-cache.notifications.clearCache.success'),
                     });
                 })
                 .catch(() => {
                     this.processSuccess.normalClearCache = false;
 
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                        message: this.$t('sw-settings-cache.notifications.clearCache.error'),
                     });
                 })
                 .finally(() => {
@@ -237,7 +244,7 @@ export default {
                 .then(() => {
                     this.decreaseWorkerPoll();
                     this.createNotificationInfo({
-                        message: this.$tc('sw-settings-cache.notifications.index.started'),
+                        message: this.$t('sw-settings-cache.notifications.index.started'),
                     });
                     this.processSuccess.updateIndexes = true;
                 })
@@ -263,7 +270,6 @@ export default {
         },
 
         createOnlySelection(only) {
-            // eslint-disable-next-line no-restricted-syntax
             for (const [
                 indexerName,
                 updaters,
@@ -273,7 +279,6 @@ export default {
                 }
 
                 const selectedUpdaters = [];
-                // eslint-disable-next-line no-restricted-syntax
                 for (const updater of updaters) {
                     if (this.indexerSelection.indexOf(updater) > -1) {
                         selectedUpdaters.push(updater);

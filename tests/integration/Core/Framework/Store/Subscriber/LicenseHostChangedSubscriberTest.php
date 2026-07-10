@@ -36,6 +36,9 @@ class LicenseHostChangedSubscriberTest extends TestCase
         $user = $userRepository->search(new Criteria(), $context)->first();
         static::assertInstanceOf(UserEntity::class, $user);
 
+        // We create two new admin users
+        $expectedAdminUsersCount = \count($this->fetchAllAdminUsers()) + 2;
+
         $userRepository->create([
             [
                 'localeId' => $user->getLocaleId(),
@@ -60,7 +63,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         $systemConfigService->set('core.store.licenseHost', 'otherhost');
         $adminUsers = $this->fetchAllAdminUsers();
 
-        static::assertCount(3, $adminUsers);
+        static::assertCount($expectedAdminUsersCount, $adminUsers);
         foreach ($adminUsers as $adminUser) {
             static::assertNull($adminUser['store_token']);
         }

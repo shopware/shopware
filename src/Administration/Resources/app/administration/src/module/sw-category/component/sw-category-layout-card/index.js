@@ -58,20 +58,28 @@ export default {
 
     computed: {
         pageTypeTitle() {
-            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
+            const fallback = this.$t('sw-category.base.cms.defaultDesc');
             if (!this.cmsPage) {
                 return fallback;
             }
 
             const pageType = this.cmsPageTypeService.getType(this.cmsPage.type);
-            return pageType ? this.$tc(this.cmsPageTypeService.getType(this.cmsPage.type).title) : fallback;
+            return pageType ? this.$t(this.cmsPageTypeService.getType(this.cmsPage.type).title) : fallback;
+        },
+
+        pageName() {
+            if (!this.cmsPage) {
+                return this.$t('sw-category.base.cms.defaultTitle');
+            }
+
+            return this.cmsPage.translated?.name ?? this.cmsPage.name;
         },
     },
 
     methods: {
         onLayoutSelect(selectedLayout) {
             this.category.cmsPageId = selectedLayout;
-            this.category.slotConfig = null;
+            this.resetSlotConfig();
         },
 
         onLayoutReset() {
@@ -102,6 +110,14 @@ export default {
 
         closeLayoutModal() {
             this.showLayoutSelectionModal = false;
+        },
+
+        resetSlotConfig() {
+            this.category.slotConfig = null;
+
+            this.category.translations?.forEach((translation) => {
+                translation.slotConfig = null;
+            });
         },
     },
 };

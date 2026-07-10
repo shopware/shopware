@@ -13,6 +13,7 @@
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -46,6 +47,7 @@
             <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\IdTokenParser"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService">
@@ -54,10 +56,12 @@
 
         <service id="Shopware\Core\Framework\Sso\LoginResponseService">
             <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Sso\SsoService">
             <argument type="service" id="Shopware\Core\Framework\Sso\Config\LoginConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Sso\StateValidator" />

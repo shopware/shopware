@@ -81,7 +81,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $postWriteEventDispatched = false;
 
-        $this->dispatcher->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postWriteEventDispatched): void {
+        $this->dispatcher->addListener(PostWriteValidationEvent::class, static function (PostWriteValidationEvent $event) use (&$postWriteEventDispatched): void {
             $postWriteEventDispatched = true;
 
             static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -98,8 +98,8 @@ class EntityWriteGatewayTest extends TestCase
             100,
             new FakeConnection([]),
             $this->dispatcher,
-            $this->createMock(ExceptionHandlerRegistry::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(ExceptionHandlerRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 
@@ -123,7 +123,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
+            static::createStub(ValidatorInterface::class),
             $this->createGateway()
         );
 

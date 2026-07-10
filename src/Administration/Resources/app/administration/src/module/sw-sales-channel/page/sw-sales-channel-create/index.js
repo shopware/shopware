@@ -41,9 +41,11 @@ export default {
                 Shopware.Store.get('context').resetLanguageToDefault();
             }
 
+            this.isLoading = true;
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
+            this.salesChannel.measurementUnits = this.createEmptyMeasurementUnits();
 
             // Set default language from admin context
             const defaultLanguageId = Shopware.Store.get('context').api.languageId;
@@ -53,12 +55,23 @@ export default {
             this.setMeasurementUnits()
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                        message: this.$t('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
                     });
                 })
                 .finally(() => {
                     this.$super('createdComponent');
+                    this.isLoading = false;
                 });
+        },
+
+        createEmptyMeasurementUnits() {
+            return {
+                system: null,
+                units: {
+                    length: null,
+                    weight: null,
+                },
+            };
         },
 
         async setMeasurementUnits() {

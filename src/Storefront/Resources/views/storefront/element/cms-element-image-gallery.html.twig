@@ -19,6 +19,19 @@
         {% set navigationDots = sliderConfig.navigationDots.value %}
         {% set galleryPosition = sliderConfig.galleryPosition.value %}
         {% set verticalAlign = sliderConfig.verticalAlign.value %}
+
+        {% set containerClass = '' %}
+        {% if minHeight and verticalAlign %}
+            {% set containerClass = ' has-vertical-align is-align-' %}
+            {% if verticalAlign == "center" %}
+                {% set containerClass = containerClass ~ 'center' %}
+            {% elseif verticalAlign == "flex-end" %}
+                {% set containerClass = containerClass ~ 'bottom' %}
+            {% else %}
+                {% set containerClass = containerClass ~ 'top' %}
+            {% endif %}
+        {% endif %}
+
         {% set zoomImageContainerSelector = sliderConfig.zoomImageContainerSelector.value %}
         {% set arViewerBaseOptions = {
             snippets: {
@@ -51,7 +64,7 @@
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
-        {% set fallbackImageTitle = '' %}
+        {% set fallbackImageTitle = page.product.translated.name|default('') %}
     {% endif %}
 
     {# @var mediaItems \Shopware\Core\Content\Media\MediaCollection #}
@@ -194,7 +207,7 @@
                                     {% if imageCount > 1 %}
                                         {% block element_image_gallery_inner_multiple_slides %}
                                             {% block element_image_gallery_inner_container %}
-                                                <div class="gallery-slider-container"
+                                                <div class="gallery-slider-container{{ containerClass }}"
                                                      data-gallery-slider-container="true">
                                                     {% block element_image_gallery_inner_items %}
                                                         {% for image in mediaItems %}
@@ -229,6 +242,20 @@
                                                                                             data-spatial-gallery-slider-viewer
                                                                                             data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                         ></canvas>
+                                                                                        <div class="spatial-anim-container position-absolute start-0 top-0 p-1 gap-2 d-flex">
+                                                                                            <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                                <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                                </svg>
+                                                                                                {% sw_icon 'play' %}
+                                                                                                {% sw_icon 'pause' %}
+                                                                                            </button>
+                                                                                            <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                                <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                                </select>
+                                                                                                {% sw_icon 'arrow-head-down' %}
+                                                                                            </span>
+                                                                                        </div>
                                                                                         <span
                                                                                             class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                             data-spatial-movement-note
@@ -276,7 +303,8 @@
                                                                             {% block element_image_gallery_inner_item_video %}
                                                                                 {% set attributes = attributes|merge({ controls: true }) %}
 
-                                                                                {% if isProduct %}
+                                                                                {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                                     {% set attributes = attributes|merge({ itemprop: 'video' }) %}
                                                                                 {% endif %}
 
@@ -298,16 +326,17 @@
                                                                                     {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
                                                                                 {% endif %}
 
-                                                                                {% if isProduct %}
-                                                                                    {% if loop.first %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                    {% else %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                    {% endif %}
+                                                                                {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                                 {% endif %}
 
                                                                                 {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
                                                                                     {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
+                                                                                {% endif %}
+
+                                                                                {% if not loop.first %}
+                                                                                    {% set attributes = attributes|merge({ loading: 'lazy' }) %}
                                                                                 {% endif %}
 
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -389,7 +418,22 @@
                                                                         <canvas
                                                                                 data-spatial-gallery-slider-viewer
                                                                                 data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                        ></canvas>
+                                                                        >
+                                                                        </canvas>
+                                                                        <div class="spatial-anim-container position-absolute start-0 top-0 p-1 gap-2 d-flex">
+                                                                            <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                </svg>
+                                                                                {% sw_icon 'play' %}
+                                                                                {% sw_icon 'pause' %}
+                                                                            </button>
+                                                                            <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                </select>
+                                                                                {% sw_icon 'arrow-head-down' %}
+                                                                            </span>
+                                                                        </div>
                                                                         <span
                                                                                 class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                 data-spatial-movement-note
@@ -436,7 +480,8 @@
                                                             {% block element_image_gallery_inner_single_video %}
                                                                 {% set attributes = attributes|merge({ controls: true }) %}
 
-                                                                {% if isProduct %}
+                                                                {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                     {% set attributes = attributes|merge({ itemprop: 'video' }) %}
                                                                 {% endif %}
 
@@ -458,25 +503,32 @@
                                                                     {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
                                                                 {% endif %}
 
-                                                                {% if isProduct %}
-                                                                    {% if loop.first %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                    {% else %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                    {% endif %}
+                                                                {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
+                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                 {% endif %}
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                     media: mediaItems|first,
-                                                                    attributes: attributes
+                                                                    attributes: attributes,
+                                                                    sizes: {
+                                                                        xs: '100vw',
+                                                                        sm: '100vw',
+                                                                        md: '100vw',
+                                                                        lg: '60vw',
+                                                                        xl: '50vw',
+                                                                        xxl: '800px'
+                                                                    }
                                                                 } %}
                                                             {% endblock %}
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}
-                                                    {% sw_icon 'placeholder' style {
-                                                        'size': 'fluid'
-                                                    } %}
+                                                    {% block element_image_gallery_inner_image_placeholder %}
+                                                        {% sw_icon 'placeholder' style {
+                                                            'size': 'fluid'
+                                                        } %}
+                                                    {% endblock %}
                                                 {% endif %}
                                             </div>
                                         {% endblock %}
@@ -533,7 +585,8 @@
                                                                         {% endblock %}
                                                                     {% elseif image.getMediaType().getName() === 'VIDEO' %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_video %}
-                                                                            {% if isProduct %}
+                                                                            {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                            {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                                 {% set attributes = attributes|merge({ itemprop: 'video' }) %}
                                                                             {% endif %}
 
@@ -544,18 +597,17 @@
 
                                                                             <div class="gallery-slider-thumbnails-play-button"></div>
                                                                         {% endblock %}
-                                                                    {% else %}
+                                                                        {% else %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_image %}
                                                                             {% set attributes = attributes|merge({
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
 
-                                                                            {% if isProduct %}
-                                                                                {% if loop.first %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                {% else %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                {% endif %}
+                                                                            {# No native loading="lazy" here: in the "left" layout the thumbnail strip is a vertical tiny-slider, whose init waits for every slide image to report `complete` before firing `onInit`. Browsers that defer lazy images (Firefox, Safari) never complete them, so `onInit` never runs and the `is-loading` class is never removed. #}
+
+                                                                            {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                            {% if not feature('JSON_LD_DATA') and isProduct %}
+                                                                                {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
@@ -764,6 +816,20 @@
                                                                                                                     data-spatial-zoom-gallery-slider-viewer
                                                                                                                     data-spatial-zoom-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                                             ></canvas>
+                                                                                                            <div class="spatial-anim-container position-absolute start-0 top-0 p-3 gap-2 d-flex">
+                                                                                                                <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                                                    <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                                                        <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                                                    </svg>
+                                                                                                                    {% sw_icon 'play' %}
+                                                                                                                    {% sw_icon 'pause' %}
+                                                                                                                </button>
+                                                                                                                <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                                                    <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                                                    </select>
+                                                                                                                    {% sw_icon 'arrow-head-down' %}
+                                                                                                                </span>
+                                                                                                            </div>
                                                                                                             <span
                                                                                                                     class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                                                     data-spatial-movement-note

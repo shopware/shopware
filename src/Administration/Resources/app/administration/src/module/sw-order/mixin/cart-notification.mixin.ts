@@ -16,7 +16,6 @@ export default Mixin.register(
     defineComponent({
         computed: {
             cartErrors(): CartError[] {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 return Store.get('swOrder').cartErrors;
             },
         },

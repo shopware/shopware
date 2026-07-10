@@ -119,7 +119,7 @@ class ImportExportService
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('file');
-        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
+        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         if (!$current instanceof ImportExportLogEntity) {
             throw ImportExportException::logEntityNotFound($logId);
         }
@@ -221,7 +221,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
+            $logData = array_filter($logEntity->jsonSerialize(), static fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 

@@ -40,7 +40,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,7 +50,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('after-sales')]
 class DocumentGeneratorTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
@@ -306,7 +304,9 @@ class DocumentGeneratorTest extends TestCase
             false,
             new Request([
                 'extension' => PdfRenderer::FILE_EXTENSION,
-            ]),
+            ], [], [], [], [], [
+                'HTTP_CONTENT_LENGTH' => \strlen('this is some content'),
+            ], 'this is some content'),
             true,
             DocumentException::generationError('Parameter "fileName" is missing'),
         ];
@@ -406,8 +406,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         $this->documentGenerator->readDocument($documentId, $this->context);
     }
@@ -416,8 +415,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = static::getContainer()->get('shopware.filesystem.private');
@@ -580,8 +578,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateWithInvalidType(): void
     {
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage('Unable to find a document renderer with type "invalid_type"');
+        $this->expectExceptionObject(DocumentException::invalidDocumentRenderer('invalid_type'));
         $this->documentGenerator->generate('invalid_type', [], $this->context);
     }
 
@@ -615,7 +612,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertCount(2, $documents);
 
-        $invoiceDoc = $documents->filter(function (DocumentEntity $doc) {
+        $invoiceDoc = $documents->filter(static function (DocumentEntity $doc) {
             $type = $doc->getDocumentType();
             static::assertNotNull($type);
 
@@ -627,7 +624,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceDoc->getDocumentMediaFile());
         static::assertSame(PdfRenderer::FILE_EXTENSION, $invoiceDoc->getDocumentMediaFile()->getFileExtension());
 
-        $deliveryDoc = $documents->filter(function (DocumentEntity $doc) {
+        $deliveryDoc = $documents->filter(static function (DocumentEntity $doc) {
             $type = $doc->getDocumentType();
             static::assertNotNull($type);
 
@@ -734,7 +731,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document?->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertInstanceOf(StreamInterface::class, $media);
     }
@@ -780,7 +777,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document?->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }
@@ -899,7 +896,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }

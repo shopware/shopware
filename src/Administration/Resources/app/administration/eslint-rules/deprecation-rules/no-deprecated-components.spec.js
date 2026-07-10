@@ -4,8 +4,10 @@ const RuleTester = require('eslint').RuleTester
 const rule = require('./no-deprecated-components');
 
 const tester = new RuleTester({
-    parser: require.resolve('vue-eslint-parser'),
-    parserOptions: { ecmaVersion: 2015 }
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
+        ecmaVersion: 2015,
+    },
 })
 
 tester.run('no-deprecated-components', rule, {

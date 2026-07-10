@@ -23,15 +23,18 @@ readonly class Metric
 
     /**
      * @internal
+     *
+     * @param array<non-empty-string, string|bool|float|int> $processedLabels labels already validated by MetricLabelProcessor
      */
     public static function fromConfigured(
         ConfiguredMetric $configuredMetric,
-        MetricConfig $metricConfig
+        MetricConfig $metricConfig,
+        array $processedLabels,
     ): self {
         return new self(
             name: $configuredMetric->name,
             value: $configuredMetric->value instanceof \Closure ? \call_user_func($configuredMetric->value) : $configuredMetric->value,
-            labels: self::removeDisallowedLabels($configuredMetric, $metricConfig),
+            labels: $processedLabels,
             type: $metricConfig->type,
             description: $metricConfig->description,
             unit: $metricConfig->unit,
@@ -54,20 +57,6 @@ readonly class Metric
             labels: $data['labels'] ?? [],
             description: $data['description'] ?? '',
             unit: $data['unit'] ?? null,
-        );
-    }
-
-    /**
-     * @return array<non-empty-string, string|bool|float|int>
-     */
-    private static function removeDisallowedLabels(ConfiguredMetric $metric, MetricConfig $metricConfig): array
-    {
-        $allowedLabels = $metricConfig->labels;
-
-        return array_filter(
-            $metric->labels,
-            fn (mixed $value, string $name) => isset($allowedLabels[$name]) && \in_array($value, $allowedLabels[$name]['allowed_values'] ?? [], true),
-            \ARRAY_FILTER_USE_BOTH
         );
     }
 }

@@ -10,14 +10,16 @@ use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +28,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -37,6 +41,18 @@ class FileSaverTest extends TestCase
 
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
     final public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
+    private const SAFE_SVG = <<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <rect width="10" height="10" fill="#000"/>
+</svg>
+SVG;
+    private const UNSAFE_SVG = <<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)">
+    <text x="0" y="10">Hello</text>
+</svg>
+SVG;
 
     /**
      * @var EntityRepository<MediaCollection>
@@ -92,6 +108,62 @@ class FileSaverTest extends TestCase
 
         $path = $media->getPath();
         static::assertTrue($this->getPublicFilesystem()->has($path));
+    }
+
+    public function testPersistSafeSvgToMedia(): void
+    {
+        $filesystem = new Filesystem();
+        $tempFile = $filesystem->tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+        $filesystem->dumpFile($tempFile, self::SAFE_SVG);
+
+        $fileSize = filesize($tempFile);
+        static::assertIsInt($fileSize);
+        $mediaFile = new MediaFile($tempFile, 'image/svg+xml', 'svg', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+
+        try {
+            $this->fileSaver->persistFileToMedia($mediaFile, 'safe-svg', $mediaId, $context);
+        } finally {
+            $filesystem->remove($tempFile);
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
+    }
+
+    public function testPersistUnsafeSvgToMediaThrowsException(): void
+    {
+        $filesystem = new Filesystem();
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+        $filesystem->dumpFile($tempFile, self::UNSAFE_SVG);
+
+        $fileSize = filesize($tempFile);
+        static::assertIsInt($fileSize);
+        $mediaFile = new MediaFile($tempFile, 'image/svg+xml', 'svg', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+
+        try {
+            $this->expectExceptionObject(MediaException::invalidFile(
+                'SVG files with active content are not allowed.'
+                . \PHP_EOL . 'Event handler attributes not allowed: onload'
+                . \PHP_EOL . 'Attributes not allowed: onload'
+            ));
+
+            $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
+        } finally {
+            $filesystem->remove($tempFile);
+        }
     }
 
     public function testPersistFileWithUpperCaseExtension(): void
@@ -267,8 +339,7 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
 
         $context = Context::createDefaultContext();
 
@@ -373,8 +444,7 @@ class FileSaverTest extends TestCase
         $path = $png->getPath();
         $this->getPublicFilesystem()->write($path, 'some content');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The provided file name is too long, the maximum length is 255 characters.');
+        $this->expectExceptionObject(MediaException::fileNameTooLong(255));
 
         $this->fileSaver->persistFileToMedia(
             $mediaFile,
@@ -387,8 +457,7 @@ class FileSaverTest extends TestCase
     public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void
     {
         $id = Uuid::randomHex();
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::mediaNotFound($id)->getMessage());
+        $this->expectExceptionObject(MediaException::mediaNotFound($id));
 
         $context = Context::createDefaultContext();
         $this->fileSaver->renameMedia($id, 'new file destination', $context);
@@ -398,8 +467,7 @@ class FileSaverTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::missingFile($id)->getMessage());
+        $this->expectExceptionObject(MediaException::missingFile($id));
 
         $context = Context::createDefaultContext();
 
@@ -435,8 +503,7 @@ class FileSaverTest extends TestCase
 
         $this->mediaRepository->create($data, $context);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "original_media.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('original_media', 'png'));
 
         $this->fileSaver->renameMedia($ids->get('old'), 'original_media', $context);
     }
@@ -582,12 +649,95 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($location));
     }
 
+    public function testRenameMediaRenamesWithMultipleThumbnailsSharingPath(): void
+    {
+        $context = Context::createDefaultContext();
+        $id = Uuid::randomHex();
+        $thumbnail1Id = Uuid::randomHex();
+        $thumbnail2Id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'fileName' => 'testRenameMediaRenamesOldFileAndThumbnails',
+            'fileExtension' => 'png',
+            'path' => 'media/test.png',
+            'thumbnails' => [
+                [
+                    'id' => $thumbnail1Id,
+                    'width' => 100,
+                    'height' => 100,
+                    'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 100,
+                        'height' => 100,
+                    ],
+                ],
+                [
+                    'id' => $thumbnail2Id,
+                    'width' => 100,
+                    'height' => 100,
+                    'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 111,
+                        'height' => 111,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->mediaRepository->create([$data], $context);
+
+        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        static::assertInstanceOf(MediaEntity::class, $png);
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $dispatcher->dispatch(new UpdateMediaPathEvent([$png->getId()]));
+        $dispatcher->dispatch(new UpdateThumbnailPathEvent([$thumbnail1Id]));
+        $dispatcher->dispatch(new UpdateThumbnailPathEvent([$thumbnail2Id]));
+
+        static::getContainer()->get(MediaIndexer::class)->handle(new MediaIndexingMessage([$png->getId()]));
+
+        $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        static::assertInstanceOf(MediaEntity::class, $png);
+
+        static::assertNotNull($png->getThumbnails());
+        static::assertCount(2, $png->getThumbnails());
+
+        $this->getPublicFilesystem()->write($png->getPath(), 'test file content');
+
+        static::assertNotNull($png->getThumbnails()->first()?->getPath());
+        static::assertNotNull($png->getThumbnails()->last()?->getPath());
+        static::assertNotSame($png->getThumbnails()->first()->getId(), $png->getThumbnails()->last()->getId());
+        static::assertSame($png->getThumbnails()->first()->getPath(), $png->getThumbnails()->last()->getPath());
+        $oldThumbnailPath = $png->getThumbnails()->first()->getPath();
+
+        $this->getPublicFilesystem()->write($oldThumbnailPath, 'test file content');
+
+        $this->fileSaver->renameMedia($png->getId(), 'new destination', $context);
+
+        static::assertFalse($this->getPublicFilesystem()->has($oldThumbnailPath));
+
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+
+        static::assertNotNull($updatedMedia?->getThumbnails());
+        static::assertCount(2, $updatedMedia->getThumbnails());
+
+        static::assertNotNull($updatedMedia->getThumbnails()->first()?->getPath());
+        static::assertNotNull($updatedMedia->getThumbnails()->last()?->getPath());
+        static::assertNotSame($updatedMedia->getThumbnails()->first()->getId(), $updatedMedia->getThumbnails()->last()->getId());
+        static::assertSame($updatedMedia->getThumbnails()->first()->getPath(), $updatedMedia->getThumbnails()->last()->getPath());
+
+        $newThumbnailPath = $updatedMedia->getThumbnails()->first()->getPath();
+        static::assertNotSame($oldThumbnailPath, $newThumbnailPath);
+
+        static::assertTrue($this->getPublicFilesystem()->has($newThumbnailPath));
+    }
+
     public function testRenameMediaMakesRollbackOnFailure(): void
     {
         $png = $this->getPng();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName())->getMessage());
+        $this->expectExceptionObject(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName()));
 
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);
@@ -604,23 +754,19 @@ class FileSaverTest extends TestCase
             ->method('update')
             ->willThrowException(new \Exception());
 
-        $allowed = static::getContainer()->getParameter('shopware.filesystem.allowed_extensions');
-        $allowedPrivate = static::getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
-        static::assertIsList($allowedPrivate);
-
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get(ThumbnailService::class),
+            static::getContainer()->get(FileContentValidationStrategy::class),
             static::getContainer()->get(MetadataLoader::class),
             static::getContainer()->get(TypeDetector::class),
-            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(MediaLocationBuilder::class),
             static::getContainer()->get(AbstractMediaPathStrategy::class),
-            $allowed,
-            $allowedPrivate
+            static::getContainer()->get(MediaFileCleanupService::class),
+            static::getContainer()->get(MediaFileExtensionValidator::class),
+            new NativeClock()
         );
 
         $mediaPath = $png->getPath();
@@ -647,8 +793,7 @@ class FileSaverTest extends TestCase
         $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::fileExtensionNotSupported($mediaId, 'php')->getMessage());
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         $this->mediaRepository->create(
             [
@@ -678,7 +823,7 @@ class FileSaverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerClosure = function () use (&$eventDidRun): void {
+        $listenerClosure = static function () use (&$eventDidRun): void {
             $eventDidRun = true;
         };
 

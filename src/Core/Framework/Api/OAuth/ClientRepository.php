@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -16,10 +17,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ClientRepository implements ClientRepositoryInterface
 {
     /**
+     * Bcrypt hash for a static dummy secret used to equalize timing when no client is found.
+     */
+    private const DUMMY_CLIENT_SECRET_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     public function validateClient(string $clientIdentifier, ?string $clientSecret, ?string $grantType): bool
@@ -30,16 +38,20 @@ class ClientRepository implements ClientRepositoryInterface
 
         if ($grantType === 'client_credentials' && $clientSecret !== null) {
             $values = $this->getByAccessKey($clientIdentifier);
+
             if (!$values) {
-                return false;
+                // Prevent client enumeration via timing attacks by always running password_verify().
+                $values = ['secret_access_key' => self::DUMMY_CLIENT_SECRET_HASH];
+                $clientSecret = 'invalid-secret-will-always-fail';
             }
 
             if (!password_verify($clientSecret, (string) $values['secret_access_key'])) {
                 return false;
             }
 
-            if (!empty($values['id'])) {
-                $this->updateLastUsageDate($values['id']);
+            $id = $values['id'] ?? '';
+            if ($id !== '') {
+                $this->updateLastUsageDate($id);
             }
 
             return true;
@@ -59,16 +71,21 @@ class ClientRepository implements ClientRepositoryInterface
             return new ApiClient('administration', true, confidential: false);
         }
 
-        $values = $this->getByAccessKey($clientIdentifier);
+        $accessKey = $this->getByAccessKey($clientIdentifier);
 
-        if (!$values) {
+        if ($accessKey === null) {
+            // Prevent client enumeration via timing attacks by always running password_verify().
+            password_verify('invalid-secret-will-always-fail', self::DUMMY_CLIENT_SECRET_HASH);
+
             return null;
         }
+
+        $userId = $accessKey['user_id'] ?? null;
 
         return new ApiClient(
             $clientIdentifier,
             true,
-            name: $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']),
+            name: $userId !== null ? Uuid::fromBytesToHex($userId) : $accessKey['label'] ?? '',
             confidential: true
         );
     }
@@ -77,13 +94,13 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $this->connection->update(
             'integration',
-            ['last_usage_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+            ['last_usage_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
             ['id' => $integrationId]
         );
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array{user_id: string, secret_access_key: string}|array{id: string, label: string, secret_access_key: string}|null
      */
     private function getByAccessKey(string $clientIdentifier): ?array
     {
@@ -101,15 +118,19 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array{user_id: string, secret_access_key: string}|null
      */
     private function getUserByAccessKey(string $clientIdentifier): ?array
     {
-        $key = $this->connection->fetchAssociative('SELECT user_id, secret_access_key FROM user_access_key WHERE access_key = :accessKey', [
-            'accessKey' => $clientIdentifier,
-        ]);
+        /** @var array{user_id: string, secret_access_key: string}|false $key */
+        $key = $this->connection->fetchAssociative(
+            'SELECT user_id, secret_access_key
+             FROM user_access_key
+             WHERE access_key = :accessKey',
+            ['accessKey' => $clientIdentifier]
+        );
 
-        if (!$key) {
+        if ($key === false) {
             return null;
         }
 
@@ -117,15 +138,20 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array{id: string, label: string, secret_access_key: string}|null
      */
     private function getIntegrationByAccessKey(string $clientIdentifier): ?array
     {
-        $key = $this->connection->fetchAssociative('SELECT integration.id AS id, label, app.active AS active, secret_access_key FROM integration LEFT JOIN app ON app.integration_id = integration.id WHERE access_key = :accessKey', [
-            'accessKey' => $clientIdentifier,
-        ]);
+        /** @var array{id: string, label: string, active: '1'|'0', secret_access_key: string}|false $key */
+        $key = $this->connection->fetchAssociative(
+            'SELECT integration.id AS id, label, app.active AS active, secret_access_key
+             FROM integration
+             LEFT JOIN app ON app.integration_id = integration.id
+             WHERE access_key = :accessKey',
+            ['accessKey' => $clientIdentifier]
+        );
 
-        if (!$key) {
+        if ($key === false) {
             return null;
         }
 
@@ -134,6 +160,7 @@ class ClientRepository implements ClientRepositoryInterface
         if ($key['active'] === '0') {
             return null;
         }
+        unset($key['active']);
 
         return $key;
     }

@@ -100,6 +100,11 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         loginUserWithPassword() {
             this.isLoading = true;
 
@@ -145,7 +150,7 @@ export default Component.wrapComponentConfig({
             }
 
             // Reload the page to ensure all non-login initializers are executed
-            window.location.reload();
+            this._reloadPage();
         },
 
         onBackToLogin() {

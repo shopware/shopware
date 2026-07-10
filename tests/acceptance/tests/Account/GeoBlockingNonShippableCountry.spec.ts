@@ -3,7 +3,13 @@ import { satisfies } from 'compare-versions';
 
 test(
     'Customers is able to to register an account and selects a non-shippable country for their billing address.',
-    { tag: ['@Account', '@Address', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
+    },
     async ({
         StorefrontAccountLogin,
         StorefrontAccount,
@@ -33,7 +39,7 @@ test(
             await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
             await StorefrontAccountLogin.countryInput.selectOption({ label: registrationData.country });
             await ShopCustomer.expects(
-                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
+                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country),
             ).toBeDisabled();
         });
 
@@ -64,12 +70,18 @@ test(
             TestDataService.addCreatedRecord('customer', customerId);
             await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'Customers is not able to set new shipping address with a non-shippable country.',
-    { tag: ['@Account', '@Address', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
+    },
     async ({
         IdProvider,
         ShopCustomer,
@@ -93,7 +105,7 @@ test(
             company: 'shopware',
             department: 'Operations',
             street: 'Ebbinghof 10',
-            zipCode: '48624',
+            zipcode: '48624',
             city: 'Schöppingen',
             country: nonShippableCountry.name,
         };
@@ -120,11 +132,11 @@ test(
             await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
             await ShopCustomer.attemptsTo(AddNewAddress(address));
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(
-                address.firstName + ' ' + address.lastName
+                address.firstName + ' ' + address.lastName,
             );
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.street);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.city);
-            await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.zipCode);
+            await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.zipcode);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.country);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.company);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.department);
@@ -139,5 +151,5 @@ test(
                 await ShopCustomer.expects(StorefrontAccountAddresses.availableAddressesUseAsShippingAddress).toBeDisabled();
             }
         });
-    }
+    },
 );

@@ -28,7 +28,7 @@ class CartItemRemoveRouteTest extends TestCase
         $cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+            ->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $cart = new Cart('test');
         $lineItem = new LineItem('test', 'test');
@@ -41,8 +41,8 @@ class CartItemRemoveRouteTest extends TestCase
             ->method('save');
 
         $route = new CartItemRemoveRoute(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(CartCalculator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(CartCalculator::class),
             $persister,
             $cartLocker
         );
@@ -50,7 +50,7 @@ class CartItemRemoveRouteTest extends TestCase
         $route->remove(
             new Request(['ids' => ['test']]),
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 }

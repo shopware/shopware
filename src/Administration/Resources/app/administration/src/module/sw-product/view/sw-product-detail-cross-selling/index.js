@@ -20,7 +20,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -56,10 +55,10 @@ export default {
 
         onAddCrossSellingTooltipMessage() {
             if (this.isSystemDefaultLanguage) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
-            return this.$tc('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
+            return this.$t('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
 
         assetFilter() {

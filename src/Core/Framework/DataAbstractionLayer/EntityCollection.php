@@ -170,7 +170,7 @@ class EntityCollection extends Collection
 
         $values = [];
         foreach ($this->elements as $element) {
-            if (empty($fields)) {
+            if ($fields === []) {
                 $values[$element->getUniqueIdentifier()] = $element->getCustomFields();
 
                 continue;

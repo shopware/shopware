@@ -6,11 +6,11 @@ use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\FooBarBundle;
+use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\GizmoBundle;
 use SwagTestPlugin\SwagTestFake;
 use SwagTestPlugin\SwagTestPlugin;
 use SwagTestWithBundle\SwagTestWithBundle;
@@ -26,7 +26,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
     public function testNoPlugins(): void
     {
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, []);
+        $loader = $this->createKernelPluginLoaderWithPlugins([]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertEmpty($loader->getPluginInfos());
@@ -36,7 +36,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testNoKernelPluginsWithoutInit(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
 
         static::assertCount(1, $loader->getPluginInfos());
         static::assertEmpty($loader->getPluginInstances()->all());
@@ -45,7 +45,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testKernelPluginsAfterInit(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertCount(1, $loader->getPluginInfos());
@@ -61,7 +61,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $active->setBaseClass('SomeNotExistingBaseClass');
 
         $plugins = [$active->jsonSerialize()];
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
+        $loader = $this->createKernelPluginLoaderWithPlugins($plugins);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertCount(1, $loader->getPluginInfos());
@@ -76,7 +76,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $active->setManagedByComposer(true);
         $plugins = [$active->jsonSerialize()];
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
+        $loader = $this->createKernelPluginLoaderWithPlugins($plugins);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertCount(1, $loader->getPluginInfos());
@@ -90,10 +90,9 @@ class StaticKernelPluginLoaderTest extends TestCase
         unset($active['autoload']);
         $plugins = [$active];
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
+        $loader = $this->createKernelPluginLoaderWithPlugins($plugins);
 
-        $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin "SwagTestPlugin". Reason: Unable to register plugin "SwagTestPlugin\SwagTestPlugin" in autoload. Required property `autoload` missing.');
+        $this->expectExceptionObject(PluginException::kernelPluginLoaderError('SwagTestPlugin', 'Unable to register plugin "SwagTestPlugin\SwagTestPlugin" in autoload. Required property `autoload` missing.'));
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -103,17 +102,16 @@ class StaticKernelPluginLoaderTest extends TestCase
         $active->setAutoload([]);
         $plugins = [$active->jsonSerialize()];
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
+        $loader = $this->createKernelPluginLoaderWithPlugins($plugins);
 
-        $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin "SwagTestPlugin". Reason: Unable to register plugin "SwagTestPlugin\SwagTestPlugin" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.');
+        $this->expectExceptionObject(PluginException::kernelPluginLoaderError('SwagTestPlugin', 'Unable to register plugin "SwagTestPlugin\SwagTestPlugin" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.'));
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
     public function testGetPluginInstance(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertCount(1, $loader->getPluginInfos());
@@ -127,7 +125,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testGetPluginInstanceNotActive(): void
     {
         $pluginData = $this->getInstalledInactivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$pluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$pluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertCount(1, $loader->getPluginInfos());
@@ -142,10 +140,10 @@ class StaticKernelPluginLoaderTest extends TestCase
     {
         $projectDir = TEST_PROJECT_DIR;
 
-        $loader = new StaticKernelPluginLoader($this->classLoader);
+        $loader = $this->createKernelPluginLoaderWithOptionalPluginDirectory();
         static::assertSame($projectDir . '/custom/plugins', $loader->getPluginDir($projectDir));
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, 'foo/bar');
+        $loader = $this->createKernelPluginLoaderWithOptionalPluginDirectory('foo/bar');
         static::assertSame($projectDir . '/foo/bar', $loader->getPluginDir($projectDir));
     }
 
@@ -153,23 +151,23 @@ class StaticKernelPluginLoaderTest extends TestCase
     {
         $projectDir = TEST_PROJECT_DIR;
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, $projectDir . '/custom/plugins');
+        $loader = $this->createKernelPluginLoaderWithOptionalPluginDirectory($projectDir . '/custom/plugins');
         static::assertSame($projectDir . '/custom/plugins', $loader->getPluginDir($projectDir));
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, '/foo/bar');
+        $loader = $this->createKernelPluginLoaderWithOptionalPluginDirectory('/foo/bar');
         static::assertSame('/foo/bar', $loader->getPluginDir($projectDir));
     }
 
     public function testGetClassLoader(): void
     {
-        $loader = new StaticKernelPluginLoader($this->classLoader);
+        $loader = $this->createKernelPluginLoaderWithOptionalPluginDirectory();
         static::assertSame($this->classLoader, $loader->getClassLoader());
     }
 
     public function testGetBundlesNoInit(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
 
         $bundles = iterator_to_array($loader->getBundles());
 
@@ -178,7 +176,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
     public function testGetBundlesNoPlugins(): void
     {
-        $loader = new StaticKernelPluginLoader($this->classLoader);
+        $loader = $this->createKernelPluginLoaderWithOptionalPluginDirectory();
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles());
@@ -190,7 +188,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testGetBundles(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles());
@@ -206,9 +204,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
         $activePluginDataWithUnneededBundles = $this->getActivePluginWithBundle()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [
-            $activePluginData, $activePluginDataWithUnneededBundles,
-        ]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData, $activePluginDataWithUnneededBundles]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
@@ -224,7 +220,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testGetBundlesNoActive(): void
     {
         $pluginData = $this->getInstalledInactivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$pluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$pluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles());
@@ -239,17 +235,16 @@ class StaticKernelPluginLoaderTest extends TestCase
         /** @phpstan-ignore argument.type (for test purpose) */
         $plugin->setBaseClass(SwagTestFake::class);
 
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$plugin->jsonSerialize()]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$plugin->jsonSerialize()]);
 
-        $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin "SwagTestPlugin". Reason: Plugin class "SwagTestPlugin\SwagTestFake" must extend "Shopware\Core\Framework\Plugin"');
+        $this->expectExceptionObject(PluginException::kernelPluginLoaderError('SwagTestPlugin', 'Plugin class "SwagTestPlugin\SwagTestFake" must extend "Shopware\Core\Framework\Plugin"'));
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
     public function testBuildNoInitShouldNotChangeContainer(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
 
         $emptyContainer = new ContainerBuilder();
         $container = new ContainerBuilder();
@@ -263,7 +258,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testBuildInactivePluginShouldNotChangeContainer(): void
     {
         $pluginData = $this->getInstalledInactivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$pluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$pluginData]);
 
         $emptyContainer = new ContainerBuilder();
         $container = new ContainerBuilder();
@@ -277,7 +272,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testBuild(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $container = new ContainerBuilder();
@@ -292,7 +287,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testBuildWithExistingDefinition(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $container = new ContainerBuilder();
@@ -326,7 +321,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/src',
         ], false);
 
-        $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$plugin->jsonSerialize()], $classLoader);
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -342,10 +337,9 @@ class StaticKernelPluginLoaderTest extends TestCase
             ],
         ]);
 
-        $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin "SwagTestPlugin". Reason: Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR);
+        $this->expectExceptionObject(PluginException::kernelPluginLoaderError('SwagTestPlugin', 'Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR));
 
-        $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$plugin->jsonSerialize()], $classLoader);
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -365,7 +359,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/src',
         ], false);
 
-        $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$plugin->jsonSerialize()], $classLoader);
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -386,7 +380,25 @@ class StaticKernelPluginLoaderTest extends TestCase
             TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/components',
         ], false);
 
-        $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
+        $loader = $this->createKernelPluginLoaderWithPlugins([$plugin->jsonSerialize()], $classLoader);
         $loader->initializePlugins(TEST_PROJECT_DIR);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $plugins
+     */
+    private function createKernelPluginLoaderWithPlugins(array $plugins, ?ClassLoader $classLoader = null): StaticKernelPluginLoader
+    {
+        if ($classLoader === null) {
+            $classLoader = $this->classLoader;
+        }
+
+        /** @phpstan-ignore argument.type (For test purposes it is enough to not provide fully fledged plugin information) */
+        return new StaticKernelPluginLoader($classLoader, plugins: $plugins);
+    }
+
+    private function createKernelPluginLoaderWithOptionalPluginDirectory(?string $pluginDirectory = null): StaticKernelPluginLoader
+    {
+        return new StaticKernelPluginLoader($this->classLoader, $pluginDirectory);
     }
 }

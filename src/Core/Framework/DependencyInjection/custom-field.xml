@@ -31,5 +31,12 @@
             <tag name="kernel.event_subscriber"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
+
+        <service id="Shopware\Core\System\CustomField\CustomFieldSetPersister">
+            <argument type="service" id="custom_field_set.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="custom_field_set_relation.repository"/>
+            <argument type="service" id="custom_field.repository"/>
+        </service>
     </services>
 </container>

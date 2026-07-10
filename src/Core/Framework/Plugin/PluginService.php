@@ -57,7 +57,7 @@ class PluginService
             $info = $pluginFromFileSystem->getComposerPackage();
 
             $autoload = $info->getAutoload();
-            if (empty($autoload) || (empty($autoload['psr-4']) && empty($autoload['psr-0']))) {
+            if ($autoload === [] || (empty($autoload['psr-4']) && empty($autoload['psr-0']))) {
                 $errors->add(new PluginComposerJsonInvalidException(
                     $pluginPath . '/composer.json',
                     ['Neither a PSR-4 nor PSR-0 autoload information is given.']
@@ -129,7 +129,7 @@ class PluginService
 
         // delete plugins, which are in storage but not in filesystem anymore
         $deletePluginIds = $installedPlugins->getIds();
-        if (\count($deletePluginIds) !== 0) {
+        if ($deletePluginIds !== []) {
             $deletePlugins = [];
             foreach ($deletePluginIds as $deletePluginId) {
                 $deletePlugins[] = ['id' => $deletePluginId];
@@ -200,7 +200,7 @@ class PluginService
 
         $manufacturerAuthors = array_filter($composerAuthors, static fn (array $author): bool => ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER);
 
-        if (empty($manufacturerAuthors)) {
+        if ($manufacturerAuthors === []) {
             $manufacturerAuthors = $composerAuthors;
         }
 

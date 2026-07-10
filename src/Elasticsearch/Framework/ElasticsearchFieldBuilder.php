@@ -5,11 +5,57 @@ namespace Shopware\Elasticsearch\Framework;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
-use Shopware\Elasticsearch\Product\CustomFieldUpdater;
+use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
 
 #[Package('inventory')]
 class ElasticsearchFieldBuilder
 {
+    /**
+     * Lowercase normalizer applied to every keyword field so case folding is
+     * consistent across the index.
+     */
+    public const NORMALIZER_LOWERCASE = 'sw_lowercase_normalizer';
+
+    /**
+     * BM25 similarity profile with length normalisation enabled (`b=0.75`).
+     * Applied to the `.search` subfield of long-form text fields where document
+     * length should temper TF.
+     */
+    public const SIMILARITY_LENGTH_NORM = 'sw_length_norm';
+
+    /**
+     * Whitespace-only analyzer (whitespace tokenize + lowercase). The default
+     * for `.exact` subfields and for the language-agnostic `.search` subfield.
+     */
+    public const ANALYZER_WHITESPACE = 'sw_whitespace_analyzer';
+
+    /**
+     * N-gram analyzer for the `.ngram` subfield. Substring matching for prefix
+     * and partial-token queries. Min/max grams configured via
+     * `SHOPWARE_ES_NGRAM_MIN_GRAM` / `SHOPWARE_ES_NGRAM_MAX_GRAM`.
+     */
+    public const ANALYZER_NGRAM = 'sw_ngram_analyzer';
+
+    /**
+     * Index-side technical-term analyzer (`word_delimiter_graph` chain) for
+     * SKU-style fields where letter↔digit boundaries and `,` / `-` / `.`
+     * separators must survive into the inverted index.
+     */
+    public const ANALYZER_WHITESPACE_TECHNICAL_INDEX = 'sw_whitespace_technical_term_index_analyzer';
+
+    /**
+     * Search-side counterpart of {@see self::ANALYZER_WHITESPACE_TECHNICAL_INDEX}
+     * with the cross-position deduplication filter appended.
+     */
+    public const ANALYZER_WHITESPACE_TECHNICAL_SEARCH = 'sw_whitespace_technical_term_search_analyzer';
+
+    /**
+     * Common prefix of every language-agnostic analyzer this bundle ships.
+     * Used by {@see self::translated()} to derive language-specific analyzer
+     * names by string substitution (`sw_whitespace_…` → `sw_<lang>_…`).
+     */
+    public const ANALYZER_WHITESPACE_PREFIX = 'sw_whitespace_';
+
     /**
      * @internal
      *
@@ -25,7 +71,17 @@ class ElasticsearchFieldBuilder
     /**
      * @param array<string, mixed> $fieldConfig
      *
-     * @description This method is used to build the mapping for translated fields
+     * @description Build the mapping for translated fields.
+     *
+     * The method inspects the `.search` subfield analyzer of the input config
+     * and substitutes the appropriate language-specific analyzer per language:
+     *
+     * - {@see self::ANALYZER_WHITESPACE} → the language analyzer (e.g. `sw_german_analyzer`).
+     * - {@see self::ANALYZER_WHITESPACE_TECHNICAL_INDEX} → the language-specific
+     *   word_delimiter pair (e.g. `sw_german_word_delimiter_{index,search}_analyzer`),
+     *   when the language has them defined.
+     *
+     * `.exact` and `.ngram` subfields are language-agnostic and stay untouched.
      *
      * @return array{properties: array<string, mixed>}
      */
@@ -42,9 +98,30 @@ class ElasticsearchFieldBuilder
 
             $languageFields[$languageId] = $fieldConfig;
 
-            if (\array_key_exists($locale, $this->languageAnalyzerMapping)) {
-                $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
+            if (!isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
+                continue;
             }
+
+            if (!\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+                continue;
+            }
+
+            $languageAnalyzer = $this->languageAnalyzerMapping[$locale];
+            $currentAnalyzer = $languageFields[$languageId]['fields']['search']['analyzer'];
+
+            if ($currentAnalyzer === self::ANALYZER_WHITESPACE_TECHNICAL_INDEX) {
+                $indexAnalyzer = $this->getTechnicalTermAnalyzer($languageAnalyzer, false);
+                $searchAnalyzer = $this->getTechnicalTermAnalyzer($languageAnalyzer, true);
+
+                if ($indexAnalyzer !== null && $searchAnalyzer !== null) {
+                    $languageFields[$languageId]['fields']['search']['analyzer'] = $indexAnalyzer;
+                    $languageFields[$languageId]['fields']['search']['search_analyzer'] = $searchAnalyzer;
+                }
+
+                continue;
+            }
+
+            $languageFields[$languageId]['fields']['search']['analyzer'] = $languageAnalyzer;
         }
 
         return ['properties' => $languageFields];
@@ -116,7 +193,7 @@ class ElasticsearchFieldBuilder
         ];
 
         foreach ($fieldMapping as $name => $type) {
-            $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
+            $esType = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($type);
 
             $mapping['properties'][$name] = $esType;
         }
@@ -126,5 +203,14 @@ class ElasticsearchFieldBuilder
         }
 
         return $mapping;
+    }
+
+    private function getTechnicalTermAnalyzer(string $analyzer, bool $searchAnalyzer): ?string
+    {
+        return match ($analyzer) {
+            'sw_english_analyzer' => $searchAnalyzer ? 'sw_english_technical_term_search_analyzer' : 'sw_english_technical_term_index_analyzer',
+            'sw_german_analyzer' => $searchAnalyzer ? 'sw_german_technical_term_search_analyzer' : 'sw_german_technical_term_index_analyzer',
+            default => null,
+        };
     }
 }

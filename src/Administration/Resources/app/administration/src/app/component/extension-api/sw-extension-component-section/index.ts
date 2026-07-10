@@ -56,14 +56,12 @@ export default Shopware.Component.wrapComponentConfig({
                 sections.forEach((section) => {
                     const debugArgs = [
                         'CORE',
-                        // eslint-disable-next-line max-len
                         `The extension "${section.extensionName}" uses a deprecated position identifier "${this.positionIdentifier}". ${this.deprecationMessage}`,
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
                         Shopware.Utils.debug.error(...debugArgs);
                     } else {
-                        // eslint-disable-next-line max-len
                         Shopware.Utils.debug.warn(...debugArgs);
                     }
                 });

@@ -43,6 +43,7 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     {
         return [
             DocumentType::INVOICE->value,
+            DocumentType::DELIVERY_NOTE->value,
         ];
     }
 

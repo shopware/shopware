@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { FILES } from '../../bundle.mjs';
 import { ReproductionExecutor } from '../base.mjs';
 import { prepareDirectSpec } from './spec-preparer.mjs';
-import { PhpunitRunner } from './phpunit-runner.mjs';
+import { runPhpunit } from './phpunit-runner.mjs';
 import { classifyPhpunitOutput } from './output-classifier.mjs';
 
 /**
@@ -14,7 +14,6 @@ import { classifyPhpunitOutput } from './output-classifier.mjs';
 export class DirectExecutor extends ReproductionExecutor {
   constructor() {
     super('direct');
-    this.phpunitRunner = new PhpunitRunner();
   }
 
   prepare(input) {
@@ -28,7 +27,7 @@ export class DirectExecutor extends ReproductionExecutor {
    */
   execute(context) {
     const { specPath, shop, plan, target } = context;
-    const output = this.phpunitRunner.runPhpunit(specPath, shop, plan, target);
+    const output = runPhpunit(specPath, shop, plan, target);
     if (output === null) {
       const reason = `generated test '${specPath}' not found`;
 

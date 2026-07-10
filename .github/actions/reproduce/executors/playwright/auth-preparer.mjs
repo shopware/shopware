@@ -14,32 +14,30 @@ const boilerplateDir = path.join(here, 'boilerplate');
  * Admin specs start logged in and Storefront specs may start with cookie consent accepted, keeping
  * generated reproduction code focused on the reported UI behavior.
  */
-export class PlaywrightAuthPreparer {
-  prepare(plan, target) {
-    if (plan.layer === 'admin-ui') {
-      const ok = ensureAdminState(appUrl(), { force: target !== 'builder' });
-      if (!ok) {
-        return {
-          blockedReason: 'the harness could not log in to the admin (env problem, not a reproduction result)',
-          evidence: { script_lang: 'ts', reporter_output: 'harness admin login failed' },
-        };
-      }
-
-      return { storageState: 'admin-state.json' };
+export function preparePlaywrightAuth(plan, target) {
+  if (plan.layer === 'admin-ui') {
+    const ok = ensureAdminState(appUrl(), { force: target !== 'builder' });
+    if (!ok) {
+      return {
+        blockedReason: 'the harness could not log in to the admin (env problem, not a reproduction result)',
+        evidence: { script_lang: 'ts', reporter_output: 'harness admin login failed' },
+      };
     }
 
-    if (plan.layer === 'storefront-ui' && plan.browser_state?.auto_cookie_consent !== false) {
-      const state = '.repro-storefront-state.json';
-      const consentStateScript = path.join(boilerplateDir, 'consent-state.mjs');
-      const consentState = spawnSync(process.execPath, [consentStateScript, appUrl(), state], {
-        stdio: 'ignore',
-      });
-
-      if (consentState.status === 0 && fs.existsSync(state)) {
-        return { storageState: state };
-      }
-    }
-
-    return { storageState: '' };
+    return { storageState: 'admin-state.json' };
   }
+
+  if (plan.layer === 'storefront-ui' && plan.browser_state?.auto_cookie_consent !== false) {
+    const state = '.repro-storefront-state.json';
+    const consentStateScript = path.join(boilerplateDir, 'consent-state.mjs');
+    const consentState = spawnSync(process.execPath, [consentStateScript, appUrl(), state], {
+      stdio: 'ignore',
+    });
+
+    if (consentState.status === 0 && fs.existsSync(state)) {
+      return { storageState: state };
+    }
+  }
+
+  return { storageState: '' };
 }

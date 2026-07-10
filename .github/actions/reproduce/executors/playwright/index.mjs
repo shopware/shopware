@@ -1,7 +1,7 @@
 import { ReproductionExecutor } from '../base.mjs';
 import { preparePlaywrightSpec } from './spec-preparer.mjs';
-import { PlaywrightAuthPreparer } from './auth-preparer.mjs';
-import { PlaywrightRunner } from './runner.mjs';
+import { preparePlaywrightAuth } from './auth-preparer.mjs';
+import { runPlaywright } from './runner.mjs';
 import { classifyPlaywrightReport } from './report-classifier.mjs';
 
 /**
@@ -13,8 +13,6 @@ import { classifyPlaywrightReport } from './report-classifier.mjs';
 export class PlaywrightExecutor extends ReproductionExecutor {
   constructor() {
     super('playwright');
-    this.authPreparer = new PlaywrightAuthPreparer();
-    this.runner = new PlaywrightRunner();
   }
 
   /**
@@ -31,7 +29,7 @@ export class PlaywrightExecutor extends ReproductionExecutor {
       };
     }
 
-    const auth = this.authPreparer.prepare(context.plan, context.target);
+    const auth = preparePlaywrightAuth(context.plan, context.target);
     if (auth.blockedReason) {
       return {
         blocked: this.blocked(context, {
@@ -45,7 +43,7 @@ export class PlaywrightExecutor extends ReproductionExecutor {
   }
 
   execute(context) {
-    return this.runner.run(context);
+    return runPlaywright(context);
   }
 
   /**

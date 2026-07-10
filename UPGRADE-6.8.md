@@ -259,6 +259,16 @@ shopware:
         compression_method: 'gzip'
 ```
 
+## Removed unused Composer dependencies
+
+Shopware no longer requires the following Composer packages:
+
+- `doctrine/inflector`
+- `symfony/monolog-bridge`
+- `symfony/proxy-manager-bridge`
+
+If your extension uses classes from one of these packages, declare the package explicitly in your extension's `composer.json`.
+
 ## Removed stored `mail_template_type.template_data`
 
 The deprecated `template_data` column on `mail_template_type` was removed.

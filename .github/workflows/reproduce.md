@@ -6,10 +6,10 @@ description: >
   exact bundle on the reported version AND on trunk and post the verdict — the agent decides no
   outcome. Compile with `.github/actions/reproduce/dev/compile.sh` (emits the committed .lock.yml).
 
-# /reproduce in an issue (body or comment), the ci:reproduce label, or manual dispatch. Collaborators only.
+# /sw-reproduce in an issue (body or comment), the ci:reproduce label, or manual dispatch. Collaborators only.
 on:
   slash_command:
-    name: reproduce
+    name: sw-reproduce
     events: [issues, issue_comment]
   label_command:
     name: ci:reproduce

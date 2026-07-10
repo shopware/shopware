@@ -658,7 +658,6 @@ class ProductRepositoryTest extends TestCase
         $product = $products->get($id);
 
         // check data loading is as expected
-        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame($id, $product->getId());
         static::assertSame('Test', $product->getName());
 
@@ -2451,7 +2450,6 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
 
         $product = $products->get($id);
-        static::assertNotNull($product);
 
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(1, $product->getPrices());
@@ -2492,7 +2490,6 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
 
         $product = $products->get($id);
-        static::assertNotNull($product);
 
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(2, $product->getPrices());
@@ -2536,7 +2533,6 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
 
         $product = $products->get($id);
-        static::assertNotNull($product);
 
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(3, $product->getPrices());

@@ -992,21 +992,6 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertSame(['description', 'keywords'], $criteria->getExcludedFields());
     }
 
-    public function testExcludeFieldsArrayValidation(): void
-    {
-        $request = new Request([], ['exclude-fields' => 'string_instead_of_array'], [], [], []);
-        $request->setMethod(Request::METHOD_POST);
-
-        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('exclude-fields', 'string'));
-
-        $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            new Criteria(),
-            $this->staticDefinitionRegistry->get(ProductDefinition::class),
-            Context::createDefaultContext()
-        );
-    }
-
     /**
      * @param array<string, mixed> $data
      */

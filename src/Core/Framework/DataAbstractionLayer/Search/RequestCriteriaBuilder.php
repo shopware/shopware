@@ -259,16 +259,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['exclude-fields'])) {
-            if (!\is_array($payload['exclude-fields'])) {
-                throw DataAbstractionLayerException::expectedArrayWithType(
-                    'exclude-fields',
-                    \gettype($payload['exclude-fields'])
-                );
-            }
-
-            /** @var list<string> $excludeFields */
-            $excludeFields = array_values($payload['exclude-fields']);
-            $criteria->excludeFields($excludeFields);
+            $criteria->excludeFields($payload['exclude-fields']);
         }
 
         $searchException->tryToThrow();

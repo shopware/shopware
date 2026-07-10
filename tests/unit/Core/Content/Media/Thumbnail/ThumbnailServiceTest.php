@@ -16,6 +16,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
+use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -500,6 +501,120 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertSame(0, $result);
         static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testGenerateDispatchesThumbnailGeneratedEvent(): void
+    {
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
+        $mediaFolderEntity = $this->createMediaFolderEntity();
+        $mediaFolderEntity->getConfiguration()->setThumbnailQuality(80);
+
+        $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->method('read')->willReturn($file);
+        $filesystemPublic->method('fileSize')->willReturn(100);
+
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $mediaThumbnailEntity->setMedia($mediaEntity);
+        $mediaCollection = new MediaCollection([$mediaEntity]);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+
+        $dispatchedEvents = [];
+        $dispatcher->expects($this->atLeastOnce())
+            ->method('dispatch')
+            ->willReturnCallback(function (object $event) use (&$dispatchedEvents) {
+                $dispatchedEvents[] = $event::class;
+
+                return $event;
+            });
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllKeyValue')
+            ->willReturnCallback(static function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
+                ];
+            });
+
+        $service = new ThumbnailService(
+            $this->thumbnailRepository,
+            $filesystemPublic,
+            $this->filesystemPrivate,
+            $this->mediaFolderRepository,
+            $dispatcher,
+            $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $connection,
+            new GdImageThumbnailProcessor(),
+        );
+
+        $result = $service->generate($mediaCollection, $this->context);
+
+        static::assertSame(1, $result);
+        static::assertContains(ThumbnailGeneratedEvent::class, $dispatchedEvents);
+    }
+
+    public function testGenerateCleansUpWrittenThumbnailsOnError(): void
+    {
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
+        $mediaFolderEntity = $this->createMediaFolderEntity();
+        $mediaFolderEntity->getConfiguration()->setThumbnailQuality(80);
+
+        $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
+        $deletedPaths = [];
+
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->method('read')->willReturn($file);
+        $filesystemPublic->method('fileSize')->willReturn(100);
+        $filesystemPublic->method('write')->willReturnCallback(static function (): void {});
+        $filesystemPublic->method('delete')
+            ->willReturnCallback(function (string $path) use (&$deletedPaths): void {
+                $deletedPaths[] = $path;
+            });
+
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $mediaThumbnailEntity->setMedia($mediaEntity);
+        $mediaCollection = new MediaCollection([$mediaEntity]);
+
+        $dispatchCount = 0;
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')
+            ->willReturnCallback(function (object $event) use (&$dispatchCount) {
+                ++$dispatchCount;
+                if ($event instanceof ThumbnailGeneratedEvent) {
+                    throw new \RuntimeException('Simulated post-processing failure');
+                }
+
+                return $event;
+            });
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllKeyValue')
+            ->willReturnCallback(static function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/thumbnail/test.png',
+                ];
+            });
+
+        $service = new ThumbnailService(
+            $this->thumbnailRepository,
+            $filesystemPublic,
+            $this->filesystemPrivate,
+            $this->mediaFolderRepository,
+            $dispatcher,
+            $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $connection,
+            new GdImageThumbnailProcessor(),
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Simulated post-processing failure');
+
+        $service->generate($mediaCollection, $this->context);
+
+        static::assertContains('/thumbnail/test.png', $deletedPaths);
     }
 
     public function testUpdateThumbnailsDeletesAllThumbnailsForNonImageLocalMedia(): void

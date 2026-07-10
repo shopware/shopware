@@ -13,6 +13,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeE
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
+use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -264,6 +265,7 @@ class ThumbnailService
 
         try {
             $event = new MediaPathChangedEvent($context);
+            $writtenPaths = [];
 
             foreach ($records as $record) {
                 $thumbnailSize = ['width' => $record['width'], 'height' => $record['height']];
@@ -274,12 +276,20 @@ class ThumbnailService
                 $path = $paths[$id];
 
                 $this->writeThumbnail($thumbnail, $media, $path, $config->getThumbnailQuality());
+                $writtenPaths[] = $path;
 
                 $fileSystem = $this->getFileSystem($media);
                 if ($imageSize === $thumbnailSize && $fileSystem->fileSize($media->getPath()) < $fileSystem->fileSize($path)) {
-                    // write file to file system
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
+
+                $this->dispatcher->dispatch(new ThumbnailGeneratedEvent(
+                    $media->getId(),
+                    $id,
+                    $path,
+                    $media->getMimeType() ?? '',
+                    $context,
+                ));
 
                 $event->thumbnailWithMimeType(
                     mediaId: $media->getId(),
@@ -290,9 +300,19 @@ class ThumbnailService
             }
 
             $this->dispatcher->dispatch($event);
-        } finally {
-            return $records;
+        } catch (\Throwable $e) {
+            $fileSystem = $this->getFileSystem($media);
+            foreach ($writtenPaths as $writtenPath) {
+                try {
+                    $fileSystem->delete($writtenPath);
+                } catch (\Throwable) {
+                }
+            }
+
+            throw $e;
         }
+
+        return $records;
     }
 
     private function ensureConfigIsLoaded(MediaEntity $media, Context $context): void

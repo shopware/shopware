@@ -52,9 +52,10 @@ class CacheResponseSubscriberTest extends TestCase
             'frontend.account.register.page',
             'frontend.account.customer-group-registration.page',
         ];
-        if (Feature::isActive('v6.8.0.0') && \in_array($routeName, $httpCacheableRoutes, true)) {
-            // These routes drop their _noStore attribute and opt into http caching with v6.8.0.0
-            // (see AuthController::loginPage and RegisterController), so no-store must be absent
+        $httpCacheEnabled = Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS');
+        if ($httpCacheEnabled && \in_array($routeName, $httpCacheableRoutes, true)) {
+            // With v6.8.0.0 or PERFORMANCE_TWEAKS these routes drop their _noStore attribute and opt
+            // into http caching (see AuthController::loginPage and RegisterController), so no-store must be absent
             static::assertFalse($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
 
             return;

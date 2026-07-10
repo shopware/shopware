@@ -1,0 +1,22 @@
+.account-guest-conversion {
+    &__title {
+        margin-bottom: $spacer;
+    }
+
+    &__subtitle {
+        color: $primary;
+    }
+
+    &__form-container {
+        border-top: $border-width $border-style $border-color;
+    }
+
+    &__form {
+        margin-top: $spacer;
+    }
+
+    &__required-info {
+        margin-top: $spacer-sm;
+        margin-bottom: $spacer;
+    }
+}

@@ -1,20 +1,16 @@
-name: Reproduce Issue Artifact Cleanup
+name: Reproduce Evidence Cleanup
 
-# Weekly cleanup of reproduction evidence whose issue has been closed for more than 7 days — repro
-# bundles (screenshots, videos, DB-adjacent logs) are large and only useful while the issue is open.
-# Two stores are cleaned: (1) uploaded Actions artifacts (deleted via the API — these also expire on
-# their own retention-days), and (2) the evidence branch (ci/repro-evidence), a git branch of
-# committed png/webm blobs that has NO auto-expiry and grows one commit per run. The branch is pruned
-# by rebuilding it as a fresh orphan (dropping closed-issue runs/) and force-pushing with lease, so
-# the dropped blobs become unreferenced and GitHub's periodic GC reclaims them.
+# Weekly prune of the reproduction evidence branch (ci/repro-evidence) — a git branch of committed
+# png/webm blobs (embedded in verdict comments via a stable raw URL) that has NO auto-expiry and
+# grows one commit per run. It is pruned by rebuilding it as a fresh orphan (dropping the runs/ dirs
+# whose issue has been closed > 7 days) and force-pushing with lease, so the dropped blobs become
+# unreferenced and GitHub's periodic GC reclaims them. (Uploaded Actions artifacts are not touched —
+# they self-expire on their retention-days.)
 #
-# How a stored item is traced back to its issue (both passes share this chain, so the cutoff can key
-# off the issue's closed_at):
-#   run title — reproduce.md sets run-name "Reproduce #<n>", so each run's display_title (fallback:
-#               name / head_branch) carries the issue number; parseIssueNumber extracts it with /#(\d+)/.
-#   artifacts — each artifact belongs to a workflow_run: artifact.workflow_run.id -> run -> title -> issue.
-#   evidence  — embed-evidence.sh commits blobs under runs/<RUN_ID>/*.{png,webm}, so the directory NAME
-#               is the run id: runs/<RUN_ID> -> run -> title -> issue -> closed_at.
+# How a runs/ dir is traced back to its issue: embed-evidence.sh commits blobs under
+# runs/<RUN_ID>/*.{png,webm}, so the directory NAME is the run id. reproduce.md sets run-name
+# "Reproduce #<n>", so the run's display_title (fallback: name) carries the issue number, extracted
+# with /#(\d+)/. Chain: runs/<RUN_ID> -> run -> title -> issue -> closed_at (the cutoff).
 on:
   schedule:
     - cron: '23 3 * * 1'   # weekly, Monday 03:23 UTC
@@ -27,7 +23,7 @@ on:
         type: boolean
 
 permissions:
-  actions: write
+  actions: read     # read run titles to map runs/<id> -> issue
   contents: write   # force-push the pruned evidence branch
   issues: read
 
@@ -36,74 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Delete closed-issue reproduction artifacts
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        env:
-          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            const { owner, repo } = context.repo;
-            const dryRun = String(process.env.DRY_RUN) === 'true';
-            const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-            const reproduceLock = '.github/workflows/reproduce.lock.yml';
-
-            const runCache = new Map();
-            const issueCache = new Map();
-            const deletions = [];
-            const skipped = { expired: 0, missingRun: 0, otherWorkflow: 0, noIssue: 0, openOrRecent: 0 };
-
-            const parseIssueNumber = (run) => {
-              const text = [run.display_title, run.name, run.head_branch].filter(Boolean).join('\n');
-              const match = text.match(/\breproduce\s+#(\d+)\b/i) || text.match(/(?:^|[^\d])#(\d+)(?:[^\d]|$)/);
-              return match ? Number(match[1]) : 0;
-            };
-            const getRun = async (id) => {
-              if (runCache.has(id)) return runCache.get(id);
-              try { const { data } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: id }); runCache.set(id, data); return data; }
-              catch (e) { core.warning(`run ${id}: ${e.message}`); runCache.set(id, null); return null; }
-            };
-            const getIssue = async (n) => {
-              if (issueCache.has(n)) return issueCache.get(n);
-              try { const { data } = await github.rest.issues.get({ owner, repo, issue_number: n }); issueCache.set(n, data); return data; }
-              catch (e) { core.warning(`issue #${n}: ${e.message}`); issueCache.set(n, null); return null; }
-            };
-
-            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, { owner, repo, per_page: 100 });
-            for (const artifact of artifacts) {
-              if (artifact.expired) { skipped.expired += 1; continue; }
-              const runId = artifact.workflow_run?.id;
-              if (!runId) { skipped.missingRun += 1; continue; }
-              const run = await getRun(runId);
-              if (!run) { skipped.missingRun += 1; continue; }
-              if (run.path !== reproduceLock) { skipped.otherWorkflow += 1; continue; }
-              const issueNumber = parseIssueNumber(run);
-              if (!issueNumber) { skipped.noIssue += 1; continue; }
-              const issue = await getIssue(issueNumber);
-              const closedAt = issue?.closed_at ? new Date(issue.closed_at) : null;
-              if (!issue || issue.pull_request || issue.state !== 'closed' || !closedAt || closedAt > cutoff) { skipped.openOrRecent += 1; continue; }
-              deletions.push({ artifactId: artifact.id, artifactName: artifact.name, runId, issueNumber, closedAt: issue.closed_at });
-            }
-
-            for (const item of deletions) {
-              core.info(`${dryRun ? 'would delete' : 'deleting'} ${item.artifactName} (${item.artifactId}) from run ${item.runId}, issue #${item.issueNumber}`);
-              if (!dryRun) await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: item.artifactId });
-            }
-
-            const rows = deletions.slice(0, 50).map((i) => `| #${i.issueNumber} | ${i.runId} | ${i.artifactName} | ${i.closedAt} |`);
-            await core.summary.addRaw([
-              `## Reproduce artifact cleanup${dryRun ? ' (dry run)' : ''}`, '',
-              `Cutoff: issues closed on or before ${cutoff.toISOString()}.`, '',
-              `Artifacts ${dryRun ? 'matched' : 'deleted'}: ${deletions.length}`, '',
-              '| Issue | Run | Artifact | Closed at |', '|---|---:|---|---|',
-              ...(rows.length ? rows : ['| - | - | - | - |']), '',
-              `Skipped: expired ${skipped.expired}, missing run ${skipped.missingRun}, other workflow ${skipped.otherWorkflow}, no issue ${skipped.noIssue}, open/recent ${skipped.openOrRecent}.`,
-            ].join('\n')).write();
-
-      # The evidence branch is a git branch of committed png/webm blobs (no artifact expiry), so it
-      # must be pruned separately. Drop the runs/<id> dirs whose issue has been closed > 7 days, then
-      # rebuild the branch as a single fresh orphan commit and force-push with lease — this leaves the
-      # dropped blobs unreferenced for GitHub's GC (a plain delete-commit would keep them in history).
+      # Drop the runs/<id> dirs whose issue has been closed > 7 days, then rebuild the branch as a
+      # single fresh orphan commit and force-push with lease — this leaves the dropped blobs
+      # unreferenced for GitHub's GC (a plain delete-commit would keep them in history).
       - name: Prune evidence branch
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
@@ -127,7 +58,7 @@ jobs:
           for d in "$work"/runs/*/; do
             [ -d "$d" ] || continue
             run_id=$(basename "$d")
-            # Map run -> issue (run title "Reproduce #<n>") -> closed_at, same rule as the artifact pass.
+            # Map run -> issue (run title "Reproduce #<n>") -> closed_at.
             title=$(gh api "repos/$REPO/actions/runs/$run_id" --jq '.display_title // .name // ""' 2>/dev/null || echo "")
             issue=$(printf '%s' "$title" | grep -oiE '#[0-9]+' | head -1 | tr -d '#')
             closed=""

@@ -44,7 +44,7 @@ class DocumentV2Exception extends HttpException
 
     public const TEMPLATE_RENDER_FAILED = 'DOCUMENT_V2__TEMPLATE_RENDER_FAILED';
 
-    public const LEGACY_CONFIG_MISSING_REQUIRED_FIELDS = 'DOCUMENT_V2__LEGACY_CONFIG_MISSING_REQUIRED_FIELDS';
+    public const CONFIG_MISSING_REQUIRED_FIELDS = 'DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS';
 
     public const TEMPLATE_CONTEXT_READ_ONLY = 'DOCUMENT_V2__TEMPLATE_CONTEXT_READ_ONLY';
 
@@ -213,12 +213,12 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function legacyConfigMissingRequiredFields(string $target, string $documentType, string $field): self
+    public static function configMissingRequiredFields(string $target, string $documentType, string $field): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::LEGACY_CONFIG_MISSING_REQUIRED_FIELDS,
-            'Legacy document configuration for document type "{{ documentType }}" is missing required field "{{ field }}" for "{{ target }}".',
+            self::CONFIG_MISSING_REQUIRED_FIELDS,
+            'Document configuration for document type "{{ documentType }}" is missing required field "{{ field }}" for "{{ target }}".',
             ['documentType' => $documentType, 'target' => $target, 'field' => $field],
         );
     }

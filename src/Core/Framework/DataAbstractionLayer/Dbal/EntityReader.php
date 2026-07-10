@@ -18,7 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -85,6 +87,10 @@ class EntityReader implements EntityReaderInterface
 
         $fieldsForPartialLoading = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
+        if ($criteria->getExcludedFields() !== []) {
+            $this->assertExcludableFields($definition, $criteria->getExcludedFields());
+        }
+
         return $this->_read(
             $criteria,
             $definition,
@@ -100,6 +106,31 @@ class EntityReader implements EntityReaderInterface
     protected function getParser(): SqlQueryParser
     {
         return $this->parser;
+    }
+
+    /**
+     * Rejects unknown fields and Required/WriteProtected fields — they back non-nullable entity
+     * properties that must not be left unset. The actual omission happens in {@see joinBasic()}.
+     *
+     * @param list<string> $excludedFields
+     */
+    private function assertExcludableFields(EntityDefinition $definition, array $excludedFields): void
+    {
+        foreach ($excludedFields as $propertyName) {
+            $field = $definition->getFields()->get($propertyName);
+
+            if ($field === null) {
+                throw DataAbstractionLayerException::cannotExcludeUnknownField($propertyName, $definition->getEntityName());
+            }
+
+            if ($field->is(Required::class)) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is required');
+            }
+
+            if ($field->is(WriteProtected::class)) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is write-protected and maps to a non-nullable property that would be left uninitialized');
+            }
+        }
     }
 
     /**
@@ -189,6 +220,7 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading = [],
     ): void {
         $isPartial = $fieldsForPartialLoading !== [];
+        $excludedFields = $criteria?->getExcludedFields() ?? [];
         $filtered = $fields->filter(static function (Field $field) use ($isPartial, $fieldsForPartialLoading) {
             if ($field->is(Runtime::class)) {
                 return false;
@@ -214,6 +246,11 @@ class EntityReader implements EntityReaderInterface
         $addTranslation = false;
 
         foreach ($filtered as $field) {
+            // skip fields excluded via Criteria::excludeFields() (primary keys are always kept)
+            if ($excludedFields !== [] && !$field->getFlag(PrimaryKey::class) && \in_array($field->getPropertyName(), $excludedFields, true)) {
+                continue;
+            }
+
             // translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
@@ -343,6 +380,7 @@ class EntityReader implements EntityReaderInterface
                 $query,
                 $context,
                 $fieldsForPartialLoading,
+                $excludedFields,
             );
         }
     }

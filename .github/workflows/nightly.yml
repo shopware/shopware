@@ -7,9 +7,9 @@ on:
 
 jobs:
   redis:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     name: Redis
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -39,49 +39,49 @@ jobs:
           ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
 
   admin:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/admin.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   integration:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/integration.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   integration-major:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/integration-major.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   acceptance:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   visual-tests:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/visual-tests.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       currents: ${{ github.event_name == 'schedule' }}
   php:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/php.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   storefront:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   downstream:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
 
   # we need this for our LTS, because gh only runs scheduled for the default branch
   nightly-other-branches:

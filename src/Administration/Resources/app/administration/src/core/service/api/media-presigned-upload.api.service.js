@@ -9,6 +9,34 @@ import ApiService from '../api.service';
 const s3Client = Axios.create();
 
 /**
+ * Text-based MIME types that must be served with an explicit `charset=utf-8`, otherwise browsers render
+ * multi-byte characters (ä, ö, ü, ß, …) as mojibake when the object is served directly from S3/CDN.
+ *
+ * IMPORTANT: This is the client-side mirror of `FileInfoHelper::TEXT_BASED_MIME_TYPES` in
+ * src/Core/Content/Media/File/FileInfoHelper.php. In the presigned direct-to-S3 flow the `Content-Type` header
+ * sent on the PUT must match the value the server presigned byte-for-byte, or S3 rejects the upload with
+ * `SignatureDoesNotMatch`. Keep both lists in sync.
+ */
+const TEXT_BASED_MIME_TYPES = [
+    'text/plain',
+    'text/csv',
+    'text/html',
+    'text/xml',
+    'application/json',
+    'application/xml',
+];
+
+/**
+ * Mirror of `FileInfoHelper::addCharset()` (PHP). Must produce the identical string for the presign signature.
+ *
+ * @param {string} mimeType
+ * @returns {string}
+ */
+function withCharset(mimeType) {
+    return TEXT_BASED_MIME_TYPES.includes(mimeType) ? `${mimeType}; charset=utf-8` : mimeType;
+}
+
+/**
  * @class
  * @extends ApiService
  */
@@ -47,7 +75,8 @@ class MediaPresignedUploadApiService extends ApiService {
      */
     uploadToPresignedUrl(presignedUrl, file, mimeType, onProgress = null) {
         return s3Client.put(presignedUrl, file, {
-            headers: { 'Content-Type': mimeType },
+            // Must match the ContentType the server presigned byte-for-byte (see withCharset above).
+            headers: { 'Content-Type': withCharset(mimeType) },
             onUploadProgress: onProgress
                 ? (progressEvent) => {
                       onProgress({

@@ -73,6 +73,8 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
+      "triggerAriaLabel": "Mitteilungen",
+      "optionsAriaLabel": "Mitteilungsoptionen",
       "emptyText": "Nicht viel los hier.",
       "deleteModal": {
         "title": "Mitteilungen löschen",
@@ -336,6 +338,9 @@
         },
         "coverSaveError": {
           "message": "Cover-Bild konnte nicht gespeichert werden."
+        },
+        "downloadError": {
+          "message": "Fehler beim Herunterladen."
         }
       },
       "labelUploading": "Wird hochgeladen ..."

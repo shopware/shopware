@@ -40,6 +40,7 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria = new Criteria([$productConfig->getStringValue()]);
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('options.group');
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
@@ -77,7 +78,7 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         string $productId,
         SalesChannelContext $salesChannelContext
     ): void {
-        $product = $result->get('product_' . $slot->getUniqueIdentifier())?->get($productId);
+        $product = $result->get('product_' . $slot->getUniqueIdentifier())?->getEntities()->get($productId);
         if (!$product instanceof SalesChannelProductEntity) {
             return;
         }

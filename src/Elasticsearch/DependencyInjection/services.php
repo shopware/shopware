@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Elasticsearch\DependencyInjection;
+
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\Clock\ClockInterface;
@@ -537,7 +539,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->alias('shopware.elasticsearch.logger', 'monolog.logger.elasticsearch');
 
     // This is required to prevent the 'Environment variables %VAR is never used' error
-    $services->set('_dummy_es_env_usage', ArrayIterator::class)
+    $services->set('_dummy_es_env_usage', \ArrayIterator::class)
         ->lazy()
         ->public()
         ->args([

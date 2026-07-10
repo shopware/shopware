@@ -645,6 +645,9 @@ Profiles are now identified and displayed only by their technical name.
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- The `importExportProfileTranslations` association has been removed from `Shopware\Core\System\Language\LanguageDefinition`, and the following methods in `Shopware\Core\System\Language\LanguageEntity` have been removed:
+  - `getImportExportProfileTranslations()`
+  - `setImportExportProfileTranslations()`
 - `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
 - `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
 
@@ -874,6 +877,23 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 ```
 
 </details>
+
+## Moved `UnmappedFieldException`
+
+`UnmappedFieldException` was moved out of the DBAL sub-namespace into the DAL exception namespace, and `DataAbstractionLayerException::unmappedField()` now returns it:
+
+* Before: `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`
+* After: `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`
+
+Update your `use` and `catch` statements accordingly:
+
+```php
+// Before
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+
+// After
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+```
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
 

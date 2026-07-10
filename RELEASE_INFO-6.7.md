@@ -2,6 +2,10 @@
 
 ## Core
 
+### Cache invalidated on cross-selling updates and deletions
+
+Editing or deleting a product cross-selling entry, including assigned products and translations, now correctly invalidates the product detail route cache and prevents stale storefront results.
+
 ### Enforce "Allow payment change after checkout" when re-paying an order
 
 `Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` now rejects payment methods whose `afterOrderEnabled` ("Allow payment change after checkout") flag is disabled, matching the methods offered on the edit-order page. Previously the flag was only applied as a UI filter, so a payment method that renders its own JavaScript payment button (e.g. PayPal smart buttons) could still be used to pay an existing order. The store-api route `POST /store-api/order/payment` now returns `CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE` (HTTP 403) for such methods. (shopware/shopware#17495)
@@ -245,6 +249,15 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
     }
 }
 ```
+
+### Deprecated `UnmappedFieldException` in the DBAL sub-namespace
+
+`Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException` is deprecated in favor of the new `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`. The deprecated class keeps working and will be removed in Shopware 6.8.
+
+`DataAbstractionLayerException::unmappedField()` returns the deprecated class while the `v6.8.0.0` flag is off and the new class once it is active. Prepare your code now:
+
+- Switch your `use` and `catch` statements to the new `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`.
+- While you still support the deprecated version, catch both classes, since they do not share a common parent.
 
 ## Storefront
 

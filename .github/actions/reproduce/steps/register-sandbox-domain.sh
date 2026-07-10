@@ -5,6 +5,11 @@
 # (SalesChannelMappingException). This is additive: the existing localhost domain keeps serving the
 # trusted host-side legs (reported-verify + trunk).
 #
+# Why raw SQL: there is no console command that ADDS a domain — sales-channel:update:domain and
+# sales-channel:replace:url only REPLACE an existing one, and sales-channel:create makes a whole new
+# channel. So this INSERT polyfills a missing `sales-channel:domain:add`: it clones a sibling
+# domain's language/currency/snippet-set FK set and swaps only the URL, idempotently (NOT EXISTS).
+#
 # Env: SHOP_DIR (default shop), SANDBOX_URL (required, e.g. http://host.docker.internal:8000).
 set -euo pipefail
 

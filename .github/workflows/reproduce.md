@@ -46,8 +46,8 @@ engine:
 # applied by dev/compile.sh [P1] (host port 8000 on awf --allow-host-ports) and the domain step.
 strict: true
 
-# Per-run AI-credit cap (~$20). The agent verifies its assumptions with cheap tools and stops; it
-# does not run the pipeline, so this is headroom rather than a target.
+# Per-run AI-credit cap (~$5). The agent verifies its assumptions with cheap tools and stops; it
+# does not run the pipeline, so this is headroom rather than a target (a run usually costs ~$1–2).
 max-ai-credits: 500
 timeout-minutes: 40
 

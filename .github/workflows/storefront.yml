@@ -56,7 +56,7 @@ jobs:
         run: composer storefront:lint:snippets
 
   lint-admin-modules:
-    name: "Storefront admin-modules ESLint"
+    name: "Storefront admin-modules code style"
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -83,6 +83,10 @@ jobs:
 
       - name: Lint
         run: composer eslint:storefront:admin-modules
+
+      - name: Format
+        working-directory: src/Storefront/Resources/app/administration
+        run: npm run format
 
   twig-lint-storefront:
     name: Twig Lint (Storefront)

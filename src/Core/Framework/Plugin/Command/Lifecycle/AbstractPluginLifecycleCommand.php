@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -114,7 +113,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $application->doRun($input, new NullOutput());
     }
 
-    protected function handleClearCacheOption(InputInterface $input, ShopwareStyle $io, string $action): void
+    protected function handleClearCacheOption(InputInterface $input, SymfonyStyle $io, string $action): void
     {
         if ($input->getOption('clearCache')) {
             $io->note('Clearing Cache');

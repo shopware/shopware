@@ -5,9 +5,12 @@ use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
 use Rector\CodeQuality\Rector\Ternary\TernaryEmptyArrayArrayDimFetchToCoalesceRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
-use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Config\RectorConfig;
+use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
+use Rector\Renaming\Rector\Name\RenameClassRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 return RectorConfig::configure()
     ->withSymfonyContainerXml(__DIR__ . '/var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml')
@@ -32,5 +35,8 @@ return RectorConfig::configure()
         SimplifyEmptyCheckOnEmptyArrayRector::class,
         StrlenZeroToIdenticalEmptyStringRector::class,
         TernaryEmptyArrayArrayDimFetchToCoalesceRector::class,
+    ])
+    ->withConfiguredRule(RenameClassRector::class, [
+        ShopwareStyle::class => SymfonyStyle::class,
     ])
 ;

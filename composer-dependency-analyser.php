@@ -113,19 +113,12 @@ function considerXMLServiceConfigFiles(Configuration $config): void
         ->files()
         ->in(__DIR__ . '/src')
         ->path('DependencyInjection')
-        ->name('*.xml');
+        ->name('*.xml')
+        ->notName(['*_dev.xml', '*_test.xml', '*_e2e.xml']);
 
     $classNames = [];
 
     foreach ($xmlFilesToCheck as $file) {
-        $fileName = $file->getBasename();
-        if (str_ends_with($fileName, '_dev.xml')
-            || str_ends_with($fileName, '_e2e.xml')
-            || str_ends_with($fileName, '_test.xml')
-        ) {
-            continue;
-        }
-
         preg_match_all(
             "~$classNameRegex(?:\\\\$classNameRegex)+~", // at least one backslash
             $file->getContents(),

@@ -6,10 +6,11 @@
 #   6.7.2.0            exact 4-part           -> 6.7.2.0            (used as-is)
 #   6.7.10 / 6.7.10.*  3-part / patch wildcard-> LATEST v6.7.10.* as of the issue's open date
 #   6.7 / 6.7.*        minor only / wildcard  -> LATEST v6.7.* as of the issue's open date
-#   (none)                                    -> trunk
+#   (none)                                    -> LATEST release as of the issue's open date (else trunk)
 # Underspecified versions resolve to the newest existing tag that was released ON/BEFORE the issue
 # was opened (what the reporter most likely ran — the bug lives there, before any later fix), never
-# `.0`. If the tag list is unreachable (offline), degrade to trunk rather than guessing a patch.
+# `.0`. A version-less report resolves the same way against ALL releases (a reporter runs a release,
+# not trunk). If the tag list is unreachable (offline) or the date is unknown, degrade to trunk.
 #
 # Env: ISSUE (req); REPO (fallback fetch); UPSTREAM (tag repo, default shopware/shopware); GH_TOKEN.
 # Emits target_version, is_trunk, provision_version, composer_root_version, legacy_conflicts_alias.
@@ -26,12 +27,14 @@ resolve_latest () {
   # Stable tags only — keep purely numeric X.Y.Z.W, dropping any -rc/-dev/-beta: a reporter runs a
   # release, not a prerelease, and a prerelease's version sorts ABOVE its own final while carrying an
   # older date, which would let the date walk below pick an RC over the stable release it precedes.
-  local base="$1" tags=""
+  # Empty base = "any version" (used for a version-less report): match all v-tags, no trailing dot.
+  local base="$1" tags="" ghpat="v${base}." glob="v${base}.*"
+  [ -z "$base" ] && { ghpat="v"; glob="v*"; }
   if command -v gh >/dev/null 2>&1; then
-    tags=$(gh api "repos/${UPSTREAM}/git/matching-refs/tags/v${base}." --jq '.[].ref' 2>/dev/null | sed 's#refs/tags/##; s/^v//' | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -Vr || true)
+    tags=$(gh api "repos/${UPSTREAM}/git/matching-refs/tags/${ghpat}" --jq '.[].ref' 2>/dev/null | sed 's#refs/tags/##; s/^v//' | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -Vr || true)
   fi
   if [ -z "$tags" ] && command -v git >/dev/null 2>&1; then
-    tags=$(git ls-remote --tags --refs "https://github.com/${UPSTREAM}.git" "v${base}.*" 2>/dev/null | sed 's#.*refs/tags/##; s/^v//' | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -Vr || true)
+    tags=$(git ls-remote --tags --refs "https://github.com/${UPSTREAM}.git" "$glob" 2>/dev/null | sed 's#.*refs/tags/##; s/^v//' | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -Vr || true)
   fi
   [ -n "$tags" ] || { printf ''; return; }
   if [ -z "${ISSUE_EPOCH:-}" ]; then printf '%s\n' "$tags" | head -1; return; fi   # no date → newest
@@ -80,6 +83,11 @@ if [ -n "$RAW" ]; then
     VERSION=$(resolve_latest "$BASE")     # underspecified — newest patch, never .0
     if [ -z "$VERSION" ]; then echo "::warning::could not resolve '${RAW}' against ${UPSTREAM} (offline?) — falling back to trunk"; IS_TRUNK=true; fi
   fi
+elif [ -n "${ISSUE_EPOCH:-}" ]; then
+  # No version cited, but we know when it was filed: a version-less reporter almost certainly ran a
+  # release, not trunk, so provision the newest release that existed then rather than today's trunk.
+  VERSION=$(resolve_latest "")
+  [ -n "$VERSION" ] && IS_TRUNK=false || echo "== no version cited and no dated release resolvable — using trunk =="
 fi
 
 out target_version "${VERSION:-trunk}"

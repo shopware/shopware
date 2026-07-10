@@ -402,14 +402,13 @@
       "labelOrderCard": "Order",
       "promotionsField": {
         "labelPromotions": "Promotions with code",
-        "placeholderPromotions": "Enter a code",
-        "labelApplyCode": "Apply code",
+        "placeholderPromotions": "Enter promotion code ...",
         "automaticPromotion":  "automatically applied",
         "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
         "automaticPromotions": {
-          "title": "Automatic promotions",
-          "text": "Refresh automatic promotions for this order by removing promotions that no longer apply and adding new ones that do. Code promotions are not changed.",
-          "labelButton": "Update automatic promotions"
+          "title": "Update promotions",
+          "text": "This will update the order by removing promotions that no longer apply and adding new ones that do. Changes may be due to updated conditions or disabled promotions. Promotions added with a code won't be changed.",
+          "labelButton": "Update promotions"
         },
         "updatesModal": {
           "title": "Updated promotions",

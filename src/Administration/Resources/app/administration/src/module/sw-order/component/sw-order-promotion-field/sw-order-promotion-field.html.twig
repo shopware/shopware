@@ -2,7 +2,6 @@
 <div class="sw-order-promotion-field">
     {% block sw_order_promotion_field_codes %}
     <sw-order-promotion-tag-field
-        ref="promotionTagField"
         v-model:value="promotionCodeTags"
         :disabled="!hasLineItem || isLoading || !acl.can('order.editor') || undefined"
         :currency="currency"
@@ -10,26 +9,7 @@
         :placeholder="$t('sw-order.detailsTab.promotionsField.placeholderPromotions')"
         :error="promotionError"
         @on-remove-code="onRemoveExistingCode"
-        @update:code="onCodeChange"
     />
-    {% endblock %}
-
-    {% block sw_order_promotion_field_apply_code %}
-    <mt-button
-        :disabled="!hasLineItem || !promotionCode || isLoading || isOrderLoading || !acl.can('order.editor') || undefined"
-        class="sw-order-promotion-field__apply_code__button"
-        variant="secondary"
-        size="default"
-        :is-loading="isOrderLoading || isLoading"
-        data-analytics-id="sw-order-promotion-field.apply-code"
-        @click="onApplyCode"
-    >
-        {{ $t('sw-order.detailsTab.promotionsField.labelApplyCode') }}
-    </mt-button>
-    {% endblock %}
-
-    {% block sw_order_promotion_field_divider %}
-    <hr class="sw-order-promotion-field__divider">
     {% endblock %}
 
     {% block sw_order_promotion_field_switch %}

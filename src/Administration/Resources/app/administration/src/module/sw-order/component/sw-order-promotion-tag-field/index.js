@@ -14,7 +14,6 @@ export default {
 
     emits: [
         'update:value',
-        'update:code',
         'on-remove-code',
     ],
 
@@ -37,12 +36,14 @@ export default {
                 'sw-tagged-field__tag-list--disabled': this.disabled,
             };
         },
-    },
 
-    watch: {
-        // Mirror the typed code to the parent, e.g. to toggle its "Apply code" button.
-        newTagName(code) {
-            this.$emit('update:code', code);
+        // Unlike the base field, also hide a not yet submitted code on blur,
+        // so it is clear that it was not applied to the order.
+        taggedFieldInputClasses() {
+            return {
+                'sw-tagged-field__input--full-width': !this.hasValues,
+                'sw-tagged-field__input--hidden': !this.hasFocus && (this.hasValues || !!this.newTagName),
+            };
         },
     },
 
@@ -52,12 +53,7 @@ export default {
                 return;
             }
 
-            this.applyCode();
-        },
-
-        // Adds the typed code as a tag; used by Enter and the "Apply code" button.
-        applyCode() {
-            if (this.disabled || typeof this.newTagName !== 'string' || this.newTagName === '') {
+            if (typeof this.newTagName !== 'string' || this.newTagName === '') {
                 return;
             }
 

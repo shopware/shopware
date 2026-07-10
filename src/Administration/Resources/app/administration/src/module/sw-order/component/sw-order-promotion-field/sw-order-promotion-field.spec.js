@@ -293,55 +293,16 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBe(String(true));
-        expect(wrapper.findComponent('.sw-order-promotion-field__apply_code__button').props('disabled')).toBe(true);
-        expect(wrapper.findComponent('.sw-order-promotion-field__apply_auto_promotions__button').props('disabled')).toBe(
-            true,
-        );
+        expect(wrapper.findComponent('.mt-button').props('disabled')).toBe(true);
     });
 
     it('should enable the fields with roles', async () => {
         createStateMapper();
 
         const wrapper = await createWrapper(['order.editor']);
-        await wrapper.setData({
-            promotionCode: 'SUMMER-SALE',
-        });
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
-        expect(wrapper.findComponent('.sw-order-promotion-field__apply_code__button').props('disabled')).toBeUndefined();
-        expect(
-            wrapper.findComponent('.sw-order-promotion-field__apply_auto_promotions__button').props('disabled'),
-        ).toBeUndefined();
-    });
-
-    it('should disable the apply-code button while no code is entered', async () => {
-        createStateMapper();
-
-        const wrapper = await createWrapper(['order.editor']);
-        const applyCodeButton = wrapper.findComponent('.sw-order-promotion-field__apply_code__button');
-
-        expect(applyCodeButton.props('disabled')).toBe(true);
-
-        wrapper.vm.onCodeChange('SUMMER-SALE');
-        await wrapper.vm.$nextTick();
-
-        expect(applyCodeButton.props('disabled')).toBeUndefined();
-
-        wrapper.vm.onCodeChange('');
-        await wrapper.vm.$nextTick();
-
-        expect(applyCodeButton.props('disabled')).toBe(true);
-    });
-
-    it('should render an apply-code button that submits the typed code', async () => {
-        createStateMapper();
-
-        const wrapper = await createWrapper(['order.editor']);
-
-        // the button is what makes applying a code discoverable (issue #17272);
-        // its click delegates to the tag field's applyCode() (covered in that spec)
-        expect(wrapper.find('.sw-order-promotion-field__apply_code__button').exists()).toBe(true);
-        expect(typeof wrapper.vm.onApplyCode).toBe('function');
+        expect(wrapper.findComponent('.mt-button').props('disabled')).toBeUndefined();
     });
 
     it('should open modal on errors', async () => {

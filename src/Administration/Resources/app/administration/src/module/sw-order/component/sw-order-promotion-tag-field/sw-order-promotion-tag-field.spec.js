@@ -163,101 +163,6 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
         expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 
-    it('should add a promotion code tag via applyCode without a keyboard event', async () => {
-        const wrapper = await createWrapper({
-            value: [
-                { code: 'EXISTING-CODE' },
-            ],
-        });
-
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
-
-        wrapper.vm.applyCode();
-
-        expect(wrapper.emitted('update:value')).toEqual([
-            [
-                [
-                    { code: 'EXISTING-CODE' },
-                    { code: 'SUMMER-SALE' },
-                ],
-            ],
-        ]);
-        expect(wrapper.vm.newTagName).toBe('');
-    });
-
-    it('should not add a duplicate code via applyCode', async () => {
-        const wrapper = await createWrapper({
-            value: [
-                { code: 'SUMMER-SALE' },
-            ],
-        });
-
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
-
-        wrapper.vm.applyCode();
-
-        expect(wrapper.emitted('update:value')).toBeUndefined();
-        expect(wrapper.vm.newTagName).toBe('SUMMER-SALE');
-    });
-
-    it('should not add an empty code via applyCode', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            newTagName: '',
-        });
-
-        wrapper.vm.applyCode();
-
-        expect(wrapper.emitted('update:value')).toBeUndefined();
-    });
-
-    it('should not add the code via applyCode when the field is disabled', async () => {
-        const wrapper = await createWrapper({
-            disabled: true,
-        });
-
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
-
-        wrapper.vm.applyCode();
-
-        expect(wrapper.emitted('update:value')).toBeUndefined();
-    });
-
-    it('should emit update:code when the typed code changes', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
-
-        expect(wrapper.emitted('update:code')).toEqual([
-            ['SUMMER-SALE'],
-        ]);
-    });
-
-    it('should emit update:code with an empty string after the code was applied', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
-
-        wrapper.vm.applyCode();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted('update:code')).toEqual([
-            ['SUMMER-SALE'],
-            [''],
-        ]);
-    });
-
     it('should emit the removed promotion code tag', async () => {
         const wrapper = await createWrapper();
         const item = { code: 'SUMMER-SALE' };
@@ -299,5 +204,45 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
         expect(wrapper.vm.taggedFieldListClasses).toEqual({
             'sw-tagged-field__tag-list--disabled': true,
         });
+    });
+
+    it('should keep the empty input visible when the field loses focus', async () => {
+        const wrapper = await createWrapper();
+
+        const input = wrapper.find('.sw-tagged-field__input');
+        expect(input.classes()).toContain('sw-tagged-field__input--full-width');
+        expect(input.classes()).not.toContain('sw-tagged-field__input--hidden');
+    });
+
+    it('should show the typed code while the field has focus', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+            hasFocus: true,
+        });
+
+        expect(wrapper.find('.sw-tagged-field__input').classes()).not.toContain('sw-tagged-field__input--hidden');
+    });
+
+    it('should hide an unsubmitted code when the field loses focus', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+            hasFocus: false,
+        });
+
+        expect(wrapper.find('.sw-tagged-field__input').classes()).toContain('sw-tagged-field__input--hidden');
+    });
+
+    it('should hide the input when codes exist and the field loses focus', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                { code: 'SUMMER-SALE' },
+            ],
+        });
+
+        expect(wrapper.find('.sw-tagged-field__input').classes()).toContain('sw-tagged-field__input--hidden');
     });
 });

@@ -402,14 +402,13 @@
       "labelOrderCard": "Bestellung",
       "promotionsField": {
         "labelPromotions": "Rabattaktionen mit Code",
-        "placeholderPromotions": "Code eingeben",
-        "labelApplyCode": "Code anwenden",
+        "placeholderPromotions": "Rabattcode eingeben ...",
         "automaticPromotion":  "automatisch hinzugefügt",
         "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
         "automaticPromotions": {
-          "title": "Automatische Rabattaktionen",
-          "text": "Aktualisieren Sie die automatischen Rabattaktionen für diese Bestellung, indem Aktionen entfernt werden, die nicht mehr gelten, und neue hinzugefügt werden, die gelten. Aktionen mit Code werden nicht geändert.",
-          "labelButton": "Automatische Rabattaktionen aktualisieren"
+          "title": "Rabattaktionen aktualisieren",
+          "text": "Die Bestellung wird aktualisiert, indem ungültige Aktionen entfernt und neue, die gelten, hinzugefügt werden. Die Änderungen können auf aktualisierte Bedingungen oder deaktivierte Aktionen zurückgeführt werden. Aktionen, die mit einem Code hinzugefügt wurden, werden nicht geändert.",
+          "labelButton": "Rabattaktionen aktualisieren"
         },
         "updatesModal": {
           "title": "Aktualisierte Rabattaktionen",

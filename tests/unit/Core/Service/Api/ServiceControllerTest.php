@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Api\ServiceController;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceStorage;
@@ -297,7 +298,14 @@ class ServiceControllerTest extends TestCase
     public function testList(): void
     {
         $this->app->setActive(true);
-        $controller = $this->createController();
+
+        $requirementsValidator = $this->createMock(RequirementsValidator::class);
+        $requirementsValidator->expects($this->once())
+            ->method('permitsStateChange')
+            ->with(['service_consent'])
+            ->willReturn(true);
+
+        $controller = $this->createController(requirementsValidator: $requirementsValidator);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -317,6 +325,30 @@ class ServiceControllerTest extends TestCase
         static::assertSame('1.0.0', $service['version']);
         static::assertSame('active', $service['state']);
         static::assertSame(['service_consent'], $service['requirements']);
+        static::assertTrue($service['state_change_permitted']);
+    }
+
+    public function testListMarksServicesWhoseStateMayNotBeChangedManually(): void
+    {
+        $this->app->setActive(true);
+
+        $requirementsValidator = $this->createMock(RequirementsValidator::class);
+        $requirementsValidator->expects($this->once())
+            ->method('permitsStateChange')
+            ->with(['service_consent'])
+            ->willReturn(false);
+
+        $controller = $this->createController(requirementsValidator: $requirementsValidator);
+
+        $source = new AdminApiSource('AABB', 'CCDD');
+        $context = Context::createDefaultContext($source);
+
+        $response = $controller->list($context);
+
+        $responseData = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($responseData);
+        static::assertCount(1, $responseData);
+        static::assertFalse($responseData[0]['state_change_permitted']);
     }
 
     public function testDisableServices(): void
@@ -412,12 +444,14 @@ class ServiceControllerTest extends TestCase
         ?MessageBusInterface $bus = null,
         ?ServiceLifecycle $serviceLifecycle = null,
         ?LifecycleManager $manager = null,
+        ?RequirementsValidator $requirementsValidator = null,
     ): ServiceController {
         return new ServiceController(
             $serviceStorage ?? new ServiceStorage($this->appRepo),
             $bus ?? static::createStub(MessageBusInterface::class),
             $serviceLifecycle ?? static::createStub(ServiceLifecycle::class),
             $manager ?? static::createStub(LifecycleManager::class),
+            $requirementsValidator ?? static::createStub(RequirementsValidator::class),
         );
     }
 }

@@ -24,6 +24,7 @@ export type ServiceDescription = {
     privileges: string[];
     domains: string[];
     requirements: string[];
+    state_change_permitted: boolean;
 };
 
 type ServiceConfigurationConfigValues = {

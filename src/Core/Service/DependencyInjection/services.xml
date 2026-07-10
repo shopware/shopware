@@ -14,6 +14,7 @@
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Service\Api\PermissionController" public="true">
@@ -203,6 +204,12 @@
 
         <service id="Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Subscriber\ServiceWriteProtectionSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

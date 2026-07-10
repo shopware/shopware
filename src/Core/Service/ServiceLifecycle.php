@@ -26,6 +26,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * Installs, updates and uninstalls self-managed service apps.
  *
+ * A service is a self-managed app whose app row may only be mutated internally; the
+ * {@see \Shopware\Core\Service\Subscriber\ServiceWriteProtectionSubscriber} rejects any such write
+ * outside the system scope. The state-changing operations therefore elevate to the system scope
+ * themselves, so every caller (controllers, subscribers, handlers) is safe regardless of its context.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -114,7 +119,13 @@ class ServiceLifecycle
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $this->appManager->activate($service->app, $context);
+        if (!$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            throw ServiceException::stateChangeNotPermitted($serviceName);
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+            $this->appManager->activate($service->app, $context);
+        });
     }
 
     public function deactivate(string $serviceName, Context $context): void
@@ -125,7 +136,13 @@ class ServiceLifecycle
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $this->appManager->deactivate($service->app, $context);
+        if (!$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            throw ServiceException::stateChangeNotPermitted($serviceName);
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+            $this->appManager->deactivate($service->app, $context);
+        });
     }
 
     public function uninstall(string $serviceName, Context $context): void
@@ -136,7 +153,9 @@ class ServiceLifecycle
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $this->appManager->uninstall($service->app, $context, true);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+            $this->appManager->uninstall($service->app, $context, true);
+        });
     }
 
     /**
@@ -254,8 +273,15 @@ class ServiceLifecycle
             $context
         );
 
-        // it was possibly disabled during the update process
-        $this->activate($entry->name, $context);
+        // it was possibly disabled during the update process; this is a requirement-driven
+        // activation, so it must not be subject to the manual state change policy
+        $service = $this->serviceStorage->findByName($entry->name, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $entry->name);
+        }
+
+        $this->appManager->activate($service->app, $context);
 
         $result = $this->performUpdate($entry, $appInfo, $context);
 

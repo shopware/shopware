@@ -36,4 +36,13 @@ class ShopwareAccountRequirement implements ServiceRequirement
             'SELECT 1 FROM `user` WHERE `store_token` IS NOT NULL LIMIT 1'
         );
     }
+
+    /**
+     * Account-bound services are always-on: they stay active and only their privileges follow the
+     * account state.
+     */
+    public function permitsStateChange(): bool
+    {
+        return false;
+    }
 }

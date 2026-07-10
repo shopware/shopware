@@ -50,4 +50,24 @@ class RequirementsValidator
 
         return true;
     }
+
+    /**
+     * True only if every requirement among the names permits manual activation/deactivation. An
+     * unknown requirement name never permits a state change (a service declaring something we
+     * don't model fails closed), consistent with {@see isSatisfied()}.
+     *
+     * @param list<string> $requirementNames
+     */
+    public function permitsStateChange(array $requirementNames): bool
+    {
+        foreach ($requirementNames as $name) {
+            $requirement = $this->requirements[$name] ?? null;
+
+            if ($requirement === null || !$requirement->permitsStateChange()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

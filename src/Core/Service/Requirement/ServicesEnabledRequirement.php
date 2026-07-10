@@ -35,4 +35,9 @@ class ServicesEnabledRequirement implements ServiceRequirement
     {
         return !$this->systemConfigService->getBool(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED);
     }
+
+    public function permitsStateChange(): bool
+    {
+        return true;
+    }
 }

@@ -18,4 +18,11 @@ interface ServiceRequirement
     public function getGate(): Gate;
 
     public function isSatisfied(): bool;
+
+    /**
+     * Whether services declaring this requirement may have their active state changed manually
+     * (Admin UI, API). When false, the service's state is managed exclusively through requirement
+     * evaluation.
+     */
+    public function permitsStateChange(): bool;
 }

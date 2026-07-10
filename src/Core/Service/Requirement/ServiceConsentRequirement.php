@@ -34,4 +34,9 @@ class ServiceConsentRequirement implements ServiceRequirement
     {
         return $this->permissionsService->areGranted();
     }
+
+    public function permitsStateChange(): bool
+    {
+        return true;
+    }
 }

@@ -187,7 +187,7 @@ class ProductEntity extends Entity implements \Stringable
     protected ?CmsPageEntity $cmsPage = null;
 
     /**
-     * @var array<string, array<string, array<string, string>>>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -793,7 +793,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -801,7 +801,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string, mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

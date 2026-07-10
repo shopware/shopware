@@ -1,10 +1,31 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 const AGENTIC_COMMERCE_TYPE_ID = '5e29f9890c4d4d519a1c7f9d5c24b7c1';
+interface ShopwareBundleConfig {
+    SwagAgenticCommerce?: unknown;
+    SwagExtensionStore?: unknown;
+}
+
+interface ShopwareContextConfig {
+    Shopware?: {
+        Context?: {
+            app?: {
+                config?: {
+                    bundles?: ShopwareBundleConfig;
+                };
+            };
+        };
+    };
+}
 
 test(
     'Agentic Commerce sales channel detail page shows deprecation banner when SwagAgenticCommerce is not installed, and clicking the install button causes no JS error',
-    { tag: ['@SalesChannel', '@AgenticCommerce'] },
+    {
+        tag: [
+            '@SalesChannel',
+            '@AgenticCommerce',
+        ],
+    },
     async ({ ShopAdmin, TestDataService, page }) => {
         // Create an Agentic Commerce sales channel
         const sc = TestDataService.defaultSalesChannel as unknown as {
@@ -46,8 +67,8 @@ test(
         await ShopAdmin.goesTo(`/admin#/sw/sales/channel/detail/${salesChannelId}/base`);
 
         const pluginInstalled = await page.evaluate(() => {
-            const shopware = (globalThis as any).Shopware;
-            return !!(shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce);
+            const shopware = (globalThis as ShopwareContextConfig).Shopware;
+            return !!shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce;
         });
 
         if (!pluginInstalled) {
@@ -57,8 +78,8 @@ test(
 
             await test.step('clicking the install button always navigates somewhere', async () => {
                 const extensionStoreDetailExists = await page.evaluate(() => {
-                    const shopware = (globalThis as any).Shopware;
-                    return !!(shopware?.Context?.app?.config?.bundles?.SwagExtensionStore);
+                    const shopware = (globalThis as ShopwareContextConfig).Shopware;
+                    return !!shopware?.Context?.app?.config?.bundles?.SwagExtensionStore;
                 });
 
                 await page.locator('.mt-banner .mt-button').click();

@@ -326,6 +326,33 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
     }
 
+    public function testSetPaymentMethodNotAfterOrderEnabled(): void
+    {
+        $orderId = $this->ids->get('order-1');
+        $paymentMethodId = $this->getAvailablePaymentMethodId(1);
+
+        // Disable "Allow payment change after checkout" for the otherwise available target method.
+        static::getContainer()->get('payment_method.repository')->update([[
+            'id' => $paymentMethodId,
+            'afterOrderEnabled' => false,
+        ]], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/order/payment',
+                [
+                    'orderId' => $orderId,
+                    'paymentMethodId' => $paymentMethodId,
+                ]
+            );
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
+
+        // The order must not have gained a transaction for the disallowed method.
+        static::assertCount(1, $this->getTransactions($orderId));
+    }
+
     private function createOrder(string $customerId): string
     {
         $id = Uuid::randomHex();

@@ -56,6 +56,9 @@ class CountryStateControllerTest extends TestCase
 
     public function testGetCountryDataThrowsExceptionWithoutCountryId(): void
     {
+        $this->pageletLoader->expects($this->never())
+            ->method('load');
+
         $this->expectExceptionObject(RoutingException::missingRequestParameter('countryId'));
 
         $this->controller->getCountryData(new Request(), Generator::generateSalesChannelContext());

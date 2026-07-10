@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -211,6 +212,14 @@ class HttpCacheIntegrationTest extends TestCase
 
         $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route): void {
             if ($event->getRequest()->getPathInfo() !== $route) {
+                return;
+            }
+            if (Feature::isActive('v6.8.0.0')) {
+                // with v6.8.0.0 cache policies drive the headers: the script's shared max age
+                // overrides the policy's s-maxage, invalidation states are removed
+                static::assertSame(5, $event->getResponse()->getMaxAge());
+                static::assertNull($event->getResponse()->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+
                 return;
             }
             static::assertSame(5, $event->getResponse()->getMaxAge());

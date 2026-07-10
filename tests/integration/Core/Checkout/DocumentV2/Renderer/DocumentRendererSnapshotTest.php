@@ -276,15 +276,15 @@ class DocumentRendererSnapshotTest extends TestCase
     public static function provideLegacyDocumentTypes(): iterable
     {
         yield 'invoice' => [
-            DocumentType::INVOICE,
-            InvoiceDataProvider::class,
-            LegacyInvoiceRenderer::class,
+            'documentType' => DocumentType::INVOICE,
+            'dataProviderClass' => InvoiceDataProvider::class,
+            'legacyRendererClass' => LegacyInvoiceRenderer::class,
         ];
 
         yield 'delivery_note' => [
-            DocumentType::DELIVERY_NOTE,
-            DeliveryNoteDataProvider::class,
-            LegacyDeliveryNoteRenderer::class,
+            'documentType' => DocumentType::DELIVERY_NOTE,
+            'dataProviderClass' => DeliveryNoteDataProvider::class,
+            'legacyRendererClass' => LegacyDeliveryNoteRenderer::class,
         ];
     }
 

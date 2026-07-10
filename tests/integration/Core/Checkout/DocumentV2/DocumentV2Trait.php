@@ -92,11 +92,6 @@ trait DocumentV2Trait
         ];
     }
 
-    protected function seedDemoInvoiceBaseConfig(): void
-    {
-        $this->seedDemoBaseConfig('invoice');
-    }
-
     protected function seedDemoBaseConfig(string $documentType): void
     {
         $config = $this->getDemoInvoiceLegacyConfig();

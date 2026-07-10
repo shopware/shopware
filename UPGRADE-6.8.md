@@ -868,9 +868,12 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 
 ## Moved `UnmappedFieldException`
 
-With `v6.8.0.0` active, `DataAbstractionLayerException::unmappedField()` returns the new `\Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`; with the flag off it still returns the deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`. The deprecated class is unchanged and will be removed in v6.8.0.0.
+`UnmappedFieldException` was moved out of the DBAL sub-namespace into the DAL exception namespace, and `DataAbstractionLayerException::unmappedField()` now returns it:
 
-Catch the new exception class instead of the deprecated one (catch both while you still support the deprecated version):
+* Before: `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`
+* After: `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`
+
+Update your `use` and `catch` statements accordingly:
 
 ```php
 // Before

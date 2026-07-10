@@ -60,6 +60,8 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_RENDER_VALUE = 'DOCUMENT_V2__INVALID_RENDER_VALUE';
 
+    public const ZUGFERD_EMBED_FAILED = 'DOCUMENT_V2__ZUGFERD_EMBED_FAILED';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -296,6 +298,17 @@ class DocumentV2Exception extends HttpException
             self::INVALID_RENDER_VALUE,
             'Invalid render value for field "{{ field }}": {{ value }} ({{ reason }}).',
             ['field' => $field, 'value' => $value, 'reason' => $previous->getMessage()],
+            $previous,
+        );
+    }
+
+    public static function zugferdEmbedFailed(\Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ZUGFERD_EMBED_FAILED,
+            'Failed to embed Zugferd XML into the PDF: {{ reason }}.',
+            ['reason' => $previous->getMessage()],
             $previous,
         );
     }

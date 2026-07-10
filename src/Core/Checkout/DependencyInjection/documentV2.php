@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Renderer\EmbeddedRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
@@ -104,6 +105,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             param('shopware.dompdf.options'),
+        ])
+        ->tag('shopware.document_v2.renderer');
+
+    $services->set(EmbeddedRenderer::class)
+        ->public()
+        ->args([
+            param('kernel.shopware_version'),
         ])
         ->tag('shopware.document_v2.renderer');
 

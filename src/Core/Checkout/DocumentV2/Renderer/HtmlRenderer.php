@@ -4,8 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -48,8 +47,8 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
         $renderData = $input->requireData(
-            InvoiceDataProvider::KEY,
-            InvoiceRenderData::class
+            $input->documentType,
+            AbstractRenderData::class,
         );
 
         $configuration = new TemplateContext($renderData);

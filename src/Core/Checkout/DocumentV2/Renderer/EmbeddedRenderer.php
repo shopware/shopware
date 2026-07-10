@@ -2,34 +2,33 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
+use horstoeko\zugferd\ZugferdDocumentPdfMerger;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Renders a document into XRechnung 3.0 (CII) XML.
- *
- * Data + math live in {@see InvoiceDataProvider}; the same DTO feeds the HTML and Zugferd
- * renderers. After Twig produces the raw markup it is piped through {@see XmlFormatter} for
- * deterministic pretty-printing + well-formedness validation.
+ * Merges the rendered PDF and Zugferd XML into a single PDF/A-3 with the XML embedded as a
+ * Factur-X attachment, via {@see ZugferdDocumentPdfMerger} (which auto-detects the XRechnung
+ * profile from the XML). Depends on the {@see PdfRenderer} and {@see XmlRenderer} outputs.
  *
  * @internal
  */
 #[Package('after-sales')]
-final readonly class XmlRenderer extends AbstractDocumentRenderer
+final readonly class EmbeddedRenderer extends AbstractDocumentRenderer
 {
-    final public const FORMAT = DocumentFormat::ZUGFERD_XML;
+    final public const FORMAT = DocumentFormat::ZUGFERD_EMBEDDED_PDF;
+
+    private const CREATOR_PREFIX = 'Shopware@';
 
     public function __construct(
-        private DocumentTemplateRenderer $documentTemplateRenderer,
-        private XmlFormatter $xmlFormatter,
+        private string $shopwareVersion,
     ) {
     }
 
@@ -45,6 +44,14 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
         ];
     }
 
+    public function getDependencies(): array
+    {
+        return [
+            DocumentFormat::PDF->value,
+            DocumentFormat::ZUGFERD_XML->value,
+        ];
+    }
+
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
         $renderData = $input->requireData(
@@ -52,16 +59,17 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
             AbstractRenderData::class,
         );
 
-        $template = $renderData->templatePathFor(self::FORMAT->value);
+        $pdf = $state->require(DocumentFormat::PDF->value)->content;
+        $xml = $state->require(DocumentFormat::ZUGFERD_XML->value)->content;
 
-        $raw = $this->documentTemplateRenderer->render(
-            $template,
-            $input,
-            $context,
-            ['renderData' => $renderData],
-        );
-
-        $content = $this->xmlFormatter->format($raw);
+        try {
+            $content = (new ZugferdDocumentPdfMerger($xml, $pdf))
+                ->setAdditionalCreatorTool(self::CREATOR_PREFIX . $this->shopwareVersion)
+                ->generateDocument()
+                ->downloadString();
+        } catch (\Throwable $exception) {
+            throw DocumentV2Exception::zugferdEmbedFailed($exception);
+        }
 
         return new RenderResult(
             format: self::FORMAT->value,

@@ -263,9 +263,9 @@ class ThumbnailService
             ['ids' => ArrayParameterType::BINARY]
         );
 
+        $writtenPaths = [];
         try {
             $event = new MediaPathChangedEvent($context);
-            $writtenPaths = [];
 
             foreach ($records as $record) {
                 $thumbnailSize = ['width' => $record['width'], 'height' => $record['height']];

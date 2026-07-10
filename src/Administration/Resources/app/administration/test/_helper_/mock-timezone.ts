@@ -47,7 +47,7 @@ type DatePartConstructorArguments = [
 type MockDateConstructorArguments = [] | [value: number | string] | DatePartConstructorArguments;
 
 type MockDateConstructor = DateConstructor & {
-    new(...args: MockDateConstructorArguments): Date;
+    new (...args: MockDateConstructorArguments): Date;
     (...args: MockDateConstructorArguments): string;
 };
 
@@ -119,19 +119,14 @@ function getDateFromTimeZoneParts(parts: TimeZoneParts, timeZone: string, DateCo
     );
     const firstPass = localMilliseconds - getTimeZoneOffset(timeZone, localMilliseconds, DateConstructor);
 
-    return new DateConstructor(
-        localMilliseconds - getTimeZoneOffset(timeZone, firstPass, DateConstructor),
-    );
+    return new DateConstructor(localMilliseconds - getTimeZoneOffset(timeZone, firstPass, DateConstructor));
 }
 
 /**
  * Normalizes Date constructor arguments with native overflow behavior before timezone conversion.
  * This preserves cases such as `new Date(2024, 0, 32)` rolling into February.
  */
-function normalizeConstructorParts(
-    args: DatePartConstructorArguments,
-    DateConstructor: DateConstructor,
-): TimeZoneParts {
+function normalizeConstructorParts(args: DatePartConstructorArguments, DateConstructor: DateConstructor): TimeZoneParts {
     const [
         year,
         month,
@@ -141,15 +136,7 @@ function normalizeConstructorParts(
         seconds = 0,
         milliseconds = 0,
     ] = args;
-    const normalized = new DateConstructor(DateConstructor.UTC(
-        year,
-        month,
-        date,
-        hours,
-        minutes,
-        seconds,
-        milliseconds,
-    ));
+    const normalized = new DateConstructor(DateConstructor.UTC(year, month, date, hours, minutes, seconds, milliseconds));
 
     return {
         year: normalized.getUTCFullYear(),

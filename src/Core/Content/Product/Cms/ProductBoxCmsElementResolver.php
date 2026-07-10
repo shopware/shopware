@@ -40,6 +40,7 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria = new Criteria([$productConfig->getStringValue()]);
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('options.group');
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);

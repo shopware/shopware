@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="A simpler third architecture for Shopware Administration extension tooling: one published, extension-owned development package with standard TypeScript and ESLint configuration.">
-  <title>Issue #14040 — The Extension-Owned Toolchain</title>
+  <meta name="description" content="A simpler third architecture for Shopware Administration extension tooling: stable extension-owned tools connected to the live type contract of the exact Shopware checkout or installation.">
+  <title>Issue #14040 — The Connected Extension Toolchain</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Fira+Code:wght@400;500;600&amp;display=swap" rel="stylesheet">
@@ -1391,44 +1391,46 @@
       <a href="#developer-contract">3. Developer contract</a>
       <a href="#architecture">4. Architecture</a>
       <a href="#package">5. Package design</a>
-      <a href="#entities">6. Entity types</a>
-      <a href="#comparison">7. Comparison</a>
-      <a href="#edge-cases">8. Edge cases</a>
-      <a href="#versioning">9. Versioning</a>
-      <a href="#rollout">10. Rollout</a>
-      <a href="#acceptance">11. Acceptance gates</a>
-      <a href="#decision">12. Decision</a>
-      <a href="#evidence">13. Evidence</a>
+      <a href="#live-contract">6. Live contract</a>
+      <a href="#entities">7. Entity types</a>
+      <a href="#comparison">8. Comparison</a>
+      <a href="#edge-cases">9. Edge cases</a>
+      <a href="#versioning">10. Versioning</a>
+      <a href="#rollout">11. Rollout</a>
+      <a href="#acceptance">12. Acceptance gates</a>
+      <a href="#decision">13. Decision</a>
+      <a href="#evidence">14. Evidence</a>
     </nav>
 
     <main class="main">
       <header class="hero">
-        <div class="hero__eyebrow">Issue #14040 · Third architecture · 10 July 2026</div>
-        <h1>Publish the package. Let the extension own the project.</h1>
+        <div class="hero__eyebrow">Issue #14040 · Revised third architecture · 10 July 2026</div>
+        <h1>Install the tools once. Read the contract live.</h1>
         <p class="hero__lead">
-          A Shopware Administration extension should be a normal npm project with one versioned development dependency.
-          No generated root workspace. No facade symlink. No active-bundle discovery. No baseline database.
+          A Shopware Administration extension should own a normal npm project, while its version-dependent types come from the
+          exact Shopware checkout or installation it is running against. No release lag. No dependency edit when switching
+          Shopware. No generated root workspace.
         </p>
         <div class="hero__line">Zero surprise beats zero config</div>
         <div class="hero__meta">
-          <span>Concept: extension-owned toolchain</span>
-          <span>Package: @shopware-ag/administration-extension-tooling</span>
-          <span>Recommendation: adopt</span>
+          <span>Concept: stable tooling + live contract</span>
+          <span>Authority: exact connected Shopware</span>
+          <span>Recommendation: adopt revised C2</span>
         </div>
       </header>
 
       <div class="metric-grid" aria-label="Concept summary">
         <div class="metric">
           <div class="metric__value">1</div>
-          <div class="metric__label">Versioned dev dependency</div>
+          <div class="metric__label">Stable tooling dependency</div>
         </div>
         <div class="metric">
-          <div class="metric__value">3</div>
-          <div class="metric__label">Readable project files</div>
+          <div class="metric__value">1</div>
+          <div class="metric__label">Live contract locator</div>
         </div>
         <div class="metric">
           <div class="metric__value">0</div>
-          <div class="metric__label">Host-relative paths</div>
+          <div class="metric__label">Release lag for local types</div>
         </div>
         <div class="metric">
           <div class="metric__value">0</div>
@@ -1440,9 +1442,9 @@
         <div class="section-kicker">01 · Executive answer</div>
         <h2>Yes—there is a simpler solution.</h2>
         <p class="section-intro">
-          The earlier proposals are complicated because they preserve one constraint that is more expensive than it first appears:
-          <strong>the tooling contract must not be published as an npm package.</strong> Remove that constraint and most of the
-          architecture disappears.
+          The key is to stop treating <strong>tool implementation</strong> and the <strong>version-dependent Shopware API
+          contract</strong> as one artifact. Publish the stable tools once, but read services, entities, and globals from the
+          exact Shopware installation being developed and tested.
         </p>
 
         <div class="verdict">
@@ -1451,18 +1453,19 @@
             <div class="prose">
               <p>
                 Turn the existing private <code>@shopware-ag/administration-extension-tooling</code> prototype into a real,
-                self-contained, types-only npm package. Every extension installs it locally, extends its TypeScript preset,
-                imports its ESLint preset, and runs the standard tools.
+                self-contained tooling package. Every extension installs it locally, extends its TypeScript preset, imports its
+                ESLint preset, and keeps one normal TypeScript project.
               </p>
               <p>
-                This is not another compatibility layer around the host tree. It changes the boundary: the extension owns its
-                development environment, while Shopware publishes the versioned contract it promises to extensions.
+                The package does <em>not</em> freeze Shopware’s services and entity types. A tiny ignored locator connects the
+                project to <code>public.d.ts</code> or <code>internal.d.ts</code> from the current Shopware checkout. The released
+                snapshot is only a standalone fallback.
               </p>
             </div>
           </div>
           <div class="verdict__mark">
-            <div class="verdict__word">Adopt C</div>
-            <div class="verdict__sub">Stop A and B after a tarball pilot</div>
+            <div class="verdict__word">Adopt C2</div>
+            <div class="verdict__sub">Stable tools · live contract</div>
           </div>
         </div>
 
@@ -1470,25 +1473,25 @@
           <div class="principle">
             <div class="principle__number">01 · OWNERSHIP</div>
             <h3>The extension is the project</h3>
-            <p>Its config, dependency range, lockfile, IDE project, and CI command live together.</p>
+            <p>Its config, stable tool dependency, lockfile, IDE project, and CI command live together.</p>
           </div>
           <div class="principle">
             <div class="principle__number">02 · CONTRACT</div>
-            <h3>Publish only the public surface</h3>
-            <p>Curated global types and rules are public. Administration source code and runtime exports stay private.</p>
+            <h3>Separate tools from types</h3>
+            <p>npm supplies mechanics. The exact connected Shopware supplies its current public or internal contract.</p>
           </div>
           <div class="principle">
             <div class="principle__number">03 · MECHANICS</div>
-            <h3>Use boring standards</h3>
-            <p>npm resolution, TypeScript config inheritance, ESLint flat config, and ordinary npm scripts do the work.</p>
+            <h3>The local host wins</h3>
+            <p>Branch changes and Composer version switches update types without changing the extension dependency.</p>
           </div>
         </div>
 
         <div class="callout callout--blue">
           <div class="callout__title">The one-sentence explanation</div>
           <p>
-            “An Administration extension is a normal npm project: install the Shopware tooling package, extend its TypeScript
-            config, import its ESLint config, and run <code>npm run check</code>.”
+            “Install the Administration tooling once; the IDE and CI always read types from the Shopware instance the extension
+            is connected to.”
           </p>
         </div>
       </section>
@@ -1527,11 +1530,10 @@
         </div>
 
         <div class="callout callout--danger">
-          <div class="callout__title">Shared failure pattern</div>
+          <div class="callout__title">Shared failure pattern in A and B</div>
           <p>
-            Both designs make extension correctness depend on <em>where Shopware happens to be installed</em>. That creates the
-            topology matrix: source checkout versus Composer split, active versus inactive plugin, root versus nested package,
-            symlink versus copied vendor tree, Linux versus Windows, and one bundle versus many.
+            Both designs mix tool distribution, project discovery, public types, private Administration types, and installation
+            topology. Exact local types are valuable; making the entire toolchain depend on guessed filesystem topology is not.
           </p>
         </div>
 
@@ -1546,10 +1548,10 @@
           </div>
           <div class="panel panel--accent">
             <div class="panel__label">Explicit state</div>
-            <h3>What developers remember with C</h3>
+            <h3>What developers remember with C2</h3>
             <p>
-              The extension has a package dependency and two conventional config files. The lockfile states exactly which
-              contract and tool versions are in use.
+              The extension has one stable tool dependency, two conventional config files, and a connection to its current
+              Shopware. The lockfile identifies tools; the contract manifest identifies Shopware.
             </p>
           </div>
         </div>
@@ -1566,6 +1568,11 @@
               Two tiny, checked-in files are not accidental complexity. They are the visible boundary that tells the IDE,
               command line, code review, and CI which project is being checked.
             </p>
+            <p>
+              One additional ignored locator is the minimal environment-specific state. TypeScript requires a concrete file
+              dependency; without a locator, package link, generated config, or custom language server it cannot dynamically
+              select an unrelated Composer checkout.
+            </p>
           </div>
         </details>
       </section>
@@ -1575,15 +1582,16 @@
         <h2>Three files that any frontend developer recognizes.</h2>
         <p class="section-intro">
           New plugin scaffolds should contain these files from the start. Existing plugins can add them without needing a
-          Shopware root generator. The package lock is committed as normal generated package-manager state.
+          Shopware root project. Setup adds one ignored locator that points at the exact Administration contract.
         </p>
 
         <pre class="dir-tree">Resources/app/administration/
-├── <span class="hl">package.json</span>             <span class="note">one Shopware dev dependency + ordinary scripts</span>
+├── <span class="hl">package.json</span>             <span class="note">one stable tooling dependency + ordinary scripts</span>
 ├── package-lock.json        <span class="note">exact, reproducible dependency tree</span>
-├── <span class="hl">tsconfig.json</span>            <span class="note">extends the published Shopware preset</span>
-├── <span class="hl">eslint.config.mjs</span>        <span class="note">imports the published Shopware flat config</span>
+├── <span class="hl">tsconfig.json</span>            <span class="note">extends the stable tooling preset</span>
+├── <span class="hl">eslint.config.mjs</span>        <span class="note">imports the stable tooling flat config</span>
 ├── .shopware/
+│   ├── <span class="hl">admin-contract.d.ts</span>  <span class="note">ignored locator to the exact connected Shopware</span>
 │   └── entity-schema.generated.d.ts <span class="note">optional; only for plugin DAL additions</span>
 └── src/
     ├── main.ts
@@ -1594,12 +1602,12 @@
           <pre><code>{
   "private": true,
   "scripts": {
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
-    "lint": "eslint .",
-    "check": "npm run typecheck &amp;&amp; npm run lint"
+    "typecheck": "shopware-admin ensure-contract &amp;&amp; vue-tsc --noEmit -p tsconfig.json",
+    "lint": "shopware-admin ensure-contract &amp;&amp; eslint .",
+    "check": "shopware-admin ensure-contract &amp;&amp; vue-tsc --noEmit -p tsconfig.json &amp;&amp; eslint ."
   },
   "devDependencies": {
-    "@shopware-ag/administration-extension-tooling": "~6.7.0"
+    "@shopware-ag/administration-extension-tooling": "^1.0.0"
   }
 }</code></pre>
         </div>
@@ -1610,12 +1618,15 @@
             <pre><code>{
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@shopware-ag/administration-extension-tooling/tsconfig",
+  "files": [
+    ".shopware/admin-contract.d.ts"
+  ],
   "include": [
     "src/**/*.js",
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    ".shopware/**/*.d.ts"
+    ".shopware/entity-schema.generated.d.ts"
   ]
 }</code></pre>
           </div>
@@ -1635,7 +1646,12 @@ export default adminExtension({
           <div class="callout__title">No proprietary configuration language</div>
           <p>
             A developer can run <code>vue-tsc</code> or <code>eslint</code> directly, inspect the effective configuration, add a
-            local rule override, or replace the scripts. The package supplies defaults; it does not own the project.
+            local rule override, or replace the scripts. The package supplies mechanics; the connected Shopware supplies types.
+          </p>
+          <p>
+            The locator is listed under <code>files</code>, so deleting it produces an immediate TypeScript/IDE error instead of
+            silently removing all Shopware types. Ignore only <code>.shopware/admin-contract.d.ts</code>, not the whole directory,
+            because an extension may commit its own entity augmentation beside it.
           </p>
         </div>
 
@@ -1643,39 +1659,47 @@ export default adminExtension({
         <div class="three-col">
           <div class="panel">
             <div class="panel__label">New extension</div>
-            <p>The plugin skeleton includes all three files and the compatible package range. The developer runs <code>npm ci</code>.</p>
+            <p>The skeleton includes all three files. Standard Shopware setup runs <code>npm ci</code> and connects the contract automatically.</p>
           </div>
           <div class="panel">
             <div class="panel__label">Existing npm extension</div>
-            <p>Install one dev dependency, replace the local config stack with the two small presets, then run the normal checks.</p>
+            <p>Install one stable dependency, replace the local config stack with two presets, then connect it to the development Shopware.</p>
           </div>
           <div class="panel">
-            <div class="panel__label">Legacy extension without npm</div>
-            <p>Create the normal package files once. A migration helper may scaffold them, but it is optional and never runs during install.</p>
+            <div class="panel__label">Standalone checkout</div>
+            <p>With no local Shopware, the resolver caches a released contract for an explicit test target; it never edits <code>package.json</code>.</p>
           </div>
         </div>
       </section>
 
       <section id="architecture">
         <div class="section-kicker">04 · Architecture</div>
-        <h2>Package resolution replaces Shopware topology discovery.</h2>
+        <h2>Two independent inputs, one local project.</h2>
         <p class="section-intro">
-          The extension and the published contract are the only required nodes. The Administration build remains the runtime
-          host, but it is no longer the filesystem source of the extension’s development environment.
+          npm supplies stable mechanics. The exact Shopware source checkout or Composer installation supplies the changing API
+          contract. The extension combines both through one small, generated locator that every standard TypeScript tool can
+          understand.
         </p>
 
-        <div class="arch" role="img" aria-label="Extension-owned tooling architecture: extension project resolves a published Shopware tooling package, which feeds standard TypeScript and ESLint into both IDE and CI.">
+        <div class="arch" role="img" aria-label="A stable npm tooling package and the exact local Shopware contract feed one extension project, which is checked identically by the IDE and CI.">
           <div class="arch__flow">
-            <div class="arch-card">
-              <div class="arch-card__label">Project boundary</div>
-              <div class="arch-card__title">Extension repository</div>
-              <p>Source, package range, lockfile, TypeScript config, ESLint config, and optional schema augmentation.</p>
+            <div class="output-stack">
+              <div class="arch-card">
+                <div class="arch-card__label">Stable mechanics</div>
+                <div class="arch-card__title">npm tooling package</div>
+                <p>TS preset, ESLint, Twig, resolver, validation, and CLI.</p>
+              </div>
+              <div class="arch-card">
+                <div class="arch-card__label">Exact API surface</div>
+                <div class="arch-card__title">Installed Shopware contract</div>
+                <p>Public or internal services and the current entity schema.</p>
+              </div>
             </div>
             <div class="arch-arrow" aria-hidden="true">→</div>
             <div class="arch-card arch-card--focus">
-              <div class="arch-card__label">One published artifact</div>
-              <div class="arch-card__title">Administration extension tooling</div>
-              <p>Public types, core entity schema, asset shims, TS preset, lint preset, Shopware rules, and legacy Twig processor.</p>
+              <div class="arch-card__label">One project boundary</div>
+              <div class="arch-card__title">Extension repository</div>
+              <p>Normal config plus <code>.shopware/admin-contract.d.ts</code>, which references the connected contract.</p>
             </div>
             <div class="arch-arrow" aria-hidden="true">→</div>
             <div class="output-stack">
@@ -1692,23 +1716,23 @@ export default adminExtension({
             </div>
           </div>
           <p class="arch__caption">
-            npm resolves the package from the extension’s own dependency tree. TypeScript and ESLint consume the same checked-in
-            project boundary in editors and on the command line.
+            The tool version can remain unchanged while Shopware moves from 6.7 to 6.8 or from a release to a trunk commit. The
+            contract changes with the host; the extension manifest and lockfile do not.
           </p>
         </div>
 
         <div class="boundary-row">
           <div class="boundary">
+            <b>Tooling</b>
+            Stable semver. It understands the contract format, not every Shopware service.
+          </div>
+          <div class="boundary">
+            <b>Contract</b>
+            Comes from the exact Shopware installation and changes whenever that installation changes.
+          </div>
+          <div class="boundary">
             <b>Runtime</b>
-            Still <code>window.Shopware</code>. The tooling package has no runtime root export.
-          </div>
-          <div class="boundary">
-            <b>Build</b>
-            Existing Vite extension builds remain unchanged. Tooling files are dev-only.
-          </div>
-          <div class="boundary">
-            <b>Administration</b>
-            Publishes a contract artifact; it does not expose its source tree as an SDK.
+            Still <code>window.Shopware</code>. The tooling package has no application export.
           </div>
           <div class="boundary">
             <b>Storefront</b>
@@ -1730,16 +1754,28 @@ export default adminExtension({
               </thead>
               <tbody>
                 <tr>
-                  <td>Public Shopware API types</td>
-                  <td>Administration</td>
-                  <td>Curated declarations in the package</td>
-                  <td>Package release tests fail; no full source graph is imported</td>
+                  <td>Tool implementation</td>
+                  <td>Stable npm package</td>
+                  <td>Presets, rules, processor, resolver, contract validator</td>
+                  <td>Peer or contract-format mismatch fails with an actionable message</td>
                 </tr>
                 <tr>
-                  <td>Tool versions</td>
-                  <td>Extension lockfile</td>
-                  <td>npm dependency and peer resolution</td>
-                  <td><code>npm ci</code> fails on mismatch instead of silently repairing</td>
+                  <td>Version-dependent Shopware types</td>
+                  <td>Exact source checkout / Composer package</td>
+                  <td><code>extension-contract/*.d.ts</code> plus a manifest</td>
+                  <td>Integrated and downstream CI fail if the local contract is unavailable; no released fallback</td>
+                </tr>
+                <tr>
+                  <td>Supported versus private API</td>
+                  <td>Administration</td>
+                  <td><code>public.d.ts</code> and <code>internal.d.ts</code> profiles</td>
+                  <td>Third-party extensions cannot accidentally type against Commercial-only internals</td>
+                </tr>
+                <tr>
+                  <td>Environment connection</td>
+                  <td>Setup command</td>
+                  <td>One ignored <code>.shopware/admin-contract.d.ts</code> locator</td>
+                  <td>Validation reports the stale target and the exact repair command</td>
                 </tr>
                 <tr>
                   <td>Project file set</td>
@@ -1748,16 +1784,10 @@ export default adminExtension({
                   <td>Visible, reviewable config change</td>
                 </tr>
                 <tr>
-                  <td>IDE project selection</td>
+                  <td>IDE and CI selection</td>
                   <td>Standard tools</td>
-                  <td>Nearest <code>tsconfig.json</code> and <code>eslint.config.mjs</code></td>
-                  <td>IDE and CI point at the same boundary</td>
-                </tr>
-                <tr>
-                  <td>Runtime host</td>
-                  <td>Shopware</td>
-                  <td><code>window.Shopware</code> and build externals</td>
-                  <td>Unaffected by the development package</td>
+                  <td>Nearest config, including the same locator</td>
+                  <td>Both read the identical project and exact contract</td>
                 </tr>
               </tbody>
             </table>
@@ -1767,36 +1797,38 @@ export default adminExtension({
 
       <section id="package">
         <div class="section-kicker">05 · Package design</div>
-        <h2>Make the current private package real—and intentionally narrow.</h2>
+        <h2>The package is a stable engine, not a frozen Shopware API.</h2>
         <p class="section-intro">
-          The current work already contains a private package with the right name, a dependency-light public API, a TypeScript
-          preset, an ESLint preset, and Twig support. The new architecture packages those actual files instead of creating
-          re-export facades that point back into an installed Shopware tree.
+          Publish the mechanics that change slowly and keep release-specific services and entities out of the package’s default
+          type graph. This is what prevents every Shopware release—or every local version switch—from becoming an extension
+          dependency update.
         </p>
 
         <div class="two-col">
           <div class="panel panel--accent">
             <div class="panel__label">Ship</div>
             <ul class="clean-list">
-              <li>Curated <code>Shopware</code> global declarations.</li>
-              <li>Versioned core entity declarations.</li>
-              <li>HTML and asset module shims.</li>
+              <li>TypeScript and Vue project presets.</li>
               <li><code>module: ESNext</code> and <code>moduleResolution: Bundler</code> preset.</li>
               <li>ESLint flat config for JS, TS, Vue, and legacy Twig.</li>
               <li>Shopware deprecation and forbidden-internal-import rules.</li>
+              <li><code>connect</code> and <code>ensure-contract</code> commands.</li>
+              <li>Contract manifest validation and standalone snapshot cache.</li>
+              <li>Stable HTML and asset module shims.</li>
               <li>Only the tool dependencies needed by those presets.</li>
             </ul>
           </div>
           <div class="panel panel--amber">
             <div class="panel__label">Do not ship</div>
             <ul class="clean-list">
+              <li>A Shopware-minor service or entity map loaded by default.</li>
               <li>The full <code>global.types.ts</code> import graph.</li>
               <li>Administration implementation source.</li>
               <li>A default runtime export.</li>
               <li>Wildcard package exports such as <code>./*</code>.</li>
               <li>Host-relative <code>paths</code> mappings.</li>
               <li>Node ambient types not needed by an extension.</li>
-              <li>Install, postinstall, or Composer lifecycle mutation.</li>
+              <li>Lifecycle scripts that mutate consumer configuration.</li>
             </ul>
           </div>
         </div>
@@ -1805,13 +1837,16 @@ export default adminExtension({
           <div class="code-file__header">Published package.json — proposed shape, versions illustrative</div>
           <pre><code>{
   "name": "@shopware-ag/administration-extension-tooling",
-  "version": "6.7.0",
+  "version": "1.0.0",
   "type": "module",
-  "types": "./types/index.d.ts",
-  "files": ["config", "eslint", "types"],
+  "types": "./types/tooling.d.ts",
+  "files": ["bin", "config", "eslint", "types"],
+  "bin": {
+    "shopware-admin": "./bin/shopware-admin.mjs"
+  },
   "exports": {
     ".": {
-      "types": "./types/index.d.ts"
+      "types": "./types/tooling.d.ts"
     },
     "./tsconfig": "./config/tsconfig.json",
     "./eslint": "./eslint/index.mjs"
@@ -1826,11 +1861,11 @@ export default adminExtension({
         </div>
 
         <div class="callout callout--blue">
-          <div class="callout__title">Types-only root by construction</div>
+          <div class="callout__title">No application runtime export</div>
           <p>
-            The package root exposes only a TypeScript <code>types</code> condition. Application code that tries to import the
-            package at runtime receives a package-export error. Config files import only the explicit <code>/eslint</code>
-            subpath. This is a much safer boundary than making the full Administration package importable.
+            The root contains only stable tooling declarations. Application code that tries to import it at runtime receives a
+            package-export error. Version-specific Shopware types arrive through the connected declaration file, not through an
+            import that can leak into the application bundle.
           </p>
         </div>
 
@@ -1839,8 +1874,8 @@ export default adminExtension({
           <div class="panel">
             <div class="panel__label">One install command</div>
             <p>
-              npm 10 installs required peers by default. The extension lists one direct dev dependency; npm keeps host tools such
-              as ESLint and TypeScript at a compatible project level.
+              The extension lists one broad stable tooling range such as <code>^1.0.0</code>. Shopware 6.7, 6.8, and trunk do not
+              require changing that range merely because their service contracts differ.
             </p>
           </div>
           <div class="panel">
@@ -1859,36 +1894,186 @@ export default adminExtension({
           </div>
         </div>
 
-        <h3 style="margin-top:30px">Public type contract</h3>
+        <h3 style="margin-top:30px">A small contract protocol</h3>
         <div class="prose">
           <p>
-            Keep the current curated, structural approach, but remove its dependency on the installed source tree. A small
-            internal <code>ShopwareExtensionApi</code> model should be compiled both into the Administration and into the package
-            declarations. An internal conformance test then verifies that the runtime object still satisfies the promised
-            contract.
+            The tooling package only needs to understand a versioned manifest and three declaration entry points. It validates
+            the contract format, chooses a profile, and writes the locator. It does not contain a table mapping Shopware product
+            versions to npm package versions.
           </p>
           <p>
-            Use <code>unknown</code> for intentionally unmodelled areas. Never import private implementation types merely to make
-            a declaration more precise; that recreates the full-graph problem from proposal B.
+            A future incompatible declaration-file layout increments <code>format</code> in the manifest. That rare protocol
+            change may require a tooling update; ordinary service additions, removals, and Shopware releases do not.
           </p>
         </div>
       </section>
 
+      <section id="live-contract">
+        <div class="section-kicker">06 · Live Shopware contract</div>
+        <h2>The exact Shopware installation is the type authority.</h2>
+        <p class="section-intro">
+          Administration owns a deterministic compact-contract generator and commits its result at a stable path. CI rejects a
+          stale generated diff; Composer Administration artifacts ship those same verified files. A Shopware-aware setup command
+          obtains the real bundle path, so the extension never guesses <code>src/</code>, <code>vendor/</code>, or a plugin
+          directory convention.
+        </p>
+
+        <div class="code-file">
+          <div class="code-file__header">Administration package — stable contract location</div>
+          <pre><code>Resources/app/administration/extension-contract/
+├── manifest.json
+├── public.d.ts
+├── internal.d.ts
+└── entity-schema.d.ts</code></pre>
+        </div>
+
+        <div class="callout callout--blue">
+          <div class="callout__title">A declaration rollup, not a doorway into Admin source</div>
+          <p>
+            All entry points must be self-contained or import only files inside <code>extension-contract/</code>. The artifact audit
+            rejects parent paths and implementation-source imports. This preserves exact types without recreating proposal B’s
+            full Administration graph.
+          </p>
+        </div>
+
+        <div class="code-file">
+          <div class="code-file__header">Extension-local generated locator — .shopware/admin-contract.d.ts</div>
+          <pre><code>/* Connected Shopware: 6.8.0-dev @ abc123 · profile: public */
+/// &lt;reference path="/absolute/shopware/.../public.d.ts" /&gt;
+/// &lt;reference path="/absolute/shopware/.../entity-schema.d.ts" /&gt;</code></pre>
+        </div>
+
+        <div class="callout">
+          <div class="callout__title">Selection rule: the connected Shopware always wins</div>
+          <p>
+            In a source checkout, Composer project, Commercial downstream job, or local plugin development shop, failure to find
+            the connected contract is an error. These modes must never silently fall back to a released snapshot, because that
+            would hide exactly the trunk additions and removals the contract is meant to reveal.
+          </p>
+        </div>
+
+        <div class="two-col">
+          <div class="panel panel--accent">
+            <div class="panel__label">Public profile</div>
+            <h3>Third-party extensions</h3>
+            <p>
+              References <code>public.d.ts</code> and the entity schema. It contains supported extension APIs only. Private
+              services do not become an accidental compatibility promise.
+            </p>
+          </div>
+          <div class="panel panel--blue">
+            <div class="panel__label">Internal profile</div>
+            <h3>Commercial and first-party code</h3>
+            <p>
+              Adds <code>internal.d.ts</code>. Downstream CI connects it to the exact upstream Shopware commit, so private service
+              additions and removals are checked in the same change window.
+            </p>
+          </div>
+        </div>
+
+        <h3 style="margin-top:30px">The three critical workflows</h3>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Change</th>
+                  <th>Contract selected</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>A new service lands on trunk and Commercial starts using it</td>
+                  <td><code>internal.d.ts</code> from that exact trunk checkout</td>
+                  <td>The type exists immediately—no npm publication and no dependency bump</td>
+                </tr>
+                <tr>
+                  <td>A private service is removed while Commercial still uses it</td>
+                  <td>The same PR’s exact contract, where the service is absent</td>
+                  <td>The Commercial downstream typecheck fails before merge</td>
+                </tr>
+                <tr>
+                  <td>A plugin developer switches the local Shopware version</td>
+                  <td>The contract bundled with the newly selected installation</td>
+                  <td>Linting and typechecking follow it without editing <code>package.json</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h3>Automatic connection lifecycle</h3>
+        <div class="three-col">
+          <div class="panel">
+            <div class="panel__label">Setup</div>
+            <p>
+              <code>bin/install-extension-npm</code> or the Flex development setup invokes
+              <code>shopware-admin connect --shopware &lt;resolved-bundle-path&gt;</code> once.
+            </p>
+          </div>
+          <div class="panel">
+            <div class="panel__label">Daily use</div>
+            <p>
+              The locator’s filename is stable. When Shopware changes in place, its referenced declaration contents change
+              automatically; there is normally nothing to regenerate.
+            </p>
+          </div>
+          <div class="panel">
+            <div class="panel__label">Recovery</div>
+            <p>
+              <code>shopware-admin ensure-contract</code> validates the manifest and path. A Shopware wrapper can pass a new
+              resolved path and rewrite it; a direct call with no host information fails with the exact reconnect command.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout--warning">
+          <div class="callout__title">The declaration producer needs a conformance gate</div>
+          <p>
+            Administration must derive service keys from a typed registration map—or test the generated declarations against
+            the runtime registry—in the same CI job. A hand-maintained <code>internal.d.ts</code> would simply move drift to a new
+            file and would not reliably catch service removal.
+          </p>
+          <p>
+            A service-changing PR runs the generator and commits the result. Core CI runs <code>--check</code> before Commercial
+            connects to that exact tree, and the Composer build packages the already-verified directory. A branch switch therefore
+            changes the declarations through Git itself—there is no local release or dependency step.
+          </p>
+        </div>
+
+        <details>
+          <summary>What about a standalone plugin checkout with no Shopware nearby?</summary>
+          <div class="details__body">
+            <p>
+              That is the one mode where an explicit released snapshot is legitimate. The resolver downloads or reuses a cached
+              contract for a declared target such as <code>6.7</code>, without changing the extension dependency or lockfile.
+              A version range is tested as a CI matrix of concrete contracts; a single snapshot must never pretend to prove a
+              range.
+            </p>
+            <p>
+              As soon as the extension is connected to a real Shopware installation, the live contract replaces the snapshot.
+              The mode is recorded in the locator header and manifest, so CI cannot accidentally claim an exact-host check while
+              using cached release types.
+            </p>
+          </div>
+        </details>
+      </section>
+
       <section id="entities">
-        <div class="section-kicker">06 · Entity types</div>
+        <div class="section-kicker">07 · Entity types</div>
         <h2>Two layers, plus a safe fallback.</h2>
         <p class="section-intro">
-          Entity typing is where both earlier designs acquire hidden failure modes. The package should make the base case useful
-          without a running Shopware installation, and make plugin-specific precision an explicit enhancement.
+          Entity typing follows the same authority rule as services. The selected live contract supplies the exact core schema;
+          plugin-owned declarations add precision without merging unrelated plugins into one global program.
         </p>
 
         <div class="entity-layers">
           <div class="entity-layer entity-layer--base">
             <div class="entity-layer__name">Layer 1 · Core</div>
             <div class="entity-layer__body">
-              The tooling release contains the generated core Shopware entity schema for its supported minor line. Core entities
-              such as <code>product</code>, <code>order</code>, and <code>customer</code> are precise immediately after
-              <code>npm ci</code>.
+              The connected Shopware contract contains the generated entity schema for that exact installation. A standalone
+              checkout uses the schema from its explicitly selected release snapshot. The tooling package owns neither copy.
             </div>
           </div>
           <div class="entity-layer entity-layer--plugin">
@@ -1922,11 +2107,11 @@ type Entity&lt;Name extends string&gt; =
 
         <div class="two-col">
           <div class="panel panel--accent">
-            <div class="panel__label">Default experience</div>
-            <h3>No live shop required</h3>
+            <div class="panel__label">Connected experience</div>
+            <h3>The current host is authoritative</h3>
             <p>
-              Core types, public APIs, Vue files, Twig linting, and normal CI work in a standalone plugin checkout. A missing
-              custom schema cannot break module resolution.
+              Core types, services, Vue files, and Twig linting follow the locally installed Shopware. Switching the Shopware
+              checkout or Composer constraint changes the effective types without changing npm dependencies.
             </p>
           </div>
           <div class="panel panel--blue">
@@ -1943,13 +2128,13 @@ type Entity&lt;Name extends string&gt; =
           <div class="callout__title">Clean-fixture rule</div>
           <p>
             Generate plugin schema types in a test shop containing Shopware plus the plugin under test. Otherwise, fields from
-            unrelated active plugins could leak into the committed declaration. The generator should record the tooling version
-            and input hash, and CI should use <code>--check</code>.
+            unrelated active plugins could leak into the committed declaration. The generator should record the selected
+            contract hash and input hash, and CI should use <code>--check</code>.
           </p>
         </div>
 
         <details>
-          <summary>Why this is safer than importing the installed generated schema</summary>
+          <summary>Why this is safer than an optional source import</summary>
           <div class="details__body">
             <p>
               The current private prototype imports <code>../src/entity-schema-definition</code>. If that declaration is absent
@@ -1957,19 +2142,21 @@ type Entity&lt;Name extends string&gt; =
               to <code>any</code>. A check may look green while useful safety has disappeared.
             </p>
             <p>
-              The package design always includes a base declaration, tests its tarball with library checking enabled, and models
-              unknown plugin entities explicitly. Absence therefore has defined behavior.
+              The selected contract always includes a base declaration, and <code>ensure-contract</code> fails when it is absent.
+              Standalone snapshots are content-checked before use. Unknown plugin entities remain explicit
+              <code>UnknownEntity</code> values rather than silently degrading to <code>any</code>.
             </p>
           </div>
         </details>
       </section>
 
       <section id="comparison">
-        <div class="section-kicker">07 · Head-to-head comparison</div>
-        <h2>The third option removes concepts instead of relocating them.</h2>
+        <div class="section-kicker">08 · Head-to-head comparison</div>
+        <h2>C2 keeps the simple project boundary and removes release lag.</h2>
         <p class="section-intro">
-          Proposal C does accept one operational cost: Shopware must publish and maintain an npm package. That cost is bounded,
-          automatable, and already familiar. In return, the per-install topology and repair machinery disappears.
+          The original package idea was easier to understand than the root projector or linked facade, but freezing Shopware
+          types into that package made them stale. C2 separates stable tools from the live contract and deliberately accepts one
+          tiny environment locator.
         </p>
 
         <div class="table-wrap">
@@ -1980,7 +2167,7 @@ type Entity&lt;Name extends string&gt; =
                   <th>Dimension</th>
                   <th>A · Root projector</th>
                   <th>B · Admin facade</th>
-                  <th>C · Extension-owned package</th>
+                  <th>C2 · Stable tools + live contract</th>
                 </tr>
               </thead>
               <tbody>
@@ -1988,31 +2175,31 @@ type Entity&lt;Name extends string&gt; =
                   <td>Mental model</td>
                   <td>Host generates one project over discovered extensions</td>
                   <td>Host pretends to be a package inside each extension</td>
-                  <td>Extension installs a normal development package</td>
+                  <td>Install tools once; read types from connected Shopware</td>
                 </tr>
                 <tr>
                   <td>Project boundary</td>
                   <td><span class="status status--bad">Host root</span></td>
                   <td><span class="status status--mixed">Host + plugin</span></td>
-                  <td><span class="status status--good">Extension</span></td>
+                  <td><span class="status status--good">Extension + one contract locator</span></td>
                 </tr>
                 <tr>
                   <td>Type source</td>
                   <td>Copied facade pointing into installed source</td>
                   <td>Full Administration package/source graph</td>
-                  <td>Curated declarations in immutable tarball</td>
+                  <td>Exact host <code>public.d.ts</code> or <code>internal.d.ts</code></td>
                 </tr>
                 <tr>
                   <td>IDE / CI parity</td>
                   <td>Aggregate editor program versus isolated CLI projects</td>
                   <td>Dependent on link and local project shape</td>
-                  <td>Same nearest local config</td>
+                  <td>Same nearest config and same contract locator</td>
                 </tr>
                 <tr>
                   <td>Inactive plugin</td>
                   <td>May not be discovered</td>
                   <td>Linker loops known filesystem locations</td>
-                  <td>Works in its own checkout</td>
+                  <td>Explicit host connection or explicit standalone snapshot</td>
                 </tr>
                 <tr>
                   <td>Global augmentation isolation</td>
@@ -2024,19 +2211,19 @@ type Entity&lt;Name extends string&gt; =
                   <td>Install mutation</td>
                   <td>Generates root files, facade, and baseline state</td>
                   <td>Creates and repairs symlinks in <code>node_modules</code></td>
-                  <td>Only ordinary <code>npm ci</code></td>
+                  <td>One ignored declaration locator outside <code>node_modules</code></td>
                 </tr>
                 <tr>
                   <td>Windows / Docker</td>
                   <td>Generated absolute/relative path matrix must be proven</td>
                   <td>Symlink and bind-mount semantics</td>
-                  <td>Standard npm package resolution</td>
+                  <td>Regular generated file; no framework-created symlink</td>
                 </tr>
                 <tr>
                   <td>Runtime API risk</td>
                   <td>Low, but facade still points into source</td>
                   <td>High: package root and wildcard expose internals</td>
-                  <td>Types-only root; no wildcard</td>
+                  <td>Tool-only package root; contract is declaration-only</td>
                 </tr>
                 <tr>
                   <td>Legacy debt</td>
@@ -2051,10 +2238,22 @@ type Entity&lt;Name extends string&gt; =
                   <td>No root config; separate package boundary</td>
                 </tr>
                 <tr>
+                  <td>Trunk additions / removals</td>
+                  <td>Visible if generation and downstream orchestration are current</td>
+                  <td>Visible through linked full source, with a very broad boundary</td>
+                  <td><span class="status status--good">Visible immediately from the exact contract</span></td>
+                </tr>
+                <tr>
+                  <td>Local Shopware version switch</td>
+                  <td>Regenerate host state</td>
+                  <td>Repair or replace links</td>
+                  <td><span class="status status--good">No dependency edit; validate stable locator</span></td>
+                </tr>
+                <tr>
                   <td>Release cost</td>
                   <td><span class="status status--good">No registry</span> but high install complexity</td>
                   <td><span class="status status--good">No registry</span> but high link complexity</td>
-                  <td><span class="status status--mixed">One package</span> with automated release tests</td>
+                  <td>Stable tool releases plus generated contract snapshots; no per-release consumer bump</td>
                 </tr>
                 <tr>
                   <td>Recommendation</td>
@@ -2075,21 +2274,30 @@ type Entity&lt;Name extends string&gt; =
           </div>
           <div class="panel">
             <div class="panel__label">Repair</div>
-            <p>Symlink recreation, facade copying, post-install setup, generated root config freshness, and stale references.</p>
+            <p>Symlink recreation, facade copying, generated root config freshness, package-version pairing, and lockfile churn.</p>
           </div>
           <div class="panel">
             <div class="panel__label">Suppression</div>
             <p>Root-scale baselines, diagnostic fingerprints, aggregate cross-plugin declarations, and debt snapshots.</p>
           </div>
         </div>
+
+        <div class="callout callout--blue">
+          <div class="callout__title">What intentionally remains</div>
+          <p>
+            The locator is not disguised as zero configuration. TypeScript needs a static path before it can build a program, so
+            one small ignored declaration records the current environment. Its behavior is inspectable, its validation is
+            deterministic, and deleting it has one repair command. That is the irreducible state—not an architecture framework.
+          </p>
+        </div>
       </section>
 
       <section id="edge-cases">
-        <div class="section-kicker">08 · Edge-case audit</div>
-        <h2>The topology matrix becomes a package-manager matrix.</h2>
+        <div class="section-kicker">09 · Edge-case audit</div>
+        <h2>One explicit connection absorbs the topology matrix.</h2>
         <p class="section-intro">
-          That is a major simplification. npm resolution and local project files are stable across the installation shapes that
-          currently force custom branching.
+          The PHP-aware Shopware setup already knows where the Administration bundle is installed. It passes that resolved path
+          to a small Node CLI once; TypeScript never tries to rediscover the PHP topology on its own.
         </p>
 
         <div class="table-wrap">
@@ -2098,45 +2306,45 @@ type Entity&lt;Name extends string&gt; =
               <thead>
                 <tr>
                   <th>Scenario</th>
-                  <th>Behavior under proposal C</th>
+                  <th>Behavior under proposal C2</th>
                   <th>Residual risk / rule</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>Monorepo source checkout</td>
-                  <td>Extension resolves its own package and configs.</td>
-                  <td>No dependency on the monorepo root package.</td>
+                  <td>Setup resolves the source Administration bundle and connects its exact contract.</td>
+                  <td>Do not replace the contract with the root Admin TypeScript project.</td>
                 </tr>
                 <tr>
                   <td>Composer split / vendor install</td>
-                  <td>Identical extension files and registry package.</td>
-                  <td>Development requires <code>npm ci</code>; production does not.</td>
+                  <td>The split package contains the same stable contract directory.</td>
+                  <td>The Composer package build must test that declarations are included.</td>
                 </tr>
                 <tr>
                   <td>Flex template</td>
-                  <td>Scaffold pins the compatible tooling minor.</td>
-                  <td>Recipe test must install from a clean cache.</td>
+                  <td>Development setup installs the stable tool and connects the current Shopware automatically.</td>
+                  <td>No Shopware-minor pin is written into the plugin manifest.</td>
                 </tr>
                 <tr>
                   <td>Inactive plugin</td>
-                  <td>Checks work in the plugin repository without booting Shopware.</td>
-                  <td>Only optional custom schema generation needs an active fixture.</td>
+                  <td>It can connect by explicit path without being active, or select a standalone snapshot.</td>
+                  <td>Activation is not used as the discovery mechanism.</td>
                 </tr>
                 <tr>
                   <td>Plugin outside <code>custom/plugins</code></td>
-                  <td>Location is irrelevant to TypeScript and ESLint.</td>
-                  <td>Project orchestration, if desired, lists it explicitly.</td>
+                  <td>Its own config and locator work at any filesystem location.</td>
+                  <td>Connect receives the resolved host path; it does not search parent directories.</td>
                 </tr>
                 <tr>
                   <td>Symlinked plugin repository</td>
-                  <td>npm resolution occurs from the extension project.</td>
-                  <td>Add Linux and Windows junction fixtures before support claim.</td>
+                  <td>The locator contains a normalized absolute contract path; npm still resolves locally.</td>
+                  <td>Prove realpath and bind-mount behavior in Linux fixtures.</td>
                 </tr>
                 <tr>
                   <td>Windows</td>
-                  <td>No framework-created symlink and no bash path calculation.</td>
-                  <td>Tarball fixture runs on Windows CI.</td>
+                  <td>A regular declaration file is written with a TypeScript-compatible normalized path.</td>
+                  <td>No framework-created symlink; test drive letters and spaces on Windows CI.</td>
                 </tr>
                 <tr>
                   <td>Two plugins with same global augmentation name</td>
@@ -2160,8 +2368,8 @@ type Entity&lt;Name extends string&gt; =
                 </tr>
                 <tr>
                   <td>Air-gapped CI</td>
-                  <td>Use normal npm cache or registry mirror with lockfile integrity.</td>
-                  <td>No hidden fallback to installed Shopware source.</td>
+                  <td>The live contract is already inside the Composer/source installation; tools use the normal npm mirror.</td>
+                  <td>Standalone snapshots must be pre-cached and content-addressed.</td>
                 </tr>
                 <tr>
                   <td>Production without Node</td>
@@ -2172,6 +2380,36 @@ type Entity&lt;Name extends string&gt; =
                   <td>Custom config override</td>
                   <td>Override is visible in the extension’s config and review.</td>
                   <td>The preset is a default, not a security boundary.</td>
+                </tr>
+                <tr>
+                  <td>New service on trunk</td>
+                  <td>The generated exact internal contract contains it before any Shopware release.</td>
+                  <td>Contract generation/conformance is a required Administration CI gate.</td>
+                </tr>
+                <tr>
+                  <td>Removed private service</td>
+                  <td>The exact internal contract loses the key and Commercial fails downstream.</td>
+                  <td>The downstream job must reject snapshot mode and receive the upstream SHA.</td>
+                </tr>
+                <tr>
+                  <td>Local Shopware version switch</td>
+                  <td>The stable path usually points at new contents; Shopware setup reconnects if the installation moved.</td>
+                  <td>No <code>package.json</code> or lockfile edit is allowed; a different host directory needs one explicit connection.</td>
+                </tr>
+                <tr>
+                  <td>One plugin checkout linked into two hosts concurrently</td>
+                  <td>One working tree intentionally selects one active contract at a time.</td>
+                  <td>Use separate worktrees/checkouts for simultaneous hosts; CI matrix jobs already have isolated workspaces.</td>
+                </tr>
+                <tr>
+                  <td>Standalone plugin checkout</td>
+                  <td>An explicit concrete target selects a cached released snapshot.</td>
+                  <td>Ranges require a matrix; snapshot mode is visibly labelled.</td>
+                </tr>
+                <tr>
+                  <td>Public versus private API</td>
+                  <td>Third parties select <code>public</code>; first-party downstream selects <code>internal</code>.</td>
+                  <td>Internal profile access is policy, not a backwards-compatibility promise.</td>
                 </tr>
                 <tr>
                   <td>Unsupported package manager</td>
@@ -2186,9 +2424,9 @@ type Entity&lt;Name extends string&gt; =
         <div class="callout">
           <div class="callout__title">Large extension suites</div>
           <p>
-            Repeated installs are a performance concern, not a correctness concern. A suite may opt into an ordinary npm
-            workspace to hoist shared tools. That optimization stays local to the suite and does not change the contract of an
-            individual extension.
+            A suite may use an ordinary npm workspace to hoist the stable tools and may reuse one resolved contract location.
+            Each extension remains a separate TypeScript project and receives its own profile/locator, preventing ambient
+            declarations from leaking between plugins.
           </p>
         </div>
 
@@ -2201,7 +2439,7 @@ type Entity&lt;Name extends string&gt; =
               from developers.
             </p>
             <p>
-              Proposal C migrates per extension. New extensions are clean from day one. Existing extensions adopt the package
+              Proposal C2 migrates per extension. New extensions are clean from day one. Existing extensions adopt the package
               when they can pass, or use a short-lived migration branch owned by that extension. Shopware does not pretend that
               thousands of errors are a successful global check.
             </p>
@@ -2210,104 +2448,117 @@ type Entity&lt;Name extends string&gt; =
       </section>
 
       <section id="versioning">
-        <div class="section-kicker">09 · Versioning and release</div>
-        <h2>Make compatibility explicit in the dependency range.</h2>
+        <div class="section-kicker">10 · Versioning and release</div>
+        <h2>Version tools and contract independently.</h2>
         <p class="section-intro">
-          The package version follows the Shopware product minor. Tooling patch releases remain independent of Shopware’s fourth
-          version segment.
+          A linter or resolver update and a Shopware service change are different events. Giving them one version number creates
+          artificial upgrades; separating them lets each change at its natural cadence.
         </p>
 
         <div class="three-col">
           <div class="panel panel--accent">
-            <div class="panel__label">Stable line</div>
-            <h3><code>~6.7.0</code></h3>
-            <p>Targets Shopware 6.7. The tilde permits tooling fixes in 6.7.x but never moves the extension to 6.8 behavior.</p>
+            <div class="panel__label">Tool package</div>
+            <h3><code>^1.0.0</code></h3>
+            <p>Changes when presets, rules, supported peers, or resolver behavior change—not for each Shopware release.</p>
           </div>
           <div class="panel panel--blue">
-            <div class="panel__label">Next line</div>
-            <h3><code>@next</code></h3>
-            <p>Immutable prereleases validate the next Shopware minor and allow trunk fixtures without filesystem links.</p>
+            <div class="panel__label">Contract protocol</div>
+            <h3><code>format: 1</code></h3>
+            <p>Changes only when the manifest or declaration entry-point protocol becomes incompatible.</p>
           </div>
           <div class="panel panel--amber">
-            <div class="panel__label">Exact install</div>
-            <h3><code>package-lock.json</code></h3>
-            <p>CI installs the exact tested tree with <code>npm ci</code>; a changed range cannot silently rewrite the lockfile.</p>
+            <div class="panel__label">Shopware identity</div>
+            <h3><code>6.8-dev @ abc123</code></h3>
+            <p>Describes the declarations being consumed and makes an accidental released fallback observable.</p>
           </div>
         </div>
 
-        <h3 style="margin-top:30px">Release pipeline</h3>
+        <div class="code-file">
+          <div class="code-file__header">extension-contract/manifest.json — illustrative</div>
+          <pre><code>{
+  "format": 1,
+  "shopwareVersion": "6.8.0-dev",
+  "contractHash": "sha256:98f4…",
+  "profiles": {
+    "public": "./public.d.ts",
+    "internal": "./internal.d.ts"
+  },
+  "entitySchema": "./entity-schema.d.ts"
+}</code></pre>
+        </div>
+
+        <h3 style="margin-top:30px">Contract pipeline</h3>
         <div class="timeline">
           <div class="timeline__step">
             <div class="timeline__number">1</div>
-            <div class="timeline__title">Generate</div>
-            <p>Build the curated declarations and core entity schema for the target minor.</p>
+            <div class="timeline__title">Produce</div>
+            <p>Generate the public/internal service surfaces and entity schema from the current Administration source.</p>
           </div>
           <div class="timeline__step">
             <div class="timeline__number">2</div>
-            <div class="timeline__title">Pack</div>
-            <p>Run <code>npm pack</code> and reject parent paths, local <code>file:</code> dependencies, or unexpected files.</p>
+            <div class="timeline__title">Conform</div>
+            <p>Compile fixtures and compare service keys with the runtime registration map; reject stale declarations.</p>
           </div>
           <div class="timeline__step">
             <div class="timeline__number">3</div>
-            <div class="timeline__title">Prove</div>
-            <p>Install only the tarball in clean Linux and Windows fixtures; run IDE-equivalent TS and ESLint checks.</p>
+            <div class="timeline__title">Distribute</div>
+            <p>Include the same contract directory in source and Composer Administration artifacts.</p>
           </div>
           <div class="timeline__step">
             <div class="timeline__number">4</div>
-            <div class="timeline__title">Publish</div>
-            <p>Use npm provenance, immutable versions, stable/next tags, and an automated compatibility changelog.</p>
+            <div class="timeline__title">Snapshot</div>
+            <p>Publish content-addressed release contracts for explicit standalone targets; trunk never waits for this step.</p>
           </div>
         </div>
 
         <div class="callout callout--blue">
-          <div class="callout__title">Publishing is not a new capability</div>
+          <div class="callout__title">Two cadences, no forced consumer churn</div>
           <p>
-            Shopware already publishes generated entity declarations as
-            <a href="https://www.npmjs.com/package/@shopware-ag/entity-schema-types"><code>@shopware-ag/entity-schema-types</code></a>
-            and Administration lint rules as
-            <a href="https://www.npmjs.com/package/@shopware-ag/admin-eslint-rules"><code>@shopware-ag/admin-eslint-rules</code></a>.
-            Proposal C consolidates the extension-facing pieces behind one supported entry point.
+            Tooling releases are occasional npm events. Contract production is part of each Shopware build and release artifact.
+            Extension authors update the dependency only when they want new tooling behavior—not to make types match the
+            Shopware installation they are already using.
           </p>
         </div>
 
         <h3>Release rules</h3>
         <ul class="clean-list prose">
-          <li>Never publish directly from source references; consumers are tested against the packed tarball.</li>
-          <li>No lifecycle scripts in the consumer package. Initialization and schema generation are explicit commands only.</li>
-          <li>A declaration tightening that rejects valid extension code is developer-facing and must follow Shopware release documentation policy.</li>
-          <li>Run contract fixtures against the oldest and newest supported Shopware patch in the minor line.</li>
-          <li>Keep previous minor lines available; changing a dist-tag never changes a locked extension build.</li>
+          <li>Do not require a dependency or lockfile edit for an ordinary Shopware release or local version switch.</li>
+          <li>A connected local/source/Composer contract always outranks a released snapshot.</li>
+          <li>Integrated and downstream CI fail closed when the exact local contract or expected revision is unavailable.</li>
+          <li>A standalone version target is concrete; a supported range is proven with a matrix of concrete snapshots.</li>
+          <li>Only a contract <em>format</em> incompatibility may require a tooling upgrade.</li>
+          <li>Public declaration changes follow Shopware release documentation and compatibility policy; internal changes run Commercial downstream checks.</li>
         </ul>
       </section>
 
       <section id="rollout">
-        <div class="section-kicker">10 · Rollout</div>
-        <h2>Prove one vertical slice, then delete the magic.</h2>
+        <div class="section-kicker">11 · Rollout</div>
+        <h2>Prove contract freshness before polishing the installer.</h2>
         <p class="section-intro">
-          Do not merge another broad framework integration first. Prove that the package tarball works for a real extension in
-          all supported layouts, then make the scaffold the default.
+          The first experiment must demonstrate the two cases a released package cannot: a new trunk service becomes available
+          immediately, and removing a private service breaks Commercial downstream before merge.
         </p>
 
         <div class="timeline">
           <div class="timeline__step">
             <div class="timeline__number">0</div>
             <div class="timeline__title">Decision</div>
-            <p>Record the boundary: published dev package, curated types, npm-first, no runtime Administration export.</p>
+            <p>Record the boundary: stable tools, live exact contract, public/internal profiles, no runtime export.</p>
           </div>
           <div class="timeline__step">
             <div class="timeline__number">1</div>
-            <div class="timeline__title">Tarball pilot</div>
-            <p>Harden the existing private package, declare every dependency, and test the packed artifact in clean fixtures.</p>
+            <div class="timeline__title">Contract producer</div>
+            <p>Emit the compact contract and make service-registry conformance an Administration CI requirement.</p>
           </div>
           <div class="timeline__step">
             <div class="timeline__number">2</div>
-            <div class="timeline__title">Real extension</div>
-            <p>Migrate one first-party plugin with TS, Vue, legacy Twig, custom service augmentation, and CI.</p>
+            <div class="timeline__title">Commercial pilot</div>
+            <p>Connect Commercial to the exact upstream SHA and prove addition, removal, and profile behavior.</p>
           </div>
           <div class="timeline__step">
             <div class="timeline__number">3</div>
             <div class="timeline__title">Default</div>
-            <p>Update plugin templates and release docs; only then remove projector, facade-link, and baseline experiments.</p>
+            <p>Automate connection in setup, publish standalone snapshots, update scaffolds, then remove the experiments.</p>
           </div>
         </div>
 
@@ -2324,34 +2575,44 @@ type Entity&lt;Name extends string&gt; =
               </thead>
               <tbody>
                 <tr>
-                  <td>Package hardening</td>
-                  <td>Standalone manifest, explicit exports, bundled local rules/processor, curated types, no parent references</td>
-                  <td><code>npm pack</code> fixture passes with isolated dependency layout</td>
+                  <td>Contract producer</td>
+                  <td>Manifest, public/internal entries, entity schema, stable artifact location</td>
+                  <td>Source and Composer artifacts contain byte-equivalent valid contracts</td>
+                </tr>
+                <tr>
+                  <td>Registry conformance</td>
+                  <td>Typed service registration or generated-key comparison, plus declaration fixtures</td>
+                  <td>Adding/removing a service cannot leave a stale green contract</td>
+                </tr>
+                <tr>
+                  <td>Tool and resolver</td>
+                  <td>Standalone npm manifest, explicit exports, contract validator, connect/ensure commands</td>
+                  <td>One stable tool version connects successfully to two Shopware minors and trunk</td>
                 </tr>
                 <tr>
                   <td>Editor and CI parity</td>
-                  <td>VS Code/Volar, TypeScript, ESLint, Vue SFC, Twig, Linux, Windows</td>
-                  <td>Same intentional fixture errors appear in editor and CLI</td>
+                  <td>VS Code/Volar, TypeScript, ESLint, Vue SFC, Twig, source/Composer, Linux/Windows</td>
+                  <td>The same intentional fixture errors appear against the same manifest revision</td>
                 </tr>
                 <tr>
-                  <td>First plugin migration</td>
-                  <td>Replace a real plugin’s many lint/type packages with one tooling dependency</td>
-                  <td>Build unchanged; local and CI checks pass from standalone checkout</td>
+                  <td>Commercial downstream</td>
+                  <td>Internal profile, exact upstream ref, no snapshot fallback</td>
+                  <td>New trunk service passes immediately; removed used service fails before merge</td>
                 </tr>
                 <tr>
-                  <td>Entity augmentation</td>
-                  <td>Safe fallback first; explicit generator and <code>--check</code> second</td>
-                  <td>Missing custom schema never yields <code>any</code>; clean fixture adds precise custom types</td>
+                  <td>Standalone fallback</td>
+                  <td>Content-addressed snapshots, explicit target, range matrix, cache behavior</td>
+                  <td>Snapshot mode is visible and can never impersonate a connected-host check</td>
                 </tr>
                 <tr>
                   <td>Scaffold and docs</td>
-                  <td>Plugin template, migration guide, release notes, compatibility table</td>
-                  <td>A new extension needs no manual architecture knowledge</td>
+                  <td>Plugin template, Flex setup, migration guide, profile and reconnect guidance</td>
+                  <td>A new extension needs one dependency and no manual connection during standard setup</td>
                 </tr>
                 <tr>
                   <td>Cleanup</td>
                   <td>Remove root generator, facade repair, hardcoded linker, baseline, and main-package export experiment</td>
-                  <td>No supported workflow depends on host-relative tooling paths</td>
+                  <td>No supported workflow guesses topology, creates package symlinks, or pairs tool versions to Shopware minors</td>
                 </tr>
               </tbody>
             </table>
@@ -2362,8 +2623,9 @@ type Entity&lt;Name extends string&gt; =
           <div class="callout__title">Migration scope</div>
           <p>
             This report proposes the architecture, not an immediate flag-day conversion. Existing plugins continue to build.
-            Tooling adoption is per extension, while new scaffolds use the package from the start. A behavior/workflow change of
-            this size requires developer-facing release and upgrade documentation.
+            Tooling adoption is per extension, while new scaffolds use the connected contract from the start. The ignored locator
+            is environment state and must not be committed. A behavior/workflow change of this size requires developer-facing
+            release and upgrade documentation.
           </p>
         </div>
 
@@ -2379,11 +2641,11 @@ type Entity&lt;Name extends string&gt; =
       </section>
 
       <section id="acceptance">
-        <div class="section-kicker">11 · Acceptance gates</div>
+        <div class="section-kicker">12 · Acceptance gates</div>
         <h2>What must be true before this becomes the default.</h2>
         <p class="section-intro">
-          These are release gates, not future aspirations. The package should not ship until the packed artifact—not the source
-          directory—passes them.
+          These gates cover both halves of the design: the packed stable tool and the live contract carried by source and Composer
+          installations. The user’s three scenarios are blocking tests, not documentation promises.
         </p>
 
         <div class="table-wrap">
@@ -2397,21 +2659,24 @@ type Entity&lt;Name extends string&gt; =
                 </tr>
               </thead>
               <tbody>
-                <tr><td>1</td><td>Clean registry-style install</td><td>Fixture installs only the packed tarball and runs <code>npm ci</code>.</td></tr>
-                <tr><td>2</td><td>No undeclared dependencies</td><td>Isolated install strategy and package-content audit pass.</td></tr>
-                <tr><td>3</td><td>TypeScript project resolution</td><td>Package-based <code>extends</code> yields ESNext, Bundler, strict, and local source includes.</td></tr>
-                <tr><td>4</td><td>IDE / CLI parity</td><td>Volar and ESLint editor diagnostics match <code>vue-tsc</code> and <code>eslint</code>.</td></tr>
-                <tr><td>5</td><td>Runtime isolation</td><td>Importing package root from application code fails; no wildcard export exists.</td></tr>
-                <tr><td>6</td><td>Vue and Twig</td><td>TS SFCs, JS SFCs, <code>.html.twig</code>, and <code>.vue.twig</code> fixtures pass/fail intentionally.</td></tr>
-                <tr><td>7</td><td>Safe entity fallback</td><td>Absent plugin schema produces <code>unknown</code>, never <code>any</code>; core entities stay precise.</td></tr>
-                <tr><td>8</td><td>Augmentation isolation</td><td>Two plugins declaring conflicting custom globals remain independent projects.</td></tr>
-                <tr><td>9</td><td>Installation topologies</td><td>Source, Composer vendor, Flex, symlink/junction, inactive plugin, and standalone checkout fixtures pass.</td></tr>
-                <tr><td>10</td><td>Operating systems</td><td>Linux and Windows CI use identical package files and commands.</td></tr>
-                <tr><td>11</td><td>Build non-regression</td><td>Administration Vite build succeeds with and without extension <code>node_modules</code>.</td></tr>
-                <tr><td>12</td><td>Storefront isolation</td><td>Storefront files receive no Administration lint processor or global declarations.</td></tr>
-                <tr><td>13</td><td>Version mismatch</td><td>Incompatible peers or minor range fail during install with an actionable message.</td></tr>
-                <tr><td>14</td><td>Public contract drift</td><td>Runtime conformance and declaration snapshot tests guard the curated surface.</td></tr>
-                <tr><td>15</td><td>Release integrity</td><td>Provenance, immutable version, lockfile fixture, and package-content manifest are verified.</td></tr>
+                <tr><td>1</td><td>Clean tool install</td><td>The packed tooling tarball installs in isolation; every rule, parser, processor, and peer is declared.</td></tr>
+                <tr><td>2</td><td>Contract artifact parity</td><td>Source and Composer Administration packages contain valid, equivalent format-1 contracts.</td></tr>
+                <tr><td>3</td><td>Authoritative path resolution</td><td>Shopware setup passes the resolved bundle path; the Node tool never guesses source/vendor topology.</td></tr>
+                <tr><td>4</td><td>Immediate trunk addition</td><td>A fixture adds a service and Commercial consumes it from the same upstream SHA without publishing or bumping npm.</td></tr>
+                <tr><td>5</td><td>Private removal detection</td><td>A fixture removes a used private service and the exact-contract Commercial downstream typecheck fails.</td></tr>
+                <tr><td>6</td><td>Version switching</td><td>The same plugin is checked against two local Shopware versions without changing <code>package.json</code> or its lockfile.</td></tr>
+                <tr><td>7</td><td>Profile separation</td><td>Public mode rejects an internal-only service; first-party internal mode resolves it.</td></tr>
+                <tr><td>8</td><td>Locator lifecycle</td><td><code>npm ci</code> cannot delete it; validation detects a stale host, and a Shopware-aware wrapper reconnects and verifies contract identity/mode.</td></tr>
+                <tr><td>9</td><td>TypeScript project resolution</td><td>Package <code>extends</code> plus the locator yields ESNext, Bundler, strict, local sources, and the exact declarations.</td></tr>
+                <tr><td>10</td><td>IDE / CLI parity</td><td>Volar, editor ESLint, <code>vue-tsc</code>, and CLI ESLint report the same contract revision and diagnostics.</td></tr>
+                <tr><td>11</td><td>Runtime isolation</td><td>Application import of the tool root fails; contract declarations emit no runtime import.</td></tr>
+                <tr><td>12</td><td>Vue and Twig</td><td>TS/JS SFCs, <code>.html.twig</code>, and <code>.vue.twig</code> fixtures pass/fail intentionally.</td></tr>
+                <tr><td>13</td><td>Safe entity fallback</td><td>Absent plugin schema produces <code>unknown</code>, never <code>any</code>; selected-host core entities remain precise.</td></tr>
+                <tr><td>14</td><td>Augmentation isolation</td><td>Two plugins declaring conflicting custom globals remain independent projects.</td></tr>
+                <tr><td>15</td><td>Topologies and operating systems</td><td>Source, Composer, Flex, inactive, external, symlink/junction, Linux, and Windows fixtures pass.</td></tr>
+                <tr><td>16</td><td>Build and Storefront isolation</td><td>Vite output is unchanged and Storefront receives no Administration config or globals.</td></tr>
+                <tr><td>17</td><td>Honest standalone fallback</td><td>A concrete snapshot works offline; a range runs a matrix; snapshot mode cannot pass an exact-host CI assertion.</td></tr>
+                <tr><td>18</td><td>Contract conformance and integrity</td><td>Registry keys, declaration compilation, artifact contents, hashes, provenance, and public-surface snapshots are verified.</td></tr>
               </tbody>
             </table>
           </div>
@@ -2420,57 +2685,57 @@ type Entity&lt;Name extends string&gt; =
         <h3>Residual risks worth accepting</h3>
         <div class="three-col">
           <div class="panel panel--amber">
-            <div class="panel__label">Registry availability</div>
-            <p>Mitigate with lockfiles, npm cache, mirrors, provenance, and immutable versions. This is standard dependency risk.</p>
+            <div class="panel__label">Broken locator</div>
+            <p>A moved checkout can stale an absolute path. Mitigate with a stable filename, pre-check validation, and one repair command.</p>
           </div>
           <div class="panel panel--amber">
-            <div class="panel__label">Install weight</div>
-            <p>Set a size/time budget, publish no runtime libraries, and compare against the many packages plugins install today.</p>
+            <div class="panel__label">Producer drift</div>
+            <p>Generated types can drift from runtime registration. This is acceptable only with typed registration or a mandatory conformance test.</p>
           </div>
           <div class="panel panel--amber">
-            <div class="panel__label">Contract maintenance</div>
-            <p>Make ownership explicit, snapshot the public surface, and treat type breakage as developer-facing release work.</p>
+            <div class="panel__label">Standalone ambiguity</div>
+            <p>A single release cannot represent a version range. Require explicit targets and matrix checks, and display the selected identity.</p>
           </div>
         </div>
       </section>
 
       <section id="decision">
-        <div class="section-kicker">12 · Final decision</div>
+        <div class="section-kicker">13 · Final decision</div>
         <h2>This is the solution I would build.</h2>
         <div class="decision-box">
-          <h3>Adopt the extension-owned toolchain.</h3>
+          <h3>Adopt the connected extension toolchain.</h3>
           <p>
-            Publish <code>@shopware-ag/administration-extension-tooling</code> as a narrow, types-only development contract. Let
-            each extension own a normal npm project. Keep Administration implementation code private, keep Storefront separate,
-            and make plugin-specific entity precision optional and explicit.
+            Publish <code>@shopware-ag/administration-extension-tooling</code> as a stable mechanics package. Let each extension
+            own a normal npm project, then connect it to the public or internal declaration contract shipped by the exact
+            Shopware installation. Keep implementation source private and keep Storefront separate.
           </p>
           <p>
-            Stop investing in the root projector and the linked Administration facade after the package tarball pilot proves the
-            acceptance gates. Reuse their good assets—the curated types, lint config, Twig processor, entity converter, and
-            tests—but discard their topology machinery.
+            Stop investing in the root projector, linked Administration facade, and release-coupled type package after the
+            Commercial vertical slice proves the acceptance gates. Reuse their useful assets—the curated public boundary, lint
+            config, Twig processor, entity converter, and tests—but discard their global projection and link-repair machinery.
           </p>
           <div class="one-breath">
-            One extension. One dependency. One local project. The IDE and CI read the same files.
+            Install tools once. Types follow the connected Shopware. IDE and CI read the same contract.
           </div>
         </div>
 
         <div class="callout callout--blue">
           <div class="callout__title">The surprising part</div>
           <p>
-            Publishing one small package looks like adding infrastructure, but it removes an entire category of runtime
-            architecture. Release automation is a bounded problem Shopware solves once. Filesystem discovery and repair are
-            unbounded problems every installation would otherwise solve differently.
+            The simplification is not “put everything in npm.” It is recognizing that tools and product types have different
+            lifecycles. Once separated, a plugin keeps one familiar dependency while its declarations follow any checkout—from an
+            old supported release to today’s trunk—through one inspectable locator.
           </p>
         </div>
       </section>
 
       <section id="evidence">
-        <div class="section-kicker">13 · Evidence and references</div>
+        <div class="section-kicker">14 · Evidence and references</div>
         <h2>Grounded in the current tree and standard tool behavior.</h2>
         <p class="section-intro">
           This proposal was checked against the current worktree, the comparison branch at
-          <code>abcb46850a442a61278e3d6d480a2f640748e5d1</code>, clean config-resolution commands, npm registry metadata,
-          and primary TypeScript, ESLint, and npm documentation.
+          <code>abcb46850a442a61278e3d6d480a2f640748e5d1</code>, the existing Commercial downstream wiring, clean
+          config-resolution commands, and primary TypeScript, ESLint, and npm documentation.
         </p>
 
         <div class="two-col">
@@ -2497,6 +2762,18 @@ type Entity&lt;Name extends string&gt; =
                 The existing extension installer already installs plugin-local package dependencies:
                 <a href="./bin/install-extension-npm">bin/install-extension-npm</a>.
               </li>
+              <li>
+                Commercial already consumes Administration/tool packages through local <code>file:</code> dependencies:
+                <a href="./custom/plugins/SwagCommercial/package.json">SwagCommercial/package.json</a>.
+              </li>
+              <li>
+                Its downstream workflow receives the exact upstream Shopware ref:
+                <a href="./custom/plugins/SwagCommercial/.github/workflows/downstream.yaml">downstream.yaml</a>.
+              </li>
+              <li>
+                Administration’s service-key type surface is currently centered on
+                <a href="./src/Administration/Resources/app/administration/src/global.types.ts"><code>ServiceContainer</code> in global.types.ts</a>.
+              </li>
             </ul>
           </div>
           <div class="panel">
@@ -2504,6 +2781,7 @@ type Entity&lt;Name extends string&gt; =
             <ul class="clean-list">
               <li><code>tsc --showConfig</code> resolved the package preset to ES2023, ESNext, Bundler, strict, noEmit, and the tooling type entry.</li>
               <li><code>eslint --print-config</code> resolved 63 rules, the readonly <code>Shopware</code> global, and the forbidden-source-import rule.</li>
+              <li>TypeScript path reference directives add declaration dependencies and resolve relative to the containing declaration file.</li>
               <li>The current proposal A contains about 1,395 production lines plus 617 test lines for the facade/setup/check path before generated state.</li>
               <li>The branch B helper adds host-specific link creation after ordinary plugin dependency installation.</li>
             </ul>
@@ -2520,6 +2798,10 @@ type Entity&lt;Name extends string&gt; =
             <small>Primary documentation · controlled ambient declarations</small>
           </li>
           <li>
+            <a href="https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html">TypeScript: triple-slash path references</a>
+            <small>Primary documentation · declaration dependency and path resolution</small>
+          </li>
+          <li>
             <a href="https://eslint.org/docs/latest/use/configure/combine-configs">ESLint: combining shareable flat configs</a>
             <small>Primary documentation · imported config arrays</small>
           </li>
@@ -2530,10 +2812,6 @@ type Entity&lt;Name extends string&gt; =
           <li>
             <a href="https://docs.npmjs.com/cli/commands/npm-ci/">npm ci</a>
             <small>Primary documentation · frozen clean install</small>
-          </li>
-          <li>
-            <a href="https://docs.npmjs.com/cli/v11/commands/npm-dist-tag/">npm dist-tag</a>
-            <small>Primary documentation · stable and next release streams</small>
           </li>
           <li>
             <a href="./issue-14040-tooling-architecture-research.html">Original root-project proposal</a>
@@ -2547,7 +2825,7 @@ type Entity&lt;Name extends string&gt; =
       </section>
 
       <footer class="footer">
-        <div>Issue #14040 · Extension-owned Administration tooling concept · Generated 10 July 2026</div>
+        <div>Issue #14040 · Connected-contract Administration tooling concept · Generated 10 July 2026</div>
         <div>Scope: architecture report only. No runtime, package, Composer, build, or plugin behavior was changed by this document.</div>
       </footer>
     </main>

@@ -875,6 +875,23 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 
 </details>
 
+## Moved `UnmappedFieldException`
+
+`UnmappedFieldException` was moved out of the DBAL sub-namespace into the DAL exception namespace, and `DataAbstractionLayerException::unmappedField()` now returns it:
+
+* Before: `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`
+* After: `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`
+
+Update your `use` and `catch` statements accordingly:
+
+```php
+// Before
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+
+// After
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+```
+
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
 
 The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.

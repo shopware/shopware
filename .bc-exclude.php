@@ -134,5 +134,8 @@ return [
 
         // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
         'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
+
+        // parent method has no type. not really a break
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
     ],
 ];

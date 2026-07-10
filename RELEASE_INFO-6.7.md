@@ -2,6 +2,10 @@
 
 ## Core
 
+### Mail template cloning no longer fails on the write-protected `wasModifiedByUser` field
+
+Cloning a mail template, including via `POST /api/_action/clone/mail-template/{id}`, previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. The clone process now omits the field, so the cloned mail template is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
+
 ### Cache invalidated on cross-selling updates and deletions
 
 Editing or deleting a product cross-selling entry, including assigned products and translations, now correctly invalidates the product detail route cache and prevents stale storefront results.

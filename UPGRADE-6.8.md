@@ -2052,6 +2052,10 @@ The `states` field of the `line_item` and `order_line_item` entity has also been
 Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
+The `type` field is required as of 6.8. Products and variants created without an explicit `type` default to `physical`.
+Because `type` is immutable, this default cannot be changed afterwards — always send `type` explicitly when creating variants of `digital` products, otherwise they are permanently created as `physical`.
+Converting a variant into a standalone product (writing `parentId: null`) requires sending `type` in the same payload, analogous to the other required fields such as `price` and `taxId`.
+
 ## Customer group registration flow events no longer use a SalesChannelContext
 
 For customer group registration events, the event context is no longer restored via `SalesChannelContextRestorer`.

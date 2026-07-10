@@ -587,7 +587,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria($ids);
         $criteria->addAssociation('manufacturer');
 
-        $products = $this->repository->search($criteria, $this->context);
+        $products = $this->repository->search($criteria, $this->context)->getEntities();
 
         $product = $products->get($ids[0]);
 
@@ -649,13 +649,13 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('manufacturer');
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, Context::createDefaultContext())->getEntities();
 
         // check only provided id loaded
         static::assertCount(1, $products);
         static::assertTrue($products->has($id));
 
-        $product = $products->getEntities()->get($id);
+        $product = $products->get($id);
 
         // check data loading is as expected
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -1119,7 +1119,7 @@ class ProductRepositoryTest extends TestCase
         ];
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->search(new Criteria([$id, $child]), Context::createDefaultContext());
+        $products = $this->repository->search(new Criteria([$id, $child]), Context::createDefaultContext())->getEntities();
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
@@ -1156,6 +1156,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'parentId' => null,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'name' => 'Child transformed to parent',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 13, 'net' => 12, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1217,7 +1218,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->search(new Criteria([$id, $child]), Context::createDefaultContext());
+        $products = $this->repository->search(new Criteria([$id, $child]), Context::createDefaultContext())->getEntities();
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
@@ -1257,6 +1258,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $child,
                 'parentId' => null,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'name' => 'Child transformed to parent',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 13, 'net' => 12, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1848,7 +1850,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $parentName));
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($greenId));
@@ -1856,7 +1858,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $redName));
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertCount(1, $products);
         static::assertTrue($products->has($redId));
     }
@@ -1912,7 +1914,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.price', $parentPrice['gross']));
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($redId));
@@ -1920,7 +1922,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $greenPrice['gross']));
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertCount(1, $products);
         static::assertTrue($products->has($greenId));
     }
@@ -2047,13 +2049,13 @@ class ProductRepositoryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.products.name', 'Parent'));
 
         $repo = static::getContainer()->get('category.repository');
-        $result = $repo->search($criteria, $this->context);
+        $result = $repo->search($criteria, $this->context)->getEntities();
         static::assertCount(1, $result);
         static::assertTrue($result->has($parentId));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.products.name', 'Red'));
-        $result = $repo->search($criteria, $this->context);
+        $result = $repo->search($criteria, $this->context)->getEntities();
         static::assertCount(1, $result);
         static::assertTrue($result->has($redId));
     }
@@ -2445,10 +2447,10 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertTrue($products->has($id));
 
-        $product = $products->getEntities()->get($id);
+        $product = $products->get($id);
         static::assertNotNull($product);
 
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
@@ -2486,10 +2488,10 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertTrue($products->has($id));
 
-        $product = $products->getEntities()->get($id);
+        $product = $products->get($id);
         static::assertNotNull($product);
 
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
@@ -2530,10 +2532,10 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         static::assertTrue($products->has($id));
 
-        $product = $products->getEntities()->get($id);
+        $product = $products->get($id);
         static::assertNotNull($product);
 
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
@@ -3087,6 +3089,35 @@ class ProductRepositoryTest extends TestCase
         }
     }
 
+    public function testCreateVariantWithoutTypeDefaultsToPhysical(): void
+    {
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $data = [
+            'id' => $parentId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'parent',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'children' => [
+                ['id' => $childId, 'productNumber' => Uuid::randomHex(), 'stock' => 10],
+            ],
+        ];
+
+        $this->repository->create([$data], Context::createDefaultContext());
+
+        $types = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), `type` FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList([$parentId, $childId])],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $types[$parentId]);
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $types[$childId]);
+    }
+
     public function testChildren(): void
     {
         $rootId = 'f1d2554b0ce847cd82f3ac9bd1c0dfca';
@@ -3306,7 +3337,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->upsert([$data], $context);
 
         $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getEntities();
-        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->repository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertCount(2, $variants);
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -3345,7 +3376,7 @@ class ProductRepositoryTest extends TestCase
         $this->runWorker();
 
         $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getEntities();
-        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->repository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertCount(2, $variants);
         static::assertInstanceOf(ProductEntity::class, $product);

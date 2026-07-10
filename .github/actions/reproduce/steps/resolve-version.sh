@@ -38,14 +38,22 @@ resolve_latest () {
   fi
   [ -n "$tags" ] || { printf ''; return; }
   if [ -z "${ISSUE_EPOCH:-}" ]; then printf '%s\n' "$tags" | head -1; return; fi   # no date → newest
-  local t d de
+  local t d de saw_date=0
   while IFS= read -r t; do
     [ -n "$t" ] || continue
     d=$(gh api "repos/${UPSTREAM}/commits/v${t}" --jq '.commit.committer.date' 2>/dev/null || echo "")
     [ -n "$d" ] || continue
     de=$(date -u -d "$d" +%s 2>/dev/null || echo 0)
-    [ "$de" -gt 0 ] && [ "$de" -le "$ISSUE_EPOCH" ] && { printf '%s' "$t"; return; }
+    [ "$de" -gt 0 ] || continue
+    saw_date=1   # at least one tag date resolved → the date walk is meaningful
+    [ "$de" -le "$ISSUE_EPOCH" ] && { printf '%s' "$t"; return; }
   done <<< "$tags"
+  # Two ways to fall through the walk, and they must not be conflated: (a) we resolved dates but none
+  # were on/before the issue → the issue genuinely predates every tag in this base, so the earliest
+  # available tag is the best answer; (b) NOT ONE commit date resolved (rate-limit / offline) → we
+  # know nothing, so return empty and let the caller degrade to trunk rather than silently
+  # provisioning the oldest release ever built.
+  [ "$saw_date" = 1 ] || { printf ''; return; }
   printf '%s\n' "$tags" | tail -1   # issue predates every tag in this base → earliest available
 }
 

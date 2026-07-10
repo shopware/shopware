@@ -507,10 +507,9 @@ class ThumbnailServiceTest extends TestCase
     {
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
         $mediaFolderEntity = $this->createMediaFolderEntity();
-        $mediaFolderEntity->getConfiguration()->setThumbnailQuality(80);
 
         $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
-        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic = static::createStub(FilesystemOperator::class);
         $filesystemPublic->method('read')->willReturn($file);
         $filesystemPublic->method('fileSize')->willReturn(100);
 
@@ -518,9 +517,8 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-
         $dispatchedEvents = [];
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->atLeastOnce())
             ->method('dispatch')
             ->willReturnCallback(function (object $event) use (&$dispatchedEvents) {
@@ -529,7 +527,7 @@ class ThumbnailServiceTest extends TestCase
                 return $event;
             });
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')
             ->willReturnCallback(static function ($_, $params) {
                 return [
@@ -559,12 +557,11 @@ class ThumbnailServiceTest extends TestCase
     {
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
         $mediaFolderEntity = $this->createMediaFolderEntity();
-        $mediaFolderEntity->getConfiguration()->setThumbnailQuality(80);
 
         $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
         $deletedPaths = [];
 
-        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic = static::createStub(FilesystemOperator::class);
         $filesystemPublic->method('read')->willReturn($file);
         $filesystemPublic->method('fileSize')->willReturn(100);
         $filesystemPublic->method('write')->willReturnCallback(static function (): void {});
@@ -577,11 +574,9 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $dispatchCount = 0;
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')
-            ->willReturnCallback(function (object $event) use (&$dispatchCount) {
-                ++$dispatchCount;
+            ->willReturnCallback(static function (object $event) {
                 if ($event instanceof ThumbnailGeneratedEvent) {
                     throw new \RuntimeException('Simulated post-processing failure');
                 }
@@ -589,7 +584,7 @@ class ThumbnailServiceTest extends TestCase
                 return $event;
             });
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')
             ->willReturnCallback(static function ($_, $params) {
                 return [
@@ -609,12 +604,13 @@ class ThumbnailServiceTest extends TestCase
             new GdImageThumbnailProcessor(),
         );
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Simulated post-processing failure');
-
-        $service->generate($mediaCollection, $this->context);
-
-        static::assertContains('/thumbnail/test.png', $deletedPaths);
+        try {
+            $service->generate($mediaCollection, $this->context);
+            static::fail('Expected RuntimeException was not thrown');
+        } catch (\RuntimeException $e) {
+            static::assertSame('Simulated post-processing failure', $e->getMessage());
+            static::assertContains('/thumbnail/test.png', $deletedPaths);
+        }
     }
 
     public function testUpdateThumbnailsDeletesAllThumbnailsForNonImageLocalMedia(): void
@@ -691,6 +687,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaFolderConfigEntity->setMediaThumbnailSizes(new MediaThumbnailSizeCollection([$mediaThumbnailSizeEntity]));
         $mediaFolderConfigEntity->setCreateThumbnails(true);
         $mediaFolderConfigEntity->setKeepAspectRatio(false);
+        $mediaFolderConfigEntity->setThumbnailQuality(80);
 
         $mediaFolderEntity = new MediaFolderEntity();
         $mediaFolderEntity->setConfiguration($mediaFolderConfigEntity);

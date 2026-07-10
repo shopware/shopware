@@ -51,7 +51,7 @@ The type spec declares WHAT properties exist and their types. The element instan
 
 ## Inline `bindings:` Sections
 
-A type YAML file may carry a top-level `bindings:` key declaring binding specifications for its type inline (`Definitions/media/image.yaml` does). The key is reserved for the binding system and invisible to this pipeline: `ElementTypeSpecificationSerializer::denormalize()` reads only `meta`, `properties`, and `slots`, and `Binding/Loader/YamlBindingSpecificationLoader` scans the same type directories for the inline sections independently. Inline bindings depend on the serializer staying lenient about unknown top-level keys; do not add strict top-level key validation here. See `../../Binding/README.md`.
+A type YAML file may carry a top-level `bindings:` key declaring binding specifications for its type inline. The key is reserved for the binding system and invisible to this pipeline: `ElementTypeSpecificationSerializer::denormalize()` reads only `meta`, `properties`, and `slots`, and `Binding/Loader/YamlBindingSpecificationLoader` scans the same type directories for the inline sections independently. Inline bindings depend on the serializer staying lenient about unknown top-level keys; do not add strict top-level key validation here. A reference property's `resolvedBy` key (`Definitions/media/image.yaml` has one) is a separate, simpler mechanism that needs no `bindings:` section at all — see `../../Binding/README.md`.
 
 ## Subdirectories
 

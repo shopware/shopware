@@ -116,9 +116,6 @@ class ContentSystemBindingSpecificationPersister
      * overlay built from the app's own types, because the app is inactive at install time so its types are not yet
      * in the element-type registry ({@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader}
      * and the compiler pass both surface active apps only).
-     * Also enforces the promoted-uniqueness invariant across the app's own specifications: the loader's check
-     * lives in {@see YamlBindingSpecificationLoader::load()}, which this raw-dto path bypasses, and the soft
-     * manifest validator does not gate the programmatic install path.
      * Wraps ContentSystemException into AppException to match the app lifecycle's error boundary.
      *
      * @return list<ResolvedBindingSpecificationDto>
@@ -132,44 +129,9 @@ class ContentSystemBindingSpecificationPersister
         $typeOverlay = $this->buildTypeOverlay($typesDirectory, $source, $appName);
 
         try {
-            $resolvedDtos = $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
-            $this->assertPromotedUniqueness($resolvedDtos);
-
-            return $resolvedDtos;
+            return $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
         } catch (ContentSystemException $e) {
             throw AppException::contentSystemBindingSpecificationLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
-        }
-    }
-
-    /**
-     * At most one promoted specification per element type within the app's own set, checked hard at install so
-     * two promoted rows can never persist and reach the prod catalog unreconciled. Throws AppException directly
-     * (this namespace's domain exception), which passes the caller's ContentSystemException catch untouched;
-     * the message mirrors the app validator's soft violation for the same conflict.
-     *
-     * @param list<ResolvedBindingSpecificationDto> $resolvedDtos
-     */
-    private function assertPromotedUniqueness(array $resolvedDtos): void
-    {
-        $promotedByType = [];
-
-        foreach ($resolvedDtos as $resolvedDto) {
-            $specification = $resolvedDto->toSpecification();
-
-            if (!$specification->isPromoted()) {
-                continue;
-            }
-
-            $type = $specification->type();
-
-            if (isset($promotedByType[$type])) {
-                throw AppException::contentSystemBindingSpecificationLoadFailed(
-                    self::TYPES_DIRECTORY,
-                    \sprintf('binding "%s" promotes type "%s", which this app already promotes via binding "%s"; at most one specification may be promoted per type', $resolvedDto->id, $type, $promotedByType[$type]),
-                );
-            }
-
-            $promotedByType[$type] = $resolvedDto->id;
         }
     }
 

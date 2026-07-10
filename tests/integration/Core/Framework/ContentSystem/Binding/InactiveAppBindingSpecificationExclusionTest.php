@@ -21,8 +21,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * "WHERE a.active = 1" SQL-substring assertion: a binding persisted for an inactive app must not
  * appear in {@see AbstractContentSystemBindingSpecificationRegistry::all()} once the registry is
  * rebuilt against the real database, while a sibling binding persisted for an active app -- and the
- * core "from-media-library" binding shipped via the filesystem loader -- both remain, proving the
- * exclusion is not simply an empty registry.
+ * core "Sw:Media:Image" synthesized default shipped via the filesystem loader -- both remain, proving
+ * the exclusion is not simply an empty registry.
  *
  * @internal
  */
@@ -31,7 +31,7 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
     private const ACTIVE_BINDING_NAME = 'active-app-binding';
     private const INACTIVE_BINDING_NAME = 'inactive-app-binding';
 
@@ -101,18 +101,16 @@ class InactiveAppBindingSpecificationExclusionTest extends TestCase
 
     private function createBinding(string $appId, string $bindingName, string $appName, Context $context): void
     {
-        // Reuses core:from-media-library's shape so TypeConsistentBindingSpecificationValidator
-        // (run for real against the live element-type registry in this integration test) accepts it.
+        // Reuses the shape of the shipped core:Sw:Media:Image default so TypeConsistentBindingSpecificationValidator
+        // (run for real against the live element-type registry in this integration test) accepts it: the wiring
+        // targets the reference's undeclared resolvedBy storage key and carries no inputs facet.
         $dto = new BindingSpecificationDto(
             type: 'Sw:Media:Image',
             label: 'Binding for ' . $appName,
             resolves: [
                 'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             ],
-            inputs: [
-                'mediaId' => ['required' => false],
-            ],
-            promoted: null,
+            inputs: [],
         );
 
         $this->bindingSpecificationRepository()->create([[

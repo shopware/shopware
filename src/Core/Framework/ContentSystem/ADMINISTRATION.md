@@ -182,23 +182,23 @@ A type entry's `bindingSpecifications` fold:
 ```json
 {
   "bindingSpecifications": {
-    "core:from-media-library": {
-      "id": "from-media-library",
+    "core:Sw:Media:Image": {
+      "id": "Sw:Media:Image",
       "type": "Sw:Media:Image",
-      "label": "From media library",
-      "promoted": true,
+      "label": "Image",
+      "default": true,
       "resolves": {
         "media": { "loader": "entity", "config": { "entity": "media", "property": "mediaId" } }
       },
-      "inputs": {
-        "mediaId": { "required": true }
-      }
+      "inputs": []
     }
   }
 }
 ```
 
 `source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none. Every `inputs` entry always carries a `required` flag — derived by the server from the specification's wiring, never authorable — marking a property that is read through a required config key of a wiring whose reference property is itself required.
+
+`default: true` marks a type's synthesized default — the specification a `media`-style `resolvedBy` reference property produces automatically, with an id equal to the type name itself (`id === type`). It is derived, never authored: no `bindings:` entry can set it, and an authored entry's id can never equal the type name (reserved for the default). At most one specification per type is ever `default`. `InsertElement` and `ReplaceElement` fill-apply a type's default at scaffold/replace time with no client action — see "Automatic default application" below.
 
 Full field-level schema: [content-system-element-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 
@@ -449,6 +449,8 @@ Every action shares one envelope and adds its own operation fields. Shared field
 
 `insert-element` accepts the same optional `bindingSpecificationId`: when given, the named specification's wiring is applied onto the freshly scaffolded element atomically after scaffold, by the same `Binding/BindingApplicator` merge as `bind-element`, in one edit. The specification is resolved before any tree change — an unregistered id (`bindingSpecificationNotFound`) or a specification whose declared `type` does not match the inserted `type` (`bindingTypeMismatch`) is rejected with `400` and nothing is inserted.
 
+**Automatic default application.** Before any of that, `insert-element` (and `replace-element`, onto the replaced element) fill-applies the inserted/new type's default specification when it has exactly one — the specification with `default: true` in the type's `bindingSpecifications` fold (see [Binding specifications](#binding-specifications) above) — with no client action and no `bindingSpecificationId` in the request. Fill-only application wires and attributes only a key the element carries no wiring for yet, so an explicit `bindingSpecificationId` on the same `insert-element` request is applied on top afterward and always wins the shared keys; `replace-element` fill-applies after carrying the old element's wiring over, so carried wiring is never overwritten. A type with zero defaults sees no change (a no-op); a type whose default set holds more than one specification — only possible via a database row created outside the app lifecycle — makes the mutation throw a `409` (`bindingSpecificationDefaultAmbiguous`) rather than pick one. See [Binding/README.md](Binding/README.md) ("The Default Specification").
+
 Example (`insert-element`):
 
 ```json
@@ -504,6 +506,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | `type` / `newType` / `containerType` is not a registered element type                                    | 400  | `mutationUnknownType`                             |
 | `bindingSpecificationId` is not a registered binding specification                                       | 400  | `bindingSpecificationNotFound`                    |
 | The binding specification's declared `type` does not match the target element's `component`              | 400  | `bindingTypeMismatch`                             |
+| `insert-element` or `replace-element` on a type whose default binding specification set holds more than one (only reachable via a database row created outside the app lifecycle) | 409 | `bindingSpecificationDefaultAmbiguous`            |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child (rejected before the edit runs); or an element config that is a client defect | 400 | `invalidLayoutStructure`                          |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry`                                 | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
 
@@ -525,7 +528,7 @@ The persisted counterpart to the mutation endpoints above, for agents and automa
 
 Unlike the stateless mutation endpoints, these load the tree from storage (so there is no `layout` field in the body) and derive binding-scope diagnostics from the layout's own immutable `root_source` (so there is no `rootSource` hint in the body).
 
-A persisted `insert-element` whose `bindingSpecificationId` names a specification with a required input and no default (for example `core:from-media-library`, whose wiring reads `mediaId`) is always rejected: the request carries no `properties` field, so the freshly scaffolded element cannot hold the input's value and the committing gate raises `UnfilledRequiredInput` (400). This is served-implies-resolvable by design — assemble such an element on the stateless draft route and persist the finished tree once its required inputs carry values.
+A persisted `insert-element` of a type with a required `resolvedBy` reference — for example `Sw:Media:Image`, whose default specification wires `media` from the `mediaId` storage key — is always rejected, with or without an explicit `bindingSpecificationId`: the type's default is fill-applied at scaffold regardless (see "Automatic default application" above), the request carries no `properties` field, so the freshly scaffolded element cannot hold the entity id, and the committing gate raises `UnfilledRequiredInput` (400). This is served-implies-resolvable by design — assemble such an element on the stateless draft route and persist the finished tree once its required references carry values.
 
 > **Concurrency:** `expectedVersion` is a pragmatic interim token built on the row's `updatedAt`, compared at millisecond precision (the storage precision). On its own it is not a compare-and-swap, so the lost-update window it would otherwise leave open is closed by serializing concurrent writers: `PersistedLayoutMutator::mutate()` holds a named lock keyed by layout id across the load → version-check → commit span. A second writer that started from the same revision blocks on that lock, then re-reads the now-bumped `updatedAt`, fails the version check, and gets a `409` instead of clobbering the first edit. A real layout versioning system (draft/published revisions with explicit version identifiers) is still planned and will supersede this interim token with richer version identifiers.
 
@@ -560,6 +563,7 @@ In addition to the structural `400`s of the stateless endpoints (`mutationTarget
 |-----------------------------------------------------------------------------------|------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | `{layoutId}` names no stored layout                                               | 404  | `contentLayoutNotFound`                                                                                                                     |
 | `expectedVersion` does not match the layout's current `updatedAt`                 | 409  | `layoutVersionConflict` (no write)                                                                                                          |
+| `insert-element` or `replace-element` on a type whose default binding specification set holds more than one (only reachable via a database row created outside the app lifecycle) | 409 | `bindingSpecificationDefaultAmbiguous` (thrown before the repository write, so nothing is persisted)                                       |
 | `expectedVersion` is not a parseable date-time                                    | 400  | `invalidVersionToken` (no write)                                                                                                            |
 | The committed edit breaks resolvability for a bound source, or is not well-formed | 400  | `ContentLayoutWriteValidator` rejects the `content_layout` write (`WriteException`); the binding-scope violations ride in the error payload |
 

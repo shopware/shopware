@@ -42,7 +42,7 @@
                                     "summary": "Insert an image and apply a binding specification atomically",
                                     "value": {
                                         "type": "Sw:Media:Image",
-                                        "bindingSpecificationId": "core:from-media-library",
+                                        "bindingSpecificationId": "core:Sw:Media:Image",
                                         "expectedVersion": "2026-06-22T10:00:00.000+00:00"
                                     }
                                 }
@@ -61,7 +61,73 @@
                     },
                     "400": { "$ref": "#/components/responses/400" },
                     "404": { "$ref": "#/components/responses/404" },
-                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                    "409": {
+                        "description": "Conflict, and nothing was written. Either the optimistic-concurrency token (`expectedVersion`) no longer matches the stored layout's current version (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT` — reload the layout, take the `updatedAt` the read returned, and retry), or the inserted type's default binding specification set holds more than one specification so no single default can be fill-applied (`CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS` — reachable only when a database row created outside the app lifecycle fakes a second default for the type; the mutation throws before the repository write instead of picking one).",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -216,7 +282,73 @@
                     },
                     "400": { "$ref": "#/components/responses/400" },
                     "404": { "$ref": "#/components/responses/404" },
-                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                    "409": {
+                        "description": "Conflict, and nothing was written. Either the optimistic-concurrency token (`expectedVersion`) no longer matches the stored layout's current version (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT` — reload the layout, take the `updatedAt` the read returned, and retry), or the new type's default binding specification set holds more than one specification so no single default can be fill-applied (`CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS` — reachable only when a database row created outside the app lifecycle fakes a second default for the type; the mutation throws before the repository write instead of picking one).",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -444,7 +576,7 @@
                                     "summary": "Bind a specification to an element",
                                     "value": {
                                         "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                        "bindingSpecificationId": "core:from-media-library",
+                                        "bindingSpecificationId": "core:Sw:Media:Image",
                                         "expectedVersion": "2026-06-22T10:00:00.000+00:00"
                                     }
                                 }

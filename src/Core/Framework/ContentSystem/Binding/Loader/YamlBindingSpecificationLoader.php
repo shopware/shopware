@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -24,20 +25,16 @@ use Symfony\Component\Yaml\Yaml;
 #[Package('framework')]
 class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecificationLoader
 {
-    // Matches the `name` column of `app_content_system_binding_specification`
-    // (Migration1782423128AddAppContentSystemBindingSpecificationTable), the persistence target every id
-    // resolved here eventually reaches (core/bundle/plugin bindings never persist, but app bindings do).
-    private const MAX_ID_LENGTH = 255;
-
     /**
      * @param list<ElementTypeSourceDirectory> $directories
      */
     public function __construct(
         private readonly array $directories,
+        private readonly ElementTypeNameResolver $nameResolver,
+        private readonly DefaultBindingSpecificationSynthesizer $synthesizer,
         private readonly BindingSpecificationSerializer $serializer,
         private readonly BindingSpecificationCanonicalizer $canonicalizer,
         private readonly ValidatorInterface $validator,
-        private readonly ElementTypeNameResolver $nameResolver,
     ) {
     }
 
@@ -48,7 +45,6 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     {
         $all = [];
         $seenQualifiedIds = [];
-        $promotedByType = [];
 
         foreach ($this->directories as $sourceDir) {
             $resolvedSpecificationDtos = $this->loadDtosFromTypeDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
@@ -67,22 +63,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
                 }
                 $seenQualifiedIds[$qualifiedId] = $resolvedSpecificationDto->source;
 
-                $specification = $resolvedSpecificationDto->toSpecification();
-
-                // Promoted uniqueness is per element type across ALL of this loader's directories and sources:
-                // two promoted specifications for one type is an authored bug, hard by design. The built
-                // specification carries the type; the raw dto only carries it untyped.
-                if ($specification->isPromoted()) {
-                    $type = $specification->type();
-
-                    if (isset($promotedByType[$type])) {
-                        throw ContentSystemException::bindingSpecificationPromotedDuplicate($type, $promotedByType[$type], $qualifiedId);
-                    }
-
-                    $promotedByType[$type] = $qualifiedId;
-                }
-
-                $all[] = $specification;
+                $all[] = $resolvedSpecificationDto->toSpecification();
             }
         }
 
@@ -93,7 +74,9 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
      * Validated and deduplicated within a single element-type directory (by bare id). Scans each `*.yaml`/`*.yml`
      * file, reads the optional top-level `bindings` map, and loads each entry as a specification whose type is
      * implicit, resolved from the file path plus the directory prefix via the same {@see ElementTypeNameResolver}
-     * the type loader uses. Files without a `bindings` key are skipped.
+     * the type loader uses. Every file also passes through {@see DefaultBindingSpecificationSynthesizer}, whether
+     * or not it carries a `bindings` key, registering a synthesized default specification when the file declares
+     * at least one `resolvedBy` property. A file with neither yields nothing.
      *
      * @param array<string, ContentSystemElementTypeSpecification> $typeOverlay type-name → spec for types not yet
      *                                                                          in the registry; consulted before the registry so an app's own inline binding resolves against its own
@@ -124,21 +107,44 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
         foreach ($files as $fileInfo) {
             $relativePath = $fileInfo->getRelativePathname();
             $data = $this->parseFile($filesystem, $relativePath);
+            $path = $filesystem->path($relativePath);
+            $implicitType = $this->nameResolver->resolve($relativePath, $prefix);
+
+            // Runs regardless of whether the file carries a "bindings" section: a file with a resolvedBy
+            // property and no inline bindings still synthesizes its type's default specification.
+            $synthesizedData = $this->synthesizer->synthesize($data, $implicitType, $path);
+            if ($synthesizedData !== null) {
+                // The synthesized id joins the same $seenIds set authored entries populate below, so a
+                // collision with an authored id elsewhere in this source surfaces as the duplicate error.
+                if (isset($seenIds[$implicitType])) {
+                    throw ContentSystemException::bindingSpecificationDuplicate($implicitType, $seenIds[$implicitType], $fileInfo->getFilename());
+                }
+
+                $seenIds[$implicitType] = $fileInfo->getFilename();
+
+                $dto = $this->canonicalizer->canonicalize($this->serializer->denormalize($synthesizedData), $implicitType, $typeOverlay);
+                $resolvedSpecificationDtos[] = new ResolvedBindingSpecificationDto($implicitType, $source, $dto);
+            }
 
             $bindings = $data['bindings'] ?? null;
             if ($bindings === null) {
                 continue;
             }
 
-            $path = $filesystem->path($relativePath);
             if (!\is_array($bindings)) {
                 throw ContentSystemException::bindingSpecificationLoadFailed($path, 'the "bindings" section must be a map of specification id to entry, got ' . get_debug_type($bindings));
             }
 
-            $implicitType = $this->nameResolver->resolve($relativePath, $prefix);
-
             foreach ($bindings as $bareId => $entryData) {
                 $id = $this->assertValidId($bareId, $path);
+
+                // The type name is reserved for the synthesized default (DefaultBindingSpecificationSynthesizer),
+                // whether or not this file actually synthesizes one, so an authored entry can never impersonate
+                // it. Runs before duplicate detection so an authored collision with the reserved id gets this
+                // dedicated message rather than the generic duplicate error.
+                if ($id === $implicitType) {
+                    throw ContentSystemException::bindingSpecificationReservedId($id, $implicitType, $path);
+                }
 
                 // Duplicate detection runs before any per-entry processing, so a duplicate id surfaces as the
                 // duplicate error even when the second entry would also fail shape checks or canonicalization.
@@ -187,8 +193,8 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
             throw ContentSystemException::bindingSpecificationLoadFailed($path, 'missing or empty "id"');
         }
 
-        if (\strlen($id) > self::MAX_ID_LENGTH) {
-            throw ContentSystemException::bindingSpecificationLoadFailed($path, \sprintf('id exceeds the maximum length of %d characters', self::MAX_ID_LENGTH));
+        if (\strlen($id) > DefaultBindingSpecificationSynthesizer::MAX_ID_LENGTH) {
+            throw ContentSystemException::bindingSpecificationLoadFailed($path, \sprintf('id exceeds the maximum length of %d characters', DefaultBindingSpecificationSynthesizer::MAX_ID_LENGTH));
         }
 
         return $id;

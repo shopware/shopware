@@ -595,24 +595,24 @@ class InfoControllerTest extends TestCase
             $typesByName[$type['name']] = $type;
         }
 
-        // The Image type carries the core catalog's one inline specification, authored inline in the
-        // `bindings:` section of Layout/Type/Definitions/media/image.yaml, folded in and keyed by its
-        // source-qualified id. It sources the Image element's `media` reference from the entity loader
-        // against its own `mediaId`, which is synthesized as an input with no default and a derived
-        // required: true (the `media` reference is declared required on the Image type).
+        // The Image type declares its `media` reference property with `resolvedBy: mediaId`, so the binding
+        // loader synthesizes this type's own default specification: its id is the type name itself, its label
+        // falls back to the type's `meta.label`, and it wires the `media` reference from the entity loader
+        // against the undeclared `mediaId` storage key. A synthesized default carries no inputs.
         static::assertArrayHasKey('Sw:Media:Image', $typesByName);
         static::assertSame(
             [
-                'id' => 'from-media-library',
+                'id' => 'Sw:Media:Image',
                 'type' => 'Sw:Media:Image',
-                'label' => 'From media library',
-                'promoted' => true,
+                'label' => 'Image',
+                // 'Sw:Media:Image' === 'Sw:Media:Image', so this synthesized specification is the type's default.
+                'default' => true,
                 'resolves' => [
                     'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
                 ],
-                'inputs' => ['mediaId' => ['required' => true]],
+                'inputs' => [],
             ],
-            $typesByName['Sw:Media:Image']['bindingSpecifications']['core:from-media-library'],
+            $typesByName['Sw:Media:Image']['bindingSpecifications']['core:Sw:Media:Image'],
         );
 
         // A type with no registered specification carries an empty map, encoded as {} on the wire.

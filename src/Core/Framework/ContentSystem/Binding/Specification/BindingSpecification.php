@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  *     id: string,
  *     type: string,
  *     label: string,
- *     promoted: bool,
+ *     default: bool,
  *     resolves: array<string, array{loader: string, config: array<string, mixed>}>,
  *     inputs: array<string, array{default?: mixed, required: bool}>
  * }
@@ -32,7 +32,6 @@ final readonly class BindingSpecification
         private array $resolves,
         private array $inputs,
         private string $source,
-        private bool $promoted = false,
     ) {
     }
 
@@ -82,12 +81,12 @@ final readonly class BindingSpecification
     }
 
     /**
-     * Pure catalog metadata: the author promotes this specification for its type. No server behavior reads
-     * it: the scaffold never auto-applies it, the gate never consults it, `bind-element` ignores it.
+     * Derived on read, never stored (the same computed-not-stored pattern as {@see self::qualifiedId()}):
+     * true exactly for a synthesized default specification, whose reserved id equals its own type.
      */
-    public function isPromoted(): bool
+    public function isDefault(): bool
     {
-        return $this->promoted;
+        return $this->id === $this->type;
     }
 
     /**
@@ -119,7 +118,7 @@ final readonly class BindingSpecification
             'id' => $this->id,
             'type' => $this->type,
             'label' => $this->label,
-            'promoted' => $this->promoted,
+            'default' => $this->isDefault(),
             'resolves' => $resolves,
             'inputs' => $inputs,
         ];

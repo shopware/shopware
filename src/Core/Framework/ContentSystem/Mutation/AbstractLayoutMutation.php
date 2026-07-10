@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
@@ -234,6 +236,34 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         }
 
         throw ContentSystemException::mutationUnknownType($type);
+    }
+
+    /**
+     * The type's default binding specification (`byType($type)` filtered by `isDefault()`), read as zero, one, or
+     * more: zero returns null (nothing to fill-apply), one is returned, more than one throws — never a first-wins
+     * pick. Shared by {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement} and
+     * {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement}, the two ops that auto-apply a
+     * type's default at scaffold.
+     */
+    protected function resolveDefaultSpecification(AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, string $type): ?BindingSpecification
+    {
+        $defaults = array_values(array_filter(
+            $bindingRegistry->byType($type),
+            static fn (BindingSpecification $specification): bool => $specification->isDefault(),
+        ));
+
+        if ($defaults === []) {
+            return null;
+        }
+
+        if (\count($defaults) === 1) {
+            return $defaults[0];
+        }
+
+        throw ContentSystemException::bindingSpecificationDefaultAmbiguous(
+            $type,
+            array_map(static fn (BindingSpecification $specification): string => $specification->qualifiedId(), $defaults),
+        );
     }
 
     /**

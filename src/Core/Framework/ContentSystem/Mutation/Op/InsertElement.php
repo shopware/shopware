@@ -16,9 +16,11 @@ use Shopware\Core\Framework\Log\Package;
  * standalone scaffold action: the pipeline's diagnostics pass reports the new element's auto-wiring and
  * candidate sources.
  *
- * When $bindingSpecificationId is given, the named specification's wiring is applied onto the fresh element
- * atomically after scaffold via {@see BindingApplicator}, so the inserted element carries the binding's data
- * requirements, seeded input defaults, and attribution.
+ * The type's default binding specification, when it has exactly one, is fill-applied onto the fresh element via
+ * {@see BindingApplicator::applyFillOnly()} before insertion (zero defaults is a no-op; more than one throws).
+ * When $bindingSpecificationId is also given, the named specification's wiring is then applied on top,
+ * atomically after scaffold, via {@see BindingApplicator::apply()} (overwrite), so shared keys belong to the
+ * explicit choice.
  *
  * @internal
  */
@@ -44,7 +46,7 @@ final class InsertElement extends AbstractLayoutMutation
         $bindingSpecificationId = $this->bindingSpecificationId;
 
         $element = $bindingSpecificationId === null
-            ? $this->scaffoldElement($this->registry, $this->type)
+            ? $this->scaffoldWithDefault($this->type)
             : $this->scaffoldBoundElement($bindingSpecificationId);
 
         $this->affected = [$element->getId()];
@@ -78,6 +80,24 @@ final class InsertElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type);
         }
 
-        return $this->bindingApplicator->apply($this->scaffoldElement($this->registry, $this->type), $specification, $bindingSpecificationId);
+        // Default underneath, explicit on top: the default is fill-applied first, then the explicit specification
+        // overwrites its shared keys, so an explicit choice always wins over the type's default wiring.
+        return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type), $specification, $bindingSpecificationId);
+    }
+
+    /**
+     * Scaffolds a fresh element of $type and fill-applies its default binding specification (resolved via
+     * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
+     */
+    private function scaffoldWithDefault(string $type): ContentElement
+    {
+        $element = $this->scaffoldElement($this->registry, $type);
+        $default = $this->resolveDefaultSpecification($this->bindingRegistry, $type);
+
+        if ($default === null) {
+            return $element;
+        }
+
+        return $this->bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId());
     }
 }

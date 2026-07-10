@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App\Validation;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemBindingSpecificationSchemaError;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
-use Shopware\Core\Framework\ContentSystem\Binding\Loader\ResolvedBindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -47,13 +46,10 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
         $violations = [];
 
         try {
-            $specifications = $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
+            $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
         } catch (ContentSystemException $e) {
             $violations[] = \sprintf('in "%s": %s', $typesDirectory, $e->getMessage());
-            $specifications = [];
         }
-
-        $this->detectPromotedConflicts($violations, $specifications);
 
         if ($violations !== []) {
             $errors->add(new ContentSystemBindingSpecificationSchemaError($violations));
@@ -76,36 +72,6 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
             return $this->typeLoader->loadOverlayFromDirectory($typesDirectory, $source, $prefix);
         } catch (ContentSystemException) {
             return [];
-        }
-    }
-
-    /**
-     * The promoted-uniqueness invariant at the manifest boundary: reject the app promoting one type twice across
-     * its own specifications. Soft: every conflict is a schema error, never an exception.
-     *
-     * @param list<string> $violations
-     * @param list<ResolvedBindingSpecificationDto> $specifications
-     */
-    private function detectPromotedConflicts(array &$violations, array $specifications): void
-    {
-        $appPromotedByType = [];
-
-        foreach ($specifications as $resolvedDto) {
-            $specification = $resolvedDto->toSpecification();
-
-            if (!$specification->isPromoted()) {
-                continue;
-            }
-
-            $type = $specification->type();
-
-            if (isset($appPromotedByType[$type])) {
-                $violations[] = \sprintf('binding "%s" promotes type "%s", which this app already promotes via binding "%s"; at most one specification may be promoted per type', $resolvedDto->id, $type, $appPromotedByType[$type]);
-
-                continue;
-            }
-
-            $appPromotedByType[$type] = $resolvedDto->id;
         }
     }
 }

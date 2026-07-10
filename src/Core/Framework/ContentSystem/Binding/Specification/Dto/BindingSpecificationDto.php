@@ -33,7 +33,6 @@ final readonly class BindingSpecificationDto
         public mixed $label,
         public mixed $resolves,
         public mixed $inputs,
-        public mixed $promoted,
     ) {
     }
 
@@ -46,7 +45,6 @@ final readonly class BindingSpecificationDto
             $this->buildResolves(),
             $this->buildInputs(),
             $source,
-            $this->promoted === true,
         );
     }
 

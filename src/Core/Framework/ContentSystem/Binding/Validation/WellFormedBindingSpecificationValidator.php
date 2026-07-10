@@ -26,23 +26,8 @@ final class WellFormedBindingSpecificationValidator extends ConstraintValidator
 
         $this->validateType($value, $constraint);
         $this->validateLabel($value, $constraint);
-        $this->validatePromoted($value, $constraint);
         $this->validateResolves($value, $constraint);
         $this->validateInputs($value, $constraint);
-    }
-
-    private function validatePromoted(BindingSpecificationDto $value, WellFormedBindingSpecification $constraint): void
-    {
-        // Absent in the YAML body (null) means not promoted: valid. A present non-bool (string "true", 1) is
-        // rejected here, which protects DB rows too: they skip canonicalization and reach the specification
-        // through this shape gate only.
-        if ($value->promoted === null || \is_bool($value->promoted)) {
-            return;
-        }
-
-        $this->context->buildViolation($constraint->promotedBoolMessage)
-            ->atPath('promoted')
-            ->addViolation();
     }
 
     private function validateType(BindingSpecificationDto $value, WellFormedBindingSpecification $constraint): void

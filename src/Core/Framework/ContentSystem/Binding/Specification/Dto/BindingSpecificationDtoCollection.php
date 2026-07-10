@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Keyed by id (e.g. `from-media-library`) so Symfony includes the id in violation property paths:
- * `bindings[from-media-library].type`.
+ * Keyed by id (e.g. `Sw:Media:Image`) so Symfony includes the id in violation property paths:
+ * `bindings[Sw:Media:Image].type`.
  *
  * Carries the semantic constraint {@see TypeConsistentBindingSpecification} at the collection level (not on the
  * DTO) so a per-load type overlay can ride the validated object into the validator: a per-call overlay cannot be

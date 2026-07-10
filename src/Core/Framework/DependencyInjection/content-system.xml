@@ -331,12 +331,16 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
         </service>
 
+        <!-- Synthesizes a type's default binding specification from its properties' resolvedBy keys -->
+        <service id="Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer"/>
+
         <service id="Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader">
             <argument key="$directories" type="collection"/>
+            <argument key="$nameResolver" type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
+            <argument key="$synthesizer" type="service" id="Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer"/>
             <argument key="$serializer" type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
             <argument key="$canonicalizer" type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer"/>
             <argument key="$validator" type="service" id="validator"/>
-            <argument key="$nameResolver" type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
             <tag name="content_system.binding_specification_loader"/>
         </service>
 

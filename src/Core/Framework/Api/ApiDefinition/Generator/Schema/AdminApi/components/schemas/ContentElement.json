@@ -75,7 +75,7 @@
                         "additionalProperties": {
                             "type": "string"
                         },
-                        "example": { "media": "core:from-media-library" }
+                        "example": { "media": "core:Sw:Media:Image" }
                     }
                 },
                 "example": {

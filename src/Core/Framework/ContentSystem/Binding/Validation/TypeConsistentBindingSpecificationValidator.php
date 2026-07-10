@@ -166,10 +166,10 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
     /**
      * Every config key of kind `propertyReference` (per the loader's config specification) whose configured value
-     * is a string must name a primitive property of the declared type. A non-existent or non-primitive property is
-     * a violation for every loader. Reaching this point means `decodeConfig()` and `resolveProducedType()` both
-     * succeeded, so the loader is a registered data loader and thus present in the map, so `configSpecificationFor()`
-     * cannot throw here.
+     * is a string must name either an undeclared key (the resolvedBy storage key) or a declared primitive
+     * property of the declared type. A declared non-primitive property is a violation for every loader. Reaching
+     * this point means `decodeConfig()` and `resolveProducedType()` both succeeded, so the loader is a registered
+     * data loader and thus present in the map, so `configSpecificationFor()` cannot throw here.
      *
      * @param array<string, mixed> $config
      */
@@ -190,7 +190,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
             $property = $type->properties()[$configured] ?? null;
 
-            if ($property !== null && $property->type()->isPrimitive()) {
+            if ($property === null || $property->type()->isPrimitive()) {
                 continue;
             }
 

@@ -333,10 +333,10 @@ class ContentSystemExceptionTest extends TestCase
         ];
 
         yield 'binding specification duplicate' => [
-            ContentSystemException::bindingSpecificationDuplicate('from-media-library', 'core', 'app:Acme'),
+            ContentSystemException::bindingSpecificationDuplicate('media-picker', 'core', 'app:Acme'),
             Response::HTTP_CONFLICT,
             'CONTENT_SYSTEM__BINDING_SPECIFICATION_DUPLICATE',
-            'from-media-library',
+            'media-picker',
         ];
 
         yield 'binding specification load failed' => [

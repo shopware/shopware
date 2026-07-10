@@ -25,7 +25,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
         $validator = static::createStub(ValidatorInterface::class);
@@ -37,7 +37,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
 
         static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
+        static::assertSame('media-picker', $specifications[0]->id());
         static::assertSame('Sw:Media:Image', $specifications[0]->type());
         static::assertSame('app:Acme', $specifications[0]->source());
     }
@@ -72,7 +72,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['name' => '', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
-            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
         $validator = static::createStub(ValidatorInterface::class);
@@ -89,7 +89,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
 
         static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
+        static::assertSame('media-picker', $specifications[0]->id());
     }
 
     #[TestDox('loads a persisted binding whose name is the string "0" instead of silently skipping it')]
@@ -117,7 +117,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'from-media-library', 'schema' => '{not json', 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => '{not json', 'app_name' => 'Acme'],
         ]);
 
         $validator = $this->createMock(ValidatorInterface::class);
@@ -126,7 +126,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
             ->method('warning')
-            ->with(static::stringContains('app:Acme:from-media-library'));
+            ->with(static::stringContains('app:Acme:media-picker'));
 
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
 
@@ -138,7 +138,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'from-media-library', 'schema' => json_encode('a-string'), 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => json_encode('a-string'), 'app_name' => 'Acme'],
         ]);
 
         $validator = $this->createMock(ValidatorInterface::class);
@@ -147,7 +147,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
             ->method('warning')
-            ->with(static::stringContains('app:Acme:from-media-library'));
+            ->with(static::stringContains('app:Acme:media-picker'));
 
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
 
@@ -159,7 +159,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
             ['name' => 'broken', 'schema' => json_encode(['type' => '', 'label' => 'Broken']), 'app_name' => 'Acme'],
         ]);
 
@@ -182,7 +182,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
 
         static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
+        static::assertSame('media-picker', $specifications[0]->id());
     }
 
     #[TestDox('skips a row when the validator throws, keeping the valid sibling, instead of aborting the whole load')]
@@ -190,7 +190,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
             ['name' => 'boom', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
@@ -213,7 +213,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
 
         static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
+        static::assertSame('media-picker', $specifications[0]->id());
     }
 
     #[TestDox('skips a row whose schema cannot be deserialized into a specification, keeping the valid sibling, instead of aborting the whole load')]
@@ -222,7 +222,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['name' => 'boom', 'schema' => json_encode(['type' => 'x']), 'app_name' => 'Acme'],
-            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'media-picker', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
         $serializer = static::createStub(BindingSpecificationSerializer::class);
@@ -246,7 +246,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         $specifications = $loader->load();
 
         static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
+        static::assertSame('media-picker', $specifications[0]->id());
     }
 
     /**
@@ -256,7 +256,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
     {
         return [
             'type' => 'Sw:Media:Image',
-            'label' => 'From media library',
+            'label' => 'Media picker',
             'resolves' => [
                 'media' => [
                     'loader' => 'entity',

@@ -38,12 +38,12 @@ class TestNavigationShapedLoader extends AbstractContentDataLoader
 
     public function configSpecification(): LoaderConfigSpecification
     {
-        // INVARIANT: this loader produces MediaEntity, so it must NEVER declare a required propertyReference key.
-        // Exactly one would make it tier-A-eligible for MediaEntity and break the shipped core:from-media-library
-        // `media: mediaId` shorthand at registry build. The required `entity` key is deliberate: it keeps the loader
-        // config-incomplete so it never becomes an auto-resolving candidate for a MediaEntity reference. The single
-        // defaulted propertyReference key is what makes this the navigation shape (never gates). Declared from
-        // literals only (the compiler pass dry-runs this on a constructor-less instance).
+        // This loader produces MediaEntity like the built-in `entity` loader, but tier A never considers it: the
+        // bare-string shorthand resolves only the two built-in resolvedBy loaders (entity/entity_collection),
+        // closed by construction (ResolvedByLoaderBranch), so no third-party loader can ever compete for it.
+        // Its one propertyReference key is defaulted, not required — mirroring the shipped `navigation` loader's
+        // shape, so a required reference wired through it resolves without ever raising UnfilledRequiredInput.
+        // Declared from literals only (the compiler pass dry-runs this on a constructor-less instance).
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
             new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'activeId'),

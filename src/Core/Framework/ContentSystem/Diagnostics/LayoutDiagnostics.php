@@ -370,8 +370,10 @@ class LayoutDiagnostics
     /**
      * One unfilled required input. Keyed on the input property the Admin highlights when the configured name is
      * a value-bearing (declared primitive) property; otherwise (the stored wiring is never property-name
-     * validated) keyed on the reference property that does exist, with the bogus configured key named in the
-     * message. A stored explicit null counts as no value, mirroring the strict primitive rule above.
+     * validated) keyed on the reference property that does exist, naming the empty storage key in the message.
+     * A resolvedBy reference's storage key is undeclared by design, so an empty value there is the normal
+     * pre-fill state before the value is set and saved; a typo'd key is indistinguishable and reads the same
+     * way. A stored explicit null counts as no value, mirroring the strict primitive rule above.
      */
     private function unfilledInputViolation(ContentElement $element, string $referenceKey, string $configuredProperty): ?Violation
     {
@@ -392,7 +394,7 @@ class LayoutDiagnostics
             ViolationCode::UnfilledRequiredInput,
             $element->getId(),
             $referenceKey,
-            \sprintf('Required property "%s" is wired from "%s", which is not a value-bearing property of this element.', $referenceKey, $configuredProperty),
+            \sprintf('Required property "%s" is wired from "%s", which has no value.', $referenceKey, $configuredProperty),
         );
     }
 

@@ -33,7 +33,7 @@ class BindingAttributionPersistenceTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
 
     private IdsCollection $ids;
 
@@ -267,7 +267,7 @@ class BindingAttributionPersistenceTest extends TestCase
     }
 
     /**
-     * A Sw:Media:Image element wired and attributed to core:from-media-library. mediaId is always filled so
+     * A Sw:Media:Image element wired and attributed to core:Sw:Media:Image. mediaId is always filled so
      * the wired `media` reference resolves (Stored) and the derived-required `mediaId` input is never
      * unfilled, so the element stays resolvable and the write is never rejected by the resolvability gate;
      * $property lets a caller edit the wiring away from what the specification produces while keeping the

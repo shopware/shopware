@@ -22,12 +22,12 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     public function testAggregatesSpecificationsFromAllLoadersKeyedByQualifiedId(): void
     {
         $registry = $this->registry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
             $this->loader($this->specification('from-product-list', 'product-grid', 'plugin:Acme')),
         ]);
 
         static::assertSame(
-            ['core:from-media-library', 'plugin:Acme:from-product-list'],
+            ['core:media-picker', 'plugin:Acme:from-product-list'],
             array_keys($registry->all())
         );
     }
@@ -37,36 +37,36 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     {
         $registry = $this->registry([
             $this->loader(
-                $this->specification('from-media-library', 'media-gallery', 'core'),
+                $this->specification('media-picker', 'media-gallery', 'core'),
                 $this->specification('from-product-list', 'product-grid', 'core'),
-                $this->specification('from-media-library-alt', 'media-gallery', 'plugin:Acme'),
+                $this->specification('media-picker-alt', 'media-gallery', 'plugin:Acme'),
             ),
         ]);
 
         $byType = $registry->byType('media-gallery');
 
         static::assertSame([0, 1], array_keys($byType));
-        static::assertSame(['from-media-library', 'from-media-library-alt'], array_map(static fn (BindingSpecification $s) => $s->id(), $byType));
+        static::assertSame(['media-picker', 'media-picker-alt'], array_map(static fn (BindingSpecification $s) => $s->id(), $byType));
     }
 
     #[TestDox('resolves a specification by its source-qualified id')]
     public function testGetResolvesBySourceQualifiedId(): void
     {
         $registry = $this->registry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
         ]);
 
-        $specification = $registry->get('core:from-media-library');
+        $specification = $registry->get('core:media-picker');
 
         static::assertNotNull($specification);
-        static::assertSame('from-media-library', $specification->id());
+        static::assertSame('media-picker', $specification->id());
     }
 
     #[TestDox('returns an empty list when no specification matches the type')]
     public function testByTypeReturnsEmptyListForUnmatchedType(): void
     {
         $registry = $this->registry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
         ]);
 
         static::assertSame([], $registry->byType('unknown-type'));
@@ -76,7 +76,7 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     public function testGetReturnsNullForMissingId(): void
     {
         $registry = $this->registry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
         ]);
 
         static::assertNull($registry->get('missing:x'));
@@ -118,7 +118,7 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
 
     private function specification(string $id, string $type, string $source): BindingSpecification
     {
-        return new BindingSpecification($id, $type, 'label', [], [], $source, false);
+        return new BindingSpecification($id, $type, 'label', [], [], $source);
     }
 
     /**

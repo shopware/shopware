@@ -9,9 +9,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\ContentSystemBindingSpecificationAppValidator;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemBindingSpecificationSchemaError;
-use Shopware\Core\Framework\ContentSystem\Binding\Loader\ResolvedBindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
-use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\Context;
@@ -22,47 +20,6 @@ use Shopware\Core\Framework\Context;
 #[CoversClass(ContentSystemBindingSpecificationAppValidator::class)]
 class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 {
-    #[TestDox('reports a schema error when two of the app own specifications promote one type')]
-    public function testAppInternalDoublePromotionBecomesSchemaError(): void
-    {
-        $firstPromoted = new ResolvedBindingSpecificationDto('first-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'First', null, null, true));
-        $secondPromoted = new ResolvedBindingSpecificationDto('second-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'Second', null, null, true));
-
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([$firstPromoted, $secondPromoted]);
-
-        $errors = $this->validator($loader)->validate($this->manifest(), Context::createDefaultContext());
-
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
-        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
-        static::assertStringContainsString('first-promoted', $error->getMessage());
-        static::assertStringContainsString('second-promoted', $error->getMessage());
-        static::assertStringContainsString('Sw:Media:Image', $error->getMessage());
-    }
-
-    #[TestDox('aggregates every promotion violation into the one schema error')]
-    public function testAllPromotionViolationsRideOneSchemaError(): void
-    {
-        // Three promotions of one type produce two conflict violations. ErrorCollection keys by message key,
-        // so a second error of the same class would silently replace the first; both violations must
-        // therefore ride the single aggregated error.
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([
-            new ResolvedBindingSpecificationDto('first-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'First', null, null, true)),
-            new ResolvedBindingSpecificationDto('second-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'Second', null, null, true)),
-            new ResolvedBindingSpecificationDto('third-promoted', 'app:DemoApp', new BindingSpecificationDto('Sw:Media:Image', 'Third', null, null, true)),
-        ]);
-
-        $errors = $this->validator($loader)->validate($this->manifest(), Context::createDefaultContext());
-
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
-        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
-        static::assertStringContainsString('second-promoted', $error->getMessage());
-        static::assertStringContainsString('third-promoted', $error->getMessage());
-    }
-
     #[TestDox('turns a canonicalization failure in a binding load into a schema error instead of throwing')]
     public function testCanonicalizationFailureBecomesSchemaError(): void
     {

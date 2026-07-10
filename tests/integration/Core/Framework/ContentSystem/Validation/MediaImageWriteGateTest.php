@@ -44,7 +44,7 @@ class MediaImageWriteGateTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
-    #[TestDox('rejects persisting a none-rooted image bound to the entity loader with no mediaId value, keyed on the mediaId input')]
+    #[TestDox('rejects persisting a none-rooted image bound to the entity loader with no mediaId value, keyed on the media reference property since mediaId is undeclared')]
     public function testRejectsMediaImageWriteWithUnfilledMediaId(): void
     {
         $context = Context::createDefaultContext();
@@ -68,7 +68,9 @@ class MediaImageWriteGateTest extends TestCase
             }
 
             static::assertCount(1, $unfilled, 'Exactly one unfilled_required_input must be raised for the media wiring.');
-            static::assertStringEndsWith('/' . $elementId . '/mediaId', $unfilled[0]->getPropertyPath());
+            // mediaId is an undeclared storage key (resolvedBy, not a declared primitive property), so the
+            // undeclared-key branch keys the violation on the reference property "media", not "mediaId".
+            static::assertStringEndsWith('/' . $elementId . '/media', $unfilled[0]->getPropertyPath());
         }
     }
 
@@ -83,7 +85,7 @@ class MediaImageWriteGateTest extends TestCase
         static::assertSame($layoutId, $this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
     }
 
-    #[TestDox('reports the media image as unresolvable and raises a single unfilled_required_input while the mediaId input is empty')]
+    #[TestDox('reports the media image as unresolvable and raises a single unfilled_required_input, keyed on the media reference property, while the mediaId input is empty')]
     public function testDiagnosticsBlockResolvabilityWhileMediaIdEmpty(): void
     {
         $report = $this->diagnostics()->analyze([$this->boundImage('el-1', mediaId: null)], [])->report;
@@ -93,7 +95,8 @@ class MediaImageWriteGateTest extends TestCase
         $bindingErrors = $report->bindingErrors();
         static::assertCount(1, $bindingErrors);
         static::assertSame(ViolationCode::UnfilledRequiredInput, $bindingErrors[0]->code);
-        static::assertSame('mediaId', $bindingErrors[0]->key);
+        // mediaId is an undeclared storage key, so the violation keys on the reference property "media".
+        static::assertSame('media', $bindingErrors[0]->key);
     }
 
     #[TestDox('reports the media image as resolvable with no binding error once the mediaId input carries a value')]

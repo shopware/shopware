@@ -89,7 +89,7 @@ class LayoutMutationController
         ReplaceElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType);
+        $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType, $this->bindingRegistry, $this->bindingApplicator);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

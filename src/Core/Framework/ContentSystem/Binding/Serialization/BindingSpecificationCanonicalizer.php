@@ -2,18 +2,19 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Serialization;
 
+use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -21,8 +22,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 
 /**
  * Rewrites a {@see BindingSpecificationDto}'s sugared `resolves` entries into canonical `{loader, config}` form and
- * synthesizes its `inputs`, driven entirely by the loaders' declared config specifications, so no rule names a
- * loader source. Runs between denormalization and constraint validation, so
+ * synthesizes its `inputs`. Tier B and tier C name no loader source, driven entirely by the loaders' declared config
+ * specifications; tier A resolves the two built-in resolvedBy loaders ({@see ResolvedByLoaderBranch})
+ * directly. Runs between denormalization and constraint validation, so
  * `WellFormedBindingSpecification`/`TypeConsistentBindingSpecification` only ever validate canonical shapes. Sugar
  * that cannot expand deterministically is a load-time error carrying the mechanical fix, never a silent pass-through
  * or best guess.
@@ -65,7 +67,7 @@ final class BindingSpecificationCanonicalizer
             // WellFormedBindingSpecification rejects downstream with the precise message. With no canonical
             // entry, nothing is synthesized and no input is required, but every explicit input still carries
             // its (false) derived flag.
-            return new BindingSpecificationDto($dto->type, $dto->label, $dto->resolves, $this->buildInputs($dto->inputs, [], $type, $map), $dto->promoted);
+            return new BindingSpecificationDto($dto->type, $dto->label, $dto->resolves, $this->buildInputs($dto->inputs, [], $type, $map));
         }
 
         $canonical = [];
@@ -73,7 +75,7 @@ final class BindingSpecificationCanonicalizer
             $canonical[(string) $key] = $this->canonicalizeEntry((string) $key, $entry, $type, $map, $id);
         }
 
-        return new BindingSpecificationDto($dto->type, $dto->label, $canonical, $this->buildInputs($dto->inputs, $canonical, $type, $map), $dto->promoted);
+        return new BindingSpecificationDto($dto->type, $dto->label, $canonical, $this->buildInputs($dto->inputs, $canonical, $type, $map));
     }
 
     /**
@@ -222,7 +224,7 @@ final class BindingSpecificationCanonicalizer
     private function canonicalizeEntry(string $refKey, mixed $entry, ContentSystemElementTypeSpecification $type, ContentSystemDataLoaderMap $map, string $id): array
     {
         if (\is_string($entry)) {
-            return $this->expandTierA($refKey, $entry, $type, $map, $id);
+            return $this->expandTierA($refKey, $entry, $type, $id);
         }
 
         if (!\is_array($entry)) {
@@ -268,9 +270,14 @@ final class BindingSpecificationCanonicalizer
     }
 
     /**
+     * The tier-A closed classification: a property FQCN subclassing {@see \Shopware\Core\Framework\DataAbstractionLayer\Entity}
+     * or {@see \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection} resolves to its built-in
+     * resolvedBy loader directly; no loader search runs, and installing an extension loader cannot change
+     * or invalidate the result.
+     *
      * @return array<string, mixed>
      */
-    private function expandTierA(string $refKey, string $inputProperty, ContentSystemElementTypeSpecification $type, ContentSystemDataLoaderMap $map, string $id): array
+    private function expandTierA(string $refKey, string $inputProperty, ContentSystemElementTypeSpecification $type, string $id): array
     {
         $fqcn = $this->declaredReferenceFqcn($type, $refKey);
 
@@ -281,20 +288,24 @@ final class BindingSpecificationCanonicalizer
             );
         }
 
-        $eligible = $this->eligibleTierASources($fqcn, $map);
+        $branch = ResolvedByLoaderBranch::fromReferenceFqcn($fqcn);
 
-        if (\count($eligible) !== 1) {
-            throw ContentSystemException::bindingSpecificationCanonicalizationFailed($id, $this->tierAAmbiguityReason($refKey, $fqcn, array_keys($eligible)));
+        if ($branch === null) {
+            throw ContentSystemException::bindingSpecificationCanonicalizationFailed(
+                $id,
+                \sprintf('the tier-A shorthand for "%s" resolves to "%s", which is neither an Entity nor an EntityCollection subclass, so no built-in resolvedBy loader applies; use the single-key loader form (tier B) or the canonical {loader, config} form (tier C) to name the loader explicitly.', $refKey, $fqcn),
+            );
         }
 
-        $source = (string) array_key_first($eligible);
-        $capability = $eligible[$source];
+        $entityName = $this->deriveEntityName($branch, $fqcn, $refKey, $id);
 
-        $config = $capability->configTemplate;
-        $config[$this->requiredPropertyReferenceKey($map->configSpecificationFor($source), $id)] = $inputProperty;
-        $config = $this->fillEntityNameKeys($source, $config, $type, $refKey, $map, $id, $fqcn);
-
-        return ['loader' => $source, 'config' => $config];
+        return [
+            'loader' => $branch->loaderSource(),
+            'config' => [
+                'entity' => $entityName,
+                'property' => $inputProperty,
+            ],
+        ];
     }
 
     /**
@@ -354,112 +365,39 @@ final class BindingSpecificationCanonicalizer
                 );
             }
 
-            $config[$key->name] = $this->deriveEntityName($resolvedFqcn, $refKey, $id);
+            $branch = ResolvedByLoaderBranch::fromReferenceFqcn($resolvedFqcn);
+
+            if ($branch === null) {
+                throw ContentSystemException::bindingSpecificationCanonicalizationFailed(
+                    $id,
+                    \sprintf('cannot derive the entity name for the "%s" config key of loader "%s": the reference property "%s" of type "%s" resolves to "%s", which is neither an Entity nor an EntityCollection subclass; author the entity name explicitly.', $key->name, $source, $refKey, $type->name(), $resolvedFqcn),
+                );
+            }
+
+            $config[$key->name] = $this->deriveEntityName($branch, $resolvedFqcn, $refKey, $id);
         }
 
         return $config;
     }
 
     /**
-     * The eligible tier-A loader sources keyed by source, each mapped to its exact-match capability. A source is
-     * eligible iff it exposes a capability whose produced type equals the FQCN exactly (not `is_a`; subtype
-     * fan-out is the ambiguity this refuses to resolve), its config specification has exactly one required
-     * `propertyReference` key (the string fills it), and every other required key is either covered by that
-     * capability's template or is of kind `entityName` (fillable by FQCN derivation).
-     *
-     * @return array<string, LoaderTypeCapability>
+     * Derives the entity name a reference FQCN resolves to by walking the registered definitions for the one whose
+     * produced class — its sales-channel counterpart's where one exists — equals the FQCN. The branch selects what
+     * "produced class" means: {@see ResolvedByLoaderBranch::Entity} matches on the produced entity class,
+     * {@see ResolvedByLoaderBranch::EntityCollection} on the produced collection class, the same registry walk the two
+     * built-in loaders perform in the forward direction. A {@see MappingEntityDefinition}, or a definition producing
+     * the branch's bare, unaddressable base class ({@see ArrayEntity} / {@see EntityCollection}), is skipped. Zero or
+     * several matches is a hard error naming the explicit-entityName fix, preserved per branch.
      */
-    private function eligibleTierASources(string $fqcn, ContentSystemDataLoaderMap $map): array
-    {
-        $eligible = [];
-
-        foreach ($map->sourceToCapabilities as $source => $capabilities) {
-            $capability = $this->exactMatchCapability($capabilities, $fqcn);
-
-            if ($capability === null) {
-                continue;
-            }
-
-            $specification = $map->configSpecificationFor($source);
-
-            if (!$this->hasExactlyOneRequiredPropertyReference($specification)) {
-                continue;
-            }
-
-            if (!$this->requiredResidueFillable($specification, $capability)) {
-                continue;
-            }
-
-            $eligible[$source] = $capability;
-        }
-
-        return $eligible;
-    }
-
-    /**
-     * @param list<LoaderTypeCapability> $capabilities
-     */
-    private function exactMatchCapability(array $capabilities, string $fqcn): ?LoaderTypeCapability
-    {
-        foreach ($capabilities as $capability) {
-            if ($capability->producedType === $fqcn) {
-                return $capability;
-            }
-        }
-
-        return null;
-    }
-
-    private function hasExactlyOneRequiredPropertyReference(LoaderConfigSpecification $specification): bool
-    {
-        $count = 0;
-
-        foreach ($specification->keys as $key) {
-            if ($key->required && $key->kind === ConfigKeyKind::PropertyReference) {
-                ++$count;
-            }
-        }
-
-        return $count === 1;
-    }
-
-    private function requiredResidueFillable(LoaderConfigSpecification $specification, LoaderTypeCapability $capability): bool
-    {
-        foreach ($specification->keys as $key) {
-            if (!$key->required || $key->kind === ConfigKeyKind::PropertyReference) {
-                continue;
-            }
-
-            if (\array_key_exists($key->name, $capability->configTemplate)) {
-                continue;
-            }
-
-            if ($key->kind === ConfigKeyKind::EntityName) {
-                continue;
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-    private function requiredPropertyReferenceKey(LoaderConfigSpecification $specification, string $id): string
-    {
-        foreach ($specification->keys as $key) {
-            if ($key->required && $key->kind === ConfigKeyKind::PropertyReference) {
-                return $key->name;
-            }
-        }
-
-        // Unreachable: eligibility already established exactly one such key on the selected source.
-        throw ContentSystemException::bindingSpecificationCanonicalizationFailed($id, 'internal: no required propertyReference key on an eligible tier-A source');
-    }
-
-    private function deriveEntityName(string $fqcn, string $refKey, string $id): string
+    private function deriveEntityName(ResolvedByLoaderBranch $branch, string $fqcn, string $refKey, string $id): string
     {
         $definitions = $this->definitionRegistry->getDefinitions();
         $salesChannelDefinitions = $this->salesChannelDefinitionRegistry->getSalesChannelDefinitions();
+
+        $unaddressableBaseClass = match ($branch) {
+            ResolvedByLoaderBranch::Entity => ArrayEntity::class,
+            ResolvedByLoaderBranch::EntityCollection => EntityCollection::class,
+        };
 
         $matches = [];
         foreach ($definitions as $definition) {
@@ -467,16 +405,14 @@ final class BindingSpecificationCanonicalizer
                 continue;
             }
 
-            if ($definition->getEntityClass() === ArrayEntity::class) {
+            if ($this->producedClass($branch, $definition) === $unaddressableBaseClass) {
                 continue;
             }
 
             $entityName = $definition->getEntityName();
-            $producedClass = isset($salesChannelDefinitions[$entityName])
-                ? $salesChannelDefinitions[$entityName]->getEntityClass()
-                : $definition->getEntityClass();
+            $producer = $salesChannelDefinitions[$entityName] ?? $definition;
 
-            if ($producedClass === $fqcn) {
+            if ($this->producedClass($branch, $producer) === $fqcn) {
                 $matches[] = $entityName;
             }
         }
@@ -490,6 +426,14 @@ final class BindingSpecificationCanonicalizer
             : \sprintf('multiple registered entities (%s) produce "%s" for reference "%s"; author the entity name explicitly.', implode(', ', $matches), $fqcn, $refKey);
 
         throw ContentSystemException::bindingSpecificationCanonicalizationFailed($id, $reason);
+    }
+
+    private function producedClass(ResolvedByLoaderBranch $branch, EntityDefinition $definition): string
+    {
+        return match ($branch) {
+            ResolvedByLoaderBranch::Entity => $definition->getEntityClass(),
+            ResolvedByLoaderBranch::EntityCollection => $definition->getCollectionClass(),
+        };
     }
 
     /**
@@ -513,18 +457,6 @@ final class BindingSpecificationCanonicalizer
         }
 
         return $declaredType;
-    }
-
-    /**
-     * @param list<string> $eligibleSources
-     */
-    private function tierAAmbiguityReason(string $refKey, string $fqcn, array $eligibleSources): string
-    {
-        if ($eligibleSources === []) {
-            return \sprintf('no loader source can produce "%s" from a single property reference for tier-A shorthand "%s"; use the single-key loader form (tier B) with the loader named explicitly.', $fqcn, $refKey);
-        }
-
-        return \sprintf('multiple loader sources (%s) can produce "%s" for tier-A shorthand "%s"; use the single-key loader form (tier B) to name the loader explicitly.', implode(', ', $eligibleSources), $fqcn, $refKey);
     }
 
     private function unrecognizedShape(string $refKey, string $id): ContentSystemException

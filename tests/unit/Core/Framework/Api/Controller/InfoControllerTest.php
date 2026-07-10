@@ -272,7 +272,7 @@ class InfoControllerTest extends TestCase
         $elementTypeRegistry->method('all')->willReturn(['Sw:Media:Image' => $imageSpec, 'Sw:Alert' => $alertSpec]);
 
         $bindingSpecificationRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $bindingSpecificationRegistry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification('Sw:Media:Image')]);
+        $bindingSpecificationRegistry->method('all')->willReturn(['core:media-picker' => $this->bindingSpecification('Sw:Media:Image')]);
 
         $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry, bindingSpecificationRegistry: $bindingSpecificationRegistry);
         $response = $controller->getContentSystemElementTypes();
@@ -287,11 +287,11 @@ class InfoControllerTest extends TestCase
         }
 
         static::assertSame([
-            'core:from-media-library' => [
-                'id' => 'from-media-library',
+            'core:media-picker' => [
+                'id' => 'media-picker',
                 'type' => 'Sw:Media:Image',
-                'label' => 'From Media Library',
-                'promoted' => false,
+                'label' => 'Media Picker',
+                'default' => false,
                 'resolves' => [],
                 'inputs' => [],
             ],
@@ -480,7 +480,7 @@ class InfoControllerTest extends TestCase
 
     private function bindingSpecification(string $type = 'media-gallery'): BindingSpecification
     {
-        return new BindingSpecification('from-media-library', $type, 'From Media Library', [], [], 'core');
+        return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
     }
 
     private function styleOption(): StyleOptionSpecification

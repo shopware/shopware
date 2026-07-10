@@ -42,13 +42,12 @@ class TestMultiReferenceGatingLoader extends AbstractContentDataLoader
 
     public function configSpecification(): LoaderConfigSpecification
     {
-        // INVARIANT: this loader produces MediaEntity, so it must NEVER declare exactly one required
-        // propertyReference key. Exactly one would make it tier-A-eligible for MediaEntity
-        // (BindingSpecificationCanonicalizer::eligibleTierASources) and turn the shipped core:from-media-library
-        // `media: mediaId` tier-A shorthand ambiguous, failing the binding registry build across the whole test
-        // suite. Two required propertyReference keys keep it out of the tier-A set; the required keys also keep it
-        // config-incomplete so it never auto-resolves a MediaEntity reference. Declared from literals only (the
-        // compiler pass dry-runs this on a constructor-less instance).
+        // This loader produces MediaEntity like the built-in `entity` loader, but tier A never considers it: the
+        // bare-string shorthand resolves only the two built-in resolvedBy loaders (entity/entity_collection),
+        // closed by construction (ResolvedByLoaderBranch), so no third-party loader can ever compete for it.
+        // The two required propertyReference keys exist purely to exercise multi-reference input synthesis, the
+        // derived `required` flag, and per-key UnfilledRequiredInput gating with two independently gating keys.
+        // Declared from literals only (the compiler pass dry-runs this on a constructor-less instance).
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),

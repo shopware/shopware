@@ -17,11 +17,11 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('maps type, label, source and the supplied id onto the specification')]
     public function testMapsFieldsOntoSpecification(): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'From media library', [], [], null);
+        $dto = new BindingSpecificationDto('media-gallery', 'From media library', [], []);
 
-        $specification = $dto->toBindingSpecification('from-media-library', 'core');
+        $specification = $dto->toBindingSpecification('media-picker', 'core');
 
-        static::assertSame('from-media-library', $specification->id());
+        static::assertSame('media-picker', $specification->id());
         static::assertSame('media-gallery', $specification->type());
         static::assertSame('From media library', $specification->label());
         static::assertSame('core', $specification->source());
@@ -32,7 +32,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [
             'image' => ['loader' => 'entity', 'config' => ['entity' => 'media']],
-        ], [], null);
+        ], []);
 
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
@@ -46,7 +46,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [
             'image' => ['loader' => 'entity'],
-        ], [], null);
+        ], []);
 
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
@@ -67,7 +67,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('builds an empty resolves map for $_dataName')]
     public function testBuildsEmptyResolvesMap(mixed $resolves): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', $resolves, [], null);
+        $dto = new BindingSpecificationDto('media-gallery', 'label', $resolves, []);
 
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->resolves());
     }
@@ -77,7 +77,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => ['default' => 'fallback alt', 'required' => false],
-        ], null);
+        ]);
 
         $inputs = $dto->toBindingSpecification('id', 'core')->inputs();
 
@@ -90,7 +90,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => ['required' => false],
-        ], null);
+        ]);
 
         static::assertFalse($dto->toBindingSpecification('id', 'core')->inputs()['alt']->hasDefault);
     }
@@ -102,7 +102,7 @@ class BindingSpecificationDtoTest extends TestCase
         // is distinct from an absent one. A regression to a null-coalescing check would collapse the two.
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => ['default' => null, 'required' => false],
-        ], null);
+        ]);
 
         $input = $dto->toBindingSpecification('id', 'core')->inputs()['alt'];
 
@@ -117,7 +117,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('sets BindingInput::required to $expected when the inputs entry $_dataName')]
     public function testSetsRequiredFlagFromInputsEntry(array $entry, bool $expected): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry], null);
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry]);
 
         static::assertSame($expected, $dto->toBindingSpecification('id', 'core')->inputs()['alt']->required);
     }
@@ -136,7 +136,7 @@ class BindingSpecificationDtoTest extends TestCase
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
             'alt' => 'not-an-array',
-        ], null);
+        ]);
 
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
     }
@@ -144,7 +144,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('builds an empty inputs map when inputs is not an array')]
     public function testBuildsEmptyInputsMapWhenInputsIsNotAnArray(): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array', null);
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array');
 
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
     }
@@ -152,7 +152,7 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('narrows a non-string type to an empty string')]
     public function testNarrowsNonStringTypeToEmptyString(): void
     {
-        $dto = new BindingSpecificationDto(42, 'label', [], [], null);
+        $dto = new BindingSpecificationDto(42, 'label', [], []);
 
         static::assertSame('', $dto->toBindingSpecification('id', 'core')->type());
     }
@@ -160,32 +160,8 @@ class BindingSpecificationDtoTest extends TestCase
     #[TestDox('narrows a non-string label to an empty string')]
     public function testNarrowsNonStringLabelToEmptyString(): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', false, [], [], null);
+        $dto = new BindingSpecificationDto('media-gallery', false, [], []);
 
         static::assertSame('', $dto->toBindingSpecification('id', 'core')->label());
-    }
-
-    /**
-     * @param mixed $promoted the raw promoted facet as carried from the declaration
-     */
-    #[DataProvider('definesPromotedFacetProvider')]
-    #[TestDox('maps isPromoted() to $expected when the raw promoted facet $_dataName')]
-    public function testMapsPromotedFacet(mixed $promoted, bool $expected): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], [], $promoted);
-
-        static::assertSame($expected, $dto->toBindingSpecification('id', 'core')->isPromoted());
-    }
-
-    /**
-     * @return iterable<string, array{mixed, bool}>
-     */
-    public static function definesPromotedFacetProvider(): iterable
-    {
-        yield 'is true' => [true, true];
-        yield 'is false' => [false, false];
-        yield 'is absent (defaulted null)' => [null, false];
-        // Load-bearing: toBindingSpecification() maps on a strict === true, never coercing a truthy value.
-        yield 'is a truthy non-boolean' => [1, false];
     }
 }

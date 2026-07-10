@@ -57,9 +57,9 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $this->ids = new IdsCollection();
         $this->serializer = new BindingSpecificationSerializer();
         $this->fixedDto = new ResolvedBindingSpecificationDto(
-            'from-media-library',
+            'media-picker',
             'app:DemoApp',
-            new BindingSpecificationDto('media-gallery', 'From media library', null, null, null),
+            new BindingSpecificationDto('media-gallery', 'Media picker', null, null),
         );
 
         // The default loader is stubbed: these tests exercise the persister's upsert/hash/delete logic, not the
@@ -81,7 +81,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
 
         $normalized = $this->serializer->normalize($this->fixedDto->dto);
 
-        static::assertSame('from-media-library', $payload['name']);
+        static::assertSame('media-picker', $payload['name']);
         static::assertSame($this->ids->get('app'), $payload['appId']);
         static::assertIsString($payload['id']);
         static::assertSame($normalized, $payload['schema']);
@@ -93,7 +93,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     {
         $normalized = $this->serializer->normalize($this->fixedDto->dto);
 
-        $seeded = $this->buildExistingEntity('binding-media', 'from-media-library');
+        $seeded = $this->buildExistingEntity('binding-media', 'media-picker');
         $seeded->setHash(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)));
         $seeded->setSchema($normalized);
 
@@ -113,10 +113,50 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertSame([], $repo->deletes);
     }
 
+    #[TestDox('skips the upsert for a resolvedBy-synthesized default dto (id === type, colon-bearing name) when the stored hash matches the current file hash')]
+    public function testSkipsUpsertWhenHashMatchesForSynthesizedDefaultDto(): void
+    {
+        // Mirrors DefaultBindingSpecificationSynthesizer's contract: id === type (isDefault()), a colon-bearing
+        // app-prefixed type name, canonical resolves, and no inputs.
+        $synthesizedDto = new ResolvedBindingSpecificationDto(
+            'app:DemoApp:MediaImage',
+            'app:DemoApp',
+            new BindingSpecificationDto(
+                'app:DemoApp:MediaImage',
+                'Media Image',
+                ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+                [],
+            ),
+        );
+
+        $loader = static::createStub(YamlBindingSpecificationLoader::class);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([$synthesizedDto]);
+
+        $normalized = $this->serializer->normalize($synthesizedDto->dto);
+
+        $seeded = $this->buildExistingEntity('binding-media-image', 'app:DemoApp:MediaImage');
+        $seeded->setHash(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)));
+        $seeded->setSchema($normalized);
+
+        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemBindingSpecificationCollection([$seeded]),
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->expects($this->never())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
+        $persister->persist($this->buildContext());
+
+        static::assertSame([], $repo->upserts);
+        static::assertSame([], $repo->deletes);
+    }
+
     #[TestDox('updates the existing binding, reusing its id, when the hash changes')]
     public function testUpdatesExistingBindingWhenHashChanges(): void
     {
-        $existing = $this->buildExistingEntity('binding-media', 'from-media-library');
+        $existing = $this->buildExistingEntity('binding-media', 'media-picker');
         $existing->setHash('outdated-hash-value');
 
         /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
@@ -134,7 +174,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $payload = $repo->upserts[0][0];
 
         static::assertSame($this->ids->get('binding-media'), $payload['id']);
-        static::assertSame('from-media-library', $payload['name']);
+        static::assertSame('media-picker', $payload['name']);
         static::assertNotSame('outdated-hash-value', $payload['hash']);
     }
 
@@ -177,23 +217,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertSame([['id' => $this->ids->get('binding-orphan')]], $repo->deletes[0]);
     }
 
-    #[TestDox('persists two promoted bindings that promote different types')]
-    public function testPersistsTwoPromotedBindingsForDifferentTypes(): void
-    {
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([
-            new ResolvedBindingSpecificationDto('image-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'Image', null, null, true)),
-            new ResolvedBindingSpecificationDto('banner-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Banner', 'Banner', null, null, true)),
-        ]);
-
-        $repo = $this->createEmptyRepository();
-        $persister = $this->buildPersister($repo, loader: $loader);
-        $persister->persist($this->buildContext());
-
-        static::assertCount(1, $repo->upserts);
-        static::assertCount(2, $repo->upserts[0]);
-    }
-
     #[TestDox('queries the stored bindings for the installing app by app id')]
     public function testQueriesExistingBindingsByAppId(): void
     {
@@ -219,7 +242,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     #[TestDox('routes the upsert and delete through a single transaction')]
     public function testWritesGoThroughOneTransaction(): void
     {
-        // The app ships from-media-library (an upsert) while a stored legacy-binding is no longer
+        // The app ships media-picker (an upsert) while a stored legacy-binding is no longer
         // shipped (a delete), so both write kinds run; the single transactional() call must wrap
         // them together.
         $obsolete = $this->buildExistingEntity('binding-old', 'legacy-binding');
@@ -285,7 +308,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     #[TestDox('wraps a loader ContentSystemException as an AppException')]
     public function testThrowsAppExceptionWhenLoaderFails(): void
     {
-        $loaderException = ContentSystemException::bindingSpecificationLoadFailed('from-media-library.yaml', 'Invalid YAML syntax');
+        $loaderException = ContentSystemException::bindingSpecificationLoadFailed('media-picker.yaml', 'Invalid YAML syntax');
 
         $loader = static::createStub(YamlBindingSpecificationLoader::class);
         $loader->method('loadDtosFromTypeDirectory')->willThrowException($loaderException);
@@ -302,32 +325,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
             static::assertSame(AppException::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED, $e->getErrorCode());
             static::assertStringContainsString('Resources/content-system/types', $e->getMessage());
             static::assertSame($loaderException, $e->getPrevious());
-        }
-    }
-
-    #[TestDox('rejects an app promoting one type twice, wrapped as an AppException')]
-    public function testThrowsAppExceptionWhenAppPromotesOneTypeTwice(): void
-    {
-        $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([
-            new ResolvedBindingSpecificationDto('first-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'First', null, null, true)),
-            new ResolvedBindingSpecificationDto('second-promoted', 'app:DemoApp', new BindingSpecificationDto('DemoApp:Media:Image', 'Second', null, null, true)),
-        ]);
-
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
-        $repo = new StaticEntityRepository([]);
-
-        $persister = $this->buildPersister($repo, loader: $loader);
-
-        try {
-            $persister->persist($this->buildContext());
-            static::fail('Expected AppException was not thrown');
-        } catch (AppException $e) {
-            static::assertSame(AppException::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED, $e->getErrorCode());
-            static::assertStringContainsString('first-promoted', $e->getMessage());
-            static::assertStringContainsString('second-promoted', $e->getMessage());
-            static::assertStringContainsString('DemoApp:Media:Image', $e->getMessage());
-            static::assertStringContainsString('at most one specification may be promoted per type', $e->getMessage());
         }
     }
 
@@ -387,7 +384,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
             static::fail('Expected AppException was not thrown');
         } catch (AppException $e) {
             static::assertSame(AppException::CONTENT_SYSTEM_BINDING_SPECIFICATION_DUPLICATE, $e->getErrorCode());
-            static::assertStringContainsString('from-media-library', $e->getMessage());
+            static::assertStringContainsString('media-picker', $e->getMessage());
             static::assertStringContainsString('app:DemoApp', $e->getMessage());
             static::assertSame($dbalException, $e->getPrevious());
         }
@@ -502,9 +499,9 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     private function buildResolvedLoader(): array
     {
         $resolved = new ResolvedBindingSpecificationDto(
-            'from-media-library',
+            'media-picker',
             'app:DemoApp',
-            new BindingSpecificationDto('media-gallery', 'From media library', null, null, null),
+            new BindingSpecificationDto('media-gallery', 'Media picker', null, null),
         );
 
         $loader = static::createStub(YamlBindingSpecificationLoader::class);

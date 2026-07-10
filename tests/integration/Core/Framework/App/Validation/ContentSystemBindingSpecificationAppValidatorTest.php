@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Validation\ContentSystemBindingSpecificationAppV
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemBindingSpecificationSchemaError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\ContentSystem\StubExtractorEntity;
 
 /**
  * @internal
@@ -65,5 +66,29 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
         $error = $errors->first();
         static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
         static::assertStringContainsString('must not declare "type"', $error->getMessage());
+    }
+
+    #[TestDox('reports a resolvedBy FQCN that derives to no registered entity as a schema error, never an exception, even with no authored bindings section, through the real app manifest validation flow')]
+    public function testReportsResolvedByFqcnDerivingToNoRegisteredEntityAsSchemaError(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/binding-specification-resolvedby-unregistered/manifest.xml');
+
+        $validator = static::getContainer()->get(ContentSystemBindingSpecificationAppValidator::class);
+        static::assertInstanceOf(ContentSystemBindingSpecificationAppValidator::class, $validator);
+
+        $errors = $validator->validate($manifest, Context::createDefaultContext());
+
+        static::assertCount(1, $errors->getElements());
+        $error = $errors->first();
+        static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
+        static::assertSame('manifest-invalid-binding-specification-schema', $error->getMessageKey());
+        static::assertStringContainsString(
+            'Cannot canonicalize binding specification "binding-specification-resolvedby-unregistered:StubReference"',
+            $error->getMessage(),
+        );
+        static::assertStringContainsString(
+            \sprintf('no registered entity produces "%s" for reference "reference"', StubExtractorEntity::class),
+            $error->getMessage(),
+        );
     }
 }

@@ -148,9 +148,9 @@ class InsertElementTest extends TestCase
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $spec = new BindingSpecification(
-            'from-media-library',
+            'media-picker',
             'Sw:Media:Image',
-            'From media library',
+            'Media picker',
             ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
             ['mediaId' => new BindingInput(true, 'seeded', false)],
             'core',
@@ -159,15 +159,96 @@ class InsertElementTest extends TestCase
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
-            $this->bindingRegistry(['core:from-media-library' => $spec]),
+            $this->bindingRegistry(['core:media-picker' => $spec]),
             $this->applicator($config),
-            'core:from-media-library',
+            'core:media-picker',
         );
         $result = $insert->apply([]);
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result[0]->getDataRequirements());
         static::assertSame('seeded', $result[0]->getProperty('mediaId'));
-        static::assertSame(['media' => 'core:from-media-library'], $result[0]->getAttributedSpecifications());
+        static::assertSame(['media' => 'core:media-picker'], $result[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('does not throw and applies no wiring or attribution when the type has no default specification')]
+    public function testInsertWithNoDefaultAppliesNothing(): void
+    {
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply([]);
+
+        static::assertSame([], $result[0]->getDataRequirements());
+        static::assertSame([], $result[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('auto-applies the type default specification onto a fresh insert with no explicit bindingSpecificationId, attributed to its own qualified id')]
+    public function testInsertAutoAppliesTypeDefault(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            [],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default]),
+            $this->applicator($config),
+        );
+        $result = $insert->apply([]);
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result[0]->getDataRequirements());
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $result[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('fill-applies the type default first, then applies the explicit binding specification on top so only the shared key becomes attributed to the explicit choice')]
+    public function testInsertExplicitBindingAppliesOnTopOfDefault(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            [
+                'media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId']),
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'galleryIds']),
+            ],
+            [],
+            'core',
+        );
+        $explicit = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'galleryPickId'])], [], 'core');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $explicit]),
+            $this->applicator($config),
+            'core:gallery-pick',
+        );
+        $result = $insert->apply([]);
+
+        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('rejects a type with more than one default specification with a 409 naming the colliding qualified ids')]
+    public function testInsertWithAmbiguousDefaultThrows(): void
+    {
+        $first = new BindingSpecification('Sw:Media:Image', 'Sw:Media:Image', 'Image', [], [], 'core');
+        $second = new BindingSpecification('Sw:Media:Image', 'Sw:Media:Image', 'Image', [], [], 'app1');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $first, 'app1:Sw:Media:Image' => $second]),
+            $this->unboundApplicator(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:Media:Image', ['core:Sw:Media:Image', 'app1:Sw:Media:Image']));
+        $insert->apply([]);
     }
 
     #[TestDox('rejects an unknown bindingSpecificationId with a 400 before any tree change')]
@@ -200,14 +281,14 @@ class InsertElementTest extends TestCase
         $tree = [new ContentElement('existing', 'Sw:Block')];
         $before = $this->snapshotTree($tree);
 
-        $spec = new BindingSpecification('from-media-library', 'Sw:Other', 'label', ['media' => new LoaderBinding('entity', [])], [], 'core');
+        $spec = new BindingSpecification('media-picker', 'Sw:Other', 'label', ['media' => new LoaderBinding('entity', [])], [], 'core');
 
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
-            $this->bindingRegistry(['core:from-media-library' => $spec]),
+            $this->bindingRegistry(['core:media-picker' => $spec]),
             $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
-            'core:from-media-library',
+            'core:media-picker',
         );
 
         try {

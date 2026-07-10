@@ -19,8 +19,6 @@ final class WellFormedBindingSpecification extends Constraint
 
     public string $labelBlankMessage = 'label must not be blank';
 
-    public string $promotedBoolMessage = 'promoted must be a boolean';
-
     public string $resolvesArrayMessage = 'resolves must be an array';
 
     public string $resolvesEntryArrayMessage = 'resolves entry "{{ key }}" must be an array';

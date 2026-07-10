@@ -26,7 +26,7 @@ class BindingSpecificationSerializerTest extends TestCase
      */
     #[DataProvider('denormalizeProvider')]
     #[TestDox('denormalize maps facets: $_dataName')]
-    public function testDenormalize(array $input, mixed $expectedType, mixed $expectedLabel, mixed $expectedResolves, mixed $expectedInputs, mixed $expectedPromoted): void
+    public function testDenormalize(array $input, mixed $expectedType, mixed $expectedLabel, mixed $expectedResolves, mixed $expectedInputs): void
     {
         $dto = $this->serializer->denormalize($input);
 
@@ -34,11 +34,10 @@ class BindingSpecificationSerializerTest extends TestCase
         static::assertSame($expectedLabel, $dto->label);
         static::assertSame($expectedResolves, $dto->resolves);
         static::assertSame($expectedInputs, $dto->inputs);
-        static::assertSame($expectedPromoted, $dto->promoted);
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, mixed, mixed, mixed, mixed, mixed}>
+     * @return iterable<string, array{array<string, mixed>, mixed, mixed, mixed, mixed}>
      */
     public static function denormalizeProvider(): iterable
     {
@@ -46,7 +45,6 @@ class BindingSpecificationSerializerTest extends TestCase
             [
                 'type' => 'media-gallery',
                 'label' => 'From media library',
-                'promoted' => true,
                 'resolves' => ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]],
                 'inputs' => ['alt' => ['default' => 'fallback alt']],
             ],
@@ -54,28 +52,25 @@ class BindingSpecificationSerializerTest extends TestCase
             'From media library',
             ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]],
             ['alt' => ['default' => 'fallback alt']],
-            true,
         ];
 
-        yield 'falls back to null facets for an empty map' => [[], null, null, null, null, null];
+        yield 'falls back to null facets for an empty map' => [[], null, null, null, null];
 
         yield 'carries every wrong-typed facet raw for the validator to reject' => [
-            ['type' => 42, 'label' => false, 'resolves' => 'not-an-array', 'inputs' => 'not-an-array', 'promoted' => 'not-a-bool'],
+            ['type' => 42, 'label' => false, 'resolves' => 'not-an-array', 'inputs' => 'not-an-array'],
             42,
             false,
             'not-an-array',
             'not-an-array',
-            'not-a-bool',
         ];
     }
 
-    #[TestDox('normalize emits type, label, promoted, resolves and inputs but never id')]
+    #[TestDox('normalize emits type, label, resolves and inputs but never id')]
     public function testNormalizeEmitsAllFacetsExceptId(): void
     {
         $dto = $this->serializer->denormalize([
             'type' => 'media-gallery',
             'label' => 'From media library',
-            'promoted' => true,
             'resolves' => ['image' => ['loader' => 'entity', 'config' => []]],
             'inputs' => ['alt' => []],
         ]);
@@ -85,22 +80,20 @@ class BindingSpecificationSerializerTest extends TestCase
         static::assertSame([
             'type' => 'media-gallery',
             'label' => 'From media library',
-            'promoted' => true,
             'resolves' => ['image' => ['loader' => 'entity', 'config' => []]],
             'inputs' => ['alt' => []],
         ], $normalized);
         static::assertArrayNotHasKey('id', $normalized);
     }
 
-    #[TestDox('normalize emits promoted as null (round-tripping absence) and keeps empty resolves/inputs as [], not null')]
-    public function testNormalizeEmitsNullPromotedAndEmptyResolvesInputsWhenAbsent(): void
+    #[TestDox('normalize keeps empty resolves/inputs as [], not null')]
+    public function testNormalizeKeepsEmptyResolvesInputsAsArraysWhenAbsent(): void
     {
         $dto = $this->serializer->denormalize(['type' => 'media-gallery', 'label' => 'x', 'resolves' => [], 'inputs' => []]);
 
         static::assertSame([
             'type' => 'media-gallery',
             'label' => 'x',
-            'promoted' => null,
             'resolves' => [],
             'inputs' => [],
         ], $this->serializer->normalize($dto));

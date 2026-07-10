@@ -6,10 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -26,6 +29,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoader
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -38,20 +42,43 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 #[CoversClass(BindingSpecificationCanonicalizer::class)]
 class BindingSpecificationCanonicalizerTest extends TestCase
 {
-    #[TestDox('tier A: a bare property-reference string expands to canonical entity wiring using the capability template')]
+    #[TestDox('tier A: a bare property-reference string on an Entity-subclass property expands to the hardcoded entity wiring')]
     public function testTierAStringExpandsToCanonicalEntityWiring(): void
     {
+        // An empty data-loader map: tier A no longer consults it, so this alone pins that no loader search runs.
         $canonicalizer = $this->canonicalizer(
             ['image' => $this->imageType()],
-            $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
+            $this->map([], []),
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $result = $canonicalizer->canonicalize($this->dto('image', ['media' => 'mediaId']), 'from-media-library');
+        $result = $canonicalizer->canonicalize($this->dto('image', ['media' => 'mediaId']), 'media-picker');
 
         static::assertIsArray($result->resolves);
         static::assertSame(
             ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $result->resolves['media'],
+        );
+    }
+
+    #[TestDox('tier A: a bare property-reference string on an EntityCollection-subclass property expands to the hardcoded entity_collection wiring')]
+    public function testTierAStringOnEntityCollectionPropertyExpandsToCanonicalEntityCollectionWiring(): void
+    {
+        $type = $this->typeSpec('gallery', [
+            'media' => $this->reference(MediaCollection::class, required: true),
+        ]);
+
+        $canonicalizer = $this->canonicalizer(
+            ['gallery' => $type],
+            $this->map([], []),
+            ['media' => $this->collectionEntityDefinition('media', MediaCollection::class)],
+        );
+
+        $result = $canonicalizer->canonicalize($this->dto('gallery', ['media' => 'mediaIds']), 'binding');
+
+        static::assertIsArray($result->resolves);
+        static::assertSame(
+            ['loader' => 'entity_collection', 'config' => ['entity' => 'media', 'property' => 'mediaIds']],
             $result->resolves['media'],
         );
     }
@@ -103,7 +130,6 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             'From media library',
             ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             ['mediaId' => ['default' => 'seed']],
-            null,
         );
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
@@ -113,56 +139,6 @@ class BindingSpecificationCanonicalizerTest extends TestCase
         static::assertSame($dto->resolves, $result->resolves);
         static::assertIsArray($result->inputs);
         static::assertSame(['mediaId' => ['default' => 'seed', 'required' => true]], $result->inputs);
-    }
-
-    #[TestDox('tier A: derives the absent entity-name key from the reference FQCN when the capability template omits it')]
-    public function testTierAExpandsWithDerivedEntityNameWhenTemplateOmitsEntity(): void
-    {
-        // A capability whose template does not pin the entity name, so expansion must derive it from the FQCN.
-        $canonicalizer = $this->canonicalizer(
-            ['image' => $this->imageType()],
-            $this->map(['catalog' => [$this->capability(MediaEntity::class, [])]], ['catalog' => $this->entitySpec()]),
-            $this->definitions(['media' => MediaEntity::class]),
-        );
-
-        $result = $canonicalizer->canonicalize($this->dto('image', ['media' => 'mediaId']), 'from-media-library');
-
-        static::assertIsArray($result->resolves);
-        static::assertSame(
-            ['loader' => 'catalog', 'config' => ['property' => 'mediaId', 'entity' => 'media']],
-            $result->resolves['media'],
-        );
-    }
-
-    #[TestDox('tier A: a source with a required literal key absent from its template is disqualified, so a single valid source still expands')]
-    public function testTierASourceWithRequiredLiteralNotInTemplateIsDisqualified(): void
-    {
-        $strictSpec = new LoaderConfigSpecification([
-            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            new ConfigKeySpecification('mode', ConfigKeyKind::Literal, 'string', required: true),
-        ]);
-
-        $canonicalizer = $this->canonicalizer(
-            ['image' => $this->imageType()],
-            $this->map(
-                [
-                    'entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])],
-                    // "mode" is a required literal absent from the template, so "strict" cannot participate in tier A.
-                    'strict' => [$this->capability(MediaEntity::class, ['entity' => 'media'])],
-                ],
-                ['entity' => $this->entitySpec(), 'strict' => $strictSpec],
-            ),
-            $this->definitions(['media' => MediaEntity::class]),
-        );
-
-        $result = $canonicalizer->canonicalize($this->dto('image', ['media' => 'mediaId']), 'binding');
-
-        static::assertIsArray($result->resolves);
-        static::assertSame(
-            ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
-            $result->resolves['media'],
-        );
     }
 
     #[TestDox('tier B: an explicitly authored entity-name key wins with no derivation, even when derivation would be ambiguous')]
@@ -282,7 +258,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['default' => 'seed']], null);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['default' => 'seed']]);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -310,7 +286,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['pair' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['pair' => $pairSpec]),
         );
 
-        $dto = new BindingSpecificationDto('combo', 'label', ['pair' => ['loader' => 'pair', 'config' => ['entity' => 'media', 'primaryId' => 'primaryId', 'secondaryId' => 'secondaryId']]], [], null);
+        $dto = new BindingSpecificationDto('combo', 'label', ['pair' => ['loader' => 'pair', 'config' => ['entity' => 'media', 'primaryId' => 'primaryId', 'secondaryId' => 'secondaryId']]], []);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -356,7 +332,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['navigation' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['navigation' => $navSpec]),
         );
 
-        $dto = new BindingSpecificationDto('nav', 'label', ['tree' => ['loader' => 'navigation', 'config' => ['entity' => 'media', 'activeProperty' => 'activeFlag']]], [], null);
+        $dto = new BindingSpecificationDto('nav', 'label', ['tree' => ['loader' => 'navigation', 'config' => ['entity' => 'media', 'activeProperty' => 'activeFlag']]], []);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -373,39 +349,12 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['caption' => []], null);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['caption' => []]);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
         static::assertIsArray($result->inputs);
         static::assertSame(['mediaId' => ['required' => true], 'caption' => ['required' => false]], $result->inputs);
-    }
-
-    #[TestDox('carries the raw promoted facet through unchanged when resolves is present')]
-    public function testCarriesPromotedThroughWithResolves(): void
-    {
-        $canonicalizer = $this->canonicalizer(
-            ['image' => $this->imageType()],
-            $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
-            $this->definitions(['media' => MediaEntity::class]),
-        );
-
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], [], true);
-
-        static::assertTrue($canonicalizer->canonicalize($dto, 'binding')->promoted);
-    }
-
-    #[TestDox('carries the raw promoted facet through unchanged on the null-resolves path')]
-    public function testCarriesPromotedThroughWithNullResolves(): void
-    {
-        $canonicalizer = $this->canonicalizer(
-            ['image' => $this->imageType()],
-            $this->map([], []),
-        );
-
-        $dto = new BindingSpecificationDto('image', 'label', null, [], true);
-
-        static::assertTrue($canonicalizer->canonicalize($dto, 'binding')->promoted);
     }
 
     #[TestDox('resolves the declared type from the overlay when the registry does not carry it')]
@@ -464,7 +413,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => ['loader' => 'ghost', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], [], null);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => ['loader' => 'ghost', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], []);
 
         $result = $canonicalizer->canonicalize($dto, 'binding');
 
@@ -478,48 +427,28 @@ class BindingSpecificationCanonicalizerTest extends TestCase
     {
         $canonicalizer = $this->canonicalizer(['image' => $this->imageType()], $this->map([], []));
 
-        $result = $canonicalizer->canonicalize(new BindingSpecificationDto('image', 'label', $resolves, $inputs, null), 'binding');
+        $result = $canonicalizer->canonicalize(new BindingSpecificationDto('image', 'label', $resolves, $inputs), 'binding');
 
         static::assertSame($expectedResolves, $result->resolves);
         static::assertSame($expectedInputs, $result->inputs);
     }
 
-    #[TestDox('tier A: no loader source producing the FQCN exactly (a subtype-producing capability does not count) is a canonicalization error')]
-    public function testTierAWithNoEligibleSourceThrows(): void
+    #[TestDox('tier A: a bare string on a reference property whose FQCN is neither an Entity nor an EntityCollection subclass is a canonicalization error naming the explicit form')]
+    public function testTierAOnNeitherEntityNorEntityCollectionFqcnThrows(): void
     {
-        // The only capability for "item" produces a SUBTYPE of the declared FQCN; exact match (not is_a) means
-        // the source is not eligible, so tier A cannot expand.
+        // Struct is a reference FQCN by declaration (non-primitive), but subclasses neither base class, so
+        // no built-in resolvedBy loader applies.
         $canonicalizer = $this->canonicalizer(
-            ['image' => $this->typeSpec('image', ['item' => $this->reference(ProductEntity::class)])],
-            $this->map(['entity' => [$this->capability(SalesChannelProductEntity::class, ['entity' => 'product'])]], ['entity' => $this->entitySpec()]),
+            ['image' => $this->typeSpec('image', ['item' => $this->reference(Struct::class)])],
+            $this->map([], []),
         );
 
         $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('image', ['item' => 'someId']), 'binding');
 
         static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
-        static::assertStringContainsString('no loader source', $exception->getMessage());
+        static::assertStringContainsString('neither an Entity nor an EntityCollection subclass', $exception->getMessage());
         static::assertStringContainsString('tier B', $exception->getMessage());
-    }
-
-    #[TestDox('tier A: two eligible loader sources are a canonicalization error naming both')]
-    public function testTierAWithTwoEligibleSourcesThrowsNamingBoth(): void
-    {
-        $canonicalizer = $this->canonicalizer(
-            ['image' => $this->imageType()],
-            $this->map(
-                [
-                    'entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])],
-                    'remote_entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])],
-                ],
-                ['entity' => $this->entitySpec(), 'remote_entity' => $this->entitySpec()],
-            ),
-        );
-
-        $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('image', ['media' => 'mediaId']), 'binding');
-
-        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
-        static::assertStringContainsString('entity', $exception->getMessage());
-        static::assertStringContainsString('remote_entity', $exception->getMessage());
+        static::assertStringContainsString('tier C', $exception->getMessage());
     }
 
     #[TestDox('tier A: a string on a property that is not a declared reference is a canonicalization error')]
@@ -583,7 +512,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
         );
 
-        $exception = $this->expectCanonicalizationError($canonicalizer, new BindingSpecificationDto($type, 'label', ['media' => 'mediaId'], [], null), 'binding');
+        $exception = $this->expectCanonicalizationError($canonicalizer, new BindingSpecificationDto($type, 'label', ['media' => 'mediaId'], []), 'binding');
 
         static::assertSame(ContentSystemException::BINDING_SPECIFICATION_UNKNOWN_TYPE, $exception->getErrorCode());
         static::assertStringContainsString('binding', $exception->getMessage());
@@ -598,7 +527,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
         );
 
-        $dto = new BindingSpecificationDto('Sw:Not:Registered', 'label', ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], [], null);
+        $dto = new BindingSpecificationDto('Sw:Not:Registered', 'label', ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]], []);
 
         $exception = $this->expectCanonicalizationError($canonicalizer, $dto, 'binding');
 
@@ -651,6 +580,147 @@ class BindingSpecificationCanonicalizerTest extends TestCase
         static::assertStringContainsString('no registered entity', $exception->getMessage());
     }
 
+    /**
+     * @param array<string, class-string> $producers
+     */
+    #[DataProvider('tierADerivationFailureProvider')]
+    #[TestDox('FQCN derivation through tier A: $_dataName is a canonicalization error naming the explicit-entityName fix')]
+    public function testTierADerivationFailureThrows(ResolvedByLoaderBranch $branch, string $referenceFqcn, string $tierAValue, array $producers, string $expectedSubstring): void
+    {
+        // An empty data-loader map: tier A no longer consults it, so this alone pins that no loader search runs; the
+        // reference FQCN's branch alone selects the entity vs. collection walk.
+        $canonicalizer = $this->canonicalizer(
+            ['image' => $this->typeSpec('image', ['ref' => $this->reference($referenceFqcn, required: true)])],
+            $this->map([], []),
+            $this->branchDefinitions($branch, $producers),
+        );
+
+        $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('image', ['ref' => $tierAValue]), 'binding');
+
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
+        static::assertStringContainsString($expectedSubstring, $exception->getMessage());
+        static::assertStringContainsString($referenceFqcn, $exception->getMessage());
+    }
+
+    #[TestDox('tier A: collection derivation uses the sales-channel produced collection class for an entity with a sales-channel definition')]
+    public function testTierACollectionDerivationUsesSalesChannelCollectionClass(): void
+    {
+        $salesChannelDefinition = static::createStub(SalesChannelProductDefinition::class);
+        $salesChannelDefinition->method('getCollectionClass')->willReturn(MediaCollection::class);
+
+        $salesChannelRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $salesChannelRegistry->method('getSalesChannelDefinitions')->willReturn(['product' => $salesChannelDefinition]);
+
+        $canonicalizer = $this->canonicalizer(
+            ['gallery' => $this->typeSpec('gallery', ['media' => $this->reference(MediaCollection::class, required: true)])],
+            $this->map([], []),
+            ['product' => $this->collectionEntityDefinition('product', ProductCollection::class)],
+            $salesChannelRegistry,
+        );
+
+        $result = $canonicalizer->canonicalize($this->dto('gallery', ['media' => 'mediaIds']), 'binding');
+
+        static::assertIsArray($result->resolves);
+        static::assertSame(
+            ['loader' => 'entity_collection', 'config' => ['entity' => 'product', 'property' => 'mediaIds']],
+            $result->resolves['media'],
+        );
+    }
+
+    #[TestDox('tier A: collection derivation skips a definition whose bare collection class is the base EntityCollection, before its sales-channel class is consulted')]
+    public function testTierACollectionDerivationSkipsBareEntityCollection(): void
+    {
+        // The plain definition produces the bare EntityCollection (unaddressable); the skip drops it before its
+        // sales-channel collection class would satisfy the reference, so derivation finds nothing and fails rather
+        // than wiring an unaddressable definition.
+        $salesChannelDefinition = static::createStub(SalesChannelProductDefinition::class);
+        $salesChannelDefinition->method('getCollectionClass')->willReturn(MediaCollection::class);
+
+        $salesChannelRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $salesChannelRegistry->method('getSalesChannelDefinitions')->willReturn(['media' => $salesChannelDefinition]);
+
+        $canonicalizer = $this->canonicalizer(
+            ['gallery' => $this->typeSpec('gallery', ['media' => $this->reference(MediaCollection::class, required: true)])],
+            $this->map([], []),
+            ['media' => $this->collectionEntityDefinition('media', EntityCollection::class)],
+            $salesChannelRegistry,
+        );
+
+        $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('gallery', ['media' => 'mediaIds']), 'binding');
+
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
+        static::assertStringContainsString('no registered entity', $exception->getMessage());
+    }
+
+    #[TestDox('tier B: an unauthored entity key on a collection-typed reference derives the collection entity name through the entity_collection loader')]
+    public function testTierBCollectionEntityNameAutoFill(): void
+    {
+        $canonicalizer = $this->canonicalizer(
+            ['gallery' => $this->typeSpec('gallery', ['media' => $this->reference(MediaCollection::class, required: true)])],
+            $this->map(['entity_collection' => [$this->capability(MediaCollection::class, ['entity' => 'media'])]], ['entity_collection' => $this->entitySpec()]),
+            ['media' => $this->collectionEntityDefinition('media', MediaCollection::class)],
+        );
+
+        $result = $canonicalizer->canonicalize($this->dto('gallery', ['media' => ['entity_collection' => ['property' => 'mediaIds']]]), 'binding');
+
+        static::assertIsArray($result->resolves);
+        static::assertSame(
+            ['loader' => 'entity_collection', 'config' => ['property' => 'mediaIds', 'entity' => 'media']],
+            $result->resolves['media'],
+        );
+    }
+
+    #[TestDox('tier B: an ambiguous collection derivation for an unauthored entity key throws, listing the candidates')]
+    public function testTierBCollectionDerivationAmbiguityThrows(): void
+    {
+        $canonicalizer = $this->canonicalizer(
+            ['gallery' => $this->typeSpec('gallery', ['media' => $this->reference(MediaCollection::class, required: true)])],
+            $this->map(['entity_collection' => [$this->capability(MediaCollection::class, ['entity' => 'media'])]], ['entity_collection' => $this->entitySpec()]),
+            [
+                'media' => $this->collectionEntityDefinition('media', MediaCollection::class),
+                'media_clone' => $this->collectionEntityDefinition('media_clone', MediaCollection::class),
+            ],
+        );
+
+        $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('gallery', ['media' => ['entity_collection' => ['property' => 'mediaIds']]]), 'binding');
+
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
+        static::assertStringContainsString('media', $exception->getMessage());
+        static::assertStringContainsString('media_clone', $exception->getMessage());
+    }
+
+    #[TestDox('tier B: a collection derivation for an unauthored entity key with no producing entity throws')]
+    public function testTierBCollectionDerivationZeroThrows(): void
+    {
+        $canonicalizer = $this->canonicalizer(
+            ['gallery' => $this->typeSpec('gallery', ['media' => $this->reference(MediaCollection::class, required: true)])],
+            $this->map(['entity_collection' => [$this->capability(MediaCollection::class, ['entity' => 'media'])]], ['entity_collection' => $this->entitySpec()]),
+            ['product' => $this->collectionEntityDefinition('product', ProductCollection::class)],
+        );
+
+        $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('gallery', ['media' => ['entity_collection' => ['property' => 'mediaIds']]]), 'binding');
+
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
+        static::assertStringContainsString('no registered entity', $exception->getMessage());
+    }
+
+    #[TestDox('tier B: an unauthored entity key on a reference whose FQCN is neither an Entity nor an EntityCollection subclass throws, naming the explicit-entityName fix')]
+    public function testTierBNullBranchReferenceThrows(): void
+    {
+        // Struct is a declared reference FQCN (non-primitive) but subclasses neither base class, so no branch derives
+        // its entity name; the fill throws directly instead of falling into a walk that cannot succeed.
+        $canonicalizer = $this->canonicalizer(
+            ['image' => $this->typeSpec('image', ['item' => $this->reference(Struct::class, required: true)])],
+            $this->map(['entity' => [$this->capability(MediaEntity::class, ['entity' => 'media'])]], ['entity' => $this->entitySpec()]),
+        );
+
+        $exception = $this->expectCanonicalizationError($canonicalizer, $this->dto('image', ['item' => ['entity' => ['property' => 'itemId']]]), 'binding');
+
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_CANONICALIZATION_FAILED, $exception->getErrorCode());
+        static::assertStringContainsString('neither an Entity nor an EntityCollection subclass', $exception->getMessage());
+        static::assertStringContainsString('author the entity name explicitly', $exception->getMessage());
+    }
+
     #[TestDox('FQCN derivation: a definition whose entity class is the bare ArrayEntity is skipped, so it never satisfies the reference')]
     public function testDerivationSkipsArrayEntityDefinitions(): void
     {
@@ -677,7 +747,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
             $this->definitions(['media' => MediaEntity::class]),
         );
 
-        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['required' => true]], null);
+        $dto = new BindingSpecificationDto('image', 'label', ['media' => 'mediaId'], ['mediaId' => ['required' => true]]);
 
         $exception = $this->expectCanonicalizationError($canonicalizer, $dto, 'binding');
 
@@ -730,6 +800,47 @@ class BindingSpecificationCanonicalizerTest extends TestCase
         yield 'scalar inputs passes through unchanged' => [[], 'not-a-map', [], 'not-a-map'];
     }
 
+    /**
+     * Each row drives the same tier-A bare-string walk; the reference FQCN's branch selects the entity vs. collection
+     * variant, and both branches carry the identical zero-match and many-match hard errors.
+     *
+     * @return iterable<string, array{ResolvedByLoaderBranch, class-string, string, array<string, class-string>, string}>
+     */
+    public static function tierADerivationFailureProvider(): iterable
+    {
+        yield 'entity branch, no producing entity' => [
+            ResolvedByLoaderBranch::Entity,
+            MediaEntity::class,
+            'mediaId',
+            ['product' => ProductEntity::class],
+            'no registered entity',
+        ];
+
+        yield 'entity branch, two producing entities' => [
+            ResolvedByLoaderBranch::Entity,
+            MediaEntity::class,
+            'mediaId',
+            ['media' => MediaEntity::class, 'media_clone' => MediaEntity::class],
+            'multiple registered entities (media, media_clone)',
+        ];
+
+        yield 'collection branch, no producing entity' => [
+            ResolvedByLoaderBranch::EntityCollection,
+            MediaCollection::class,
+            'mediaIds',
+            ['product' => ProductCollection::class],
+            'no registered entity',
+        ];
+
+        yield 'collection branch, two producing entities' => [
+            ResolvedByLoaderBranch::EntityCollection,
+            MediaCollection::class,
+            'mediaIds',
+            ['media' => MediaCollection::class, 'media_clone' => MediaCollection::class],
+            'multiple registered entities (media, media_clone)',
+        ];
+    }
+
     private function expectCanonicalizationError(BindingSpecificationCanonicalizer $canonicalizer, BindingSpecificationDto $dto, string $id): ContentSystemException
     {
         try {
@@ -746,7 +857,7 @@ class BindingSpecificationCanonicalizerTest extends TestCase
      */
     private function dto(mixed $type, array $resolves): BindingSpecificationDto
     {
-        return new BindingSpecificationDto($type, 'label', $resolves, [], null);
+        return new BindingSpecificationDto($type, 'label', $resolves, []);
     }
 
     /**
@@ -846,6 +957,32 @@ class BindingSpecificationCanonicalizerTest extends TestCase
     }
 
     /**
+     * Builds definitions that produce the given classes for the branch under test: an entity-class producer for the
+     * entity branch, a collection-class producer for the collection branch, so one provider row can drive either walk.
+     *
+     * @param array<string, class-string> $producers
+     *
+     * @return array<string, EntityDefinition>
+     */
+    private function branchDefinitions(ResolvedByLoaderBranch $branch, array $producers): array
+    {
+        $producerMethod = match ($branch) {
+            ResolvedByLoaderBranch::Entity => 'getEntityClass',
+            ResolvedByLoaderBranch::EntityCollection => 'getCollectionClass',
+        };
+
+        $definitions = [];
+        foreach ($producers as $name => $class) {
+            $definition = static::createStub(EntityDefinition::class);
+            $definition->method('getEntityName')->willReturn($name);
+            $definition->method($producerMethod)->willReturn($class);
+            $definitions[$name] = $definition;
+        }
+
+        return $definitions;
+    }
+
+    /**
      * @param class-string<Entity> $class
      */
     private function entityDefinition(string $name, string $class): EntityDefinition
@@ -853,6 +990,18 @@ class BindingSpecificationCanonicalizerTest extends TestCase
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($name);
         $definition->method('getEntityClass')->willReturn($class);
+
+        return $definition;
+    }
+
+    /**
+     * @param class-string<EntityCollection<covariant Entity>> $class
+     */
+    private function collectionEntityDefinition(string $name, string $class): EntityDefinition
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn($name);
+        $definition->method('getCollectionClass')->willReturn($class);
 
         return $definition;
     }

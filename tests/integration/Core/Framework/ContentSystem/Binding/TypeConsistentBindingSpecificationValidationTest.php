@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Binding;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
@@ -33,14 +34,15 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     {
         $dto = new BindingSpecificationDto(
             type: 'Sw:Media:Image',
-            label: 'From media library',
+            label: 'Image binding',
             resolves: [
                 'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             ],
             inputs: [
-                'mediaId' => ['default' => '0189772a5e7570009812345678901234', 'required' => false],
+                // "mediaId" is the reference's undeclared resolvedBy storage key, not a declared primitive
+                // property; "loading" exercises the inputs-facet validation against a real declared primitive.
+                'loading' => ['default' => 'lazy', 'required' => false],
             ],
-            promoted: null,
         );
 
         $violations = $this->validator()->validate(new BindingSpecificationDtoCollection([self::ID => $dto]));
@@ -56,7 +58,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     #[DataProvider('provideInvalidBindings')]
     public function testInvalidBindingProducesViolationAtExpectedPath(mixed $type, array $resolves, array $inputs, string $expectedPath): void
     {
-        $dto = new BindingSpecificationDto($type, 'invalid binding', $resolves, $inputs, null);
+        $dto = new BindingSpecificationDto($type, 'invalid binding', $resolves, $inputs);
 
         $violations = $this->validator()->validate(new BindingSpecificationDtoCollection([self::ID => $dto]));
 
@@ -136,9 +138,9 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             'type' => 'Sw:Media:Image',
             'resolves' => [],
             'inputs' => [
-                'mediaId' => ['default' => 123],
+                'maxImageWidth' => ['default' => 'not-an-integer'],
             ],
-            'expectedPath' => 'inputs[mediaId].default',
+            'expectedPath' => 'inputs[maxImageWidth].default',
         ];
         yield 'context form is rejected' => [
             'type' => 'Sw:Media:Image',
@@ -175,8 +177,8 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             // produced-type mismatch caught at load time.
             file_put_contents($directory . '/media/image.yaml', Yaml::dump([
                 'bindings' => [
-                    'from-media-library' => [
-                        'label' => 'From media library',
+                    'image-binding' => [
+                        'label' => 'Image binding',
                         'resolves' => [
                             'media' => ['loader' => 'entity', 'config' => ['entity' => 'product', 'property' => 'mediaId']],
                         ],
@@ -186,10 +188,11 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
 
             $loader = new YamlBindingSpecificationLoader(
                 [],
+                new ElementTypeNameResolver(),
+                new DefaultBindingSpecificationSynthesizer(),
                 new BindingSpecificationSerializer(),
                 $this->canonicalizer(),
                 $this->validator(),
-                new ElementTypeNameResolver(),
             );
 
             try {

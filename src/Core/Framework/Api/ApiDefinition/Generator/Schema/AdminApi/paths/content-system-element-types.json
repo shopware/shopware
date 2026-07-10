@@ -151,7 +151,7 @@
                                                         "description": "Map of source-qualified binding specification id (`source:id`) to its specification, filtered to those applicable to this type; folded in from the aggregated binding specification registry. Encodes as `{}` when the type has no applicable specification.",
                                                         "additionalProperties": {
                                                             "type": "object",
-                                                            "required": ["id", "type", "label", "promoted", "resolves", "inputs"],
+                                                            "required": ["id", "type", "label", "default", "resolves", "inputs"],
                                                             "properties": {
                                                                 "id": {
                                                                     "type": "string",
@@ -165,9 +165,9 @@
                                                                     "type": "string",
                                                                     "description": "Human-readable label for the specification."
                                                                 },
-                                                                "promoted": {
+                                                                "default": {
                                                                     "type": "boolean",
-                                                                    "description": "Pure catalog metadata: whether the author promotes this specification as the primary choice for its type. No server behavior reads it; at most one specification is promoted per type across the aggregated registry."
+                                                                    "description": "Whether this is the type's synthesized default specification, derived as id === type. At most one default exists per type. Inserting or replacing an element with no explicit binding choice auto-applies the type's default (fill-only: it never overwrites already-wired or carried keys); an explicit binding choice applies on top and wins on shared keys."
                                                                 },
                                                                 "resolves": {
                                                                     "type": ["object", "array"],

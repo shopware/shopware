@@ -28,11 +28,11 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->getDataRequirements());
         static::assertSame('seeded', $result->getProperty('mediaId'));
-        static::assertSame(['media' => 'core:from-media-library'], $result->getAttributedSpecifications());
+        static::assertSame(['media' => 'core:media-picker'], $result->getAttributedSpecifications());
     }
 
     #[TestDox('overwrites the wiring and attribution of a key already bound by a different specification')]
@@ -45,10 +45,55 @@ class BindingApplicatorTest extends TestCase
             ->withAttributedSpecification('media', 'core:old-spec')
             ->build();
 
-        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:from-media-library');
+        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $newConfig)], $result->getDataRequirements());
-        static::assertSame(['media' => 'core:from-media-library'], $result->getAttributedSpecifications());
+        static::assertSame(['media' => 'core:media-picker'], $result->getAttributedSpecifications());
+    }
+
+    #[TestDox('fill-only: wires a resolves entry into a key the element has no data requirement for, and attributes it')]
+    public function testFillOnlyWiresAbsentKeyAndAttributes(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = new ContentElement('img-1', 'Sw:Media:Image');
+
+        $result = $this->applicator($config)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image');
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->getDataRequirements());
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $result->getAttributedSpecifications());
+    }
+
+    #[TestDox('fill-only: does not overwrite the wiring or attribution of a key already bound by a different specification')]
+    public function testFillOnlyDoesNotOverwriteAlreadyBoundKey(): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')
+            ->withDataRequirement('media', 'entity', $oldConfig)
+            ->withAttributedSpecification('media', 'core:old-spec')
+            ->build();
+
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image');
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $oldConfig)], $result->getDataRequirements());
+        static::assertSame(['media' => 'core:old-spec'], $result->getAttributedSpecifications());
+    }
+
+    #[TestDox('fill-only: records attribution only for the keys it actually wired, not an already-bound key the specification also declares')]
+    public function testFillOnlyAttributesOnlyTheKeysItWired(): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')
+            ->withDataRequirement('media', 'entity', $oldConfig)
+            ->withAttributedSpecification('media', 'core:old-spec')
+            ->build();
+
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->twoKeySpecification(), 'core:Sw:Media:Image');
+
+        static::assertSame(['media' => 'core:old-spec', 'gallery' => 'core:Sw:Media:Image'], $result->getAttributedSpecifications());
+        static::assertEquals(new DataRequirement('media', 'entity', $oldConfig), $result->getDataRequirements()['media']);
+        static::assertEquals(new DataRequirement('gallery', 'entity_collection', $newConfig), $result->getDataRequirements()['gallery']);
     }
 
     #[TestDox('does not seed an input whose specification declares no default')]
@@ -57,7 +102,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
 
         static::assertFalse($result->hasProperty('mediaId'));
     }
@@ -68,7 +113,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', 'authored')->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
 
         static::assertSame('authored', $result->getProperty('mediaId'));
     }
@@ -79,7 +124,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', null)->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
 
         static::assertTrue($result->hasProperty('mediaId'));
         static::assertNull($result->getProperty('mediaId'));
@@ -95,7 +140,7 @@ class BindingApplicatorTest extends TestCase
             ->withStyle($style)
             ->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:from-media-library');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
 
         static::assertSame('img-1', $result->getId());
         static::assertSame('Sw:Media:Image', $result->getComponent());
@@ -110,7 +155,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
-        $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:from-media-library');
+        $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
 
         static::assertSame([], $element->getDataRequirements());
         static::assertSame([], $element->getProperties());
@@ -128,11 +173,26 @@ class BindingApplicatorTest extends TestCase
     private function specification(BindingInput $mediaIdInput): BindingSpecification
     {
         return new BindingSpecification(
-            'from-media-library',
+            'media-picker',
             'Sw:Media:Image',
-            'From media library',
+            'Media picker',
             ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
             ['mediaId' => $mediaIdInput],
+            'core',
+        );
+    }
+
+    private function twoKeySpecification(): BindingSpecification
+    {
+        return new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            [
+                'media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId']),
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'galleryIds']),
+            ],
+            [],
             'core',
         );
     }

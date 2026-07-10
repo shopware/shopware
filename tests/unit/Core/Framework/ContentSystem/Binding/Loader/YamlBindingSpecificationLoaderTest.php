@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
@@ -15,9 +17,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDi
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -49,14 +54,14 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         // A file media/image.yaml under prefix "Sw" yields type "Sw:Media:Image" (ElementTypeNameResolver's
         // kebab-to-PascalCase, colon-joined, prefixed rule).
         mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "meta:\n  label: Image\nbindings:\n  from-media-library:\n    label: \"From media library\"\n");
+        file_put_contents($this->tempDir . '/media/image.yaml', "meta:\n  label: Image\nbindings:\n  image-binding:\n    label: \"Image binding\"\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $specifications = $loader->load();
 
         static::assertCount(1, $specifications);
-        static::assertSame('from-media-library', $specifications[0]->id());
+        static::assertSame('image-binding', $specifications[0]->id());
         static::assertSame('Sw:Media:Image', $specifications[0]->type());
         static::assertSame('core', $specifications[0]->source());
     }
@@ -80,26 +85,6 @@ class YamlBindingSpecificationLoaderTest extends TestCase
 
         static::assertCount(2, $specifications);
         static::assertSame(['source-a', 'source-b'], array_map(static fn ($specification) => $specification->source(), $specifications));
-    }
-
-    #[TestDox('loads two promoted specifications for DIFFERENT types without throwing')]
-    public function testLoadsTwoPromotedSpecificationsForDifferentTypes(): void
-    {
-        mkdir($this->tempDir . '/media', 0777, true);
-        mkdir($this->tempDir . '/hero', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  promoted-image:\n    label: image\n    promoted: true\n");
-        file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  promoted-banner:\n    label: banner\n    promoted: true\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        $specifications = $loader->load();
-
-        static::assertCount(2, $specifications);
-        static::assertSame([true, true], array_map(static fn ($specification) => $specification->isPromoted(), $specifications));
-        static::assertEqualsCanonicalizing(
-            ['Sw:Media:Image', 'Sw:Hero:Banner'],
-            array_map(static fn ($specification) => $specification->type(), $specifications),
-        );
     }
 
     #[TestDox('skips an element-type file that carries no bindings section')]
@@ -163,24 +148,6 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('throws on two inline entries sharing an id across two type files of one directory')]
-    public function testThrowsOnDuplicateInlineIdAcrossTwoTypeFiles(): void
-    {
-        mkdir($this->tempDir . '/media', 0777, true);
-        mkdir($this->tempDir . '/hero', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  shared:\n    label: a\n");
-        file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  shared:\n    label: b\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        // Filesystem iteration order is not guaranteed; assert the duplicate is rejected naming both files
-        // without coupling to which is seen first.
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/Binding specification "shared" is already registered by "(image|banner)\.yaml", cannot register again from "(image|banner)\.yaml"/');
-
-        $loader->load();
-    }
-
     #[TestDox('reports the duplicate id even when the duplicate entry would also fail shape validation')]
     public function testDuplicateIdIsReportedBeforeEntryShapeValidation(): void
     {
@@ -224,12 +191,12 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     public function testRejectsInlineEntryWithExplicitType(): void
     {
         mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  from-media-library:\n    type: Sw:Media:Image\n    label: x\n");
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding:\n    type: Sw:Media:Image\n    label: x\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
-            'from-media-library',
+            'image-binding',
             'an inline binding entry must not declare "type"; the type is implicit from the containing element-type file.',
         ));
 
@@ -240,12 +207,12 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     public function testRejectsInlineEntryWithExplicitId(): void
     {
         mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  from-media-library:\n    id: something-else\n    label: x\n");
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding:\n    id: something-else\n    label: x\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
-            'from-media-library',
+            'image-binding',
             'an inline binding entry must not declare "id"; the map key is the id.',
         ));
 
@@ -272,13 +239,13 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     public function testFailsOnNonMapInlineEntry(): void
     {
         mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  from-media-library: not-a-map\n");
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding: not-a-map\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
             $this->tempDir . '/media/image.yaml',
-            'the "bindings" entry "from-media-library" must be a map, got string',
+            'the "bindings" entry "image-binding" must be a map, got string',
         ));
 
         $loader->load();
@@ -323,55 +290,125 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('throws bindingSpecificationPromotedDuplicate when two inline specs promote one type')]
-    public function testThrowsOnTwoPromotedSpecificationsForOneType(): void
+    #[TestDox('rejects an authored bindings: id equal to the containing file\'s implicit type name as a reserved id')]
+    public function testRejectsAuthoredIdEqualToImplicitTypeName(): void
     {
-        // Two entries in one type file share that file's implicit type Sw:Media:Image; both promoting it is an
-        // authored bug the loader rejects hard.
         mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents(
-            $this->tempDir . '/media/image.yaml',
-            "bindings:\n  promoted-first:\n    label: first\n    promoted: true\n  promoted-second:\n    label: second\n    promoted: true\n",
-        );
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  \"Sw:Media:Image\":\n    label: x\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
-        // The map preserves insertion order, so the first entry holds the incumbent promoted flag.
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationPromotedDuplicate(
-            'Sw:Media:Image',
-            'core:promoted-first',
-            'core:promoted-second',
-        ));
+        $path = $this->tempDir . '/media/image.yaml';
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationReservedId('Sw:Media:Image', 'Sw:Media:Image', $path));
 
         $loader->load();
     }
 
-    #[TestDox('throws bindingSpecificationPromotedDuplicate when two specifications across two directories promote one type')]
-    public function testThrowsOnTwoPromotedSpecificationsAcrossDirectories(): void
+    #[TestDox('rejects the reserved-id collision even when the file declares no resolvedBy property and synthesizes nothing')]
+    public function testRejectsReservedIdEvenWhenFileSynthesizesNothing(): void
     {
-        // Promoted uniqueness is accumulated across ALL of the loader's directories and sources, not per
-        // directory: two directories each shipping ONE promoted specification for the same implicit type
-        // Sw:Media:Image is still a duplicate the loader rejects hard.
-        $dirA = $this->tempDir . '/source-a';
-        $dirB = $this->tempDir . '/source-b';
-        mkdir($dirA . '/media', 0777, true);
-        mkdir($dirB . '/media', 0777, true);
-        file_put_contents($dirA . '/media/image.yaml', "bindings:\n  promoted-a:\n    label: a\n    promoted: true\n");
-        file_put_contents($dirB . '/media/image.yaml', "bindings:\n  promoted-b:\n    label: b\n    promoted: true\n");
+        // The type name is reserved unconditionally, independent of whether this particular file happens to
+        // synthesize a default: this file carries no properties at all.
+        mkdir($this->tempDir . '/media', 0777, true);
+        file_put_contents($this->tempDir . '/media/image.yaml', "meta:\n  label: Image\nbindings:\n  \"Sw:Media:Image\":\n    label: x\n");
 
-        $loader = $this->createLoader([
-            new ElementTypeSourceDirectory('source-a', $dirA, 'Sw'),
-            new ElementTypeSourceDirectory('source-b', $dirB, 'Sw'),
-        ]);
+        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
-        // Directory order determines the incumbent: source-a is scanned first, so it holds the promoted flag.
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationPromotedDuplicate(
-            'Sw:Media:Image',
-            'source-a:promoted-a',
-            'source-b:promoted-b',
-        ));
+        $path = $this->tempDir . '/media/image.yaml';
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationReservedId('Sw:Media:Image', 'Sw:Media:Image', $path));
 
         $loader->load();
+    }
+
+    #[TestDox('reports a duplicate when a resolvedBy file (.yaml) synthesizes the default id first and an authored entry (.yml) then collides with it')]
+    public function testSynthesizedDefaultThenAuthoredCollisionReportsDuplicate(): void
+    {
+        // *.yaml files precede *.yml files in the loader's two-pass listing, so the resolvedBy file registers the
+        // synthesized "Sw:Media:Image" default first; the authored entry in the .yml file then collides in the
+        // bindings loop (the $seenIds[$id] duplicate check). The authored file's own implicit type is "Sw:Hero:Banner",
+        // so the reserved-id check ($id === implicitType) passes and the duplicate check is what fires.
+        mkdir($this->tempDir . '/media', 0777, true);
+        mkdir($this->tempDir . '/hero', 0777, true);
+        file_put_contents(
+            $this->tempDir . '/media/image.yaml',
+            "properties:\n  media:\n    type: Shopware\\Core\\Content\\Media\\MediaEntity\n    resolvedBy: mediaId\n",
+        );
+        file_put_contents($this->tempDir . '/hero/banner.yml', "bindings:\n  \"Sw:Media:Image\":\n    label: x\n");
+
+        $loader = new YamlBindingSpecificationLoader(
+            [new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')],
+            new ElementTypeNameResolver(),
+            new DefaultBindingSpecificationSynthesizer(),
+            new BindingSpecificationSerializer(),
+            $this->canonicalizerForSynthesisScenarios(),
+            $this->passingValidator(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDuplicate('Sw:Media:Image', 'image.yaml', 'banner.yml'));
+
+        $loader->load();
+    }
+
+    #[TestDox('reports a duplicate when an authored entry (.yaml) registers the id first and a resolvedBy file (.yml) then synthesizes the same default id')]
+    public function testAuthoredIdThenSynthesizedDefaultCollisionReportsDuplicate(): void
+    {
+        // The authored file is *.yaml, so it registers "Sw:Media:Image" first (its own implicit type "Sw:Hero:Banner"
+        // clears the reserved-id check); the resolvedBy file is *.yml, processed second, and its synthesized default
+        // collides in the synthesized branch (the $seenIds[$implicitType] check) before that entry is canonicalized.
+        mkdir($this->tempDir . '/media', 0777, true);
+        mkdir($this->tempDir . '/hero', 0777, true);
+        file_put_contents($this->tempDir . '/hero/banner.yaml', "bindings:\n  \"Sw:Media:Image\":\n    label: x\n");
+        file_put_contents(
+            $this->tempDir . '/media/image.yml',
+            "properties:\n  media:\n    type: Shopware\\Core\\Content\\Media\\MediaEntity\n    resolvedBy: mediaId\n",
+        );
+
+        $loader = new YamlBindingSpecificationLoader(
+            [new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')],
+            new ElementTypeNameResolver(),
+            new DefaultBindingSpecificationSynthesizer(),
+            new BindingSpecificationSerializer(),
+            $this->canonicalizerForSynthesisScenarios(),
+            $this->passingValidator(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDuplicate('Sw:Media:Image', 'banner.yaml', 'image.yml'));
+
+        $loader->load();
+    }
+
+    #[TestDox('a synthesized default specification round-trips load(): source-qualified id, type, label, canonicalized resolves, and isDefault()')]
+    public function testSynthesizedDefaultRoundTripsLoad(): void
+    {
+        mkdir($this->tempDir . '/media', 0777, true);
+        file_put_contents(
+            $this->tempDir . '/media/image.yaml',
+            "meta:\n  label: Image\nproperties:\n  media:\n    type: Shopware\\Core\\Content\\Media\\MediaEntity\n    resolvedBy: mediaId\n",
+        );
+
+        $loader = new YamlBindingSpecificationLoader(
+            [new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')],
+            new ElementTypeNameResolver(),
+            new DefaultBindingSpecificationSynthesizer(),
+            new BindingSpecificationSerializer(),
+            $this->canonicalizerForSynthesisScenarios(),
+            $this->passingValidator(),
+        );
+
+        $specifications = $loader->load();
+
+        static::assertCount(1, $specifications);
+        $specification = $specifications[0];
+
+        static::assertSame('Sw:Media:Image', $specification->id());
+        static::assertSame('Sw:Media:Image', $specification->type());
+        static::assertSame('Image', $specification->label());
+        static::assertSame('core:Sw:Media:Image', $specification->qualifiedId());
+        static::assertTrue($specification->isDefault());
+        static::assertSame([], $specification->inputs());
+        static::assertArrayHasKey('media', $specification->resolves());
+        static::assertSame('entity', $specification->resolves()['media']->loader);
+        static::assertSame(['entity' => 'media', 'property' => 'mediaId'], $specification->resolves()['media']->config);
     }
 
     /**
@@ -398,10 +435,11 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         // structural and semantic validation is covered by their own dedicated tests.
         return new YamlBindingSpecificationLoader(
             $directories,
+            new ElementTypeNameResolver(),
+            new DefaultBindingSpecificationSynthesizer(),
             new BindingSpecificationSerializer(),
             $this->canonicalizer(),
             $validator ?? $this->passingValidator(),
-            new ElementTypeNameResolver(),
         );
     }
 
@@ -431,6 +469,57 @@ class YamlBindingSpecificationLoaderTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             static::createStub(SalesChannelDefinitionInstanceRegistry::class),
         );
+    }
+
+    /**
+     * A real tier-A expansion for "Sw:Media:Image" (a declared MediaEntity reference, resolved to the "media"
+     * entity name) plus an empty "Sw:Hero:Banner" for the reserved-id/cross-file-collision fixtures, which
+     * author no resolves at all. Both names are needed regardless of which of two colliding files the (order-
+     * unstable) filesystem scan processes first: the file processed first always reaches full canonicalization.
+     */
+    private function canonicalizerForSynthesisScenarios(): BindingSpecificationCanonicalizer
+    {
+        $types = [
+            'Sw:Media:Image' => new ContentSystemElementTypeSpecification(
+                'Sw:Media:Image',
+                'Image',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                ['media' => new PropertySpecification('media', new PropertyType(MediaEntity::class, false, null, null), false, '', '', null)],
+                [],
+            ),
+            'Sw:Hero:Banner' => new ContentSystemElementTypeSpecification(
+                'Sw:Hero:Banner',
+                'Banner',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                [],
+                [],
+            ),
+        ];
+
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willReturnCallback(static fn (string $name): bool => isset($types[$name]));
+        $typeRegistry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $types[$name]);
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
+
+        $mediaDefinition = static::createStub(EntityDefinition::class);
+        $mediaDefinition->method('getEntityName')->willReturn('media');
+        $mediaDefinition->method('getEntityClass')->willReturn(MediaEntity::class);
+
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $definitionRegistry->method('getDefinitions')->willReturn(['media' => $mediaDefinition]);
+
+        $salesChannelRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $salesChannelRegistry->method('getSalesChannelDefinitions')->willReturn([]);
+
+        return new BindingSpecificationCanonicalizer($typeRegistry, $mapResolver, $definitionRegistry, $salesChannelRegistry);
     }
 
     private function passingValidator(): ValidatorInterface

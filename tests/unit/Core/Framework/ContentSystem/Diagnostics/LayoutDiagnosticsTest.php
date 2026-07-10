@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
@@ -298,7 +300,11 @@ class LayoutDiagnosticsTest extends TestCase
 
         // ReplaceElement seeds the new type's default (covered in ReplaceElementTest); here we assert only that the
         // strict primitive rule credits the resulting stored value, so the replaced tree diagnoses as resolvable.
-        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New'))->apply([new ContentElement('el', 'Sw:Old')]);
+        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingRegistry->method('all')->willReturn([]);
+        $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
+
+        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))->apply([new ContentElement('el', 'Sw:Old')]);
 
         static::assertSame([], $this->diagnostics($specs)->analyze($replaced, [])->report->bindingErrors());
     }
@@ -369,7 +375,7 @@ class LayoutDiagnosticsTest extends TestCase
         $error = $this->onlyBindingError($report->bindingErrors());
         static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
         static::assertSame('product', $error->key);
-        static::assertSame('Required property "product" is wired from "ghostProperty", which is not a value-bearing property of this element.', $error->message);
+        static::assertSame('Required property "product" is wired from "ghostProperty", which has no value.', $error->message);
     }
 
     #[TestDox('produces a broken_required_chain binding error for a required acceptsContext with no provider')]

@@ -91,7 +91,7 @@ class ContentLayoutMutationController
         ContentLayoutReplaceRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType);
+        $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType, $this->bindingRegistry, $this->bindingApplicator);
 
         return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
     }

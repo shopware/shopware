@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(TypeConsistentBindingSpecificationValidator::class)]
 class TypeConsistentBindingSpecificationValidatorTest extends TestCase
 {
-    private const ID = 'from-media-library';
+    private const ID = 'media-picker';
 
     #[TestDox('passes a resolves entry whose propertyReference config key names a primitive property')]
     public function testPropertyReferenceKeyNamingPrimitivePasses(): void
@@ -53,7 +53,21 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
-            promoted: null,
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('passes a resolves entry whose propertyReference config key names an undeclared key')]
+    public function testPropertyReferenceKeyNamingUndeclaredKeyPasses(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'ghost']]],
+            inputs: [],
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator));
@@ -70,7 +84,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => $propertyValue]]],
             inputs: [],
-            promoted: null,
         );
 
         $violations = $this->validateWith($dto, $validator);
@@ -95,7 +108,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media']]],
             inputs: [],
-            promoted: null,
         );
 
         $violations = $this->validateWith($dto, $validator, ['image' => $this->imageType()]);
@@ -122,7 +134,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
-            promoted: null,
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator, ['image' => $this->imageType()]));
@@ -141,7 +152,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
             inputs: [],
-            promoted: null,
         );
 
         $violations = $this->validateWith($dto, $validator);
@@ -194,7 +204,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             label: 'label',
             resolves: ['media' => ['loader' => 'entity', 'config' => []]],
             inputs: [],
-            promoted: null,
         );
 
         try {
@@ -214,7 +223,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         // branched on by validatePropertyReferenceKeys(), only used as a ContentSystemDataLoaderMap lookup key
         // (configSpecificationFor()), so both loaders would traverse identical SUT branches.
         yield 'a reference property' => ['media'];
-        yield 'a missing property' => ['ghost'];
     }
 
     private function validator(ContentSystemElementTypeSpecification $type, ContentSystemDataLoaderMap $map): TypeConsistentBindingSpecificationValidator

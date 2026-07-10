@@ -35,7 +35,7 @@
                                     "summary": "Insert an image and apply a binding specification atomically",
                                     "value": {
                                         "type": "Sw:Media:Image",
-                                        "bindingSpecificationId": "core:from-media-library"
+                                        "bindingSpecificationId": "core:Sw:Media:Image"
                                     }
                                 }
                             }
@@ -51,7 +51,38 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": { "$ref": "#/components/responses/400" },
+                    "409": {
+                        "description": "Conflict. The inserted type's default binding specification set holds more than one specification, so no single default can be fill-applied. Reachable only when a database row created outside the app lifecycle fakes a second default for the type; the edit throws instead of picking one, and nothing is inserted.",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -184,7 +215,38 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": { "$ref": "#/components/responses/400" },
+                    "409": {
+                        "description": "Conflict. The new type's default binding specification set holds more than one specification, so no single default can be fill-applied. Reachable only when a database row created outside the app lifecycle fakes a second default for the type; the edit throws instead of picking one, and nothing is replaced.",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -371,7 +433,7 @@
                                             { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "Sw:Media:Image", "properties": { "mediaId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41" } }
                                         ],
                                         "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                        "bindingSpecificationId": "core:from-media-library"
+                                        "bindingSpecificationId": "core:Sw:Media:Image"
                                     }
                                 }
                             }

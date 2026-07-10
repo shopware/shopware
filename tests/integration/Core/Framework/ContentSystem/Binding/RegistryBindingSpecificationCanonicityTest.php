@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -70,24 +69,22 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
         static::assertSame([], $problems);
     }
 
-    #[TestDox('the inline-migrated core:from-media-library specification is served with its canonical entity wiring, a required mediaId input, and the promoted flag')]
-    public function testFromMediaLibraryIsServedInCanonicalForm(): void
+    #[TestDox('the synthesized core:Sw:Media:Image default is served with its canonical entity wiring, no inputs, and is the type default')]
+    public function testSwMediaImageDefaultIsServedInCanonicalForm(): void
     {
-        $specification = $this->registry()->get('core:from-media-library');
+        $specification = $this->registry()->get('core:Sw:Media:Image');
 
-        static::assertInstanceOf(BindingSpecification::class, $specification, 'The inline-migrated core:from-media-library binding must be registered.');
+        static::assertInstanceOf(BindingSpecification::class, $specification, 'The synthesized core:Sw:Media:Image default must be registered.');
         static::assertSame('Sw:Media:Image', $specification->type());
-        static::assertTrue($specification->isPromoted(), 'core:from-media-library is authored promoted: true.');
+        static::assertTrue($specification->isDefault(), '"Sw:Media:Image" === "Sw:Media:Image", so this specification is the type\'s default.');
 
         $mediaBinding = $specification->resolves()['media'] ?? null;
-        static::assertInstanceOf(LoaderBinding::class, $mediaBinding, 'core:from-media-library must wire the media reference.');
+        static::assertInstanceOf(LoaderBinding::class, $mediaBinding, 'core:Sw:Media:Image must wire the media reference.');
         static::assertSame('entity', $mediaBinding->loader);
         static::assertSame('media', $mediaBinding->config['entity'] ?? null, 'The tier-A shorthand must canonicalize to an explicit media entity name.');
-        static::assertSame('mediaId', $mediaBinding->config['property'] ?? null, 'The configured property must remain the authored mediaId reference.');
+        static::assertSame('mediaId', $mediaBinding->config['property'] ?? null, 'The configured property must remain the authored mediaId storage key.');
 
-        $mediaIdInput = $specification->inputs()['mediaId'] ?? null;
-        static::assertInstanceOf(BindingInput::class, $mediaIdInput, 'mediaId must be synthesized from the wiring even though the migrated artifact no longer declares it.');
-        static::assertTrue($mediaIdInput->required, 'mediaId is wired from a required propertyReference key of a required reference, so its derived required flag is true.');
+        static::assertSame([], $specification->inputs(), 'The synthesized default carries no inputs; mediaId is an undeclared storage key.');
     }
 
     private function registry(): ContentSystemBindingSpecificationRegistry

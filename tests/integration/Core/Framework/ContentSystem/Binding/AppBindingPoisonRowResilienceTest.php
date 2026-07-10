@@ -35,7 +35,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
     private const POISON_BINDING_NAME = 'poison-binding';
     private const DOMAIN_LOADER_POISON_BINDING_NAME = 'domain-loader-poison-binding';
     private const MISSING_REQUIRED_POISON_BINDING_NAME = 'missing-required-poison-binding';
@@ -71,7 +71,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
         // The persisted schema column is the DTO's normalized shape without the id; the row's "name"
         // column is the binding id (see DatabaseBindingSpecificationLoader).
-        $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: [], promoted: null);
+        $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: []);
 
         $this->bindingSpecificationRepository()->create([[
             'id' => $this->ids->get('binding'),
@@ -136,7 +136,6 @@ class AppBindingPoisonRowResilienceTest extends TestCase
                 'listing' => ['loader' => 'product_listing', 'config' => ['associations' => 'not-an-array']],
             ],
             inputs: [],
-            promoted: null,
         );
 
         $this->bindingSpecificationRepository()->create([[
@@ -179,15 +178,16 @@ class AppBindingPoisonRowResilienceTest extends TestCase
             ],
         ]], $context);
 
-        // "mediaId" is a real primitive property of the registered "Sw:Media:Image" type and "resolves" is
-        // empty (also valid), so this row would load cleanly if its inputs entry carried "required" -- the
-        // absent flag is the sole reason WellFormedBindingSpecification rejects it.
+        // Isolates the WellFormedBindingSpecification missing-"required"-flag rejection: "height" is a real
+        // declared primitive property of "Sw:Media:Image" (unlike the reference's undeclared resolvedBy storage
+        // key "mediaId", which TypeConsistentBindingSpecificationValidator would reject for an unrelated reason),
+        // and "resolves" is empty (also valid), so this row would load cleanly if its inputs entry carried
+        // "required" -- the absent flag is the sole reason WellFormedBindingSpecification rejects it.
         $poison = new BindingSpecificationDto(
             type: 'Sw:Media:Image',
             label: 'Missing Required Poison',
             resolves: [],
-            inputs: ['mediaId' => ['default' => 'seed']],
-            promoted: null,
+            inputs: ['height' => ['default' => 'seed']],
         );
 
         $this->bindingSpecificationRepository()->create([[
@@ -279,7 +279,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     }
 
     /**
-     * A Sw:Media:Image element wired to core:from-media-library's media requirement, with mediaId
+     * A Sw:Media:Image element wired to core:Sw:Media:Image's media requirement, with mediaId
      * always filled so the element stays resolvable and the write is never rejected by the
      * resolvability gate. $specificationId lets a caller attribute the (still-matching) wiring to a
      * specification id that does not resolve from the registry.

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfig;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * Proves extension parity end to end. {@see TestMultiReferenceGatingLoader} is a data loader
@@ -25,13 +24,14 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * `configSpecification()` and its `@extends` annotation at build time, the `ContentSystemDataLoaderMapResolver`
  * discovers it, and the real container `BindingSpecificationCanonicalizer` and `LayoutDiagnostics` treat it exactly
  * like a shipped loader, participating in tier-B canonicalization, multi-reference input synthesis, the derived
- * `required` flag, and per-key `UnfilledRequiredInput` gating. Every behavior keys off the loader's declared
- * `ConfigKeyKind`s, never a loader source name.
+ * `required` flag, and per-key `UnfilledRequiredInput` gating — all of which key off the loader's declared
+ * `ConfigKeyKind`s, never a loader source name. (Tier A is the one canonicalization rule that does name a loader
+ * source: a bare string resolves directly to one of the two built-in resolvedBy loaders, closed by
+ * construction, so this tag-registered loader never participates in it regardless of its declared config.)
  *
  * The loader produces `MediaEntity` (so its `entityName` key is FQCN-derivable and it wires onto the shipped
- * `Sw:Media:Image` type) and declares two required `propertyReference` keys. That second required key is not
- * decoration: a single required `propertyReference` would make it tier-A-eligible for `MediaEntity` and break the
- * shipped `core:from-media-library` shorthand at registry build; see the invariant note on
+ * `Sw:Media:Image` type) and declares two required `propertyReference` keys, so this proof exercises
+ * multi-reference input synthesis with two independently gating keys, not just one; see
  * {@see TestMultiReferenceGatingLoader::configSpecification()}.
  *
  * @internal
@@ -41,23 +41,14 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private IdsCollection $ids;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->ids = new IdsCollection();
-    }
-
     #[TestDox('canonicalizes a tier-B entry for the test loader, naming the source and deriving its entityName key from the reference FQCN')]
     public function testTierBExpansionNamesLoaderAndDerivesEntityName(): void
     {
         $dto = new BindingSpecificationDto(
             'Sw:Media:Image',
             'Extension parity binding',
-            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'mediaId', 'secondProperty' => 'height']]],
+            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'maxImageWidth', 'secondProperty' => 'height']]],
             [],
-            null,
         );
 
         $result = $this->canonicalizer()->canonicalize($dto, 'extension-parity');
@@ -70,7 +61,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
 
         $config = $media['config'] ?? null;
         static::assertIsArray($config);
-        static::assertSame('mediaId', $config['property'] ?? null, 'The authored propertyReference key must survive canonicalization.');
+        static::assertSame('maxImageWidth', $config['property'] ?? null, 'The authored propertyReference key must survive canonicalization.');
         static::assertSame('height', $config['secondProperty'] ?? null, 'The second authored propertyReference key must survive canonicalization.');
         static::assertSame('media', $config['entity'] ?? null, 'FQCN derivation must fill the required entityName key from the MediaEntity reference.');
     }
@@ -81,9 +72,8 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         $dto = new BindingSpecificationDto(
             'Sw:Media:Image',
             'Extension parity binding',
-            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'mediaId', 'secondProperty' => 'height', 'activeProperty' => 'fetchpriority']]],
+            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'maxImageWidth', 'secondProperty' => 'height', 'activeProperty' => 'fetchpriority']]],
             [],
-            null,
         );
 
         $result = $this->canonicalizer()->canonicalize($dto, 'extension-parity');
@@ -91,9 +81,9 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         $inputs = $result->inputs;
         static::assertIsArray($inputs);
 
-        $mediaIdInput = $inputs['mediaId'] ?? null;
-        static::assertIsArray($mediaIdInput);
-        static::assertTrue($mediaIdInput['required'], 'A required propertyReference key wiring a required reference makes its input required.');
+        $maxImageWidthInput = $inputs['maxImageWidth'] ?? null;
+        static::assertIsArray($maxImageWidthInput);
+        static::assertTrue($maxImageWidthInput['required'], 'A required propertyReference key wiring a required reference makes its input required.');
 
         $heightInput = $inputs['height'] ?? null;
         static::assertIsArray($heightInput);
@@ -118,7 +108,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
             'Both required propertyReference keys gate; the defaulted activeProperty key never does, even with its own target unfilled.',
         );
         static::assertEqualsCanonicalizing(
-            ['mediaId', 'height'],
+            ['maxImageWidth', 'height'],
             array_map(static fn (Violation $violation): ?string => $violation->key, $errors),
         );
     }
@@ -126,7 +116,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     #[TestDox('raises no unfilled_required_input for the test loader wiring once both required inputs carry a value')]
     public function testNoUnfilledRequiredInputWhenTestLoaderInputsFilled(): void
     {
-        $report = $this->diagnostics()->analyze([$this->wiredImage(['mediaId' => $this->ids->get('media'), 'height' => 'auto'])], [])->report;
+        $report = $this->diagnostics()->analyze([$this->wiredImage(['maxImageWidth' => 1920, 'height' => 'auto'])], [])->report;
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], $report->bindingErrors());
@@ -140,7 +130,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         return new ContentElement(
             'el-1',
             'Sw:Media:Image',
-            ['media' => new DataRequirement('media', TestMultiReferenceGatingLoader::SOURCE, new TestMultiReferenceGatingLoaderConfig('media', 'mediaId', 'height', 'fetchpriority'))],
+            ['media' => new DataRequirement('media', TestMultiReferenceGatingLoader::SOURCE, new TestMultiReferenceGatingLoaderConfig('media', 'maxImageWidth', 'height', 'fetchpriority'))],
             $properties,
         );
     }

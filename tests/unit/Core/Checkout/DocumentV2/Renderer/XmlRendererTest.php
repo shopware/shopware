@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -105,8 +106,8 @@ class XmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, $env);
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/Generated XML is malformed/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/Generated XML is malformed/');
 
         $renderer->renderToString(
             $this->createInput($renderData),
@@ -129,8 +130,8 @@ class XmlRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, AbstractRenderData::class),
         );
 
         $renderer->renderToString(

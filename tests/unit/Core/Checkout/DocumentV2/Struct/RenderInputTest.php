@@ -45,7 +45,7 @@ class RenderInputTest extends TestCase
 
     public function testRequireDataThrowsIfKeyIsMissing(): void
     {
-        static::expectExceptionObject(DocumentV2Exception::unknownRenderData('something', StaticRenderData::class));
+        $this->expectExceptionObject(DocumentV2Exception::unknownRenderData('something', StaticRenderData::class));
 
         $this->input->requireData('something', StaticRenderData::class);
     }

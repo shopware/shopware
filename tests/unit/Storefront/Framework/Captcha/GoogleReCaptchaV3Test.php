@@ -294,23 +294,15 @@ class GoogleReCaptchaV3Test extends TestCase
     }
 
     /**
-     * Returns the active captcha config in the same shape as the system config service,
-     * so the value passed to {@see GoogleReCaptchaV3::validate()} keeps a `mixed` type.
+     * @return array<string, mixed>
      */
-    private function getCaptchaConfig(string $secretKey = 'secret123'): mixed
+    private function getCaptchaConfig(string $secretKey = 'secret123'): array
     {
-        $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', [
-            GoogleReCaptchaV3::CAPTCHA_NAME => [
-                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
-                'isActive' => true,
-                'config' => ['secretKey' => $secretKey],
-            ],
-        ]);
-
-        $config = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2');
-        static::assertIsArray($config);
-
-        return $config[GoogleReCaptchaV3::CAPTCHA_NAME];
+        return [
+            'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+            'isActive' => true,
+            'config' => ['secretKey' => $secretKey],
+        ];
     }
 
     /**

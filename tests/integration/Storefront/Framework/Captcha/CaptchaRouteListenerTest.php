@@ -145,7 +145,7 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertStringContainsString('action="/account/register"', $content);
     }
 
-    public function testRecaptchaFailureRendersFormErrorInsteadOfErrorPage(): void
+    public function testRecaptchaFailureRendersFlashMessageInsteadOfErrorPage(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
 
@@ -174,7 +174,7 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        // The registration page is re-rendered with a form error instead of a 403 error page
+        // The registration page is re-rendered with a danger flash instead of a 403 error page
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
 
         // The failure is announced as a danger flash, not just present somewhere in the page

@@ -61,8 +61,8 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
     }
 
     /**
-     * reCAPTCHA failures always carry customer-facing violations, so they are rendered
-     * as form errors instead of breaking the request.
+     * reCAPTCHA failures always carry customer-facing violations, so they are shown
+     * to the customer (as a danger flash) instead of breaking the request.
      */
     public function shouldBreak(): bool
     {

@@ -16,7 +16,7 @@ abstract class AbstractCaptcha
      * to be let through. This may be determined based on the given request, but
      * also the shop's configuration or other sources.
      *
-     * @param array<string, bool> $captchaConfig
+     * @param array<string, mixed> $captchaConfig
      */
     public function supports(Request $request, array $captchaConfig): bool
     {
@@ -37,7 +37,7 @@ abstract class AbstractCaptcha
      *
      * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract, the default implementation that delegates to the deprecated isValid()/getViolations() will be removed
      *
-     * @param array<string, bool> $captchaConfig
+     * @param array<string, mixed> $captchaConfig
      */
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
@@ -60,7 +60,7 @@ abstract class AbstractCaptcha
      *
      * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, implement validate() instead
      *
-     * @param array<string, bool> $captchaConfig
+     * @param array<string, mixed> $captchaConfig
      */
     abstract public function isValid(Request $request, array $captchaConfig): bool;
 

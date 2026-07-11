@@ -203,7 +203,7 @@ class GoogleReCaptchaV2Test extends TestCase
     public function testShouldBreakReturnsFalse(): void
     {
         // reCAPTCHA failures always carry customer-facing violations, so they must be
-        // rendered as form errors instead of breaking the request with a 403.
+        // shown to the customer instead of breaking the request with a 403.
         static::assertFalse($this->getCaptcha()->shouldBreak());
     }
 

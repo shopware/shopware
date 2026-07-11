@@ -85,7 +85,7 @@ class CaptchaRouteListenerTest extends TestCase
         ));
 
         // reCAPTCHA without a token: non-breaking captcha with an actionable violation must
-        // NOT throw on a non-AJAX request, but render the form error gracefully (#17472).
+        // NOT throw on a non-AJAX request, but render the violations gracefully (#17472).
         $violations = self::createViolations(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION);
         $captcha = $this->createCaptcha($violations, shouldBreak: false);
 

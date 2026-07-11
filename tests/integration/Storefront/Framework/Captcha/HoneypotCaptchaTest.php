@@ -4,8 +4,8 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -35,16 +35,19 @@ class HoneypotCaptchaTest extends TestCase
     public function testShouldBreakReturnsTrue(): void
     {
         // The honeypot is bot-only: its failures must abort non-AJAX requests with a 403
-        // instead of rendering a form error. shouldBreak() is the sole guard for this.
+        // instead of showing a customer-visible error. shouldBreak() is the sole guard for this.
         static::assertTrue($this->captcha->shouldBreak());
     }
 
     /**
      * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedIsValidStillValidates(): void
     {
+        // DisabledFeatures is only processed for unit-test namespaces, so skip explicitly
+        // when the major flag is active (e.g. in the integration-major workflow).
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         static::assertTrue($this->captcha->isValid(self::getRequest(), []));
         static::assertFalse($this->captcha->isValid(
             self::getRequest([HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'something']),

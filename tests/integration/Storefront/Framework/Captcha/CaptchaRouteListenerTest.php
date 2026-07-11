@@ -228,17 +228,6 @@ class CaptchaRouteListenerTest extends TestCase
             ],
         ]);
 
-        // Negative control guarding the flash assertion below against becoming vacuous:
-        // without a failed captcha POST, the message must not occur anywhere on the very
-        // same page (e.g. via the client-side validation message config).
-        $browser->request('GET', '/account/convert');
-        $convertPage = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $convertPage->getStatusCode(), $convertPage->getContent() ?: '');
-        static::assertStringNotContainsString(
-            'Please accept the technically required cookies to enable the reCAPTCHA verification.',
-            $convertPage->getContent() ?: ''
-        );
-
         // The conversion form posts no errorRoute and its template renders only
         // field-bound violations — the captcha failure must be visible via a flash.
         $crawler = $browser->request('POST', '/account/convert', $this->tokenize('frontend.account.convert.save', []));

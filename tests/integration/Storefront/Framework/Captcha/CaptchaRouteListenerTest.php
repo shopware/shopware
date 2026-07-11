@@ -165,7 +165,7 @@ class CaptchaRouteListenerTest extends TestCase
         ];
 
         $browser = $this->createCustomSalesChannelBrowser();
-        $browser->request(
+        $crawler = $browser->request(
             'POST',
             '/account/register',
             $this->tokenize('frontend.account.register.save', $data)
@@ -177,11 +177,20 @@ class CaptchaRouteListenerTest extends TestCase
         // The registration page is re-rendered with a form error instead of a 403 error page
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
 
+        // The failure is announced as a danger flash, not just present somewhere in the page
+        $flash = $crawler->filter('.flashbags .alert-danger');
+        static::assertCount(1, $flash);
+        static::assertStringContainsString(
+            'Please accept the technically required cookies to enable the reCAPTCHA verification.',
+            $flash->text()
+        );
+        static::assertSame('true', $flash->attr('data-alert-aria'));
+        static::assertSame('assertive', $flash->attr('aria-live'));
+
+        static::assertCount(1, $crawler->filter('form[action="/account/register"]'));
+        // The entered form data is preserved across the failed submit
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertStringContainsString('action="/account/register"', $content);
-        static::assertStringContainsString('Please accept the technically required cookies to enable the reCAPTCHA verification.', $content);
-        // The entered form data is preserved across the failed submit
         static::assertStringContainsString('recaptcha-test@shopware.com', $content);
     }
 
@@ -219,17 +228,36 @@ class CaptchaRouteListenerTest extends TestCase
             ],
         ]);
 
+        // Negative control guarding the flash assertion below against becoming vacuous:
+        // without a failed captcha POST, the message must not occur anywhere on the very
+        // same page (e.g. via the client-side validation message config).
+        $browser->request('GET', '/account/convert');
+        $convertPage = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $convertPage->getStatusCode(), $convertPage->getContent() ?: '');
+        static::assertStringNotContainsString(
+            'Please accept the technically required cookies to enable the reCAPTCHA verification.',
+            $convertPage->getContent() ?: ''
+        );
+
         // The conversion form posts no errorRoute and its template renders only
         // field-bound violations — the captcha failure must be visible via a flash.
-        $browser->request('POST', '/account/convert', $this->tokenize('frontend.account.convert.save', []));
+        $crawler = $browser->request('POST', '/account/convert', $this->tokenize('frontend.account.convert.save', []));
 
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
 
-        $content = $response->getContent();
-        static::assertIsString($content);
-        static::assertStringContainsString('Please accept the technically required cookies to enable the reCAPTCHA verification.', $content);
+        // The failure is announced as a danger flash on the re-rendered conversion form
+        $flash = $crawler->filter('.flashbags .alert-danger');
+        static::assertCount(1, $flash);
+        static::assertStringContainsString(
+            'Please accept the technically required cookies to enable the reCAPTCHA verification.',
+            $flash->text()
+        );
+        static::assertSame('true', $flash->attr('data-alert-aria'));
+        static::assertSame('assertive', $flash->attr('aria-live'));
+
+        static::assertCount(1, $crawler->filter('form[action="/account/convert"]'));
     }
 }

@@ -18,20 +18,6 @@
                       class="register-form"
                       method="post"
                       data-form-handler="true">
-                    {% block component_account_register_violations %}
-                        {% if formViolations is defined %}
-                            {# Collect violations not bound to a field (e.g. captcha) into one grouped alert. #}
-                            {% set formLevelViolations = formViolations.getViolations()|filter(v => v.propertyPath is empty)|map(v => "error.#{v.code}"|trans) %}
-
-                            {% if formLevelViolations is not empty %}
-                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                    type: 'danger',
-                                    list: formLevelViolations
-                                } %}
-                            {% endif %}
-                        {% endif %}
-                    {% endblock %}
-
                     {% block component_account_register_redirect %}
                         <input type="hidden"
                                name="redirectTo"

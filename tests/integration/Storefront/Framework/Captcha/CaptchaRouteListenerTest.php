@@ -184,4 +184,52 @@ class CaptchaRouteListenerTest extends TestCase
         // The entered form data is preserved across the failed submit
         static::assertStringContainsString('recaptcha-test@shopware.com', $content);
     }
+
+    public function testRecaptchaFailureOnGuestConversionShowsFlashMessage(): void
+    {
+        // Register a guest (no createCustomerAccount) before any captcha is active.
+        $browser = $this->createCustomSalesChannelBrowser();
+        $browser->request(
+            'POST',
+            '/account/register',
+            $this->tokenize('frontend.account.register.save', [
+                'errorRoute' => 'frontend.account.register.page',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Guest',
+                'lastName' => 'Convert',
+                'email' => 'guest-convert@shopware.com',
+                'billingAddress' => [
+                    'countryId' => $this->getValidCountryId(),
+                    'street' => 'Musterstrasse 13',
+                    'zipcode' => '48599',
+                    'city' => 'Epe',
+                ],
+            ])
+        );
+
+        $registerResponse = $browser->getResponse();
+        static::assertLessThan(400, $registerResponse->getStatusCode(), $registerResponse->getContent() ?: '');
+
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => ['secretKey' => 'secret123'],
+            ],
+        ]);
+
+        // The conversion form posts no errorRoute and its template renders only
+        // field-bound violations — the captcha failure must be visible via a flash.
+        $browser->request('POST', '/account/convert', $this->tokenize('frontend.account.convert.save', []));
+
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('Please accept the technically required cookies to enable the reCAPTCHA verification.', $content);
+    }
 }

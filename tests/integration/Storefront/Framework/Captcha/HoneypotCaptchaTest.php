@@ -43,7 +43,7 @@ class HoneypotCaptchaTest extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
      */
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testDeprecatedIsValidDelegatesToValidate(): void
+    public function testDeprecatedIsValidStillValidates(): void
     {
         static::assertTrue($this->captcha->isValid(self::getRequest(), []));
         static::assertFalse($this->captcha->isValid(

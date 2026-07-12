@@ -15,6 +15,24 @@
       "emptyStateTitle": "No content layouts yet",
       "emptyStateSubline": "Create your first content layout to get started."
     },
+    "createWizard": {
+      "title": "Create content layout",
+      "description": "Choose a name and the layout type before you start editing.",
+      "nameLabel": "Layout name",
+      "namePlaceholder": "Enter layout name...",
+      "typeLabel": "Layout type",
+      "typePlaceholder": "Select layout type...",
+      "loadingTypes": "Loading layout types...",
+      "typeLoadError": "Layout types could not be loaded.",
+      "noTypes": "No layout types are available.",
+      "start": "Start editing",
+      "missingFields": "Please provide a layout name and layout type before saving.",
+      "layoutTypes": {
+        "product": "Product",
+        "category": "Category",
+        "landing_page": "Landing page"
+      }
+    },
     "detail": {
       "toolbar": {
         "undo": "Undo",
@@ -49,11 +67,22 @@
       },
       "elementSettings": {
         "title": "Element settings",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
         "emptyState": "Select an element to edit its settings.",
         "loading": "Loading element settings...",
         "typeLoadError": "Element settings could not be loaded.",
+        "styleLoadError": "Layout settings could not be loaded.",
         "typeMissing": "No registered element type was found for this component yet.",
         "noEditableProperties": "This element does not provide editable primitive properties.",
+        "noEditableStyleOptions": "No layout style options are available.",
+        "viewportSettings": "Viewport settings",
+        "boxSpacingTop": "Top",
+        "boxSpacingRight": "Right",
+        "boxSpacingBottom": "Bottom",
+        "boxSpacingLeft": "Left",
+        "boxSpacingLinkSides": "Edit all sides together",
+        "boxSpacingUnlinkSides": "Edit sides individually",
         "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
         "inlineTextEditingActive": "Inline editing is currently active in the preview."
       },

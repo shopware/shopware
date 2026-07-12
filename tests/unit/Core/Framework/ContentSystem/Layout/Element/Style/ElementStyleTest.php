@@ -18,4 +18,13 @@ class ElementStyleTest extends TestCase
     {
         static::assertFalse((new ElementStyle(['col-span' => ['md' => 6]]))->isEmpty());
     }
+
+    #[TestDox('exposes style values for template access')]
+    public function testGetValuesReturnsConfiguredStyleMap(): void
+    {
+        $values = ['col-span' => ['lg' => 6, 'xl' => 8]];
+
+        static::assertSame($values, (new ElementStyle($values))->getValues());
+        static::assertSame($values, (new ElementStyle($values))->toArray());
+    }
 }

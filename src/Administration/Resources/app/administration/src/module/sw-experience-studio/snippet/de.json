@@ -15,6 +15,24 @@
       "emptyStateTitle": "Noch keine Inhaltslayouts",
       "emptyStateSubline": "Erstelle Dein erstes Inhaltslayout, um loszulegen."
     },
+    "createWizard": {
+      "title": "Inhaltslayout erstellen",
+      "description": "Wähle zuerst einen Namen und den Layout-Typ, bevor Du mit der Bearbeitung startest.",
+      "nameLabel": "Layout-Name",
+      "namePlaceholder": "Layout-Namen eingeben...",
+      "typeLabel": "Layout-Typ",
+      "typePlaceholder": "Layout-Typ auswählen...",
+      "loadingTypes": "Layout-Typen werden geladen...",
+      "typeLoadError": "Layout-Typen konnten nicht geladen werden.",
+      "noTypes": "Es sind keine Layout-Typen verfügbar.",
+      "start": "Bearbeitung starten",
+      "missingFields": "Bitte gib einen Layout-Namen und einen Layout-Typ an, bevor Du speicherst.",
+      "layoutTypes": {
+        "product": "Produkt",
+        "category": "Kategorie",
+        "landing_page": "Landingpage"
+      }
+    },
     "detail": {
       "toolbar": {
         "undo": "Rückgängig",
@@ -49,11 +67,22 @@
       },
       "elementSettings": {
         "title": "Element-Einstellungen",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
         "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten.",
         "loading": "Element-Einstellungen werden geladen ...",
         "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",
+        "styleLoadError": "Layout-Einstellungen konnten nicht geladen werden.",
         "typeMissing": "Für diese Komponente wurde noch kein registrierter Elementtyp gefunden.",
         "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
+        "noEditableStyleOptions": "Es sind keine Layout-Stiloptionen verfügbar.",
+        "viewportSettings": "Viewport-Einstellungen",
+        "boxSpacingTop": "Oben",
+        "boxSpacingRight": "Rechts",
+        "boxSpacingBottom": "Unten",
+        "boxSpacingLeft": "Links",
+        "boxSpacingLinkSides": "Alle Seiten gemeinsam bearbeiten",
+        "boxSpacingUnlinkSides": "Seiten einzeln bearbeiten",
         "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
         "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
       },

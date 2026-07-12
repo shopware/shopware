@@ -7,6 +7,20 @@
     {% block sw_experience_studio_detail_content %}
     <template #content>
         <div class="sw-experience-studio-detail__content">
+            <sw-experience-studio-create-wizard
+                v-if="showCreateWizard"
+                :name="createWizardName"
+                :selected-type="createWizardSelectedType"
+                :type-options="layoutTypeOptions"
+                :is-loading-types="isLoadingLayoutTypes"
+                :type-load-error="layoutTypeLoadError"
+                @update:name="onCreateWizardNameChange"
+                @update:selected-type="onCreateWizardTypeChange"
+                @complete="onCreateWizardComplete"
+                @cancel="onCreateWizardCancel"
+            />
+
+            <template v-else>
             {% block sw_experience_studio_detail_toolbar %}
             <sw-experience-studio-toolbar
                 :layout="layout"
@@ -52,6 +66,7 @@
                     :sales-channel-id="previewSalesChannelId"
                     :entity-type="previewEntityType"
                     :entity-id="previewEntityId"
+                    :style-options="styleOptionStore.optionsByName"
                     :suspend-auto-reload="isInlineEditing"
                     @select-element="onSelectElement"
                     @inline-edit-start="onInlineEditStart"
@@ -68,11 +83,15 @@
                     :selected-element-id="selectedElementId"
                     :selected-element="selectedElement"
                     :selected-element-type="selectedElementType"
+                    :style-options="styleOptionStore.optionsByName"
                     :is-loading-types="elementTypeStore.isLoading"
+                    :is-loading-style-options="styleOptionStore.isLoading"
                     :type-load-error="elementTypeStore.loadError"
+                    :style-option-load-error="styleOptionStore.loadError"
                     :allow-edit="allowSave"
                     :is-inline-editing-active="isInlineEditing"
                     @update-properties="onElementSettingsChange"
+                    @update-style="onElementStyleChange"
                 />
                 {% endblock %}
             </div>
@@ -87,6 +106,7 @@
                 @close="onCloseElementPicker"
                 @select="onSelectElementType"
             />
+            </template>
 
             <sw-loader v-if="isLoading" />
         </div>

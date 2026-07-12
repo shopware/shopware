@@ -8,6 +8,7 @@ import type {
     ContentLayoutDraftRemovePayload,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 
 import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
@@ -16,9 +17,11 @@ import {
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
+    updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
@@ -53,9 +56,15 @@ type MoveElementPayload = {
     newIndex: number | null;
 };
 
+type LayoutTypeOption = {
+    value: string;
+    label: string;
+    icon: string;
+};
+
 type LayoutPreviewContext = {
-    entityType: 'product' | 'category' | 'landing_page';
-    entityId: string;
+    entityType: string;
+    entityId: string | null;
     salesChannelId: string | null;
 };
 
@@ -73,6 +82,10 @@ type ContentSystemLayoutDraftMutationService = {
     removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
     moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
+};
+
+type ContentSystemEntityTypeService = {
+    getEntityTypes: () => Promise<string[]>;
 };
 
 /**
@@ -108,6 +121,11 @@ export default Shopware.Component.wrapComponentConfig({
         inlineEditSession: InlineEditSession;
         mutationRequestSequence: number;
         latestMutationRequestId: number;
+        availableLayoutTypes: string[];
+        isLoadingLayoutTypes: boolean;
+        layoutTypeLoadError: string | null;
+        createWizardName: string;
+        createWizardSelectedType: string | null;
     } {
         return {
             layout: null,
@@ -125,6 +143,11 @@ export default Shopware.Component.wrapComponentConfig({
             inlineEditSession: null,
             mutationRequestSequence: 0,
             latestMutationRequestId: 0,
+            availableLayoutTypes: [],
+            isLoadingLayoutTypes: false,
+            layoutTypeLoadError: null,
+            createWizardName: '',
+            createWizardSelectedType: null,
         };
     },
 
@@ -141,8 +164,16 @@ export default Shopware.Component.wrapComponentConfig({
             return getStorefrontSalesChannelCriteria(1);
         },
 
+        defaultPreviewEntityCriteria() {
+            return new Criteria(1, 1);
+        },
+
         layoutId(): string {
             return this.$route.params.id as string;
+        },
+
+        layoutRootSource(): string | null {
+            return this.getLayoutRootSource(this.layout);
         },
 
         layoutLoadCriteria() {
@@ -171,12 +202,36 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$route.name === 'sw.experience.studio.create';
         },
 
+        showCreateWizard(): boolean {
+            return this.isCreateMode && !this.hasCreateLayoutMetadata;
+        },
+
+        hasCreateLayoutMetadata(): boolean {
+            return Boolean(this.layoutRootSource && this.layout?.name?.trim().length);
+        },
+
+        layoutTypeOptions(): LayoutTypeOption[] {
+            return this.availableLayoutTypes.map((entityType) => {
+                const snippetKey = `sw-experience-studio.createWizard.layoutTypes.${entityType}`;
+
+                return {
+                    value: entityType,
+                    label: this.$te(snippetKey) ? this.$t(snippetKey) : entityType,
+                    icon: this.getLayoutTypeIcon(entityType),
+                };
+            });
+        },
+
         editorStore() {
             return Shopware.Store.get('experienceStudioEditor');
         },
 
         elementTypeStore() {
             return Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;
+        },
+
+        styleOptionStore() {
+            return Shopware.Store.get('experienceStudioStyleOption' as never) as ExperienceStudioStyleOptionStore;
         },
 
         canUndo(): boolean {
@@ -234,6 +289,8 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadLayout();
         void this.loadDefaultPreviewSalesChannel();
         void this.loadElementTypes();
+        void this.loadStyleOptions();
+        void this.loadLayoutTypes();
     },
 
     mounted(): void {
@@ -251,6 +308,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        sanitizeLayoutForWrite(layout: ContentElementNode[]): ContentElementNode[] {
+            return sanitizeContentElementLayoutForWrite(layout, this.styleOptionStore.optionsByName);
+        },
+
         async loadLayout(): Promise<void> {
             this.isLoading = true;
 
@@ -268,7 +329,10 @@ export default Shopware.Component.wrapComponentConfig({
                 );
             }
 
+            this.createWizardName = this.layout?.name ?? '';
+            this.createWizardSelectedType = this.layoutRootSource;
             this.applyPreviewContextDefaults();
+            await this.loadDefaultPreviewEntity();
             this.editorStore.initialize(this.layoutId);
             this.isLoading = false;
         },
@@ -305,6 +369,33 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        async loadDefaultPreviewEntity(): Promise<void> {
+            if (this.previewEntityId) {
+                return;
+            }
+
+            const previewEntityType = this.previewEntityType;
+
+            if (!previewEntityType) {
+                return;
+            }
+
+            try {
+                const repository = this.repositoryFactory.create(previewEntityType);
+                const entities = await repository.search(
+                    this.defaultPreviewEntityCriteria,
+                    Shopware.Context.api,
+                );
+                const firstEntity = entities.first();
+
+                if (!this.previewEntityId && firstEntity?.id) {
+                    this.previewEntityId = firstEntity.id;
+                }
+            } catch {
+                // Keep preview entity empty when no default entity can be loaded.
+            }
+        },
+
         applyPreviewContextDefaults(): void {
             const resolvedPreviewContext = this.resolvedPreviewContext;
 
@@ -317,9 +408,48 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        getFirstAssociationEntry(
-            association: unknown,
-        ): Record<string, unknown> | null {
+        onCreateWizardNameChange(name: string): void {
+            this.createWizardName = name;
+        },
+
+        onCreateWizardTypeChange(type: string | null): void {
+            this.createWizardSelectedType = type;
+        },
+
+        onCreateWizardCancel(): void {
+            this.onClickBack();
+        },
+
+        getLayoutTypeIcon(entityType: string): string {
+            const iconByEntityType: Record<string, string> = {
+                product: 'regular-products',
+                category: 'regular-sitemap',
+                landing_page: 'regular-dashboard',
+            };
+
+            return iconByEntityType[entityType] ?? 'regular-file';
+        },
+
+        onCreateWizardComplete(payload: { name: string; type: string }): void {
+            if (!this.layout) {
+                return;
+            }
+
+            this.layout.name = payload.name;
+            this.layout.rootSource = payload.type;
+            this.createWizardName = payload.name;
+            this.createWizardSelectedType = payload.type;
+            this.previewEntityId = null;
+            void this.loadDefaultPreviewEntity();
+        },
+
+        getLayoutRootSource(layout: Entity<'content_layout'> | null): string | null {
+            const rootSource = (layout as Entity<'content_layout'> & { rootSource?: unknown })?.rootSource;
+
+            return typeof rootSource === 'string' && rootSource.length > 0 ? rootSource : null;
+        },
+
+        getFirstAssociationEntry(association: unknown): Record<string, unknown> | null {
             if (!association) {
                 return null;
             }
@@ -337,7 +467,7 @@ export default Shopware.Component.wrapComponentConfig({
             return null;
         },
 
-        resolvePreviewContext(layout: Entity<'content_layout'> | null): LayoutPreviewContext | null {
+        resolveAssignedPreviewContext(layout: Entity<'content_layout'> | null): LayoutPreviewContext | null {
             if (!layout) {
                 return null;
             }
@@ -375,8 +505,57 @@ export default Shopware.Component.wrapComponentConfig({
             return null;
         },
 
+        resolvePreviewContext(layout: Entity<'content_layout'> | null): LayoutPreviewContext | null {
+            if (!layout) {
+                return null;
+            }
+
+            const assignedContext = this.resolveAssignedPreviewContext(layout);
+            const rootSource = this.getLayoutRootSource(layout);
+
+            if (!rootSource) {
+                return assignedContext;
+            }
+
+            if (assignedContext?.entityType === rootSource) {
+                return {
+                    entityType: rootSource,
+                    entityId: assignedContext.entityId,
+                    salesChannelId: assignedContext.salesChannelId,
+                };
+            }
+
+            return {
+                entityType: rootSource,
+                entityId: null,
+                salesChannelId: null,
+            };
+        },
+
         async loadElementTypes(): Promise<void> {
             await this.elementTypeStore.loadTypes();
+        },
+
+        async loadStyleOptions(): Promise<void> {
+            await this.styleOptionStore.loadStyleOptions();
+        },
+
+        entityTypeService(): ContentSystemEntityTypeService {
+            return Shopware.Service('contentSystemEntityTypeService') as ContentSystemEntityTypeService;
+        },
+
+        async loadLayoutTypes(): Promise<void> {
+            this.isLoadingLayoutTypes = true;
+            this.layoutTypeLoadError = null;
+
+            try {
+                this.availableLayoutTypes = await this.entityTypeService().getEntityTypes();
+            } catch {
+                this.layoutTypeLoadError = 'Failed to load layout types.';
+                this.availableLayoutTypes = [];
+            } finally {
+                this.isLoadingLayoutTypes = false;
+            }
         },
 
         onPreviewSalesChannelChange(salesChannelId: string | null): void {
@@ -530,7 +709,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.editorStore.pushToHistory(layoutElements, this.selectedElementId);
-            this.layout.layout = sanitizeContentElementLayoutForWrite(workingLayout);
+            this.layout.layout = this.sanitizeLayoutForWrite(workingLayout);
 
             if (result.selectedElementId !== undefined) {
                 this.selectedElementId = result.selectedElementId;
@@ -704,23 +883,21 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
+        onElementStyleChange(payload: {
+            elementId: string;
+            style: Record<string, unknown>;
+        }): void {
+            this.applyLayoutMutation((layout) => {
+                return updateElementStyleInLayout(layout, payload.elementId, payload.style) ? {} : false;
+            });
+        },
+
         draftMutationService(): ContentSystemLayoutDraftMutationService {
             return Shopware.Service('contentSystemLayoutDraftMutationService') as ContentSystemLayoutDraftMutationService;
         },
 
-        resolveMutationRootSource(): string {
-            if (!this.layout) {
-                return 'category';
-            }
-
-            const rootSource = (this.layout as Entity<'content_layout'> & { rootSource?: string | null }).rootSource;
-
-            if (typeof rootSource !== 'string' || rootSource.length === 0) {
-                // Temporary fallback until create-mode root source selection is implemented.
-                return 'category';
-            }
-
-            return rootSource;
+        resolveMutationRootSource(): string | null {
+            return this.getLayoutRootSource(this.layout);
         },
 
         extractMutationErrorCodes(error: unknown): string[] {
@@ -770,7 +947,7 @@ export default Shopware.Component.wrapComponentConfig({
             operationPayload: Record<string, unknown>,
         ): Record<string, unknown> {
             return {
-                layout: sanitizeContentElementLayoutForWrite(layout),
+                layout: this.sanitizeLayoutForWrite(layout),
                 rootSource: this.resolveMutationRootSource(),
                 ...operationPayload,
             };
@@ -824,7 +1001,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
-                this.layout.layout = sanitizeContentElementLayoutForWrite(response.layout as ContentElementNode[]);
+                this.layout.layout = this.sanitizeLayoutForWrite(response.layout as ContentElementNode[]);
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
@@ -1042,7 +1219,16 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            if (!this.layout.name?.trim() || !this.layoutRootSource) {
+                this.createNotificationWarning({
+                    message: this.$t('sw-experience-studio.createWizard.missingFields'),
+                });
+
+                return;
+            }
+
             const layout = this.layout;
+            layout.layout = this.sanitizeLayoutForWrite(castContentElementNodes(layout.layout));
 
             this.isLoading = true;
 

@@ -163,4 +163,51 @@
     &.justify-content-space-evenly {
         justify-content: space-evenly;
     }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        .display-#{$breakpoint} {
+            display: none;
+
+            @include media-breakpoint-only($breakpoint) {
+                display: block !important;
+            }
+        }
+    }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            @for $i from 1 through 12 {
+                .col-span-#{$breakpoint}-#{$i} {
+                    grid-column: span $i;
+                }
+
+                .row-span-#{$breakpoint}-#{$i} {
+                    grid-row: span $i;
+                }
+            }
+
+            $align-items: ('start', 'end', 'center', 'stretch');
+            @each $align-item in $align-items {
+                .align-items-#{$breakpoint}-#{$align-item} {
+                    align-items: $align-item;
+                }
+            }
+
+            $justify-items: ('start', 'end', 'center', 'stretch');
+            @each $justify-item in $justify-items {
+                .justify-items-#{$breakpoint}-#{$justify-item} {
+                    justify-items: $justify-item;
+                }
+            }
+        }
+    }
+
+    & > [data-element-id] {
+        @each $breakpoint, $value in $grid-breakpoints {
+            @include media-breakpoint-only($breakpoint) {
+                padding: var(--sw-element-padding-#{$breakpoint}, 0);
+                margin: var(--sw-element-margin-#{$breakpoint}, 0);
+            }
+        }
+    }
 }

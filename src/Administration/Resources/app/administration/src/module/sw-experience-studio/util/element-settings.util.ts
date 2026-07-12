@@ -6,30 +6,38 @@ import type {
 export type ElementPropertyControlType =
     | 'switch'
     | 'number'
+    | 'color'
     | 'select'
     | 'radio-panel'
     | 'entity'
     | 'media'
     | 'richtext'
     | 'text'
-    | 'responsive-number';
+    | 'responsive-number'
+    | 'box-spacing';
 
 const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType> = {
     // Meteor/basic
     'mt-switch': 'switch',
     'mt-number-field': 'number',
+    'mt-colorpicker': 'color',
     'mt-select': 'select',
     'radio-panel': 'radio-panel',
     'mt-text-editor': 'richtext',
     'mt-text-field': 'text',
     // Shopware/base wrappers
+    'color': 'color',
     'select': 'select',
+    'switch': 'switch',
+    'number': 'number',
+    'text': 'text',
     'text-editor': 'richtext',
     'entity-single-select': 'entity',
     'sw-entity-single-select': 'entity',
     'media-field': 'media',
     'sw-media-field': 'media',
     'responsive-number': 'responsive-number',
+    'box-spacing': 'box-spacing',
 };
 
 /**
@@ -77,6 +85,16 @@ export function getAdminUiProps(property: ContentSystemElementTypeProperty): Rec
     const props = property.adminUI?.props;
 
     return typeof props === 'object' && props !== null ? (props as Record<string, unknown>) : {};
+}
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function getAdminUiHelpText(property: ContentSystemElementTypeProperty): string | null {
+    const helpText = property.adminUI?.helpText;
+
+    return typeof helpText === 'string' && helpText.length > 0 ? helpText : null;
 }
 
 /**

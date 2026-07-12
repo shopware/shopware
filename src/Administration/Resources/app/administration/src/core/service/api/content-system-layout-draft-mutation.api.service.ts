@@ -13,9 +13,9 @@ export type ContentLayoutDraftMutationElement = {
     id: string;
     component: string;
     properties?: Record<string, unknown>;
-    data_requirements?: unknown;
-    provides_context?: unknown;
-    accepts_context?: unknown;
+    dataRequirements?: unknown;
+    providesContext?: unknown;
+    acceptsContext?: unknown;
     slots?: Record<string, ContentLayoutDraftMutationElement[]>;
 };
 

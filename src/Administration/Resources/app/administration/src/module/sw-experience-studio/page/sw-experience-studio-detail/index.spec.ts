@@ -84,24 +84,26 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             layout: {
                 rootSource: 'product',
             },
+            getLayoutRootSource: methods.getLayoutRootSource,
         };
 
         expect(methods.resolveMutationRootSource.call(vm)).toBe('product');
     });
 
-    it('falls back to category rootSource for new layouts', () => {
+    it('returns null rootSource when no rootSource is set', () => {
         const vm = {
             layout: {
                 rootSource: null,
             },
+            getLayoutRootSource: methods.getLayoutRootSource,
         };
 
-        expect(methods.resolveMutationRootSource.call(vm)).toBe('category');
+        expect(methods.resolveMutationRootSource.call(vm)).toBeNull();
     });
 
     it('creates draft mutation payload with sanitized layout and rootSource', () => {
         const vm = {
-            resolveMutationRootSource: () => 'category',
+            resolveMutationRootSource: () => null,
         };
 
         const payload = methods.createDraftMutationPayload.call(
@@ -120,9 +122,45 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             },
         );
 
-        expect(payload.rootSource).toBe('category');
+        expect(payload.rootSource).toBeNull();
         expect(payload.layout).toHaveLength(1);
         expect(payload.type).toBe('Sw:Content:Text');
+    });
+
+    it('derives preview entity type from layout rootSource', () => {
+        const vm = {
+            getLayoutRootSource: methods.getLayoutRootSource,
+            resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
+        };
+
+        const previewContext = methods.resolvePreviewContext.call(vm, {
+            rootSource: 'product',
+        });
+
+        expect(previewContext).toEqual({
+            entityType: 'product',
+            entityId: null,
+            salesChannelId: null,
+        });
+    });
+
+    it('loads first preview entity when assignment does not provide one', async () => {
+        const vm = {
+            previewEntityId: null,
+            previewEntityType: 'category',
+            repositoryFactory: {
+                create: jest.fn().mockReturnValue({
+                    search: jest.fn().mockResolvedValue({
+                        first: () => ({ id: 'entity-1' }),
+                    }),
+                }),
+            },
+            defaultPreviewEntityCriteria: {},
+        };
+
+        await methods.loadDefaultPreviewEntity.call(vm);
+
+        expect(vm.previewEntityId).toBe('entity-1');
     });
 
     it('moves element via structural draft mutation', async () => {

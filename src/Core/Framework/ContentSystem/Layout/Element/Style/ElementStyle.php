@@ -29,6 +29,14 @@ final readonly class ElementStyle
      */
     public function toArray(): array
     {
+        return $this->getValues();
+    }
+
+    /**
+     * @return array<string, string|int|float|bool|array<string, string|int|float|bool>>
+     */
+    public function getValues(): array
+    {
         return $this->values;
     }
 

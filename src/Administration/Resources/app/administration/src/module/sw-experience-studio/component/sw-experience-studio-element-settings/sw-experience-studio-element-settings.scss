@@ -4,218 +4,37 @@
     height: 100%;
     background: var(--color-elevation-surface-default);
 
-    &__header {
-        padding: 16px;
-        border-bottom: 1px solid var(--color-border-primary-default);
-
-        h3 {
-            margin: 0;
-            font-size: var(--font-size-s);
-            font-weight: var(--font-weight-semibold);
-        }
-    }
-
     &__content {
+        display: flex;
         flex: 1;
-        overflow: auto;
-        padding: 16px;
-    }
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
 
-    &__properties {
-        display: grid;
-        gap: 12px;
-    }
-
-    &__radio-panel-group {
-        display: grid;
-        gap: 8px;
-        margin-bottom: var(--scale-size-32);
-
-        > .sw-experience-studio-element-settings__radio-panel-label {
-            margin-bottom: 0;
+        > .mt-empty-state {
+            padding: 16px;
+            flex: 1;
+            overflow: auto;
         }
     }
 
-    &__radio-panel-label {
-        margin-bottom: 0;
-        cursor: default;
+    &__tabs-area {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
     }
 
-    &__radio-panel-options {
-        width: 100%;
-        height: var(--scale-size-40);
-        min-height: var(--scale-size-40);
-    }
-
-    &__radio-panel-options.sw-button-group .sw-experience-studio-element-settings__radio-panel-option.mt-button.mt-button--square {
-        flex: 1 1 0;
-        min-width: 0;
-        height: var(--scale-size-40);
-        min-height: var(--scale-size-40);
-    }
-
-    &__responsive-control {
-        margin-bottom: var(--scale-size-32);
-    }
-
-    &__responsive-slider {
+    &__tabs {
+        flex-shrink: 0;
         width: 100%;
     }
 
-    &__responsive-slider-input {
-        width: 100%;
-
-        .mt-field__label {
-            margin-bottom: 0;
-        }
-
-        &.mt-slider {
-            margin-bottom: 0;
-        }
-
-        &.mt-slider > .mt-block-field__block {
-            padding: 0;
-            gap: var(--scale-size-8);
-            align-items: center;
-            width: 100%;
-            min-height: var(--scale-size-48);
-            box-sizing: border-box;
-        }
-
-        &.mt-slider .mt-slider__slider .mt-slider__marks {
-            display: none;
-        }
-
-        &.mt-slider .mt-slider__slider .mt-slider__bar {
-            margin-top: 0;
-        }
-
-        &.mt-slider .mt-slider__input-slider__hint {
-            display: none;
-        }
-
-        &.mt-slider .mt-field__hint {
-            display: none;
-        }
-
-        &.mt-slider .mt-field--default .mt-block-field__block {
-            min-height: var(--scale-size-28);
-            min-width: var(--scale-size-40);
-        }
-
-        &.mt-slider .mt-number-field__controls {
-            display: none;
-        }
-
-        &.mt-slider .mt-field--default .mt-field__controls {
-            min-height: var(--scale-size-28);
-            height: var(--scale-size-28);
-        }
-
-        &.mt-slider .mt-field--default input {
-            font-size: var(--font-size-xs);
-            line-height: var(--scale-size-20);
-            text-align: center;
-            padding-top: var(--scale-size-2);
-            padding-bottom: var(--scale-size-2);
-            padding-left: var(--scale-size-2);
-            padding-right: var(--scale-size-2);
-            appearance: textfield;
-        }
-
-        &.mt-slider .mt-field--default input::-webkit-outer-spin-button,
-        &.mt-slider .mt-field--default input::-webkit-inner-spin-button {
-            margin: 0;
-            appearance: none;
-        }
-    }
-
-    &__responsive-slider-input.mt-slider > .mt-block-field__block {
-        width: 100%;
-        min-width: 0;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-        gap: var(--scale-size-8);
-        box-sizing: border-box;
-    }
-
-    &__responsive-slider-input.mt-slider > .mt-block-field__block > .mt-slider__slider {
-        flex: 1 1 0;
-        min-width: 0;
-        width: 100%;
-        max-width: 100%;
-    }
-
-    &__responsive-slider-input.mt-slider > .mt-block-field__block > .mt-field--default {
-        flex: 0 0 auto;
-        max-width: 100%;
-        margin-bottom: 0;
-        justify-self: end;
-    }
-
-    &__responsive-slider-input.mt-slider > .mt-block-field__block > .mt-slider__slider .mt-slider__slider {
-        width: auto;
-        min-width: 0;
-    }
-
-    &__viewport-toggle {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        background: transparent;
-        color: var(--color-interaction-primary-default);
-        font-size: var(--font-size-xs);
-        text-align: left;
-        cursor: pointer;
-    }
-
-    &__viewport-toggle:disabled {
-        color: var(--color-text-disabled);
-        cursor: default;
-    }
-
-    &__viewport-settings {
-        display: grid;
-        gap: 6px;
-        padding-top: 4px;
-    }
-
-    &__viewport-row {
-        display: grid;
-        grid-template-columns: auto auto 1fr;
-        gap: 8px;
-        align-items: center;
-    }
-
-    &__viewport-icon {
-        color: var(--color-text-secondary-default);
-    }
-
-    &__viewport-label {
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
-        min-width: 20px;
-    }
-
-    &__inline-text-hint {
-        display: grid;
-        gap: 8px;
-        padding: 12px;
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: var(--border-radius-default);
-        background: var(--color-background-primary-default);
-    }
-
-    &__inline-text-title {
-        color: var(--color-text-primary-default);
-        font-size: var(--font-size-s);
-        font-weight: var(--font-weight-semibold);
-    }
-
-    &__inline-text-description,
-    &__inline-text-state {
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
+    &__tab-panel {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 24px 16px 16px;
     }
 }

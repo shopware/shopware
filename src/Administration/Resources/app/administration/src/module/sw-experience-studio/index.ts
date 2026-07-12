@@ -3,6 +3,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 import './acl';
 import './store/experience-studio-editor.store';
 import './store/experience-studio-element-type.store';
+import './store/experience-studio-style-option.store';
 
 /**
  * @private
@@ -78,8 +79,35 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-settings-fields',
+    () => import('./component/sw-experience-studio-settings-fields'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-box-spacing-field',
+    () => import('./component/sw-experience-studio-box-spacing-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-element-picker',
     () => import('./component/sw-experience-studio-element-picker'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-create-wizard',
+    () => import('./component/sw-experience-studio-create-wizard'),
 );
 
 /**

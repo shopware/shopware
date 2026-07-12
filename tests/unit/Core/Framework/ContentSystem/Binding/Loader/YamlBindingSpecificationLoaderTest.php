@@ -131,6 +131,40 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         static::assertSame($id, $specifications[0]->id());
     }
 
+    #[TestDox('round-trips a synthesized default specification through load preserving source-qualified id, type, label, canonicalized resolves, and isDefault()')]
+    public function testSynthesizedDefaultRoundTripsLoad(): void
+    {
+        mkdir($this->tempDir . '/media', 0777, true);
+        file_put_contents(
+            $this->tempDir . '/media/image.yaml',
+            "meta:\n  label: Image\nproperties:\n  media:\n    type: Shopware\\Core\\Content\\Media\\MediaEntity\n    resolvedBy: mediaId\n",
+        );
+
+        $loader = new YamlBindingSpecificationLoader(
+            [new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')],
+            new ElementTypeNameResolver(),
+            new DefaultBindingSpecificationSynthesizer(),
+            new BindingSpecificationSerializer(),
+            $this->canonicalizerForSynthesisScenarios(),
+            $this->passingValidator(),
+        );
+
+        $specifications = $loader->load();
+
+        static::assertCount(1, $specifications);
+        $specification = $specifications[0];
+
+        static::assertSame('Sw:Media:Image', $specification->id());
+        static::assertSame('Sw:Media:Image', $specification->type());
+        static::assertSame('Image', $specification->label());
+        static::assertSame('core:Sw:Media:Image', $specification->qualifiedId());
+        static::assertTrue($specification->isDefault());
+        static::assertSame([], $specification->inputs());
+        static::assertArrayHasKey('media', $specification->resolves());
+        static::assertSame('entity', $specification->resolves()['media']->loader);
+        static::assertSame(['entity' => 'media', 'property' => 'mediaId'], $specification->resolves()['media']->config);
+    }
+
     #[DataProvider('throwsOnLoadFailureProvider')]
     #[TestDox('throws bindingSpecificationLoadFailed for $_dataName')]
     public function testThrowsOnLoadFailure(string $relativePath, string $body, string $reason): void
@@ -187,66 +221,16 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('rejects an inline entry that declares an explicit type')]
-    public function testRejectsInlineEntryWithExplicitType(): void
+    #[DataProvider('rejectsInlineEntryWithForbiddenKeyProvider')]
+    #[TestDox('rejects an inline entry that declares $_dataName')]
+    public function testRejectsInlineEntryWithForbiddenKey(string $forbiddenKey, string $yamlValue, string $expectedMessage): void
     {
         mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding:\n    type: Sw:Media:Image\n    label: x\n");
+        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding:\n    {$forbiddenKey}: {$yamlValue}\n    label: x\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
-            'image-binding',
-            'an inline binding entry must not declare "type"; the type is implicit from the containing element-type file.',
-        ));
-
-        $loader->load();
-    }
-
-    #[TestDox('rejects an inline entry that declares an explicit id')]
-    public function testRejectsInlineEntryWithExplicitId(): void
-    {
-        mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding:\n    id: something-else\n    label: x\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
-            'image-binding',
-            'an inline binding entry must not declare "id"; the map key is the id.',
-        ));
-
-        $loader->load();
-    }
-
-    #[TestDox('fails hard when the bindings section is not a map, naming the file')]
-    public function testFailsOnNonMapBindingsSection(): void
-    {
-        mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings: not-a-map\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
-            $this->tempDir . '/media/image.yaml',
-            'the "bindings" section must be a map of specification id to entry, got string',
-        ));
-
-        $loader->load();
-    }
-
-    #[TestDox('fails hard when an inline entry is not a map, naming the file')]
-    public function testFailsOnNonMapInlineEntry(): void
-    {
-        mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  image-binding: not-a-map\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
-            $this->tempDir . '/media/image.yaml',
-            'the "bindings" entry "image-binding" must be a map, got string',
-        ));
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed('image-binding', $expectedMessage));
 
         $loader->load();
     }
@@ -293,24 +277,11 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     #[TestDox('rejects an authored bindings: id equal to the containing file\'s implicit type name as a reserved id')]
     public function testRejectsAuthoredIdEqualToImplicitTypeName(): void
     {
+        // The type name is reserved unconditionally, independent of whether the file synthesizes a default:
+        // this fixture declares no properties at all, so it synthesizes nothing, yet the reserved-id guard
+        // still fires.
         mkdir($this->tempDir . '/media', 0777, true);
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  \"Sw:Media:Image\":\n    label: x\n");
-
-        $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
-
-        $path = $this->tempDir . '/media/image.yaml';
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationReservedId('Sw:Media:Image', 'Sw:Media:Image', $path));
-
-        $loader->load();
-    }
-
-    #[TestDox('rejects the reserved-id collision even when the file declares no resolvedBy property and synthesizes nothing')]
-    public function testRejectsReservedIdEvenWhenFileSynthesizesNothing(): void
-    {
-        // The type name is reserved unconditionally, independent of whether this particular file happens to
-        // synthesize a default: this file carries no properties at all.
-        mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents($this->tempDir . '/media/image.yaml', "meta:\n  label: Image\nbindings:\n  \"Sw:Media:Image\":\n    label: x\n");
 
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')]);
 
@@ -377,40 +348,6 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('a synthesized default specification round-trips load(): source-qualified id, type, label, canonicalized resolves, and isDefault()')]
-    public function testSynthesizedDefaultRoundTripsLoad(): void
-    {
-        mkdir($this->tempDir . '/media', 0777, true);
-        file_put_contents(
-            $this->tempDir . '/media/image.yaml',
-            "meta:\n  label: Image\nproperties:\n  media:\n    type: Shopware\\Core\\Content\\Media\\MediaEntity\n    resolvedBy: mediaId\n",
-        );
-
-        $loader = new YamlBindingSpecificationLoader(
-            [new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')],
-            new ElementTypeNameResolver(),
-            new DefaultBindingSpecificationSynthesizer(),
-            new BindingSpecificationSerializer(),
-            $this->canonicalizerForSynthesisScenarios(),
-            $this->passingValidator(),
-        );
-
-        $specifications = $loader->load();
-
-        static::assertCount(1, $specifications);
-        $specification = $specifications[0];
-
-        static::assertSame('Sw:Media:Image', $specification->id());
-        static::assertSame('Sw:Media:Image', $specification->type());
-        static::assertSame('Image', $specification->label());
-        static::assertSame('core:Sw:Media:Image', $specification->qualifiedId());
-        static::assertTrue($specification->isDefault());
-        static::assertSame([], $specification->inputs());
-        static::assertArrayHasKey('media', $specification->resolves());
-        static::assertSame('entity', $specification->resolves()['media']->loader);
-        static::assertSame(['entity' => 'media', 'property' => 'mediaId'], $specification->resolves()['media']->config);
-    }
-
     /**
      * @return iterable<string, array{string, string, string}>
      */
@@ -421,6 +358,17 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         yield 'non-string id' => ['media/image.yaml', "bindings:\n  123:\n    label: x\n", 'missing or empty "id"'];
         yield 'id exceeds max length' => ['media/image.yaml', "bindings:\n  " . str_repeat('a', 256) . ":\n    label: x\n", 'id exceeds the maximum length of 255 characters'];
         yield 'scalar body' => ['media/scalar.yaml', 'just a string', 'YAML file must contain an array/map, got string'];
+        yield 'bindings section is not a map' => ['media/image.yaml', "bindings: not-a-map\n", 'the "bindings" section must be a map of specification id to entry, got string'];
+        yield 'bindings entry is not a map' => ['media/image.yaml', "bindings:\n  image-binding: not-a-map\n", 'the "bindings" entry "image-binding" must be a map, got string'];
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function rejectsInlineEntryWithForbiddenKeyProvider(): iterable
+    {
+        yield 'explicit type' => ['type', 'Sw:Media:Image', 'an inline binding entry must not declare "type"; the type is implicit from the containing element-type file.'];
+        yield 'explicit id' => ['id', 'something-else', 'an inline binding entry must not declare "id"; the map key is the id.'];
     }
 
     /**

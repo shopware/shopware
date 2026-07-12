@@ -32,6 +32,14 @@ class BindingSpecificationTest extends TestCase
         static::assertSame(['filter' => 'active'], $schema['resolves']['image']['config']);
     }
 
+    #[TestDox('qualifiedId() joins the source and id with a colon')]
+    public function testQualifiedIdJoinsSourceAndIdWithColon(): void
+    {
+        $specification = new BindingSpecification('image', 'cms_text', 'Text', [], [], 'core');
+
+        static::assertSame('core:image', $specification->qualifiedId());
+    }
+
     /**
      * @param array<string, mixed> $expected
      */
@@ -46,18 +54,13 @@ class BindingSpecificationTest extends TestCase
         static::assertSame($expected, $schema['inputs']['title']);
     }
 
-    #[TestDox('toSchema() includes id, type and label, and emits [] (not {}) for empty resolves and inputs')]
-    public function testToSchemaEmitsEmptyArraysForEmptyResolvesAndInputs(): void
+    #[DataProvider('emitsSchemaDefaultProvider')]
+    #[TestDox('toSchema() emits $_dataName')]
+    public function testToSchemaEmitsDefault(string $id, bool $expected): void
     {
-        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core');
+        $specification = new BindingSpecification($id, 'cms_text', 'Text', [], [], 'core');
 
-        $schema = $specification->toSchema();
-
-        static::assertSame('binding-1', $schema['id']);
-        static::assertSame('cms_text', $schema['type']);
-        static::assertSame('Text', $schema['label']);
-        static::assertSame([], $schema['resolves']);
-        static::assertSame([], $schema['inputs']);
+        static::assertSame($expected, $specification->toSchema()['default']);
     }
 
     #[TestDox('isDefault() is false when the id differs from the type')]
@@ -76,20 +79,30 @@ class BindingSpecificationTest extends TestCase
         static::assertTrue($specification->isDefault());
     }
 
-    #[TestDox('toSchema() emits default:false when the id differs from the type')]
-    public function testToSchemaEmitsDefaultFalseWhenIdDiffersFromType(): void
+    #[TestDox('toSchema() includes id, type and label, and emits [] (not {}) for empty resolves and inputs')]
+    public function testToSchemaEmitsEmptyArraysForEmptyResolvesAndInputs(): void
     {
         $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', [], [], 'core');
 
-        static::assertFalse($specification->toSchema()['default']);
+        $schema = $specification->toSchema();
+
+        static::assertSame('binding-1', $schema['id']);
+        static::assertSame('cms_text', $schema['type']);
+        static::assertSame('Text', $schema['label']);
+        static::assertSame([], $schema['resolves']);
+        static::assertSame([], $schema['inputs']);
     }
 
-    #[TestDox('toSchema() emits default:true when the id equals the type')]
-    public function testToSchemaEmitsDefaultTrueWhenIdEqualsType(): void
+    #[TestDox('toSchema() emits [] (not {}) for a resolves entry whose loader config is empty')]
+    public function testToSchemaEmitsEmptyArrayForEmptyResolvesConfig(): void
     {
-        $specification = new BindingSpecification('cms_text', 'cms_text', 'Text', [], [], 'core');
+        $resolves = ['image' => new LoaderBinding('product', [])];
 
-        static::assertTrue($specification->toSchema()['default']);
+        $specification = new BindingSpecification('binding-1', 'cms_text', 'Text', $resolves, [], 'core');
+
+        $schema = $specification->toSchema();
+
+        static::assertSame([], $schema['resolves']['image']['config']);
     }
 
     /**
@@ -102,5 +115,14 @@ class BindingSpecificationTest extends TestCase
         yield 'with explicit null default' => [new BindingInput(true, null, false), ['default' => null, 'required' => false]];
         yield 'required without default' => [new BindingInput(false, null, true), ['required' => true]];
         yield 'required with default value' => [new BindingInput(true, 'Untitled', true), ['default' => 'Untitled', 'required' => true]];
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function emitsSchemaDefaultProvider(): iterable
+    {
+        yield 'default true when id equals type' => ['cms_text', true];
+        yield 'default false when id differs from type' => ['binding-1', false];
     }
 }

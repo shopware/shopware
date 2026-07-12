@@ -17,8 +17,8 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
 {
     private const PATH = '/types/media/image.yaml';
 
-    #[TestDox('synthesizes a specification whose id is the type name for a bare-string resolvedBy property')]
-    public function testSynthesizesIdAsTypeName(): void
+    #[TestDox('synthesizes the default specification with the type name as id and label and no inputs key')]
+    public function testSynthesizesDefaultSpecificationShape(): void
     {
         $synthesizer = new DefaultBindingSpecificationSynthesizer();
 
@@ -30,21 +30,8 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame('Sw:Media:Image', $result['type']);
-    }
-
-    #[TestDox('falls back the label to the type name when meta.label is absent')]
-    public function testLabelFallsBackToTypeNameWhenMetaLabelAbsent(): void
-    {
-        $synthesizer = new DefaultBindingSpecificationSynthesizer();
-
-        $result = $synthesizer->synthesize(
-            ['properties' => ['media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => 'mediaId']]],
-            'Sw:Media:Image',
-            self::PATH,
-        );
-
-        static::assertNotNull($result);
         static::assertSame('Sw:Media:Image', $result['label']);
+        static::assertArrayNotHasKey('inputs', $result);
     }
 
     #[TestDox('uses meta.label as the label when present')]
@@ -105,43 +92,54 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
         static::assertSame($resolvedBy, $result['resolves']['media']);
     }
 
-    #[TestDox('no resolves key does not carry an inputs key at all')]
-    public function testSynthesizedSpecificationCarriesNoInputsKey(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('returnsNullProvider')]
+    #[TestDox('returns null when $_dataName')]
+    public function testReturnsNull(array $data): void
+    {
+        $synthesizer = new DefaultBindingSpecificationSynthesizer();
+
+        static::assertNull($synthesizer->synthesize($data, 'Sw:Media:Image', self::PATH));
+    }
+
+    #[TestDox('performs no collision check when no string storage key can be extracted from a map-form resolvedBy value')]
+    public function testNoCollisionCheckWhenStorageKeyIsNotExtractable(): void
     {
         $synthesizer = new DefaultBindingSpecificationSynthesizer();
 
         $result = $synthesizer->synthesize(
-            ['properties' => ['media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => 'mediaId']]],
+            [
+                'properties' => [
+                    // The single-key form's "property" sub-value is not a string, so no storage key is
+                    // extractable; this must not throw even though "mediaId" is also a declared property below.
+                    'media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => ['entity' => ['property' => 123]]],
+                    'mediaId' => ['type' => 'string'],
+                ],
+            ],
             'Sw:Media:Image',
             self::PATH,
         );
 
         static::assertNotNull($result);
-        static::assertArrayNotHasKey('inputs', $result);
+        static::assertSame(['entity' => ['property' => 123]], $result['resolves']['media']);
     }
 
-    #[TestDox('returns null when no property carries resolvedBy')]
-    public function testReturnsNullWhenNoPropertyCarriesResolvedBy(): void
+    #[TestDox('mints an id at exactly the maximum length of 255 characters without throwing')]
+    public function testMintsIdAtExactlyMaxLength(): void
     {
         $synthesizer = new DefaultBindingSpecificationSynthesizer();
+        $type = str_repeat('a', 255);
 
         $result = $synthesizer->synthesize(
-            ['properties' => ['media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity']]],
-            'Sw:Media:Image',
+            ['properties' => ['media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => 'mediaId']]],
+            $type,
             self::PATH,
         );
 
-        static::assertNull($result);
-    }
-
-    #[TestDox('returns null when the file declares no properties at all')]
-    public function testReturnsNullWhenNoPropertiesDeclared(): void
-    {
-        $synthesizer = new DefaultBindingSpecificationSynthesizer();
-
-        $result = $synthesizer->synthesize(['meta' => ['label' => 'Image']], 'Sw:Media:Image', self::PATH);
-
-        static::assertNull($result);
+        static::assertNotNull($result);
+        static::assertSame($type, $result['type']);
     }
 
     #[TestDox('throws a load-failed error naming the file when a property entry is not a map')]
@@ -187,7 +185,7 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
         );
     }
 
-    #[DataProvider('nonReferenceTypeProvider')]
+    #[DataProvider('throwsOnNonReferencePropertyProvider')]
     #[TestDox('throws a load-failed error naming the file when resolvedBy is declared on a $_dataName property')]
     public function testThrowsWhenResolvedByOnNonReferenceProperty(string $type): void
     {
@@ -202,19 +200,11 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @param string|array<string, mixed> $resolvedBy
      */
-    public static function nonReferenceTypeProvider(): iterable
-    {
-        yield 'string' => ['string'];
-        yield 'integer' => ['integer'];
-        yield 'number' => ['number'];
-        yield 'boolean' => ['boolean'];
-        yield 'object' => ['object'];
-    }
-
-    #[TestDox('throws a load-failed error naming the file when a bare-string storage key collides with a declared property key')]
-    public function testThrowsWhenStorageKeyCollidesWithDeclaredPropertyKey(): void
+    #[DataProvider('throwsOnCollidingStorageKeyProvider')]
+    #[TestDox('throws a load-failed error naming the file when a colliding storage key comes from the $_dataName')]
+    public function testThrowsOnCollidingStorageKey(string|array $resolvedBy): void
     {
         $synthesizer = new DefaultBindingSpecificationSynthesizer();
 
@@ -226,7 +216,7 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
         $synthesizer->synthesize(
             [
                 'properties' => [
-                    'media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => 'mediaId'],
+                    'media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => $resolvedBy],
                     'mediaId' => ['type' => 'string'],
                 ],
             ],
@@ -257,91 +247,6 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
         );
     }
 
-    #[TestDox('detects a storage-key collision when the storage key is extracted from the single-key loader form')]
-    public function testDetectsCollisionFromSingleKeyLoaderForm(): void
-    {
-        $synthesizer = new DefaultBindingSpecificationSynthesizer();
-
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
-            self::PATH,
-            'the resolvedBy storage key "mediaId" of property "media" collides with a declared property key of the same name; choose a different storage key',
-        ));
-
-        $synthesizer->synthesize(
-            [
-                'properties' => [
-                    'media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => ['entity' => ['property' => 'mediaId']]],
-                    'mediaId' => ['type' => 'string'],
-                ],
-            ],
-            'Sw:Media:Image',
-            self::PATH,
-        );
-    }
-
-    #[TestDox('detects a storage-key collision when the storage key is extracted from the canonical loader form')]
-    public function testDetectsCollisionFromCanonicalLoaderForm(): void
-    {
-        $synthesizer = new DefaultBindingSpecificationSynthesizer();
-
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed(
-            self::PATH,
-            'the resolvedBy storage key "mediaId" of property "media" collides with a declared property key of the same name; choose a different storage key',
-        ));
-
-        $synthesizer->synthesize(
-            [
-                'properties' => [
-                    'media' => [
-                        'type' => 'Shopware\\Core\\Content\\Media\\MediaEntity',
-                        'resolvedBy' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
-                    ],
-                    'mediaId' => ['type' => 'string'],
-                ],
-            ],
-            'Sw:Media:Image',
-            self::PATH,
-        );
-    }
-
-    #[TestDox('performs no collision check when no string storage key can be extracted from a map-form resolvedBy value')]
-    public function testNoCollisionCheckWhenStorageKeyIsNotExtractable(): void
-    {
-        $synthesizer = new DefaultBindingSpecificationSynthesizer();
-
-        $result = $synthesizer->synthesize(
-            [
-                'properties' => [
-                    // The single-key form's "property" sub-value is not a string, so no storage key is
-                    // extractable; this must not throw even though "mediaId" is also a declared property below.
-                    'media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => ['entity' => ['property' => 123]]],
-                    'mediaId' => ['type' => 'string'],
-                ],
-            ],
-            'Sw:Media:Image',
-            self::PATH,
-        );
-
-        static::assertNotNull($result);
-        static::assertSame(['entity' => ['property' => 123]], $result['resolves']['media']);
-    }
-
-    #[TestDox('mints an id at exactly the maximum length of 255 characters without throwing')]
-    public function testMintsIdAtExactlyMaxLength(): void
-    {
-        $synthesizer = new DefaultBindingSpecificationSynthesizer();
-        $type = str_repeat('a', 255);
-
-        $result = $synthesizer->synthesize(
-            ['properties' => ['media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity', 'resolvedBy' => 'mediaId']]],
-            $type,
-            self::PATH,
-        );
-
-        static::assertNotNull($result);
-        static::assertSame($type, $result['type']);
-    }
-
     #[TestDox('throws a load-failed error when the minted id exceeds the maximum length of 255 characters')]
     public function testThrowsWhenMintedIdExceedsMaxLength(): void
     {
@@ -358,5 +263,36 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
             $type,
             self::PATH,
         );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function returnsNullProvider(): iterable
+    {
+        yield 'no property carries resolvedBy' => [['properties' => ['media' => ['type' => 'Shopware\\Core\\Content\\Media\\MediaEntity']]]];
+        yield 'no properties declared' => [['meta' => ['label' => 'Image']]];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function throwsOnNonReferencePropertyProvider(): iterable
+    {
+        yield 'string' => ['string'];
+        yield 'integer' => ['integer'];
+        yield 'number' => ['number'];
+        yield 'boolean' => ['boolean'];
+        yield 'object' => ['object'];
+    }
+
+    /**
+     * @return iterable<string, array{string|array<string, mixed>}>
+     */
+    public static function throwsOnCollidingStorageKeyProvider(): iterable
+    {
+        yield 'declared property key form' => ['mediaId'];
+        yield 'single-key loader form' => [['entity' => ['property' => 'mediaId']]];
+        yield 'canonical loader form' => [['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]];
     }
 }

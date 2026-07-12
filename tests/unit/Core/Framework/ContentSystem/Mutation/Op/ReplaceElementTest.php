@@ -51,6 +51,32 @@ class ReplaceElementTest extends TestCase
         static::assertSame('Sw:New', $result[0]->getComponent());
     }
 
+    #[TestDox('keeps wiring whose key matches a new-type reference property and does not report it as dropped')]
+    public function testReplaceKeepsMatchingWiring(): void
+    {
+        $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
+        $tree = [new ContentElement('el', 'Sw:Old', ['product' => $requirement])];
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame(['product' => $requirement], $result[0]->getDataRequirements());
+        static::assertSame([], $replace->droppedWiring());
+    }
+
+    #[TestDox('keeps the children of a slot that exists in the new type')]
+    public function testReplaceKeepsKnownSlot(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old', [], [], [
+            'content' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
+        ])];
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        $children = array_values($result[0]->getSlots()['content']->getElements());
+        static::assertSame('child', $children[0]->getId());
+    }
+
     /**
      * @param array<string, mixed> $oldProperties
      * @param array<string, mixed> $expectedKept
@@ -66,59 +92,6 @@ class ReplaceElementTest extends TestCase
         static::assertSame($expectedKept, $result[0]->getProperties());
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>, array<string, mixed>}>
-     */
-    public static function carriesOverPropertiesProvider(): iterable
-    {
-        yield 'matching string kept' => [['headline' => 'Hi'], ['headline' => 'Hi']];
-        yield 'matching integer kept' => [['count' => 5], ['count' => 5]];
-        yield 'matching number keeps an int' => [['ratio' => 5], ['ratio' => 5]];
-        yield 'matching number keeps a float' => [['ratio' => 1.5], ['ratio' => 1.5]];
-        yield 'matching boolean kept' => [['featured' => true], ['featured' => true]];
-        yield 'mismatched type dropped' => [['count' => 'text'], []];
-        yield 'float dropped from an integer property' => [['count' => 1.5], []];
-        yield 'key absent from new type dropped' => [['ghost' => 'x'], []];
-        yield 'scalar under a reference key dropped' => [['product' => 'oops'], []];
-    }
-
-    #[TestDox('reports static property values the new type cannot hold via droppedProperties')]
-    public function testReplaceReportsDroppedProperties(): void
-    {
-        $tree = [new ContentElement('el', 'Sw:Old', [], [
-            'headline' => 'Hi',
-            'ghost' => 'orphaned-value',
-            'count' => 'not-an-int',
-        ])];
-
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply($tree);
-
-        static::assertSame(['headline' => 'Hi'], $result[0]->getProperties());
-        static::assertSame(['ghost' => 'orphaned-value', 'count' => 'not-an-int'], $replace->droppedProperties());
-    }
-
-    #[TestDox('resets droppedProperties on re-apply so a second run does not accumulate the first run drops')]
-    public function testReplaceResetsDroppedPropertiesOnReapply(): void
-    {
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-
-        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['ghost' => 'first-run'])]);
-        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'second-run'])]);
-
-        static::assertSame(['count' => 'second-run'], $replace->droppedProperties());
-    }
-
-    #[TestDox('seeds the new type primitive default for a key the old element lacked')]
-    public function testReplaceSeedsNewTypeDefaultForAbsentKey(): void
-    {
-        $tree = [new ContentElement('el', 'Sw:Old')];
-
-        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame('Default tagline', $result[0]->getProperty('tagline'));
-    }
-
     #[TestDox('does not overwrite a carried-over authored value with the new type default')]
     public function testReplaceKeepsAuthoredValueOverNewTypeDefault(): void
     {
@@ -127,28 +100,6 @@ class ReplaceElementTest extends TestCase
         $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
 
         static::assertSame('Authored', $result[0]->getProperty('headline'));
-    }
-
-    #[TestDox('seeds the new type default for a key whose type-incompatible old value was dropped')]
-    public function testReplaceSeedsNewTypeDefaultForDroppedIncompatibleKey(): void
-    {
-        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-
-        $result = $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'not-an-int'])]);
-
-        static::assertSame(['count' => 'not-an-int'], $replace->droppedProperties());
-        static::assertSame(7, $result[0]->getProperty('count'));
-    }
-
-    #[TestDox('does not throw and applies no additional wiring when the new type has no default specification')]
-    public function testReplaceWithNoDefaultAppliesNothingExtra(): void
-    {
-        $tree = [new ContentElement('el', 'Sw:Old')];
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame([], $result[0]->getDataRequirements());
-        static::assertSame([], $result[0]->getAttributedSpecifications());
     }
 
     #[TestDox('preserves carried wiring for a shared key but still fill-applies the default for a key the carry left unwired')]
@@ -174,75 +125,77 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['product' => 'core:carried-spec', 'gallery' => 'core:Sw:New'], $result[0]->getAttributedSpecifications());
     }
 
-    #[TestDox('rejects a new type with more than one default specification with a 409 naming the colliding qualified ids')]
-    public function testReplaceWithAmbiguousDefaultThrows(): void
+    /**
+     * @param array<int, string>|string $propertyValue
+     * @param array<int, string>|string $expectedValue
+     */
+    #[DataProvider('carriesStorageKeyMatchingLoaderShapeProvider')]
+    #[TestDox('carries a stored value under a resolvedBy storage key when its shape matches the loader branch')]
+    public function testReplaceCarriesStorageKeyMatchingLoaderShape(string $propertyKey, mixed $propertyValue, string $loaderType, mixed $expectedValue): void
     {
-        $first = new BindingSpecification('Sw:New', 'Sw:New', 'New', [], [], 'core');
-        $second = new BindingSpecification('Sw:New', 'Sw:New', 'New', [], [], 'app1');
-
-        $replace = new ReplaceElement(
-            $this->registry(),
-            'el',
-            'Sw:New',
-            $this->bindingRegistry(['core:Sw:New' => $first, 'app1:Sw:New' => $second]),
-            $this->unboundApplicator(),
-        );
-
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:New', ['core:Sw:New', 'app1:Sw:New']));
-        $replace->apply([new ContentElement('el', 'Sw:Old')]);
-    }
-
-    #[TestDox('carries a stored value under a resolvedBy storage key when its shape matches the entity loader branch (a single id string)')]
-    public function testReplaceCarriesStorageKeyMatchingEntityShape(): void
-    {
-        $tree = [new ContentElement('el', 'Sw:Old', [], ['mediaId' => 'media-1'])];
-        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])], [], 'core');
+        $tree = [new ContentElement('el', 'Sw:Old', [], [$propertyKey => $propertyValue])];
+        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['ref' => new LoaderBinding($loaderType, ['entity' => 'media', 'property' => $propertyKey])], [], 'core');
 
         $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))))->apply($tree);
 
-        static::assertSame('media-1', $result[0]->getProperty('mediaId'));
+        static::assertSame($expectedValue, $result[0]->getProperty($propertyKey));
     }
 
-    #[TestDox('carries a stored value under a resolvedBy storage key when its shape matches the entity_collection loader branch (a list of id strings)')]
-    public function testReplaceCarriesStorageKeyMatchingEntityCollectionShape(): void
+    #[TestDox('keeps context definitions whose key matches a new-type reference property and drops the rest')]
+    public function testReplaceContextDefinitionsCarryover(): void
     {
-        $tree = [new ContentElement('el', 'Sw:Old', [], ['galleryIds' => ['media-1', 'media-2']])];
-        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'galleryIds'])], [], 'core');
+        $kept = new ContextConsumer(ContextType::Single, true);
+        $dropped = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
+        $definitions = new ContextDefinitions(['legacy' => $dropped], ['product' => $kept]);
+        $tree = [new ContentElement('el', 'Sw:Old', [], [], [], $definitions)];
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))))->apply($tree);
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
 
-        static::assertSame(['media-1', 'media-2'], $result[0]->getProperty('galleryIds'));
+        static::assertSame(['product' => $kept], $result[0]->getAcceptsContext());
+        static::assertSame([], $result[0]->getProvidesContext());
     }
 
-    #[TestDox('drops and reports a stored value under a resolvedBy storage key whose shape does not match its loader branch')]
-    public function testReplaceDropsAndReportsStorageKeyShapeMismatch(): void
+    #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
+    public function testReplaceCarriesStyleUnconditionally(): void
     {
-        $tree = [new ContentElement('el', 'Sw:Old', [], ['mediaId' => ['not', 'a', 'string']])];
-        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])], [], 'core');
+        $style = new ElementStyle(['col-span' => ['md' => 6], 'display' => ['xs' => false]]);
+        $tree = [new ContentElement('el', 'Sw:Old', [], [], [], new ContextDefinitions([], []), $style)];
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
-        $result = $replace->apply($tree);
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
 
-        static::assertFalse($result[0]->hasProperty('mediaId'));
-        static::assertSame(['mediaId' => ['not', 'a', 'string']], $replace->droppedProperties());
+        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
     }
 
-    #[TestDox('drops and reports a stored value under a resolvedBy storage key whose loader is not one of the two built-in resolvedBy loaders')]
-    public function testReplaceDropsStorageKeyWiredByNonBuiltinLoader(): void
+    #[TestDox('seeds the new type primitive default for a key the old element lacked')]
+    public function testReplaceSeedsNewTypeDefaultForAbsentKey(): void
     {
-        // carryableStorageKeys() maps only resolves entries whose loader passes ResolvedByLoaderBranch::fromLoaderSource();
-        // the "navigation" loader is neither built-in resolvedBy loader, so it contributes no carryable storage key and
-        // the correspondingly-named stored value falls through to droppedProperties. The config still names "activeId"
-        // via a "property" key so the drop is attributable solely to the loader-source gate: if it regressed to accept
-        // "navigation", the stored string would match the entity branch and be carried instead.
-        $tree = [new ContentElement('el', 'Sw:Old', [], ['activeId' => 'category-1'])];
-        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['navigation' => new LoaderBinding('navigation', ['entity' => 'category', 'property' => 'activeId'])], [], 'core');
+        $tree = [new ContentElement('el', 'Sw:Old')];
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
-        $result = $replace->apply($tree);
+        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
 
-        static::assertFalse($result[0]->hasProperty('activeId'));
-        static::assertSame(['activeId' => 'category-1'], $replace->droppedProperties());
+        static::assertSame('Default tagline', $result[0]->getProperty('tagline'));
+    }
+
+    #[TestDox('seeds the new type default for a key whose type-incompatible old value was dropped')]
+    public function testReplaceSeedsNewTypeDefaultForDroppedIncompatibleKey(): void
+    {
+        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+
+        $result = $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'not-an-int'])]);
+
+        static::assertSame(['count' => 'not-an-int'], $replace->droppedProperties());
+        static::assertSame(7, $result[0]->getProperty('count'));
+    }
+
+    #[TestDox('does not throw and applies no additional wiring when the new type has no default specification')]
+    public function testReplaceWithNoDefaultAppliesNothingExtra(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old')];
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        static::assertSame([], $result[0]->getDataRequirements());
+        static::assertSame([], $result[0]->getAttributedSpecifications());
     }
 
     #[TestDox('applies the declared-primitive rule, not the storage-key shape check, for a key that is both, dropping a value the primitive type rejects')]
@@ -277,17 +230,62 @@ class ReplaceElementTest extends TestCase
         static::assertSame([], $replace->droppedProperties());
     }
 
-    #[TestDox('keeps wiring whose key matches a new-type reference property and does not report it as dropped')]
-    public function testReplaceKeepsMatchingWiring(): void
+    #[TestDox('reports static property values the new type cannot hold via droppedProperties')]
+    public function testReplaceReportsDroppedProperties(): void
     {
-        $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
-        $tree = [new ContentElement('el', 'Sw:Old', ['product' => $requirement])];
+        $tree = [new ContentElement('el', 'Sw:Old', [], [
+            'headline' => 'Hi',
+            'ghost' => 'orphaned-value',
+            'count' => 'not-an-int',
+        ])];
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $replace->apply($tree);
 
-        static::assertSame(['product' => $requirement], $result[0]->getDataRequirements());
-        static::assertSame([], $replace->droppedWiring());
+        static::assertSame(['headline' => 'Hi'], $result[0]->getProperties());
+        static::assertSame(['ghost' => 'orphaned-value', 'count' => 'not-an-int'], $replace->droppedProperties());
+    }
+
+    #[TestDox('resets droppedProperties on re-apply so a second run does not accumulate the first run drops')]
+    public function testReplaceResetsDroppedPropertiesOnReapply(): void
+    {
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+
+        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['ghost' => 'first-run'])]);
+        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'second-run'])]);
+
+        static::assertSame(['count' => 'second-run'], $replace->droppedProperties());
+    }
+
+    #[TestDox('drops and reports a stored value under a resolvedBy storage key whose shape does not match its loader branch')]
+    public function testReplaceDropsAndReportsStorageKeyShapeMismatch(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old', [], ['mediaId' => ['not', 'a', 'string']])];
+        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])], [], 'core');
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
+        $result = $replace->apply($tree);
+
+        static::assertFalse($result[0]->hasProperty('mediaId'));
+        static::assertSame(['mediaId' => ['not', 'a', 'string']], $replace->droppedProperties());
+    }
+
+    #[TestDox('drops and reports a stored value under a resolvedBy storage key whose loader is not one of the two built-in resolvedBy loaders')]
+    public function testReplaceDropsStorageKeyWiredByNonBuiltinLoader(): void
+    {
+        // carryableStorageKeys() maps only resolves entries whose loader passes ResolvedByLoaderBranch::fromLoaderSource();
+        // the "navigation" loader is neither built-in resolvedBy loader, so it contributes no carryable storage key and
+        // the correspondingly-named stored value falls through to droppedProperties. The config still names "activeId"
+        // via a "property" key so the drop is attributable solely to the loader-source gate: if it regressed to accept
+        // "navigation", the stored string would match the entity branch and be carried instead.
+        $tree = [new ContentElement('el', 'Sw:Old', [], ['activeId' => 'category-1'])];
+        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['navigation' => new LoaderBinding('navigation', ['entity' => 'category', 'property' => 'activeId'])], [], 'core');
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
+        $result = $replace->apply($tree);
+
+        static::assertFalse($result[0]->hasProperty('activeId'));
+        static::assertSame(['activeId' => 'category-1'], $replace->droppedProperties());
     }
 
     #[TestDox('drops wiring whose key is absent from the new type and reports it without re-mapping')]
@@ -333,33 +331,6 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['legacyProvider', 'legacyConsumer'], $replace->droppedWiring());
     }
 
-    #[TestDox('keeps context definitions whose key matches a new-type reference property and drops the rest')]
-    public function testReplaceContextDefinitionsCarryover(): void
-    {
-        $kept = new ContextConsumer(ContextType::Single, true);
-        $dropped = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
-        $definitions = new ContextDefinitions(['legacy' => $dropped], ['product' => $kept]);
-        $tree = [new ContentElement('el', 'Sw:Old', [], [], [], $definitions)];
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame(['product' => $kept], $result[0]->getAcceptsContext());
-        static::assertSame([], $result[0]->getProvidesContext());
-    }
-
-    #[TestDox('keeps the children of a slot that exists in the new type')]
-    public function testReplaceKeepsKnownSlot(): void
-    {
-        $tree = [new ContentElement('el', 'Sw:Old', [], [], [
-            'content' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
-        ])];
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        $children = array_values($result[0]->getSlots()['content']->getElements());
-        static::assertSame('child', $children[0]->getId());
-    }
-
     #[TestDox('detaches children of a slot absent from the new type into orphaned without re-mapping')]
     public function testReplaceOrphansAbsentSlotChildren(): void
     {
@@ -372,17 +343,6 @@ class ReplaceElementTest extends TestCase
 
         static::assertFalse($result[0]->hasSlots());
         static::assertSame(['child'], array_map(static fn (ContentElement $e): string => $e->getId(), $replace->orphaned()));
-    }
-
-    #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
-    public function testReplaceCarriesStyleUnconditionally(): void
-    {
-        $style = new ElementStyle(['col-span' => ['md' => 6], 'display' => ['xs' => false]]);
-        $tree = [new ContentElement('el', 'Sw:Old', [], [], [], new ContextDefinitions([], []), $style)];
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
     }
 
     #[TestDox('reports the replaced element and its kept descendants as affected')]
@@ -411,6 +371,24 @@ class ReplaceElementTest extends TestCase
         $this->assertInputTreeUnmutated($before, $tree);
     }
 
+    #[TestDox('rejects a new type with more than one default specification with a 409 naming the colliding qualified ids')]
+    public function testReplaceWithAmbiguousDefaultThrows(): void
+    {
+        $first = new BindingSpecification('Sw:New', 'Sw:New', 'New', [], [], 'core');
+        $second = new BindingSpecification('Sw:New', 'Sw:New', 'New', [], [], 'app1');
+
+        $replace = new ReplaceElement(
+            $this->registry(),
+            'el',
+            'Sw:New',
+            $this->bindingRegistry(['core:Sw:New' => $first, 'app1:Sw:New' => $second]),
+            $this->unboundApplicator(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:New', ['core:Sw:New', 'app1:Sw:New']));
+        $replace->apply([new ContentElement('el', 'Sw:Old')]);
+    }
+
     #[TestDox('rejects an unregistered new type with a 400')]
     public function testReplaceUnknownNewTypeRejected(): void
     {
@@ -427,6 +405,31 @@ class ReplaceElementTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $replace->apply([new ContentElement('el', 'Sw:Old')]);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>}>
+     */
+    public static function carriesOverPropertiesProvider(): iterable
+    {
+        yield 'matching string kept' => [['headline' => 'Hi'], ['headline' => 'Hi']];
+        yield 'matching integer kept' => [['count' => 5], ['count' => 5]];
+        yield 'matching number keeps an int' => [['ratio' => 5], ['ratio' => 5]];
+        yield 'matching number keeps a float' => [['ratio' => 1.5], ['ratio' => 1.5]];
+        yield 'matching boolean kept' => [['featured' => true], ['featured' => true]];
+        yield 'mismatched type dropped' => [['count' => 'text'], []];
+        yield 'float dropped from an integer property' => [['count' => 1.5], []];
+        yield 'key absent from new type dropped' => [['ghost' => 'x'], []];
+        yield 'scalar under a reference key dropped' => [['product' => 'oops'], []];
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed, string, mixed}>
+     */
+    public static function carriesStorageKeyMatchingLoaderShapeProvider(): iterable
+    {
+        yield 'entity shape' => ['mediaId', 'media-1', 'entity', 'media-1'];
+        yield 'entity collection shape' => ['galleryIds', ['media-1', 'media-2'], 'entity_collection', ['media-1', 'media-2']];
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

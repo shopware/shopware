@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 
 /**
@@ -41,73 +42,19 @@ class BindingSpecificationDtoTest extends TestCase
         static::assertSame(['entity' => 'media'], $resolves['image']->config);
     }
 
-    #[TestDox('defaults a missing resolves config to an empty array')]
-    public function testResolvesEntryWithoutConfigDefaultsToEmptyArray(): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [
-            'image' => ['loader' => 'entity'],
-        ], []);
-
-        $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
-
-        static::assertSame([], $resolves['image']->config);
-    }
-
     /**
-     * @return iterable<string, array{mixed}>
+     * @param array<string, mixed> $entry
      */
-    public static function buildsEmptyResolvesMapProvider(): iterable
+    #[DataProvider('definesDefaultPresenceProvider')]
+    #[TestDox('sets hasDefault and the default value for an inputs entry with $_dataName')]
+    public function testDefinesDefaultPresence(array $entry, bool $expectedHasDefault, mixed $expectedDefault): void
     {
-        yield 'top-level resolves is not an array' => ['not-an-array'];
-        yield 'entry is not an array' => [['image' => 'not-an-array']];
-        yield 'entry loader is not a string' => [['image' => ['loader' => 42, 'config' => []]]];
-    }
+        $input = (new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => $entry]))
+            ->toBindingSpecification('id', 'core')
+            ->inputs()['alt'];
 
-    #[DataProvider('buildsEmptyResolvesMapProvider')]
-    #[TestDox('builds an empty resolves map for $_dataName')]
-    public function testBuildsEmptyResolvesMap(mixed $resolves): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', $resolves, []);
-
-        static::assertSame([], $dto->toBindingSpecification('id', 'core')->resolves());
-    }
-
-    #[TestDox('sets hasDefault true and carries the default value for an inputs entry with a default')]
-    public function testInputsEntryWithDefaultHasDefaultTrue(): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
-            'alt' => ['default' => 'fallback alt', 'required' => false],
-        ]);
-
-        $inputs = $dto->toBindingSpecification('id', 'core')->inputs();
-
-        static::assertTrue($inputs['alt']->hasDefault);
-        static::assertSame('fallback alt', $inputs['alt']->default);
-    }
-
-    #[TestDox('sets hasDefault false when an inputs entry has no default key')]
-    public function testInputsEntryWithoutDefaultKeyHasDefaultFalse(): void
-    {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
-            'alt' => ['required' => false],
-        ]);
-
-        static::assertFalse($dto->toBindingSpecification('id', 'core')->inputs()['alt']->hasDefault);
-    }
-
-    #[TestDox('sets hasDefault true and default null for an entry with an explicit null default')]
-    public function testInputsEntryWithExplicitNullDefaultHasDefaultTrue(): void
-    {
-        // Load-bearing: buildInputs() keys on array_key_exists('default', ...), so an explicit null default
-        // is distinct from an absent one. A regression to a null-coalescing check would collapse the two.
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], [
-            'alt' => ['default' => null, 'required' => false],
-        ]);
-
-        $input = $dto->toBindingSpecification('id', 'core')->inputs()['alt'];
-
-        static::assertTrue($input->hasDefault);
-        static::assertNull($input->default);
+        static::assertSame($expectedHasDefault, $input->hasDefault);
+        static::assertSame($expectedDefault, $input->default);
     }
 
     /**
@@ -122,13 +69,33 @@ class BindingSpecificationDtoTest extends TestCase
         static::assertSame($expected, $dto->toBindingSpecification('id', 'core')->inputs()['alt']->required);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>, bool}>
-     */
-    public static function definesRequiredFlagProvider(): iterable
+    #[TestDox('defaults a missing resolves config to an empty array')]
+    public function testResolvesEntryWithoutConfigDefaultsToEmptyArray(): void
     {
-        yield 'carries required:true' => [['required' => true], true];
-        yield 'carries required:false' => [['required' => false], false];
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [
+            'image' => ['loader' => 'entity'],
+        ], []);
+
+        $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
+
+        static::assertSame([], $resolves['image']->config);
+    }
+
+    #[DataProvider('buildsEmptyResolvesMapProvider')]
+    #[TestDox('builds an empty resolves map for $_dataName')]
+    public function testBuildsEmptyResolvesMap(mixed $resolves): void
+    {
+        $dto = new BindingSpecificationDto('media-gallery', 'label', $resolves, []);
+
+        static::assertSame([], $dto->toBindingSpecification('id', 'core')->resolves());
+    }
+
+    #[TestDox('builds an empty inputs map when inputs is not an array')]
+    public function testBuildsEmptyInputsMapWhenInputsIsNotAnArray(): void
+    {
+        $dto = new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array');
+
+        static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
     }
 
     #[TestDox('drops an inputs entry that is not an array')]
@@ -141,27 +108,55 @@ class BindingSpecificationDtoTest extends TestCase
         static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
     }
 
-    #[TestDox('builds an empty inputs map when inputs is not an array')]
-    public function testBuildsEmptyInputsMapWhenInputsIsNotAnArray(): void
+    /**
+     * @param callable(BindingSpecification): string $accessor
+     */
+    #[DataProvider('narrowsNonStringToEmptyStringProvider')]
+    #[TestDox('narrows a non-string value to an empty string ($_dataName)')]
+    public function testNarrowsNonStringToEmptyString(mixed $type, mixed $label, callable $accessor): void
     {
-        $dto = new BindingSpecificationDto('media-gallery', 'label', [], 'not-an-array');
+        $specification = (new BindingSpecificationDto($type, $label, [], []))->toBindingSpecification('id', 'core');
 
-        static::assertSame([], $dto->toBindingSpecification('id', 'core')->inputs());
+        static::assertSame('', $accessor($specification));
     }
 
-    #[TestDox('narrows a non-string type to an empty string')]
-    public function testNarrowsNonStringTypeToEmptyString(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, bool, mixed}>
+     */
+    public static function definesDefaultPresenceProvider(): iterable
     {
-        $dto = new BindingSpecificationDto(42, 'label', [], []);
-
-        static::assertSame('', $dto->toBindingSpecification('id', 'core')->type());
+        yield 'default present with value' => [['default' => 'fallback alt', 'required' => false], true, 'fallback alt'];
+        // Load-bearing: buildInputs() keys on array_key_exists('default', ...), so an explicit null default
+        // is distinct from an absent one. A regression to a null-coalescing check would collapse the two.
+        yield 'no default key' => [['required' => false], false, null];
+        yield 'explicit null default' => [['default' => null, 'required' => false], true, null];
     }
 
-    #[TestDox('narrows a non-string label to an empty string')]
-    public function testNarrowsNonStringLabelToEmptyString(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, bool}>
+     */
+    public static function definesRequiredFlagProvider(): iterable
     {
-        $dto = new BindingSpecificationDto('media-gallery', false, [], []);
+        yield 'carries required:true' => [['required' => true], true];
+        yield 'carries required:false' => [['required' => false], false];
+    }
 
-        static::assertSame('', $dto->toBindingSpecification('id', 'core')->label());
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function buildsEmptyResolvesMapProvider(): iterable
+    {
+        yield 'top-level resolves is not an array' => ['not-an-array'];
+        yield 'entry is not an array' => [['image' => 'not-an-array']];
+        yield 'entry loader is not a string' => [['image' => ['loader' => 42, 'config' => []]]];
+    }
+
+    /**
+     * @return iterable<string, array{mixed, mixed, callable(BindingSpecification): string}>
+     */
+    public static function narrowsNonStringToEmptyStringProvider(): iterable
+    {
+        yield 'type narrowed from non-string' => [42, 'label', static fn (BindingSpecification $specification): string => $specification->type()];
+        yield 'label narrowed from non-string' => ['media-gallery', false, static fn (BindingSpecification $specification): string => $specification->label()];
     }
 }

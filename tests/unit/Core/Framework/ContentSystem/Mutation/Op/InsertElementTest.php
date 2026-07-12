@@ -58,21 +58,6 @@ class InsertElementTest extends TestCase
         static::assertSame([$result[0]->getId()], $insert->affected());
     }
 
-    #[TestDox('seeds only primitive properties that declare a default')]
-    public function testInsertSeedsPrimitiveDefaultsOnly(): void
-    {
-        $spec = $this->spec('Sw:Card', [
-            'headline' => $this->primitive('string', 'Hello'),
-            'count' => $this->primitive('integer', null),
-            'product' => $this->reference(),
-        ]);
-
-        $insert = new InsertElement($this->registry(['Sw:Card' => $spec]), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply([]);
-
-        static::assertSame(['headline' => 'Hello'], $result[0]->getProperties());
-    }
-
     #[TestDox('splices the new element into a parent slot at the given index')]
     public function testInsertIntoParentSlotAtIndex(): void
     {
@@ -99,35 +84,6 @@ class InsertElementTest extends TestCase
         static::assertSame('existing', $result[1]->getId());
     }
 
-    #[TestDox('rejects an unregistered type with a 400')]
-    public function testInsertUnknownTypeRejected(): void
-    {
-        $insert = new InsertElement($this->registry([]), 'Sw:Ghost', $this->bindingRegistry([]), $this->unboundApplicator());
-
-        $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
-        $insert->apply([]);
-    }
-
-    #[TestDox('rejects a parented insert without a slot with a 400')]
-    public function testInsertParentWithoutSlotRejected(): void
-    {
-        $parent = new ContentElement('parent', 'Sw:Block');
-
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent');
-
-        $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
-        $insert->apply([$parent]);
-    }
-
-    #[TestDox('rejects an insert into a missing parent with a 400')]
-    public function testInsertMissingParentRejected(): void
-    {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'ghost', slot: 'content');
-
-        $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
-        $insert->apply([new ContentElement('other', 'Sw:Block')]);
-    }
-
     #[TestDox('preserves the parent style and does not mutate the input parent in place when inserting into its slot')]
     public function testInsertIntoSlotPreservesParentStyleAndDoesNotMutateInput(): void
     {
@@ -141,6 +97,21 @@ class InsertElementTest extends TestCase
 
         static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
         $this->assertInputTreeUnmutated($before, $tree);
+    }
+
+    #[TestDox('seeds only primitive properties that declare a default')]
+    public function testInsertSeedsPrimitiveDefaultsOnly(): void
+    {
+        $spec = $this->spec('Sw:Card', [
+            'headline' => $this->primitive('string', 'Hello'),
+            'count' => $this->primitive('integer', null),
+            'product' => $this->reference(),
+        ]);
+
+        $insert = new InsertElement($this->registry(['Sw:Card' => $spec]), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply([]);
+
+        static::assertSame(['headline' => 'Hello'], $result[0]->getProperties());
     }
 
     #[TestDox('applies the binding specification onto the freshly scaffolded element with its wiring, seeded input default, and attribution')]
@@ -232,6 +203,35 @@ class InsertElementTest extends TestCase
         $result = $insert->apply([]);
 
         static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('rejects an unregistered type with a 400')]
+    public function testInsertUnknownTypeRejected(): void
+    {
+        $insert = new InsertElement($this->registry([]), 'Sw:Ghost', $this->bindingRegistry([]), $this->unboundApplicator());
+
+        $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
+        $insert->apply([]);
+    }
+
+    #[TestDox('rejects a parented insert without a slot with a 400')]
+    public function testInsertParentWithoutSlotRejected(): void
+    {
+        $parent = new ContentElement('parent', 'Sw:Block');
+
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent');
+
+        $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
+        $insert->apply([$parent]);
+    }
+
+    #[TestDox('rejects an insert into a missing parent with a 400')]
+    public function testInsertMissingParentRejected(): void
+    {
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'ghost', slot: 'content');
+
+        $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
+        $insert->apply([new ContentElement('other', 'Sw:Block')]);
     }
 
     #[TestDox('rejects a type with more than one default specification with a 409 naming the colliding qualified ids')]

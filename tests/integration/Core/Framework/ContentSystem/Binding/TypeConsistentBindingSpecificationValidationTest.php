@@ -54,8 +54,8 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
      * @param array<string, mixed> $resolves
      * @param array<string, mixed> $inputs
      */
+    #[DataProvider('invalidBindingsProvider')]
     #[TestDox('rejects a binding whose resolves/inputs are inconsistent with the declared element type')]
-    #[DataProvider('provideInvalidBindings')]
     public function testInvalidBindingProducesViolationAtExpectedPath(mixed $type, array $resolves, array $inputs, string $expectedPath): void
     {
         $dto = new BindingSpecificationDto($type, 'invalid binding', $resolves, $inputs);
@@ -76,7 +76,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
     /**
      * @return iterable<string, array{type: mixed, resolves: array<string, mixed>, inputs: array<string, mixed>, expectedPath: string}>
      */
-    public static function provideInvalidBindings(): iterable
+    public static function invalidBindingsProvider(): iterable
     {
         yield 'unknown type' => [
             'type' => 'Sw:Does:NotExist',

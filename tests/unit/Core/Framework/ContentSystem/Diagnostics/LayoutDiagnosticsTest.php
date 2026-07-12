@@ -298,14 +298,18 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->primitive('headline', 'string', required: true, default: 'Default headline')->build()];
 
-        // ReplaceElement seeds the new type's default (covered in ReplaceElementTest); here we assert only that the
-        // strict primitive rule credits the resulting stored value, so the replaced tree diagnoses as resolvable.
+        // ReplaceElement seeds the new type's default (fully covered in ReplaceElementTest); here we pin the
+        // replacement output — the new component plus the seeded default — so the diagnostics assertion cannot pass
+        // vacuously on a no-op replacement, then assert the strict primitive rule credits the stored value so the
+        // replaced tree diagnoses as resolvable.
         $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
         $bindingRegistry->method('all')->willReturn([]);
         $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
 
         $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))->apply([new ContentElement('el', 'Sw:Old')]);
 
+        static::assertSame('Sw:New', $replaced[0]->getComponent());
+        static::assertSame('Default headline', $replaced[0]->getProperty('headline'));
         static::assertSame([], $this->diagnostics($specs)->analyze($replaced, [])->report->bindingErrors());
     }
 

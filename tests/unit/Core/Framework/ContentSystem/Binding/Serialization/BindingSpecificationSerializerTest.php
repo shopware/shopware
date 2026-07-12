@@ -37,6 +37,22 @@ class BindingSpecificationSerializerTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $input
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('normalizeProvider')]
+    #[TestDox('normalize maps facets: $_dataName')]
+    public function testNormalize(array $input, array $expected): void
+    {
+        $dto = $this->serializer->denormalize($input);
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertSame($expected, $normalized);
+        static::assertArrayNotHasKey('id', $normalized);
+    }
+
+    /**
      * @return iterable<string, array{array<string, mixed>, mixed, mixed, mixed, mixed}>
      */
     public static function denormalizeProvider(): iterable
@@ -65,37 +81,34 @@ class BindingSpecificationSerializerTest extends TestCase
         ];
     }
 
-    #[TestDox('normalize emits type, label, resolves and inputs but never id')]
-    public function testNormalizeEmitsAllFacetsExceptId(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>}>
+     */
+    public static function normalizeProvider(): iterable
     {
-        $dto = $this->serializer->denormalize([
-            'type' => 'media-gallery',
-            'label' => 'From media library',
-            'resolves' => ['image' => ['loader' => 'entity', 'config' => []]],
-            'inputs' => ['alt' => []],
-        ]);
+        yield 'emits every facet except id' => [
+            [
+                'type' => 'media-gallery',
+                'label' => 'From media library',
+                'resolves' => ['image' => ['loader' => 'entity', 'config' => []]],
+                'inputs' => ['alt' => []],
+            ],
+            [
+                'type' => 'media-gallery',
+                'label' => 'From media library',
+                'resolves' => ['image' => ['loader' => 'entity', 'config' => []]],
+                'inputs' => ['alt' => []],
+            ],
+        ];
 
-        $normalized = $this->serializer->normalize($dto);
-
-        static::assertSame([
-            'type' => 'media-gallery',
-            'label' => 'From media library',
-            'resolves' => ['image' => ['loader' => 'entity', 'config' => []]],
-            'inputs' => ['alt' => []],
-        ], $normalized);
-        static::assertArrayNotHasKey('id', $normalized);
-    }
-
-    #[TestDox('normalize keeps empty resolves/inputs as [], not null')]
-    public function testNormalizeKeepsEmptyResolvesInputsAsArraysWhenAbsent(): void
-    {
-        $dto = $this->serializer->denormalize(['type' => 'media-gallery', 'label' => 'x', 'resolves' => [], 'inputs' => []]);
-
-        static::assertSame([
-            'type' => 'media-gallery',
-            'label' => 'x',
-            'resolves' => [],
-            'inputs' => [],
-        ], $this->serializer->normalize($dto));
+        yield 'keeps empty resolves and inputs as arrays when absent' => [
+            ['type' => 'media-gallery', 'label' => 'x', 'resolves' => [], 'inputs' => []],
+            [
+                'type' => 'media-gallery',
+                'label' => 'x',
+                'resolves' => [],
+                'inputs' => [],
+            ],
+        ];
     }
 }

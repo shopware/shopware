@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationCollection;
@@ -88,12 +89,13 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertSame(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)), $payload['hash']);
     }
 
-    #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash')]
-    public function testSkipsUpsertWhenHashMatches(): void
+    #[DataProvider('skipsUpsertWhenHashMatchesProvider')]
+    #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash: $_dataName')]
+    public function testSkipsUpsertWhenHashMatches(ResolvedBindingSpecificationDto $dto, string $existingIdKey): void
     {
-        $normalized = $this->serializer->normalize($this->fixedDto->dto);
+        $normalized = $this->serializer->normalize($dto->dto);
 
-        $seeded = $this->buildExistingEntity('binding-media', 'media-picker');
+        $seeded = $this->buildExistingEntity($existingIdKey, $dto->id);
         $seeded->setHash(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)));
         $seeded->setSchema($normalized);
 
@@ -101,48 +103,11 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $repo = new StaticEntityRepository([
             new AppContentSystemBindingSpecificationCollection([$seeded]),
         ]);
-
-        // No write means no cache invalidation: a stable install must not churn the registry cache.
-        $registry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->expects($this->never())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, registry: $registry);
-        $persister->persist($this->buildContext());
-
-        static::assertSame([], $repo->upserts);
-        static::assertSame([], $repo->deletes);
-    }
-
-    #[TestDox('skips the upsert for a resolvedBy-synthesized default dto (id === type, colon-bearing name) when the stored hash matches the current file hash')]
-    public function testSkipsUpsertWhenHashMatchesForSynthesizedDefaultDto(): void
-    {
-        // Mirrors DefaultBindingSpecificationSynthesizer's contract: id === type (isDefault()), a colon-bearing
-        // app-prefixed type name, canonical resolves, and no inputs.
-        $synthesizedDto = new ResolvedBindingSpecificationDto(
-            'app:DemoApp:MediaImage',
-            'app:DemoApp',
-            new BindingSpecificationDto(
-                'app:DemoApp:MediaImage',
-                'Media Image',
-                ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
-                [],
-            ),
-        );
 
         $loader = static::createStub(YamlBindingSpecificationLoader::class);
-        $loader->method('loadDtosFromTypeDirectory')->willReturn([$synthesizedDto]);
+        $loader->method('loadDtosFromTypeDirectory')->willReturn([$dto]);
 
-        $normalized = $this->serializer->normalize($synthesizedDto->dto);
-
-        $seeded = $this->buildExistingEntity('binding-media-image', 'app:DemoApp:MediaImage');
-        $seeded->setHash(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)));
-        $seeded->setSchema($normalized);
-
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
-        $repo = new StaticEntityRepository([
-            new AppContentSystemBindingSpecificationCollection([$seeded]),
-        ]);
-
+        // No write means no cache invalidation: a stable install must not churn the registry cache.
         $registry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
         $registry->expects($this->never())->method('invalidate');
 
@@ -421,6 +386,37 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
 
         $this->expectExceptionObject($deleteException);
         $persister->persist($this->buildContext());
+    }
+
+    /**
+     * @return iterable<string, array{ResolvedBindingSpecificationDto, string}>
+     */
+    public static function skipsUpsertWhenHashMatchesProvider(): iterable
+    {
+        yield 'regular binding (id differs from type)' => [
+            new ResolvedBindingSpecificationDto(
+                'media-picker',
+                'app:DemoApp',
+                new BindingSpecificationDto('media-gallery', 'Media picker', null, null),
+            ),
+            'binding-media',
+        ];
+
+        // Mirrors DefaultBindingSpecificationSynthesizer's contract: id === type (isDefault()), a colon-bearing
+        // app-prefixed type name, canonical resolves, and no inputs.
+        yield 'synthesized default (id equals type)' => [
+            new ResolvedBindingSpecificationDto(
+                'app:DemoApp:MediaImage',
+                'app:DemoApp',
+                new BindingSpecificationDto(
+                    'app:DemoApp:MediaImage',
+                    'Media Image',
+                    ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+                    [],
+                ),
+            ),
+            'binding-media-image',
+        ];
     }
 
     private function buildExistingEntity(string $idKey, string $name): AppContentSystemBindingSpecificationEntity

@@ -135,17 +135,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns content system element types as JSON')]
     public function testContentSystemElementTypes(): void
     {
-        $spec = new ContentSystemElementTypeSpecification(
-            name: 'Sw:Alert',
-            label: 'Alert',
-            description: 'Alert component',
-            icon: null,
-            category: null,
-            copilot: new CopilotSpecification('Alert summary', []),
-            properties: [],
-            slots: [],
-            source: 'core',
-        );
+        $spec = $this->alertTypeSpecification();
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
@@ -256,17 +246,7 @@ class InfoControllerTest extends TestCase
             slots: [],
             source: 'core',
         );
-        $alertSpec = new ContentSystemElementTypeSpecification(
-            name: 'Sw:Alert',
-            label: 'Alert',
-            description: 'Alert component',
-            icon: null,
-            category: null,
-            copilot: new CopilotSpecification('Alert summary', []),
-            properties: [],
-            slots: [],
-            source: 'core',
-        );
+        $alertSpec = $this->alertTypeSpecification();
 
         $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $elementTypeRegistry->method('all')->willReturn(['Sw:Media:Image' => $imageSpec, 'Sw:Alert' => $alertSpec]);
@@ -303,17 +283,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
     public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
     {
-        $spec = new ContentSystemElementTypeSpecification(
-            name: 'Sw:Alert',
-            label: 'Alert',
-            description: 'Alert component',
-            icon: null,
-            category: null,
-            copilot: new CopilotSpecification('Alert summary', []),
-            properties: [],
-            slots: [],
-            source: 'core',
-        );
+        $spec = $this->alertTypeSpecification();
 
         $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
@@ -481,6 +451,21 @@ class InfoControllerTest extends TestCase
     private function bindingSpecification(string $type = 'media-gallery'): BindingSpecification
     {
         return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
+    }
+
+    private function alertTypeSpecification(): ContentSystemElementTypeSpecification
+    {
+        return new ContentSystemElementTypeSpecification(
+            name: 'Sw:Alert',
+            label: 'Alert',
+            description: 'Alert component',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecification('Alert summary', []),
+            properties: [],
+            slots: [],
+            source: 'core',
+        );
     }
 
     private function styleOption(): StyleOptionSpecification

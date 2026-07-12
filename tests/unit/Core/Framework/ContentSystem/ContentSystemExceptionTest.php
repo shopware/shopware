@@ -30,35 +30,11 @@ class ContentSystemExceptionTest extends TestCase
         static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
     }
 
-    #[TestDox('propagates previous throwable when loading element type fails')]
-    public function testPreservesPreviousThrowableOnLoadFailed(): void
-    {
-        $previous = new \RuntimeException('parse error');
-        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
-
-        static::assertSame($previous, $e->getPrevious());
-    }
-
-    #[TestDox('propagates previous throwable when a data loader config is invalid')]
-    public function testPreservesPreviousThrowableOnInvalidLoaderConfig(): void
-    {
-        $previous = new \RuntimeException('rootId expected non-empty string, got integer');
-        $e = ContentSystemException::invalidLoaderConfig('navigation', $previous);
-
-        static::assertSame($previous, $e->getPrevious());
-    }
-
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
     {
         static::assertSame($isClientDefect, ContentSystemException::isClientDefect($exception));
-    }
-
-    #[TestDox('rejects a non content-system throwable as a client defect')]
-    public function testForeignThrowableIsNotAClientDefect(): void
-    {
-        static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
     }
 
     #[TestDox('pins the catalogue of client-defect error codes')]
@@ -78,6 +54,30 @@ class ContentSystemExceptionTest extends TestCase
         sort($actual);
 
         static::assertSame($expected, $actual);
+    }
+
+    #[TestDox('rejects a non content-system throwable as a client defect')]
+    public function testForeignThrowableIsNotAClientDefect(): void
+    {
+        static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
+    }
+
+    #[TestDox('propagates previous throwable when loading element type fails')]
+    public function testPreservesPreviousThrowableOnLoadFailed(): void
+    {
+        $previous = new \RuntimeException('parse error');
+        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
+    }
+
+    #[TestDox('propagates previous throwable when a data loader config is invalid')]
+    public function testPreservesPreviousThrowableOnInvalidLoaderConfig(): void
+    {
+        $previous = new \RuntimeException('rootId expected non-empty string, got integer');
+        $e = ContentSystemException::invalidLoaderConfig('navigation', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
     }
 
     /**

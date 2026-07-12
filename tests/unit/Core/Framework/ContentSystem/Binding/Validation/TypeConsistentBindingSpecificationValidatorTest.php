@@ -41,8 +41,9 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
 {
     private const ID = 'media-picker';
 
-    #[TestDox('passes a resolves entry whose propertyReference config key names a primitive property')]
-    public function testPropertyReferenceKeyNamingPrimitivePasses(): void
+    #[DataProvider('passesPropertyReferenceKeyNamingProvider')]
+    #[TestDox('passes a resolves entry whose propertyReference config key names $_dataName')]
+    public function testPropertyReferenceKeyNamingPasses(string $propertyValue): void
     {
         // The loader identifier is never branched on by the validator (validatePropertyReferenceKeys() only uses
         // it as a ContentSystemDataLoaderMap lookup key), so a second loader here would exercise the same path.
@@ -51,29 +52,14 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => $propertyValue]]],
             inputs: [],
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
 
-    #[TestDox('passes a resolves entry whose propertyReference config key names an undeclared key')]
-    public function testPropertyReferenceKeyNamingUndeclaredKeyPasses(): void
-    {
-        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
-
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'ghost']]],
-            inputs: [],
-        );
-
-        static::assertCount(0, $this->validateWith($dto, $validator));
-    }
-
-    #[DataProvider('nonPrimitivePropertyProvider')]
+    #[DataProvider('rejectsNonPrimitivePropertyProvider')]
     #[TestDox('flags a resolves entry propertyReference config key naming $_dataName as a violation')]
     public function testPropertyReferenceKeyNamingNonPrimitiveIsViolation(string $propertyValue): void
     {
@@ -214,10 +200,196 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         }
     }
 
+    #[TestDox('rethrows a non-client-defect ContentSystemException raised while resolving a produced type')]
+    public function testRethrowsNonClientDefectExceptionFromProducedTypeResolution(): void
+    {
+        // Sibling of the decode rethrow above: decode succeeds, then resolveProducedType() raises a non-client
+        // defect (INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES), which must escape rather than become a
+        // config violation.
+        $validator = $this->validatorFailingProducedTypeWith(ContentSystemException::invalidFieldType('A', 'B'));
+        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        try {
+            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
+            static::fail('Expected a ContentSystemException to be rethrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
+        }
+    }
+
+    #[TestDox('flags a resolves entry in the unsupported "context" form as a violation')]
+    public function testResolvesEntryContextFormIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['context' => 'root']],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media]', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('"context" form', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a resolves entry whose key names a primitive property rather than a reference as a violation')]
+    public function testResolvesEntryKeyNotReferencePropertyIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['mediaId' => ['loader' => 'entity']],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[mediaId]', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('does not name a reference property', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a resolves entry naming an unregistered loader as a violation')]
+    public function testResolvesEntryLoaderNotRegisteredIsViolation(): void
+    {
+        $validator = $this->validatorFailingDecodeWith(ContentSystemException::configSerializerNotRegistered('ghost-loader'));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'ghost-loader', 'config' => []]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media]', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('not a registered data loader', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a resolves entry whose config fails to decode as a config violation')]
+    public function testResolvesEntryConfigDecodeFailureIsViolation(): void
+    {
+        $validator = $this->validatorFailingDecodeWith(ContentSystemException::invalidFieldValueType('property', 'string', 'integer'));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a resolves entry whose produced type fails to resolve as a config violation')]
+    public function testResolvesEntryProducedTypeResolutionFailureIsViolation(): void
+    {
+        $validator = $this->validatorFailingProducedTypeWith(ContentSystemException::unknownLoaderEntity('ghost-entity'));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a resolves entry whose produced type is not assignable to the declared reference type as a violation')]
+    public function testResolvesEntryProducedTypeNotAssignableIsViolation(): void
+    {
+        // The loader produces a bare Entity, which is not assignable to the declared MediaEntity reference of "media".
+        $validator = $this->validatorProducing(Entity::class);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media]', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('not assignable', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags an inputs entry whose key names a reference property rather than a primitive as a violation')]
+    public function testInputsEntryKeyNotPrimitivePropertyIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['media' => ['default' => 'seed']],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[media]', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('does not name a primitive property', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags an inputs entry whose default value does not match the declared primitive type as a violation')]
+    public function testInputsEntryDefaultTypeMismatchIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['mediaId' => ['default' => 42]],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[mediaId].default', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('must match the declared type', (string) $violations->get(0)->getMessage());
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
-    public static function nonPrimitivePropertyProvider(): iterable
+    public static function passesPropertyReferenceKeyNamingProvider(): iterable
+    {
+        yield 'a primitive property' => ['mediaId'];
+        yield 'an undeclared key' => ['ghost'];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function rejectsNonPrimitivePropertyProvider(): iterable
     {
         // The loader identifier ('entity' vs. any other registered loader) is not varied here: it is never
         // branched on by validatePropertyReferenceKeys(), only used as a ContentSystemDataLoaderMap lookup key
@@ -246,6 +418,66 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
 
         $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $mapResolver->method('resolve')->willReturn($map);
+
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver);
+    }
+
+    /**
+     * Registry carries the image type, decode succeeds, but the loader's produced type is $producedType, so the
+     * assignability check (is_a against the declared MediaEntity reference) drives the outcome.
+     */
+    private function validatorProducing(string $producedType): TypeConsistentBindingSpecificationValidator
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('get')->willReturn($this->imageType());
+
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
+
+        $rootContextMapper = static::createStub(RootContextMapper::class);
+        $rootContextMapper->method('resolveType')->willReturn($producedType);
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
+
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver);
+    }
+
+    private function validatorFailingDecodeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('get')->willReturn($this->imageType());
+
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willThrowException($exception);
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
+
+        return new TypeConsistentBindingSpecificationValidator(
+            $registry,
+            $provider,
+            static::createStub(RootContextMapper::class),
+            $mapResolver,
+        );
+    }
+
+    private function validatorFailingProducedTypeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('get')->willReturn($this->imageType());
+
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
+
+        $rootContextMapper = static::createStub(RootContextMapper::class);
+        $rootContextMapper->method('resolveType')->willThrowException($exception);
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
 
         return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver);
     }

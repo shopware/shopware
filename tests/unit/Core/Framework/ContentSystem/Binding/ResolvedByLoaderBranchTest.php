@@ -20,28 +20,28 @@ use Shopware\Core\Framework\Struct\Struct;
 class ResolvedByLoaderBranchTest extends TestCase
 {
     #[DataProvider('classifiesReferenceFqcnProvider')]
-    #[TestDox('fromReferenceFqcn: $_dataName')]
+    #[TestDox('classifies reference by FQCN: $_dataName')]
     public function testFromReferenceFqcnClassifiesByBaseClass(string $fqcn, ?ResolvedByLoaderBranch $expected): void
     {
         static::assertSame($expected, ResolvedByLoaderBranch::fromReferenceFqcn($fqcn));
     }
 
-    #[DataProvider('loaderSourceProvider')]
-    #[TestDox('loaderSource: $_dataName')]
+    #[DataProvider('returnsLoaderSourceProvider')]
+    #[TestDox('returns branch-specific loader source: $_dataName')]
     public function testLoaderSourceReturnsBranchSpecificSource(ResolvedByLoaderBranch $branch, string $expected): void
     {
         static::assertSame($expected, $branch->loaderSource());
     }
 
-    #[DataProvider('fromLoaderSourceProvider')]
-    #[TestDox('fromLoaderSource: $_dataName')]
+    #[DataProvider('classifiesLoaderSourceProvider')]
+    #[TestDox('classifies branch by loader source: $_dataName')]
     public function testFromLoaderSourceClassifiesByLoaderSource(string $source, ?ResolvedByLoaderBranch $expected): void
     {
         static::assertSame($expected, ResolvedByLoaderBranch::fromLoaderSource($source));
     }
 
     #[DataProvider('matchesStoredValueShapeProvider')]
-    #[TestDox('matchesStoredValueShape: $_dataName')]
+    #[TestDox('validates stored value matches branch shape: $_dataName')]
     public function testMatchesStoredValueShape(ResolvedByLoaderBranch $branch, mixed $value, bool $expected): void
     {
         static::assertSame($expected, $branch->matchesStoredValueShape($value));
@@ -60,7 +60,7 @@ class ResolvedByLoaderBranchTest extends TestCase
     /**
      * @return iterable<string, array{ResolvedByLoaderBranch, string}>
      */
-    public static function loaderSourceProvider(): iterable
+    public static function returnsLoaderSourceProvider(): iterable
     {
         yield 'the Entity branch names the entity loader source' => [ResolvedByLoaderBranch::Entity, EntityLoader::SOURCE];
         yield 'the EntityCollection branch names the entity_collection loader source' => [ResolvedByLoaderBranch::EntityCollection, EntityCollectionLoader::SOURCE];
@@ -69,7 +69,7 @@ class ResolvedByLoaderBranchTest extends TestCase
     /**
      * @return iterable<string, array{string, ?ResolvedByLoaderBranch}>
      */
-    public static function fromLoaderSourceProvider(): iterable
+    public static function classifiesLoaderSourceProvider(): iterable
     {
         yield 'the entity loader source classifies as the Entity branch' => [EntityLoader::SOURCE, ResolvedByLoaderBranch::Entity];
         yield 'the entity_collection loader source classifies as the EntityCollection branch' => [EntityCollectionLoader::SOURCE, ResolvedByLoaderBranch::EntityCollection];

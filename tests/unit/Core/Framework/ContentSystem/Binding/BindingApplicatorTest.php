@@ -22,17 +22,27 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 #[CoversClass(BindingApplicator::class)]
 class BindingApplicatorTest extends TestCase
 {
-    #[TestDox('decodes the resolves entry into a DataRequirement, seeds the input default, and attributes the resolves key to the given id')]
-    public function testAppliesResolvesSeedsDefaultAndAttributes(): void
+    #[TestDox('decodes the resolves entry into a DataRequirement and attributes the resolves key to the given id')]
+    public function testAppliesResolvesEntryAsDataRequirementAndAttributesIt(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = new ContentElement('img-1', 'Sw:Media:Image');
+
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->getDataRequirements());
+        static::assertSame(['media' => 'core:media-picker'], $result->getAttributedSpecifications());
+    }
+
+    #[TestDox('seeds the input default onto an input key the element does not yet carry')]
+    public function testSeedsInputDefaultOntoAbsentKey(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new ContentElement('img-1', 'Sw:Media:Image');
 
         $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
 
-        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->getDataRequirements());
         static::assertSame('seeded', $result->getProperty('mediaId'));
-        static::assertSame(['media' => 'core:media-picker'], $result->getAttributedSpecifications());
     }
 
     #[TestDox('overwrites the wiring and attribution of a key already bound by a different specification')]
@@ -40,10 +50,7 @@ class BindingApplicatorTest extends TestCase
     {
         $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')
-            ->withDataRequirement('media', 'entity', $oldConfig)
-            ->withAttributedSpecification('media', 'core:old-spec')
-            ->build();
+        $element = $this->boundImageElement($oldConfig);
 
         $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
 
@@ -68,10 +75,7 @@ class BindingApplicatorTest extends TestCase
     {
         $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')
-            ->withDataRequirement('media', 'entity', $oldConfig)
-            ->withAttributedSpecification('media', 'core:old-spec')
-            ->build();
+        $element = $this->boundImageElement($oldConfig);
 
         $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image');
 
@@ -84,10 +88,7 @@ class BindingApplicatorTest extends TestCase
     {
         $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = ContentElementBuilder::create('Sw:Media:Image', 'img-1')
-            ->withDataRequirement('media', 'entity', $oldConfig)
-            ->withAttributedSpecification('media', 'core:old-spec')
-            ->build();
+        $element = $this->boundImageElement($oldConfig);
 
         $result = $this->applicator($newConfig)->applyFillOnly($element, $this->twoKeySpecification(), 'core:Sw:Media:Image');
 
@@ -160,6 +161,14 @@ class BindingApplicatorTest extends TestCase
         static::assertSame([], $element->getDataRequirements());
         static::assertSame([], $element->getProperties());
         static::assertSame([], $element->getAttributedSpecifications());
+    }
+
+    private function boundImageElement(AbstractContentDataLoaderConfig $oldConfig): ContentElement
+    {
+        return ContentElementBuilder::create('Sw:Media:Image', 'img-1')
+            ->withDataRequirement('media', 'entity', $oldConfig)
+            ->withAttributedSpecification('media', 'core:old-spec')
+            ->build();
     }
 
     private function applicator(AbstractContentDataLoaderConfig $config): BindingApplicator

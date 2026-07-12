@@ -300,7 +300,7 @@
     {% set gridStyle = gridStyle ~ 'background-color: ' ~ backgroundColor ~ '; ' %}
 {% endif %}
 {% if backgroundImage %}
-    {% set gridStyle = gridStyle ~ 'background-image: url(' ~ backgroundImage ~ '); ' %}
+    {% set gridStyle = gridStyle ~ 'background-image: url(' ~ backgroundImage|sw_encode_media_url ~ '); ' %}
 {% endif %}
 
 {% if mode == 'auto-fit' or mode == 'auto-fill' %}

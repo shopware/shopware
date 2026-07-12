@@ -80,8 +80,8 @@ final class InsertElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type);
         }
 
-        // Default underneath, explicit on top: the default is fill-applied first, then the explicit specification
-        // overwrites its shared keys, so an explicit choice always wins over the type's default wiring.
+        // The explicit path scaffolds with the default underneath too, so a key the explicit specification leaves
+        // unset keeps the default's wiring; apply() (overwrite) only replaces the keys they share.
         return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type), $specification, $bindingSpecificationId);
     }
 

@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Log\Package;
  *   at design time and persisted in the element's properties map.
  *
  * The property key is the shared identifier connecting this type spec to element instances.
- * See Layout/Type/README.md for the full key-based linkage documentation.
  *
  * @phpstan-import-type CopilotSchema from CopilotSpecification
  * @phpstan-import-type PropertySchema from PropertySpecification

@@ -422,8 +422,10 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     /**
      * A real tier-A expansion for "Sw:Media:Image" (a declared MediaEntity reference, resolved to the "media"
      * entity name) plus an empty "Sw:Hero:Banner" for the reserved-id/cross-file-collision fixtures, which
-     * author no resolves at all. Both names are needed regardless of which of two colliding files the (order-
-     * unstable) filesystem scan processes first: the file processed first always reaches full canonicalization.
+     * author no resolves at all. Both names are needed because the two collision tests swap the .yaml/.yml roles:
+     * the .yaml (always listed before the .yml) is the file that reaches full canonicalization, and it declares a
+     * different type in each — the synthesized "Sw:Media:Image" in one, the authored file's own "Sw:Hero:Banner"
+     * in the other. The colliding .yml throws at the duplicate check before it canonicalizes.
      */
     private function canonicalizerForSynthesisScenarios(): BindingSpecificationCanonicalizer
     {

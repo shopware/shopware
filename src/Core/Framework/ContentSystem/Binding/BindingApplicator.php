@@ -9,21 +9,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The apply-side of a binding decision, shared by the {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement},
- * {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement}, and
- * {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement} operations. Two application modes share the same
- * `inputs`-seeding and rebuild machinery:
- *
- * - {@see self::apply()} (overwrite): `resolves` become data requirements overwriting the same keys; re-applying a
- *   specification over an already-wired key replaces its wiring. Used for explicit application (`bind-element`, `insert`
- *   with a `bindingSpecificationId`).
- * - {@see self::applyFillOnly()} (fill-only): a `resolves` entry is wired only when the element carries no data
- *   requirement for that key yet, and only those wired keys receive attribution. Used for a type's auto-applied default.
- *
- * Both modes: `inputs` defaults seed a primitive property only when the element does not already carry it
- * ({@see ContentElement::hasProperty()} is the presence gate, so an authored value including an explicit null always wins).
- *
- * Rebuilds via the {@see ContentElement} constructor; it never mutates the input element (the mutation immutability invariant).
+ * Applies one {@see BindingSpecification}'s wiring onto a {@see ContentElement}, rebuilding it via the
+ * {@see ContentElement} constructor rather than mutating it (the mutation immutability invariant). Two modes:
+ * {@see self::apply()} overwrites the same `resolves`/attribution keys, {@see self::applyFillOnly()} wires and
+ * attributes only keys the element carries no data requirement for yet. Both seed an `inputs` default only when
+ * the element does not already carry the property ({@see ContentElement::hasProperty()} presence gate, so an
+ * authored value always wins, including an explicit null).
  *
  * @internal
  */

@@ -42,7 +42,7 @@ runs:
           echo "OPENSEARCH_URL=127.0.0.1:9200"
           echo "ADMIN_OPENSEARCH_URL=127.0.0.1:9200"
           echo "BLUE_GREEN_DEPLOYMENT=1"
-          echo "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true"
+          echo "PUPPETEER_SKIP_DOWNLOAD=true"
         } >> "$GITHUB_ENV"
 
     - name: Setup Shopware

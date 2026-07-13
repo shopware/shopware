@@ -640,9 +640,9 @@ describe('form-validation', () => {
             expect(mockDispatchEvent).not.toHaveBeenCalled();
         });
 
-        test('should return true when GRECAPTCHA cookie is accepted (v3)', () => {
+        test('should return true when cookie-preference is accepted (v3)', () => {
             const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
-            mockGetItem.mockReturnValue('1');
+            mockGetItem.mockImplementation((key) => (key === 'cookie-preference' ? '1' : null));
 
             const field = document.createElement('input');
             field.setAttribute('name', '_grecaptcha_v3');
@@ -655,9 +655,9 @@ describe('form-validation', () => {
             mockGetItem.mockRestore();
         });
 
-        test('should return true when GRECAPTCHA cookie is accepted (v2)', () => {
+        test('should return true when cookie-preference is accepted (v2)', () => {
             const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
-            mockGetItem.mockReturnValue('1');
+            mockGetItem.mockImplementation((key) => (key === 'cookie-preference' ? '1' : null));
 
             const field = document.createElement('input');
             field.setAttribute('name', '_grecaptcha_v2');
@@ -670,7 +670,7 @@ describe('form-validation', () => {
             mockGetItem.mockRestore();
         });
 
-        test('should return false and dispatch showCookieBar event when GRECAPTCHA cookie is not accepted (v3)', () => {
+        test('should return false and dispatch showCookieBar event when cookie-preference is not accepted (v3)', () => {
             const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
             mockGetItem.mockReturnValue(null);
 
@@ -689,12 +689,36 @@ describe('form-validation', () => {
             mockGetItem.mockRestore();
         });
 
-        test('should return false and dispatch showCookieBar event when GRECAPTCHA cookie is not accepted (v2)', () => {
+        test('should return false and dispatch showCookieBar event when cookie-preference is not accepted (v2)', () => {
             const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
             mockGetItem.mockReturnValue('0');
 
             const field = document.createElement('input');
             field.setAttribute('name', '_grecaptcha_v2');
+
+            const result = formValidation.validateGrecaptcha('', field);
+
+            expect(result).toBe(false);
+            expect(mockDispatchEvent).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: 'showCookieBar',
+                })
+            );
+
+            mockGetItem.mockRestore();
+        });
+
+        test('should return false and dispatch showCookieBar event when consent was revoked but a stale _GRECAPTCHA cookie remains (regression #18239)', () => {
+            // Reproduces the reported bug: the user accepted cookies once, then revoked consent.
+            // '_GRECAPTCHA' is a technically-required cookie that is NOT removed on revoke
+            // (see CaptchaCookieCollectListener), while 'cookie-preference' is. If the validator
+            // trusted the stale '_GRECAPTCHA' cookie, the form would submit without a token and
+            // the server would reject it with a 500 (CaptchaException).
+            const mockGetItem = jest.spyOn(require('src/helper/storage/cookie-storage.helper').default, 'getItem');
+            mockGetItem.mockImplementation((key) => (key === '_GRECAPTCHA' ? '1' : null));
+
+            const field = document.createElement('input');
+            field.setAttribute('name', '_grecaptcha_v3');
 
             const result = formValidation.validateGrecaptcha('', field);
 

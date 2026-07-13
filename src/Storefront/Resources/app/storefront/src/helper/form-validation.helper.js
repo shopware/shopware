@@ -418,9 +418,12 @@ export default class FormValidation {
     }
 
     /**
-     * Validates Google reCAPTCHA v3/v2 cookies.
-     * Checks if the required cookies are set to allow reCAPTCHA functionality.
-     * This validates that users have accepted cookies before trying to use reCAPTCHA.
+     * Validates that the user has accepted cookies before trying to use reCAPTCHA.
+     * Must use the same signal as `registerGoogleReCaptchaPlugins()` in main.js, which only
+     * registers the reCAPTCHA plugin (and thus generates a token) once 'cookie-preference' is
+     * accepted. The technically-required '_GRECAPTCHA' cookie is not a reliable signal here: it
+     * is not removed when consent is revoked, so trusting it would let the form submit with an
+     * empty token and fail server-side with a 500 (CaptchaException).
      * Dispatches a custom event to show the cookie bar if validation fails.
      *
      * @param {string} _value - The field value (unused for cookie validation)
@@ -439,15 +442,14 @@ export default class FormValidation {
             return true;
         }
 
-        const grecaptchaCookie = CookieStorageHelper.getItem('_GRECAPTCHA');
-        const grecaptchaCookieAccepted = grecaptchaCookie === '1';
+        const cookiesAccepted = CookieStorageHelper.getItem('cookie-preference') === '1';
 
-        if (!grecaptchaCookieAccepted) {
+        if (!cookiesAccepted) {
             const showCookieBarEvent = new CustomEvent('showCookieBar');
             document.dispatchEvent(showCookieBarEvent);
         }
 
-        return grecaptchaCookieAccepted;
+        return cookiesAccepted;
     }
 
     /**

@@ -23,6 +23,14 @@ type RadioPanelOption = {
     description?: string;
     disabled?: boolean;
 };
+type SettingsFieldPanel = {
+    key: string;
+    technicalName: string | null;
+    fields: SettingsFieldDefinition[];
+};
+
+const DEFAULT_PANEL_KEY = '__default__';
+const DEFAULT_PANEL_SNIPPET = 'sw-experience-studio.detail.elementSettings.panelGeneral';
 
 function getStructuredPropertyDefault(property: ContentSystemElementTypeProperty): string | number | boolean | null {
     const defaults = Object.values(property.properties ?? {})
@@ -82,6 +90,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        showPanels: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     emits: [
@@ -111,7 +124,67 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
+    computed: {
+        fieldPanels(): SettingsFieldPanel[] {
+            if (!this.showPanels) {
+                return [
+                    {
+                        key: DEFAULT_PANEL_KEY,
+                        technicalName: null,
+                        fields: this.fields,
+                    },
+                ];
+            }
+
+            const panels = new Map<string, SettingsFieldPanel>();
+
+            for (const field of this.fields) {
+                const technicalName = this.getFieldPanelTechnicalName(field);
+                const key = technicalName ?? DEFAULT_PANEL_KEY;
+                const panel = panels.get(key);
+
+                if (panel) {
+                    panel.fields.push(field);
+                    continue;
+                }
+
+                panels.set(key, {
+                    key,
+                    technicalName,
+                    fields: [field],
+                });
+            }
+
+            return Array.from(panels.values());
+        },
+    },
+
     methods: {
+        getFieldPanelTechnicalName(field: SettingsFieldDefinition): string | null {
+            const panel = field.property.adminUI?.panel;
+
+            return typeof panel === 'string' && panel.length > 0 ? panel : null;
+        },
+
+        getPanelSnippetKey(panel: SettingsFieldPanel): string {
+            if (panel.technicalName === null) {
+                return DEFAULT_PANEL_SNIPPET;
+            }
+
+            const selectedElementType = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const elementType = Shopware.Utils.string.kebabCase(selectedElementType?.name ?? '');
+
+            return `sw-experience-studio.elements.${elementType}.panels.${panel.technicalName}`;
+        },
+
+        getPanelTitle(panel: SettingsFieldPanel): string {
+            return this.$t(this.getPanelSnippetKey(panel));
+        },
+
+        isPanelExpandedByDefault(panel: SettingsFieldPanel): boolean {
+            return !this.showPanels || panel.technicalName === null || panel.technicalName === 'general';
+        },
+
         getControlType(property: ContentSystemElementTypeProperty): string | null {
             return getPropertyControlType(property);
         },

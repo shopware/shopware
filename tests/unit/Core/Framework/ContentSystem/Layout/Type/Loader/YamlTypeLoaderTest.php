@@ -115,6 +115,29 @@ class YamlTypeLoaderTest extends TestCase
         foreach ($containerProperties['margin']['properties'] as $breakpoint) {
             static::assertSame('0 0 24px 0', $breakpoint['default']);
         }
+
+        $expectedPanels = [
+            'mode' => 'general',
+            'itemMinWidth' => 'general',
+            'columns' => 'general',
+            'rows' => 'general',
+            'gap' => 'spacing',
+            'padding' => 'spacing',
+            'margin' => 'spacing',
+            'centered' => 'spacing',
+            'align' => 'alignment',
+            'alignContent' => 'alignment',
+            'justify' => 'alignment',
+            'justifyContent' => 'alignment',
+            'border' => 'border',
+            'borderVariant' => 'border',
+            'backgroundColor' => 'background',
+            'backgroundImage' => 'background',
+        ];
+
+        foreach ($expectedPanels as $property => $panel) {
+            static::assertSame($panel, $containerProperties[$property]['adminUI']['panel']);
+        }
     }
 
     #[TestDox('returns the directory\'s specifications keyed by their resolved type name, the overlay shape')]

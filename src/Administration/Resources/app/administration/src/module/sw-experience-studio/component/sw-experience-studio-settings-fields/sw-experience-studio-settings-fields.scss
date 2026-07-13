@@ -1,6 +1,51 @@
 .sw-experience-studio-settings-fields {
     display: grid;
-    gap: 12px;
+
+    &__panel {
+        border-bottom: 1px solid var(--color-border-primary-default);
+
+        > .sw-collapse__header {
+            padding: var(--scale-size-16);
+        }
+
+        &.is--plain {
+            border-bottom: 0;
+
+            > .sw-collapse__header {
+                display: none;
+            }
+        }
+    }
+
+    &__panel-header {
+        display: flex;
+        gap: var(--scale-size-8);
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &__panel-title {
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__panel-indicator {
+        flex: 0 0 auto;
+        color: var(--color-icon-primary-default);
+        transition: transform 0.2s ease;
+
+        &.is--expanded {
+            transform: rotate(90deg);
+        }
+    }
+
+    &__panel-content {
+        display: grid;
+        gap: var(--scale-size-12);
+        padding: var(--scale-size-24) var(--scale-size-16) var(--scale-size-16);
+    }
 
     &__radio-panel-group {
         display: grid;

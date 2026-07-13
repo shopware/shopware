@@ -22,6 +22,7 @@ properties:
       - "explicit"
     adminUI:
       component: "radio-panel"
+      panel: "general"
       props:
         options:
           - value: "auto-fit"
@@ -44,6 +45,7 @@ properties:
     default: "400px"
     adminUI:
       component: "text"
+      panel: "general"
       visibleWhen:
         field: "mode"
         in: ["auto-fit", "auto-fill"]
@@ -56,6 +58,7 @@ properties:
     description: "Column count as a single integer or responsive object with breakpoint keys."
     adminUI:
       component: "responsive-number"
+      panel: "general"
       props:
         min: 1
         max: 12
@@ -98,6 +101,7 @@ properties:
     description: "Row count as a single integer or responsive object with breakpoint keys."
     adminUI:
       component: "responsive-number"
+      panel: "general"
       props:
         min: 1
         max: 12
@@ -132,6 +136,14 @@ properties:
         description: "Row count on extra large breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
+  centered:
+    type: boolean
+    title: "Centered"
+    description: "Center container in available width."
+    default: true
+    adminUI:
+      panel: "general"
+
   gap:
     type: integer
     title: "Gap"
@@ -139,6 +151,7 @@ properties:
     default: 24
     adminUI:
       component: "number"
+      panel: "spacing"
 
   padding:
     type:
@@ -148,6 +161,7 @@ properties:
     description: "Breakpoint-aware inner spacing."
     adminUI:
       component: "box-spacing"
+      panel: "spacing"
       breakpointAware: true
     properties:
       xs:
@@ -189,6 +203,7 @@ properties:
     description: "Breakpoint-aware outer spacing."
     adminUI:
       component: "box-spacing"
+      panel: "spacing"
       breakpointAware: true
     properties:
       xs:
@@ -234,6 +249,7 @@ properties:
       - "stretch"
     adminUI:
       component: "radio-panel"
+      panel: "alignment"
       props:
         options:
           - value: "start"
@@ -264,6 +280,7 @@ properties:
       - "spaceEvenly"
     adminUI:
       component: "radio-panel"
+      panel: "alignment"
       props:
         options:
           - value: "start"
@@ -300,6 +317,7 @@ properties:
       - "stretch"
     adminUI:
       component: "radio-panel"
+      panel: "alignment"
       props:
         options:
           - value: "start"
@@ -330,6 +348,7 @@ properties:
       - "spaceEvenly"
     adminUI:
       component: "radio-panel"
+      panel: "alignment"
       props:
         options:
           - value: "start"
@@ -354,12 +373,6 @@ properties:
             label: "Space evenly"
             icon: "regular-align-justify"
 
-  centered:
-    type: boolean
-    title: "Centered"
-    description: "Center container in available width."
-    default: true
-
   border:
     type: string
     title: "Border"
@@ -373,6 +386,7 @@ properties:
       - "start"
     adminUI:
       component: "select"
+      panel: "border"
 
   borderVariant:
     type: string
@@ -385,6 +399,7 @@ properties:
       - "secondarySubtle"
     adminUI:
       component: "select"
+      panel: "border"
 
   backgroundColor:
     type: string
@@ -394,6 +409,7 @@ properties:
     required: false
     adminUI:
       component: "color"
+      panel: "background"
 
   backgroundImage:
     type: Shopware\Core\Content\Media\MediaEntity
@@ -403,6 +419,7 @@ properties:
     resolvedBy: backgroundImageId
     adminUI:
       component: "media-field"
+      panel: "background"
 
 slots:
   - name: content

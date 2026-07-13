@@ -7,6 +7,17 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Create new layout"
     },
+    "elements": {
+      "sw-grid-container": {
+        "panels": {
+          "general": "General",
+          "spacing": "Spacing",
+          "alignment": "Alignment",
+          "border": "Border",
+          "background": "Background"
+        }
+      }
+    },
     "list": {
       "columnName": "Name",
       "columnVersion": "Version",
@@ -76,6 +87,7 @@
         "typeMissing": "No registered element type was found for this component yet.",
         "noEditableProperties": "This element does not provide editable primitive properties.",
         "noEditableStyleOptions": "No layout style options are available.",
+        "panelGeneral": "General",
         "viewportSettings": "Viewport settings",
         "boxSpacingTop": "Top",
         "boxSpacingRight": "Right",

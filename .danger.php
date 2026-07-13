@@ -203,7 +203,11 @@ return (new Config())
         checkMigrationForBundle('Storefront', $context);
     })
     ->useRule(function (Context $context): void {
-        $newSqlHeredocs = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_MODIFIED)->matchesContent('/<<<SQL/');
+        // match against the patch instead of matchesContent(): the diff ships with the file listing,
+        // while matchesContent() downloads the full body of every modified file via the API
+        $newSqlHeredocs = $context->platform->pullRequest->getFiles()
+            ->filterStatus(File::STATUS_MODIFIED)
+            ->filter(static fn (File $file): bool => preg_match('/^\+.*<<<SQL/m', $file->patch) === 1);
 
         if ($newSqlHeredocs->count() <= 0) {
             return;

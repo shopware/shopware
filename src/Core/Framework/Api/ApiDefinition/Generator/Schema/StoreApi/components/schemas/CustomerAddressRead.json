@@ -5,6 +5,7 @@
     "components": {
         "schemas": {
             "CustomerAddressRead": {
+                "x-dto-package": "checkout",
                 "type": "object",
                 "properties": {
                     "id": {

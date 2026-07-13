@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -46,7 +47,7 @@ final class OpenApiDtoClassRenderer
         ];
 
         if ($namespace === '') {
-            throw new \InvalidArgumentException('Namespace cannot be empty.');
+            throw FrameworkException::invalidArgumentException('Namespace cannot be empty.');
         }
 
         $lines[] = 'namespace ' . trim($namespace, '\\') . ';';
@@ -63,6 +64,10 @@ final class OpenApiDtoClassRenderer
 
         if ($definition->description !== null) {
             $lines = [...$lines, ...$this->renderDescription($definition->description)];
+        }
+
+        if ($definition->package !== null) {
+            $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
 
         $lines[] = 'final readonly class ' . $definition->name;
@@ -143,6 +148,18 @@ final class OpenApiDtoClassRenderer
             // TODO: Generate a dedicated DTO for this reference once we also generate static
             // schema files for generic entity definitions (currently produced at runtime by the DAL).
             $lines[] = '         * @todo Replace with the generated DTO once static schema files exist for generic entity definitions.';
+            $lines[] = '         */';
+
+            return $lines;
+        }
+
+        if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->arrayItemType === null) {
+            $lines[] = '        /**';
+            if ($property->description !== null) {
+                $lines[] = '         * ' . $this->escapePhpDoc($property->description);
+                $lines[] = '         *';
+            }
+            $lines[] = '         * @var array<string, mixed>';
             $lines[] = '         */';
 
             return $lines;
@@ -321,6 +338,9 @@ final class OpenApiDtoClassRenderer
         }
         if ($this->needsAssertImport($definition)) {
             $imports['Symfony\Component\Validator\Constraints as Assert'] = true;
+        }
+        if ($definition->package !== null) {
+            $imports['Shopware\Core\Framework\Log\Package'] = true;
         }
 
         foreach ($definition->properties as $property) {

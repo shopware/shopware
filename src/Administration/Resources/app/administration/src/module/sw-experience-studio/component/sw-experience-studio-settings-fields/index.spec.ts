@@ -169,6 +169,38 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         ).toBe(true);
     });
 
+    it('maps corner radius previews from radio panel options', () => {
+        expect(
+            methods.getRadioPanelOptions.call(
+                {
+                    getControlProps: methods.getControlProps,
+                },
+                {
+                    adminUI: {
+                        props: {
+                            options: [
+                                {
+                                    value: '8px',
+                                    label: 'Medium',
+                                    cornerRadius: '8px',
+                                },
+                            ],
+                        },
+                    },
+                },
+            ),
+        ).toEqual([
+            {
+                value: '8px',
+                label: 'Medium',
+                cornerRadius: '8px',
+                icon: undefined,
+                description: undefined,
+                disabled: undefined,
+            },
+        ]);
+    });
+
     it('uses a shared structured default for breakpoint-aware box spacing', () => {
         const value = methods.getResponsiveFallbackValue.call(
             {

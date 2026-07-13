@@ -31,8 +31,18 @@
     centered = true,
     border = null,
     borderVariant = null,
+    backgroundOpacity = 100,
+    borderRadius = '0',
     backgroundColor = null,
     backgroundImage = null,
+    backgroundImageMode = 'auto',
+    shadowOffsetX = 0,
+    shadowOffsetY = 0,
+    shadowSpread = 0,
+    shadowBlur = 0,
+    shadowOpacity = 100,
+    shadowInset = false,
+    shadowColor = '#000000',
     slots = [],
 %}
 
@@ -324,11 +334,22 @@
     {% endif %}
 {% endfor %}
 
-{% if backgroundColor %}
-    {% set gridStyle = gridStyle ~ 'background-color: ' ~ backgroundColor ~ '; ' %}
+{% if backgroundColor and backgroundOpacity > 0 %}
+    {% set gridStyle = gridStyle ~ 'background-color: color-mix(in srgb, ' ~ backgroundColor ~ ' ' ~ backgroundOpacity ~ '%, transparent); ' %}
 {% endif %}
 {% if backgroundImage %}
     {% set gridStyle = gridStyle ~ 'background-image: url(' ~ backgroundImage|sw_encode_media_url ~ '); ' %}
+    {% if backgroundImageMode in ['cover', 'contain'] %}
+        {% set gridStyle = gridStyle ~ 'background-size: ' ~ backgroundImageMode ~ '; background-position: center; background-repeat: no-repeat; ' %}
+    {% endif %}
+{% endif %}
+{% if borderRadius and borderRadius != '0' %}
+    {% set gridStyle = gridStyle ~ 'border-radius: ' ~ borderRadius ~ '; ' %}
+{% endif %}
+{% if shadowColor and shadowOpacity > 0 %}
+    {% set shadowInsetValue = shadowInset ? 'inset ' : '' %}
+    {% set shadowColorValue = 'color-mix(in srgb, ' ~ shadowColor ~ ' ' ~ shadowOpacity ~ '%, transparent)' %}
+    {% set gridStyle = gridStyle ~ 'box-shadow: ' ~ shadowInsetValue ~ shadowOffsetX ~ 'px ' ~ shadowOffsetY ~ 'px ' ~ shadowBlur ~ 'px ' ~ shadowSpread ~ 'px ' ~ shadowColorValue ~ '; ' %}
 {% endif %}
 
 {% if mode == 'auto-fit' or mode == 'auto-fill' %}

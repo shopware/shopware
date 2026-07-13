@@ -14,6 +14,8 @@
           "spacing": "Spacing",
           "alignment": "Alignment",
           "border": "Border",
+          "corners": "Corners",
+          "shadow": "Shadow",
           "background": "Background"
         }
       }

@@ -1,6 +1,10 @@
 .sw-experience-studio-settings-fields {
     display: grid;
 
+    & .mt-switch {
+        margin-top: 0;
+    }
+
     &__panel {
         border-bottom: 1px solid var(--color-border-primary-default);
 
@@ -72,6 +76,13 @@
         min-width: 0;
         height: var(--scale-size-40);
         min-height: var(--scale-size-40);
+    }
+
+    &__corner-radius-preview {
+        display: block;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
+        border: 2px solid currentcolor;
     }
 
     &__responsive-control {

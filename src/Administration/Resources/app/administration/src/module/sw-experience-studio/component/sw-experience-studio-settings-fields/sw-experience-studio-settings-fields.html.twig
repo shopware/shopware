@@ -94,7 +94,13 @@
                                         :title="option.label"
                                         @click="onUpdateResponsiveGlobalProperty(field.key, field.property, field, option.value)"
                                     >
+                                        <span
+                                            v-if="option.cornerRadius"
+                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                            :style="{ borderRadius: option.cornerRadius }"
+                                        />
                                         <mt-icon
+                                            v-else
                                             :name="option.icon || 'regular-square'"
                                             size="16px"
                                         />
@@ -207,7 +213,13 @@
                                             :title="option.label"
                                             @click="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, option.value)"
                                         >
-                                            <mt-icon
+                                        <span
+                                            v-if="option.cornerRadius"
+                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                            :style="{ borderRadius: option.cornerRadius }"
+                                        />
+                                        <mt-icon
+                                            v-else
                                                 :name="option.icon || 'regular-square'"
                                                 size="16px"
                                             />
@@ -234,6 +246,7 @@
                             v-bind="getControlProps(field.property)"
                             :label="field.property.title"
                             :help-text="getPropertyHelpText(field.property)"
+                            :mark-count="0"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
                             @update:model-value="onUpdateField(field.key, $event)"
@@ -242,6 +255,17 @@
                         <mt-number-field
                             v-else-if="getControlType(field.property) === 'number'"
                             v-bind="getControlProps(field.property)"
+                            :label="field.property.title"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :model-value="getPropertyValue(field.key, field.property)"
+                            :disabled="!allowEdit || undefined"
+                            @update:model-value="onUpdateField(field.key, $event)"
+                        />
+
+                        <mt-slider
+                            v-else-if="getControlType(field.property) === 'slider'"
+                            v-bind="getControlProps(field.property)"
+                            class="sw-experience-studio-settings-fields__responsive-slider-input"
                             :label="field.property.title"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
@@ -293,7 +317,13 @@
                                     :title="option.label"
                                     @click="onUpdateRadioPanelProperty(field.key, option.value)"
                                 >
-                                    <mt-icon
+                                        <span
+                                            v-if="option.cornerRadius"
+                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                            :style="{ borderRadius: option.cornerRadius }"
+                                        />
+                                        <mt-icon
+                                            v-else
                                         :name="option.icon || 'regular-square'"
                                         size="16px"
                                     />

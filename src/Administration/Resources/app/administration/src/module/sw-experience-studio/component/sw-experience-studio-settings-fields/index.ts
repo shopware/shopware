@@ -20,6 +20,7 @@ type RadioPanelOption = {
     value: string;
     label: string;
     icon?: string;
+    cornerRadius?: string;
     description?: string;
     disabled?: boolean;
 };
@@ -553,6 +554,7 @@ export default Shopware.Component.wrapComponentConfig({
                             value,
                             label,
                             icon: typeof option.icon === 'string' ? option.icon : undefined,
+                            cornerRadius: typeof option.cornerRadius === 'string' ? option.cornerRadius : undefined,
                             description: typeof option.description === 'string' ? option.description : undefined,
                             disabled: option.disabled === true,
                         };

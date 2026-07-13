@@ -131,13 +131,38 @@ class YamlTypeLoaderTest extends TestCase
             'justifyContent' => 'alignment',
             'border' => 'border',
             'borderVariant' => 'border',
+            'backgroundOpacity' => 'background',
+            'borderRadius' => 'corners',
+            'shadowOffsetX' => 'shadow',
+            'shadowOffsetY' => 'shadow',
+            'shadowSpread' => 'shadow',
+            'shadowBlur' => 'shadow',
+            'shadowOpacity' => 'shadow',
+            'shadowInset' => 'shadow',
+            'shadowColor' => 'shadow',
             'backgroundColor' => 'background',
             'backgroundImage' => 'background',
+            'backgroundImageMode' => 'background',
         ];
 
         foreach ($expectedPanels as $property => $panel) {
             static::assertSame($panel, $containerProperties[$property]['adminUI']['panel']);
         }
+
+        static::assertSame('slider', $containerProperties['backgroundOpacity']['adminUI']['component']);
+        static::assertSame([0, 100, 1], array_values($containerProperties['backgroundOpacity']['adminUI']['props']));
+        static::assertSame('auto', $containerProperties['backgroundImageMode']['default']);
+        static::assertSame(['auto', 'cover', 'contain'], $containerProperties['backgroundImageMode']['enum']);
+        static::assertSame('select', $containerProperties['backgroundImageMode']['adminUI']['component']);
+        static::assertSame(['0', '4px', '8px', '16px', '50%'], $containerProperties['borderRadius']['enum']);
+        static::assertSame('radio-panel', $containerProperties['borderRadius']['adminUI']['component']);
+
+        foreach (['shadowOffsetX', 'shadowOffsetY', 'shadowSpread', 'shadowBlur', 'shadowOpacity'] as $shadowProperty) {
+            static::assertSame('slider', $containerProperties[$shadowProperty]['adminUI']['component']);
+        }
+
+        static::assertSame('color', $containerProperties['shadowColor']['adminUI']['component']);
+        static::assertFalse($containerProperties['shadowInset']['default']);
     }
 
     #[TestDox('returns the directory\'s specifications keyed by their resolved type name, the overlay shape')]

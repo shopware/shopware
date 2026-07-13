@@ -14,6 +14,8 @@
           "spacing": "Abstände",
           "alignment": "Ausrichtung",
           "border": "Rahmen",
+          "corners": "Ecken",
+          "shadow": "Schatten",
           "background": "Hintergrund"
         }
       }

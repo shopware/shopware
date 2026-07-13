@@ -1,6 +1,6 @@
 meta:
   label: "Grid Container"
-  description: "Responsive grid container with configurable columns, rows, spacing, and alignment."
+  description: "The main element for creating responsive layouts. It is the central element to function as a wrapping element for other elements and to achieve certain layout effects."
   icon: "regular-view-grid"
   category: "layout"
   copilot:
@@ -401,6 +401,38 @@ properties:
       component: "select"
       panel: "border"
 
+  borderRadius:
+    type: string
+    title: "Rounded Corners"
+    description: "Corner radius of the container."
+    default: "0"
+    enum:
+      - "0"
+      - "4px"
+      - "8px"
+      - "16px"
+      - "50%"
+    adminUI:
+      component: "radio-panel"
+      panel: "border"
+      props:
+        options:
+          - value: "0"
+            label: "Square"
+            cornerRadius: "0"
+          - value: "4px"
+            label: "Small"
+            cornerRadius: "4px"
+          - value: "8px"
+            label: "Medium"
+            cornerRadius: "8px"
+          - value: "16px"
+            label: "Large"
+            cornerRadius: "16px"
+          - value: "50%"
+            label: "Round"
+            cornerRadius: "50%"
+
   backgroundColor:
     type: string
     title: "Background Color"
@@ -411,6 +443,19 @@ properties:
       component: "color"
       panel: "background"
 
+  backgroundOpacity:
+    type: integer
+    title: "Background Opacity"
+    description: "Opacity of the background color in percent."
+    default: 100
+    adminUI:
+      component: "slider"
+      panel: "background"
+      props:
+        min: 0
+        max: 100
+        step: 1
+
   backgroundImage:
     type: Shopware\Core\Content\Media\MediaEntity
     required: false
@@ -420,6 +465,104 @@ properties:
     adminUI:
       component: "media-field"
       panel: "background"
+
+  backgroundImageMode:
+    type: string
+    title: "Background Image Mode"
+    description: "How the background image is sized inside the container."
+    default: "auto"
+    enum:
+      - "auto"
+      - "cover"
+      - "contain"
+    adminUI:
+      component: "select"
+      panel: "background"
+      visibleWhen:
+        field: "backgroundImage"
+        isNotEmpty: true
+
+  shadowOffsetX:
+    type: integer
+    title: "Shift Right"
+    description: "Horizontal shadow offset in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: -50
+        max: 50
+        step: 1
+
+  shadowOffsetY:
+    type: integer
+    title: "Shift Down"
+    description: "Vertical shadow offset in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: -50
+        max: 50
+        step: 1
+
+  shadowSpread:
+    type: integer
+    title: "Spread"
+    description: "Shadow spread in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: 0
+        max: 50
+        step: 1
+
+  shadowBlur:
+    type: integer
+    title: "Blur"
+    description: "Shadow blur in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: 0
+        max: 50
+        step: 1
+
+  shadowOpacity:
+    type: integer
+    title: "Opacity"
+    description: "Opacity of the shadow color in percent."
+    default: 100
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: 0
+        max: 100
+        step: 1
+
+  shadowInset:
+    type: boolean
+    title: "Inset"
+    description: "Render the shadow inside the container."
+    default: false
+    adminUI:
+      panel: "shadow"
+
+  shadowColor:
+    type: string
+    title: "Color"
+    description: "Color of the shadow."
+    default: "#000000"
+    adminUI:
+      component: "color"
+      panel: "shadow"
 
 slots:
   - name: content

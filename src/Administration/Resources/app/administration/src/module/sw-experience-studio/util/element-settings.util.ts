@@ -11,6 +11,7 @@ import type {
 export type ElementPropertyControlType =
     | 'switch'
     | 'number'
+    | 'slider'
     | 'color'
     | 'select'
     | 'radio-panel'
@@ -25,6 +26,7 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     // Meteor/basic
     'mt-switch': 'switch',
     'mt-number-field': 'number',
+    'mt-slider': 'slider',
     'mt-colorpicker': 'color',
     'mt-select': 'select',
     'radio-panel': 'radio-panel',
@@ -35,6 +37,7 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     select: 'select',
     switch: 'switch',
     number: 'number',
+    slider: 'slider',
     text: 'text',
     'text-editor': 'richtext',
     'entity-single-select': 'entity',

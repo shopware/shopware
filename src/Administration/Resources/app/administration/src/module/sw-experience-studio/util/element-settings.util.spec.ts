@@ -146,6 +146,18 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toBe('responsive-number');
     });
 
+    it('maps adminUI slider properties to slider controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'slider',
+                },
+            }),
+        ).toBe('slider');
+    });
+
     it('maps style option adminUI components to controls', () => {
         expect(
             getPropertyControlType({

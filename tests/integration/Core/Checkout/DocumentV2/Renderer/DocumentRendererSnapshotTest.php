@@ -343,7 +343,6 @@ class DocumentRendererSnapshotTest extends TestCase
             documentDate: $cfg['documentDate'],
             documentNumber: $cfg['documentNumber'],
             documentComment: $cfg['documentComment'],
-            templatePaths: InvoiceDataProvider::TEMPLATE_PATHS,
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: TradePartyView::buyerFromOrder($order),

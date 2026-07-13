@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
@@ -26,6 +27,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class HtmlRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::HTML;
+
+    private const TEMPLATE_PATTERN = '@Framework/documents/%s.html.twig';
 
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
@@ -54,7 +57,11 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
 
         $configuration = new TemplateContext($renderData);
 
-        $template = $renderData->templatePathFor(self::FORMAT->value);
+        if (\preg_match('/^[a-z0-9_]+$/D', $input->documentType) !== 1) {
+            throw DocumentV2Exception::invalidDocumentType($input->documentType);
+        }
+
+        $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 
         $content = $this->documentTemplateRenderer->render(
             $template,

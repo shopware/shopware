@@ -40,6 +40,7 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
@@ -161,6 +162,12 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpRateLimiter::class)
         ->args([service(RateLimiter::class)]);
 
+    $services->set(McpAllowedHostsProvider::class)
+        ->args([
+            service(Connection::class),
+            env('APP_URL'),
+        ]);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
@@ -171,6 +178,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.psr17_factory')->nullOnInvalid(),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
+            service(McpAllowedHostsProvider::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
@@ -213,6 +221,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.psr17_factory')->nullOnInvalid(),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
+            service(McpAllowedHostsProvider::class),
             service('logger'),
         ])
         ->tag('controller.service_arguments')

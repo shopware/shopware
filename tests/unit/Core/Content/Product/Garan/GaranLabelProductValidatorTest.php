@@ -188,6 +188,8 @@ class GaranLabelProductValidatorTest extends TestCase
             ]
         );
 
+        $this->validator->validate($event);
+
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
 

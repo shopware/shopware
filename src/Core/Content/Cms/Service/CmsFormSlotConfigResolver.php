@@ -114,6 +114,10 @@ readonly class CmsFormSlotConfigResolver
 
         $config = $entity->getSlotConfig()[$slotId];
 
+        if (!$config) {
+            return $slotConfig;
+        }
+
         if (\array_key_exists('mailReceiver', $config) && \array_key_exists('value', $config['mailReceiver'])) {
             $slotConfig['receivers'] = $config['mailReceiver']['value'];
         }

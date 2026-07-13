@@ -4,17 +4,19 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-13
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Creates a new address for a customer.
  */
+#[Package('checkout')]
 final readonly class CreateCustomerAddressResponse
 {
     public function __construct(
@@ -110,6 +112,9 @@ final readonly class CreateCustomerAddressResponse
          * Runtime field, cannot be used as part of the criteria.
          */
         public ?string $hash = null,
+        /**
+         * @var array<string, mixed>
+         */
         public ?array $customFields = null,
         /**
          * Added since version: 6.7.7.0. Runtime field, cannot be used as part of the criteria.

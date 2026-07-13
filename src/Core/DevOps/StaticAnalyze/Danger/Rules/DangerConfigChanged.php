@@ -6,18 +6,30 @@ use Danger\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Danger always executes the `.danger.php` of the target branch, so changes to it in a pull
- * request are not applied to that same pull request's Danger run.
+ * Danger always executes the config, rule classes and runner package of the target branch, so
+ * changes to them in a pull request are not applied to that same pull request's Danger run.
  *
  * @internal
  */
 #[Package('framework')]
 class DangerConfigChanged
 {
+    private const WATCHED_PATTERNS = [
+        '.danger.php',
+        'src/Core/DevOps/StaticAnalyze/Danger/*',
+        'vendor-bin/danger-php/*',
+    ];
+
     public function __invoke(Context $context): void
     {
-        if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
-            $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
+        $files = $context->platform->pullRequest->getFiles();
+
+        foreach (self::WATCHED_PATTERNS as $pattern) {
+            if ($files->matches($pattern)->count() > 0) {
+                $context->notice('Changes to the Danger config, rules or runner (`.danger.php`, `src/Core/DevOps/StaticAnalyze/Danger`, `vendor-bin/danger-php`) are not applied to this pull request\'s own Danger run. They take effect for pull requests opened or updated after the merge.');
+
+                return;
+            }
         }
     }
 }

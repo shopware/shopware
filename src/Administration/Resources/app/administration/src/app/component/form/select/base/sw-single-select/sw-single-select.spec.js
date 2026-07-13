@@ -210,9 +210,9 @@ describe('components/sw-single-select', () => {
         await clearableIcon.trigger('click');
         await flushPromises();
 
-        // expect emitting resetting value
+        // expect emitting a real null, not undefined, so it survives JSON.stringify
         const emittedChangeValue = wrapper.emitted('update:value')[0];
-        expect(emittedChangeValue).toEqual([undefined]);
+        expect(emittedChangeValue).toEqual([null]);
 
         // emulate v-model change
         await wrapper.setProps({

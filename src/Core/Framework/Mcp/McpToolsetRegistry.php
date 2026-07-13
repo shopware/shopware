@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Mcp;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
 class McpToolsetRegistry

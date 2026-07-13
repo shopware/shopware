@@ -63,7 +63,7 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                 },
 
                 feature: {
-                    isActive: (flag) => flag === 'MCP_SERVER',
+                    isActive: () => false,
                 },
             },
 

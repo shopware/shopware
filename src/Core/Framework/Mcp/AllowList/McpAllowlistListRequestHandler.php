@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * @internal
  *

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
@@ -39,8 +38,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     #[DataProvider('expectedTools')]
     public function testExpectedToolIsDiscovered(string $name): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         static::assertContains(
             $name,
             $this->listCapabilities('tools/list', 'tools'),
@@ -54,8 +51,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     #[DataProvider('expectedPrompts')]
     public function testExpectedPromptIsDiscovered(string $name): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         static::assertContains(
             $name,
             $this->listCapabilities('prompts/list', 'prompts'),
@@ -66,8 +61,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     #[DataProvider('expectedResources')]
     public function testExpectedResourceIsDiscovered(string $name): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         static::assertContains(
             $name,
             $this->listCapabilities('resources/list', 'resources'),

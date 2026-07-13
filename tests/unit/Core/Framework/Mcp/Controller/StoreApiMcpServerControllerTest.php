@@ -39,14 +39,12 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $_SERVER['MCP_SERVER'] = '1';
         $this->rateLimiter = $this->createMock(RateLimiter::class);
         $this->psr17 = new Psr17Factory();
     }
 
     protected function tearDown(): void
     {
-        unset($_SERVER['MCP_SERVER']);
         Clock::set(new NativeClock());
     }
 
@@ -72,15 +70,6 @@ class StoreApiMcpServerControllerTest extends TestCase
         $response = $controller->handle($sfRequest);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-    public function testHandleReturnsNotFoundWhenFeatureFlagIsInactive(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-
-        $controller = $this->buildController(new ServerRequest('POST', '/store-api/_mcp'));
-
-        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
     }
 
     public function testRateLimitUsesSalesChannelContext(): void

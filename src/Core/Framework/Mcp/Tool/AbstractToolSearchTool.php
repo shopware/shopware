@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\Framework\Util\Json;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * @internal
  */

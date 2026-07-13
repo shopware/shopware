@@ -73,6 +73,8 @@
     },
     "notification-center": {
       "title": "Notifications",
+      "triggerAriaLabel": "Notifications",
+      "optionsAriaLabel": "Notification options",
       "emptyText": "You're all caught up",
       "emptyDescription": "New notifications will appear here.",
       "ringBellLabel": "Ring notification bell",

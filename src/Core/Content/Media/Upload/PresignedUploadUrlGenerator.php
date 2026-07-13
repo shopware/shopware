@@ -10,6 +10,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -76,11 +77,11 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
     public function generate(MediaLocationStruct $location, string $mimeType): PresignedUrlResult
     {
-        if (!$this->enabled) {
+        if (!$this->isEnabled()) {
             throw MediaException::presignedUploadDisabled();
         }
 
-        if (!$this->isSupported()) {
+        if ($this->s3Client === null || $this->bucket === null) {
             throw MediaException::presignedUploadNotSupported();
         }
 
@@ -92,10 +93,6 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             throw MediaException::missingFileExtension();
         }
 
-        if ($this->s3Client === null || $this->bucket === null) {
-            throw MediaException::presignedUploadNotSupported();
-        }
-
         $paths = $this->mediaPathStrategy->generate([$location]);
         $mediaPath = $paths[$location->id] ?? throw MediaException::strategyNotFound($this->mediaPathStrategy->name());
         $s3Key = $this->ensureRootPrefix($mediaPath);
@@ -103,10 +100,14 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         $expiresAt = $this->clock->now()->modify(\sprintf('+%d minutes', $this->expirationMinutes));
 
         try {
+            // The presigned ContentType must match the `Content-Type` header the browser sends on the PUT
+            // byte-for-byte, otherwise S3 rejects the upload with `SignatureDoesNotMatch`. The client applies the
+            // same charset canonicalization before sending — see `withCharset()` in
+            // src/Administration/Resources/app/administration/src/core/service/api/media-presigned-upload.api.service.js
             $request = new PutObjectRequest([
                 'Bucket' => $this->bucket,
                 'Key' => $s3Key,
-                'ContentType' => $mimeType,
+                'ContentType' => FileInfoHelper::addCharset($mimeType),
             ]);
 
             $url = $this->s3Client->presign($request, $expiresAt);

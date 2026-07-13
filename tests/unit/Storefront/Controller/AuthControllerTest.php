@@ -5,17 +5,26 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -195,6 +204,43 @@ class AuthControllerTest extends TestCase
         static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());
     }
 
+    public function testConvertSetsInfoFlashOnRateLimitExceeded(): void
+    {
+        $convertGuestRoute = static::createStub(ConvertGuestRoute::class);
+
+        $convertGuestRoute->method('convertGuest')
+            ->willThrowException(
+                new RateLimitExceededException(60)
+            );
+
+        $this->controller = new AuthControllerTestClass(
+            static::createStub(AccountLoginPageLoader::class),
+            static::createStub(AbstractSendPasswordRecoveryMailRoute::class),
+            static::createStub(ResetPasswordRoute::class),
+            static::createStub(LoginRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
+            static::createStub(ImitateCustomerRoute::class),
+            static::createStub(StorefrontCartFacade::class),
+            static::createStub(AccountRecoverPasswordPageLoader::class),
+            $convertGuestRoute,
+            static::createStub(SystemConfigService::class),
+        );
+
+        $data = new RequestDataBag([
+            'password' => 'password',
+        ]);
+
+        $customer = new CustomerEntity();
+        $customer->setGuest(true);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $this->controller->convert($data, $context);
+
+        static::assertSame('frontend.account.convert.page', $this->controller->forwardToRoute);
+    }
+
     private function createController(
         ?AccountLoginPageLoader $accountLoginPageLoader = null,
         ?AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader = null,
@@ -206,6 +252,9 @@ class AuthControllerTest extends TestCase
         $cartFacade = static::createStub(StorefrontCartFacade::class);
         $recoverPasswordRoute = static::createStub(AccountRecoverPasswordPageLoader::class);
 
+        $abstractConvertGuestRoute = static::createStub(AbstractConvertGuestRoute::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
+
         $controller = new AuthControllerTestClass(
             $accountLoginPageLoader ?? $this->accountLoginPageLoader,
             $passwordRecoveryPageLoader ?? $this->passwordRecoveryPageLoader,
@@ -215,6 +264,8 @@ class AuthControllerTest extends TestCase
             $imitateCustomerRoute,
             $cartFacade,
             $recoverPasswordRoute,
+            $abstractConvertGuestRoute,
+            $systemConfigService
         );
 
         $containerBuilder = new ContainerBuilder();

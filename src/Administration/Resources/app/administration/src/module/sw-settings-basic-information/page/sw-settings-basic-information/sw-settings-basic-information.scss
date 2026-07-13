@@ -1,0 +1,24 @@
+.sw-settings-basic-information {
+    .sw-system-config__card--company-information {
+        .mt-card__content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0 30px;
+        }
+
+        .sw-system-config--field-core-basic-information-company-logo-id {
+            grid-column: 1 / -1;
+            width: 50%;
+            min-width: 200px;
+            margin-bottom: var(--scale-size-32);
+        }
+
+        .mt-card__content > :nth-last-child(-n+3) {
+            margin-bottom: 0;
+
+            .mt-field {
+                margin-bottom: 0;
+            }
+        }
+    }
+}

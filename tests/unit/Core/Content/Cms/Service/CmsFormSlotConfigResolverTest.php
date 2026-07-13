@@ -145,6 +145,7 @@ class CmsFormSlotConfigResolverTest extends TestCase
         $navigationId = Uuid::randomHex();
         $landingPage = new LandingPageEntity();
         $landingPage->setId($navigationId);
+        // @phpstan-ignore argument.type (intentionally malformed fixture)
         $landingPage->setSlotConfig([$slotId => [
             'mailReceiver' => null,
             'confirmationText' => null,

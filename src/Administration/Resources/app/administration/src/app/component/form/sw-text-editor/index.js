@@ -645,6 +645,11 @@ export default {
             ].includes(type);
         },
 
+        /**
+         * Some browsers wrap aligned plain text in presentation-only markup, e.g.
+         * `<div style="text-align: center;"><span style="font-size: 14px;">abc</span></div>`.
+         * The alignment belongs to the block element, so the generated span can be removed.
+         */
         removeBrowserGeneratedAlignmentStyleSpans() {
             if (!this.$refs.textEditor) {
                 return;
@@ -667,6 +672,10 @@ export default {
             });
         },
 
+        /**
+         * Only remove narrow browser artifacts, not intentional styling.
+         * Example: `font-size: 14px` is removable, `color: red` alone is not.
+         */
         isRemovableBrowserGeneratedStyleSpan(span) {
             if (span.attributes.length !== 1 || !span.hasAttribute('style')) {
                 return false;
@@ -699,6 +708,10 @@ export default {
             });
         },
 
+        /**
+         * Preserve all child nodes while removing a wrapper element.
+         * Example: `<span>abc <b>def</b></span>` becomes `abc <b>def</b>`.
+         */
         unwrapElement(element) {
             const parentElement = element.parentElement;
 

@@ -102,16 +102,15 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
+        // match added lines in the patch instead of matchesContent(): the diff ships with the file
+        // listing (no per-file API download), and only newly introduced usage is flagged;
+        // lines mentioning a deprecation are excluded, like the previous filter intended
+        $isNewRepoUse = static fn (File $file): bool => preg_match('/^\+(?!.*@deprecated).*EntityRepository/m', $file->patch) === 1;
+
         $newRepoUseInFrontend = array_merge(
-            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
-                ->matchesContent('/EntityRepository/')
-                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
-                ->matchesContent('/EntityRepository/')
-                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
-                ->matchesContent('/EntityRepository/')
-                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')->filter($isNewRepoUse)->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')->filter($isNewRepoUse)->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')->filter($isNewRepoUse)->getElements(),
         );
 
         if (count($newRepoUseInFrontend) > 0) {

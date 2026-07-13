@@ -21,7 +21,7 @@ class MissingReleaseInfo
     {
         $files = $context->platform->pullRequest->getFiles();
 
-        if ($files->count() > 0 && $this->isTestOnly($files->getKeys())) {
+        if ($files->count() > 0 && $this->isNeverExternallyRelevant($files->getKeys())) {
             return;
         }
 
@@ -31,21 +31,21 @@ class MissingReleaseInfo
     }
 
     /**
-     * Changes confined to the test trees are never relevant for external developers.
+     * Changes confined to the test suites or the static-analysis tooling are never relevant
+     * for external developers.
      *
-     * @param list<string|int> $fileNames
+     * @param array<string|int> $fileNames
      */
-    private function isTestOnly(array $fileNames): bool
+    private function isNeverExternallyRelevant(array $fileNames): bool
     {
         foreach ($fileNames as $fileName) {
-            $isTestFile = match (true) {
-                str_starts_with((string) $fileName, 'tests/unit/'),
-                str_starts_with((string) $fileName, 'tests/integration/'),
-                str_starts_with((string) $fileName, 'tests/devops/') => true,
+            $isIrrelevant = match (true) {
+                str_starts_with((string) $fileName, 'tests/'),
+                str_starts_with((string) $fileName, 'src/Core/DevOps/StaticAnalyze/') => true,
                 default => false,
             };
 
-            if (!$isTestFile) {
+            if (!$isIrrelevant) {
                 return false;
             }
         }

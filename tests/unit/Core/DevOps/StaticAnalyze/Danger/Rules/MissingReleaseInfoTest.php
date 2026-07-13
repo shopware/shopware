@@ -55,9 +55,9 @@ class MissingReleaseInfoTest extends TestCase
     /**
      * @param list<string> $touchedFiles
      */
-    #[TestDox('Test-only pull requests are never relevant for external developers and skip the warning')]
-    #[DataProvider('suiteOnlyFilesProvider')]
-    public function testTestOnlyPullRequests(array $touchedFiles, bool $expectWarning): void
+    #[TestDox('Pull requests confined to tests or static-analysis tooling are never relevant for external developers and skip the warning')]
+    #[DataProvider('neverExternallyRelevantFilesProvider')]
+    public function testNeverExternallyRelevantPullRequests(array $touchedFiles, bool $expectWarning): void
     {
         $files = array_map(static fn (string $name): StubFile => new StubFile($name), $touchedFiles);
         $context = new Context(new StubPlatform(new StubPullRequest($files)));
@@ -67,26 +67,23 @@ class MissingReleaseInfoTest extends TestCase
         static::assertSame($expectWarning, $context->hasWarnings());
     }
 
-    public static function suiteOnlyFilesProvider(): \Generator
+    public static function neverExternallyRelevantFilesProvider(): \Generator
     {
-        yield 'unit-test-only change skips the warning' => [
+        yield 'test-only change skips the warning' => [
             ['tests/unit/Core/Checkout/Cart/CartCalculatorTest.php'],
             false,
         ];
-        yield 'integration-test-only change skips the warning' => [
-            ['tests/integration/Core/Framework/Api/SyncControllerTest.php'],
-            false,
-        ];
-        yield 'devops-test-only change skips the warning' => [
-            ['tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/SomeRuleTest.php'],
-            false,
-        ];
-        yield 'a mix of the three test suites skips the warning' => [
+        yield 'change across several test suites skips the warning' => [
             [
                 'tests/unit/Core/Checkout/Cart/CartCalculatorTest.php',
                 'tests/integration/Core/Framework/Api/SyncControllerTest.php',
+                'tests/migration/Core/V6_7/Migration1752000000AddFooTest.php',
                 'tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/SomeRuleTest.php',
             ],
+            false,
+        ];
+        yield 'static-analysis tooling change skips the warning' => [
+            ['src/Core/DevOps/StaticAnalyze/Danger/Rules/MissingReleaseInfo.php'],
             false,
         ];
         yield 'tests mixed with src changes still warn' => [
@@ -96,8 +93,22 @@ class MissingReleaseInfoTest extends TestCase
             ],
             true,
         ];
-        yield 'migration tests are not exempt, migrations can be externally relevant' => [
-            ['tests/migration/Core/V6_7/Migration1752000000AddFooTest.php'],
+        yield 'tests mixed with a composer.json change still warn' => [
+            [
+                'tests/unit/Core/Checkout/Cart/CartCalculatorTest.php',
+                'composer.json',
+            ],
+            true,
+        ];
+        yield 'static-analysis tooling mixed with other src changes still warns' => [
+            [
+                'src/Core/DevOps/StaticAnalyze/PHPStan/Rules/SomeRule.php',
+                'src/Core/Checkout/Cart/CartCalculator.php',
+            ],
+            true,
+        ];
+        yield 'sibling DevOps code outside StaticAnalyze still warns' => [
+            ['src/Core/DevOps/System/Command/SystemDumpDatabaseCommand.php'],
             true,
         ];
     }

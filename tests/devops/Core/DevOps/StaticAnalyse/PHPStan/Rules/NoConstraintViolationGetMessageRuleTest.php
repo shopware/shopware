@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
-use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoConstraintViolationGetMessageRule;
@@ -21,17 +20,12 @@ class NoConstraintViolationGetMessageRuleTest extends RuleTestCase
     public function testGetMessageIsForbiddenAndGetCodeIsAllowed(): void
     {
         $this->analyse([__DIR__ . '/data/NoConstraintViolationGetMessageRule/Usage.php'], [
-            [self::ERROR, 9],
+            [self::ERROR, 13],
         ]);
     }
 
     protected function getRule(): Rule
     {
-        return new class extends NoConstraintViolationGetMessageRule {
-            protected function isPathExempt(Scope $scope): bool
-            {
-                return false;
-            }
-        };
+        return new NoConstraintViolationGetMessageRule();
     }
 }

@@ -21,6 +21,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 #[Package('framework')]
 class NoConstraintViolationGetMessageRule implements Rule
 {
+    private const SHOPWARE_STOREFRONT_CONTROLLER = 'Shopware\\Storefront\\Controller';
     private const MESSAGE = 'Do not use ConstraintViolationInterface::getMessage(). Use getCode() and translate it through the Shopware translator.';
 
     public function getNodeType(): string
@@ -38,7 +39,9 @@ class NoConstraintViolationGetMessageRule implements Rule
             return [];
         }
 
-        if ($this->isPathExempt($scope)) {
+        $classReflection = $scope->getClassReflection();
+
+        if ($classReflection === null || !str_contains($classReflection->getName(), self::SHOPWARE_STOREFRONT_CONTROLLER)) {
             return [];
         }
 
@@ -53,10 +56,5 @@ class NoConstraintViolationGetMessageRule implements Rule
                 ->identifier('shopware.constraintViolationGetMessage')
                 ->build(),
         ];
-    }
-
-    protected function isPathExempt(Scope $scope): bool
-    {
-        return !str_contains($scope->getFile(), '/Controller/');
     }
 }

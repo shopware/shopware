@@ -1,10 +1,15 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Storefront\Controller;
+
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
-function useConstraintViolation(ConstraintViolationInterface $violation): string
+class Usage extends StorefrontController
 {
-    $violation->getCode();
+    public function useConstraintViolation(ConstraintViolationInterface $violation): string
+    {
+        $violation->getCode();
 
-    return $violation->getMessage();
+        return $violation->getMessage();
+    }
 }

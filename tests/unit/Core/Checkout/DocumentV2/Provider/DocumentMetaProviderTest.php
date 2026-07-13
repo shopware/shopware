@@ -14,12 +14,15 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -123,8 +126,19 @@ class DocumentMetaProviderTest extends TestCase
             new DocumentBaseConfigDefinition(),
         );
 
+        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
+        $mediaRepository = new StaticEntityRepository(
+            [new MediaCollection([])],
+            new MediaDefinition(),
+        );
+
         return new DocumentMetaProvider(
-            new DocumentConfigLoader($documentConfigRepository, $countryRepository),
+            new DocumentConfigLoader(
+                $documentConfigRepository,
+                $countryRepository,
+                $mediaRepository,
+                static::createStub(SystemConfigService::class),
+            ),
         );
     }
 

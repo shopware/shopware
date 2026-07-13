@@ -499,7 +499,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(

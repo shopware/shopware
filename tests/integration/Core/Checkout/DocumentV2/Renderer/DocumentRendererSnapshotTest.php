@@ -271,7 +271,7 @@ class DocumentRendererSnapshotTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{DocumentType, class-string<AbstractDocumentDataProvider>, class-string<AbstractDocumentRenderer>}>
+     * @return iterable<string, array{documentType:DocumentType, dataProviderClass:class-string<AbstractDocumentDataProvider>, legacyRendererClass:class-string<AbstractDocumentRenderer>}>
      */
     public static function provideLegacyDocumentTypes(): iterable
     {

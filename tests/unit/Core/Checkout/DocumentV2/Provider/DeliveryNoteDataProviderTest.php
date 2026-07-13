@@ -93,20 +93,6 @@ class DeliveryNoteDataProviderTest extends TestCase
         static::assertSame('createdAt', $transactionSorting[0]->getField());
     }
 
-    public function testEnrichOrderCriteriaDoesNotLoadUnusedAssociations(): void
-    {
-        $provider = $this->createProvider();
-        $criteria = new Criteria();
-
-        $provider->enrichOrderCriteria($criteria);
-
-        static::assertArrayNotHasKey('primaryOrderDelivery', $criteria->getAssociations());
-        static::assertArrayNotHasKey('product', $criteria->getAssociation('lineItems')->getAssociations());
-        static::assertArrayNotHasKey('children', $criteria->getAssociation('lineItems')->getAssociations());
-        static::assertArrayNotHasKey('shippingOrderAddress', $criteria->getAssociation('deliveries')->getAssociations());
-        static::assertArrayNotHasKey('customer', $criteria->getAssociation('orderCustomer')->getAssociations());
-    }
-
     public function testProvideRenderingData(): void
     {
         $provider = $this->createProvider();

@@ -38,7 +38,7 @@ class PermissionsSubscriberTest extends TestCase
         $manager = $this->createMock(LifecycleManager::class);
         $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ServiceConsentRequirement::NAME, $this->context);
 
         (new PermissionsSubscriber($manager))->syncConsentRequirement($event);
@@ -57,7 +57,7 @@ class PermissionsSubscriberTest extends TestCase
         $manager = $this->createMock(LifecycleManager::class);
         $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ServiceConsentRequirement::NAME, $this->context);
 
         (new PermissionsSubscriber($manager))->syncConsentRequirement($event);

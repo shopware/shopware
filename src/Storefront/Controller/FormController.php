@@ -73,7 +73,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->trans('error.' . $violation->getCode());
             }
             $response[] = [
                 'type' => 'danger',
@@ -145,7 +145,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->trans('error.' . $violation->getCode());
             }
             $response[] = [
                 'type' => 'danger',
@@ -197,7 +197,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $exception) {
             $errors = [];
             foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+                $errors[] = $this->trans('error.' . $error->getCode());
             }
             $response[] = [
                 'type' => 'danger',
@@ -243,7 +243,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $exception) {
             $errors = [];
             foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+                $errors[] = $this->trans('error.' . $error->getCode());
             }
             $response[] = [
                 'type' => 'danger',

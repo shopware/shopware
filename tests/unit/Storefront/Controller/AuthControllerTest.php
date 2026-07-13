@@ -201,7 +201,7 @@ class AuthControllerTest extends TestCase
         $formViolations = $controller->forwardToRouteAttributes['formViolations'];
 
         static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
-        static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());
+        static::assertSame('VIOLATION::INVALID_FORMAT_ERROR', $formViolations->getViolations()->get(1)->getCode());
     }
 
     public function testConvertSetsInfoFlashOnRateLimitExceeded(): void

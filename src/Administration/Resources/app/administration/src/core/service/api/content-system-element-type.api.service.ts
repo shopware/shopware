@@ -68,6 +68,22 @@ export interface ContentSystemElementTypeSlot {
 /**
  * @private
  */
+export interface ContentSystemElementTypeBindingResolve {
+    loader: string;
+    config: Record<string, unknown>;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypeBindingSpecification {
+    default: boolean;
+    resolves: Record<string, ContentSystemElementTypeBindingResolve>;
+}
+
+/**
+ * @private
+ */
 export interface ContentSystemElementTypeSpecification {
     name: string;
     label: string;
@@ -81,6 +97,7 @@ export interface ContentSystemElementTypeSpecification {
     };
     properties: Record<string, ContentSystemElementTypeProperty>;
     slots: ContentSystemElementTypeSlot[];
+    bindingSpecifications?: Record<string, ContentSystemElementTypeBindingSpecification>;
 }
 
 /**

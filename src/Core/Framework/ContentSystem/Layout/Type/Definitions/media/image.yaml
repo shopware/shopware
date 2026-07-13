@@ -14,7 +14,7 @@ properties:
     type: Shopware\Core\Content\Media\MediaEntity
     required: true
     title: "Media"
-    description: "Hydrated media entity resolved from mediaId."
+    description: "The image to be shown."
     resolvedBy: mediaId
     adminUI:
       component: "media-field"

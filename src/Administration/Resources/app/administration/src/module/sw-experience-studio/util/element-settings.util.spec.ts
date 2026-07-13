@@ -2,6 +2,7 @@ import type { ContentSystemElementTypeProperty } from 'src/core/service/api/cont
 import {
     getAdminUiHelpText,
     getAdminUiProps,
+    getElementPropertyStorageKey,
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
@@ -18,6 +19,46 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         description: 'Headline text',
         adminUI: null,
     };
+
+    it('uses the resolvedBy storage key from the default entity binding', () => {
+        expect(
+            getElementPropertyStorageKey(
+                {
+                    bindingSpecifications: {
+                        'core:Sw:Media:Image': {
+                            default: true,
+                            resolves: {
+                                media: {
+                                    loader: 'entity',
+                                    config: {
+                                        entity: 'media',
+                                        property: 'mediaId',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                'media',
+            ),
+        ).toBe('mediaId');
+    });
+
+    it('keeps the declared key for properties without a resolvedBy entity binding', () => {
+        expect(
+            getElementPropertyStorageKey(
+                {
+                    bindingSpecifications: {
+                        'core:Sw:Content:Text': {
+                            default: true,
+                            resolves: {},
+                        },
+                    },
+                },
+                'text',
+            ),
+        ).toBe('text');
+    });
 
     it('maps boolean properties to switch controls', () => {
         expect(getPropertyControlType({

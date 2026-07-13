@@ -1,6 +1,7 @@
 import type {
     ContentSystemElementAdminUiVisibleWhenCondition,
     ContentSystemElementTypeProperty,
+    ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
 
 export type ElementPropertyControlType =
@@ -39,6 +40,37 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'responsive-number': 'responsive-number',
     'box-spacing': 'box-spacing',
 };
+
+/**
+ * Returns the property key used by the persisted layout.
+ *
+ * Reference properties using `resolvedBy` are exposed through the default
+ * binding specification. Its entity loader reads the reference ID from a
+ * separate storage property.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function getElementPropertyStorageKey(
+    typeSpecification: Pick<ContentSystemElementTypeSpecification, 'bindingSpecifications'>,
+    propertyKey: string,
+): string {
+    for (const bindingSpecification of Object.values(typeSpecification.bindingSpecifications ?? {})) {
+        const resolve = bindingSpecification.default ? bindingSpecification.resolves[propertyKey] : undefined;
+
+        if (!resolve || (resolve.loader !== 'entity' && resolve.loader !== 'entity_collection')) {
+            continue;
+        }
+
+        const resolvedBy = resolve.config.property;
+
+        if (typeof resolvedBy === 'string' && resolvedBy.length > 0) {
+            return resolvedBy;
+        }
+    }
+
+    return propertyKey;
+}
 
 /**
  * @private

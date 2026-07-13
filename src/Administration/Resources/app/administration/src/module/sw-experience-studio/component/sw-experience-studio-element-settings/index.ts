@@ -5,6 +5,7 @@ import type {
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
+    getElementPropertyStorageKey,
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
@@ -112,8 +113,23 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementPropertyValues(): Record<string, unknown> {
             const selectedElement = this.selectedElement as ContentElementNode | null;
+            const typeSpecification = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const properties = selectedElement?.properties ?? {};
+            const values = { ...properties };
 
-            return selectedElement?.properties ?? {};
+            if (!typeSpecification) {
+                return values;
+            }
+
+            for (const key of Object.keys(typeSpecification.properties)) {
+                const storageKey = getElementPropertyStorageKey(typeSpecification, key);
+
+                if (storageKey !== key && Object.prototype.hasOwnProperty.call(properties, storageKey)) {
+                    values[key] = properties[storageKey];
+                }
+            }
+
+            return values;
         },
 
         elementStyleValues(): Record<string, unknown> {
@@ -132,7 +148,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             const resolvedPropertyValues = Object.entries(typeSpecification.properties).reduce<Record<string, unknown>>(
                 (accumulator, [key, property]) => {
-                    const currentValue = selectedElement?.properties?.[key];
+                    const storageKey = getElementPropertyStorageKey(typeSpecification, key);
+                    const elementProperties = selectedElement?.properties ?? {};
+                    const currentValue = Object.prototype.hasOwnProperty.call(elementProperties, storageKey)
+                        ? elementProperties[storageKey]
+                        : elementProperties[key];
                     accumulator[key] = getInitialPropertyValue(property, currentValue);
 
                     return accumulator;
@@ -198,10 +218,15 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            const typeSpecification = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const storageKey = typeSpecification
+                ? getElementPropertyStorageKey(typeSpecification, payload.key)
+                : payload.key;
+
             this.$emit('update-properties', {
                 elementId: selectedElement.id,
                 properties: {
-                    [payload.key]: payload.value,
+                    [storageKey]: payload.value,
                 },
             });
         },

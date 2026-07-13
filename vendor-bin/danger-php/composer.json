@@ -1,0 +1,11 @@
+{
+    "require": {
+        "shyim/danger-php": "^0.3.13"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        },
+        "sort-packages": true
+    }
+}

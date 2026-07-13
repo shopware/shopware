@@ -125,7 +125,6 @@ class McpToolsetRegistryTest extends TestCase
             $registry->registerTool(
                 new Tool($toolName, null, ['type' => 'object', 'properties' => [], 'required' => []], null, null),
                 'Acme\\' . str_replace('-', '', ucwords($toolName, '-')),
-                true,
             );
         }
 

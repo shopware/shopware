@@ -627,7 +627,90 @@ export default {
             }
 
             document.execCommand(type, false, value);
+
+            if (this.isTextAlignmentCommand(type)) {
+                this.fixWrongNodes(true, false);
+                this.removeBrowserGeneratedAlignmentStyleSpans();
+            }
+
             this.emitContent();
+        },
+
+        isTextAlignmentCommand(type) {
+            return [
+                'justifyLeft',
+                'justifyCenter',
+                'justifyRight',
+                'justifyFull',
+            ].includes(type);
+        },
+
+        removeBrowserGeneratedAlignmentStyleSpans() {
+            if (!this.$refs.textEditor) {
+                return;
+            }
+
+            const blockElements = this.$refs.textEditor.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote');
+
+            blockElements.forEach((blockElement) => {
+                if (!blockElement.style.textAlign) {
+                    return;
+                }
+
+                blockElement.querySelectorAll('span[style]').forEach((span) => {
+                    if (!this.isRemovableBrowserGeneratedStyleSpan(span)) {
+                        return;
+                    }
+
+                    this.unwrapElement(span);
+                });
+            });
+        },
+
+        isRemovableBrowserGeneratedStyleSpan(span) {
+            if (span.attributes.length !== 1 || !span.hasAttribute('style')) {
+                return false;
+            }
+
+            const style = span.style;
+            const styleProperties = Array.from(style);
+
+            if (styleProperties.length < 1) {
+                return false;
+            }
+
+            const hasTransparentBackground = style.getPropertyValue('background-color') === 'transparent';
+            const hasOnlyFontSize = styleProperties.length === 1 && styleProperties.includes('font-size');
+
+            if (hasOnlyFontSize) {
+                return style.getPropertyValue('font-size').length > 0;
+            }
+
+            if (!hasTransparentBackground) {
+                return false;
+            }
+
+            return styleProperties.every((styleProperty) => {
+                return [
+                    'background-color',
+                    'color',
+                    'font-size',
+                ].includes(styleProperty);
+            });
+        },
+
+        unwrapElement(element) {
+            const parentElement = element.parentElement;
+
+            if (!parentElement) {
+                return;
+            }
+
+            while (element.firstChild) {
+                parentElement.insertBefore(element.firstChild, element);
+            }
+
+            parentElement.removeChild(element);
         },
 
         expandSelectionToNearestEndBracket() {
@@ -868,8 +951,9 @@ export default {
          * This helps to achieve a consistent text formatting.
          *
          * @param {boolean} replaceDivNodes - Defines if <div> nodes should be replaced. Defaults to false.
+         * @param {boolean} shouldEmitContent - Defines if the content should be emitted after fixing nodes. Defaults to true.
          */
-        fixWrongNodes(replaceDivNodes = false) {
+        fixWrongNodes(replaceDivNodes = false, shouldEmitContent = true) {
             // Valid section elements that should stay as they are.
             const sectionElements = this.sectionElementTags;
 
@@ -934,7 +1018,9 @@ export default {
                 }
             });
 
-            this.emitContent();
+            if (shouldEmitContent) {
+                this.emitContent();
+            }
         },
 
         /**

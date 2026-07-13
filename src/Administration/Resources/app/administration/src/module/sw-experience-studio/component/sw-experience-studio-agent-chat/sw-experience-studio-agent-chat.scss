@@ -1,0 +1,91 @@
+.sw-experience-studio-agent-chat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-elevation-surface-default);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+        border-bottom: 1px solid var(--color-border-primary-default);
+
+        h2 {
+            margin: 0;
+            font-size: var(--font-size-m);
+        }
+    }
+
+    &__messages {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 0;
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    &__message {
+        max-width: 88%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+
+        &--user {
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+            background: var(--color-interaction-primary-default);
+            color: var(--color-text-inverse-default);
+        }
+
+        &--assistant {
+            max-width: 100%;
+            padding-inline: 0;
+            align-self: flex-start;
+            background: transparent;
+            color: var(--color-text-primary-default);
+        }
+    }
+
+    &__error {
+        margin: 8px 0;
+        color: var(--color-text-critical-default);
+    }
+
+    &__thinking {
+        align-self: flex-start;
+        margin: 0;
+        color: var(--color-text-secondary-default);
+        animation: sw-experience-studio-agent-thinking 1.6s ease-in-out infinite;
+    }
+
+    &__form {
+        display: grid;
+        gap: 8px;
+        padding: 0 16px 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-border-primary-default);
+
+        .mt-textarea {
+            margin-bottom: 0;
+        }
+
+        > .mt-button {
+            justify-self: end;
+        }
+    }
+}
+
+@keyframes sw-experience-studio-agent-thinking {
+    0%,
+    100% {
+        opacity: 0.45;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}

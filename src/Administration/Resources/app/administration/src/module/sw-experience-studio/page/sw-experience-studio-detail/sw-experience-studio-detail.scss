@@ -16,7 +16,8 @@
 
     &__sidebar-tree,
     &__preview,
-    &__element-settings {
+    &__element-settings,
+    &__agent-chat {
         min-height: 0;
         overflow: hidden;
     }
@@ -29,7 +30,8 @@
         border-right: 1px solid var(--color-border-primary-default);
     }
 
-    &__element-settings {
+    &__element-settings,
+    &__agent-chat {
         border-left: 1px solid var(--color-border-primary-default);
     }
 }

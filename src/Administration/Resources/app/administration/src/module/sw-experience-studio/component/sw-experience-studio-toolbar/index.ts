@@ -69,6 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
         'preview-entity-id-change',
         'undo',
         'redo',
+        'open-agent-chat',
     ],
 
     computed: {
@@ -110,6 +111,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         onRedo(): void {
             this.$emit('redo');
+        },
+
+        onOpenAgentChat(): void {
+            this.$emit('open-agent-chat');
         },
     },
 });

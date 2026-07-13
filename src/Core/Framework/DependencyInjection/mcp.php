@@ -65,6 +65,16 @@ use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemLayoutMutationTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemLayoutResource;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemElementTypesResource;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemLayoutDiagnoseTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemPreviewTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemStyleOptionsResource;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemEntityTypesResource;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemDataLoadersResource;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemLayoutConfigureTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\ContentSystemLayoutComposeTool;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -297,6 +307,39 @@ return static function (ContainerConfigurator $container): void {
         ])
         ->tag('mcp.tool');
 
+    $services->set(ContentSystemLayoutMutationTool::class)
+        ->args([
+            service('Shopware\\Core\\Framework\\ContentSystem\\Api\\LayoutMutationController'),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentSystemLayoutConfigureTool::class)
+        ->args([service(McpContextProvider::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ContentSystemLayoutComposeTool::class)
+        ->args([
+            service('Shopware\\Core\\Framework\\ContentSystem\\Api\\LayoutMutationController'),
+            service(ContentSystemLayoutConfigureTool::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentSystemLayoutDiagnoseTool::class)
+        ->args([
+            service('Shopware\\Core\\Framework\\ContentSystem\\Api\\ContentDiagnoseController'),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentSystemPreviewTool::class)
+        ->args([
+            service('Shopware\\Core\\Framework\\ContentSystem\\Api\\ContentPreviewController'),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
     $services->set(StoreApiContextTool::class)
         ->args([service(StoreApiMcpContextProvider::class)])
         ->tag('shopware.store_api_mcp.tool');
@@ -308,6 +351,25 @@ return static function (ContainerConfigurator $container): void {
     // Resources
     $services->set(EntityListResource::class)
         ->args([service(DefinitionInstanceRegistry::class)])
+        ->tag('mcp.resource');
+
+    $services->set(ContentSystemLayoutResource::class)
+        ->tag('mcp.resource');
+
+    $services->set(ContentSystemElementTypesResource::class)
+        ->args([service('Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Registry\\ContentSystemElementTypeRegistry')])
+        ->tag('mcp.resource');
+
+    $services->set(ContentSystemStyleOptionsResource::class)
+        ->args([service('Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Registry\\ContentSystemStyleOptionRegistry')])
+        ->tag('mcp.resource');
+
+    $services->set(ContentSystemEntityTypesResource::class)
+        ->args([service('Shopware\\Core\\Framework\\ContentSystem\\Adapter\\RootSourceRegistry')])
+        ->tag('mcp.resource');
+
+    $services->set(ContentSystemDataLoadersResource::class)
+        ->args([service('Shopware\\Core\\Framework\\ContentSystem\\Schema\\ContentSystemDataLoaderMapResolver')])
         ->tag('mcp.resource');
 
     $services->set(BusinessEventsResource::class)

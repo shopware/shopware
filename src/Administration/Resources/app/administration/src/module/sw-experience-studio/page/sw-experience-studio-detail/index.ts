@@ -126,6 +126,7 @@ export default Shopware.Component.wrapComponentConfig({
         layoutTypeLoadError: string | null;
         createWizardName: string;
         createWizardSelectedType: string | null;
+        isAgentChatOpen: boolean;
     } {
         return {
             layout: null,
@@ -148,6 +149,7 @@ export default Shopware.Component.wrapComponentConfig({
             layoutTypeLoadError: null,
             createWizardName: '',
             createWizardSelectedType: null,
+            isAgentChatOpen: false,
         };
     },
 
@@ -278,6 +280,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         isInlineEditing(): boolean {
             return this.inlineEditSession?.isEditing ?? false;
+        },
+
+        showAgentChat(): boolean {
+            return this.isAgentChatOpen || this.selectedElementId === null;
         },
     },
 
@@ -572,6 +578,24 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSelectElement(elementId: string | null): void {
             this.selectedElementId = elementId;
+
+            if (elementId !== null) {
+                this.isAgentChatOpen = false;
+            }
+        },
+
+        onOpenAgentChat(): void {
+            this.isAgentChatOpen = true;
+        },
+
+        onAgentLayoutUpdate(layout: ContentElementNode[]): void {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
+
+            const currentLayout = castContentElementNodes(this.layout.layout);
+            this.editorStore.pushToHistory(currentLayout, this.selectedElementId);
+            this.layout.layout = this.sanitizeLayoutForWrite(layout);
         },
 
         onInlineEditStart(payload: { elementId: string }): void {

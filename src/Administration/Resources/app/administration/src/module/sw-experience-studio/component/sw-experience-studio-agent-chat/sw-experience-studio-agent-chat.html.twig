@@ -1,0 +1,53 @@
+{% block sw_experience_studio_agent_chat %}
+<section class="sw-experience-studio-agent-chat">
+    <header class="sw-experience-studio-agent-chat__header">
+        <mt-icon name="regular-sparkles" />
+        <h2>{{ $t('sw-experience-studio.detail.agent.title') }}</h2>
+    </header>
+
+    <div class="sw-experience-studio-agent-chat__messages">
+        <article
+            v-for="(message, index) in messages"
+            :key="index"
+            class="sw-experience-studio-agent-chat__message"
+            :class="`sw-experience-studio-agent-chat__message--${message.role}`"
+        >
+            {{ message.content }}
+        </article>
+
+        <p
+            v-if="isLoading"
+            class="sw-experience-studio-agent-chat__thinking"
+        >
+            {{ $t('sw-experience-studio.detail.agent.thinking') }}
+        </p>
+    </div>
+
+    <p
+        v-if="error"
+        class="sw-experience-studio-agent-chat__error"
+    >
+        {{ error }}
+    </p>
+
+    <form
+        class="sw-experience-studio-agent-chat__form"
+        @submit.prevent="onSubmit"
+    >
+        <mt-textarea
+            v-model="prompt"
+            :placeholder="$t('sw-experience-studio.detail.agent.promptPlaceholder')"
+            :disabled="!allowEdit || isLoading || undefined"
+            @keydown.enter.exact.prevent="onSubmit"
+        />
+        <mt-button
+            variant="primary"
+            type="submit"
+            :disabled="!canSend || undefined"
+            :is-loading="isLoading"
+        >
+            {{ $t('sw-experience-studio.detail.agent.send') }}
+        </mt-button>
+    </form>
+</section>
+{% endblock %}

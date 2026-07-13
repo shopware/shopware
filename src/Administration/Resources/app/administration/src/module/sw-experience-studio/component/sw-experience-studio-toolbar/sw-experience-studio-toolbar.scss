@@ -96,6 +96,25 @@
         }
     }
 
+    &__agent-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--color-icon-secondary-default);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-background-secondary-default);
+            color: var(--color-text-brand-default);
+        }
+    }
+
     &__sales-channel-field {
         display: flex;
         flex-shrink: 0;

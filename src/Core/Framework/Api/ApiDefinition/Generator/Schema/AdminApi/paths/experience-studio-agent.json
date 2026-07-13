@@ -1,0 +1,40 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/experience-studio-agent/turn": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Run an Experience Studio agent turn",
+                "operationId": "experienceStudioAgentTurn",
+                "description": "Sends a session-local Experience Studio conversation and draft layout to the configured layout agent. Requires `content_layout:update`, the `MCP_SERVER` feature flag, and an OpenAI API key.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["prompt", "layout"],
+                                "properties": {
+                                    "prompt": { "type": "string" },
+                                    "messages": { "type": "array" },
+                                    "layout": { "type": "array" },
+                                    "rootSource": { "type": ["string", "null"] },
+                                    "selectedElementId": { "type": ["string", "null"] }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The assistant message and, when a mutation tool ran, the updated draft layout."
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "403": { "$ref": "#/components/responses/403" },
+                    "503": { "$ref": "#/components/responses/503" }
+                }
+            }
+        }
+    }
+}

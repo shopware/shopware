@@ -57,6 +57,7 @@
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
+        "openAgent": "Layout-Agent öffnen",
         "save": "Layout speichern"
       },
       "sidebarTree": {
@@ -109,6 +110,15 @@
           "layout": "Layout",
           "other": "Sonstige"
         }
+      },
+      "agent": {
+        "title": "Layout-Agent",
+        "emptyState": "Bitte den Agenten, dieses Layout zu erstellen oder zu verbessern.",
+        "promptLabel": "Nachricht",
+        "promptPlaceholder": "Beschreibe die gewünschte Layout-Änderung...",
+        "send": "Senden",
+        "thinking": "Denkt nach ...",
+        "error": "Der Agent konnte diese Anfrage nicht abschließen."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert."
     }

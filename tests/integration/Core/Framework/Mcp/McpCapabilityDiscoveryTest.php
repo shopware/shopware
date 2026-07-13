@@ -89,6 +89,11 @@ class McpCapabilityDiscoveryTest extends TestCase
         yield 'shopware-order-state' => ['shopware-order-state'];
         yield 'shopware-media-upload' => ['shopware-media-upload'];
         yield 'shopware-theme-config' => ['shopware-theme-config'];
+        yield 'shopware-content-layout-mutate' => ['shopware-content-layout-mutate'];
+        yield 'shopware-content-layout-configure' => ['shopware-content-layout-configure'];
+        yield 'shopware-content-layout-compose' => ['shopware-content-layout-compose'];
+        yield 'shopware-content-layout-diagnose' => ['shopware-content-layout-diagnose'];
+        yield 'shopware-content-layout-preview' => ['shopware-content-layout-preview'];
     }
 
     /**
@@ -112,6 +117,11 @@ class McpCapabilityDiscoveryTest extends TestCase
         yield 'shopware-business-events' => ['shopware-business-events'];
         yield 'shopware-flow-actions' => ['shopware-flow-actions'];
         yield 'shopware-extensions' => ['shopware-extensions'];
+        yield 'shopware-content-layout-reference' => ['shopware-content-layout-reference'];
+        yield 'shopware-content-element-types' => ['shopware-content-element-types'];
+        yield 'shopware-content-style-options' => ['shopware-content-style-options'];
+        yield 'shopware-content-entity-types' => ['shopware-content-entity-types'];
+        yield 'shopware-content-data-loaders' => ['shopware-content-data-loaders'];
     }
 
     /**

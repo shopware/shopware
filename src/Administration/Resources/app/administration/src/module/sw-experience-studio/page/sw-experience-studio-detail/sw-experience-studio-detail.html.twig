@@ -39,6 +39,7 @@
                 @save="onSave"
                 @undo="onUndo"
                 @redo="onRedo"
+                @open-agent-chat="onOpenAgentChat"
             />
             {% endblock %}
 
@@ -77,7 +78,19 @@
                 {% endblock %}
 
                 {% block sw_experience_studio_detail_element_settings %}
+                <sw-experience-studio-agent-chat
+                    v-show="showAgentChat"
+                    class="sw-experience-studio-detail__agent-chat"
+                    :layout="layout ? layout.layout : []"
+                    :root-source="layoutRootSource"
+                    :selected-element-id="selectedElementId"
+                    :element-types="elementTypeStore.allTypes"
+                    :style-options="styleOptionStore.optionsByName"
+                    :allow-edit="allowSave"
+                    @update-layout="onAgentLayoutUpdate"
+                />
                 <sw-experience-studio-element-settings
+                    v-show="!showAgentChat"
                     class="sw-experience-studio-detail__element-settings"
                     :layout="layout"
                     :selected-element-id="selectedElementId"

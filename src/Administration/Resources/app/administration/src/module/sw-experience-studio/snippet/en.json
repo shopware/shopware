@@ -57,6 +57,7 @@
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "openAgent": "Open layout agent",
         "save": "Save layout"
       },
       "sidebarTree": {
@@ -109,6 +110,15 @@
           "layout": "Layout",
           "other": "Other"
         }
+      },
+      "agent": {
+        "title": "Layout agent",
+        "emptyState": "Ask the agent to help create or improve this layout.",
+        "promptLabel": "Message",
+        "promptPlaceholder": "Describe the layout change you want to make...",
+        "send": "Send",
+        "thinking": "Thinking ...",
+        "error": "The agent could not complete this request."
       },
       "messageSaved": "Content layout saved successfully."
     }

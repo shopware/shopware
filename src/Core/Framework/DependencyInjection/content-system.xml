@@ -4,6 +4,22 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <service id="Shopware\Core\Framework\ContentSystem\Agent\NativeMcpToolClient">
+            <argument type="service" id="http_kernel"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Agent\OpenAiLayoutAgentClient">
+            <argument type="service" id="http_client"/>
+            <argument>%env(default::SHOPWARE_CONTENT_SYSTEM_LAYOUT_AGENT_OPENAI_API_KEY)%</argument>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Agent\NativeMcpToolClient"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Agent\ExperienceStudioAgentController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Agent\OpenAiLayoutAgentClient"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
         <!-- Entity Definitions -->
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition">
             <tag name="shopware.entity.definition"/>

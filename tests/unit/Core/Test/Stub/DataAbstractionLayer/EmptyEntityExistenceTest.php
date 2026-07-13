@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Test\Stub\DataAbstractionLayer;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\EmptyEntityExistence;
 
 /**
  * @internal
  */
-#[CoversClass(EmptyEntityExistence::class)]
+#[CoversNothing]
 class EmptyEntityExistenceTest extends TestCase
 {
     public function testICanCreateStub(): void

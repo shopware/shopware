@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Test\Stub\EventDispatcher;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -11,7 +11,7 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CollectingEventDispatcher::class)]
+#[CoversNothing]
 class CollectingEventDispatcherTest extends TestCase
 {
     public function testListeners(): void

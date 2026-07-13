@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Test\Stub\App;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -15,7 +15,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(StaticSourceResolver::class)]
+#[CoversNothing]
 class StaticSourceResolverTest extends TestCase
 {
     public function testCanResolveManifestToType(): void

@@ -1,0 +1,89 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {
+    "/account/register": {
+      "post": {
+        "tags": ["Registration"],
+        "summary": "Register a customer",
+        "operationId": "register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "description": "Email of the customer",
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "description": "Customer first name",
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "description": "Customer last name",
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "firstName", "lastName"],
+                "oneOf": [
+                  {
+                    "title": "PrivateRegistration",
+                    "properties": {
+                      "accountType": {
+                        "description": "Account type",
+                        "type": "string",
+                        "enum": ["private"],
+                        "default": "private"
+                      }
+                    }
+                  },
+                  {
+                    "title": "BusinessRegistration",
+                    "required": ["company", "vatIds"],
+                    "properties": {
+                      "accountType": {
+                        "description": "Account type",
+                        "type": "string",
+                        "enum": ["business"]
+                      },
+                      "company": {
+                        "description": "Company name",
+                        "type": "string"
+                      },
+                      "vatIds": {
+                        "description": "VAT IDs",
+                        "type": "array",
+                        "items": { "type": "string" }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

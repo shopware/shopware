@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
+use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -150,6 +151,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             $this->psr17,
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
+            static::createStub(McpAllowedHostsProvider::class),
         );
     }
 

@@ -35,7 +35,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class InvoiceRenderData extends AbstractRenderData
 {
     /**
-     * @param array<string, string> $templatePaths
      * @param array<string, mixed> $custom
      * @param array<string, mixed> $legacyConfig
      * @param list<LineItemView> $lineItems
@@ -49,7 +48,6 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         string $documentDate,
         string $documentNumber,
         ?string $documentComment,
-        array $templatePaths,
         public TypeCode $typeCode,
         public string $buyerReference,
         public TradePartyView $buyer,
@@ -71,7 +69,6 @@ final readonly class InvoiceRenderData extends AbstractRenderData
             $documentDate,
             $documentNumber,
             $documentComment,
-            $templatePaths,
             $custom,
             $legacyConfig,
         );

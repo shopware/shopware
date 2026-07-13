@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -33,11 +32,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 {
     final public const KEY = 'invoice';
-
-    final public const TEMPLATE_PATHS = [
-        DocumentFormat::HTML->value => '@Framework/documents/invoice.html.twig',
-        DocumentFormat::ZUGFERD_XML->value => '@Framework/documents/zugferd/invoice.xml.twig',
-    ];
 
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
@@ -118,7 +112,6 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             documentDate: $generationRequest->documentDate,
             documentNumber: $documentNumber,
             documentComment: $generationRequest->documentComment,
-            templatePaths: self::TEMPLATE_PATHS,
             typeCode: TypeCode::INVOICE,
             buyerReference: $order->getOrderNumber() ?? '',
             buyer: TradePartyView::buyerFromOrder($order),

@@ -397,7 +397,11 @@
     "addressNewBilling": "Füge eine neue Rechnungsadresse hinzu",
     "addressSaveAndUse": "Speichern und verwenden",
     "addressSuccessfulChange": "Adresse erfolgreich geändert.",
-    "addressSearchPlaceholder": "Suche Adressen ..."
+    "addressSearchPlaceholder": "Suche Adressen ...",
+    "convertGuestTitle": "Erstelle Kundenkonto",
+    "convertGuestInfo": "Setze ein Passwort für <span class=\"account-guest-conversion__subtitle\">%email%</span>",
+    "privacyNoticeTextModal": "Mit der Festlegung eines Passworts bestätigen Sie, dass Sie unsere %privacyModalTagOpen%Datenschutzhinweise%privacyModalTagClose% gelesen und unsere %tosModalTagOpen%Allgemeinen Geschäftsbedingungen%tosModalTagClose% akzeptiert haben.",
+    "convertSucceeded": "Ihr Kundenkonto wurde erfolgreich erstellt. Sie können sich jetzt anmelden."
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",
@@ -529,7 +533,9 @@
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
     "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
     "collapseTriggerMore": "Mehr zeigen",
-    "collapseTriggerLess": "Weniger zeigen"
+    "collapseTriggerLess": "Weniger zeigen",
+    "createAccountHeading": "Um zukünftige Einkäufe zu beschleunigen, erstellen Sie ein Benutzerkonto.",
+    "createAccountButton": "Konto erstellen"
   },
   "listing": {
     "filterTitleText": "Produkte filtern",

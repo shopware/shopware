@@ -114,6 +114,250 @@
         }
       }
     },
+    "/_action/order/document-v2/available-types": {
+      "get": {
+        "tags": ["Document Management"],
+        "summary": "List supported document V2 types and formats",
+        "description": "Returns document types and output formats currently implemented by the Document V2 pipeline.",
+        "operationId": "documentV2AvailableTypes",
+        "responses": {
+          "200": {
+            "description": "Supported document types and their available formats.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["documentTypes"],
+                  "properties": {
+                    "documentTypes": {
+                      "description": "Map of supported document type technical names to the file formats implemented for that document type. Use these values for the `documentType`, `fileTypes`, and `fileType` fields of the create and preview endpoints.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["formats"],
+                        "properties": {
+                          "formats": {
+                            "description": "Supported file format technical names for this document type.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "documentTypes": {
+                      "invoice": {
+                        "formats": ["html", "pdf", "zugferd_xml"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_action/order/document-v2/create": {
+      "post": {
+        "tags": ["Document Management"],
+        "summary": "Create a document through the Document V2 pipeline",
+        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `fileTypes` values from `/_action/order/document-v2/available-types`. Use the returned `documentId`, `documentDeepLink`, and one of the returned `fileTypes` to download the created file through `/_action/document/{documentId}/{documentDeepLink}?fileType={fileType}`.",
+        "operationId": "createDocumentV2",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "orderId",
+                  "orderVersionId",
+                  "documentType",
+                  "fileTypes"
+                ],
+                "properties": {
+                  "orderId": {
+                    "description": "Identifier of the order for which the document should be created.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "orderVersionId": {
+                    "description": "Version identifier of the order for which the document should be created.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "documentType": {
+                    "description": "Document type technical name. Must be one of the keys returned by `/_action/order/document-v2/available-types`.",
+                    "type": "string",
+                    "example": "invoice"
+                  },
+                  "fileTypes": {
+                    "description": "File format technical names to generate. Must be selected from `documentTypes[documentType].formats` returned by `/_action/order/document-v2/available-types`.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": ["pdf", "zugferd_xml"]
+                  },
+                  "documentNumber": {
+                    "description": "Optional document number. When omitted, the Document V2 service generates the next number.",
+                    "type": "string"
+                  },
+                  "documentComment": {
+                    "description": "Optional document comment.",
+                    "type": "string"
+                  },
+                  "documentDate": {
+                    "description": "Optional document date as an ISO 8601 date-time string.",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-07-13T00:00:00.000+00:00"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document created successfully. Use `documentId`, `documentDeepLink`, and one of the returned `fileTypes` to download the created file through `/_action/document/{documentId}/{documentDeepLink}?fileType={fileType}`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["documentDeepLink", "documentId", "fileTypes"],
+                  "properties": {
+                    "documentDeepLink": {
+                      "description": "A unique hash code which is required to download the generated document.",
+                      "type": "string"
+                    },
+                    "documentId": {
+                      "description": "Identifier of the document.",
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "fileTypes": {
+                      "description": "The generated file formats. Use one of these values as the `fileType` query parameter when downloading the document.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "example": {
+                    "documentDeepLink": "COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN",
+                    "documentId": "018f5972f9ea72a0be49f7c39f72a2a0",
+                    "fileTypes": ["pdf", "zugferd_xml"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_action/order/document-v2/preview": {
+      "post": {
+        "tags": ["Document Management"],
+        "summary": "Preview a document through the Document V2 pipeline",
+        "description": "Renders one requested output format through the Document V2 services without persisting the document. Get supported `documentType` and `fileType` values from `/_action/order/document-v2/available-types`. The response `Content-Type` depends on the requested file type.",
+        "operationId": "previewDocumentV2",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "orderId",
+                  "orderVersionId",
+                  "documentType",
+                  "fileType"
+                ],
+                "properties": {
+                  "orderId": {
+                    "description": "Identifier of the order for which the document should be previewed.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "orderVersionId": {
+                    "description": "Version identifier of the order for which the document should be previewed.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "documentType": {
+                    "description": "Document type technical name. Must be one of the keys returned by `/_action/order/document-v2/available-types`.",
+                    "type": "string",
+                    "example": "invoice"
+                  },
+                  "fileType": {
+                    "description": "File format technical name to preview. Must be selected from `documentTypes[documentType].formats` returned by `/_action/order/document-v2/available-types`.",
+                    "type": "string",
+                    "example": "html"
+                  },
+                  "documentNumber": {
+                    "description": "Optional document number to render in the preview.",
+                    "type": "string"
+                  },
+                  "documentComment": {
+                    "description": "Optional document comment to render in the preview.",
+                    "type": "string"
+                  },
+                  "documentDate": {
+                    "description": "Optional document date as an ISO 8601 date-time string.",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-07-13T00:00:00.000+00:00"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The previewed document.",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Contains the inline document filename.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/_action/order/{orderId}/state/{transition}": {
       "post": {
         "tags": [

@@ -115,6 +115,27 @@ class DocumentRendererRegistryTest extends TestCase
         static::assertCount(1, $registry->mapRenderersByFormat(DocumentType::INVOICE->value));
     }
 
+    public function testGetSupportedFormatsByDocumentTypeIncludesNonCoreDocumentTypes(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value, 'partial_cancellation']),
+            new StaticDocumentRenderer(DocumentFormat::PDF, ['partial_cancellation']),
+        ]);
+
+        static::assertSame(
+            [
+                DocumentType::INVOICE->value => [
+                    DocumentFormat::HTML->value,
+                ],
+                'partial_cancellation' => [
+                    DocumentFormat::HTML->value,
+                    DocumentFormat::PDF->value,
+                ],
+            ],
+            $registry->getSupportedFormatsByDocumentType(),
+        );
+    }
+
     private static function createRegistry(): DocumentRendererRegistry
     {
         return new DocumentRendererRegistry([

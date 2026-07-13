@@ -312,4 +312,111 @@ describe('documentService', () => {
         documentApiService.getDocument(documentId, deepLink, {});
         expect(didRequest).toBeTruthy();
     });
+
+    it('loads the V2 support metadata', async () => {
+        const { documentApiService, clientMock } = getDocumentApiService();
+
+        clientMock.onGet('/_action/order/document-v2/available-types').reply(200, {
+            documentTypes: {
+                invoice: {
+                    formats: [
+                        'html',
+                        'zugferd_xml',
+                    ],
+                },
+            },
+        });
+
+        const response = await documentApiService.getDocumentV2AvailableTypes();
+
+        expect(clientMock.history.get[0].url).toBe('/_action/order/document-v2/available-types');
+        expect(response.data).toEqual({
+            documentTypes: {
+                invoice: {
+                    formats: [
+                        'html',
+                        'zugferd_xml',
+                    ],
+                },
+            },
+        });
+    });
+
+    it('creates a V2 document with the selected formats', async () => {
+        const { documentApiService, clientMock } = getDocumentApiService();
+
+        documentApiService.setListener(expectCreateDocumentFinished);
+
+        const orderId = '4a4a687257644d52bf481b4c20e59213';
+        const orderVersionId = '4d03324edcd0490b9180df8161c9167f';
+
+        clientMock.onPost('/_action/order/document-v2/create').reply(200, {
+            documentId: '4d03324edcd0490b9180df8161c9167f',
+            documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+            fileTypes: [
+                'html',
+                'zugferd_xml',
+            ],
+        });
+
+        await documentApiService.createDocumentV2(
+            orderId,
+            orderVersionId,
+            'invoice',
+            [
+                'html',
+                'zugferd_xml',
+            ],
+            '1000',
+            '2021-02-22T04:34:56.441Z',
+            '',
+        );
+
+        expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/create');
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
+            orderId,
+            orderVersionId,
+            documentType: 'invoice',
+            fileTypes: [
+                'html',
+                'zugferd_xml',
+            ],
+            documentNumber: '1000',
+            documentDate: '2021-02-22T04:34:56.441Z',
+            documentComment: '',
+        });
+    });
+
+    it('previews a V2 document with the selected format', async () => {
+        const { documentApiService, clientMock } = getDocumentApiService();
+
+        clientMock.onPost('/_action/order/document-v2/preview').reply(200, {
+            content: '<html></html>',
+        });
+
+        await documentApiService.getDocumentPreviewV2(
+            '4a4a687257644d52bf481b4c20e59213',
+            '4d03324edcd0490b9180df8161c9167f',
+            'invoice',
+            'html',
+            '1000',
+            '2021-02-22T04:34:56.441Z',
+            '',
+            {
+                'sw-language-id': 'language-id',
+            },
+        );
+
+        expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/preview');
+        expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
+            orderId: '4a4a687257644d52bf481b4c20e59213',
+            orderVersionId: '4d03324edcd0490b9180df8161c9167f',
+            documentType: 'invoice',
+            fileType: 'html',
+            documentNumber: '1000',
+            documentDate: '2021-02-22T04:34:56.441Z',
+            documentComment: '',
+        });
+    });
 });

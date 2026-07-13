@@ -63,4 +63,17 @@ final readonly class DocumentRendererRegistry
     {
         return $this->renderersByDocumentType[$documentType] ?? [];
     }
+
+    /**
+     * Returns a map of document types to the list of formats they support.
+     * eg. ['invoice' => ['pdf', 'html'], 'credit_note' => ['pdf']]
+     *
+     * @return array<string, list<string>>
+     */
+    public function getSupportedFormatsByDocumentType(): array
+    {
+        return array_map(function ($renderers) {
+            return array_keys($renderers);
+        }, $this->renderersByDocumentType);
+    }
 }

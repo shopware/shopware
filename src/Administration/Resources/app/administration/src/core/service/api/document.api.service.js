@@ -98,6 +98,91 @@ class DocumentApiService extends ApiService {
             });
     }
 
+    getDocumentV2AvailableTypes() {
+        return this.httpClient.get('/_action/order/document-v2/available-types', {
+            headers: this.getBasicHeaders(),
+        });
+    }
+
+    createDocumentV2(
+        orderId,
+        orderVersionId,
+        documentTypeName,
+        fileTypes,
+        documentNumber,
+        documentDate,
+        documentComment = '',
+        additionalHeaders = {},
+    ) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(
+                '/_action/order/document-v2/create',
+                {
+                    orderId,
+                    orderVersionId,
+                    documentType: documentTypeName,
+                    fileTypes,
+                    documentNumber,
+                    documentDate,
+                    documentComment,
+                },
+                {
+                    headers,
+                },
+            )
+            .then((response) => {
+                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+
+                return Promise.resolve(response);
+            })
+            .catch((error) => {
+                if (error.response?.data?.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                    );
+                }
+            });
+    }
+
+    getDocumentPreviewV2(
+        orderId,
+        orderVersionId,
+        documentTypeName,
+        fileType,
+        documentNumber,
+        documentDate,
+        documentComment = '',
+        additionalHeaders = {},
+    ) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(
+                '/_action/order/document-v2/preview',
+                {
+                    orderId,
+                    orderVersionId,
+                    documentType: documentTypeName,
+                    fileType,
+                    documentNumber,
+                    documentDate,
+                    documentComment,
+                },
+                {
+                    responseType: 'blob',
+                    headers,
+                },
+            )
+            .catch(async (error) => {
+                const errorObject = JSON.parse(await error.response.data.text());
+                if (errorObject.errors) {
+                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errorObject.errors.pop()));
+                }
+            });
+    }
+
     getDocument(documentId, documentDeepLink, context, download = false, fileType = 'pdf') {
         return this.httpClient.get(
             `/_action/document/${documentId}/${documentDeepLink}?fileType=${fileType}${download ? '&download=1' : ''}`,

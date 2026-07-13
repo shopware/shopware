@@ -89,7 +89,7 @@
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
         "league/oauth2-server": "^9.3",
-        "mcp/sdk": "^0.5.0",
+        "mcp/sdk": "^0.6.0",
         "monolog/monolog": "^3.3.1",
         "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",

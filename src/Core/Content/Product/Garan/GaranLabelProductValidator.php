@@ -16,7 +16,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('inventory')]
 class GaranLabelProductValidator implements EventSubscriberInterface
 {
-    private const VIOLATION_CODE = 'INVALID_GARAN_GUARANTEE_MONTHS';
+    public const VIOLATION_CODE = 'INVALID_GARAN_GUARANTEE_MONTHS';
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>

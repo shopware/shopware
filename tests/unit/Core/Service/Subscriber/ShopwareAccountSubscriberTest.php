@@ -31,7 +31,7 @@ class ShopwareAccountSubscriberTest extends TestCase
         $manager = $this->createMock(LifecycleManager::class);
         $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ShopwareAccountRequirement::NAME, $this->context);
 
         (new ShopwareAccountSubscriber($manager))->syncAccountRequirement($event);
@@ -44,7 +44,7 @@ class ShopwareAccountSubscriberTest extends TestCase
         $manager = $this->createMock(LifecycleManager::class);
         $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ShopwareAccountRequirement::NAME, $this->context);
 
         (new ShopwareAccountSubscriber($manager))->syncAccountRequirement($event);

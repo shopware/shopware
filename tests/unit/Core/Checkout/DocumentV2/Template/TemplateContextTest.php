@@ -138,7 +138,6 @@ class TemplateContextTest extends TestCase
             documentDate: 'date',
             documentNumber: 'number',
             documentComment: 'comment',
-            templatePaths: [],
             typeCode: TypeCode::INVOICE,
             buyerReference: '',
             buyer: new TradePartyView(

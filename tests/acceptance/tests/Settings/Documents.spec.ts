@@ -18,10 +18,7 @@ test(
     }) => {
         const product = await TestDataService.createBasicProduct();
 
-        const order = await TestDataService.createOrder(
-            [{ product, quantity: 1 }],
-            DefaultSalesChannel.customer
-        );
+        const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
 
         await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
             await ShopAdmin.goesTo(AdminDocumentListing.url());
@@ -65,5 +62,5 @@ test(
             await StorefrontAccountOrder.invoiceHTML.click();
             await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText(formatPrice(1.0));
         });
-    }
+    },
 );

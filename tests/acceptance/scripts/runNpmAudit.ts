@@ -24,6 +24,5 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  * - GHSA-7c78-jf6q-g5cm by pinning tmp to 0.2.7
  */
 runNpmAudit({
-    ignoredGHSAs: [
-    ],
+    ignoredGHSAs: [],
 });

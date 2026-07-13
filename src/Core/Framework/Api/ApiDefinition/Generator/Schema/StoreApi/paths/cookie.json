@@ -30,6 +30,11 @@
           {
             "ApiKey": []
           }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/swLanguageId"
+          }
         ]
       }
     }

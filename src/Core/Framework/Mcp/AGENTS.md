@@ -41,6 +41,15 @@ Static data the AI client can read. Resources are identified by URIs and provide
 | AI needs instructions on how to use the system | Prompt |
 | AI needs static reference data (lists, schemas) | Resource |
 
+## Tool discovery: guaranteed vs best-effort
+
+The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus any session-enabled toolsets), not the full catalogue. There are two ways to reach a hidden tool, and they are not equivalent:
+
+- **`shopware-toolset-enable` + `listChanged` (guaranteed).** Enabling a toolset stores it on the session, advertises its tools in `tools/list`, and emits a `tools/listChanged` notification. Any spec-compliant client refreshes `tools/list` and can then call the tools. This path works on every client and is the one to rely on.
+- **`shopware-tool-search` inline definitions (best-effort).** Search returns full tool definitions inline so a capable client can call them immediately without enabling anything. This only works if the client promotes inline results into its callable set (Anthropic's tool-search-capable clients do; many others do not). `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends — but a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result therefore carries a `_meta.usage` hint pointing at the enable path as the fallback.
+
+Store API advertises all its tools (no toolsets), so this distinction is Admin-only; Store API `shopware-tool-search` carries no such hint.
+
 ## Architecture
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer

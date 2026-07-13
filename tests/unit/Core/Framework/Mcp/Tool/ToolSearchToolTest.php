@@ -30,6 +30,16 @@ class ToolSearchToolTest extends TestCase
         static::assertSame(2, $data['_meta']['totalCandidates']);
     }
 
+    public function testResultCarriesToolsetEnableUsageHint(): void
+    {
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch());
+
+        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('usage', $data['_meta']);
+        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+    }
+
     public function testSearchIsScopedToAllowlist(): void
     {
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);

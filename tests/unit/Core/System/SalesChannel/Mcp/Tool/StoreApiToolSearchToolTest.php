@@ -30,6 +30,19 @@ class StoreApiToolSearchToolTest extends TestCase
         static::assertSame('shopware-store-api-product-search', $data['data'][0]['tool']['name']);
     }
 
+    public function testResultHasNoToolsetUsageHint(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(self::tool('shopware-store-api-product-search', 'Search products'), 'Acme\\ProductSearchTool');
+
+        $tool = new StoreApiToolSearchTool($registry, new ToolSearch());
+
+        $data = json_decode($tool('product'), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Store API advertises all tools (no toolsets), so there is no enable-fallback to nudge toward.
+        static::assertArrayNotHasKey('usage', $data['_meta']);
+    }
+
     public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
     {
         // The MCP SDK discoverer binds a tool handler to __invoke's declaring class. If __invoke

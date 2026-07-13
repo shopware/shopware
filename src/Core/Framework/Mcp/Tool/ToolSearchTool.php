@@ -25,4 +25,13 @@ class ToolSearchTool extends AbstractToolSearchTool
     {
         return parent::__invoke($query, $maxResults);
     }
+
+    #[\Override]
+    protected function usageHint(): ?string
+    {
+        return 'A matched tool may not be advertised in tools/list yet. If your MCP client cannot call it '
+            . 'directly from this result, run shopware-toolsets-list to find the toolset that contains it, '
+            . 'enable that toolset with shopware-toolset-enable, then call the tool. Enabling a toolset emits '
+            . 'a tools/listChanged notification so the client refreshes tools/list.';
+    }
 }

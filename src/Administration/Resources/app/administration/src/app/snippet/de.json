@@ -73,6 +73,8 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
+      "triggerAriaLabel": "Mitteilungen",
+      "optionsAriaLabel": "Mitteilungsoptionen",
       "emptyText": "Nicht viel los hier.",
       "deleteModal": {
         "title": "Mitteilungen löschen",

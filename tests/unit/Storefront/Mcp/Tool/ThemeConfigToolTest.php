@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAttributeReader;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Mcp\Tool\ThemeConfigTool;
@@ -20,6 +22,17 @@ use Shopware\Storefront\Theme\ThemeService;
 #[CoversClass(ThemeConfigTool::class)]
 class ThemeConfigToolTest extends TestCase
 {
+    public function testDeclaresExplicitThemeGroup(): void
+    {
+        // Without an explicit #[McpToolGroup] the group is derived from the tool-name
+        // prefix (McpToolAnalysisCompilerPass), which for "shopware-theme-config" would
+        // produce the accidental "shopware" toolset. Guard the intended "theme" group.
+        $group = McpToolAttributeReader::resolveInfo(ThemeConfigTool::class, McpToolGroup::class, ['group']);
+
+        static::assertNotNull($group);
+        static::assertSame('theme', $group['group']);
+    }
+
     public function testGetReturnsThemeConfig(): void
     {
         $themeId = Uuid::randomHex();

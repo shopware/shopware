@@ -4,11 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-13
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
 
+use Shopware\Core\Defaults;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CustomerAddressRead
@@ -18,7 +19,7 @@ final readonly class CustomerAddressRead
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $customerId,
         #[Assert\NotBlank]
-        #[Assert\DateTime(format: \Shopware\Core\Defaults::STORAGE_DATE_TIME_FORMAT)]
+        #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
         public ?string $updatedAt,
         /**

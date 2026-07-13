@@ -23,7 +23,7 @@ final class OpenApiDtoClassRenderer
     ];
 
     public function __construct(
-        private readonly ?ClockInterface $generatedAt = null,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -40,7 +40,7 @@ final class OpenApiDtoClassRenderer
             ' * This file is auto-generated.',
             ' * Do not edit manually.',
             ' *',
-            ' * Last generated: ' . ($this->generatedAt ? $this->generatedAt->now() : new \DateTimeImmutable())->format('Y-m-d'),
+            ' * Last generated: ' . $this->clock->now()->format('Y-m-d'),
             ' */',
             '',
         ];

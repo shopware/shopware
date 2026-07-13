@@ -9,6 +9,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
 
+use Shopware\Core\Defaults;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -103,9 +104,9 @@ final readonly class CustomerAddress
          * Added since version: 6.7.7.0. Runtime field, cannot be used as part of the criteria.
          */
         public ?bool $isDefaultShippingAddress = null,
-        #[Assert\DateTime(format: \Shopware\Core\Defaults::STORAGE_DATE_TIME_FORMAT)]
+        #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public ?string $createdAt = null,
-        #[Assert\DateTime(format: \Shopware\Core\Defaults::STORAGE_DATE_TIME_FORMAT)]
+        #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public ?string $updatedAt = null,
         /**
          * @var array<string, mixed>

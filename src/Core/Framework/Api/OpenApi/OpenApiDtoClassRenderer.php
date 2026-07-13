@@ -16,7 +16,7 @@ final class OpenApiDtoClassRenderer
      */
     private const FORMAT_ASSERTIONS = [
         'date' => '#[Assert\Date]',
-        'date-time' => '#[Assert\DateTime(format: \\Shopware\\Core\\Defaults::STORAGE_DATE_TIME_FORMAT)]',
+        'date-time' => '#[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]',
         'email' => '#[Assert\Email]',
         'uri' => '#[Assert\Url]',
         'uuid' => '#[Assert\Uuid]',
@@ -53,10 +53,6 @@ final class OpenApiDtoClassRenderer
         $lines[] = '';
 
         $useStatements = $this->collectUseStatements($definition, $namespace, $externalNamespaces);
-        if ($this->needsAssertImport($definition)) {
-            $useStatements[] = 'Symfony\Component\Validator\Constraints as Assert';
-        }
-
         if ($useStatements !== []) {
             sort($useStatements);
             foreach ($useStatements as $useStatement) {
@@ -320,6 +316,13 @@ final class OpenApiDtoClassRenderer
         $current = $namespace !== null ? trim($namespace, '\\') : '';
 
         $imports = [];
+        if ($this->needsDateTimeFormatAssertion($definition)) {
+            $imports['Shopware\Core\Defaults'] = true;
+        }
+        if ($this->needsAssertImport($definition)) {
+            $imports['Symfony\Component\Validator\Constraints as Assert'] = true;
+        }
+
         foreach ($definition->properties as $property) {
             foreach ([$property->phpType, $property->arrayItemType] as $type) {
                 if ($type === null || $this->isPrimitive($type)) {
@@ -347,6 +350,17 @@ final class OpenApiDtoClassRenderer
     {
         foreach ($definition->properties as $property) {
             if ($this->renderConstraints($property) !== []) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function needsDateTimeFormatAssertion(OpenApiDtoDefinition $definition): bool
+    {
+        foreach ($definition->properties as $property) {
+            if ($property->format === 'date-time') {
                 return true;
             }
         }

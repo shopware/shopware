@@ -9,6 +9,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
 
+use Shopware\Core\Defaults;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -50,7 +51,7 @@ final readonly class CreateCustomerAddressResponse
         #[Assert\NotBlank]
         public string $street,
         #[Assert\NotBlank]
-        #[Assert\DateTime(format: \Shopware\Core\Defaults::STORAGE_DATE_TIME_FORMAT)]
+        #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
         public ?string $updatedAt,
         /**

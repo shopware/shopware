@@ -223,6 +223,34 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         expectTemplateCompiles(result);
     });
 
+    it('inserts a guard when the cross-block chain starts after the first block child', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div>first element</div>
+    <div v-if="isPrimary">primary</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        const firstElement = '<div>first element</div>';
+        const primaryBranch = '<div v-if="isPrimary">primary</div>';
+        const crossBlockGuard =
+            '<template v-if="(isPrimary)"><!-- Keeps the conditional chain connected across sw-block. --></template>';
+        const fallbackBranch = '<div v-else>fallback</div>';
+
+        expect(result).toContain('<div>first element</div>');
+        expect(result).toContain(primaryBranch);
+        expect(result).toContain(crossBlockGuard);
+        expect(result).toContain(fallbackBranch);
+        expect(result.indexOf(firstElement)).toBeLessThan(result.indexOf(primaryBranch));
+        expect(result.indexOf(primaryBranch)).toBeLessThan(result.indexOf(crossBlockGuard));
+        expect(result.indexOf(crossBlockGuard)).toBeLessThan(result.indexOf(fallbackBranch));
+        expectTemplateCompiles(result);
+    });
+
     it('inserts guards before v-else-if and v-else continuations across multiple sibling sw-blocks', () => {
         const result = transformTemplate(`
 {% block sw_first %}

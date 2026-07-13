@@ -72,13 +72,15 @@ class DocumentV2ControllerTest extends TestCase
         static::assertIsArray($payload['documentTypes'] ?? null);
         static::assertArrayHasKey(DocumentType::INVOICE->value, $payload['documentTypes']);
         static::assertArrayNotHasKey(DocumentType::DELIVERY_NOTE->value, $payload['documentTypes']);
+        static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value] ?? null);
+        static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value]['formats'] ?? null);
         static::assertEqualsCanonicalizing(
             [
                 DocumentFormat::HTML->value,
                 DocumentFormat::ZUGFERD_XML->value,
                 DocumentFormat::PDF->value,
             ],
-            $payload['documentTypes'][DocumentType::INVOICE->value]['formats'] ?? null,
+            array_values($payload['documentTypes'][DocumentType::INVOICE->value]['formats']),
         );
     }
 
@@ -104,7 +106,9 @@ class DocumentV2ControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertStringStartsWith(DocumentFormat::HTML->mimeType(), (string) $response->headers->get('content-type'));
+        $contentType = $response->headers->get('content-type');
+        static::assertIsString($contentType);
+        static::assertSame(DocumentFormat::HTML->mimeType(), explode(';', $contentType)[0]);
         static::assertStringStartsWith('inline;', (string) $response->headers->get('content-disposition'));
 
         $content = (string) $response->getContent();

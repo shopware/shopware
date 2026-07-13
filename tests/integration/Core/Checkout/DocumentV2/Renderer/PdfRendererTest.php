@@ -127,9 +127,9 @@ class PdfRendererTest extends TestCase
         static::assertNotEmpty($preview->getContent());
         static::assertStringStartsWith('%PDF-', $preview->getContent());
         static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($preview->getContent()));
-        static::assertSame(
+        static::assertCount(
             $documentFileCount,
-            $this->documentFileRepository->search(new Criteria(), $this->context)->getEntities()->count(),
+            $this->documentFileRepository->search(new Criteria(), $this->context)->getEntities(),
         );
     }
 

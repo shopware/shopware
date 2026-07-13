@@ -31,7 +31,7 @@ class SalesChannelFileConfigurationLoader
             ->addFilter(new EqualsFilter('fileName', $fileName))
             ->setLimit(1);
 
-        return $this->repository->search($criteria, $context)->first();
+        return $this->repository->search($criteria, $context)->getEntities()->first();
     }
 
     /**
@@ -43,7 +43,7 @@ class SalesChannelFileConfigurationLoader
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
             ->addFilter(new EqualsFilter('fileFamily', $fileFamily));
 
-        $entities = $this->repository->search($criteria, $context);
+        $entities = $this->repository->search($criteria, $context)->getEntities();
         $configurations = [];
 
         foreach ($entities as $entity) {

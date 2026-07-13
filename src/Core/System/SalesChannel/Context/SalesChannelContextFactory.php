@@ -28,7 +28,6 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
-use Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -191,7 +190,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
-     * @see SalesChannelContextTest
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
      *
      * @param array<string, mixed> $options
      */
@@ -237,7 +236,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
         ]));
 
-        $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
         // active check here instead of DAL filter due to no DB index
         if (!$customer?->getActive()) {
             return null;
@@ -278,7 +277,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
-     * @see SalesChannelContextTest
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */

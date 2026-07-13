@@ -176,6 +176,34 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
+
+`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.
+
+Changes affecting all three classes:
+
+- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`.
+- The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
+- Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
+- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
+
+`EntitySearchResult`:
+
+- The wrapper is immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed.
+- The constructor signature changed: the `$entity` parameter was removed and the remaining parameters reorder. Code that constructs results manually (test fixtures, custom decorators) must be updated.
+- The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
+
+`ProductListingResult`:
+
+- Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+
+`ProductReviewResult`:
+
+- Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
+- The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 
 The execution orchestration of `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) was moved into the new `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor` service.
@@ -230,6 +258,16 @@ shopware:
         compress: true
         compression_method: 'gzip'
 ```
+
+## Removed unused Composer dependencies
+
+Shopware no longer requires the following Composer packages:
+
+- `doctrine/inflector`
+- `symfony/monolog-bridge`
+- `symfony/proxy-manager-bridge`
+
+If your extension uses classes from one of these packages, declare the package explicitly in your extension's `composer.json`.
 
 ## Removed stored `mail_template_type.template_data`
 
@@ -396,11 +434,10 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
 
-## Thrown exception changed in migration helper traits
+## Behavior change in migration helper traits for missing tables
 
-Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
-- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
-- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+`\Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists` no longer throws a `\Doctrine\DBAL\Exception\TableNotFoundException` when the given table does not exist — it returns `false` instead.
+`\Shopware\Core\Framework\Migration\AddColumnTrait::addColumn` still throws a `\Doctrine\DBAL\Exception\TableNotFoundException` for missing tables (from the executed `ALTER TABLE` statement).
 
 ## Cache improvements
 
@@ -608,6 +645,9 @@ Profiles are now identified and displayed only by their technical name.
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- The `importExportProfileTranslations` association has been removed from `Shopware\Core\System\Language\LanguageDefinition`, and the following methods in `Shopware\Core\System\Language\LanguageEntity` have been removed:
+  - `getImportExportProfileTranslations()`
+  - `setImportExportProfileTranslations()`
 - `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
 - `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
 
@@ -838,6 +878,23 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 
 </details>
 
+## Moved `UnmappedFieldException`
+
+`UnmappedFieldException` was moved out of the DBAL sub-namespace into the DAL exception namespace, and `DataAbstractionLayerException::unmappedField()` now returns it:
+
+* Before: `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`
+* After: `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`
+
+Update your `use` and `catch` statements accordingly:
+
+```php
+// Before
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+
+// After
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+```
+
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
 
 The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.
@@ -888,6 +945,12 @@ $salesChannel->getMaintenanceIpWhitelist();
 // After
 $salesChannel->getMaintenanceIpAllowlist();
 ```
+
+## Removal of `ProductListingLoader::PARTIAL_LISTING_FIELDS`
+
+The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PARTIAL_LISTING_FIELDS` constant has been removed. Reduced listing loading (`core.listing.partialDataLoading`) no longer allow-lists a fixed set of fields; instead it loads full product entities and drops only the heavy, off-page columns via `Criteria::excludeFields()`.
+
+If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
 
 # Administration
 
@@ -1340,6 +1403,34 @@ The indexing progress notifications in the Administration notification center ha
 ## Document settings changes
 
 We've restructured the document settings to make them more intuitive and user-friendly.
+
+### Company information moved from document settings to Basic information
+
+Document company data is now managed globally in the Administration under:
+
+`Settings > Basic information > Company information`
+
+This information is no longer configured per document type in `sw-settings-document-detail`.
+Only document-specific display options such as `Company address`, `Return address`, and `Payment due date` remain in the document settings.
+
+> [!IMPORTANT]
+> Before or immediately after upgrading to 6.8, review and populate the new Company information section in Basic information.
+> Document rendering now uses these global values as the source of truth for company data.
+
+If your extension or customization previously:
+
+- read company fields from document-specific configuration in `document_base_config.config`
+- customized the old company-information UI in `sw-settings-document-detail`
+- assumed company information could differ per document type
+
+you need to migrate that logic to the global Basic information configuration instead.
+
+The new company settings are stored as flat system-config entries under `core.basicInformation.*`, for example:
+
+- `core.basicInformation.companyName`
+- `core.basicInformation.companyStreet`
+- `core.basicInformation.companyCountryId`
+- `core.basicInformation.companyLogoId`
 
 As part of this update, the following administration component parts have been deprecated:
 * `src/module/sw-settings-document/page/sw-settings-document-detail`:

@@ -75,7 +75,7 @@ class ProductListingPageOutOfRangeSubscriberTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             ProductException::pageOutOfRange(5, 1),
@@ -145,7 +145,7 @@ class ProductListingPageOutOfRangeSubscriberTest extends TestCase
         $request->attributes->set(RequestTransformer::ORIGINAL_REQUEST_URI, $originalUri);
 
         return new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $exception,

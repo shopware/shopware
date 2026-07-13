@@ -54,6 +54,10 @@ class ValidSeoPathInfoTest extends TestCase
         yield 'valid percent-escapes untouched' => ['caf%C3%A9', 'caf%C3%A9'];
         // A consecutive run of disallowed characters collapses to one separator.
         yield 'control characters collapsed' => ["foo\0\nbar", 'foo-bar'];
+        // Raw spaces are percent-encoded so query-bearing SEO paths stay matchable
+        // by the resolver, which only ever sees the space as %20 from the frontend.
+        yield 'space in query value encoded' => ['product?colo=red blue', 'product?colo=red%20blue'];
+        yield 'multiple spaces encoded' => ['product?a=b c d', 'product?a=b%20c%20d'];
     }
 
     #[DataProvider('sanitizeProvider')]

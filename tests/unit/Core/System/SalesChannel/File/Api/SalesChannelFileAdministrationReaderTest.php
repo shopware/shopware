@@ -193,7 +193,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
 
     private function createTemplateResolver(): SalesChannelFileTemplateResolver
     {
-        $resolver = $this->createMock(SalesChannelFileTemplateResolver::class);
+        $resolver = static::createStub(SalesChannelFileTemplateResolver::class);
         $resolver
             ->method('resolveTemplateChain')
             ->willReturn([

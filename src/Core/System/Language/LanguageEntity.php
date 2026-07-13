@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Struct\Collection;
@@ -182,6 +183,9 @@ class LanguageEntity extends Entity
 
     protected ?ProductCrossSellingTranslationCollection $productCrossSellingTranslations = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     protected ?ImportExportProfileTranslationCollection $importExportProfileTranslations = null;
 
     protected ?ProductFeatureSetTranslationCollection $productFeatureSetTranslations = null;
@@ -754,13 +758,29 @@ class LanguageEntity extends Entity
         $this->productCrossSellingTranslations = $productCrossSellingTranslations;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function getImportExportProfileTranslations(): ?ImportExportProfileTranslationCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->importExportProfileTranslations;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function setImportExportProfileTranslations(ImportExportProfileTranslationCollection $importExportProfileTranslations): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->importExportProfileTranslations = $importExportProfileTranslations;
     }
 

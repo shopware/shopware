@@ -100,6 +100,7 @@
         "psr/event-dispatcher": "^1.0.0",
         "psr/http-factory": "^1.0.1",
         "psr/http-message": "^1.1 || ^2.0",
+        "psr/http-server-middleware": "^1.0",
         "psr/log": "^3.0.0",
         "phpseclib/phpseclib": "^3.0",
         "ramsey/uuid": "^4.7",

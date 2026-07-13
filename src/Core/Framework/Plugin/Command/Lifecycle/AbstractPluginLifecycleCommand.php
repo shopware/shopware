@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -109,13 +108,33 @@ abstract class AbstractPluginLifecycleCommand extends Command
     protected function refreshPlugins(): void
     {
         $input = new StringInput('plugin:refresh -s');
-        /** @var Application $application */
         $application = $this->getApplication();
         $application->doRun($input, new NullOutput());
     }
 
+    protected function handleClearCache(InputInterface $input, SymfonyStyle $io, string $action): void
+    {
+        if ($input->getOption('clearCache')) {
+            $io->note('Clearing Cache');
+
+            try {
+                $this->cacheClearer->clear();
+            } catch (\Throwable $e) {
+                $io->error('Error clearing cache: ' . $e->getMessage());
+
+                return;
+            }
+
+            $io->success('Cache cleared');
+
+            return;
+        }
+
+        $io->note(\sprintf('You may want to clear the cache after %s plugin(s). To do so run the cache:clear command', $action));
+    }
+
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - `$io` will only accept SymfonyStyle
+     * @deprecated tag:v6.8.0 - Will be removed - Use {@see AbstractPluginLifecycleCommand::handleClearCache} instead
      */
     protected function handleClearCacheOption(InputInterface $input, ShopwareStyle $io, string $action): void
     {

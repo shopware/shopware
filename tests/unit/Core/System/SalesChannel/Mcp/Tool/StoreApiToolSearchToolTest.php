@@ -30,7 +30,7 @@ class StoreApiToolSearchToolTest extends TestCase
         static::assertSame('shopware-store-api-product-search', $data['data'][0]['tool']['name']);
     }
 
-    public function testResultHasNoToolsetUsageHint(): void
+    public function testResultCarriesToolsetEnableUsageHint(): void
     {
         $registry = new Registry();
         $registry->registerTool(self::tool('shopware-store-api-product-search', 'Search products'), 'Acme\\ProductSearchTool');
@@ -39,8 +39,9 @@ class StoreApiToolSearchToolTest extends TestCase
 
         $data = json_decode($tool('product'), true, 512, \JSON_THROW_ON_ERROR);
 
-        // Store API advertises all tools (no toolsets), so there is no enable-fallback to nudge toward.
-        static::assertArrayNotHasKey('usage', $data['_meta']);
+        // Store API now uses progressive disclosure, so tool-search nudges toward the enable path.
+        static::assertArrayHasKey('usage', $data['_meta']);
+        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
     }
 
     public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void

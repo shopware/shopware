@@ -6,12 +6,14 @@ use Mcp\Server;
 use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
 use Mcp\Server\Transport\StreamableHttpTransport;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -56,6 +58,7 @@ class StoreApiMcpServerController
         private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly McpAllowedHostsProvider $allowedHostsProvider,
         private readonly ?LoggerInterface $logger = null,
+        private readonly ?McpSessionRegistry $sessionRegistry = null,
     ) {
     }
 
@@ -94,9 +97,28 @@ class StoreApiMcpServerController
         );
 
         $psrResponse = $this->server->run($transport);
+        $this->registerSession($psrResponse);
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    /**
+     * Registers the MCP session id emitted on the initialize response so the store-api
+     * listChanged notifier can target this session (mirrors the Admin controller).
+     */
+    private function registerSession(PsrResponseInterface $psrResponse): void
+    {
+        if ($this->sessionRegistry === null) {
+            return;
+        }
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->sessionRegistry->register($sessionId);
     }
 
     /**

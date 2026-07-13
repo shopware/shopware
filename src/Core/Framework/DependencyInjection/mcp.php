@@ -80,6 +80,8 @@ use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolSearchTool;
+use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
+use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetsListTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Psr16Cache;
@@ -211,6 +213,47 @@ return static function (ContainerConfigurator $container): void {
     $services->set('mcp.store_api.server', McpServer::class)
         ->factory([service('mcp.store_api.server.builder'), 'build']);
 
+    // Store-api-scoped discovery stack: second instances of the scope-neutral discovery classes,
+    // pointed at the store-api registry/params and an isolated session registry (own cache) so
+    // enabling an admin toolset never notifies store-api sessions and vice versa.
+    $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
+        ->args([service('cache.system')]);
+
+    $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
+        ->args([service('mcp.store_api.session_registry_cache')]);
+
+    $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
+        ->args([
+            service('mcp.session.store')->nullOnInvalid(),
+            service('mcp.store_api.session_registry'),
+            service('logger'),
+        ])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set('mcp.store_api.capability_catalog', McpCapabilityCatalog::class)
+        ->args([
+            service('mcp.store_api.registry')->nullOnInvalid(),
+            service(AppMcpPrivilegeProvider::class),
+            param('shopware.store_api_mcp.tool_dependencies'),
+            param('shopware.store_api_mcp.tool_privileges'),
+            param('shopware.store_api_mcp.tool_groups'),
+        ]);
+
+    $services->set('mcp.store_api.toolset_registry', McpToolsetRegistry::class)
+        ->args([service('mcp.store_api.capability_catalog')]);
+
+    $services->set('mcp.store_api.list_request_handler', McpAllowlistListRequestHandler::class)
+        ->args([
+            service('mcp.store_api.registry'),
+            null,
+            param('mcp.pagination_limit'),
+            param('shopware.store_api_mcp.advertised_tools'),
+            service('mcp.store_api.toolset_registry'),
+            service(McpToolsetSessionStorage::class),
+            service('request_stack'),
+        ])
+        ->tag('mcp.store_api.request_handler');
+
     $services->set(StoreApiMcpServerController::class)
         ->public()
         ->args([
@@ -223,6 +266,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpSessionIdValidator::class),
             service(McpAllowedHostsProvider::class),
             service('logger'),
+            service('mcp.store_api.session_registry'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -385,6 +429,23 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             null,
+        ])
+        ->tag('shopware.store_api_mcp.tool');
+
+    $services->set(StoreApiToolsetsListTool::class)
+        ->args([
+            service('mcp.store_api.toolset_registry'),
+            service(McpToolsetSessionStorage::class),
+            service('request_stack'),
+        ])
+        ->tag('shopware.store_api_mcp.tool');
+
+    $services->set(StoreApiToolsetEnableTool::class)
+        ->args([
+            service('mcp.store_api.toolset_registry'),
+            service(McpToolsetSessionStorage::class),
+            service('mcp.store_api.list_changed_notifier'),
+            service('request_stack'),
         ])
         ->tag('shopware.store_api_mcp.tool');
 

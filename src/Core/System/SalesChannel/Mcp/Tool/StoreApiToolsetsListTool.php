@@ -1,0 +1,30 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\SalesChannel\Mcp\Tool;
+
+use Mcp\Capability\Attribute\McpTool;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
+
+/**
+ * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ *
+ * @internal
+ *
+ * Store API variant of {@see ToolsetsListTool}. A distinct concrete class is required because the
+ * MCP SDK binds a tool to the class carrying #[McpTool] and the store-api service locator keys on
+ * the service id (= class). It is wired with the store-api toolset registry + session storage.
+ */
+#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List MCP toolsets that can be enabled for the current session. Use this before enabling additional tools when only the default meta-tools are visible.', meta: ['deferred' => false])]
+#[McpToolGroup('default')]
+#[Package('framework')]
+class StoreApiToolsetsListTool extends ToolsetsListTool
+{
+    #[\Override]
+    public function __invoke(): string
+    {
+        return parent::__invoke();
+    }
+}

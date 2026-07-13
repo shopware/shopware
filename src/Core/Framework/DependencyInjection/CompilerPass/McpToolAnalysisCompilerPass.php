@@ -29,9 +29,14 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             return;
         }
 
-        $this->buildAndValidateToolDependencies($container);
-        $this->buildToolPrivilegeMap($container);
-        $this->buildToolGroupMap($container);
+        // Build one param set per MCP scope so both endpoints get identical group/dependency/
+        // privilege analysis. Admin tools carry the 'mcp.tool' tag; Store API tools carry
+        // 'shopware.store_api_mcp.tool'. Each scope writes under its own param prefix.
+        foreach ([['mcp.tool', 'shopware.mcp.'], ['shopware.store_api_mcp.tool', 'shopware.store_api_mcp.']] as [$tag, $paramPrefix]) {
+            $this->buildAndValidateToolDependencies($container, $tag, $paramPrefix);
+            $this->buildToolPrivilegeMap($container, $tag, $paramPrefix);
+            $this->buildToolGroupMap($container, $tag, $paramPrefix);
+        }
     }
 
     /**
@@ -41,12 +46,12 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
      *
      * @throws DependencyInjectionException when a dependency name does not match any registered tool
      */
-    private function buildAndValidateToolDependencies(ContainerBuilder $container): void
+    private function buildAndValidateToolDependencies(ContainerBuilder $container, string $tag, string $paramPrefix): void
     {
         /** @var array<string, string> $toolNames  tool-name => class */
         $toolNames = [];
 
-        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -82,7 +87,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             }
         }
 
-        $container->setParameter('shopware.mcp.tool_dependencies', $dependencyMap);
+        $container->setParameter($paramPrefix . 'tool_dependencies', $dependencyMap);
     }
 
     /**
@@ -91,12 +96,12 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
      *
      * The map is purely informational — it does NOT enforce privileges at runtime.
      */
-    private function buildToolPrivilegeMap(ContainerBuilder $container): void
+    private function buildToolPrivilegeMap(ContainerBuilder $container, string $tag, string $paramPrefix): void
     {
         /** @var array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $privilegeMap */
         $privilegeMap = [];
 
-        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -130,15 +135,15 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             }
         }
 
-        $container->setParameter('shopware.mcp.tool_privileges', $privilegeMap);
+        $container->setParameter($paramPrefix . 'tool_privileges', $privilegeMap);
     }
 
-    private function buildToolGroupMap(ContainerBuilder $container): void
+    private function buildToolGroupMap(ContainerBuilder $container, string $tag, string $paramPrefix): void
     {
         /** @var array<string, string> $groupMap tool-name => group */
         $groupMap = [];
 
-        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -155,6 +160,6 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             $groupMap[$toolInfo['name']] = $group;
         }
 
-        $container->setParameter('shopware.mcp.tool_groups', $groupMap);
+        $container->setParameter($paramPrefix . 'tool_groups', $groupMap);
     }
 }

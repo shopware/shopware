@@ -266,9 +266,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     it('buildRecoveryUrl omits the language parameter when no locale is set', () => {
         useSession().currentLocale.value = null;
 
-        expect(wrapper.vm.buildRecoveryUrl()).toBe(
-            `${Shopware.Context.api.basePath}/shopware-installer.phar.php`,
-        );
+        expect(wrapper.vm.buildRecoveryUrl()).toBe(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 
     it('deactivate plugins success loops to disable all', async () => {

@@ -9,6 +9,12 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-help-center-v2', { sync: true }), {
         attachTo: document.body,
         global: {
+            provide: {
+                shortcutService: {
+                    isShortcutsDisabled: jest.fn(() => false),
+                    setShortcutsDisabled: jest.fn(),
+                },
+            },
             stubs: {
                 'sw-shortcut-overview': SwShortcutOverview,
             },

@@ -110,6 +110,61 @@
             {% endif %}
         {% endblock %}
 
+        {% block page_checkout_confirm_legal_guarantee_notice %}
+            {% if config('core.cart.showLegalGuaranteeNotice') %}
+                {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
+
+                {% block page_checkout_confirm_legal_guarantee_notice_link %}
+                    <p class="confirm-legal-guarantee-notice-link">
+                        <button type="button"
+                                class="btn btn-link-inline"
+                                aria-haspopup="dialog"
+                                data-bs-toggle="modal"
+                                data-bs-target="#{{ legalGuaranteeNoticeModalId }}">
+                            {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+                        </button>
+                    </p>
+                {% endblock %}
+
+                {% block page_checkout_confirm_legal_guarantee_notice_modal %}
+                    <div class="modal modal-lg fade"
+                         id="{{ legalGuaranteeNoticeModalId }}"
+                         tabindex="-1"
+                         role="dialog"
+                         aria-modal="true"
+                         aria-hidden="true"
+                         aria-labelledby="{{ legalGuaranteeNoticeModalId }}-header">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                {% block page_checkout_confirm_legal_guarantee_notice_modal_header %}
+                                    <div class="modal-header">
+                                        <div id="{{ legalGuaranteeNoticeModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
+                                            {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+                                        </div>
+                                        <button class="btn-close close"
+                                                type="button"
+                                                data-bs-dismiss="modal"
+                                                aria-label="{{ 'global.default.close'|trans|striptags }}">
+                                        </button>
+                                    </div>
+                                {% endblock %}
+
+                                {% block page_checkout_confirm_legal_guarantee_notice_modal_body %}
+                                    <div class="modal-body confirm-legal-guarantee-notice">
+                                        <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
+                                           target="_blank"
+                                           rel="noopener">
+                                            {{ context.languageId|sw_legal_guarantee_notice }}
+                                        </a>
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                {% endblock %}
+            {% endif %}
+        {% endblock %}
+
         {% block page_checkout_confirm_address %}
             <div class="confirm-address">
                 {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-address.html.twig' %}

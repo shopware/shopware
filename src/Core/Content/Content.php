@@ -48,6 +48,7 @@ class Content extends Bundle
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
+        $loader->load('legal_guarantee_notice.xml');
         $loader->load('shared.xml');
 
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));

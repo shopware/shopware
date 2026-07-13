@@ -83,6 +83,20 @@
     margin-left: $spacer-xs;
 }
 
+.confirm-legal-guarantee-notice-link {
+    margin-bottom: $spacer-lg;
+}
+
+.confirm-legal-guarantee-notice {
+    svg {
+        display: block;
+        width: 100%;
+        max-width: 560px;
+        height: auto;
+        margin: 0 auto;
+    }
+}
+
 .payment-method-label,
 .shipping-method-label {
     width: 100%;

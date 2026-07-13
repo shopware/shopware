@@ -497,6 +497,7 @@
     "confirmRevocationNotice": "Bitte beachten Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Widerrufsbelehrung\">Widerrufsbelehrung</a>.",
     "confirmRevocationNoticeModal": "Bitte beachten Sie die %revocationModalTagOpen%Widerrufsbelehrung%revocationModalTagClose%.",
     "confirmRevocationNoticePage": "Bitte beachten Sie die <a href=\"%url%\">Widerrufsbelehrung</a>.",
+    "confirmLegalGuaranteeNoticeLink": "Ihre gesetzlichen Gewährleistungsrechte",
     "confirmTermsText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "confirmTermsTextModal": "Ich habe die %tosModalTagOpen%AGB%tosModalTagClose% gelesen und bin mit ihnen einverstanden.",
     "confirmTermsTextPage": "Ich habe die <a href=\"%url%\">AGB</a> gelesen und bin mit ihnen einverstanden.",

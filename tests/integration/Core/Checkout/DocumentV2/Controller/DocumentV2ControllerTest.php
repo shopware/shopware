@@ -143,8 +143,8 @@ class DocumentV2ControllerTest extends TestCase
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsString($payload['documentId'] ?? null);
         static::assertTrue(Uuid::isValid($payload['documentId']));
-        static::assertIsString($payload['documentDeepLink'] ?? null);
-        static::assertNotSame('', $payload['documentDeepLink']);
+        static::assertIsString($payload['deepLinkCode'] ?? null);
+        static::assertNotSame('', $payload['deepLinkCode']);
         static::assertSame([DocumentFormat::HTML->value], $payload['fileTypes'] ?? null);
 
         $files = $this->loadDocumentFiles($payload['documentId']);
@@ -153,6 +153,67 @@ class DocumentV2ControllerTest extends TestCase
         $file = $files->first();
         static::assertInstanceOf(DocumentFileEntity::class, $file);
         static::assertSame(DocumentFormat::HTML->value, $file->getDocumentFormat());
+    }
+
+    public function testUploadStoresDocumentFileAndDownloadReturnsIt(): void
+    {
+        [$orderId, $orderVersionId] = $this->createDraftOrder();
+        $content = 'uploaded invoice';
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/order/document-v2/upload?' . http_build_query([
+                'documentDate' => self::DOCUMENT_DATE,
+                'documentNumber' => '1002-' . Uuid::randomHex(),
+                'documentType' => DocumentType::INVOICE->value,
+                'extension' => DocumentFormat::PDF->value,
+                'fileName' => 'uploaded-invoice',
+                'fileType' => DocumentFormat::PDF->value,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+            ], '', '&', \PHP_QUERY_RFC3986),
+            [],
+            [],
+            [
+                'HTTP_CONTENT_LENGTH' => \strlen($content),
+                'HTTP_CONTENT_TYPE' => DocumentFormat::PDF->mimeType(),
+            ],
+            $content,
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($payload['documentId'] ?? null);
+        static::assertTrue(Uuid::isValid($payload['documentId']));
+        static::assertIsString($payload['deepLinkCode'] ?? null);
+        static::assertNotSame('', $payload['deepLinkCode']);
+        static::assertSame([DocumentFormat::PDF->value], $payload['fileTypes'] ?? null);
+
+        $files = $this->loadDocumentFiles($payload['documentId']);
+        static::assertCount(1, $files);
+
+        $file = $files->first();
+        static::assertInstanceOf(DocumentFileEntity::class, $file);
+        static::assertSame(DocumentFormat::PDF->value, $file->getDocumentFormat());
+
+        $this->getBrowser()->request(
+            'GET',
+            \sprintf(
+                '/api/_action/order/document-v2/%s/%s/download/%s',
+                $payload['documentId'],
+                $payload['deepLinkCode'],
+                DocumentFormat::PDF->value,
+            ),
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame($content, $response->getContent());
+        static::assertSame(DocumentFormat::PDF->mimeType(), $response->headers->get('content-type'));
+        static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
+        static::assertStringContainsString('uploaded-invoice.pdf', (string) $response->headers->get('content-disposition'));
     }
 
     /**

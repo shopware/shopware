@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -25,6 +26,8 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -33,6 +36,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -51,6 +55,10 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new StaticEntityRepository([], new DocumentDefinition()),
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
         );
 
         $response = $controller->availableTypes();
@@ -89,6 +97,10 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new StaticEntityRepository([], new DocumentDefinition()),
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
         );
 
         $controller->create(
@@ -110,6 +122,10 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId, $document),
             $rendererRegistry,
+            new StaticEntityRepository([], new DocumentDefinition()),
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
         );
 
         $response = $controller->create(
@@ -126,7 +142,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(
             [
-                'documentDeepLink' => $document->getDeepLinkCode(),
+                'deepLinkCode' => $document->getDeepLinkCode(),
                 'documentId' => $document->getId(),
                 'fileTypes' => [
                     DocumentFormat::HTML->value,
@@ -149,6 +165,10 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new StaticEntityRepository([], new DocumentDefinition()),
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
         );
 
         $controller->preview(
@@ -168,6 +188,10 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            new StaticEntityRepository([], new DocumentDefinition()),
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
         );
 
         $response = $controller->preview(
@@ -185,6 +209,295 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame(DocumentFormat::HTML->mimeType(), $response->headers->get('content-type'));
         static::assertStringStartsWith('inline;', (string) $response->headers->get('content-disposition'));
         static::assertStringContainsString('filename.html', (string) $response->headers->get('content-disposition'));
+    }
+
+    public function testUploadReturnsUploadedDocumentResponse(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([], new DocumentDefinition());
+
+        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
+        $documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
+
+        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
+        $documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
+        $documentTypeRepository->searches[] = [$documentTypeId];
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $rendererRegistry,
+            $documentRepository,
+            $documentFileRepository,
+            $documentTypeRepository,
+            static::createStub(MediaService::class),
+        );
+
+        $response = $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode([
+                    'documentComment' => '',
+                    'documentDate' => '2026-07-13T00:00:00.000Z',
+                    'documentNumber' => '1000',
+                    'documentType' => DocumentType::INVOICE->value,
+                    'fileType' => DocumentFormat::PDF->value,
+                    'mediaId' => $mediaId,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($payload['documentId'] ?? null);
+        static::assertIsString($payload['deepLinkCode'] ?? null);
+        static::assertSame([DocumentFormat::PDF->value], $payload['fileTypes'] ?? null);
+
+        static::assertSame([
+            [
+                'id' => $payload['documentId'],
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'documentTypeId' => $documentTypeId,
+                'documentMediaFileId' => $mediaId,
+                'referencedDocumentId' => null,
+                'static' => true,
+                'deepLinkCode' => $payload['deepLinkCode'],
+                'config' => [
+                    'documentComment' => '',
+                    'documentDate' => '2026-07-13T00:00:00.000Z',
+                    'documentNumber' => '1000',
+                ],
+            ],
+        ], $documentRepository->creates[0]);
+        static::assertSame($payload['documentId'], $documentFileRepository->creates[0][0]['documentId']);
+        static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
+        static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
+    }
+
+    public function testUploadStoresBinaryRequestWithQueryPayload(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $content = 'uploaded invoice';
+        $mediaFile = new MediaFile('invoice.pdf', DocumentFormat::PDF->mimeType(), DocumentFormat::PDF->value, \strlen($content));
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([], new DocumentDefinition());
+
+        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
+        $documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
+
+        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
+        $documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
+        $documentTypeRepository->searches[] = [$documentTypeId];
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('fetchFile')
+            ->with(static::isInstanceOf(Request::class))
+            ->willReturn($mediaFile);
+        $mediaService->expects($this->once())
+            ->method('saveMediaFile')
+            ->with(
+                $mediaFile,
+                'invoice',
+                static::isInstanceOf(Context::class),
+                DocumentPersister::MEDIA_FOLDER,
+            )
+            ->willReturn($mediaId);
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $rendererRegistry,
+            $documentRepository,
+            $documentFileRepository,
+            $documentTypeRepository,
+            $mediaService,
+        );
+
+        $response = $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload?' . http_build_query([
+                    'documentComment' => '',
+                    'documentDate' => '2026-07-13T00:00:00.000Z',
+                    'documentNumber' => '1000',
+                    'documentType' => DocumentType::INVOICE->value,
+                    'extension' => DocumentFormat::PDF->value,
+                    'fileName' => 'invoice',
+                    'fileType' => DocumentFormat::PDF->value,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], '', '&', \PHP_QUERY_RFC3986),
+                Request::METHOD_POST,
+                server: [
+                    'CONTENT_LENGTH' => (string) \strlen($content),
+                    'CONTENT_TYPE' => DocumentFormat::PDF->mimeType(),
+                ],
+                content: $content,
+            ),
+            Context::createDefaultContext(),
+        );
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame([DocumentFormat::PDF->value], $payload['fileTypes'] ?? null);
+        static::assertSame($mediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
+        static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
+    }
+
+    public function testDownloadReturnsStoredDocumentFile(): void
+    {
+        $documentId = Uuid::randomHex();
+        $deepLinkCode = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setFileName('invoice');
+        $media->setFileExtension(DocumentFormat::PDF->value);
+        $media->setMimeType(DocumentFormat::PDF->mimeType());
+
+        $documentFile = new DocumentFileEntity();
+        $documentFile->setId(Uuid::randomHex());
+        $documentFile->setDocumentId($documentId);
+        $documentFile->setDocumentFormat(DocumentFormat::PDF->value);
+        $documentFile->setMediaId($mediaId);
+        $documentFile->setMedia($media);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDeepLinkCode($deepLinkCode);
+        $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ], new DocumentDefinition());
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('loadFile')
+            ->with($mediaId, static::isInstanceOf(Context::class))
+            ->willReturn('pdf content');
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
+            $rendererRegistry,
+            $documentRepository,
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $mediaService,
+        );
+
+        $response = $controller->download(
+            $documentId,
+            $deepLinkCode,
+            DocumentFormat::PDF->value,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('pdf content', $response->getContent());
+        static::assertSame(DocumentFormat::PDF->mimeType(), $response->headers->get('content-type'));
+        static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
+        static::assertStringContainsString('invoice.pdf', (string) $response->headers->get('content-disposition'));
+    }
+
+    public function testDownloadThrowsWhenRequestedFileTypeIsUnavailable(): void
+    {
+        $documentId = Uuid::randomHex();
+        $deepLinkCode = Uuid::randomHex();
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDeepLinkCode($deepLinkCode);
+        $document->setDocumentFiles(new DocumentFileCollection([]));
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ], new DocumentDefinition());
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
+            $rendererRegistry,
+            $documentRepository,
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
+        );
+
+        static::expectExceptionObject(
+            DocumentV2Exception::documentFileTypeUnavailable($documentId, DocumentFormat::PDF->value)
+        );
+
+        $controller->download(
+            $documentId,
+            $deepLinkCode,
+            DocumentFormat::PDF->value,
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testDownloadThrowsWhenDocumentIsNotFound(): void
+    {
+        $documentId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([]),
+        ], new DocumentDefinition());
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
+            $rendererRegistry,
+            $documentRepository,
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
+        );
+
+        static::expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));
+
+        $controller->download(
+            $documentId,
+            Uuid::randomHex(),
+            DocumentFormat::PDF->value,
+            Context::createDefaultContext(),
+        );
     }
 
     private function createGenerator(

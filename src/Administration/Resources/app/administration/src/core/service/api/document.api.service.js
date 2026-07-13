@@ -146,6 +146,66 @@ class DocumentApiService extends ApiService {
             });
     }
 
+    uploadDocumentV2(
+        orderId,
+        orderVersionId,
+        documentTypeName,
+        fileType,
+        documentNumber,
+        documentDate,
+        documentComment = '',
+        mediaId = null,
+        file = null,
+        referencedDocumentId = null,
+        additionalHeaders = {},
+    ) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+        const payload = {
+            orderId,
+            orderVersionId,
+            documentType: documentTypeName,
+            fileType,
+            documentNumber,
+            documentDate,
+            documentComment,
+            mediaId,
+            referencedDocumentId,
+        };
+
+        let request;
+
+        if (typeof File !== 'undefined' && file instanceof File) {
+            headers['Content-Type'] = file.type;
+
+            request = this.httpClient.post('/_action/order/document-v2/upload', file, {
+                params: {
+                    ...payload,
+                    extension: file.name.split('.').pop(),
+                    fileName: file.name.split('.').shift(),
+                },
+                headers,
+            });
+        } else {
+            request = this.httpClient.post('/_action/order/document-v2/upload', payload, {
+                headers,
+            });
+        }
+
+        return request
+            .then((response) => {
+                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+
+                return Promise.resolve(response);
+            })
+            .catch((error) => {
+                if (error.response?.data?.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                    );
+                }
+            });
+    }
+
     getDocumentPreviewV2(
         orderId,
         orderVersionId,
@@ -191,6 +251,13 @@ class DocumentApiService extends ApiService {
                 headers: this.getBasicHeaders(),
             },
         );
+    }
+
+    getDocumentV2(documentId, documentDeepLink, fileType = 'pdf') {
+        return this.httpClient.get(`/_action/order/document-v2/${documentId}/${documentDeepLink}/download/${fileType}`, {
+            responseType: 'blob',
+            headers: this.getBasicHeaders(),
+        });
     }
 
     createDocumentEvent(action, payload) {

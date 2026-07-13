@@ -130,7 +130,7 @@
                   "required": ["documentTypes"],
                   "properties": {
                     "documentTypes": {
-                      "description": "Map of supported document type technical names to the file formats implemented for that document type. Use these values for the `documentType`, `fileTypes`, and `fileType` fields of the create and preview endpoints.",
+                      "description": "Map of supported document type technical names to the file formats implemented for that document type. Use these values for the `documentType`, `fileTypes`, and `fileType` fields of the create, preview, and upload endpoints.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "object",
@@ -165,7 +165,7 @@
       "post": {
         "tags": ["Document Management"],
         "summary": "Create a document through the Document V2 pipeline",
-        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `fileTypes` values from `/_action/order/document-v2/available-types`. Use the returned `documentId`, `documentDeepLink`, and one of the returned `fileTypes` to download the created file through `/_action/document/{documentId}/{documentDeepLink}?fileType={fileType}`.",
+        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `fileTypes` values from `/_action/order/document-v2/available-types`. Use the returned `documentId`, `deepLinkCode`, and one of the returned `fileTypes` to download the created file through `/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{fileType}`.",
         "operationId": "createDocumentV2",
         "requestBody": {
           "required": true,
@@ -218,6 +218,15 @@
                     "format": "date-time",
                     "example": "2026-07-13T00:00:00.000+00:00"
                   }
+                },
+                "example": {
+                  "orderId": "018f5972f9ea72a0be49f7c39f72a2a0",
+                  "orderVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+                  "documentType": "invoice",
+                  "fileTypes": ["pdf", "zugferd_xml"],
+                  "documentNumber": "1002",
+                  "documentDate": "2026-07-13T00:00:00.000+00:00",
+                  "documentComment": "Customer requested a copy."
                 }
               }
             }
@@ -225,14 +234,14 @@
         },
         "responses": {
           "200": {
-            "description": "Document created successfully. Use `documentId`, `documentDeepLink`, and one of the returned `fileTypes` to download the created file through `/_action/document/{documentId}/{documentDeepLink}?fileType={fileType}`.",
+            "description": "Document created successfully. Use `documentId`, `deepLinkCode`, and one of the returned `fileTypes` to download the created file through `/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{fileType}`.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": ["documentDeepLink", "documentId", "fileTypes"],
+                  "required": ["deepLinkCode", "documentId", "fileTypes"],
                   "properties": {
-                    "documentDeepLink": {
+                    "deepLinkCode": {
                       "description": "A unique hash code which is required to download the generated document.",
                       "type": "string"
                     },
@@ -242,7 +251,7 @@
                       "pattern": "^[0-9a-f]{32}$"
                     },
                     "fileTypes": {
-                      "description": "The generated file formats. Use one of these values as the `fileType` query parameter when downloading the document.",
+                      "description": "The generated file formats. Use one of these values as the `fileType` path parameter when downloading the document.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -250,10 +259,320 @@
                     }
                   },
                   "example": {
-                    "documentDeepLink": "COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN",
+                    "deepLinkCode": "COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN",
                     "documentId": "018f5972f9ea72a0be49f7c39f72a2a0",
                     "fileTypes": ["pdf", "zugferd_xml"]
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_action/order/document-v2/upload": {
+      "post": {
+        "tags": ["Document Management"],
+        "summary": "Upload a document through the Document V2 pipeline",
+        "description": "Creates one static Document V2 document from either an existing media file or a raw binary file upload. Use `application/json` when the file already exists as media and pass `mediaId` in the body. Use a binary request body when uploading file bytes directly; in that case pass the document metadata as query parameters. Example binary upload: `POST /_action/order/document-v2/upload?orderId=018f5972f9ea72a0be49f7c39f72a2a0&orderVersionId=0fa91ce3e96a4bc2be4bd9ce752c3425&documentType=invoice&fileType=pdf&extension=pdf&fileName=invoice-1002` with header `Content-Type: application/pdf` and the PDF bytes as the request body. Get supported `documentType` and `fileType` values from `/_action/order/document-v2/available-types`.",
+        "operationId": "uploadDocumentV2",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "query",
+            "description": "Required for binary uploads. Identifier of the order for which the uploaded document should be created. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "orderVersionId",
+            "in": "query",
+            "description": "Required for binary uploads. Version identifier of the order for which the uploaded document should be created. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "documentType",
+            "in": "query",
+            "description": "Required for binary uploads. Document type technical name. Must be one of the keys returned by `/_action/order/document-v2/available-types`. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "invoice"
+            }
+          },
+          {
+            "name": "fileType",
+            "in": "query",
+            "description": "Required for binary uploads. Document file format to store. Must be selected from `documentTypes[documentType].formats` returned by `/_action/order/document-v2/available-types`. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "pdf"
+            }
+          },
+          {
+            "name": "extension",
+            "in": "query",
+            "description": "Required for binary uploads. File extension of the uploaded binary body, without a leading dot. Usually this is the same value as `fileType`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "pdf"
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "description": "Optional for binary uploads. Preferred stored media filename without the extension. If omitted, the document number or a generated identifier is used.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "invoice-1002"
+            }
+          },
+          {
+            "name": "referencedDocumentId",
+            "in": "query",
+            "description": "Optional for binary uploads. Identifier of the referenced document. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "description": "Optional for binary uploads. Document number stored in the document configuration. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1002"
+            }
+          },
+          {
+            "name": "documentComment",
+            "in": "query",
+            "description": "Optional for binary uploads. Document comment stored in the document configuration. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentDate",
+            "in": "query",
+            "description": "Optional for binary uploads. Document date stored in the document configuration as an ISO 8601 date-time string. For JSON uploads, send this field in the request body instead.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-07-13T00:00:00.000+00:00"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Use `application/json` to attach an existing media file by `mediaId`. Use a binary media type, for example `application/pdf`, to upload file bytes directly and provide the document metadata through query parameters. For binary uploads, the body is the raw file content, not JSON.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "orderId",
+                  "orderVersionId",
+                  "documentType",
+                  "fileType",
+                  "mediaId"
+                ],
+                "properties": {
+                  "orderId": {
+                    "description": "Identifier of the order for which the uploaded document should be created.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "orderVersionId": {
+                    "description": "Version identifier of the order for which the uploaded document should be created.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "documentType": {
+                    "description": "Document type technical name. Must be one of the keys returned by `/_action/order/document-v2/available-types`.",
+                    "type": "string",
+                    "example": "invoice"
+                  },
+                  "fileType": {
+                    "description": "File format technical name. Must be selected from `documentTypes[documentType].formats` returned by `/_action/order/document-v2/available-types`.",
+                    "type": "string",
+                    "example": "pdf"
+                  },
+                  "mediaId": {
+                    "description": "Identifier of an existing media file to attach to the document. Required for JSON uploads.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "referencedDocumentId": {
+                    "description": "Optional identifier of the referenced document.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "documentNumber": {
+                    "description": "Optional document number.",
+                    "type": "string"
+                  },
+                  "documentComment": {
+                    "description": "Optional document comment.",
+                    "type": "string"
+                  },
+                  "documentDate": {
+                    "description": "Optional document date as an ISO 8601 date-time string.",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-07-13T00:00:00.000+00:00"
+                  }
+                },
+                "example": {
+                  "orderId": "018f5972f9ea72a0be49f7c39f72a2a0",
+                  "orderVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+                  "documentType": "invoice",
+                  "fileType": "pdf",
+                  "mediaId": "018f5972fa0773c793fb88af536e34f6",
+                  "documentNumber": "1002",
+                  "documentDate": "2026-07-13T00:00:00.000+00:00"
+                }
+              }
+            },
+            "application/pdf": {
+              "schema": {
+                "description": "Raw file bytes. For binary uploads, send the required document metadata as query parameters.",
+                "type": "string",
+                "format": "binary"
+              },
+              "example": "%PDF-1.7 ..."
+            },
+            "application/octet-stream": {
+              "schema": {
+                "description": "Raw file bytes. For binary uploads, send the required document metadata as query parameters.",
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document uploaded successfully. Use `documentId`, `deepLinkCode`, and one of the returned `fileTypes` to download the uploaded file through `/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{fileType}`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["deepLinkCode", "documentId", "fileTypes"],
+                  "properties": {
+                    "deepLinkCode": {
+                      "description": "A unique hash code which is required to download the uploaded document.",
+                      "type": "string"
+                    },
+                    "documentId": {
+                      "description": "Identifier of the document.",
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "fileTypes": {
+                      "description": "The uploaded file format. Use one of these values as the `fileType` path parameter when downloading the document.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "example": {
+                    "deepLinkCode": "COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN",
+                    "documentId": "018f5972f9ea72a0be49f7c39f72a2a0",
+                    "fileTypes": ["pdf"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{fileType}": {
+      "get": {
+        "tags": ["Document Management"],
+        "summary": "Download a Document V2 file",
+        "description": "Downloads one persisted file format for a Document V2 document. Use the `documentId`, `deepLinkCode`, and one of the returned `fileTypes` from `/_action/order/document-v2/create` or `/_action/order/document-v2/upload`.",
+        "operationId": "downloadDocumentV2",
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "Identifier of the document.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "deepLinkCode",
+            "in": "path",
+            "description": "Deep link code returned when creating or uploading the document.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileType",
+            "in": "path",
+            "description": "File format to download. Must be one of the `fileTypes` returned when the document was created or uploaded.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "pdf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested document file.",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Contains the attachment filename.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -314,6 +633,15 @@
                     "format": "date-time",
                     "example": "2026-07-13T00:00:00.000+00:00"
                   }
+                },
+                "example": {
+                  "orderId": "018f5972f9ea72a0be49f7c39f72a2a0",
+                  "orderVersionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+                  "documentType": "invoice",
+                  "fileType": "html",
+                  "documentNumber": "1002",
+                  "documentDate": "2026-07-13T00:00:00.000+00:00",
+                  "documentComment": "Preview comment."
                 }
               }
             }

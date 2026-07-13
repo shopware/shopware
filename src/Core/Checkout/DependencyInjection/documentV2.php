@@ -150,6 +150,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentGenerator::class),
             service(DocumentRendererRegistry::class),
+            service('document.repository'),
+            service('document_file.repository'),
+            service('document_type.repository'),
+            service(MediaService::class),
         ])
         ->call('setContainer', [
             service('service_container'),

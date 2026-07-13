@@ -26,6 +26,8 @@ class DocumentV2Exception extends HttpException
 
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
+    public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
+
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
     public const CIRCULAR_DEPENDENCY_CYCLE = 'DOCUMENT_V2__CIRCULAR_DEPENDENCY_CYCLE';
@@ -59,6 +61,10 @@ class DocumentV2Exception extends HttpException
     public const INVALID_RENDER_VALUE = 'DOCUMENT_V2__INVALID_RENDER_VALUE';
 
     public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
+
+    public const INVALID_REQUEST_PARAMETER = 'DOCUMENT_V2__INVALID_REQUEST_PARAMETER';
+
+    public const DOCUMENT_FILE_TYPE_UNAVAILABLE = 'DOCUMENT_V2__FILE_TYPE_UNAVAILABLE';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -118,6 +124,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
+    public static function documentNotFound(string $documentId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_NOT_FOUND,
+            'Document with id "{{ documentId }}" not found.',
+            ['documentId' => $documentId],
+        );
+    }
+
     public static function rendererNotFound(string $format, string $documentType): self
     {
         return new self(
@@ -135,6 +151,26 @@ class DocumentV2Exception extends HttpException
             self::INVALID_DOCUMENT_TYPE,
             'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function invalidRequestParameter(string $parameter): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $parameter],
+        );
+    }
+
+    public static function documentFileTypeUnavailable(string $documentId, string $fileType): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_FILE_TYPE_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no generated document with file type "{{ fileType }}".',
+            ['documentId' => $documentId, 'fileType' => $fileType],
         );
     }
 

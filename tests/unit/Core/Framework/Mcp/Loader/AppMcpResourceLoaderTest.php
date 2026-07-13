@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
+use Mcp\Capability\Registry\ResourceReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
 use Mcp\Schema\ResourceDefinition;
@@ -177,8 +178,10 @@ class AppMcpResourceLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
             ->method('registerResource')
-            ->willReturnCallback(function (ResourceDefinition $resource, callable $callback) use (&$capturedCallback): void {
+            ->willReturnCallback(function (ResourceDefinition $resource, callable $callback) use (&$capturedCallback): ResourceReference {
                 $capturedCallback = $callback;
+
+                return static::createStub(ResourceReference::class);
             });
 
         $loader->load($registry);

@@ -1,6 +1,8 @@
 # Get involved
 
-Shopware is available under the MIT license. If you want to contribute code (features or bug fixes), you have to create a pull request and include valid license information. Contribute your code under the MIT license.
+Shopware is available under the MIT license.
+If you want to contribute code (features or bug fixes), you have to create a pull request and include valid license information.
+Contribute your code under the MIT license.
 
 If you want more details about available licensing or the contribution agreements we offer, you can contact us at <contact@shopware.com>.
 
@@ -9,11 +11,13 @@ If you want more details about available licensing or the contribution agreement
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
 For repository-specific code-level guidance, see [AGENTS.md](AGENTS.md) for concise global rules and [coding-guidelines/](coding-guidelines/) for detailed guidelines.
 Task-specific guidance lives in Agent Skills under [`.agents/skills/`](.agents/skills/README.md).
-Also, make sure that if you change something in a manner that is relevant to external developers please describe your change in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
+Also, make sure that if you change something in a manner that is relevant to external developers please describe your change in a meaningful way.
+For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
 
 ## Docker Setup (Recommended)
 
-The repository includes a Docker Compose setup that provides all required services (PHP, MySQL, OpenSearch, Redis, Mailpit). This is the **recommended** way to set up your development environment.
+The repository includes a Docker Compose setup that provides all required services (PHP, MySQL, OpenSearch, Redis, Mailpit).
+This is the **recommended** way to set up your development environment.
 
 ### Prerequisites
 
@@ -45,12 +49,12 @@ This runs `composer setup` which performs the full setup:
 
 After the setup is complete, you can access the application:
 
-| Service      | URL                                   |
-|-------------|---------------------------------------|
-| Storefront   | [http://localhost:8000](http://localhost:8000) |
-| Administration | [http://localhost:8000/admin](http://localhost:8000/admin) |
-| Database (Adminer) | [http://localhost:9080](http://localhost:9080) |
-| Mailpit (Mail catcher) | [http://localhost:8025](http://localhost:8025) |
+| Service                | URL                                                        |
+|------------------------|------------------------------------------------------------|
+| Storefront             | [http://localhost:8000](http://localhost:8000)             |
+| Administration         | [http://localhost:8000/admin](http://localhost:8000/admin) |
+| Database (Adminer)     | [http://localhost:9080](http://localhost:9080)             |
+| Mailpit (Mail catcher) | [http://localhost:8025](http://localhost:8025)             |
 
 **Default login**: Username `admin`, Password `shopware`.
 
@@ -63,17 +67,17 @@ After the setup is complete, you can access the application:
 
 Depending on what you're working on, you may not need the full `composer setup`. Here are the individual steps:
 
-| Command | Description |
-|---------|-------------|
-| `composer setup` | Full setup (install, database, JS, build) |
-| `composer install -o` | Install PHP dependencies with optimized autoloader |
-| `composer init:db` | Drop existing database and reinstall Shopware |
-| `composer init:js` | Install all JavaScript dependencies (admin + storefront + extensions) |
-| `composer init:testdb` | Initialize the test database |
-| `composer build:js` | Build all frontend assets (admin + storefront) |
-| `composer build:js:admin` | Build only the administration frontend |
-| `composer build:js:storefront` | Build only the storefront frontend |
-| `composer reset` | Reset database and rebuild all assets |
+| Command                        | Description                                                           |
+|--------------------------------|-----------------------------------------------------------------------|
+| `composer setup`               | Full setup (install, database, JS, build)                             |
+| `composer install -o`          | Install PHP dependencies with optimized autoloader                    |
+| `composer init:db`             | Drop existing database and reinstall Shopware                         |
+| `composer init:js`             | Install all JavaScript dependencies (admin + storefront + extensions) |
+| `composer init:testdb`         | Initialize the test database                                          |
+| `composer build:js`            | Build all frontend assets (admin + storefront)                        |
+| `composer build:js:admin`      | Build only the administration frontend                                |
+| `composer build:js:storefront` | Build only the storefront frontend                                    |
+| `composer reset`               | Reset database and rebuild all assets                                 |
 
 ### Development Watchers
 
@@ -113,11 +117,15 @@ If you are using VS Code, Cursor AI, or any VS Code-based IDE, you can use the D
 - Open the repository in your IDE.
 - From the command palette (`Ctrl + Shift + P` / `Cmd + Shift + P`), run: **Dev Containers: Reopen in Container**.
 
-The IDE will restart with your environment set up inside the container. The container starts automatically each time you reopen the project. The terminal and other tools (including AI agent commands in Cursor) will use the container shell. PHP tooling and other extensions will be configured for optimal use with Shopware.
+The IDE will restart with your environment set up inside the container.
+The container starts automatically each time you reopen the project.
+The terminal and other tools (including AI agent commands in Cursor) will use the container shell.
+PHP tooling and other extensions will be configured for optimal use with Shopware.
 
 ### Changing Environment Variables
 
-You can create a `.env` file to override the default environment variables. These are loaded automatically without having to restart the containers.
+You can create a `.env` file to override the default environment variables.
+These are loaded automatically without having to restart the containers.
 
 ### Enable Profiler / Debugging (XDebug)
 
@@ -150,7 +158,9 @@ services:
 
 ### Using OrbStack Routing
 
-Instead of using regular ports, you can use OrbStack's URL generation feature. OrbStack generates URLs like `https://web.orb.local` for each running container, allowing easier access without managing port mappings. This also lets you run multiple Shopware instances simultaneously without port conflicts.
+Instead of using regular ports, you can use OrbStack's URL generation feature.
+OrbStack generates URLs like `https://web.orb.local` for each running container, allowing easier access without managing port mappings.
+This also lets you run multiple Shopware instances simultaneously without port conflicts.
 
 Create a `compose.override.yaml`:
 
@@ -173,7 +183,9 @@ services:
         ports: !override []
 ```
 
-The `APP_URL` follows the pattern `web.<project-name>.orb.local` — the project name is your folder name. So for a folder called `shopware`, the URL becomes `https://web.shopware.orb.local`. You can also visit `https://orb.local` in your browser to see all running containers and their URLs.
+The `APP_URL` follows the pattern `web.<project-name>.orb.local` — the project name is your folder name.
+So for a folder called `shopware`, the URL becomes `https://web.shopware.orb.local`.
+You can also visit `https://orb.local` in your browser to see all running containers and their URLs.
 
 The `SYMFONY_TRUSTED_PROXIES` setting is required to access Shopware via HTTPS using `.orb.local` domains.
 
@@ -195,82 +207,83 @@ All commands below should be run inside the Docker container prefixed with `dock
 
 ### Setup & Build
 
-| Command | Description |
-|---------|-------------|
-| `composer setup` | Full setup: install dependencies, init DB, install JS, build assets |
-| `composer install -o` | Install PHP dependencies with optimized autoloader |
-| `composer init:db` | Drop existing database and reinstall Shopware with demo data |
-| `composer init:js` | Install all JavaScript dependencies (admin + storefront + extensions) |
-| `composer init:testdb` | Initialize the test database |
-| `composer build:js` | Build all frontend assets (admin + storefront) |
-| `composer build:js:admin` | Build only the administration frontend |
-| `composer build:js:storefront` | Build only the storefront frontend |
-| `composer reset` | Reset database and rebuild all assets (quick full reset) |
+| Command                        | Description                                                           |
+|--------------------------------|-----------------------------------------------------------------------|
+| `composer setup`               | Full setup: install dependencies, init DB, install JS, build assets   |
+| `composer install -o`          | Install PHP dependencies with optimized autoloader                    |
+| `composer init:db`             | Drop existing database and reinstall Shopware with demo data          |
+| `composer init:js`             | Install all JavaScript dependencies (admin + storefront + extensions) |
+| `composer init:testdb`         | Initialize the test database                                          |
+| `composer build:js`            | Build all frontend assets (admin + storefront)                        |
+| `composer build:js:admin`      | Build only the administration frontend                                |
+| `composer build:js:storefront` | Build only the storefront frontend                                    |
+| `composer reset`               | Reset database and rebuild all assets (quick full reset)              |
 
 ### Development Watchers
 
-| Command | Description |
-|---------|-------------|
-| `composer watch:admin` | Start the administration dev server with HMR (http://localhost:5173) |
-| `composer watch:storefront` | Start the storefront dev server with HMR (http://localhost:9998) |
-| `composer storefront:dev-server` | Start the storefront dev server (without HMR proxy) |
-| `composer storefront:storybook` | Start Storybook for storefront component development |
+| Command                          | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `composer watch:admin`           | Start the administration dev server with HMR (http://localhost:5173) |
+| `composer watch:storefront`      | Start the storefront dev server with HMR (http://localhost:9998)     |
+| `composer storefront:dev-server` | Start the storefront dev server (without HMR proxy)                  |
+| `composer storefront:storybook`  | Start Storybook for storefront component development                 |
 
 ### Linting & Code Style
 
-| Command | Description |
-|---------|-------------|
-| `composer lint` | Run all linters (stylelint + ESLint + CS + translations) |
-| `composer cs` | Check PHP code style (dry-run) |
-| `composer cs-fix` | Fix PHP code style automatically |
-| `composer eslint` | Run all ESLint checks (admin + storefront) |
-| `composer eslint:admin` | Run ESLint for the administration |
-| `composer eslint:admin:fix` | Auto-fix ESLint issues in the administration |
-| `composer eslint:storefront` | Run ESLint for the storefront |
-| `composer eslint:storefront:fix` | Auto-fix ESLint issues in the storefront |
-| `composer stylelint` | Run Stylelint for all SCSS files |
-| `composer stylelint:admin:fix` | Auto-fix Stylelint issues in the administration |
-| `composer stylelint:storefront:fix` | Auto-fix Stylelint issues in the storefront |
-| `composer ludtwig:storefront` | Lint Twig templates in the storefront |
-| `composer ludtwig:storefront:fix` | Auto-fix Twig template issues |
-| `composer format:admin` | Check Prettier formatting in the administration |
-| `composer format:admin:fix` | Auto-fix Prettier formatting in the administration |
-| `composer lint:snippets` | Validate translation snippet files |
-| `composer translation:lint` | Validate translations |
+| Command                             | Description                                              |
+|-------------------------------------|----------------------------------------------------------|
+| `composer lint`                     | Run all linters (stylelint + ESLint + CS + translations) |
+| `composer cs`                       | Check PHP code style (dry-run)                           |
+| `composer cs-fix`                   | Fix PHP code style automatically                         |
+| `composer eslint`                   | Run all ESLint checks (admin + storefront)               |
+| `composer eslint:admin`             | Run ESLint for the administration                        |
+| `composer eslint:admin:fix`         | Auto-fix ESLint issues in the administration             |
+| `composer eslint:storefront`        | Run ESLint for the storefront                            |
+| `composer eslint:storefront:fix`    | Auto-fix ESLint issues in the storefront                 |
+| `composer stylelint`                | Run Stylelint for all SCSS files                         |
+| `composer stylelint:admin:fix`      | Auto-fix Stylelint issues in the administration          |
+| `composer stylelint:storefront:fix` | Auto-fix Stylelint issues in the storefront              |
+| `composer ludtwig:storefront`       | Lint Twig templates in the storefront                    |
+| `composer ludtwig:storefront:fix`   | Auto-fix Twig template issues                            |
+| `composer format:admin`             | Check Prettier formatting in the administration          |
+| `composer format:admin:fix`         | Auto-fix Prettier formatting in the administration       |
+| `composer lint:snippets`            | Validate translation snippet files                       |
+| `composer translation:lint`         | Validate translations                                    |
 
 ### Static Analysis
 
-| Command | Description |
-|---------|-------------|
-| `composer phpstan` | Run PHPStan static analysis |
-| `composer static-analyze` | Run PHPStan on the `src/` directory |
-| `composer rector` | Run Rector for automated PHP refactoring |
-| `composer phpstan-errors-by-area` | Print PHPStan baseline errors grouped by area |
+| Command                           | Description                                                   |
+|-----------------------------------|---------------------------------------------------------------|
+| `composer phpstan`                | Run PHPStan static analysis                                   |
+| `composer static-analyze`         | Run PHPStan on the `src/` directory                           |
+| `composer rector`                 | Check with Rector for automated PHP refactoring possibilities |
+| `composer rector-fix`             | Run Rector for automated PHP refactoring                      |
+| `composer phpstan-errors-by-area` | Print PHPStan baseline errors grouped by area                 |
 
 ### Testing
 
-| Command | Description |
-|---------|-------------|
-| `composer phpunit` | Run PHPUnit test suite |
-| `composer admin:unit` | Run Jest unit tests for the administration |
-| `composer admin:unit:watch` | Run admin unit tests in watch mode |
-| `composer storefront:unit` | Run Jest unit tests for the storefront |
-| `composer storefront:unit:watch` | Run storefront unit tests in watch mode |
-| `composer storefront:components:unit` | Run storefront component unit tests |
+| Command                                     | Description                                  |
+|---------------------------------------------|----------------------------------------------|
+| `composer phpunit`                          | Run PHPUnit test suite                       |
+| `composer admin:unit`                       | Run Jest unit tests for the administration   |
+| `composer admin:unit:watch`                 | Run admin unit tests in watch mode           |
+| `composer storefront:unit`                  | Run Jest unit tests for the storefront       |
+| `composer storefront:unit:watch`            | Run storefront unit tests in watch mode      |
+| `composer storefront:components:unit`       | Run storefront component unit tests          |
 | `composer storefront:components:unit:watch` | Run storefront component tests in watch mode |
-| `composer phpbench` | Run PHPBench performance benchmarks |
+| `composer phpbench`                         | Run PHPBench performance benchmarks          |
 
 ### Other Utilities
 
-| Command | Description |
-|---------|-------------|
-| `composer admin:generate-entity-schema-types` | Generate TypeScript types from entity schema |
-| `composer admin:generate-blocks-list` | Generate the administration blocks list |
-| `composer admin:code-mods` | Run administration code mods |
-| `composer framework:schema:dump` | Dump the entity schema for the administration |
-| `composer bc-check` | Run backward compatibility checks |
-| `composer check:license` | Check license compliance of dependencies |
-| `composer make:coverage` | Generate test coverage for changed PHP files |
+| Command                                       | Description                                   |
+|-----------------------------------------------|-----------------------------------------------|
+| `composer admin:generate-entity-schema-types` | Generate TypeScript types from entity schema  |
+| `composer admin:generate-blocks-list`         | Generate the administration blocks list       |
+| `composer admin:code-mods`                    | Run administration code mods                  |
+| `composer framework:schema:dump`              | Dump the entity schema for the administration |
+| `composer bc-check`                           | Run backward compatibility checks             |
+| `composer check:license`                      | Check license compliance of dependencies      |
+| `composer make:coverage`                      | Generate test coverage for changed PHP files  |
 
 ### Common Development Workflows
 
@@ -316,8 +329,10 @@ docker compose exec web composer build:js
 
 ## Documentation
 
-Developer documentation for Shopware is available [here](https://developer.shopware.com/docs/). You can also contribute to the documentation by submitting your pull requests to [this repository](https://github.com/shopware/docs).
+Developer documentation for Shopware is available [here](https://developer.shopware.com/docs/).
+You can also contribute to the documentation by submitting your pull requests to [this repository](https://github.com/shopware/docs).
 
 ## Translations
 
-Shopware translations are done by the community and can be installed from the plugin store. If you wish to improve Shopware's translations, you can do so in our [Crowdin project page](https://crowdin.com/project/shopware6).
+Shopware translations are done by the community and can be installed from the plugin store.
+If you wish to improve Shopware's translations, you can do so in our [Crowdin project page](https://crowdin.com/project/shopware6).

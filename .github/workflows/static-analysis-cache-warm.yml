@@ -1,0 +1,78 @@
+name: Static analysis cache warm (trunk)
+
+# Refreshes trunk's static analysis result caches after every merge so PRs
+# restore current caches instead of the up-to-24h-old nightly ones. Saves under
+# the same cache key prefixes the php.yml PHPStan and Rector jobs read from.
+
+on:
+  push:
+    branches:
+      - trunk
+  workflow_dispatch:
+
+concurrency:
+  group: static-analysis-cache-warm
+  cancel-in-progress: false # let each warm run finish saving its cache
+
+jobs:
+  phpstan:
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    name: "PHPStan cache warm"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Generate Schema
+        run: composer run framework:schema:dump
+
+      - name: "Restore result cache"
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            phpstan-result-cache-
+
+      - name: PHPStan
+        run: composer run phpstan -- --error-format=table --no-progress
+
+      - name: "Save result cache"
+        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        if: always()
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
+
+  rector:
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    name: "Rector cache warm"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          keep-composer-tools: "true"
+
+      - name: "Restore result cache"
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: var/cache/rector
+          key: "rector-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            rector-result-cache-
+
+      - name: Rector
+        run: composer rector
+
+      - name: "Save result cache"
+        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        if: always()
+        with:
+          path: var/cache/rector
+          key: "rector-result-cache-${{ github.run_id }}"

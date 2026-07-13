@@ -19,7 +19,7 @@ interface bundlesSinglePluginResponse {
     type?: 'app' | 'plugin';
     version?: string;
     // Properties below this line are only available for apps
-    integrationId?: string;
+    integrationId?: EntityKey<'integration'>;
     active?: boolean;
 }
 
@@ -810,7 +810,7 @@ class ApplicationBootstrapper {
         bundleType,
     }: {
         active?: boolean;
-        integrationId?: string;
+        integrationId?: EntityKey<'integration'>;
         bundleName: string;
         iframeSrc: string;
         bundleVersion?: string;
@@ -825,7 +825,7 @@ class ApplicationBootstrapper {
 
         const extension: {
             active?: boolean;
-            integrationId?: string;
+            integrationId?: EntityKey<'integration'>;
             name: string;
             baseUrl: string;
             version?: string;

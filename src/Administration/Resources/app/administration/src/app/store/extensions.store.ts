@@ -14,7 +14,7 @@ export interface Extension {
     permissions: privileges;
     version?: string;
     type: 'app' | 'plugin';
-    integrationId?: string;
+    integrationId?: EntityKey<'integration'>;
     active?: boolean;
 }
 

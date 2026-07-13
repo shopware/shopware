@@ -6,7 +6,7 @@ import { defineComponent } from 'vue';
 
 type SalutationFilterEntityType = {
     salutation: {
-        id: string;
+        id: EntityKey<'salutation'>;
         salutationKey: string;
         displayName: string;
     };

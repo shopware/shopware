@@ -435,7 +435,7 @@ class CmsService {
 
         if (Array.isArray(configValue)) {
             const entityIds: string[] = [];
-            const mediaItems = configValue as { mediaId: string }[];
+            const mediaItems = configValue as { mediaId: EntityKey<'media'> }[];
 
             if (mediaItems.length && mediaItems[0].mediaId) {
                 mediaItems.forEach((val) => {

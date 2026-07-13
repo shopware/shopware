@@ -19,7 +19,7 @@ type AnalyticsEvents = {
         [key: string]: TrackableType;
     };
     identify: {
-        userId: string | null;
+        userId: EntityKey<'user'> | null;
         locale: string | null;
         isAdmin: boolean | null;
     };

@@ -103,12 +103,12 @@ export default Shopware.Component.wrapComponentConfig({
             currentContext[finalSegment] = value;
         },
 
-        onSaveMedia(params: { fileName: string; folderId: string; mediaId?: string }): void {
+        onSaveMedia(params: { fileName: string; folderId: EntityKey<'media_folder'>; mediaId?: EntityKey<'media'> }): void {
             if (this.saveMediaModal && typeof this.saveMediaModal.callback === 'function') {
                 const callbackFn = this.saveMediaModal.callback as (params: {
                     fileName: string;
-                    folderId: string;
-                    mediaId?: string;
+                    folderId: EntityKey<'media_folder'>;
+                    mediaId?: EntityKey<'media'>;
                 }) => void;
                 callbackFn(params);
             }

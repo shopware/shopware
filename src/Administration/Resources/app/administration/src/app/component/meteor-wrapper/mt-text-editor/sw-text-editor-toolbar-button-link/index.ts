@@ -222,7 +222,7 @@ export default Shopware.Component.wrapComponentConfig({
                 ].includes(slicedLink[1])
             ) {
                 if (slicedLink[1] === 'navigation') {
-                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2] as EntityKey<'category'>);
                 } else if (slicedLink[1] === 'mediaId') {
                     slicedLink[1] = 'media';
                 }
@@ -348,7 +348,7 @@ export default Shopware.Component.wrapComponentConfig({
             return link;
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
+        getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollectionType<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
@@ -361,7 +361,7 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
-        replaceCategorySelection(category: { id: string }): void {
+        replaceCategorySelection(category: { id: EntityKey<'category'> }): void {
             this.linkHref = category.id;
         },
 

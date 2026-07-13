@@ -59,7 +59,7 @@ export default Shopware.Mixin.register(
              * @param {string|null} userId Id of the target user; `null` will use the current user
              * @return {Promise<*>}
              */
-            getUserSettingsEntity(identifier: string, userId: string | null = null): Promise<UserSettingsEntity | null> {
+            getUserSettingsEntity(identifier: string, userId: EntityKey<'user'> | null = null): Promise<UserSettingsEntity | null> {
                 if (!this.acl.can('user_config:read')) {
                     return Promise.reject();
                 }
@@ -116,7 +116,7 @@ export default Shopware.Mixin.register(
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     [key: string]: any;
                 },
-                userId: string | null = null,
+                userId: EntityKey<'user'> | null = null,
             ): Promise<unknown> {
                 if (!this.acl.can('user_config:create') || !this.acl.can('user_config:update')) {
                     return Promise.reject();
@@ -162,9 +162,9 @@ export default Shopware.Mixin.register(
              * @param {string|null} userId Id of the target user; `null` will use the current user
              * @return {Criteria}
              */
-            userGridSettingsCriteria(identifier: string, userId: string | null = null) {
+            userGridSettingsCriteria(identifier: string, userId: EntityKey<'user'> | null = null) {
                 if (!userId) {
-                    userId = this.currentUser?.id ?? '';
+                    userId = this.currentUser?.id ?? ('' as EntityKey<'user'>);
                 }
 
                 const criteria = new Shopware.Data.Criteria(1, 25);

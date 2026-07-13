@@ -110,16 +110,16 @@ export default class EntityHydrator {
     /**
      * Hydrates a collection of entities. Nested association will be hydrated into collections or entity classes.
      */
-    hydrate(
+    hydrate<EntityName extends keyof EntitySchema.Entities>(
         route: string,
-        entityName: entityNames,
+        entityName: EntityName,
         data: data,
         context: apiContext,
         criteria: Criteria,
-    ): EntityCollection<entityNames> {
+    ): EntityCollection<EntityName> {
         this.cache = {};
 
-        const collection = new EntityCollection<entityNames>(route, entityName, context, criteria);
+        const collection = new EntityCollection<EntityName>(route, entityName, context, criteria);
 
         data.data.forEach((row) => {
             const entity = this.hydrateEntity(entityName, row, data, context, criteria);
@@ -234,9 +234,9 @@ export default class EntityHydrator {
             return true;
         });
 
-        const e = new Entity<EntityName>(id, entityName, data as unknown as EntitySchema.Entities[EntityName]);
+        const e = new Entity<EntityName>(id, entityName, data as unknown as Entity<EntityName>);
 
-        this.cache[cacheKey] = e as unknown as Entity<entityNames>;
+        this.cache[cacheKey] = e as unknown as Entity<EntityName>;
 
         return e;
     }
@@ -276,20 +276,20 @@ export default class EntityHydrator {
      * Hydrates a many association (one to many and many to many) collection and hydrates the related entities
      * @private
      */
-    hydrateToMany(
+    hydrateToMany<EntityName extends keyof EntitySchema.Entities>(
         criteria: Criteria,
         property: string,
         value: data,
-        entityName: keyof EntitySchema.Entities,
+        entityName: EntityName,
         context: apiContext,
         response: data,
-    ): EntityCollection<entityNames> {
+    ): EntityCollection<EntityName> {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
         const apiResourcePath = (context?.apiResourcePath as string) ?? '';
 
         const url = value.links.related.substr(value.links.related.indexOf(apiResourcePath) + apiResourcePath.length);
 
-        const collection = new EntityCollection<entityNames>(url, entityName, context, associationCriteria);
+        const collection = new EntityCollection<EntityName>(url, entityName, context, associationCriteria);
 
         if (value.data === null) {
             return collection;
@@ -298,7 +298,7 @@ export default class EntityHydrator {
         value.data.forEach((link) => {
             const nestedRaw = this.getIncluded(link.type, link.id, response);
             const nestedEntity = this.hydrateEntity(
-                link.type as entityNames,
+                link.type as EntityName,
                 nestedRaw,
                 response,
                 context,

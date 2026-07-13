@@ -160,7 +160,7 @@ export interface SubContainer<ContainerName extends string> {
 
 type SalutationFilterEntityType = {
     salutation: {
-        id: string;
+        id: EntityKey<'salutation'>;
         salutationKey: string;
         displayName: string;
     };
@@ -213,6 +213,7 @@ declare global {
      */
     const Shopware: ShopwareClass & CustomShopwareProperties;
 
+    type EntityKey<K extends keyof EntitySchema.EntityKeys> = EntitySchema.EntityKeys[K];
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 

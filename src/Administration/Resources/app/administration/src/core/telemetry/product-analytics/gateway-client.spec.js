@@ -13,7 +13,7 @@ describe('src/core/telemetry/product-analytics/gateway-client', () => {
             status: 200,
         });
         global.fetch = fetchMock;
-        jest.spyOn(globalThis.crypto, 'randomUUID').mockReturnValueOnce('device-id-1').mockReturnValue('insert-id-1');
+        jest.spyOn(Shopware.Utils, 'createId').mockReturnValueOnce('device-id-1').mockReturnValue('insert-id-1');
 
         window.localStorage.clear();
         window.sessionStorage.clear();

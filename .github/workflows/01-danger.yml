@@ -1,6 +1,8 @@
 name: Danger
 on:
   pull_request_target:
+  push:
+    branches: [ci/danger-vendor-bin-verify]
 
 concurrency:
   group: danger-${{ github.event.pull_request.number }}
@@ -9,6 +11,9 @@ concurrency:
 jobs:
   pr:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Clone
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -31,4 +36,4 @@ jobs:
         run: vendor-bin/danger-php/vendor/bin/danger ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
+          GITHUB_PULL_REQUEST_ID: ${{ github.event.pull_request.number || 18288 }}

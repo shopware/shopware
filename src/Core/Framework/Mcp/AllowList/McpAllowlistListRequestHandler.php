@@ -10,7 +10,7 @@ use Mcp\Schema\Prompt;
 use Mcp\Schema\Request\ListPromptsRequest;
 use Mcp\Schema\Request\ListResourcesRequest;
 use Mcp\Schema\Request\ListToolsRequest;
-use Mcp\Schema\Resource as McpResource;
+use Mcp\Schema\ResourceDefinition as McpResource;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Result\ListPromptsResult;
 use Mcp\Schema\Result\ListResourcesResult;

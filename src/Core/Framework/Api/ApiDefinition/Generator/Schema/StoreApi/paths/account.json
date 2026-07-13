@@ -82,6 +82,7 @@
                 "tags": [
                     "Profile"
                 ],
+                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\Dto",
                 "summary": "Change the customer's information",
                 "description": "Make changes to a customer's account, like changing their name, salutation or title.",
                 "operationId": "changeProfile",
@@ -584,7 +585,7 @@
             "post": {
                 "tags": [
                     "Profile",
-                    "Endpoints supporting Criteria "
+                    "Endpoints supporting Criteria"
                 ],
                 "summary": "Get information about current customer",
                 "description": "Returns information about the current customer.\n\n**Available Associations:**\n- `group` - Customer group determining pricing and permissions\n- `language` - Preferred language for customer communication\n- `lastPaymentMethod` - Last used payment method by the customer\n- `defaultBillingAddress` - Default billing address for the customer\n- `activeBillingAddress` - Currently active billing address in the session\n- `defaultShippingAddress` - Default shipping address for the customer\n- `activeShippingAddress` - Currently active shipping address in the session\n- `salutation` - Customer salutation (e.g., Mr., Mrs., Ms.)\n- `addresses` - All addresses saved for the customer\n- `tags` - Tags assigned to the customer for organization and segmentation",
@@ -796,7 +797,7 @@
             "post": {
                 "tags": [
                     "Address",
-                    "Endpoints supporting Criteria "
+                    "Endpoints supporting Criteria"
                 ],
                 "summary": "Fetch addresses of a customer",
                 "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",
@@ -1522,6 +1523,7 @@
                 "tags": [
                     "Address"
                 ],
+                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\Dto",
                 "summary": "Create a new address for a customer",
                 "description": "Creates a new address for a customer.",
                 "operationId": "createCustomerAddress",

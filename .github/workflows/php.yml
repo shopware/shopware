@@ -82,6 +82,9 @@ jobs:
       - name: Analyze composer dependencies
         run: composer dependency-analyzer
 
+      - name: Check generated OpenAPI DTOs
+        run: bin/console open-api:generate-dtos --check
+
       - name: Code Style
         run: composer run cs
 

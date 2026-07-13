@@ -113,7 +113,6 @@ class DeliveryNoteDataProviderTest extends TestCase
         static::assertSame(self::DOCUMENT_DATE, $result->documentDate);
         static::assertSame('12345', $result->documentNumber);
         static::assertSame('ship it', $result->documentComment);
-        static::assertSame(DeliveryNoteDataProvider::TEMPLATE_PATHS, $result->templatePaths);
     }
 
     public function testProvideRenderingDataFillsDeliveryCustomFieldsFromDocumentNumberAndDate(): void

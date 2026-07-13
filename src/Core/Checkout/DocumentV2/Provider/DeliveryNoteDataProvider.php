@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -21,10 +20,6 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvider
 {
     final public const KEY = 'delivery_note';
-
-    final public const TEMPLATE_PATHS = [
-        DocumentFormat::HTML->value => '@Framework/documents/delivery_note.html.twig',
-    ];
 
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
@@ -91,7 +86,6 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
             documentDate: $generationRequest->documentDate,
             documentNumber: $documentNumber,
             documentComment: $generationRequest->documentComment,
-            templatePaths: self::TEMPLATE_PATHS,
             custom: [
                 'deliveryNoteNumber' => $documentNumber,
                 'deliveryDate' => $generationRequest->documentDate,

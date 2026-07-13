@@ -316,7 +316,6 @@ class DocumentRendererSnapshotTest extends TestCase
             documentDate: $cfg['documentDate'],
             documentNumber: $cfg['documentNumber'],
             documentComment: $cfg['documentComment'],
-            templatePaths: DeliveryNoteDataProvider::TEMPLATE_PATHS,
             custom: [
                 'deliveryNoteNumber' => $cfg['documentNumber'],
                 'deliveryDate' => $cfg['documentDate'],

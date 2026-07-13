@@ -1,0 +1,126 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Create/Read Entity API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "CartCreate": {
+        "type": "object",
+        "description": "Payload for creating a new cart",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "description": "Name of the cart, e.g. guest-cart",
+            "type": "string"
+          },
+          "lineItems": {
+            "description": "Initial line items to add to the cart",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItem"
+            }
+          }
+        }
+      },
+      "Cart": {
+        "description": "Full cart entity as returned by the API",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CartCreate"
+          },
+          {
+            "type": "object",
+            "required": ["id", "createdAt"],
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the cart",
+                "type": "string",
+                "pattern": "^[0-9a-f]{32}$"
+              },
+              "createdAt": {
+                "description": "Date and time the cart was created",
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "description": "Date and time the cart was last modified",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ]
+      },
+      "LineItem": {
+        "type": "object",
+        "description": "A single item in the cart",
+        "required": ["id", "quantity"],
+        "properties": {
+          "id": {
+            "description": "Product identifier",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "quantity": {
+            "description": "Number of items",
+            "type": "integer"
+          },
+          "label": {
+            "description": "Display label",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/cart": {
+      "post": {
+        "operationId": "createCart",
+        "summary": "Create a new cart",
+        "description": "Creates a new cart with the given payload.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The newly created cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "readCart",
+        "summary": "Get the current cart",
+        "description": "Returns the full cart entity.",
+        "responses": {
+          "200": {
+            "description": "Current cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

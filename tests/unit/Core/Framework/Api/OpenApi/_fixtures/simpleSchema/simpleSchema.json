@@ -1,0 +1,276 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Cart": {
+        "type": "object",
+        "description": "Shopping cart",
+        "required": ["token"],
+        "properties": {
+          "token": {
+            "description": "Context token identifying the cart",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the cart",
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/CalculatedPrice"
+          },
+          "lineItems": {
+            "description": "All items within the cart",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItem"
+            }
+          },
+          "totalItems": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "taxRate": {
+            "type": "number"
+          }
+        }
+      },
+      "CalculatedPrice": {
+        "type": "object",
+        "properties": {
+          "unitPrice": {
+            "type": "number"
+          },
+          "totalPrice": {
+            "type": "number"
+          }
+        }
+      },
+      "LineItem": {
+        "type": "object",
+        "required": ["id", "quantity"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "NavigationType": {
+        "type": "object",
+        "description": "Navigation entry type",
+        "required": ["type", "routeName"],
+        "properties": {
+          "type": {
+            "description": "Type of the navigation entry",
+            "type": "string",
+            "enum": ["page", "link", "folder"]
+          },
+          "routeName": {
+            "description": "Route name for the navigation",
+            "type": "string",
+            "enum": [
+              "frontend.navigation.page",
+              "frontend.landing.page",
+              "frontend.detail.page"
+            ]
+          },
+          "linkType": {
+            "description": "Type of the link if type is link",
+            "type": "string",
+            "enum": ["external", "category", "product", "landing_page"]
+          }
+        }
+      },
+      "EmptySchema": {
+        "type": "string"
+      },
+      "DefaultValues": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "default": 10
+          },
+          "sortOrder": {
+            "type": "string",
+            "default": "relevance"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          },
+          "source": {
+            "type": "string",
+            "enum": ["storefront"],
+            "description": "Single-value enum, should default to the only value"
+          },
+          "channel": {
+            "type": "string",
+            "enum": ["web", "api"],
+            "default": "web",
+            "description": "Multi-value enum with explicit default"
+          }
+        }
+      },
+      "NullableUnion": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "oneOf": [{ "type": "string" }, { "type": "null" }]
+          },
+          "count": {
+            "description": "Nullable count using type array",
+            "type": ["integer", "null"]
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/contact-form": {
+      "post": {
+        "operationId": "sendContactMail",
+        "summary": "Submit a contact form message",
+        "description": "Used for submitting contact forms.",
+        "parameters": [
+          {
+            "name": "sw-language-id",
+            "in": "header",
+            "description": "Language header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": ["email", "subject", "comment"],
+                "properties": {
+                  "email": {
+                    "description": "Email address",
+                    "type": "string"
+                  },
+                  "subject": {
+                    "description": "The subject of the contact form.",
+                    "type": "string"
+                  },
+                  "comment": {
+                    "description": "The message of the contact form",
+                    "type": "string"
+                  },
+                  "salutationId": {
+                    "description": "Identifier of the salutation.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message sent successfully."
+          }
+        }
+      }
+    },
+    "/checkout/cart": {
+      "get": {
+        "operationId": "readCart",
+        "summary": "Fetch or create a cart",
+        "description": "Used to fetch the current cart.",
+        "responses": {
+          "200": {
+            "description": "Cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCart",
+        "summary": "Delete a cart",
+        "responses": {
+          "200": {
+            "description": "Cart deleted"
+          }
+        }
+      }
+    },
+    "/product/{productId}": {
+      "get": {
+        "operationId": "readProduct",
+        "summary": "Get a single product",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

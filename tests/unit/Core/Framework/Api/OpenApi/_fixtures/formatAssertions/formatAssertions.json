@@ -1,0 +1,59 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Format Assertions Test API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "UserProfile": {
+        "type": "object",
+        "description": "User profile with various formatted fields",
+        "required": ["email", "id", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date"
+          },
+          "avatar": {
+            "type": "string",
+            "format": "uri-reference",
+            "description": "Should not produce a format assert"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "price": {
+            "type": "number",
+            "format": "float"
+          },
+          "name": {
+            "type": "string",
+            "description": "Plain string without format"
+          }
+        }
+      }
+    }
+  },
+  "paths": {}
+}

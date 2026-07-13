@@ -176,6 +176,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Landing page slot config must not be null
+
+`LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
+
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
 
 `EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.

@@ -1,0 +1,77 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {
+    "/items": {
+      "post": {
+        "tags": ["Items"],
+        "summary": "Create items",
+        "operationId": "createItems",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["tags", "ids"],
+                "properties": {
+                  "tags": {
+                    "description": "List of tags",
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "minItems": 1
+                  },
+                  "ids": {
+                    "description": "List of UUIDs",
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "minItems": 2
+                  },
+                  "scores": {
+                    "description": "Optional scores",
+                    "type": "array",
+                    "items": { "type": "integer" }
+                  },
+                  "flags": {
+                    "description": "Boolean flags",
+                    "type": "array",
+                    "items": { "type": "boolean" },
+                    "minItems": 1
+                  },
+                  "vatIds": {
+                    "description": "Non-blank strings",
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 },
+                    "minItems": 1
+                  },
+                  "untyped": {
+                    "description": "Untyped array",
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "created": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

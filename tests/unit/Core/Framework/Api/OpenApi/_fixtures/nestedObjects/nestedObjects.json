@@ -1,0 +1,171 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Nested Objects API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "SalesChannelContext": {
+        "type": "object",
+        "description": "Sales channel context",
+        "required": ["salesChannel", "itemRounding"],
+        "properties": {
+          "token": {
+            "description": "Context token",
+            "type": "string"
+          },
+          "salesChannel": {
+            "$ref": "#/components/schemas/SalesChannel"
+          },
+          "context": {
+            "description": "Core context with general configuration values and state",
+            "type": "object",
+            "properties": {
+              "versionId": {
+                "type": "string"
+              },
+              "currencyId": {
+                "type": "string"
+              },
+              "currencyFactor": {
+                "type": "integer"
+              },
+              "currencyPrecision": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "languageIdChain": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "scope": {
+                "type": "string"
+              },
+              "source": {
+                "type": "object",
+                "required": ["salesChannelId", "type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["sales-channel", "shop-api"]
+                  },
+                  "salesChannelId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "taxState": {
+                "type": "string"
+              },
+              "useCache": {
+                "type": "boolean"
+              }
+            }
+          },
+          "currentCustomerGroup": {
+            "description": "Customer group of the current user",
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Name of the group",
+                "type": "string"
+              },
+              "displayGross": {
+                "description": "Whether prices are displayed gross",
+                "type": "boolean"
+              }
+            }
+          },
+          "itemRounding": {
+            "type": "object",
+            "required": ["decimals", "interval", "roundForNet"],
+            "properties": {
+              "decimals": {
+                "type": "integer"
+              },
+              "interval": {
+                "type": "number"
+              },
+              "roundForNet": {
+                "type": "boolean"
+              }
+            }
+          },
+          "taxRules": {
+            "description": "Active tax rules",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["taxRate"],
+              "properties": {
+                "taxRate": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SalesChannel": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "description": "An order entity",
+        "required": ["id", "billingAddress"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "billingAddress": {
+            "description": "The billing address",
+            "type": "object",
+            "required": ["street", "city", "zipcode"],
+            "properties": {
+              "street": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "zipcode": {
+                "type": "string"
+              },
+              "country": {
+                "description": "Country details",
+                "type": "object",
+                "properties": {
+                  "iso": {
+                    "description": "ISO 3166-1 alpha-2 code",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {}
+}

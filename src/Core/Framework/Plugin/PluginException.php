@@ -47,6 +47,7 @@ class PluginException extends HttpException
     public const KERNEL_PLUGIN_LOADER_ERROR = 'FRAMEWORK__KERNEL_PLUGIN_LOADER_ERROR';
     public const PLUGIN_EXTRACTION_FAILED = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
     public const PLUGIN_CREATION_INVALID_ENTRY = 'FRAMEWORK__PLUGIN_CREATION_INVALID_ENTRY';
+    public const SYMFONY_CONSOLE_APPLICATION_NOT_FOUND = 'FRAMEWORK__PLUGIN_SYMFONY_CONSOLE_APPLICATION_NOT_FOUND';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -315,6 +316,15 @@ class PluginException extends HttpException
             [
                 'reason' => $reason,
             ]
+        );
+    }
+
+    public static function consoleApplicationNotFound(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SYMFONY_CONSOLE_APPLICATION_NOT_FOUND,
+            'Symfony console application not found'
         );
     }
 }

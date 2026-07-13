@@ -11,10 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -109,6 +112,9 @@ abstract class AbstractPluginLifecycleCommand extends Command
     {
         $input = new StringInput('plugin:refresh -s');
         $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw PluginException::consoleApplicationNotFound();
+        }
         $application->doRun($input, new NullOutput());
     }
 
@@ -138,6 +144,11 @@ abstract class AbstractPluginLifecycleCommand extends Command
      */
     protected function handleClearCacheOption(InputInterface $input, ShopwareStyle $io, string $action): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'AbstractPluginLifecycleCommand::handleClearCache')
+        );
+
         if ($input->getOption('clearCache')) {
             $io->note('Clearing Cache');
 

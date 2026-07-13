@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Command;
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -66,15 +67,16 @@ class PluginRefreshCommand extends Command
             }
         }
 
-        $skipPluginList = $input->getOption('skipPluginList');
-        if ($skipPluginList) {
+        if ($input->getOption('skipPluginList')) {
             return self::SUCCESS;
         }
 
         $listInput = new StringInput('plugin:list');
 
-        /** @var Application $application */
         $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw PluginException::consoleApplicationNotFound();
+        }
         $application->doRun($listInput, $output);
 
         return self::SUCCESS;

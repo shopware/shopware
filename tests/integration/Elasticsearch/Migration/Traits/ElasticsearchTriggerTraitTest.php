@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Elasticsearch\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Elasticsearch\Migration\Traits\ElasticsearchTriggerTrait;
 
@@ -17,6 +18,8 @@ class ElasticsearchTriggerTraitTest extends TestCase
 
     public function testTrigger(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $connection = self::getContainer()->get(Connection::class);
 
         $this->triggerElasticsearchIndexing($connection);

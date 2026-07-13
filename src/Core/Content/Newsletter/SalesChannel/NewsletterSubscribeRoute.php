@@ -165,7 +165,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $recipientId = $this->getNewsletterRecipientId($data['email'], $context);
 
         if ($recipientId !== null) {
-            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->first();
+            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->getEntities()->first();
             \assert($recipient instanceof NewsletterRecipientEntity);
 
             // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`

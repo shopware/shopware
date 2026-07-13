@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { MtCheckbox, MtSwitch } from '@shopware-ag/meteor-component-library';
+import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
 
 /**
  * @sw-package after-sales
@@ -121,7 +122,7 @@ const repositoryMockFactory = (entity) => {
     return false;
 };
 
-const createWrapper = async (customOptions, privileges = []) => {
+const createWrapper = async (customOptions, privileges = [], isDocumentGenerationReworkActive = false) => {
     return mount(
         await wrapTestComponent('sw-settings-document-detail', {
             sync: true,
@@ -149,6 +150,7 @@ const createWrapper = async (customOptions, privileges = []) => {
                     'sw-container': true,
                     'sw-form-field-renderer': true,
                     'mt-checkbox': MtCheckbox,
+                    'mt-banner': true,
                     'sw-media-compact-upload-v2': {
                         template: '<div id="sw-media-compact-upload"/>',
                         props: [
@@ -170,6 +172,9 @@ const createWrapper = async (customOptions, privileges = []) => {
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
                     },
+                    feature: {
+                        isActive: (flag) => flag === 'DOCUMENT_GENERATION_REWORK' && isDocumentGenerationReworkActive,
+                    },
                     acl: {
                         can: (key) => (key ? privileges.includes(key) : true),
                     },
@@ -186,6 +191,7 @@ const createWrapper = async (customOptions, privileges = []) => {
 describe('src/module/sw-settings-document/page/sw-settings-document-detail', () => {
     beforeEach(async () => {
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
+        localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
@@ -325,6 +331,88 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(displayAdditionalNoteDeliveryCheckbox.props('label')).toBe(
             'sw-settings-document.detail.labelDisplayAdditionalNoteDelivery',
         );
+    });
+
+    it('should render the company settings layout with feature flag', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__company_card').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(true);
+    });
+
+    it('should always include payment due date in the general form fields', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('paymentDueDate');
+
+        const paymentDueDateField = wrapper.vm.generalFormFields.find((field) => field.name === 'paymentDueDate');
+        expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
+    });
+
+    it('should render the company settings layout without feature flag', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__field-display-company-address').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__field-display-return-address').exists()).toBe(false);
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('paymentDueDate');
+        expect(wrapper.find('.sw-settings-document-detail__company_card_display_company').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
+    });
+
+    it('should hide the moved company settings banner after closing it', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
+
+        expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
+        expect(localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY)).toBe('true');
+    });
+
+    it('should keep the moved company settings banner hidden after remounting', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
+        await flushPromises();
+
+        const remountedWrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(remountedWrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {

@@ -146,7 +146,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'AbstractPluginLifecycleCommand::handleClearCache')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'AbstractPluginLifecycleCommand::handleClearCache')
         );
 
         if ($input->getOption('clearCache')) {

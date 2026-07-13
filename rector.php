@@ -36,7 +36,4 @@ return RectorConfig::configure()
         StrlenZeroToIdenticalEmptyStringRector::class,
         TernaryEmptyArrayArrayDimFetchToCoalesceRector::class,
     ])
-    ->withConfiguredRule(RenameClassRector::class, [
-        ShopwareStyle::class => SymfonyStyle::class,
-    ])
 ;

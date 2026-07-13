@@ -1,0 +1,81 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Test API with invalid names",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Simple-Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "errorResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/_info": {
+      "get": {
+        "operationId": "api-info",
+        "summary": "Get API info",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Type of the api",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

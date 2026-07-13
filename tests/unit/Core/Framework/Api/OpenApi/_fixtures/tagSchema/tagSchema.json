@@ -1,0 +1,168 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Tag fixture", "version": "1.0.0" },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "cover": {
+            "$ref": "#/components/schemas/Media"
+          }
+        }
+      },
+      "Media": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string" },
+          "alt": { "type": "string" }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "required": ["token"],
+        "properties": {
+          "token": { "type": "string" },
+          "lineItems": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LineItem" }
+          }
+        }
+      },
+      "LineItem": {
+        "type": "object",
+        "required": ["id", "quantity"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "quantity": { "type": "integer" },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/product/{id}": {
+      "get": {
+        "tags": ["Product"],
+        "operationId": "readProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "product": { "$ref": "#/components/schemas/Product" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "tags": ["Cart"],
+        "operationId": "readCart",
+        "responses": {
+          "200": {
+            "description": "Current cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cart" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Cart"],
+        "operationId": "addLineItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["productId"],
+                "properties": {
+                  "productId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cart" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category": {
+      "get": {
+        "tags": ["Navigation"],
+        "operationId": "readCategories",
+        "responses": {
+          "200": {
+            "description": "Category list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "elements": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Category" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

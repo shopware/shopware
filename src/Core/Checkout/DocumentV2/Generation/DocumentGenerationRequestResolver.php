@@ -89,11 +89,10 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             return $fileTypes;
         }
 
-        if (\array_key_exists('fileType', $payload) && \is_string($payload['fileType'])) {
-            return [$payload['fileType']];
-        }
+        /** @var string $fileType */
+        $fileType = $payload['fileType'];
 
-        return [];
+        return [$fileType];
     }
 
     /**

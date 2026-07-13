@@ -155,7 +155,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $resolverContext
                 );
 
-                $cmsPage = $pages->first();
+                $cmsPage = $pages->getEntities()->first();
                 if ($cmsPage instanceof CmsPageEntity) {
                     $product->setCmsPage($cmsPage);
                 }

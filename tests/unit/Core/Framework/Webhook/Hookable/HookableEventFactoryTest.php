@@ -36,9 +36,9 @@ class HookableEventFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->businessEventEncoder = $this->createMock(BusinessEventEncoder::class);
-        $this->writeResultMerger = $this->createMock(WriteResultMerger::class);
-        $this->hookableEventCollector = $this->createMock(HookableEventCollector::class);
+        $this->businessEventEncoder = static::createStub(BusinessEventEncoder::class);
+        $this->writeResultMerger = static::createStub(WriteResultMerger::class);
+        $this->hookableEventCollector = static::createStub(HookableEventCollector::class);
 
         $this->hookableEventFactory = new HookableEventFactory(
             $this->businessEventEncoder,
@@ -58,7 +58,7 @@ class HookableEventFactoryTest extends TestCase
 
     public function testCreateHookablesForHookableEvent(): void
     {
-        $hookableEvent = $this->createMock(Hookable::class);
+        $hookableEvent = static::createStub(Hookable::class);
 
         $result = $this->hookableEventFactory->createHookablesFor($hookableEvent);
 
@@ -67,7 +67,7 @@ class HookableEventFactoryTest extends TestCase
 
     public function testCreateHookablesForFlowEventAware(): void
     {
-        $flowEventAware = $this->createMock(FlowEventAware::class);
+        $flowEventAware = static::createStub(FlowEventAware::class);
 
         $result = $this->hookableEventFactory->createHookablesFor($flowEventAware);
 

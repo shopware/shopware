@@ -48,14 +48,14 @@ class AppPayloadServiceHelperTest extends TestCase
             'AnotherApp' => ['purchase-3'],
         ]);
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             $shopIdProvider,
             $inAppPurchase,
             'https://shopware.com',
@@ -73,7 +73,7 @@ class AppPayloadServiceHelperTest extends TestCase
     public function testEncode(): void
     {
         $context = new Context(new SystemSource());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getContext')
             ->willReturn($context);
@@ -83,7 +83,7 @@ class AppPayloadServiceHelperTest extends TestCase
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
         $payload->setSource($source);
 
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
             ->willReturn(new TaxProviderDefinition());
@@ -95,7 +95,7 @@ class AppPayloadServiceHelperTest extends TestCase
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
             $entityEncoder,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
             'https://shopware.com',
             new MockClock(),
@@ -110,9 +110,9 @@ class AppPayloadServiceHelperTest extends TestCase
     {
         $shopId = ShopId::v2($this->ids->get('shop-id'));
         $context = Context::createDefaultContext();
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $entityEncoder = $this->createMock(JsonEntityEncoder::class);
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $entityEncoder = static::createStub(JsonEntityEncoder::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -153,9 +153,9 @@ class AppPayloadServiceHelperTest extends TestCase
     {
         $shopId = ShopId::v2($this->ids->get('shop-id'));
         $context = Context::createDefaultContext();
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $entityEncoder = $this->createMock(JsonEntityEncoder::class);
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $entityEncoder = static::createStub(JsonEntityEncoder::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -199,9 +199,9 @@ class AppPayloadServiceHelperTest extends TestCase
         $this->expectExceptionObject(AppException::registrationFailed('TestApp', 'App secret is missing'));
 
         $context = Context::createDefaultContext();
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $entityEncoder = $this->createMock(JsonEntityEncoder::class);
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $entityEncoder = static::createStub(JsonEntityEncoder::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
@@ -218,7 +218,7 @@ class AppPayloadServiceHelperTest extends TestCase
         $app->setVersion('1.0.0');
         $app->setName('TestApp');
 
-        $payload = $this->createMock(SourcedPayloadInterface::class);
+        $payload = static::createStub(SourcedPayloadInterface::class);
 
         $appPayloadServiceHelper->createRequestOptions($payload, $app, $context);
     }
@@ -298,9 +298,9 @@ class AppPayloadServiceHelperTest extends TestCase
     private function createHelper(MockClock $clock): AppPayloadServiceHelper
     {
         return new AppPayloadServiceHelper(
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
             'https://shopware.com',
             $clock,

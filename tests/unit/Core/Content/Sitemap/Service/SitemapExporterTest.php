@@ -159,10 +159,10 @@ class SitemapExporterTest extends TestCase
             $urlProvider ?? [],
             $cache,
             10,
-            $this->createMock(FilesystemOperator::class),
-            $sitemapHandleFactory ?? $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class),
-            $cartRuleLoader ?? $this->createMock(CartRuleLoader::class)
+            static::createStub(FilesystemOperator::class),
+            $sitemapHandleFactory ?? static::createStub(SitemapHandleFactoryInterface::class),
+            static::createStub(EventDispatcher::class),
+            $cartRuleLoader ?? static::createStub(CartRuleLoader::class)
         );
     }
 

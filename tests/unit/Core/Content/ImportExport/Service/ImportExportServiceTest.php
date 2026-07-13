@@ -80,7 +80,7 @@ class ImportExportServiceTest extends TestCase
             $logRepo,
             $userRepo,
             $profileRepo,
-            $this->createMock(FileService::class),
+            static::createStub(FileService::class),
         );
     }
 }

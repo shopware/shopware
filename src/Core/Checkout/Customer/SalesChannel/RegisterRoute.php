@@ -552,7 +552,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->getEntities()->get($countryId);
 
             if (!$country) {
                 throw CustomerException::countryNotFound($countryId);

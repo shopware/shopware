@@ -317,7 +317,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
 
     private function createSubscriber(string $productDownloadMediaFolderId = self::PRODUCT_DOWNLOAD_MEDIA_FOLDER_ID): MediaVisibilityRestrictionSubscriber
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchOne')
             ->willReturn($productDownloadMediaFolderId);

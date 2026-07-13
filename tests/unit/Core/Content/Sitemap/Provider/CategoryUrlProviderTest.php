@@ -267,7 +267,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->queryBuilder = $this->createMock(QueryBuilder::class);
         $this->queryBuilder->method('executeQuery')->willReturn($categoryQueryResult);
 
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('getQuery')->willReturn($this->queryBuilder);
 
         $this->iteratorFactory->method('createIterator')->willReturn($query);

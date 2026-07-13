@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
@@ -26,22 +26,18 @@ class NewsletterRecipientStorerTest extends TestCase
 {
     private NewsletterRecipientStorer $storer;
 
-    private NewsletterRecipientProvider&MockObject $newsletterRecipientProvider;
+    private NewsletterRecipientProvider&Stub $newsletterRecipientProvider;
 
     protected function setUp(): void
     {
-        $this->newsletterRecipientProvider = $this->createMock(NewsletterRecipientProvider::class);
+        $this->newsletterRecipientProvider = static::createStub(NewsletterRecipientProvider::class);
 
-        $this->storer = new NewsletterRecipientStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->newsletterRecipientProvider
-        );
+        $this->storer = $this->createStorer($this->newsletterRecipientProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(NewsletterConfirmEvent::class);
+        $event = static::createStub(NewsletterConfirmEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID, $stored);
@@ -49,7 +45,7 @@ class NewsletterRecipientStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(NewsletterRecipientAware::NEWSLETTER_RECIPIENT_ID, $stored);
@@ -75,11 +71,14 @@ class NewsletterRecipientStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $newsletterRecipientProvider = $this->createMock(NewsletterRecipientProvider::class);
+        $storer = $this->createStorer($newsletterRecipientProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new NewsletterRecipientEntity();
         $entity->setId('id');
-        $this->newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn($entity);
 
         $res = $storable->getData('newsletterRecipient');
         static::assertSame($res, $entity);
@@ -87,9 +86,12 @@ class NewsletterRecipientStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
+        $newsletterRecipientProvider = $this->createMock(NewsletterRecipientProvider::class);
+        $storer = $this->createStorer($newsletterRecipientProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
-        $this->storer->restore($storable);
-        $this->newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn(null);
+        $storer->restore($storable);
+        $newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn(null);
 
         $res = $storable->getData('newsletterRecipient');
 
@@ -103,5 +105,14 @@ class NewsletterRecipientStorerTest extends TestCase
         $customerGroup = $storable->getData('newsletterRecipient');
 
         static::assertNull($customerGroup);
+    }
+
+    private function createStorer(NewsletterRecipientProvider $newsletterRecipientProvider): NewsletterRecipientStorer
+    {
+        return new NewsletterRecipientStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $newsletterRecipientProvider,
+        );
     }
 }

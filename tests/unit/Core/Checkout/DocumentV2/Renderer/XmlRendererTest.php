@@ -138,7 +138,7 @@ class XmlRendererTest extends TestCase
                 DocumentType::CREDIT_NOTE->value,
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $renderData],
+                [DocumentType::CREDIT_NOTE->value => $renderData],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -152,7 +152,7 @@ class XmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, $this->createMock(TwigEnvironment::class));
 
-        static::expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
 
         $renderer->renderToString(
             new RenderInput(

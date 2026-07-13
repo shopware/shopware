@@ -31,6 +31,8 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
 
     private const TEMPLATE_PATTERN = '@Framework/documents/zugferd/%s.xml.twig';
 
+    private const DOCUMENT_TYPE_PATTERN = '/^[a-z0-9_]+$/D';
+
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
         private XmlFormatter $xmlFormatter,
@@ -51,14 +53,14 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
+        if (\preg_match(self::DOCUMENT_TYPE_PATTERN, $input->documentType) !== 1) {
+            throw DocumentV2Exception::invalidDocumentType($input->documentType);
+        }
+
         $renderData = $input->requireData(
             $input->documentType,
             AbstractRenderData::class,
         );
-
-        if (\preg_match('/^[a-z0-9_]+$/D', $input->documentType) !== 1) {
-            throw DocumentV2Exception::invalidDocumentType($input->documentType);
-        }
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 

@@ -131,7 +131,7 @@ class HtmlRendererTest extends TestCase
                 DocumentType::CREDIT_NOTE->value,
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $renderData],
+                [DocumentType::CREDIT_NOTE->value => $renderData],
             ),
             new RenderState(),
             Context::createDefaultContext(),

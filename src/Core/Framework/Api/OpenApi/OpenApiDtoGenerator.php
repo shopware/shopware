@@ -19,6 +19,12 @@ final class OpenApiDtoGenerator
     public const NAMESPACE_EXTENSION = 'x-dto-namespace';
 
     /**
+     * Vendor extension on a schema or operation that declares the package attribute
+     * of the generated DTOs.
+     */
+    public const PACKAGE_EXTENSION = 'x-dto-package';
+
+    /**
      * @var list<string>
      */
     private const HTTP_METHODS = [

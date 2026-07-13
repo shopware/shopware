@@ -10,8 +10,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[Package('checkout')]
 final readonly class CustomerAddressRead
 {
     public function __construct(

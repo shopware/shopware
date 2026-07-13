@@ -1,0 +1,81 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {
+    "/account/login/imitate-customer": {
+      "post": {
+        "tags": ["Login & Registration"],
+        "summary": "Imitate the log in as a customer",
+        "description": "Imitate the log in as a customer given a generated token.",
+        "operationId": "imitateCustomerLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "title": "LegacyImpersonationPayload",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["token", "customerId", "userId"],
+                    "properties": {
+                      "token": {
+                        "description": "Generated customer impersonation token (legacy UUID token).",
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "customerId": {
+                        "description": "ID of the customer.",
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "ID of the user who generated the token.",
+                        "format": "uuid",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "title": "JwtImpersonationPayload",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["token"],
+                    "properties": {
+                      "token": {
+                        "description": "Generated customer impersonation JWT token.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns context token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "redirectUrl": {
+                      "description": "Redirect URL if any",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

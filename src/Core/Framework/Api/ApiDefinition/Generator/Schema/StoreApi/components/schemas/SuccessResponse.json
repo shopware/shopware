@@ -6,6 +6,7 @@
         "schemas": {
             "SuccessResponse": {
                 "type": "object",
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Dto",
                 "properties": {
                     "success": {
                         "type": "boolean"

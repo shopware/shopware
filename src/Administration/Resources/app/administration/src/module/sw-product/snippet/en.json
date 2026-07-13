@@ -154,11 +154,11 @@
       "labelPurchaseSteps": "Purchase steps"
     },
     "measurementForm": {
-      "description": "Enter the product measurements using the units available to you. When displayed to your customers, they will be automatically converted based on the {link}.",
+      "description": "Enter product measurements in your preferred units. Shopware converts them for customers based on the {link}.",
       "linkText": "Sales Channel settings"
     },
     "packagingForm": {
-      "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
+      "description": "Set the selling units and packaging details customers see in the storefront.",
       "labelProductUnit": "Product unit",
       "placeholderSellingUnit": "e.g. 6...",
       "placeholderProductUnit": "Select product unit...",
@@ -194,7 +194,7 @@
     },
     "specifications": {
       "cardTitleMeasurement": "Product measurements",
-      "cardTitleSellingPackaging": "Selling & Packaging Information",
+      "cardTitleSellingPackaging": "Selling and packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",
@@ -492,9 +492,8 @@
     },
     "featureSets": {
       "cardTitle": "Essential Characteristics",
-      "descriptionTitle": "Essential Characteristics",
-      "descriptionBody": "Essential Characteristics help you to define what is important about your products. These characteristics are shown prominently in your customers' shopping carts and during checkout.",
-      "configInformation": "Create {0} templates first and assign them to each of your products by using the dropdown below.",
+      "descriptionBody": "Use Essential Characteristics to show important product details in the cart and checkout.",
+      "configInformation": "Create {0} templates, then select one for this product.",
       "linkFeatureSetsConfig": "Essential Characteristics",
       "templateSelectFieldLabel": "Template",
       "templateSelectFieldPlaceholder": "Select a template..."

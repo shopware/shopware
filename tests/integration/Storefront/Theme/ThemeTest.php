@@ -326,7 +326,7 @@ class ThemeTest extends TestCase
             }
         }
 
-        static::assertEquals($themeInheritedConfig, $theme);
+        static::assertEquals(ThemeFixtures::stripLabelsAndHelpTexts($themeInheritedConfig), $theme);
     }
 
     /**
@@ -374,7 +374,7 @@ class ThemeTest extends TestCase
             }
         }
 
-        static::assertEquals($themeInheritedConfig, $theme);
+        static::assertEquals(ThemeFixtures::stripLabelsAndHelpTexts($themeInheritedConfig), $theme);
     }
 
     public function testInheritedSecondLevelThemeConfig(): void
@@ -437,7 +437,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
-        static::assertEquals($themeInheritedConfig, $theme);
+        static::assertEquals(ThemeFixtures::stripLabelsAndHelpTexts($themeInheritedConfig), $theme);
     }
 
     public function testThemeConfigWithMultiSelect(): void

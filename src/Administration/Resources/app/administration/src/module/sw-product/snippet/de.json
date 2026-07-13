@@ -154,11 +154,11 @@
       "labelPurchaseSteps": "Staffelung"
     },
     "measurementForm": {
-      "description": "Gib die Produktmaße in den Dir zur Verfügung stehenden Maßeinheiten ein. Die Anzeige für Deine Kunden wird automatisch gemäß den {link} umgerechnet.",
+      "description": "Gib Produktmaße in Deinen bevorzugten Einheiten ein. Shopware rechnet sie für Kunden gemäß den {link} um.",
       "linkText": "Verkaufskanal-Einstellungen"
     },
     "packagingForm": {
-      "description": "Definiere, wie das Produkt verkauft und verpackt wird. Diese Informationen werden den Kunden in der Storefront angezeigt.",
+      "description": "Lege Verkaufseinheiten und Verpackungsdetails fest, die Kunden in der Storefront sehen.",
       "labelProductUnit": "Produkteinheit",
       "placeholderSellingUnit": "z. B. 6 ...",
       "placeholderProductUnit": "Produkteinheit auswählen ...",
@@ -194,7 +194,7 @@
     },
     "specifications": {
       "cardTitleMeasurement": "Produktmaße",
-      "cardTitleSellingPackaging": "Verkaufs- & Verpackungsinformationen",
+      "cardTitleSellingPackaging": "Verkauf und Verpackung",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",
@@ -492,9 +492,8 @@
     },
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",
-      "descriptionTitle": "Wesentliche Merkmale",
-      "descriptionBody": "Wesentliche Merkmale helfen Dir, relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden hervorgehoben im Warenkorb und an der Kasse dargestellt.",
-      "configInformation": "Lege zuerst Templates für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "descriptionBody": "Mit wesentlichen Merkmalen zeigst Du wichtige Produktdetails im Warenkorb und Checkout.",
+      "configInformation": "Lege Templates für {0} an und wähle dann eines für dieses Produkt aus.",
       "linkFeatureSetsConfig": "Wesentliche Merkmale",
       "templateSelectFieldLabel": "Templates",
       "templateSelectFieldPlaceholder": "Wähle ein Template aus ..."

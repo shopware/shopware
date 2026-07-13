@@ -190,6 +190,25 @@ class WasModifiedByUserFieldTest extends TestCase
         static::assertTrue($entity->get('wasModifiedByUser'));
     }
 
+    public function testCloneResetsWasModifiedByUserToFalse(): void
+    {
+        $id = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        // create in user scope => wasModifiedByUser = true
+        $context->scope(Context::USER_SCOPE, function (Context $context) use ($id): void {
+            $this->entityRepository->create([['id' => $id, 'name' => 'original']], $context);
+        });
+
+        $newId = Uuid::randomHex();
+        // must not throw (regression): the field must not be carried into the clone payload
+        $this->entityRepository->clone($id, $context, $newId);
+
+        $clone = $this->entityRepository->search(new Criteria([$newId]), $context)->get($newId);
+        static::assertInstanceOf(ArrayEntity::class, $clone);
+        static::assertFalse($clone->get('wasModifiedByUser'));
+    }
+
     public function testUserScopeCannotExplicitlyWriteField(): void
     {
         $id = Uuid::randomHex();

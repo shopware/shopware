@@ -2,15 +2,25 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
 
+@each $breakpoint, $value in $grid-breakpoints {
+    @property --sw-grid-container-padding-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
+
+    @property --sw-grid-container-margin-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
+}
+
 .grid-container {
     display: grid;
 
     &.centered {
-        padding-left: 20px;
-        padding-right: 20px;
         max-width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
     &.max-content {
@@ -162,5 +172,12 @@
 
     &.justify-content-space-evenly {
         justify-content: space-evenly;
+    }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            padding: var(--sw-grid-container-padding-#{$breakpoint});
+            margin: var(--sw-grid-container-margin-#{$breakpoint});
+        }
     }
 }

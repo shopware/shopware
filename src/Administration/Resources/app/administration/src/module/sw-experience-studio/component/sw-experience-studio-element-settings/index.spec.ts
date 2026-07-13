@@ -72,4 +72,43 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
             },
         });
     });
+
+    it('keeps breakpoint-aware box spacing properties in the element settings', () => {
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {},
+            },
+            selectedElementType: {
+                properties: {
+                    padding: {
+                        type: [
+                            'string',
+                            'object',
+                        ],
+                        adminUI: {
+                            component: 'box-spacing',
+                            breakpointAware: true,
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'padding',
+                property: {
+                    type: [
+                        'string',
+                        'object',
+                    ],
+                    adminUI: {
+                        component: 'box-spacing',
+                        breakpointAware: true,
+                    },
+                },
+                breakpointAware: true,
+            },
+        ]);
+    });
 });

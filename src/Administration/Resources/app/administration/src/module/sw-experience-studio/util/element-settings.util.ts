@@ -4,6 +4,10 @@ import type {
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
 
+/**
+ * @private
+ * @sw-package discovery
+ */
 export type ElementPropertyControlType =
     | 'switch'
     | 'number'
@@ -27,11 +31,11 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'mt-text-editor': 'richtext',
     'mt-text-field': 'text',
     // Shopware/base wrappers
-    'color': 'color',
-    'select': 'select',
-    'switch': 'switch',
-    'number': 'number',
-    'text': 'text',
+    color: 'color',
+    select: 'select',
+    switch: 'switch',
+    number: 'number',
+    text: 'text',
     'text-editor': 'richtext',
     'entity-single-select': 'entity',
     'sw-entity-single-select': 'entity',
@@ -116,7 +120,7 @@ export function getPropertyControlType(property: ContentSystemElementTypePropert
 export function getAdminUiProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
     const props = property.adminUI?.props;
 
-    return typeof props === 'object' && props !== null ? (props as Record<string, unknown>) : {};
+    return typeof props === 'object' && props !== null ? props : {};
 }
 
 /**

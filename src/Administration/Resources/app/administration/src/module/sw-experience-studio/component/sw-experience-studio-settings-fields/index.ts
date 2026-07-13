@@ -24,6 +24,18 @@ type RadioPanelOption = {
     disabled?: boolean;
 };
 
+function getStructuredPropertyDefault(property: ContentSystemElementTypeProperty): string | number | boolean | null {
+    const defaults = Object.values(property.properties ?? {})
+        .map((nestedProperty) => nestedProperty.default)
+        .filter((value): value is string | number | boolean => value !== null && value !== undefined);
+
+    if (defaults.length === 0 || !defaults.every((value) => value === defaults[0])) {
+        return null;
+    }
+
+    return defaults[0];
+}
+
 /**
  * @private
  * @sw-package discovery
@@ -121,8 +133,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             const matchesTextType = selectedElementType.name.endsWith(':text');
             const matchesTextProperty = Boolean(
-                selectedElementType.properties.text
-                && this.getControlType(selectedElementType.properties.text) === 'richtext',
+                selectedElementType.properties.text &&
+                    this.getControlType(selectedElementType.properties.text) === 'richtext',
             );
 
             return (matchesTextType || matchesTextProperty) && this.getControlType(property) === 'richtext';
@@ -132,7 +144,10 @@ export default Shopware.Component.wrapComponentConfig({
             const currentValue = this.values[key];
             const value = getInitialPropertyValue(property, currentValue);
 
-            if (value === null && (this.getControlType(property) === 'number' || this.getControlType(property) === 'responsive-number')) {
+            if (
+                value === null &&
+                (this.getControlType(property) === 'number' || this.getControlType(property) === 'responsive-number')
+            ) {
                 return this.getResponsiveFallbackValue(property);
             }
 
@@ -158,10 +173,23 @@ export default Shopware.Component.wrapComponentConfig({
 
         getResponsiveViewports(field: SettingsFieldDefinition): ResponsiveViewport[] {
             if (field.breakpointAware === true) {
-                return ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+                return [
+                    'xs',
+                    'sm',
+                    'md',
+                    'lg',
+                    'xl',
+                    'xxl',
+                ];
             }
 
-            return ['xs', 'sm', 'md', 'lg', 'xl'];
+            return [
+                'xs',
+                'sm',
+                'md',
+                'lg',
+                'xl',
+            ];
         },
 
         getViewportIcon(viewport: ResponsiveViewport): string {
@@ -182,10 +210,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (field.breakpointAware === true) {
-                return isViewportSpecificBreakpointMap(
-                    this.getRawPropertyValue(key),
-                    this.getResponsiveViewports(field),
-                );
+                return isViewportSpecificBreakpointMap(this.getRawPropertyValue(key), this.getResponsiveViewports(field));
             }
 
             return this.isBreakpointAwareField(field) && this.isResponsiveObjectValue(this.getRawPropertyValue(key));
@@ -207,14 +232,18 @@ export default Shopware.Component.wrapComponentConfig({
             return this.resolveResponsiveGlobalValueFromStorage(key, property);
         },
 
-        resolveResponsiveGlobalValueFromStorage(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-        ): PrimitiveValue {
+        resolveResponsiveGlobalValueFromStorage(key: string, property: ContentSystemElementTypeProperty): PrimitiveValue {
             const rawValue = this.getRawPropertyValue(key);
 
             if (this.isResponsiveObjectValue(rawValue)) {
-                const fallbackOrder: ResponsiveViewport[] = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+                const fallbackOrder: ResponsiveViewport[] = [
+                    'xs',
+                    'sm',
+                    'md',
+                    'lg',
+                    'xl',
+                    'xxl',
+                ];
                 for (const viewport of fallbackOrder) {
                     const candidate = rawValue[viewport];
                     if (candidate !== undefined) {
@@ -268,7 +297,10 @@ export default Shopware.Component.wrapComponentConfig({
                     return this.normalizeResponsiveValue(property, viewportValue);
                 }
 
-                if (field.breakpointAware === true && isViewportSpecificBreakpointMap(rawValue, this.getResponsiveViewports(field))) {
+                if (
+                    field.breakpointAware === true &&
+                    isViewportSpecificBreakpointMap(rawValue, this.getResponsiveViewports(field))
+                ) {
                     return this.getResponsiveFallbackValue(property);
                 }
             }
@@ -304,7 +336,11 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        onToggleResponsiveViewportMode(key: string, property: ContentSystemElementTypeProperty, field: SettingsFieldDefinition): void {
+        onToggleResponsiveViewportMode(
+            key: string,
+            property: ContentSystemElementTypeProperty,
+            field: SettingsFieldDefinition,
+        ): void {
             const nextState = !this.isResponsiveViewportMode(key, field);
 
             if (nextState) {
@@ -317,16 +353,23 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                if (field.breakpointAware === true && currentValue === undefined && !this.touchedBreakpointAwareProperties[key]) {
+                if (
+                    field.breakpointAware === true &&
+                    currentValue === undefined &&
+                    !this.touchedBreakpointAwareProperties[key]
+                ) {
                     return;
                 }
 
                 const globalValue = this.responsiveGlobalSnapshots[key];
-                const responsiveValue = this.getResponsiveViewports(field).reduce<ResponsiveValue>((accumulator, viewport) => {
-                    accumulator[viewport] = this.normalizeResponsiveValue(property, globalValue);
+                const responsiveValue = this.getResponsiveViewports(field).reduce<ResponsiveValue>(
+                    (accumulator, viewport) => {
+                        accumulator[viewport] = this.normalizeResponsiveValue(property, globalValue);
 
-                    return accumulator;
-                }, {} as ResponsiveValue);
+                        return accumulator;
+                    },
+                    {} as ResponsiveValue,
+                );
 
                 this.onUpdateField(key, responsiveValue);
 
@@ -334,16 +377,22 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const snapshot = this.responsiveGlobalSnapshots[key];
-            const globalValue = snapshot !== undefined
-                ? this.normalizeResponsiveValue(property, snapshot)
-                : this.resolveResponsiveGlobalValueFromStorage(key, property);
+            const globalValue =
+                snapshot !== undefined
+                    ? this.normalizeResponsiveValue(property, snapshot)
+                    : this.resolveResponsiveGlobalValueFromStorage(key, property);
 
             delete this.responsiveGlobalSnapshots[key];
             this.expandedResponsiveProperties[key] = false;
             this.persistBreakpointAwareValue(key, property, field, globalValue);
         },
 
-        onUpdateResponsiveGlobalProperty(key: string, property: ContentSystemElementTypeProperty, field: SettingsFieldDefinition, rawValue: unknown): void {
+        onUpdateResponsiveGlobalProperty(
+            key: string,
+            property: ContentSystemElementTypeProperty,
+            field: SettingsFieldDefinition,
+            rawValue: unknown,
+        ): void {
             if (this.isResponsiveViewportMode(key, field)) {
                 return;
             }
@@ -369,9 +418,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const value = this.normalizeResponsiveValue(property, rawValue);
             const current = this.getRawPropertyValue(key);
-            const base = this.isResponsiveObjectValue(current)
-                ? { ...current }
-                : {};
+            const base = this.isResponsiveObjectValue(current) ? { ...current } : {};
 
             if (field.breakpointAware === true && this.isEffectiveUnsetViewportStyleValue(property, value)) {
                 delete base[viewport];
@@ -468,12 +515,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return undefined;
             }
 
-            const currentValue = field && this.isBreakpointAwareField(field)
-                ? this.getResponsiveGlobalValue(key, property, field)
-                : this.getPropertyValue(key, property);
-            const normalizedCurrentValue = typeof currentValue === 'object' && currentValue !== null
-                ? ''
-                : String(currentValue ?? '');
+            const currentValue =
+                field && this.isBreakpointAwareField(field)
+                    ? this.getResponsiveGlobalValue(key, property, field)
+                    : this.getPropertyValue(key, property);
+            const normalizedCurrentValue =
+                typeof currentValue === 'object' && currentValue !== null ? '' : String(currentValue ?? '');
             const selectedOption = options.find((option) => option.value === normalizedCurrentValue) ?? options[0];
 
             return this.getRadioPanelOptionId(key, selectedOption.value);
@@ -550,12 +597,13 @@ export default Shopware.Component.wrapComponentConfig({
             const initialValue = getInitialPropertyValue(property, undefined);
 
             if (this.getControlType(property) === 'box-spacing') {
-                if (typeof initialValue === 'string' || typeof initialValue === 'number') {
-                    return normalizeBoxSpacingCSSValue(initialValue);
+                const structuredDefault = getStructuredPropertyDefault(property);
+                if (typeof structuredDefault === 'string' || typeof structuredDefault === 'number') {
+                    return normalizeBoxSpacingCSSValue(structuredDefault);
                 }
 
-                if (typeof property.default === 'string') {
-                    return property.default;
+                if (typeof initialValue === 'string' || typeof initialValue === 'number') {
+                    return normalizeBoxSpacingCSSValue(initialValue);
                 }
 
                 return '';
@@ -612,10 +660,7 @@ export default Shopware.Component.wrapComponentConfig({
             return false;
         },
 
-        isEffectiveUnsetViewportStyleValue(
-            property: ContentSystemElementTypeProperty,
-            value: PrimitiveValue,
-        ): boolean {
+        isEffectiveUnsetViewportStyleValue(property: ContentSystemElementTypeProperty, value: PrimitiveValue): boolean {
             if (value === null || value === undefined || value === '') {
                 return true;
             }
@@ -638,16 +683,23 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            const entries = Object.entries(value).filter(([, entryValue]) => entryValue !== null && entryValue !== undefined);
+            const entries = Object.entries(value).filter(
+                ([
+                    ,
+                    entryValue,
+                ]) => entryValue !== null && entryValue !== undefined,
+            );
 
             if (entries.length === 0) {
                 return true;
             }
 
-            return entries.every(([, entryValue]) => this.isEffectiveUnsetViewportStyleValue(
-                property,
-                this.normalizeResponsiveValue(property, entryValue),
-            ));
+            return entries.every(
+                ([
+                    ,
+                    entryValue,
+                ]) => this.isEffectiveUnsetViewportStyleValue(property, this.normalizeResponsiveValue(property, entryValue)),
+            );
         },
 
         shouldPersistBreakpointAwareValue(
@@ -666,8 +718,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return !this.isEffectiveUnsetStyleValue(field, property, value);
             }
 
-            return this.touchedBreakpointAwareProperties[key] === true
-                && !this.isEffectiveUnsetStyleValue(field, property, value);
+            return (
+                this.touchedBreakpointAwareProperties[key] === true &&
+                !this.isEffectiveUnsetStyleValue(field, property, value)
+            );
         },
 
         persistBreakpointAwareValue(

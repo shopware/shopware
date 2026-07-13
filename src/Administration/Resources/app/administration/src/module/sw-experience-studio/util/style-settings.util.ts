@@ -1,13 +1,7 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
-import {
-    isBoxSpacingStyleOption,
-    normalizeBoxSpacingStyleValueForWrite,
-} from './box-spacing.util';
-import {
-    getPropertyControlType,
-    isPropertyVisible,
-} from './element-settings.util';
+import { isBoxSpacingStyleOption, normalizeBoxSpacingStyleValueForWrite } from './box-spacing.util';
+import { getPropertyControlType, isPropertyVisible } from './element-settings.util';
 
 /**
  * @private
@@ -25,8 +19,6 @@ export type StyleSettingsField = {
  */
 const STYLE_FIELD_ORDER = [
     'display',
-    'padding',
-    'margin',
     'align-self',
     'justify-self',
     'col-span',
@@ -37,7 +29,14 @@ const STYLE_FIELD_ORDER = [
  * @private
  * @sw-package discovery
  */
-export const STYLE_BREAKPOINTS = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const;
+export const STYLE_BREAKPOINTS = [
+    'xs',
+    'sm',
+    'md',
+    'lg',
+    'xl',
+    'xxl',
+] as const;
 
 /**
  * @private
@@ -52,17 +51,19 @@ export function isBreakpointMapValue(value: unknown): value is Record<string, un
  * @sw-package discovery
  */
 export function wrapBreakpointAwareStyleValue(value: unknown): Record<string, unknown> {
-    return Object.fromEntries(STYLE_BREAKPOINTS.map((breakpoint) => [breakpoint, value]));
+    return Object.fromEntries(
+        STYLE_BREAKPOINTS.map((breakpoint) => [
+            breakpoint,
+            value,
+        ]),
+    );
 }
 
 /**
  * @private
  * @sw-package discovery
  */
-export function isUnsetScalarStyleValue(
-    value: unknown,
-    option: ContentSystemStyleOptionSpecification,
-): boolean {
+export function isUnsetScalarStyleValue(value: unknown, option: ContentSystemStyleOptionSpecification): boolean {
     if (value === null || value === undefined || value === '') {
         return true;
     }
@@ -71,9 +72,11 @@ export function isUnsetScalarStyleValue(
         return value === option.default;
     }
 
-    if ((option.type === 'integer' || option.type === 'number')
-        && option.range?.min !== undefined
-        && value === option.range.min) {
+    if (
+        (option.type === 'integer' || option.type === 'number') &&
+        option.range?.min !== undefined &&
+        value === option.range.min
+    ) {
         return true;
     }
 
@@ -125,15 +128,23 @@ export function expandBreakpointMapForWrite(
         return value;
     }
 
-    return Object.fromEntries(STYLE_BREAKPOINTS.map((breakpoint) => {
-        const entryValue = value[breakpoint];
+    return Object.fromEntries(
+        STYLE_BREAKPOINTS.map((breakpoint) => {
+            const entryValue = value[breakpoint];
 
-        if (entryValue !== undefined && entryValue !== null && entryValue !== '') {
-            return [breakpoint, entryValue];
-        }
+            if (entryValue !== undefined && entryValue !== null && entryValue !== '') {
+                return [
+                    breakpoint,
+                    entryValue,
+                ];
+            }
 
-        return [breakpoint, option.default];
-    }));
+            return [
+                breakpoint,
+                option.default,
+            ];
+        }),
+    );
 }
 
 /**
@@ -157,16 +168,25 @@ export function isEmptyStyleValueForWrite(
     }
 
     if (isBreakpointMapValue(value)) {
-        const normalizedValue = option.default !== null && option.default !== undefined
-            ? expandBreakpointMapForWrite(value, option)
-            : value;
-        const entries = Object.entries(normalizedValue).filter(([, entryValue]) => entryValue !== null && entryValue !== undefined && entryValue !== '');
+        const normalizedValue =
+            option.default !== null && option.default !== undefined ? expandBreakpointMapForWrite(value, option) : value;
+        const entries = Object.entries(normalizedValue).filter(
+            ([
+                ,
+                entryValue,
+            ]) => entryValue !== null && entryValue !== undefined && entryValue !== '',
+        );
 
         if (entries.length === 0) {
             return true;
         }
 
-        return entries.every(([, entryValue]) => isUnsetScalarStyleValue(entryValue, option));
+        return entries.every(
+            ([
+                ,
+                entryValue,
+            ]) => isUnsetScalarStyleValue(entryValue, option),
+        );
     }
 
     return isUnsetScalarStyleValue(value, option);
@@ -181,9 +201,7 @@ export function normalizeStyleValueForWrite(
     value: unknown,
     option: ContentSystemStyleOptionSpecification | undefined,
 ): unknown {
-    const resolvedValue = isBoxSpacingStyleOption(option)
-        ? normalizeBoxSpacingStyleValueForWrite(value)
-        : value;
+    const resolvedValue = isBoxSpacingStyleOption(option) ? normalizeBoxSpacingStyleValueForWrite(value) : value;
 
     if (isEmptyStyleValueForWrite(resolvedValue, option)) {
         return undefined;
@@ -212,17 +230,26 @@ export function normalizeElementStyleForWrite(
     style: Record<string, unknown>,
     styleOptions: Record<string, ContentSystemStyleOptionSpecification>,
 ): Record<string, unknown> | undefined {
-    const normalized = Object.entries(style).reduce<Record<string, unknown>>((accumulator, [key, value]) => {
-        const normalizedValue = normalizeStyleValueForWrite(key, value, styleOptions[key]);
+    const normalized = Object.entries(style).reduce<Record<string, unknown>>(
+        (
+            accumulator,
+            [
+                key,
+                value,
+            ],
+        ) => {
+            const normalizedValue = normalizeStyleValueForWrite(key, value, styleOptions[key]);
 
-        if (normalizedValue === undefined) {
+            if (normalizedValue === undefined) {
+                return accumulator;
+            }
+
+            accumulator[key] = normalizedValue;
+
             return accumulator;
-        }
-
-        accumulator[key] = normalizedValue;
-
-        return accumulator;
-    }, {});
+        },
+        {},
+    );
 
     return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
@@ -277,15 +304,20 @@ export function styleOptionToElementProperty(
     let mappedComponent = adminComponent;
 
     if (
-        option.breakpointAware
-        && adminComponent !== 'box-spacing'
-        && (option.type === 'integer' || option.type === 'number' || adminComponent === 'number')
+        option.breakpointAware &&
+        adminComponent !== 'box-spacing' &&
+        (option.type === 'integer' || option.type === 'number' || adminComponent === 'number')
     ) {
         mappedComponent = 'responsive-number';
     }
 
     return {
-        type: option.breakpointAware ? [option.type, 'object'] : option.type,
+        type: option.breakpointAware
+            ? [
+                  option.type,
+                  'object',
+              ]
+            : option.type,
         translatable: false,
         enum: option.enum,
         default: option.default,
@@ -308,21 +340,35 @@ export function getEditableStyleFields(
     styleOptions: Record<string, ContentSystemStyleOptionSpecification>,
     styleValues: Record<string, unknown>,
 ): StyleSettingsField[] {
-    const resolvedValues = Object.entries(styleOptions).reduce<Record<string, unknown>>((accumulator, [key, option]) => {
-        const property = styleOptionToElementProperty(key, option);
-        const currentValue = styleValues[key];
+    const resolvedValues = Object.entries(styleOptions).reduce<Record<string, unknown>>(
+        (
+            accumulator,
+            [
+                key,
+                option,
+            ],
+        ) => {
+            const property = styleOptionToElementProperty(key, option);
+            const currentValue = styleValues[key];
 
-        accumulator[key] = currentValue !== undefined ? currentValue : property.default;
+            accumulator[key] = currentValue !== undefined ? currentValue : property.default;
 
-        return accumulator;
-    }, {});
+            return accumulator;
+        },
+        {},
+    );
 
     return Object.entries(styleOptions)
-        .map(([key, option]) => ({
-            key,
-            property: styleOptionToElementProperty(key, option),
-            breakpointAware: option.breakpointAware,
-        }))
+        .map(
+            ([
+                key,
+                option,
+            ]) => ({
+                key,
+                property: styleOptionToElementProperty(key, option),
+                breakpointAware: option.breakpointAware,
+            }),
+        )
         .filter(({ property }) => getPropertyControlType(property) !== null)
         .filter(({ property }) => isPropertyVisible(property, resolvedValues))
         .sort((left, right) => compareStyleFieldKeys(left.key, right.key));

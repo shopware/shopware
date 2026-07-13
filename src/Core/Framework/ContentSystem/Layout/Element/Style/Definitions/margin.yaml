@@ -1,6 +1,0 @@
-type: string
-maxLength: 64
-adminUI:
-  component: "box-spacing"
-  label: "Margin"
-  description: "Outer spacing shorthand (any valid CSS margin value)."

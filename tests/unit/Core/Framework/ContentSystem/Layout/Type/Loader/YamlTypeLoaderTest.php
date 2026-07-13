@@ -83,6 +83,40 @@ class YamlTypeLoaderTest extends TestCase
         static::assertSame('test-source', $definitions[0]->source());
     }
 
+    #[TestDox('defines grid container spacing as breakpoint-aware element properties')]
+    public function testGridContainerDefinesBreakpointAwareSpacingProperties(): void
+    {
+        $loaderDirectory = \dirname((string) (new \ReflectionClass(YamlTypeLoader::class))->getFileName());
+        $definitions = $this->createLoader([
+            new ElementTypeSourceDirectory('core', $loaderDirectory . '/../Definitions', 'Sw'),
+        ])->load();
+
+        $byName = [];
+        foreach ($definitions as $definition) {
+            $byName[$definition->name()] = $definition;
+        }
+
+        $containerProperties = $byName['Sw:Grid:Container']->toSchema()['properties'];
+
+        foreach (['padding', 'margin'] as $spacingProperty) {
+            static::assertSame(['string', 'object'], $containerProperties[$spacingProperty]['type']);
+            static::assertSame('box-spacing', $containerProperties[$spacingProperty]['adminUI']['component']);
+            static::assertTrue($containerProperties[$spacingProperty]['adminUI']['breakpointAware']);
+            static::assertSame(
+                ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
+                array_keys($containerProperties[$spacingProperty]['properties']),
+            );
+        }
+
+        foreach ($containerProperties['padding']['properties'] as $breakpoint) {
+            static::assertSame('0 20px 0 20px', $breakpoint['default']);
+        }
+
+        foreach ($containerProperties['margin']['properties'] as $breakpoint) {
+            static::assertSame('0 0 24px 0', $breakpoint['default']);
+        }
+    }
+
     #[TestDox('returns the directory\'s specifications keyed by their resolved type name, the overlay shape')]
     public function testLoadsOverlayKeyedByResolvedTypeName(): void
     {

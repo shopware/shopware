@@ -140,6 +140,88 @@ properties:
     adminUI:
       component: "number"
 
+  padding:
+    type:
+      - "string"
+      - "object"
+    title: "Padding"
+    description: "Breakpoint-aware inner spacing."
+    adminUI:
+      component: "box-spacing"
+      breakpointAware: true
+    properties:
+      xs:
+        type: string
+        title: "Padding (XS)"
+        description: "Inner spacing on extra small breakpoint."
+        default: "0 20px 0 20px"
+      sm:
+        type: string
+        title: "Padding (SM)"
+        description: "Inner spacing on small breakpoint."
+        default: "0 20px 0 20px"
+      md:
+        type: string
+        title: "Padding (MD)"
+        description: "Inner spacing on medium breakpoint."
+        default: "0 20px 0 20px"
+      lg:
+        type: string
+        title: "Padding (LG)"
+        description: "Inner spacing on large breakpoint."
+        default: "0 20px 0 20px"
+      xl:
+        type: string
+        title: "Padding (XL)"
+        description: "Inner spacing on extra large breakpoint."
+        default: "0 20px 0 20px"
+      xxl:
+        type: string
+        title: "Padding (XXL)"
+        description: "Inner spacing on extra extra large breakpoint."
+        default: "0 20px 0 20px"
+
+  margin:
+    type:
+      - "string"
+      - "object"
+    title: "Margin"
+    description: "Breakpoint-aware outer spacing."
+    adminUI:
+      component: "box-spacing"
+      breakpointAware: true
+    properties:
+      xs:
+        type: string
+        title: "Margin (XS)"
+        description: "Outer spacing on extra small breakpoint."
+        default: "0 0 24px 0"
+      sm:
+        type: string
+        title: "Margin (SM)"
+        description: "Outer spacing on small breakpoint."
+        default: "0 0 24px 0"
+      md:
+        type: string
+        title: "Margin (MD)"
+        description: "Outer spacing on medium breakpoint."
+        default: "0 0 24px 0"
+      lg:
+        type: string
+        title: "Margin (LG)"
+        description: "Outer spacing on large breakpoint."
+        default: "0 0 24px 0"
+      xl:
+        type: string
+        title: "Margin (XL)"
+        description: "Outer spacing on extra large breakpoint."
+        default: "0 0 24px 0"
+      xxl:
+        type: string
+        title: "Margin (XXL)"
+        description: "Outer spacing on extra extra large breakpoint."
+        default: "0 0 24px 0"
+
   align:
     type: string
     title: "Align Items"

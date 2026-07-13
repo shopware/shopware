@@ -37,7 +37,7 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
     public function testBuiltInDefinitionsLoad(): void
     {
         static::assertSame(
-            ['align-self', 'col-span', 'display', 'justify-self', 'margin', 'padding', 'row-span'],
+            ['align-self', 'col-span', 'display', 'justify-self', 'row-span'],
             $this->sortedNames($this->builtIns),
         );
     }
@@ -59,25 +59,6 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
     {
         yield 'col-span' => ['col-span'];
         yield 'row-span' => ['row-span'];
-    }
-
-    #[DataProvider('definesSpacingOptionAsStringProvider')]
-    #[TestDox('defines $name as a string bounded to 64 characters')]
-    public function testSpacingOptionIsBoundedString(string $name): void
-    {
-        $option = $this->builtIns[$name];
-
-        static::assertSame(StyleOptionValueType::TYPE_STRING, $option->valueType()->type());
-        static::assertSame(64, $option->valueType()->maxLength());
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function definesSpacingOptionAsStringProvider(): iterable
-    {
-        yield 'margin' => ['margin'];
-        yield 'padding' => ['padding'];
     }
 
     #[TestDox('defines display as a boolean defaulting to visible')]
@@ -118,7 +99,7 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
         static::assertSame(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'], Breakpoint::values());
     }
 
-    #[DataProvider('allSevenOptionsProvider')]
+    #[DataProvider('allShippedOptionsProvider')]
     #[TestDox('marks $name as breakpoint-aware')]
     public function testAllShippedOptionsAreBreakpointAware(string $name): void
     {
@@ -128,12 +109,10 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function allSevenOptionsProvider(): iterable
+    public static function allShippedOptionsProvider(): iterable
     {
         yield 'col-span' => ['col-span'];
         yield 'row-span' => ['row-span'];
-        yield 'margin' => ['margin'];
-        yield 'padding' => ['padding'];
         yield 'display' => ['display'];
         yield 'align-self' => ['align-self'];
         yield 'justify-self' => ['justify-self'];

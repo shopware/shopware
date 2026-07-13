@@ -1,7 +1,5 @@
 import type { ContentElementNode } from '../../types/content-element.types';
-import type {
-    ContentSystemElementTypeSpecification,
-} from 'src/core/service/api/content-system-element-type.api.service';
+import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
@@ -147,7 +145,13 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const resolvedPropertyValues = Object.entries(typeSpecification.properties).reduce<Record<string, unknown>>(
-                (accumulator, [key, property]) => {
+                (
+                    accumulator,
+                    [
+                        key,
+                        property,
+                    ],
+                ) => {
                     const storageKey = getElementPropertyStorageKey(typeSpecification, key);
                     const elementProperties = selectedElement?.properties ?? {};
                     const currentValue = Object.prototype.hasOwnProperty.call(elementProperties, storageKey)
@@ -161,9 +165,28 @@ export default Shopware.Component.wrapComponentConfig({
             );
 
             return Object.entries(typeSpecification.properties)
-                .filter(([, property]) => getPropertyControlType(property) !== null)
-                .filter(([, property]) => isPropertyVisible(property, resolvedPropertyValues))
-                .map(([key, property]) => ({ key, property }));
+                .filter(
+                    ([
+                        ,
+                        property,
+                    ]) => getPropertyControlType(property) !== null,
+                )
+                .filter(
+                    ([
+                        ,
+                        property,
+                    ]) => isPropertyVisible(property, resolvedPropertyValues),
+                )
+                .map(
+                    ([
+                        key,
+                        property,
+                    ]) => ({
+                        key,
+                        property,
+                        breakpointAware: property.adminUI?.breakpointAware === true,
+                    }),
+                );
         },
 
         layoutFields(): SettingsFieldDefinition[] {

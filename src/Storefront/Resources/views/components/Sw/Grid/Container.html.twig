@@ -8,6 +8,22 @@
     columns = null,
     rows = null,
     gap = 24,
+    padding = {
+        xs: '0 20px 0 20px',
+        sm: '0 20px 0 20px',
+        md: '0 20px 0 20px',
+        lg: '0 20px 0 20px',
+        xl: '0 20px 0 20px',
+        xxl: '0 20px 0 20px',
+    },
+    margin = {
+        xs: '0 0 24px 0',
+        sm: '0 0 24px 0',
+        md: '0 0 24px 0',
+        lg: '0 0 24px 0',
+        xl: '0 0 24px 0',
+        xxl: '0 0 24px 0',
+    },
     align = 'start',
     alignContent = 'start',
     justify = 'start',
@@ -294,7 +310,19 @@
 
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
-{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
+{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; ' : gridStyle %}
+
+{% for spacingName, spacingValue in { padding: padding, margin: margin } %}
+    {% if spacingValue is mapping %}
+        {% for viewport, value in spacingValue %}
+            {% if value is not empty and value is not null %}
+                {% set gridStyle = gridStyle ~ '--sw-grid-container-' ~ spacingName ~ '-' ~ viewport ~ ': ' ~ value ~ '; ' %}
+            {% endif %}
+        {% endfor %}
+    {% elseif spacingValue is not empty %}
+        {% set gridStyle = gridStyle ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
+    {% endif %}
+{% endfor %}
 
 {% if backgroundColor %}
     {% set gridStyle = gridStyle ~ 'background-color: ' ~ backgroundColor ~ '; ' %}

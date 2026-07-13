@@ -2,18 +2,6 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
 
-@each $breakpoint, $value in $grid-breakpoints {
-    @property --sw-element-padding-#{$breakpoint} {
-        syntax: '*';
-        inherits: false;
-    }
-
-    @property --sw-element-margin-#{$breakpoint} {
-        syntax: '*';
-        inherits: false;
-    }
-}
-
 .sw-content-page {
     @each $breakpoint, $value in $grid-breakpoints {
         .display-#{$breakpoint} {
@@ -52,19 +40,4 @@
             }
         }
     }
-
-    @each $breakpoint, $value in $grid-breakpoints {
-        [data-element-id][style*='--sw-element-padding-#{$breakpoint}'] {
-            @include media-breakpoint-only($breakpoint) {
-                padding: var(--sw-element-padding-#{$breakpoint});
-            }
-        }
-
-        [data-element-id][style*='--sw-element-margin-#{$breakpoint}'] {
-            @include media-breakpoint-only($breakpoint) {
-                margin: var(--sw-element-margin-#{$breakpoint});
-            }
-        }
-    }
 }
-

@@ -94,7 +94,7 @@ if (!$outputFile) {
     echo $outputContent;
 } else {
     file_put_contents($outputFile, $outputContent);
-    echo "Release notes for $version generated and written to $outputFile.\n";
+    fwrite(\STDERR, "Release notes for $version generated and written to $outputFile.\n");
 }
 
 function gatherReleaseInfo(string $version, string $releaseInfoFile): ?string

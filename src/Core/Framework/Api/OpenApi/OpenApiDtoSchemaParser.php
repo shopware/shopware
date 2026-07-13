@@ -264,7 +264,12 @@ final class OpenApiDtoSchemaParser
 
                 if ($requestSchema === null) {
                     if ($parameters !== []) {
-                        $definitions[] = new OpenApiDtoDefinition($dtoName, $parameters, $this->stringOrNull($operation['description'] ?? null));
+                        $definitions[] = new OpenApiDtoDefinition(
+                            $dtoName,
+                            $parameters,
+                            $this->stringOrNull($operation['description'] ?? null),
+                            $this->packageFromSchema($operation),
+                        );
                     }
 
                     continue;
@@ -293,6 +298,7 @@ final class OpenApiDtoSchemaParser
                     $dtoName,
                     $properties,
                     $this->stringOrNull($resolvedRequestSchema['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                    $this->packageFromSchema($resolvedRequestSchema) ?? $this->packageFromSchema($operation),
                 );
                 $definitions = [...$definitions, ...$extracted['nestedDefinitions']];
             }
@@ -355,6 +361,7 @@ final class OpenApiDtoSchemaParser
                     $dtoName,
                     $extracted['properties'],
                     $this->stringOrNull($response['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                    $this->packageFromSchema($resolvedResponseSchema) ?? $this->packageFromSchema($operation),
                 );
                 $definitions = [...$definitions, ...$extracted['nestedDefinitions']];
             }
@@ -453,7 +460,12 @@ final class OpenApiDtoSchemaParser
         }
 
         return [
-            new OpenApiDtoDefinition($name, $extracted['properties'], $this->stringOrNull($schema['description'] ?? null)),
+            new OpenApiDtoDefinition(
+                $name,
+                $extracted['properties'],
+                $this->stringOrNull($schema['description'] ?? null),
+                $this->packageFromSchema($schema),
+            ),
             ...$extracted['nestedDefinitions'],
         ];
     }
@@ -496,6 +508,7 @@ final class OpenApiDtoSchemaParser
                     $nestedName,
                     $nestedExtracted['properties'],
                     $this->stringOrNull($propertySchema['description'] ?? null),
+                    $this->packageFromSchema($propertySchema),
                 );
                 $nestedDefinitions = [...$nestedDefinitions, ...$nestedExtracted['nestedDefinitions']];
 
@@ -512,6 +525,7 @@ final class OpenApiDtoSchemaParser
                     $nestedName,
                     $nestedExtracted['properties'],
                     $this->stringOrNull($items['description'] ?? null),
+                    $this->packageFromSchema($items),
                 );
                 $nestedDefinitions = [...$nestedDefinitions, ...$nestedExtracted['nestedDefinitions']];
 
@@ -640,6 +654,7 @@ final class OpenApiDtoSchemaParser
                 $variantDtoName,
                 $properties,
                 $this->stringOrNull($resolvedVariant['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($operation),
             );
             $definitions = [...$definitions, ...$extracted['nestedDefinitions']];
         }
@@ -791,6 +806,14 @@ final class OpenApiDtoSchemaParser
     private function variants(array $schema): ?array
     {
         return $this->schemaListAtKey($schema, 'oneOf') ?? $this->schemaListAtKey($schema, 'anyOf');
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function packageFromSchema(array $schema): ?string
+    {
+        return $this->stringOrNull($schema[OpenApiDtoGenerator::PACKAGE_EXTENSION] ?? null);
     }
 
     /**

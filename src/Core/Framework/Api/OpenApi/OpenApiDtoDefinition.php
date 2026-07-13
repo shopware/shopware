@@ -19,6 +19,7 @@ final readonly class OpenApiDtoDefinition
         public string $name,
         public array $properties,
         public ?string $description = null,
+        public ?string $package = null,
     ) {
     }
 }

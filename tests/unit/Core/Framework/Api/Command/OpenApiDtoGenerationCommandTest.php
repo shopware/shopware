@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoProperty;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -44,6 +45,9 @@ class OpenApiDtoGenerationCommandTest extends TestCase
             static::assertSame(Command::SUCCESS, $status);
             static::assertStringContainsString('Generated 1 PHP DTO file(s)', $tester->getDisplay());
             static::assertFileExists($this->expectedDtoPath($projectRoot));
+            $generatedDto = (string) file_get_contents($this->expectedDtoPath($projectRoot));
+            static::assertStringContainsString('use Shopware\\Core\\Framework\\Log\\Package;', $generatedDto);
+            static::assertStringContainsString('#[Package(\'framework\')]', $generatedDto);
         } finally {
             $filesystem->remove($projectRoot);
         }
@@ -53,9 +57,9 @@ class OpenApiDtoGenerationCommandTest extends TestCase
     {
         $filesystem = new Filesystem();
         $projectRoot = $this->createProjectWithSchema($filesystem);
-        $generator = $this->createGenerator($projectRoot, $filesystem, new \DateTimeImmutable('2026-07-07'));
+        $generator = $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-07'));
         $tester = new CommandTester(new OpenApiDtoGenerationCommand(
-            $this->createGenerator($projectRoot, $filesystem, new \DateTimeImmutable('2026-07-08')),
+            $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-08')),
         ));
 
         try {
@@ -85,6 +89,8 @@ class OpenApiDtoGenerationCommandTest extends TestCase
         $tester = new CommandTester($this->createCommand($projectRoot, $filesystem));
 
         try {
+            $filesystem->remove($this->expectedDtoPath($projectRoot));
+
             $status = $tester->execute(['--check' => true]);
 
             static::assertSame(Command::FAILURE, $status);
@@ -107,6 +113,7 @@ class OpenApiDtoGenerationCommandTest extends TestCase
                 'schemas' => [
                     'CheckResponse' => [
                         OpenApiDtoGenerator::NAMESPACE_EXTENSION => 'Shopware\\Core\\Framework\\Api\\Dto',
+                        OpenApiDtoGenerator::PACKAGE_EXTENSION => 'framework',
                         'type' => 'object',
                         'properties' => [
                             'success' => [
@@ -135,7 +142,7 @@ class OpenApiDtoGenerationCommandTest extends TestCase
     {
         return new OpenApiDtoGenerator(
             new OpenApiDtoSchemaParser(),
-            new OpenApiDtoClassRenderer($generatedAt),
+            new OpenApiDtoClassRenderer($generatedAt ?? new MockClock('2026-07-08')),
             $filesystem,
             ['Framework' => ['path' => $projectRoot . '/src/Core/Framework']],
         );

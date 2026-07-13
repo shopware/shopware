@@ -4,16 +4,18 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-13
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Make changes to a customer's account, like changing their name, salutation or title.
  */
+#[Package('checkout')]
 final readonly class ChangeProfileRequest
 {
     public function __construct(

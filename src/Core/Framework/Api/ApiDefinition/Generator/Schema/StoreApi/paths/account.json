@@ -83,6 +83,7 @@
                     "Profile"
                 ],
                 "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\Dto",
+                "x-dto-package": "checkout",
                 "summary": "Change the customer's information",
                 "description": "Make changes to a customer's account, like changing their name, salutation or title.",
                 "operationId": "changeProfile",
@@ -1524,6 +1525,7 @@
                     "Address"
                 ],
                 "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\Dto",
+                "x-dto-package": "checkout",
                 "summary": "Create a new address for a customer",
                 "description": "Creates a new address for a customer.",
                 "operationId": "createCustomerAddress",

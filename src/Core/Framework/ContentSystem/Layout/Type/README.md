@@ -45,9 +45,13 @@ The type spec declares WHAT properties exist and their types. The element instan
 
 3. **Registry** (Registry/) — Uses the Shopware decoration pattern. `AbstractContentSystemElementTypeRegistry` defines the contract; `ContentSystemElementTypeRegistry` is the stateless aggregator (leaf) that iterates `AbstractContentSystemElementTypeLoader` instances (tagged `content_system.type_loader`); `CachedContentSystemElementTypeRegistry` decorates it with a `cache.system` pool, caching the aggregated result cross-request. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
 
-4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects directory paths into YamlTypeLoader — no YAML parsing at compile time.
+4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects the discovered directory set into both YamlTypeLoader (for element-type definitions) and the binding system's YamlBindingSpecificationLoader (which scans the same files for their inline `bindings:` sections) — no YAML parsing at compile time. Each loader receives its own directory-VO definition instances.
 
 5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation). App activation state is not denormalized onto the type rows — `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its types from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update).
+
+## Inline `bindings:` Sections
+
+A type YAML file may carry a top-level `bindings:` key declaring binding specifications for its type inline. The key is reserved for the binding system and invisible to this pipeline: `ElementTypeSpecificationSerializer::denormalize()` reads only `meta`, `properties`, and `slots`, and `Binding/Loader/YamlBindingSpecificationLoader` scans the same type directories for the inline sections independently. Inline bindings depend on the serializer staying lenient about unknown top-level keys; do not add strict top-level key validation here. A reference property's `resolvedBy` key (`Definitions/media/image.yaml` has one) is a separate, simpler mechanism that needs no `bindings:` section at all — see `../../Binding/README.md`.
 
 ## Subdirectories
 

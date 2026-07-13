@@ -3,16 +3,18 @@
 namespace Shopware\Core\Framework\ContentSystem\Binding\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -28,6 +30,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
         private readonly RootContextMapper $rootContextMapper,
+        private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
     ) {
     }
 
@@ -37,37 +40,70 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             throw new UnexpectedTypeException($constraint, TypeConsistentBindingSpecification::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
-        if (!$value instanceof BindingSpecificationDto) {
-            throw new UnexpectedTypeException($value, BindingSpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
+        if (!$value instanceof BindingSpecificationDtoCollection) {
+            throw new UnexpectedTypeException($value, BindingSpecificationDtoCollection::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
-        if (!\is_string($value->type) || !$this->registry->has($value->type)) {
+        foreach ($value->bindings as $id => $dto) {
+            $this->validateBinding((string) $id, $dto, $value->typeOverlay, $constraint);
+        }
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $typeOverlay
+     */
+    private function validateBinding(string $id, BindingSpecificationDto $dto, array $typeOverlay, TypeConsistentBindingSpecification $constraint): void
+    {
+        $type = $this->resolveType($dto->type, $typeOverlay);
+
+        if ($type === null) {
             $this->context->buildViolation($constraint->unknownTypeMessage)
-                ->setParameter('{{ type }}', \is_string($value->type) ? $value->type : '')
-                ->atPath('type')
+                ->setParameter('{{ type }}', \is_string($dto->type) ? $dto->type : '')
+                ->atPath($this->path($id, 'type'))
                 ->addViolation();
 
             return;
         }
 
-        $type = $this->registry->get($value->type);
-
-        $this->validateResolves($value, $type, $constraint);
-        $this->validateInputs($value, $type, $constraint);
+        $this->validateResolves($id, $dto, $type, $constraint);
+        $this->validateInputs($id, $dto, $type, $constraint);
     }
 
-    private function validateResolves(BindingSpecificationDto $value, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    /**
+     * Resolves the declared type against the overlay first, then the registry. The overlay carries types not yet
+     * registered (an app's own types at install/validate time); a miss on both is an unknown type.
+     *
+     * @param array<string, ContentSystemElementTypeSpecification> $typeOverlay
+     */
+    private function resolveType(mixed $type, array $typeOverlay): ?ContentSystemElementTypeSpecification
+    {
+        if (!\is_string($type) || $type === '') {
+            return null;
+        }
+
+        if (isset($typeOverlay[$type])) {
+            return $typeOverlay[$type];
+        }
+
+        if ($this->registry->has($type)) {
+            return $this->registry->get($type);
+        }
+
+        return null;
+    }
+
+    private function validateResolves(string $id, BindingSpecificationDto $value, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
     {
         if (!\is_array($value->resolves)) {
             return;
         }
 
         foreach ($value->resolves as $key => $entry) {
-            $this->validateResolvesEntry((string) $key, $entry, $type, $constraint);
+            $this->validateResolvesEntry($id, (string) $key, $entry, $type, $constraint);
         }
     }
 
-    private function validateResolvesEntry(string $key, mixed $entry, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    private function validateResolvesEntry(string $id, string $key, mixed $entry, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
     {
         if (!\is_array($entry)) {
             return;
@@ -79,7 +115,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             if (\array_key_exists('context', $entry)) {
                 $this->context->buildViolation($constraint->resolvesEntryContextFormMessage)
                     ->setParameter('{{ key }}', $key)
-                    ->atPath('resolves[' . $key . ']')
+                    ->atPath($this->path($id, 'resolves[' . $key . ']'))
                     ->addViolation();
             }
 
@@ -93,7 +129,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             $this->context->buildViolation($constraint->resolvesEntryNotReferencePropertyMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ type }}', $type->name())
-                ->atPath('resolves[' . $key . ']')
+                ->atPath($this->path($id, 'resolves[' . $key . ']'))
                 ->addViolation();
 
             return;
@@ -102,13 +138,13 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         $config = $entry['config'] ?? [];
         $config = \is_array($config) ? $config : [];
 
-        $configObject = $this->decodeConfig($key, $loader, $config, $constraint);
+        $configObject = $this->decodeConfig($id, $key, $loader, $config, $constraint);
 
         if ($configObject === null) {
             return;
         }
 
-        $producedType = $this->resolveProducedType($key, $loader, $configObject, $constraint);
+        $producedType = $this->resolveProducedType($id, $key, $loader, $configObject, $constraint);
 
         if ($producedType === null) {
             return;
@@ -119,23 +155,58 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ producedType }}', $producedType)
                 ->setParameter('{{ declaredType }}', $declaredType)
-                ->atPath('resolves[' . $key . ']')
+                ->atPath($this->path($id, 'resolves[' . $key . ']'))
                 ->addViolation();
 
             return;
         }
 
-        if ($loader !== EntityLoader::SOURCE) {
-            return;
-        }
+        $this->validatePropertyReferenceKeys($id, $key, $loader, $config, $type, $constraint);
+    }
 
-        $this->validateEntityLoaderProperty($key, $config, $type, $constraint);
+    /**
+     * Every config key of kind `propertyReference` (per the loader's config specification) whose configured value
+     * is a string must name either an undeclared key (the resolvedBy storage key) or a declared primitive
+     * property of the declared type. A declared non-primitive property is a violation for every loader. Reaching
+     * this point means `decodeConfig()` and `resolveProducedType()` both succeeded, so the loader is a registered
+     * data loader and thus present in the map, so `configSpecificationFor()` cannot throw here.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function validatePropertyReferenceKeys(string $id, string $key, string $loader, array $config, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    {
+        $specification = $this->mapResolver->resolve()->configSpecificationFor($loader);
+
+        foreach ($specification->keys as $configKey) {
+            if ($configKey->kind !== ConfigKeyKind::PropertyReference) {
+                continue;
+            }
+
+            $configured = $config[$configKey->name] ?? null;
+
+            if (!\is_string($configured)) {
+                continue;
+            }
+
+            $property = $type->properties()[$configured] ?? null;
+
+            if ($property === null || $property->type()->isPrimitive()) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceNotPrimitiveMessage)
+                ->setParameter('{{ configKey }}', $configKey->name)
+                ->setParameter('{{ property }}', $configured)
+                ->setParameter('{{ type }}', $type->name())
+                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey->name))
+                ->addViolation();
+        }
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    private function decodeConfig(string $key, string $loader, array $config, TypeConsistentBindingSpecification $constraint): ?AbstractContentDataLoaderConfig
+    private function decodeConfig(string $id, string $key, string $loader, array $config, TypeConsistentBindingSpecification $constraint): ?AbstractContentDataLoaderConfig
     {
         try {
             return $this->configSerializerProvider->decode($loader, $config);
@@ -148,7 +219,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
                 $this->context->buildViolation($constraint->resolvesEntryLoaderNotRegisteredMessage)
                     ->setParameter('{{ key }}', $key)
                     ->setParameter('{{ loader }}', $loader)
-                    ->atPath('resolves[' . $key . ']')
+                    ->atPath($this->path($id, 'resolves[' . $key . ']'))
                     ->addViolation();
 
                 return null;
@@ -157,14 +228,14 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             $this->context->buildViolation($constraint->resolvesEntryConfigMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ reason }}', $exception->getMessage())
-                ->atPath('resolves[' . $key . '].config')
+                ->atPath($this->path($id, 'resolves[' . $key . '].config'))
                 ->addViolation();
 
             return null;
         }
     }
 
-    private function resolveProducedType(string $key, string $loader, AbstractContentDataLoaderConfig $configObject, TypeConsistentBindingSpecification $constraint): ?string
+    private function resolveProducedType(string $id, string $key, string $loader, AbstractContentDataLoaderConfig $configObject, TypeConsistentBindingSpecification $constraint): ?string
     {
         try {
             return $this->rootContextMapper->resolveType(new DataRequirement($key, $loader, $configObject));
@@ -176,49 +247,25 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             $this->context->buildViolation($constraint->resolvesEntryConfigMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ reason }}', $exception->getMessage())
-                ->atPath('resolves[' . $key . '].config')
+                ->atPath($this->path($id, 'resolves[' . $key . '].config'))
                 ->addViolation();
 
             return null;
         }
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
-    private function validateEntityLoaderProperty(string $key, array $config, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
-    {
-        $property = $config['property'] ?? null;
-
-        if (!\is_string($property)) {
-            return;
-        }
-
-        $entityProperty = $type->properties()[$property] ?? null;
-
-        if ($entityProperty !== null && $entityProperty->type()->isPrimitive()) {
-            return;
-        }
-
-        $this->context->buildViolation($constraint->resolvesEntryEntityPropertyNotPrimitiveMessage)
-            ->setParameter('{{ key }}', $key)
-            ->setParameter('{{ type }}', $type->name())
-            ->atPath('resolves[' . $key . '].config.property')
-            ->addViolation();
-    }
-
-    private function validateInputs(BindingSpecificationDto $value, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    private function validateInputs(string $id, BindingSpecificationDto $value, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
     {
         if (!\is_array($value->inputs)) {
             return;
         }
 
         foreach ($value->inputs as $key => $entry) {
-            $this->validateInputsEntry((string) $key, $entry, $type, $constraint);
+            $this->validateInputsEntry($id, (string) $key, $entry, $type, $constraint);
         }
     }
 
-    private function validateInputsEntry(string $key, mixed $entry, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    private function validateInputsEntry(string $id, string $key, mixed $entry, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
     {
         if (!\is_array($entry)) {
             return;
@@ -230,7 +277,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             $this->context->buildViolation($constraint->inputsEntryNotPrimitivePropertyMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ type }}', $type->name())
-                ->atPath('inputs[' . $key . ']')
+                ->atPath($this->path($id, 'inputs[' . $key . ']'))
                 ->addViolation();
 
             return;
@@ -259,7 +306,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         $this->context->buildViolation($constraint->inputsEntryDefaultTypeMessage)
             ->setParameter('{{ key }}', $key)
             ->setParameter('{{ type }}', $primitiveType ?? '')
-            ->atPath('inputs[' . $key . '].default')
+            ->atPath($this->path($id, 'inputs[' . $key . '].default'))
             ->addViolation();
     }
 
@@ -290,5 +337,10 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         }
 
         return $resolvedType;
+    }
+
+    private function path(string $id, string $suffix): string
+    {
+        return 'bindings[' . $id . '].' . $suffix;
     }
 }

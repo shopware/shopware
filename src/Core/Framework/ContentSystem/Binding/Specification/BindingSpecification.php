@@ -13,8 +13,9 @@ use Shopware\Core\Framework\Log\Package;
  *     id: string,
  *     type: string,
  *     label: string,
+ *     default: bool,
  *     resolves: array<string, array{loader: string, config: array<string, mixed>}>,
- *     inputs: array<string, array{default?: mixed}>
+ *     inputs: array<string, array{default?: mixed, required: bool}>
  * }
  */
 #[Package('framework')]
@@ -30,7 +31,7 @@ final readonly class BindingSpecification
         private string $label,
         private array $resolves,
         private array $inputs,
-        private string $source = '',
+        private string $source,
     ) {
     }
 
@@ -71,6 +72,24 @@ final readonly class BindingSpecification
     }
 
     /**
+     * The source-qualified id (`source:id`): the registry key, the wire identifier a client passes back as
+     * `bindingSpecificationId`, and the unique form of an id two sources may legitimately share bare.
+     */
+    public function qualifiedId(): string
+    {
+        return $this->source . ':' . $this->id;
+    }
+
+    /**
+     * Derived on read, never stored (the same computed-not-stored pattern as {@see self::qualifiedId()}):
+     * true exactly for a synthesized default specification, whose reserved id equals its own type.
+     */
+    public function isDefault(): bool
+    {
+        return $this->id === $this->type;
+    }
+
+    /**
      * @return BindingSpecificationSchema
      */
     public function toSchema(): array
@@ -85,19 +104,21 @@ final readonly class BindingSpecification
 
         $inputs = [];
         foreach ($this->inputs as $key => $input) {
-            if (!$input->hasDefault) {
-                $inputs[$key] = [];
+            $entry = [];
 
-                continue;
+            if ($input->hasDefault) {
+                $entry['default'] = $input->default;
             }
 
-            $inputs[$key] = ['default' => $input->default];
+            $entry['required'] = $input->required;
+            $inputs[$key] = $entry;
         }
 
         return [
             'id' => $this->id,
             'type' => $this->type,
             'label' => $this->label,
+            'default' => $this->isDefault(),
             'resolves' => $resolves,
             'inputs' => $inputs,
         ];

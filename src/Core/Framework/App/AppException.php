@@ -662,13 +662,13 @@ class AppException extends HttpException
         );
     }
 
-    public static function contentSystemBindingSpecificationLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    public static function contentSystemBindingSpecificationLoadFailed(string $directory, string $reason, ?\Throwable $previous = null): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED,
-            'Failed to load binding specification from "{{ file }}": {{ reason }}',
-            ['file' => $file, 'reason' => $reason],
+            'Failed to load binding specification from directory "{{ directory }}": {{ reason }}',
+            ['directory' => $directory, 'reason' => $reason],
             $previous
         );
     }

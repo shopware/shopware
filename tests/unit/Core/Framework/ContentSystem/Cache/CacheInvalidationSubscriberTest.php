@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -38,12 +38,15 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     private CacheInvalidationSubscriber $subscriber;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         $this->cacheInvalidator = static::createMock(CacheInvalidator::class);
         $this->connection = static::createStub(Connection::class);
         $this->cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->ids = new IdsCollection();
 
         $this->subscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
@@ -71,7 +74,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('invalidates entity assignment cache tag for $entityName')]
     public function testInvalidatesEntityAssignmentCacheTag(string $entityName, string $tagPrefix): void
     {
-        $assignmentId = Uuid::randomHex();
+        $assignmentId = $this->ids->get('assignment');
         $entityId = 'entity-id';
 
         $event = $this->createWrittenEvent($entityName, $assignmentId);
@@ -96,7 +99,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('invalidates $section cache tags when $entityName is written')]
     public function testInvalidatesSectionCacheTag(string $entityName, ContentSection $section): void
     {
-        $assignmentId = Uuid::randomHex();
+        $assignmentId = $this->ids->get('assignment');
         $layoutId = 'layout-id';
 
         $event = $this->createWrittenEvent($entityName, $assignmentId);
@@ -114,8 +117,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('filters null cache tags from entity invalidation')]
     public function testFiltersNullCacheTagsFromEntityInvalidation(): void
     {
-        $assignmentIdA = Uuid::randomHex();
-        $assignmentIdB = Uuid::randomHex();
+        $assignmentIdA = $this->ids->get('assignment-a');
+        $assignmentIdB = $this->ids->get('assignment-b');
         $productIdA = 'entity-a';
         $productIdB = 'entity-b';
 
@@ -152,7 +155,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('skips section invalidation when no layout IDs are found in database')]
     public function testSkipsSectionInvalidationWhenNoLayoutIdsFound(): void
     {
-        $event = $this->createWrittenEvent('header_content_layout', Uuid::randomHex());
+        $event = $this->createWrittenEvent('header_content_layout', $this->ids->get('assignment'));
 
         $this->connection->method('fetchFirstColumn')
             ->willReturn([]);
@@ -177,7 +180,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('skips entity invalidation when no assignment IDs are found in database')]
     public function testSkipsEntityInvalidationWhenNoAssignmentIdsFound(): void
     {
-        $event = $this->createWrittenEvent('product_content_layout', Uuid::randomHex());
+        $event = $this->createWrittenEvent('product_content_layout', $this->ids->get('assignment'));
 
         $this->connection->method('fetchFirstColumn')
             ->willReturn([]);

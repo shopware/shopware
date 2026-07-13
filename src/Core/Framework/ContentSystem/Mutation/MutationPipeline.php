@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -19,7 +17,6 @@ class MutationPipeline
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ApplicableBindingsResolver $applicableBindingsResolver,
     ) {
     }
 
@@ -27,12 +24,12 @@ class MutationPipeline
      * @param list<ContentElement> $tree the decoded draft tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
      */
-    public function run(LayoutMutation $mutation, array $tree, ?array $rootContext, ?Context $context = null): MutationResult
+    public function run(LayoutMutation $mutation, array $tree, ?array $rootContext): MutationResult
     {
         $mutated = $mutation->apply($tree);
         $affected = $mutation->affected();
 
-        $analysis = $this->diagnostics->analyze($mutated, $rootContext, $context);
+        $analysis = $this->diagnostics->analyze($mutated, $rootContext);
 
         // This MutationResult assembly is intentionally duplicated in PersistedLayoutMutator::mutate(): sharing it
         // would couple Mutation/ to a Diagnostics/LayoutAnalysis-shaped helper or require a banned static helper,
@@ -45,7 +42,6 @@ class MutationPipeline
             $mutation->orphaned(),
             $mutation->droppedWiring(),
             $mutation->droppedProperties(),
-            $this->applicableBindingsResolver->resolve($mutated),
         );
     }
 }

@@ -46,15 +46,4 @@ final readonly class LoaderConfigSpecification
             static fn (ConfigKeySpecification $key): bool => $key->kind === $kind
         ));
     }
-
-    public function get(string $name): ?ConfigKeySpecification
-    {
-        foreach ($this->keys as $key) {
-            if ($key->name === $name) {
-                return $key;
-            }
-        }
-
-        return null;
-    }
 }

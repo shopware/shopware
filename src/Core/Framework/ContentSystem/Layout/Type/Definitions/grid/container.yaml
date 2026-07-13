@@ -315,10 +315,10 @@ properties:
 
   backgroundImage:
     type: Shopware\Core\Content\Media\MediaEntity
+    required: false
     title: "Background Image"
     description: "Optional background image of the container."
-    default: null
-    required: false
+    resolvedBy: backgroundImageId
     adminUI:
       component: "media-field"
 

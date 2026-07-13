@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * The attribution round-trip at the content_layout write boundary: absent, populated, and stale
@@ -32,14 +33,22 @@ class BindingAttributionPersistenceTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
 
     #[TestDox('round-trips a raw scaffold with no attribution as absent, not {}, without failing write validation')]
     public function testRawScaffoldWithoutAttributionRoundTripsAsAbsent(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         // A raw scaffold carries no attributedSpecifications key at all; the write must not fail the
         // Type('array') validation the Optional constraint entry exists to guard, and must not force the
@@ -60,8 +69,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testPopulatedAttributionRoundTripsAsArrayWhenWiringMatches(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -82,8 +91,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsAttributionAfterDirectDalWiringEdit(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -116,8 +125,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsAttributionAfterSyncApiWiringEdit(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -148,8 +157,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsAttributionForUnregisteredSpecificationId(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         // A source-qualified id shaped like an app binding, but no such app/spec is registered. This exercises
         // AttributionReconciler's "specification no longer resolves from the registry" drop branch (specWiring()
@@ -181,8 +190,8 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testWriteWithMalformedDomainLoaderConfigIsRejectedWithCleanViolation(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         // "depth" must be a positive int; NavigationLoaderConfigSerializer::decode() rejects this with a
         // CategoryException (a domain exception, not a ContentSystemException), which
@@ -221,9 +230,9 @@ class BindingAttributionPersistenceTest extends TestCase
     public function testReconciliationDropsNestedElementAttributionInSlot(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $parentId = Uuid::randomHex();
-        $childId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $parentId = $this->ids->get('parent');
+        $childId = $this->ids->get('child');
 
         $this->repository()->create([[
             'id' => $layoutId,
@@ -258,11 +267,12 @@ class BindingAttributionPersistenceTest extends TestCase
     }
 
     /**
-     * A Sw:Media:Image element wired and attributed to core:from-media-library. mediaId is always filled
-     * (the type declares it required with no default) so the element stays resolvable and the write is
-     * never rejected by the resolvability gate; $property lets a caller edit the wiring away from what the
-     * specification produces while keeping the attribution entry stale; $specificationId lets a caller
-     * attribute the (still-matching) wiring to a specification id that does not resolve from the registry.
+     * A Sw:Media:Image element wired and attributed to core:Sw:Media:Image. mediaId is always filled so
+     * the wired `media` reference resolves (Stored) and the derived-required `mediaId` input is never
+     * unfilled, so the element stays resolvable and the write is never rejected by the resolvability gate;
+     * $property lets a caller edit the wiring away from what the specification produces while keeping the
+     * attribution entry stale; $specificationId lets a caller attribute the (still-matching) wiring to a
+     * specification id that does not resolve from the registry.
      *
      * @return array<string, mixed>
      */
@@ -271,7 +281,9 @@ class BindingAttributionPersistenceTest extends TestCase
         return [
             'id' => $id,
             'component' => 'Sw:Media:Image',
-            'properties' => ['mediaId' => 'a-media-id'],
+            // The wired property always carries a value: `media` is a required reference, so a wired-but-unfilled
+            // input would be rejected at the write gate (unfilled_required_input) before reconciliation is observable.
+            'properties' => ['mediaId' => 'a-media-id', $property => 'a-media-id'],
             'dataRequirements' => [
                 'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => $property]],
             ],

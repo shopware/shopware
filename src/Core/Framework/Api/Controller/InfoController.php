@@ -280,7 +280,7 @@ class InfoController extends AbstractController
     public function getContentSystemElementTypes(): JsonResponse
     {
         $types = array_map(
-            static fn (ContentSystemElementTypeSpecification $def) => $def->toSchema(),
+            fn (ContentSystemElementTypeSpecification $def) => $this->elementTypeSchema($def),
             array_values($this->elementTypeRegistry->all())
         );
 
@@ -296,11 +296,18 @@ class InfoController extends AbstractController
         return new JsonResponse(['styleOptions' => (object) $this->styleOptionSchemas()]);
     }
 
-    #[Route(path: '/api/_info/content-system-binding-specifications.json', name: 'api.info.content-system-binding-specifications', methods: ['GET'])]
-    public function getContentSystemBindingSpecifications(): JsonResponse
+    /**
+     * bindingSpecifications are folded into each type entry (mirrors the styleOptions precedent), keyed by
+     * source-qualified id. Cast to an object so a type with none serializes {} (the OpenAPI type: object), not [].
+     *
+     * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications object
+     */
+    private function elementTypeSchema(ContentSystemElementTypeSpecification $def): array
     {
-        // Cast to an object so an empty catalog serializes as {} (the OpenAPI type: object), not [].
-        return new JsonResponse(['bindingSpecifications' => (object) $this->bindingSpecificationSchemas()]);
+        $schema = $def->toSchema();
+        $schema['bindingSpecifications'] = (object) $this->bindingSpecificationSchemasForType($def->name());
+
+        return $schema;
     }
 
     /**
@@ -315,14 +322,17 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return array<string, BindingSpecificationSchema> keyed by qualified id ("source:id")
+     * @return array<string, BindingSpecificationSchema> keyed by qualified id ("source:id"), filtered to the given type
      */
-    private function bindingSpecificationSchemas(): array
+    private function bindingSpecificationSchemasForType(string $type): array
     {
-        return array_map(
-            static fn (BindingSpecification $specification) => $specification->toSchema(),
-            $this->bindingSpecificationRegistry->all()
-        );
+        $schemas = [];
+
+        foreach ($this->bindingSpecificationRegistry->byType($type) as $specification) {
+            $schemas[$specification->qualifiedId()] = $specification->toSchema();
+        }
+
+        return $schemas;
     }
 
     /**

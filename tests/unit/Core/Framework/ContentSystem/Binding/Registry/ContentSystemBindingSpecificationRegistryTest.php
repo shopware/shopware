@@ -21,13 +21,13 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     #[TestDox('aggregates specifications from every loader keyed by source-qualified id')]
     public function testAggregatesSpecificationsFromAllLoadersKeyedByQualifiedId(): void
     {
-        $registry = new ContentSystemBindingSpecificationRegistry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+        $registry = $this->registry([
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
             $this->loader($this->specification('from-product-list', 'product-grid', 'plugin:Acme')),
         ]);
 
         static::assertSame(
-            ['core:from-media-library', 'plugin:Acme:from-product-list'],
+            ['core:media-picker', 'plugin:Acme:from-product-list'],
             array_keys($registry->all())
         );
     }
@@ -35,48 +35,48 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     #[TestDox('returns only specifications matching the given type, as a list')]
     public function testByTypeFiltersByType(): void
     {
-        $registry = new ContentSystemBindingSpecificationRegistry([
+        $registry = $this->registry([
             $this->loader(
-                $this->specification('from-media-library', 'media-gallery', 'core'),
+                $this->specification('media-picker', 'media-gallery', 'core'),
                 $this->specification('from-product-list', 'product-grid', 'core'),
-                $this->specification('from-media-library-alt', 'media-gallery', 'plugin:Acme'),
+                $this->specification('media-picker-alt', 'media-gallery', 'plugin:Acme'),
             ),
         ]);
 
         $byType = $registry->byType('media-gallery');
 
         static::assertSame([0, 1], array_keys($byType));
-        static::assertSame(['from-media-library', 'from-media-library-alt'], array_map(static fn (BindingSpecification $s) => $s->id(), $byType));
+        static::assertSame(['media-picker', 'media-picker-alt'], array_map(static fn (BindingSpecification $s) => $s->id(), $byType));
     }
 
-    #[TestDox('get resolves a specification by its source-qualified id')]
+    #[TestDox('resolves a specification by its source-qualified id')]
     public function testGetResolvesBySourceQualifiedId(): void
     {
-        $registry = new ContentSystemBindingSpecificationRegistry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+        $registry = $this->registry([
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
         ]);
 
-        $specification = $registry->get('core:from-media-library');
+        $specification = $registry->get('core:media-picker');
 
         static::assertNotNull($specification);
-        static::assertSame('from-media-library', $specification->id());
+        static::assertSame('media-picker', $specification->id());
     }
 
     #[TestDox('returns an empty list when no specification matches the type')]
     public function testByTypeReturnsEmptyListForUnmatchedType(): void
     {
-        $registry = new ContentSystemBindingSpecificationRegistry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+        $registry = $this->registry([
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
         ]);
 
         static::assertSame([], $registry->byType('unknown-type'));
     }
 
-    #[TestDox('get returns null for an id that does not exist')]
+    #[TestDox('returns null for an id that does not exist')]
     public function testGetReturnsNullForMissingId(): void
     {
-        $registry = new ContentSystemBindingSpecificationRegistry([
-            $this->loader($this->specification('from-media-library', 'media-gallery', 'core')),
+        $registry = $this->registry([
+            $this->loader($this->specification('media-picker', 'media-gallery', 'core')),
         ]);
 
         static::assertNull($registry->get('missing:x'));
@@ -87,23 +87,23 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     {
         $this->expectExceptionObject(new DecorationPatternException(ContentSystemBindingSpecificationRegistry::class));
 
-        (new ContentSystemBindingSpecificationRegistry([]))->getDecorated();
+        $this->registry([])->getDecorated();
     }
 
-    #[TestDox('throws when invalidate is called on the leaf registry, per the decoration-pattern contract')]
+    #[TestDox('throws when calling invalidate on the leaf registry, per the decoration-pattern contract')]
     public function testInvalidateOnLeafRegistryThrows(): void
     {
         // invalidate() is defined on the abstract base (self::class), inherited unchanged by the leaf;
         // only the cached decorator overrides it. So the exception names the abstract base class.
         $this->expectExceptionObject(new DecorationPatternException(AbstractContentSystemBindingSpecificationRegistry::class));
 
-        (new ContentSystemBindingSpecificationRegistry([]))->invalidate();
+        $this->registry([])->invalidate();
     }
 
     #[TestDox('throws bindingSpecificationDuplicate when two loaders emit the same source-qualified id')]
     public function testThrowsOnCrossLoaderQualifiedIdCollision(): void
     {
-        $registry = new ContentSystemBindingSpecificationRegistry([
+        $registry = $this->registry([
             $this->loader($this->specification('dup', 'Sw:Product', 'app:Acme')),
             $this->loader($this->specification('dup', 'Sw:Product', 'app:Acme')),
         ]);
@@ -119,6 +119,14 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
     private function specification(string $id, string $type, string $source): BindingSpecification
     {
         return new BindingSpecification($id, $type, 'label', [], [], $source);
+    }
+
+    /**
+     * @param list<AbstractContentSystemBindingSpecificationLoader> $loaders
+     */
+    private function registry(array $loaders): ContentSystemBindingSpecificationRegistry
+    {
+        return new ContentSystemBindingSpecificationRegistry($loaders);
     }
 
     private function loader(BindingSpecification ...$specifications): AbstractContentSystemBindingSpecificationLoader

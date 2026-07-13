@@ -83,6 +83,21 @@ class YamlTypeLoaderTest extends TestCase
         static::assertSame('test-source', $definitions[0]->source());
     }
 
+    #[TestDox('returns the directory\'s specifications keyed by their resolved type name, the overlay shape')]
+    public function testLoadsOverlayKeyedByResolvedTypeName(): void
+    {
+        file_put_contents($this->tempDir . '/button.yaml', self::MINIMAL_VALID_YAML);
+        file_put_contents($this->tempDir . '/card.yaml', self::MINIMAL_VALID_YAML);
+
+        $overlay = $this->createLoader([])->loadOverlayFromDirectory($this->tempDir, 'test-source', 'Sw');
+
+        static::assertCount(2, $overlay);
+        static::assertArrayHasKey('Sw:Button', $overlay);
+        static::assertArrayHasKey('Sw:Card', $overlay);
+        static::assertSame('Sw:Button', $overlay['Sw:Button']->name());
+        static::assertSame('Sw:Card', $overlay['Sw:Card']->name());
+    }
+
     #[TestDox('returns empty array when no directories are injected')]
     public function testReturnsEmptyArrayWhenNoDirectoriesInjected(): void
     {

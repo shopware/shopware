@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSpecificationValidator;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -33,10 +34,11 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
      */
     public static function acceptsWellFormedDeclarationProvider(): iterable
     {
-        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt']])];
+        yield 'a fully populated declaration' => [new BindingSpecificationDto('media-gallery', 'From media library', ['image' => ['loader' => 'entity', 'config' => ['entity' => 'media']]], ['alt' => ['default' => 'fallback alt', 'required' => false]])];
         yield 'empty resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', [], [])];
         yield 'null resolves and inputs' => [new BindingSpecificationDto('media-gallery', 'From media library', null, null)];
-        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null]])];
+        yield 'an inputs entry with an explicit null default' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => null, 'required' => false]])];
+        yield 'an inputs entry with a boolean required flag' => [new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => true]])];
     }
 
     #[DataProvider('rejectsMalformedDeclarationProvider')]
@@ -126,34 +128,54 @@ class WellFormedBindingSpecificationValidatorTest extends TestCase
             'inputs[alt].default',
             'default" must be a scalar or null',
         ];
+
+        yield 'inputs entry required is non-boolean' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['required' => 'yes']]),
+            'inputs[alt].required',
+            'must carry a boolean "required"',
+        ];
+
+        yield 'inputs entry is missing required' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], ['alt' => ['default' => 'fallback']]),
+            'inputs[alt].required',
+            'must carry a boolean "required"',
+        ];
     }
 
-    #[TestDox('throws UnexpectedTypeException when the constraint type is wrong')]
-    public function testThrowsOnWrongConstraintType(): void
+    #[DataProvider('throwsOnUnexpectedTypeProvider')]
+    #[TestDox('throws UnexpectedTypeException on $_dataName')]
+    public function testThrowsOnUnexpectedType(mixed $value, Constraint $constraint, UnexpectedTypeException $expected): void
     {
         $validator = new WellFormedBindingSpecificationValidator();
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
-        $this->expectExceptionObject(new UnexpectedTypeException(new NotBlank(), WellFormedBindingSpecification::class));
-        $validator->validate(new BindingSpecificationDto('media-gallery', 'label', [], []), new NotBlank());
+        $this->expectExceptionObject($expected);
+        $validator->validate($value, $constraint);
     }
 
-    #[TestDox('throws UnexpectedTypeException when the value type is wrong')]
-    public function testThrowsOnWrongValueType(): void
+    /**
+     * @return iterable<string, array{mixed, Constraint, UnexpectedTypeException}>
+     */
+    public static function throwsOnUnexpectedTypeProvider(): iterable
     {
-        $validator = new WellFormedBindingSpecificationValidator();
-        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+        yield 'wrong constraint type' => [
+            new BindingSpecificationDto('media-gallery', 'label', [], []),
+            new NotBlank(),
+            new UnexpectedTypeException(new NotBlank(), WellFormedBindingSpecification::class),
+        ];
 
-        $this->expectExceptionObject(new UnexpectedTypeException('not-a-dto', BindingSpecificationDto::class));
-        $validator->validate('not-a-dto', new WellFormedBindingSpecification());
+        yield 'wrong value type' => [
+            'not-a-dto',
+            new WellFormedBindingSpecification(),
+            new UnexpectedTypeException('not-a-dto', BindingSpecificationDto::class),
+        ];
     }
 
     private function validate(BindingSpecificationDto $dto): ConstraintViolationListInterface
     {
-        // Validate against the explicit structural constraint only, NOT via attribute mapping: the DTO also
-        // carries the dep-injected TypeConsistentBindingSpecification, whose validator the default (no-arg)
-        // constraint-validator factory here cannot construct. This isolates the structural rule under test;
-        // the semantic constraint is covered by its own container-based integration test.
+        // Validate against the explicit structural constraint only, NOT via attribute mapping. This isolates the
+        // structural rule under test; the semantic TypeConsistentBindingSpecification, carried by the DTO
+        // collection, not the DTO, is covered by its own dedicated test.
         return Validation::createValidatorBuilder()
             ->getValidator()
             ->validate($dto, new WellFormedBindingSpecification());

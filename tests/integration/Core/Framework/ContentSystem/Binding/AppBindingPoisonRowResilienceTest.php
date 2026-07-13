@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * A persisted, active-app binding row that fails {@see TypeConsistentBindingSpecification} must not take
@@ -35,17 +35,22 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
     private const POISON_BINDING_NAME = 'poison-binding';
     private const DOMAIN_LOADER_POISON_BINDING_NAME = 'domain-loader-poison-binding';
+    private const MISSING_REQUIRED_POISON_BINDING_NAME = 'missing-required-poison-binding';
 
     private string $appName;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
+        $this->ids = new IdsCollection();
+
         $context = Context::createDefaultContext();
-        $appId = Uuid::randomHex();
-        $this->appName = 'AcmePoison' . Uuid::randomHex();
+        $appId = $this->ids->get('app');
+        $this->appName = 'AcmePoison' . $this->ids->get('appNameSuffix');
 
         $this->appRepository()->create([[
             'id' => $appId,
@@ -69,7 +74,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: []);
 
         $this->bindingSpecificationRepository()->create([[
-            'id' => Uuid::randomHex(),
+            'id' => $this->ids->get('binding'),
             'appId' => $appId,
             'name' => self::POISON_BINDING_NAME,
             'schema' => (new BindingSpecificationSerializer())->normalize($poison),
@@ -99,8 +104,8 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     public function testRegistryStillBuildsWhenPersistedAppBindingHasMalformedDomainLoaderConfig(): void
     {
         $context = Context::createDefaultContext();
-        $appId = Uuid::randomHex();
-        $appName = 'AcmeDomainLoaderPoison' . Uuid::randomHex();
+        $appId = $this->ids->get('domainLoaderApp');
+        $appName = 'AcmeDomainLoaderPoison' . $this->ids->get('domainLoaderAppNameSuffix');
 
         $this->appRepository()->create([[
             'id' => $appId,
@@ -134,7 +139,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         );
 
         $this->bindingSpecificationRepository()->create([[
-            'id' => Uuid::randomHex(),
+            'id' => $this->ids->get('domainLoaderBinding'),
             'appId' => $appId,
             'name' => self::DOMAIN_LOADER_POISON_BINDING_NAME,
             'schema' => (new BindingSpecificationSerializer())->normalize($poison),
@@ -149,10 +154,62 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
     }
 
-    #[TestDox('serves the introspection endpoint listing the valid core binding while the poison app binding is persisted')]
+    #[TestDox('builds the registry around a persisted, active-app binding whose inputs entry lacks the required flag, keeping the valid core binding and omitting only the poison one')]
+    public function testRegistryStillBuildsWhenPersistedAppBindingInputsEntryLacksRequired(): void
+    {
+        $context = Context::createDefaultContext();
+        $appId = $this->ids->get('missingRequiredApp');
+        $appName = 'AcmeMissingRequiredPoison' . $this->ids->get('missingRequiredAppNameSuffix');
+
+        $this->appRepository()->create([[
+            'id' => $appId,
+            'name' => $appName,
+            'path' => 'AcmeMissingRequiredPoison',
+            'version' => '1.0.0',
+            'label' => 'Acme Missing Required Poison',
+            'active' => true,
+            'integration' => [
+                'label' => $appName,
+                'accessKey' => 'missing-required-poison-' . $appId,
+                'secretAccessKey' => 'missing-required-poison-' . $appId,
+            ],
+            'aclRole' => [
+                'name' => $appName,
+            ],
+        ]], $context);
+
+        // Isolates the WellFormedBindingSpecification missing-"required"-flag rejection: "height" is a real
+        // declared primitive property of "Sw:Media:Image" (unlike the reference's undeclared resolvedBy storage
+        // key "mediaId", which TypeConsistentBindingSpecificationValidator would reject for an unrelated reason),
+        // and "resolves" is empty (also valid), so this row would load cleanly if its inputs entry carried
+        // "required" -- the absent flag is the sole reason WellFormedBindingSpecification rejects it.
+        $poison = new BindingSpecificationDto(
+            type: 'Sw:Media:Image',
+            label: 'Missing Required Poison',
+            resolves: [],
+            inputs: ['height' => ['default' => 'seed']],
+        );
+
+        $this->bindingSpecificationRepository()->create([[
+            'id' => $this->ids->get('missingRequiredBinding'),
+            'appId' => $appId,
+            'name' => self::MISSING_REQUIRED_POISON_BINDING_NAME,
+            'schema' => (new BindingSpecificationSerializer())->normalize($poison),
+            'hash' => 'missing-required-poison-hash',
+        ]], $context);
+
+        $this->registry()->invalidate();
+
+        $all = $this->registry()->all();
+
+        static::assertArrayNotHasKey('app:' . $appName . ':' . self::MISSING_REQUIRED_POISON_BINDING_NAME, $all);
+        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
+    }
+
+    #[TestDox('serves the element-types bindingSpecifications fold listing the valid core binding on its type entry while the poison app binding is persisted')]
     public function testIntrospectionEndpointListsValidBindingAndOmitsPoisonBinding(): void
     {
-        $this->getBrowser()->request('GET', '/api/_info/content-system-binding-specifications.json');
+        $this->getBrowser()->request('GET', '/api/_info/content-system-element-types.json');
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
@@ -162,17 +219,26 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
-        static::assertIsArray($data['bindingSpecifications']);
-        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $data['bindingSpecifications']);
-        static::assertArrayNotHasKey('app:' . $this->appName . ':' . self::POISON_BINDING_NAME, $data['bindingSpecifications']);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            $typesByName[$type['name']] = $type;
+        }
+
+        // The poison row declares the unregistered type Sw:Does:NotExist, so it has no type entry to
+        // appear on; the valid core binding's own type's fold is where both assertions land.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $typesByName['Sw:Media:Image']['bindingSpecifications']);
+        static::assertArrayNotHasKey('app:' . $this->appName . ':' . self::POISON_BINDING_NAME, $typesByName['Sw:Media:Image']['bindingSpecifications']);
     }
 
     #[TestDox('persists a content_layout write attributed to the valid core binding while the poison app binding row is present')]
     public function testValidBindingWriteSucceedsWithPoisonAppBindingRowPresent(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->contentLayoutRepository()->create([[
             'id' => $layoutId,
@@ -192,8 +258,8 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     public function testStaleAttributionDropsWhileWiringStaysIntactWithPoisonAppBindingRowPresent(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = Uuid::randomHex();
-        $elementId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $elementId = $this->ids->get('element');
 
         $this->contentLayoutRepository()->create([[
             'id' => $layoutId,
@@ -213,7 +279,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
     }
 
     /**
-     * A Sw:Media:Image element wired to core:from-media-library's media requirement, with mediaId
+     * A Sw:Media:Image element wired to core:Sw:Media:Image's media requirement, with mediaId
      * always filled so the element stays resolvable and the write is never rejected by the
      * resolvability gate. $specificationId lets a caller attribute the (still-matching) wiring to a
      * specification id that does not resolve from the registry.

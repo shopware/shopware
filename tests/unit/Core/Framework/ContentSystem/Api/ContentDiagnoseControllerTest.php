@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
-use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -204,7 +203,6 @@ class ContentDiagnoseControllerTest extends TestCase
             new DraftLayoutDecoder($serializer),
             $diagnostics,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
-            static::createStub(ApplicableBindingsResolver::class),
         );
     }
 

@@ -135,17 +135,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns content system element types as JSON')]
     public function testContentSystemElementTypes(): void
     {
-        $spec = new ContentSystemElementTypeSpecification(
-            name: 'Sw:Alert',
-            label: 'Alert',
-            description: 'Alert component',
-            icon: null,
-            category: null,
-            copilot: new CopilotSpecification('Alert summary', []),
-            properties: [],
-            slots: [],
-            source: 'core',
-        );
+        $spec = $this->alertTypeSpecification();
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
@@ -189,31 +179,6 @@ class InfoControllerTest extends TestCase
                 'adminUI' => null,
             ],
         ], $data['styleOptions']);
-    }
-
-    #[TestDox('returns the registered binding specifications keyed by source-qualified id with their derived schema')]
-    public function testContentSystemBindingSpecificationsReturnsRegisteredSpecificationsKeyedByQualifiedId(): void
-    {
-        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification()]);
-
-        $controller = $this->createController(bindingSpecificationRegistry: $registry);
-        $response = $controller->getContentSystemBindingSpecifications();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([
-            'core:from-media-library' => [
-                'id' => 'from-media-library',
-                'type' => 'media-gallery',
-                'label' => 'From Media Library',
-                'resolves' => [],
-                'inputs' => [],
-            ],
-        ], $data['bindingSpecifications']);
     }
 
     #[TestDox('returns content system entity types as JSON')]
@@ -265,6 +230,71 @@ class InfoControllerTest extends TestCase
         static::assertSame('integer', $data['styleOptions']['col-span']['type']);
         static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
         static::assertTrue($data['styleOptions']['col-span']['breakpointAware']);
+    }
+
+    #[TestDox('folds the registered binding specifications into the matching element type entry, keyed by source-qualified id')]
+    public function testContentSystemElementTypesFoldsInBindingSpecifications(): void
+    {
+        $imageSpec = new ContentSystemElementTypeSpecification(
+            name: 'Sw:Media:Image',
+            label: 'Image',
+            description: 'Image component',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecification('Image summary', []),
+            properties: [],
+            slots: [],
+            source: 'core',
+        );
+        $alertSpec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Media:Image' => $imageSpec, 'Sw:Alert' => $alertSpec]);
+
+        $bindingSpecificationRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingSpecificationRegistry->method('all')->willReturn(['core:media-picker' => $this->bindingSpecification('Sw:Media:Image')]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry, bindingSpecificationRegistry: $bindingSpecificationRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            $typesByName[$type['name']] = $type;
+        }
+
+        static::assertSame([
+            'core:media-picker' => [
+                'id' => 'media-picker',
+                'type' => 'Sw:Media:Image',
+                'label' => 'Media Picker',
+                'default' => false,
+                'resolves' => [],
+                'inputs' => [],
+            ],
+        ], $typesByName['Sw:Media:Image']['bindingSpecifications']);
+        // A type with no applicable specification carries an empty map, not the Image entry's specifications.
+        static::assertSame([], $typesByName['Sw:Alert']['bindingSpecifications']);
+    }
+
+    #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
+    public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
+    {
+        $spec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
     #[TestDox('preserves floating-point precision in message stats response')]
@@ -409,21 +439,6 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
-    #[TestDox('encodes an empty binding specification catalog as a JSON object, not an array')]
-    public function testContentSystemBindingSpecificationsEncodesEmptySetAsObject(): void
-    {
-        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $registry->method('all')->willReturn([]);
-
-        $controller = $this->createController(bindingSpecificationRegistry: $registry);
-        $response = $controller->getContentSystemBindingSpecifications();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"bindingSpecifications":{}', $content);
-    }
-
     /**
      * @return iterable<string, array{string|null, string|null}>
      */
@@ -433,9 +448,24 @@ class InfoControllerTest extends TestCase
         yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
     }
 
-    private function bindingSpecification(): BindingSpecification
+    private function bindingSpecification(string $type = 'media-gallery'): BindingSpecification
     {
-        return new BindingSpecification('from-media-library', 'media-gallery', 'From Media Library', [], [], 'core');
+        return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
+    }
+
+    private function alertTypeSpecification(): ContentSystemElementTypeSpecification
+    {
+        return new ContentSystemElementTypeSpecification(
+            name: 'Sw:Alert',
+            label: 'Alert',
+            description: 'Alert component',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecification('Alert summary', []),
+            properties: [],
+            slots: [],
+            source: 'core',
+        );
     }
 
     private function styleOption(): StyleOptionSpecification

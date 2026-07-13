@@ -69,6 +69,10 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATIONS_INVALID = 'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID';
     public const BINDING_SPECIFICATION_NOT_FOUND = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND';
     public const BINDING_TYPE_MISMATCH = 'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH';
+    public const BINDING_SPECIFICATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE';
+    public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
+    public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
+    public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -541,7 +545,7 @@ class ContentSystemException extends HttpException
 
     // The client-facing 400 for a written root source that is not a member of the registry. Distinct from
     // rootSourceResolutionUnsupported(): membership is gated with this 400 before resolve()/sourceFor() is ever
-    // reached — on both the create and edit content_layout write paths, and the diagnose/mutation routes.
+    // reached, on both the create and edit content_layout write paths, and the diagnose/mutation routes.
     public static function unknownRootSource(string $rootSource): self
     {
         return new self(
@@ -683,6 +687,49 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // The load-time 400 for a specification whose declared (or inline-implicit) type is not a registered element
+    // type. The canonicalizer needs the type for every specification it processes (sugared or canonical), so an
+    // unknown type is rejected here rather than deferred to TypeConsistentBindingSpecification. Deliberately not
+    // in CLIENT_DEFECT_CODES: that list is only for element-tree config defects the diagnostics kernel catches, not
+    // authored-artifact load errors (matching bindingSpecificationNotFound/bindingTypeMismatch).
+    public static function bindingSpecificationUnknownType(string $id, string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_SPECIFICATION_UNKNOWN_TYPE,
+            'Binding specification "{{ id }}" declares the unknown element type "{{ type }}".',
+            ['id' => $id, 'type' => $type]
+        );
+    }
+
+    // The load-time 400 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
+    // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
+    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not in
+    // CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
+    public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_SPECIFICATION_CANONICALIZATION_FAILED,
+            'Cannot canonicalize binding specification "{{ id }}": {{ reason }}',
+            ['id' => $id, 'reason' => $reason]
+        );
+    }
+
+    // The load-time 409 for an authored `bindings:` map key equal to its containing file's implicit type name.
+    // That id is reserved for the type's synthesized default specification (DefaultBindingSpecificationSynthesizer),
+    // so an authored entry cannot impersonate it or carry authored inputs. Applies unconditionally, whether or
+    // not the file actually synthesizes a default.
+    public static function bindingSpecificationReservedId(string $id, string $type, string $path): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::BINDING_SPECIFICATION_RESERVED_ID,
+            'Binding specification id "{{ id }}" in "{{ path }}" is reserved for the synthesized default of element type "{{ type }}"; choose a different id.',
+            ['id' => $id, 'type' => $type, 'path' => $path]
+        );
+    }
+
     // The client-facing 400 for a bind-element mutation whose bindingSpecificationId is not a registered
     // specification. The id is a request body value (not a path lookup), so this follows the same body-parameter
     // 400 convention as the other mutation structural errors (mutationTargetNotFound, mutationUnknownType), not
@@ -704,6 +751,22 @@ class ContentSystemException extends HttpException
             self::BINDING_TYPE_MISMATCH,
             'Binding specification "{{ bindingSpecificationId }}" applies to type "{{ specificationType }}", but the target element is of type "{{ elementComponent }}".',
             ['bindingSpecificationId' => $bindingSpecificationId, 'specificationType' => $specificationType, 'elementComponent' => $elementComponent]
+        );
+    }
+
+    /**
+     * The 409 for a type whose default set (byType(type) filtered by isDefault()) holds more than one
+     * specification: the ops that fill-apply a type's default throw rather than pick one.
+     *
+     * @param list<string> $qualifiedIds
+     */
+    public static function bindingSpecificationDefaultAmbiguous(string $type, array $qualifiedIds): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS,
+            'Element type "{{ type }}" has more than one default binding specification ({{ qualifiedIds }}), but at most one specification may be default per type.',
+            ['type' => $type, 'qualifiedIds' => implode(', ', $qualifiedIds)]
         );
     }
 

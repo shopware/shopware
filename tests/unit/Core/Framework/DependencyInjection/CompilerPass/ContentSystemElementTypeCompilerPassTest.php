@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
@@ -125,6 +126,57 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         static::assertNull($this->findBySource($directories, 'bundle:MyPlugin'));
     }
 
+    #[TestDox('feeds both loaders the same directory set covering core, bundle, plugin, and dev-app entries')]
+    public function testFeedsBothLoadersTheSameDirectorySet(): void
+    {
+        $container = $this->buildContainerWithBothLoaders('dev');
+        $container->setParameter('kernel.bundles_metadata', [
+            'BundleA' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
+        ]);
+        $container->setParameter('kernel.active_plugins', [
+            FixturePluginWithCustomTypeDir::class => [
+                'name' => 'FixturePluginWithCustomTypeDir',
+                'path' => self::FIXTURES_DIR . '/test-plugin-custom',
+                'class' => FixturePluginWithCustomTypeDir::class,
+            ],
+        ]);
+        $container->setParameter('kernel.project_dir', self::FIXTURES_DIR . '/apps');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['path' => 'test-app', 'name' => 'TestApp']]);
+        $container->set(Connection::class, $connection);
+
+        $this->pass->process($container);
+
+        $typeDirs = $this->extractDirectories($container, YamlTypeLoader::class);
+        $bindingDirs = $this->extractDirectories($container, YamlBindingSpecificationLoader::class);
+
+        // Both loaders scan the identical discovered directory set (same source/path/prefix per entry, same order).
+        static::assertEquals($typeDirs, $bindingDirs);
+
+        $core = $this->findBySource($typeDirs, 'core');
+        static::assertNotNull($core);
+        $corePath = $core->getArgument(1);
+        static::assertIsString($corePath);
+        static::assertStringEndsWith('ContentSystem/Layout/Type/Definitions', $corePath);
+        static::assertSame('Sw', $core->getArgument(2));
+
+        $bundle = $this->findBySource($typeDirs, 'bundle:BundleA');
+        static::assertNotNull($bundle);
+        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/types', $bundle->getArgument(1));
+        static::assertSame('Sw', $bundle->getArgument(2));
+
+        $plugin = $this->findBySource($typeDirs, 'plugin:FixturePluginWithCustomTypeDir');
+        static::assertNotNull($plugin);
+        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-types', $plugin->getArgument(1));
+        static::assertSame('FixturePluginWithCustomTypeDir', $plugin->getArgument(2));
+
+        $app = $this->findBySource($typeDirs, 'app:TestApp');
+        static::assertNotNull($app);
+        static::assertSame(self::FIXTURES_DIR . '/apps/test-app/Resources/content-system/types', $app->getArgument(1));
+        static::assertSame('TestApp', $app->getArgument(2));
+    }
+
     #[TestDox('uses custom type directory when plugin overrides default')]
     public function testUsesCustomTypeDirectoryWhenPluginOverridesDefault(): void
     {
@@ -165,17 +217,33 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         static::assertSame([], array_values($appSources));
     }
 
-    #[TestDox('registers no directories when the type loader service is absent')]
-    public function testSkipsRegistrationWhenTypeLoaderServiceIsAbsent(): void
+    #[TestDox('does nothing when both loader services are absent')]
+    public function testRegistersNothingWhenBothLoaderServicesAreAbsent(): void
+    {
+        // Neither YamlTypeLoader nor YamlBindingSpecificationLoader is defined, and no parameters are set at
+        // all: a missing guard would throw fetching kernel.bundles_metadata instead of returning early, so a
+        // regressed guard fails this test loudly rather than silently.
+        $container = new ContainerBuilder();
+        $definitionsBefore = $container->getDefinitions();
+
+        $this->pass->process($container);
+
+        static::assertSame($definitionsBefore, $container->getDefinitions());
+    }
+
+    #[TestDox('feeds the binding loader even when the type loader service is absent')]
+    public function testFeedsBindingLoaderWhenTypeLoaderIsAbsent(): void
     {
         $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
         $container->setParameter('kernel.bundles_metadata', []);
         $container->setParameter('kernel.active_plugins', []);
-        $container->setParameter('kernel.environment', 'prod');
+        $container->setDefinition(YamlBindingSpecificationLoader::class, new Definition(YamlBindingSpecificationLoader::class));
 
-        // No YamlTypeLoader definition — must not throw
-        $this->expectNotToPerformAssertions();
         $this->pass->process($container);
+
+        $directories = $this->extractDirectories($container, YamlBindingSpecificationLoader::class);
+        static::assertNotNull($this->findBySource($directories, 'core'));
     }
 
     #[TestDox('continues compiling when database is unavailable during app loading')]
@@ -229,6 +297,22 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $bundlesMetadata
+     */
+    #[DataProvider('throwsForInvalidActivePluginsProvider')]
+    #[TestDox('throws for invalid active plugins configuration')]
+    public function testThrowsForInvalidActivePluginsConfiguration(array $bundlesMetadata, mixed $activePlugins, DependencyInjectionException $expectedException): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', $bundlesMetadata);
+        $container->setParameter('kernel.active_plugins', $activePlugins);
+
+        $this->expectExceptionObject($expectedException);
+
+        $this->pass->process($container);
+    }
+
+    /**
      * @return iterable<string, array{array<string, mixed>, mixed, DependencyInjectionException}>
      */
     public static function throwsForInvalidActivePluginsProvider(): iterable
@@ -268,22 +352,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<string, mixed> $bundlesMetadata
-     */
-    #[DataProvider('throwsForInvalidActivePluginsProvider')]
-    #[TestDox('throws for invalid active plugins configuration')]
-    public function testThrowsForInvalidActivePluginsConfiguration(array $bundlesMetadata, mixed $activePlugins, DependencyInjectionException $expectedException): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', $bundlesMetadata);
-        $container->setParameter('kernel.active_plugins', $activePlugins);
-
-        $this->expectExceptionObject($expectedException);
-
-        $this->pass->process($container);
-    }
-
     private function buildContainer(string $environment): ContainerBuilder
     {
         $container = new ContainerBuilder();
@@ -295,12 +363,22 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         return $container;
     }
 
+    private function buildContainerWithBothLoaders(string $environment): ContainerBuilder
+    {
+        $container = $this->buildContainer($environment);
+        $container->setDefinition(YamlBindingSpecificationLoader::class, new Definition(YamlBindingSpecificationLoader::class));
+
+        return $container;
+    }
+
     /**
+     * @param class-string $loaderClass
+     *
      * @return list<Definition>
      */
-    private function extractDirectories(ContainerBuilder $container): array
+    private function extractDirectories(ContainerBuilder $container, string $loaderClass = YamlTypeLoader::class): array
     {
-        return $container->getDefinition(YamlTypeLoader::class)->getArgument('$directories');
+        return $container->getDefinition($loaderClass)->getArgument('$directories');
     }
 
     /**

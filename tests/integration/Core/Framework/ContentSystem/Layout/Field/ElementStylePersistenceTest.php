@@ -13,9 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\ContentSystem\TestStyleOptionLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * End-to-end through the real DAL and the real style option registry: a valid style round-trips, an
@@ -28,11 +28,19 @@ class ElementStylePersistenceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('persists a valid style on an element and reads it back unchanged')]
     public function testPersistsAndReadsBackValidStyle(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $style = ['col-span' => ['md' => 6, 'lg' => 4], 'display' => ['xs' => false]];
 
         $this->repository()->create([$this->layout($id, $style)], $context);
@@ -44,7 +52,7 @@ class ElementStylePersistenceTest extends TestCase
     public function testPersistsAndReadsBackFlatStyleOption(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         // The flat option stores a scalar; the breakpoint-aware option a per-breakpoint map. Both shapes
         // coexist in one element and must survive write -> JSON column -> registry-free decode unchanged.
         $style = [TestStyleOptionLoader::FLAT_INTEGER => 10, 'col-span' => ['md' => 6]];
@@ -58,7 +66,7 @@ class ElementStylePersistenceTest extends TestCase
     public function testReadsBackEmptyStyleWhenAbsent(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         $this->repository()->create([$this->layout($id, null)], $context);
 
@@ -111,14 +119,14 @@ class ElementStylePersistenceTest extends TestCase
      */
     private function layout(?string $id, ?array $style): array
     {
-        $element = ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []];
+        $element = ['id' => $this->ids->get('element'), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []];
 
         if ($style !== null) {
             $element['style'] = $style;
         }
 
         return [
-            'id' => $id ?? Uuid::randomHex(),
+            'id' => $id ?? $this->ids->get('layout'),
             'name' => 'style-persistence-test',
             'version' => '1.0.0',
             'rootSource' => 'category',

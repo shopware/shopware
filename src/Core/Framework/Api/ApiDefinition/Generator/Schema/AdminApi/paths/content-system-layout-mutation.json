@@ -7,7 +7,7 @@
                 "tags": ["Content System"],
                 "summary": "Insert an element into a draft layout",
                 "operationId": "contentSystemLayoutInsertElement",
-                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus a diagnostics report, without persisting. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index` (a null, negative, or out-of-range index appends). The optional `rootSource` resolves the draft against a root source's context so resolvability is evaluated; with it unset, only intrinsic well-formedness is checked. Requires the `content_layout:read` privilege. Structural impossibilities (`mutationSlotRequired`, `mutationUnknownType`, a malformed layout) are rejected with `400`; resolvability problems are reported in the `diagnostics` body at `200`, not as errors. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus a diagnostics report, without persisting. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index` (a null, negative, or out-of-range index appends). When the optional `bindingSpecificationId` is given, the named binding specification's wiring is applied onto the fresh element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit; an unregistered id is rejected with `400` (`bindingSpecificationNotFound`) and a specification whose declared `type` does not match the inserted `type` with `400` (`bindingTypeMismatch`), and nothing is inserted on either failure. The optional `rootSource` resolves the draft against a root source's context so resolvability is evaluated; with it unset, only intrinsic well-formedness is checked. Requires the `content_layout:read` privilege. Structural impossibilities (`mutationSlotRequired`, `mutationUnknownType`, a malformed layout) are rejected with `400`; resolvability problems are reported in the `diagnostics` body at `200`, not as errors. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -30,6 +30,13 @@
                                         "index": 0,
                                         "rootSource": "product"
                                     }
+                                },
+                                "withBinding": {
+                                    "summary": "Insert an image and apply a binding specification atomically",
+                                    "value": {
+                                        "type": "Sw:Media:Image",
+                                        "bindingSpecificationId": "core:Sw:Media:Image"
+                                    }
                                 }
                             }
                         }
@@ -44,7 +51,38 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": { "$ref": "#/components/responses/400" },
+                    "409": {
+                        "description": "Conflict. The inserted type's default binding specification set holds more than one specification, so no single default can be fill-applied. Reachable only when a database row created outside the app lifecycle fakes a second default for the type; the edit throws instead of picking one, and nothing is inserted.",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -177,7 +215,38 @@
                             }
                         }
                     },
-                    "400": { "$ref": "#/components/responses/400" }
+                    "400": { "$ref": "#/components/responses/400" },
+                    "409": {
+                        "description": "Conflict. The new type's default binding specification set holds more than one specification, so no single default can be fill-applied. Reachable only when a database row created outside the app lifecycle fakes a second default for the type; the edit throws instead of picking one, and nothing is replaced.",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -364,7 +433,7 @@
                                             { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "Sw:Media:Image", "properties": { "mediaId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41" } }
                                         ],
                                         "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                        "bindingSpecificationId": "core:from-media-library"
+                                        "bindingSpecificationId": "core:Sw:Media:Image"
                                     }
                                 }
                             }

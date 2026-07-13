@@ -131,6 +131,13 @@ final class WellFormedBindingSpecificationValidator extends ConstraintValidator
             return;
         }
 
+        if (!\array_key_exists('required', $entry) || !\is_bool($entry['required'])) {
+            $this->context->buildViolation($constraint->inputsEntryRequiredMessage)
+                ->setParameter('{{ key }}', $key)
+                ->atPath('inputs[' . $key . '].required')
+                ->addViolation();
+        }
+
         if (!\array_key_exists('default', $entry)) {
             return;
         }

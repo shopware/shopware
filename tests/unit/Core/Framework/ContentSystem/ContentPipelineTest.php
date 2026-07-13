@@ -19,9 +19,9 @@ use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -36,8 +36,11 @@ class ContentPipelineTest extends TestCase
 
     private EventDispatcherInterface&Stub $eventDispatcher;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
+        $this->ids = new IdsCollection();
         $this->hydrator = new ContentElementHydrator(
             new DataLoaderProvider(new ServiceLocator([])),
             new DataContextResolver(new ContextPathResolver()),
@@ -48,7 +51,7 @@ class ContentPipelineTest extends TestCase
     #[TestDox('dispatches pre- and post-hydration lifecycle events in order in FULL mode')]
     public function testLoadDispatchesLifecycleEventsInFullMode(): void
     {
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
 
         $dispatchedEvents = [];
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -70,7 +73,7 @@ class ContentPipelineTest extends TestCase
     #[TestDox('hydrates elements in FULL mode')]
     public function testLoadHydratesElementsInFullMode(): void
     {
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -85,7 +88,7 @@ class ContentPipelineTest extends TestCase
     #[TestDox('returns content page with original elements and layout metadata in SKELETON mode')]
     public function testLoadReturnsContentPageInSkeletonMode(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity($layoutId, 'My Layout'));
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
@@ -106,7 +109,7 @@ class ContentPipelineTest extends TestCase
     #[TestDox('renders elements mutated by a PreContentHydration subscriber instead of the original layout')]
     public function testLoadRendersElementsMutatedDuringPreHydration(): void
     {
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
 
         $injected = ContentElementBuilder::create('injected', 'injected-id')->build();
         $this->eventDispatcher->method('dispatch')->willReturnCallback(

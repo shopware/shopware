@@ -27,6 +27,9 @@ class ContentSystemBindingSpecificationRegistry extends AbstractContentSystemBin
     }
 
     /**
+     * Merges every loader's specifications into one map keyed by source-qualified id. A duplicate source-qualified
+     * id across loaders throws; collisions are never reconciled.
+     *
      * @return array<string, BindingSpecification>
      */
     public function all(): array
@@ -35,7 +38,7 @@ class ContentSystemBindingSpecificationRegistry extends AbstractContentSystemBin
 
         foreach ($this->loaders as $loader) {
             foreach ($loader->load() as $specification) {
-                $qualifiedId = $specification->source() . ':' . $specification->id();
+                $qualifiedId = $specification->qualifiedId();
 
                 if (isset($specifications[$qualifiedId])) {
                     throw ContentSystemException::bindingSpecificationDuplicate(

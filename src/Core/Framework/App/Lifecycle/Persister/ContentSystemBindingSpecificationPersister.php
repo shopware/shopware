@@ -13,6 +13,8 @@ use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificatio
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,13 +33,20 @@ use Symfony\Component\Lock\LockFactory;
 #[Package('framework')]
 class ContentSystemBindingSpecificationPersister
 {
-    public const DIRECTORY = 'Resources/content-system/binding-specifications';
+    /**
+     * The app's element-type directory, scanned for inline `bindings:` sections. Own copy of the convention
+     * string {@see \Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister} and
+     * {@see \Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass}
+     * also declare; each consumer owns its copy by convention.
+     */
+    private const TYPES_DIRECTORY = 'Resources/content-system/types';
 
     /**
      * @param EntityRepository<AppContentSystemBindingSpecificationCollection> $bindingSpecificationRepository
      */
     public function __construct(
         private readonly YamlBindingSpecificationLoader $loader,
+        private readonly YamlTypeLoader $typeLoader,
         private readonly EntityRepository $bindingSpecificationRepository,
         private readonly BindingSpecificationSerializer $serializer,
         private readonly Connection $connection,
@@ -103,21 +112,42 @@ class ContentSystemBindingSpecificationPersister
     }
 
     /**
+     * Loads the inline `bindings:` sections of the app's element-type files. Each is canonicalized against a type
+     * overlay built from the app's own types, because the app is inactive at install time so its types are not yet
+     * in the element-type registry ({@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader}
+     * and the compiler pass both surface active apps only).
      * Wraps ContentSystemException into AppException to match the app lifecycle's error boundary.
      *
      * @return list<ResolvedBindingSpecificationDto>
      */
     private function loadDtos(AppPersistContext $context): array
     {
-        $directory = $context->appFilesystem->path(self::DIRECTORY);
+        $appName = $context->app->getName();
+        $source = 'app:' . $appName;
+        $typesDirectory = $context->appFilesystem->path(self::TYPES_DIRECTORY);
+
+        $typeOverlay = $this->buildTypeOverlay($typesDirectory, $source, $appName);
 
         try {
-            return $this->loader->loadDtosFromDirectory(
-                $directory,
-                'app:' . $context->app->getName(),
-            );
+            return $this->loader->loadDtosFromTypeDirectory($typesDirectory, $source, $appName, $typeOverlay);
         } catch (ContentSystemException $e) {
-            throw AppException::contentSystemBindingSpecificationLoadFailed(self::DIRECTORY, $e->getMessage(), $e);
+            throw AppException::contentSystemBindingSpecificationLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
+        }
+    }
+
+    /**
+     * The app's own types keyed by resolved type name. Wraps its own ContentSystemException into AppException
+     * because it runs before the load's try block; without the wrap a malformed type file would escape the
+     * app lifecycle's AppException boundary unwrapped.
+     *
+     * @return array<string, ContentSystemElementTypeSpecification>
+     */
+    private function buildTypeOverlay(string $typesDirectory, string $source, string $prefix): array
+    {
+        try {
+            return $this->typeLoader->loadOverlayFromDirectory($typesDirectory, $source, $prefix);
+        } catch (ContentSystemException $e) {
+            throw AppException::contentSystemBindingSpecificationLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
         }
     }
 

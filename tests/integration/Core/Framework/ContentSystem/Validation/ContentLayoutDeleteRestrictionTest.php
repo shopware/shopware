@@ -16,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -26,6 +26,14 @@ use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 class ContentLayoutDeleteRestrictionTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
 
     #[TestDox('rejects deleting a content layout that is bound to a category assignment')]
     public function testRejectsDeletingCategoryBoundLayout(): void
@@ -91,14 +99,14 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
 
     private function createLayout(Context $context): string
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $this->layoutRepository()->create([[
             'id' => $id,
             'name' => 'delete-restriction-layout',
             'version' => '1.0.0',
             'rootSource' => 'category',
             'layout' => [
-                ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
+                ['id' => $this->ids->get('element'), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],
         ]], $context);
 
@@ -107,12 +115,12 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
 
     private function bindCategory(string $layoutId, Context $context): string
     {
-        $categoryId = Uuid::randomHex();
+        $categoryId = $this->ids->get('category');
         $categoryRepository = $this->getContainer()->get('category.repository');
         static::assertInstanceOf(EntityRepository::class, $categoryRepository);
         $categoryRepository->create([['id' => $categoryId, 'name' => 'delete-restriction-category']], $context);
 
-        $assignmentId = Uuid::randomHex();
+        $assignmentId = $this->ids->get('assignment');
         $this->assignmentRepository()->create([['id' => $assignmentId, 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId]], $context);
 
         return $assignmentId;

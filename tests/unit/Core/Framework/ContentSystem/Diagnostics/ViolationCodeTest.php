@@ -60,6 +60,7 @@ class ViolationCodeTest extends TestCase
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding];
         yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationScope::Binding];
         yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationScope::Binding];
+        yield 'unfilled_required_input' => [ViolationCode::UnfilledRequiredInput, ViolationScope::Binding];
     }
 
     /**
@@ -74,6 +75,7 @@ class ViolationCodeTest extends TestCase
         yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationSeverity::Error];
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationSeverity::Error];
         yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationSeverity::Error];
+        yield 'unfilled_required_input' => [ViolationCode::UnfilledRequiredInput, ViolationSeverity::Error];
         yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationSeverity::Warning];
         yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationSeverity::Warning];
     }

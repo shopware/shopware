@@ -1,17 +1,18 @@
 # Extending the ContentSystem
 
-Plugins extend the ContentSystem through five mechanisms.
+Plugins extend the ContentSystem through six mechanisms.
 
 ## Table of Contents
 
 1. [Extension Model](#extension-model)
 2. [Custom Element Types](#custom-element-types)
 3. [Custom Style Options](#custom-style-options)
-4. [Custom Specification Sources](#custom-specification-sources)
-5. [Custom Data Loaders](#custom-data-loaders)
-6. [Event Listeners](#event-listeners)
-7. [Service Tags](#service-tag-reference)
-8. [Type Reference](#type-reference)
+4. [Custom Binding Specifications](#custom-binding-specifications)
+5. [Custom Specification Sources](#custom-specification-sources)
+6. [Custom Data Loaders](#custom-data-loaders)
+7. [Event Listeners](#event-listeners)
+8. [Service Tags](#service-tag-reference)
+9. [Type Reference](#type-reference)
 
 ## Extension Model
 
@@ -19,6 +20,7 @@ Plugins extend the ContentSystem through five mechanisms.
 |---------------------------|------------------------------------------------------------------------|
 | **Element Types**         | New content components with declared properties and slots              |
 | **Style Options**         | New universal per-breakpoint presentation attributes for every element |
+| **Binding Specifications** | Pre-validated data wirings for an element type, applied in one action |
 | **Specification Sources** | New URL patterns, entity types                                         |
 | **Data Loaders**          | External APIs, calculations, aggregated data (with cache control)      |
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags |
@@ -85,9 +87,13 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`.
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](#custom-binding-specifications)).
+
+The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 
 **`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`.
+
+**`bindings`** (optional): Inline binding specifications for this type. See [Custom Binding Specifications](#custom-binding-specifications).
 
 ### Collision Detection
 
@@ -197,6 +203,78 @@ Writing an element `style` is strict: an unknown option, an unknown breakpoint, 
 A registered option appears in `GET /api/_info/content-system-style-options.json` and, folded under a `styleOptions` key, in `GET /api/_info/content-system-element-types.json`. The Administration reads either to render controls from the option's `adminUI` hints. See `ADMINISTRATION.md`.
 
 Reference: `Layout/Element/Style/README.md`, `Layout/Element/Style/Definitions/` (7 core option examples)
+
+---
+
+## Custom Binding Specifications
+
+A binding specification is a pre-validated data wiring for one element type: a `resolves` map wiring the type's reference properties to data loaders, plus `inputs` defaults for its primitive properties. An editor (or an agentic layout builder) applies one to an element in a single action (the `bind-element` mutation, or an `insert-element` request carrying a `bindingSpecificationId`) instead of hand-assembling loader configs.
+
+The simplest case needs no authored specification at all: declaring `resolvedBy` on a reference property (see [Custom Element Types](#custom-element-types)) synthesizes a default specification for the type automatically, fill-applied to every freshly inserted or replaced element of that type with no client-side binding step. Plugins and apps additionally author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file — for an alternative or additional wiring beyond the type's default.
+
+`resolvedBy` names the storage key the element stores the referenced id under. A typo in that key is not caught at load time — an undeclared storage key is indistinguishable from an intentional one — and instead surfaces later as an unfilled required input when the layout is diagnosed.
+
+### Registration
+
+| Source | Directory                                     |
+|--------|------------------------------------------------|
+| Plugin | Types directory (`getContentTypeDirectory()`) |
+| App    | `Resources/content-system/types`              |
+
+The compiler pass discovers plugin YAML automatically, scanning the same types directory the element-type system uses. App YAML is validated at manifest time and persisted on install/update; in production, app bindings load from the database. No service registration needed.
+
+### Inline `bindings:` in a Type File
+
+A specification for a type you own lives in that type's YAML file, so a simple element ships as one file. The optional top-level `bindings:` key maps bare specification id → entry. The type is implicit (the containing file), so an entry declaring its own `type:` or `id:` is a load-time error. A type with a `resolvedBy` reference already gets its default specification synthesized (see above); a `bindings:` entry adds an alternative or additional wiring for the same property, for example one that also loads an association:
+
+```yaml
+# MyPlugin/Resources/content-system/types/product/quick-view.yaml
+properties:
+  relatedProduct:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    resolvedBy: relatedProductId
+
+bindings:
+  with-media-association:
+    label: "Related product (with media)"
+    resolves:
+      relatedProduct:
+        entity:
+          property: relatedProductId
+          associations: [media]
+```
+
+The map key (`with-media-association` above) is the specification's id — any id except the type's own name, which is reserved for the `resolvedBy`-synthesized default (a load-time `bindingSpecificationReservedId` error for authored YAML claiming it). Each entry declares:
+
+- **`label`** (required): a human label.
+- **`resolves`** (optional): reference property key → loader wiring. Three authoring shapes, see below. Every key must name a property the implicit type actually declares.
+- **`inputs`** (optional): primitive property key → `{ default: ... }`. The default seeds the property when the specification is applied, only if the element does not already carry a value. Do not author `required`; the flag is derived (see below), and declaring it by hand is a load-time error.
+
+### Authoring Sugar
+
+A `resolves` entry accepts three shapes; the first two are expanded to the canonical third at load time:
+
+| Tier | Shape                                                                      | When to use                                                     |
+|------|----------------------------------------------------------------------------|-----------------------------------------------------------------|
+| A    | `media: mediaId` (bare property-reference string)                          | The property's declared FQCN is an `Entity`/`EntityCollection` subclass |
+| B    | `media: { entity: { property: mediaId } }` (single key names the loader)   | Name the loader explicitly; entity names are derived            |
+| C    | `media: { loader: entity, config: { entity: media, property: mediaId } }`  | Canonical form; the only shape for unusual configs              |
+
+Tier A is closed: a bare string resolves only against the reference property's declared FQCN, to the built-in `entity` or `entity_collection` loader — a subclass of `Entity` or `EntityCollection` respectively, nothing else. Sugar never resolves by precedence: an entry that cannot expand deterministically (a tier-A reference FQCN that is neither an `Entity` nor an `EntityCollection` subclass, several entities producing the same class, an unknown tier-B config key) is a load-time error whose message names the fix. `inputs` entries are synthesized automatically for every primitive property the wiring reads, and every input carries a derived `required` flag (set when the property is read through a required config key and the wired reference property is itself required). Expansion rules in detail: `Binding/README.md`.
+
+### Collision Detection
+
+Uniqueness is per source, not global: a duplicate bare id within one source is a load-time error, while two different sources may ship the same bare id. The registry keys specifications by their source-qualified id (`source:id`), which is also the wire identifier clients pass back as `bindingSpecificationId`.
+
+### App Lifecycle
+
+App specifications are persisted to `app_content_system_binding_specification` on install/update and cascade-deleted with the app; the registry is invalidated on activate/deactivate/uninstall/delete. Because an app is inactive at install time, its own types are not yet registered; validation resolves the declared type against a type overlay built from the app's own type files. Because the type is always the containing element type, an app binding can only ever target one of the app's own types.
+
+### Discoverability
+
+A registered specification appears folded under a `bindingSpecifications` key per type entry in `GET /api/_info/content-system-element-types.json`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]`. See `ADMINISTRATION.md`.
+
+Reference: `Binding/README.md`, `Layout/Type/Definitions/media/image.yaml` (core `resolvedBy` example)
 
 ---
 

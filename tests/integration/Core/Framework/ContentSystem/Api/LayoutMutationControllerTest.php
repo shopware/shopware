@@ -20,7 +20,7 @@ class LayoutMutationControllerTest extends TestCase
 
     private const BASE_URL = '/api/_action/content-system/layout/';
 
-    private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
 
     #[TestDox('inserts a registered element at the root and returns the re-resolved layout and diagnostics')]
     public function testInsertElement(): void
@@ -230,7 +230,7 @@ class LayoutMutationControllerTest extends TestCase
     // These two tests cover the negative paths that need no shipped specification, and double as the
     // bind-element route-wiring check: a 400 with this app-level error code (not a Symfony 404
     // route-not-found body) proves the request reached LayoutMutationController::bind(). The positive
-    // round trip against the real shipped core:from-media-library specification follows below.
+    // round trip against the real shipped core:Sw:Media:Image default follows below.
     #[TestDox('rejects an unknown bindingSpecificationId with a 400 and the bindingSpecificationNotFound code')]
     public function testBindElementRejectsUnknownBindingSpecification(): void
     {
@@ -249,7 +249,7 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
-    #[TestDox('inlines the core from-media-library specification\'s wiring and attribution on a draft bind')]
+    #[TestDox('inlines the core Sw:Media:Image default specification\'s wiring and attribution on a draft bind')]
     public function testBindElementInlinesCoreSpecificationWiringAndAttribution(): void
     {
         $body = $this->mutate('bind-element', [
@@ -265,7 +265,6 @@ class LayoutMutationControllerTest extends TestCase
             $bound['dataRequirements']['media']
         );
         static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $bound['attributedSpecifications']);
-        static::assertContains(self::CORE_MEDIA_BINDING_ID, $body['applicableBindings']['img-1']);
     }
 
     #[TestDox('resolves the bound media reference via CandidateOrigin::Stored once mediaId is filled in on the bound draft')]
@@ -290,20 +289,56 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame('stored', $mediaResolution['resolved']['origin']);
     }
 
-    #[TestDox('carries an applicableBindings key per element in every mutation response body')]
-    public function testMutationResponseCarriesApplicableBindingsKeyPerElement(): void
+    #[TestDox('applies the core Sw:Media:Image default specification atomically when inserting a fresh image on the draft route')]
+    public function testInsertElementAppliesCoreBindingWiringAndAttribution(): void
     {
-        $component = TestElementTypeLoader::RESOLVABLE;
-
         $body = $this->mutate('insert-element', [
-            'layout' => [$this->element('block-a', $component)],
-            'type' => $component,
+            'layout' => [],
+            'type' => 'Sw:Media:Image',
+            'bindingSpecificationId' => self::CORE_MEDIA_BINDING_ID,
         ]);
 
-        static::assertArrayHasKey('applicableBindings', $body);
-        foreach (array_column($body['layout'], 'id') as $elementId) {
-            static::assertArrayHasKey($elementId, $body['applicableBindings']);
-        }
+        $inserted = $body['layout'][0];
+        static::assertSame(
+            ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $inserted['dataRequirements']['media']
+        );
+        static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $inserted['attributedSpecifications']);
+    }
+
+    #[TestDox('auto-applies the core Sw:Media:Image default specification on a fresh image insert carrying no bindingSpecificationId')]
+    public function testInsertElementAutoAppliesCoreDefaultWithoutBindingSpecificationId(): void
+    {
+        // No bindingSpecificationId is sent, so the media wiring and attribution can only come from the type's
+        // auto-applied default (the byType()/isDefault() fill path), not from the overwriting apply() the explicit
+        // bindingSpecificationId tests drive: a wrong-result regression in that fill path leaves media unwired here.
+        $body = $this->mutate('insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Media:Image',
+        ]);
+
+        $inserted = $body['layout'][0];
+        static::assertSame(
+            ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $inserted['dataRequirements']['media']
+        );
+        static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $inserted['attributedSpecifications']);
+    }
+
+    #[TestDox('rejects an insert whose bindingSpecificationId type does not match the inserted type with a 400 bindingTypeMismatch')]
+    public function testInsertElementRejectsMismatchedBindingType(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Content:Text',
+            'bindingSpecificationId' => self::CORE_MEDIA_BINDING_ID,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('treats an empty rootSource as absent and evaluates only well-formedness without gating')]

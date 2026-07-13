@@ -7,8 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -16,6 +16,14 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(NavigationAliasResolver::class)]
 class NavigationAliasResolverTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[DataProvider('resolvesKnownAliasesProvider')]
     #[TestDox('resolves alias to correct category ID')]
     public function testResolvesKnownAliasesToCategoryIds(string $alias, string $expectedCategoryId): void
@@ -33,7 +41,7 @@ class NavigationAliasResolverTest extends TestCase
     #[TestDox('returns original ID when value is not a known alias')]
     public function testReturnsOriginalIdWhenNotAnAlias(): void
     {
-        $uuid = Uuid::randomHex();
+        $uuid = $this->ids->get('uuid');
 
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId('nav-cat-id');

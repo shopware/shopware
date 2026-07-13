@@ -6,7 +6,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -36,9 +35,9 @@ class LayoutGate
      *
      * @param list<ContentElement> $tree
      */
-    public function wellFormedness(array $tree, Context $context): DiagnosticsReport
+    public function wellFormedness(array $tree): DiagnosticsReport
     {
-        return $this->diagnostics->analyze($tree, null, $context)->report;
+        return $this->diagnostics->analyze($tree, null)->report;
     }
 
     /**
@@ -47,8 +46,8 @@ class LayoutGate
      * @param list<ContentElement> $tree
      * @param list<ProvidedContext> $providedRootContext
      */
-    public function resolvability(array $tree, array $providedRootContext, Context $context): DiagnosticsReport
+    public function resolvability(array $tree, array $providedRootContext): DiagnosticsReport
     {
-        return $this->diagnostics->analyze($tree, $providedRootContext, $context)->report;
+        return $this->diagnostics->analyze($tree, $providedRootContext)->report;
     }
 }

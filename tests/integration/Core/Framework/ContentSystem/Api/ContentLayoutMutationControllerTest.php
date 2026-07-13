@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,6 +27,14 @@ class ContentLayoutMutationControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     private const BASE_URL = '/api/_action/content-system/layout/';
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
 
     #[TestDox('inserts an element and commits the re-resolved layout to storage')]
     public function testInsertElementPersistsToStorage(): void
@@ -181,7 +189,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     #[TestDox('returns 404 for a mutation targeting an unknown layout id')]
     public function testUnknownLayoutReturnsNotFound(): void
     {
-        $this->request('remove-element', Uuid::randomHex(), ['elementId' => 'block-a', 'expectedVersion' => null]);
+        $this->request('remove-element', $this->ids->get('unknown-layout'), ['elementId' => 'block-a', 'expectedVersion' => null]);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
     }
@@ -318,13 +326,13 @@ class ContentLayoutMutationControllerTest extends TestCase
     // These three tests cover the negative paths that need no shipped specification, and double as the
     // persisted bind-element route-wiring check: an app-level error (not a Symfony 404 route-not-found body)
     // proves the request reached ContentLayoutMutationController::bind(). The positive round trip against the
-    // real shipped core:from-media-library specification follows below.
+    // real shipped core:Sw:Media:Image default follows below.
     #[TestDox('returns 404 for a bind-element mutation targeting an unknown layout id')]
     public function testBindElementUnknownLayoutReturnsNotFound(): void
     {
-        $this->request('bind-element', Uuid::randomHex(), [
+        $this->request('bind-element', $this->ids->get('unknown-layout'), [
             'elementId' => 'block-a',
-            'bindingSpecificationId' => 'core:from-media-library',
+            'bindingSpecificationId' => 'core:Sw:Media:Image',
             'expectedVersion' => null,
         ]);
 
@@ -342,7 +350,7 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $this->request('bind-element', $layoutId, [
             'elementId' => 'block-a',
-            'bindingSpecificationId' => 'core:from-media-library',
+            'bindingSpecificationId' => 'core:Sw:Media:Image',
             'expectedVersion' => '2020-01-01T00:00:00.000+00:00',
         ]);
 
@@ -373,19 +381,29 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
-    #[TestDox('inlines the core from-media-library specification\'s wiring and attribution on a persisted bind, committing it to storage')]
+    #[TestDox('inlines the core Sw:Media:Image default specification\'s wiring and attribution on a persisted bind, committing it to storage')]
     public function testBindElementPersistsCoreSpecificationWiringAndAttribution(): void
     {
-        // mediaId is required with no default on Sw:Media:Image, so it must be seeded up front: an
-        // absent required primitive fails write validation on the create() below, before bind-element
-        // is ever reached.
+        // media is required with no parent-provided context on this layout's "category" root source, so the
+        // element must already carry stored wiring for it up front: an unresolved required reference fails
+        // write validation on the create() below, before bind-element is ever reached. Since that stored
+        // wiring's loader has its own required propertyReference key (mediaId), mediaId must be seeded too,
+        // or the create() would instead fail on an unfilled required input. No attributedSpecifications entry
+        // is seeded, so the subsequent bind-element call is what adds the attribution asserted below.
         $layoutId = $this->createLayout([
-            ['id' => 'img-1', 'component' => 'Sw:Media:Image', 'properties' => ['mediaId' => 'a-media-id']],
+            [
+                'id' => 'img-1',
+                'component' => 'Sw:Media:Image',
+                'properties' => ['mediaId' => 'a-media-id'],
+                'dataRequirements' => [
+                    'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+            ],
         ]);
 
         $body = $this->mutate('bind-element', $layoutId, [
             'elementId' => 'img-1',
-            'bindingSpecificationId' => 'core:from-media-library',
+            'bindingSpecificationId' => 'core:Sw:Media:Image',
             'expectedVersion' => null,
         ]);
 
@@ -393,17 +411,84 @@ class ContentLayoutMutationControllerTest extends TestCase
             ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             $body['layout'][0]['dataRequirements']['media']
         );
-        static::assertSame(['media' => 'core:from-media-library'], $body['layout'][0]['attributedSpecifications']);
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $body['layout'][0]['attributedSpecifications']);
 
         // the reload asserts the exact persisted wiring, not just that some entry exists under 'media'
         $stored = $this->reload($layoutId)->getLayout()[0];
-        static::assertSame(['media' => 'core:from-media-library'], $stored->getAttributedSpecifications());
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $stored->getAttributedSpecifications());
 
         $requirement = $stored->getDataRequirements()['media'];
         static::assertSame('entity', $requirement->source);
         static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
         static::assertSame('media', $requirement->config->entity);
         static::assertSame('mediaId', $requirement->config->property);
+    }
+
+    #[TestDox('auto-applies the core Sw:Media:Image default specification on a persisted replace to the image type carrying no bindingSpecificationId, committing the fill-applied wiring and attribution to storage')]
+    public function testReplaceElementAutoAppliesCoreDefaultAndPersists(): void
+    {
+        // replace-element carries no bindingSpecificationId at all, so the media wiring and attribution can only
+        // come from the new type's auto-applied default (the byType()/isDefault() fill path), not from any explicit
+        // apply(): a wrong-result regression in that fill path leaves media unwired here. The stored element carries
+        // the mediaId storage key up front (an undeclared key, first-class in storage), which ReplaceElement carries
+        // onto the image, so the required media reference is filled and the persist gate passes.
+        $layoutId = $this->createLayout([
+            ['id' => 'el', 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => ['mediaId' => 'a-media-id']],
+        ]);
+
+        $body = $this->mutate('replace-element', $layoutId, [
+            'elementId' => 'el',
+            'newType' => 'Sw:Media:Image',
+            'expectedVersion' => null,
+        ]);
+
+        $replaced = $body['layout'][0];
+        static::assertSame(
+            ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $replaced['dataRequirements']['media']
+        );
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $replaced['attributedSpecifications']);
+        static::assertSame('a-media-id', $replaced['properties']['mediaId']);
+
+        // the reload asserts the fill-applied wiring and attribution survived persistence: the write-boundary
+        // AttributionReconciler keeps the attribution because the element's media wiring still matches the default's binding for that key.
+        $stored = $this->reload($layoutId)->getLayout()[0];
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $stored->getAttributedSpecifications());
+        static::assertSame('a-media-id', $stored->getProperty('mediaId'));
+
+        $requirement = $stored->getDataRequirements()['media'];
+        static::assertSame('entity', $requirement->source);
+        static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
+        static::assertSame('media', $requirement->config->entity);
+        static::assertSame('mediaId', $requirement->config->property);
+    }
+
+    #[TestDox('rejects a persisted insert whose binding type does not match the inserted type with a 400, leaving the stored tree and updated_at untouched')]
+    public function testInsertElementWithMismatchedBindingIsRejectedWithoutWriting(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        // bump updated_at with a successful op so the before/after comparison is a real timestamp, not null == null
+        $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
+        $before = $this->reload($layoutId)->getUpdatedAt();
+        static::assertInstanceOf(\DateTimeInterface::class, $before);
+
+        $this->request('insert-element', $layoutId, [
+            'type' => 'Sw:Content:Text',
+            'bindingSpecificationId' => 'core:Sw:Media:Image',
+            'expectedVersion' => $this->apiUpdatedAt($layoutId),
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
+
+        // the op throws before PersistedLayoutMutator reaches update(): the stored tree keeps the two elements from
+        // the bump and its updated_at is unchanged, so the mismatched insert persisted nothing
+        static::assertCount(2, $this->layoutIds($layoutId));
+        static::assertEquals($before, $this->reload($layoutId)->getUpdatedAt());
     }
 
     /**
@@ -434,7 +519,7 @@ class ContentLayoutMutationControllerTest extends TestCase
      */
     private function createLayout(array $tree): string
     {
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
         $this->repository()->create([[
             'id' => $id,
             'name' => 'mutation-' . $id,
@@ -486,7 +571,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     private function bindCategory(string $layoutId): void
     {
         $context = Context::createDefaultContext();
-        $categoryId = Uuid::randomHex();
+        $categoryId = $this->ids->get('category');
 
         $categoryRepository = $this->getContainer()->get('category.repository');
         static::assertInstanceOf(EntityRepository::class, $categoryRepository);
@@ -494,7 +579,7 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $assignmentRepository = $this->getContainer()->get('category_content_layout.repository');
         static::assertInstanceOf(EntityRepository::class, $assignmentRepository);
-        $assignmentRepository->create([['id' => Uuid::randomHex(), 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId]], $context);
+        $assignmentRepository->create([['id' => $this->ids->get('assignment'), 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId]], $context);
     }
 
     /**

@@ -62,7 +62,7 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
 - **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, the nine draft mutation actions, and the nine persisted mutation actions)
-- **Binding/** - Binding specification system: authored declarations wiring a type's reference properties to loaders and seeding its primitive inputs, applied to an element via the `bind-element` mutation
+- **Binding/** - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
 - **Cache/** - HTTP cache integration and invalidation
 - **Diagnostics/** - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
 - **Event/** - Hydration lifecycle event definitions

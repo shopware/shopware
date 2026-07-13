@@ -1,0 +1,17 @@
+meta:
+  label: "Stub Reference"
+  description: "Fixture type shipping a resolvedBy reference whose FQCN no registered entity produces."
+  icon: "regular-image"
+  category: "content"
+  copilot:
+    summary: "Fixture element for the resolvedBy manifest-validate schema-error test."
+    hints:
+      - "The reference FQCN is a test-only Entity subclass no definition produces."
+
+properties:
+  reference:
+    type: Shopware\Core\Test\Stub\ContentSystem\StubExtractorEntity
+    required: true
+    resolvedBy: referenceId
+    title: "Reference"
+    description: "Reference property whose declared FQCN no registered entity produces."

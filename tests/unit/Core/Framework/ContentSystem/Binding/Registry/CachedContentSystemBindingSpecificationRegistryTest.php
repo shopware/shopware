@@ -19,21 +19,21 @@ class CachedContentSystemBindingSpecificationRegistryTest extends TestCase
     #[TestDox('delegates to the inner registry on a cache miss and returns its result')]
     public function testAllDelegatesToInnerOnCacheMiss(): void
     {
-        $specification = $this->specification('from-media-library');
+        $specification = $this->specification('media-picker');
         $inner = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $inner->method('all')->willReturn(['core:from-media-library' => $specification]);
+        $inner->method('all')->willReturn(['core:media-picker' => $specification]);
 
         $registry = new CachedContentSystemBindingSpecificationRegistry($inner, new ArrayAdapter());
 
-        static::assertSame(['core:from-media-library' => $specification], $registry->all());
+        static::assertSame(['core:media-picker' => $specification], $registry->all());
     }
 
     #[TestDox('serves the cached result on the second call under the content_system.binding_specifications key without re-delegating')]
     public function testAllReturnsCachedResultOnSecondCall(): void
     {
-        $specification = $this->specification('from-media-library');
+        $specification = $this->specification('media-picker');
         $inner = $this->createMock(AbstractContentSystemBindingSpecificationRegistry::class);
-        $inner->expects($this->once())->method('all')->willReturn(['core:from-media-library' => $specification]);
+        $inner->expects($this->once())->method('all')->willReturn(['core:media-picker' => $specification]);
 
         $registry = new CachedContentSystemBindingSpecificationRegistry($inner, new ArrayAdapter());
 
@@ -41,23 +41,23 @@ class CachedContentSystemBindingSpecificationRegistryTest extends TestCase
         $second = $registry->all();
 
         // The cache pool round-trips values through serialization, so assert value equality, not identity
-        static::assertEquals(['core:from-media-library' => $specification], $second);
+        static::assertEquals(['core:media-picker' => $specification], $second);
         static::assertEquals($first, $second);
     }
 
     #[TestDox('re-delegates to the inner registry after invalidation')]
     public function testInvalidateClearsTheCache(): void
     {
-        $specification = $this->specification('from-media-library');
+        $specification = $this->specification('media-picker');
         $inner = $this->createMock(AbstractContentSystemBindingSpecificationRegistry::class);
-        $inner->expects($this->exactly(2))->method('all')->willReturn(['core:from-media-library' => $specification]);
+        $inner->expects($this->exactly(2))->method('all')->willReturn(['core:media-picker' => $specification]);
 
         $registry = new CachedContentSystemBindingSpecificationRegistry($inner, new ArrayAdapter());
 
         $registry->all();
         $registry->invalidate();
 
-        static::assertEquals(['core:from-media-library' => $specification], $registry->all());
+        static::assertEquals(['core:media-picker' => $specification], $registry->all());
     }
 
     #[TestDox('caches and returns an empty specification set when the inner registry provides none')]

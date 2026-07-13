@@ -14,9 +14,9 @@ use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutReso
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,6 +29,8 @@ class EntityLayoutContextFactoryTest extends TestCase
 
     private EntityLayoutContextFactory $factory;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         $this->layoutResolver = static::createStub(EntityLayoutResolver::class);
@@ -36,6 +38,7 @@ class EntityLayoutContextFactoryTest extends TestCase
             $this->layoutResolver,
             static::createStub(RootContextMapper::class),
         );
+        $this->ids = new IdsCollection();
     }
 
     #[DataProvider('supportsProvider')]
@@ -50,8 +53,8 @@ class EntityLayoutContextFactoryTest extends TestCase
     #[TestDox('resolves layout ID from resolver')]
     public function testResolveLayoutIdReturnsLayoutId(): void
     {
-        $layoutId = Uuid::randomHex();
-        $entityId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
+        $entityId = $this->ids->get('entity');
 
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
 
@@ -69,7 +72,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     #[TestDox('resolves specification data without requiring a layout assignment')]
     public function testReturnsSpecificationDataFromDefinition(): void
     {
-        $entityId = Uuid::randomHex();
+        $entityId = $this->ids->get('entity');
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
         $this->layoutResolver->method('resolvePlaceholders')
@@ -104,7 +107,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     #[TestDox('returns cache tags derived from entity ID in path')]
     public function testResolveCacheTagsReturnsDerivedTagsFromPath(): void
     {
-        $entityId = Uuid::randomHex();
+        $entityId = $this->ids->get('entity');
 
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
         $definition->method('getCacheTags')->willReturn(['product-' . $entityId]);
@@ -117,7 +120,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     #[TestDox('throws when no layout assignment found')]
     public function testResolveLayoutIdThrowsWhenNoAssignment(): void
     {
-        $entityId = Uuid::randomHex();
+        $entityId = $this->ids->get('entity');
 
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
 

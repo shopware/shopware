@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,8 +21,11 @@ class EntityLayoutResolverTest extends TestCase
 {
     private EntityLayoutResolver $resolver;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
+        $this->ids = new IdsCollection();
         $this->resolver = new EntityLayoutResolver();
     }
 
@@ -42,14 +45,14 @@ class EntityLayoutResolverTest extends TestCase
     #[TestDox('returns layout ID when assignment exists')]
     public function testReturnsLayoutIdWhenAssignmentExists(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layoutId = $this->ids->get('layout');
         $entity = $this->createAssignmentEntity($layoutId);
 
         $repository = $this->createRepository($entity);
 
         $context = Generator::generateSalesChannelContext();
 
-        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
+        $result = $this->resolver->findLayoutId('productId', $this->ids->get('product'), $context, $repository);
 
         static::assertSame($layoutId, $result);
     }
@@ -60,7 +63,7 @@ class EntityLayoutResolverTest extends TestCase
         $repository = $this->createRepository();
         $context = Generator::generateSalesChannelContext();
 
-        $result = $this->resolver->findLayoutId('productId', Uuid::randomHex(), $context, $repository);
+        $result = $this->resolver->findLayoutId('productId', $this->ids->get('product'), $context, $repository);
 
         static::assertNull($result);
     }
@@ -79,7 +82,7 @@ class EntityLayoutResolverTest extends TestCase
     private function createAssignmentEntity(string $layoutId): HeaderContentLayoutEntity
     {
         $entity = new HeaderContentLayoutEntity();
-        $entity->setId(Uuid::randomHex());
+        $entity->setId($this->ids->get('assignment'));
         $entity->setContentLayoutId($layoutId);
 
         return $entity;

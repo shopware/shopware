@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
-use Shopware\Core\Framework\Context;
 
 /**
  * @internal
@@ -21,31 +20,29 @@ class LayoutGateTest extends TestCase
     public function testWellFormednessUsesNullRootContext(): void
     {
         $report = new DiagnosticsReport([]);
-        $context = Context::createDefaultContext();
 
         $diagnostics = static::createMock(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')
-            ->with([], null, $context)
+        $diagnostics->expects($this->once())->method('analyze')
+            ->with([], null)
             ->willReturn(new LayoutAnalysis($report, []));
 
         $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $gate->wellFormedness([], $context));
+        static::assertSame($report, $gate->wellFormedness([]));
     }
 
     #[TestDox('analyses resolvability against the bound source root context')]
     public function testResolvabilityUsesProvidedRootContext(): void
     {
         $report = new DiagnosticsReport([]);
-        $context = Context::createDefaultContext();
 
         $diagnostics = static::createMock(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')
-            ->with([], [], $context)
+        $diagnostics->expects($this->once())->method('analyze')
+            ->with([], [])
             ->willReturn(new LayoutAnalysis($report, []));
 
         $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $gate->resolvability([], [], $context));
+        static::assertSame($report, $gate->resolvability([], []));
     }
 }

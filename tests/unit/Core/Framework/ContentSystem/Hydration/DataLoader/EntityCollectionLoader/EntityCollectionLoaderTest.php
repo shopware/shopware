@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\Test\Generator;
@@ -33,6 +32,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -42,6 +42,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityCollectionLoader::class)]
 class EntityCollectionLoaderTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('declares the sales-channel collection class and entity generic for an entity with a sales-channel definition')]
     public function testProducibleTypesDeclaresSalesChannelCollectionForEntityWithVariant(): void
     {
@@ -244,7 +252,7 @@ class EntityCollectionLoaderTest extends TestCase
     #[TestDox('lowercases entity IDs before loading')]
     public function testLoadLowercasesEntityIds(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
         $upperCaseId = strtoupper($productId);
 
         /** @var Criteria|null $capturedCriteria */
@@ -270,7 +278,7 @@ class EntityCollectionLoaderTest extends TestCase
     #[TestDox('adds associations from config to criteria when loading entities')]
     public function testLoadAddsAssociationsToCriteria(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = $this->ids->get('product');
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;

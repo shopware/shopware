@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -23,11 +23,19 @@ class ContentLayoutDefaultSeedingTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+    }
+
     #[TestDox('seeds a type primitive default into a content layout written by a plain DAL create, so the stored tree is resolvable')]
     public function testPlainDalCreateSeedsPrimitiveDefaults(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
+        $id = $this->ids->get('layout');
 
         // A plain DAL create with the raw-array payload the Admin / Sync API and fixtures build, bypassing the
         // mutation ops: the element carries no headline, so only the write-boundary seeder can seed it.
@@ -36,7 +44,7 @@ class ContentLayoutDefaultSeedingTest extends TestCase
             'name' => 'seeder-test',
             'version' => '1.0.0',
             'rootSource' => 'none',
-            'layout' => [['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE, 'properties' => []]],
+            'layout' => [['id' => $this->ids->get('element'), 'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE, 'properties' => []]],
         ]], $context);
 
         $layout = $this->repository()->search(new Criteria([$id]), $context)->first();

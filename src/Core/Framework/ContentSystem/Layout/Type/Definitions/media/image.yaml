@@ -10,19 +10,12 @@ meta:
       - "Supports lazy loading and fetch priority."
 
 properties:
-  mediaId:
-    type: string
-    required: true
-    title: "Media ID"
-    description: "Selected media ID used for entity loading."
-    adminUI:
-      component: "media-field"
-
   media:
     type: Shopware\Core\Content\Media\MediaEntity
+    required: true
     title: "Media"
     description: "Hydrated media entity resolved from mediaId."
-    resolvedBy: "mediaId"
+    resolvedBy: mediaId
     adminUI:
       component: "media-field"
 

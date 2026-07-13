@@ -42,7 +42,9 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
         $merged = [];
         foreach ($languageInheritanceChain as $currentLanguageId) {
             foreach ($slotConfigs[$currentLanguageId] ?? [] as $slotId => $fields) {
-                $merged[$slotId] = \array_replace($merged[$slotId] ?? [], $fields);
+                if ($fields) {
+                    $merged[$slotId] = \array_replace($merged[$slotId] ?? [], $fields);
+                }
             }
         }
 
@@ -54,7 +56,7 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
      *
      * @param EntityCollection<TTranslation>|null $translations
      *
-     * @return array<string, array<string, array<string, mixed>>>
+     * @return array<string, array<string, array<string, array<string, mixed>>|null>>
      */
     private function collectSlotConfigs(?EntityCollection $translations): array
     {

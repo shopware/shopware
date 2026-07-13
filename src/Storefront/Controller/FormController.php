@@ -73,7 +73,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $this->trans('error.' . $violation->getCode());
+                $violations[] = $this->trans('error.' . $violation->getCode(), $violation->getParameters());
             }
             $response[] = [
                 'type' => 'danger',
@@ -145,7 +145,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $this->trans('error.' . $violation->getCode());
+                $violations[] = $this->trans('error.' . $violation->getCode(), $violation->getParameters());
             }
             $response[] = [
                 'type' => 'danger',
@@ -196,8 +196,8 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $this->trans('error.' . $error->getCode());
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->trans('error.' . $violation->getCode(), $violation->getParameters());
             }
             $response[] = [
                 'type' => 'danger',
@@ -242,8 +242,8 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $this->trans('error.' . $error->getCode());
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->trans('error.' . $violation->getCode(), $violation->getParameters());
             }
             $response[] = [
                 'type' => 'danger',

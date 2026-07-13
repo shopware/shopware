@@ -399,6 +399,10 @@ Admin API requests authenticated with a standard integration access key now supp
 
 Editing or deleting a product cross-selling entry, including assigned products and translations, now correctly invalidates the product detail route cache and prevents stale storefront results.
 
+### Product export skips the heavy description column when the template does not render it
+
+Product export now analyses the body template and, via `Criteria::excludeFields()`, stops loading the heavy translated `description` column when the template does not render it — reducing database load, transfer size and memory for large catalogs. Products are still loaded as full entities; only the unused column is skipped. If the template dereferences the whole `product` (or its `translated` array), nothing is excluded. A `ProductExportProductCriteriaEvent` listener that already narrows the field selection (via `addFields()` or `excludeFields()`) is left untouched.
+
 ### Enforce "Allow payment change after checkout" when re-paying an order
 
 `Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` now rejects payment methods whose `afterOrderEnabled` ("Allow payment change after checkout") flag is disabled, matching the methods offered on the edit-order page. Previously the flag was only applied as a UI filter, so a payment method that renders its own JavaScript payment button (e.g. PayPal smart buttons) could still be used to pay an existing order. The store-api route `POST /store-api/order/payment` now returns `CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE` (HTTP 403) for such methods. (shopware/shopware#17495)

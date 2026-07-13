@@ -41,6 +41,8 @@ use Twig\Environment;
 #[Package('inventory')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
+    private const PRODUCT_ROOT = 'product';
+
     private readonly TwigVariableParser $twigVariableParser;
 
     /**
@@ -112,7 +114,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
         }
 
-        $associations = $this->getAssociations($productExport, $context);
+        $templateVariables = $this->parseTemplateVariables($productExport, $context);
 
         $criteria
             ->setTitle('product-export::products')
@@ -129,7 +131,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $criteria->addFilter(new EqualsFilter('parentId', null));
         }
 
-        foreach ($associations as $association) {
+        foreach ($templateVariables['associations'] as $association) {
             $criteria->addAssociation($association);
         }
 
@@ -141,6 +143,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->eventDispatcher->dispatch(
             new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
         );
+
+        $this->excludeDescriptionIfUnused($criteria, $templateVariables['others']);
 
         // Pagination is delegated to SalesChannelRepositoryIterator: when the criteria has no sorting
         // it seeks by an autoIncrement keyset (constant cost, no COUNT); when a subscriber added its
@@ -301,9 +305,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * Parses the body template and splits the referenced variables into association paths (to
+     * eager-load) and everything else (scalar field accessors, whole-entity dereferences).
+     *
+     * @return array{associations: list<string>, others: list<string>}
      */
-    private function getAssociations(ProductExportEntity $productExport, SalesChannelContext $context): array
+    private function parseTemplateVariables(ProductExportEntity $productExport, SalesChannelContext $context): array
     {
         try {
             $variables = $this->twigVariableParser->parse((string) $productExport->getBodyTemplate());
@@ -318,10 +325,65 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
 
         $associations = [];
+        $others = [];
         foreach ($variables as $variable) {
-            $associations[] = EntityDefinitionQueryHelper::getAssociationPath($variable, $this->productDefinition);
+            if (!\is_string($variable)) {
+                continue;
+            }
+
+            $association = EntityDefinitionQueryHelper::getAssociationPath($variable, $this->productDefinition);
+            if ($association !== null && $association !== '') {
+                $associations[] = $association;
+
+                continue;
+            }
+
+            $others[] = $variable;
         }
 
-        return array_filter(array_unique($associations));
+        return [
+            'associations' => array_values(array_unique($associations)),
+            'others' => $others,
+        ];
+    }
+
+    /**
+     * Skips loading the heavy `description` column when the export template never reads it.
+     * Conservative: a dereference of the whole `product` or its `translated` array counts as reading
+     * it, so nothing is excluded then. Left untouched when a {@see ProductExportProductCriteriaEvent}
+     * listener already narrowed the field selection.
+     *
+     * @param list<string> $others
+     */
+    private function excludeDescriptionIfUnused(Criteria $criteria, array $others): void
+    {
+        if ($criteria->getFields() !== [] || $criteria->getExcludedFields() !== []) {
+            return;
+        }
+
+        if ($this->templateReadsDescription($others)) {
+            return;
+        }
+
+        $criteria->excludeFields(['description']);
+    }
+
+    /**
+     * @param list<string> $others
+     */
+    private function templateReadsDescription(array $others): bool
+    {
+        foreach ($others as $variable) {
+            if (\in_array($variable, [
+                self::PRODUCT_ROOT,
+                self::PRODUCT_ROOT . '.translated',
+                self::PRODUCT_ROOT . '.description',
+                self::PRODUCT_ROOT . '.translated.description',
+            ], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

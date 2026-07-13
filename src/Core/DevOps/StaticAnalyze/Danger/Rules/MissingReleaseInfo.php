@@ -21,8 +21,35 @@ class MissingReleaseInfo
     {
         $files = $context->platform->pullRequest->getFiles();
 
+        if ($files->count() > 0 && $this->isTestOnly($files->getKeys())) {
+            return;
+        }
+
         if ($files->matches($this->releaseInfoFile)->count() === 0) {
             $context->warning('The Pull Request doesn\'t contain any release info, if your changes are relevant for external developers please add an entry to the release info file, including the consequences of the change and how it affects external developers. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');
         }
+    }
+
+    /**
+     * Changes confined to the test trees are never relevant for external developers.
+     *
+     * @param list<string|int> $fileNames
+     */
+    private function isTestOnly(array $fileNames): bool
+    {
+        foreach ($fileNames as $fileName) {
+            $isTestFile = match (true) {
+                str_starts_with((string) $fileName, 'tests/unit/'),
+                str_starts_with((string) $fileName, 'tests/integration/'),
+                str_starts_with((string) $fileName, 'tests/devops/') => true,
+                default => false,
+            };
+
+            if (!$isTestFile) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

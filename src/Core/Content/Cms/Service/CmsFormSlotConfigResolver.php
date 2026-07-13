@@ -82,12 +82,22 @@ readonly class CmsFormSlotConfigResolver
             return $slotConfig;
         }
 
-        if (!\is_array($slotConfig['receivers'])) {
-            $slotConfig['receivers'] = $slot->getTranslated()['config']['mailReceiver']['value'];
-        }
+        $config = $slot->getTranslated()['config'] ?? null;
 
-        if (!\is_string($slotConfig['message'])) {
-            $slotConfig['message'] = $slot->getTranslated()['config']['confirmationText']['value'];
+        if (\is_array($config)) {
+            if (!\is_array($slotConfig['receivers'])
+                && \is_array($config['mailReceiver'] ?? null)
+                && \is_array($config['mailReceiver']['value'] ?? null)
+            ) {
+                $slotConfig['receivers'] = $config['mailReceiver']['value'];
+            }
+
+            if (!\is_string($slotConfig['message'])
+                && \is_array($config['confirmationText'] ?? null)
+                && \is_string($config['confirmationText']['value'] ?? null)
+            ) {
+                $slotConfig['message'] = $config['confirmationText']['value'];
+            }
         }
 
         return $slotConfig;
@@ -114,15 +124,15 @@ readonly class CmsFormSlotConfigResolver
 
         $config = $entity->getSlotConfig()[$slotId];
 
-        if (!$config) {
+        if (!\is_array($config)) {
             return $slotConfig;
         }
 
-        if (\array_key_exists('mailReceiver', $config) && \array_key_exists('value', $config['mailReceiver'])) {
+        if (\is_array($config['mailReceiver'] ?? null) && \is_array($config['mailReceiver']['value'] ?? null)) {
             $slotConfig['receivers'] = $config['mailReceiver']['value'];
         }
 
-        if (\array_key_exists('confirmationText', $config) && \array_key_exists('value', $config['confirmationText'])) {
+        if (\is_array($config['confirmationText'] ?? null) && \is_string($config['confirmationText']['value'] ?? null)) {
             $slotConfig['message'] = $config['confirmationText']['value'];
         }
 

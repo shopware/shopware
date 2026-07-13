@@ -175,10 +175,12 @@ class LandingPageEntity extends Entity
      */
     public function setSlotConfig(?array $slotConfig): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
-        );
+        if (!$slotConfig) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                '$slotConfig will be mandatory in future implementation'
+            );
+        }
 
         $this->slotConfig = $slotConfig;
     }

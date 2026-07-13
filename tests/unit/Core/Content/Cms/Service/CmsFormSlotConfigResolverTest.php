@@ -51,6 +51,24 @@ class CmsFormSlotConfigResolverTest extends TestCase
         );
     }
 
+    public function testResolveIgnoresMalformedCmsSlotConfig(): void
+    {
+        $slotId = Uuid::randomHex();
+        $slot = new CmsSlotEntity();
+        $slot->setId($slotId);
+        $slot->setTranslated(['config' => [
+            'mailReceiver' => null,
+            'confirmationText' => null,
+        ]]);
+
+        $resolver = $this->createResolver(slotEntities: [$slot]);
+
+        static::assertSame(
+            ['receivers' => ['' => ''], 'message' => ''],
+            $resolver->resolve($this->createSalesChannelContext(), $slotId, null, null)
+        );
+    }
+
     /**
      * @param class-string<CategoryEntity|LandingPageEntity|ProductEntity> $entityClass
      */
@@ -112,6 +130,71 @@ class CmsFormSlotConfigResolverTest extends TestCase
 
         static::assertSame(
             $expected,
+            $resolver->resolve(
+                $this->createSalesChannelContext(),
+                $slotId,
+                $navigationId,
+                LandingPageDefinition::ENTITY_NAME
+            )
+        );
+    }
+
+    public function testResolveIgnoresMalformedEntityConfigValues(): void
+    {
+        $slotId = Uuid::randomHex();
+        $navigationId = Uuid::randomHex();
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId($navigationId);
+        $landingPage->setSlotConfig([$slotId => [
+            'mailReceiver' => null,
+            'confirmationText' => null,
+        ]]);
+
+        $resolver = $this->createResolver(landingPageEntities: [$landingPage]);
+
+        static::assertSame(
+            ['receivers' => ['' => ''], 'message' => ''],
+            $resolver->resolve(
+                $this->createSalesChannelContext(),
+                $slotId,
+                $navigationId,
+                LandingPageDefinition::ENTITY_NAME
+            )
+        );
+    }
+
+    public function testResolveUsesDefaultsWhenEntityHasNoSlotConfig(): void
+    {
+        $slotId = Uuid::randomHex();
+        $navigationId = Uuid::randomHex();
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId($navigationId);
+
+        $resolver = $this->createResolver(landingPageEntities: [$landingPage]);
+
+        static::assertSame(
+            ['receivers' => ['' => ''], 'message' => ''],
+            $resolver->resolve(
+                $this->createSalesChannelContext(),
+                $slotId,
+                $navigationId,
+                LandingPageDefinition::ENTITY_NAME
+            )
+        );
+    }
+
+    public function testResolveUsesDefaultsWhenEntitySlotConfigIsNotAnArray(): void
+    {
+        $slotId = Uuid::randomHex();
+        $navigationId = Uuid::randomHex();
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId($navigationId);
+        $landingPage->setSlotConfig([$slotId => null]);
+
+        $resolver = $this->createResolver(landingPageEntities: [$landingPage]);
+
+        static::assertSame(
+            ['receivers' => ['' => ''], 'message' => ''],
             $resolver->resolve(
                 $this->createSalesChannelContext(),
                 $slotId,

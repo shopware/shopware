@@ -66,7 +66,9 @@ class AuthController extends StorefrontController
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractImitateCustomerRoute $imitateCustomerRoute,
         private readonly StorefrontCartFacade $cartFacade,
-        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
+        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
+        private readonly AbstractConvertGuestRoute $convertGuestRoute,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
@@ -206,6 +207,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ImitateCustomerRoute::class),
             service(StorefrontCartFacade::class),
             service(AccountRecoverPasswordPageLoader::class),
+            service(ConvertGuestRoute::class),
+            service(SystemConfigService::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

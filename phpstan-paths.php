@@ -39,8 +39,21 @@ foreach (glob(__DIR__ . '/src/*') as $bundle) {
 
 sort($paths);
 
+$parameters = [
+    'paths' => $paths,
+];
+
+// The Danger rules and their tests type against the danger-php package from vendor-bin
+// (registered in src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php). Without that install
+// (integration jobs strip vendor-bin, plugin pipelines never have it) the symbols are unknown,
+// so those files are skipped instead of failing the whole run.
+if (!is_dir(__DIR__ . '/vendor-bin/danger-php/vendor')) {
+    $parameters['excludePaths'] = [
+        __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger',
+        __DIR__ . '/tests/unit/Core/DevOps/StaticAnalyze/Danger',
+    ];
+}
+
 return [
-    'parameters' => [
-        'paths' => $paths,
-    ],
+    'parameters' => $parameters,
 ];

@@ -214,6 +214,7 @@
         <service id="Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService">
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService">

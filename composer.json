@@ -67,12 +67,15 @@
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "ext-ctype": "*",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
+        "ext-filter": "*",
         "ext-gd": "*",
         "ext-intl": "*",
         "ext-json": "*",
+        "ext-libxml": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-pdo": "*",
@@ -96,6 +99,7 @@
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
+        "guzzlehttp/promises": "^2.5",
         "guzzlehttp/psr7": "^2.4",
         "horstoeko/zugferd": "^1.0.104",
         "lcobucci/jwt": "^5.5",
@@ -104,14 +108,19 @@
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
         "league/oauth2-server": "^9.3",
+        "mcp/sdk": "^0.5.0",
         "meyfa/php-svg": "^0.16.1",
         "monolog/monolog": "^3.3.1",
+        "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
+        "psr/clock": "^1.0.0",
+        "psr/container": "^2.0.2",
         "psr/event-dispatcher": "^1.0.0",
+        "psr/http-client": "^1.0.3",
         "psr/http-factory": "^1.0.1",
         "psr/http-message": "^1.1 || ^2.0",
         "psr/log": "^3.0.0",
@@ -153,6 +162,7 @@
         "symfony/monolog-bridge": "~7.4.12",
         "symfony/monolog-bundle": "~3.11.0",
         "symfony/options-resolver": "~7.4.0",
+        "symfony/password-hasher": "~7.4.0",
         "symfony/polyfill-php83": ">=1.34.0",
         "symfony/polyfill-php84": ">=1.34.0",
         "symfony/polyfill-php85": ">=1.34.0",
@@ -175,6 +185,7 @@
         "symfony/translation-contracts": "~3.6.0",
         "symfony/twig-bridge": "~7.4.12",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/uid": "~7.4.9",
         "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
@@ -188,13 +199,12 @@
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
         "bamarni/composer-bin-plugin": "^1.8.2",
+        "doctrine/sql-formatter": "^1.5.4",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
         "friendsofphp/php-cs-fixer": "3.95.8",
-        "jdorn/sql-formatter": "^1.2.17",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
-        "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
         "phpat/phpat": "0.12.4",
         "phpbench/phpbench": "^1.6.1",
@@ -210,12 +220,12 @@
         "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.1.2",
+        "shipmonk/composer-dependency-analyser": "^1.8",
         "shopware/dev-tools": "^1.3",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.4.0",
-        "symfony/css-selector": "~7.4.0",
+        "symfony/doctrine-bridge": "~7.4.14",
         "symfony/dom-crawler": "~7.4.12",
-        "symfony/expression-language": "~7.4.0",
         "symfony/phpunit-bridge": "~7.4.0",
         "symfony/var-dumper": "~7.4.0",
         "symfony/web-profiler-bundle": "~7.4.12",
@@ -240,6 +250,10 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "composer",
+            "url": "https://shopware.github.io/conflicts/"
         }
     ],
     "scripts-descriptions": {
@@ -249,6 +263,8 @@
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
+        "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
+        "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
@@ -268,8 +284,12 @@
         "eslint:storefront:fix": "Codestyle checks all Storefront JS/TS files and fixes them if possible",
         "eslint:storefront:admin-modules": "Codestyle checks the Storefront's admin-modules JS files",
         "eslint:storefront:admin-modules:fix": "Codestyle checks the Storefront's admin-modules JS files and fixes them if possible",
-        "format:admin": "Dry run Prettier for the Administration",
-        "format:admin:fix": "Format the Administration with Prettier",
+        "eslint:acceptance": "Codestyle checks the acceptance test suite TS files",
+        "eslint:acceptance:fix": "Codestyle checks the acceptance test suite TS files and fixes them if possible",
+        "format:acceptance": "Dry run Prettier for the acceptance test suite",
+        "format:acceptance:fix": "Format the acceptance test suite with Prettier",
+        "format:admin": "Dry run Prettier for all Administration workspaces",
+        "format:admin:fix": "Format all Administration workspaces with Prettier",
         "framework:schema:dump": " ",
         "hook:pre-commit": " ",
         "hook:pre-commit:install": " ",
@@ -283,6 +303,8 @@
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
         "make:coverage": "Generate test coverage files for current branch",
+        "npm:acceptance": " ",
+        "npm:acceptance:bin": " ",
         "npm:admin": " ",
         "npm:admin:bin": " ",
         "npm:admin:check-license": "Check thrid-party dependency licenses for administration",
@@ -299,9 +321,12 @@
         "phpunit": "Launches the PHP unit test-suite",
         "post-install-cmd": " ",
         "post-update-cmd": " ",
+        "rector": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
         "static-analyze": "Launches the PHP Stan static analysis tool",
+        "storefront:lint:snippets": "Checks that no storefront snippet duplicates a global.default translation in every locale.",
+        "storefront:lint:snippets:all": "Like storefront:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
         "storefront:components:unit": "Launches the Vitest unit test-suite for Storefront components",
@@ -335,6 +360,8 @@
         "admin:generate-position-identifier-list": [
             "@npm:admin run generate-position-identifier-list"
         ],
+        "admin:lint:snippets": "@npm:admin run lint:snippets",
+        "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
@@ -387,7 +414,8 @@
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront",
-            "@eslint:storefront:admin-modules"
+            "@eslint:storefront:admin-modules",
+            "@eslint:acceptance"
         ],
         "eslint:admin": "@npm:admin run lint:all",
         "eslint:admin:fix": "@npm:admin run lint:fix",
@@ -395,8 +423,18 @@
         "eslint:storefront:fix": "@npm:storefront run lint:js:fix",
         "eslint:storefront:admin-modules": "@npm:storefront:admin-modules run lint",
         "eslint:storefront:admin-modules:fix": "@npm:storefront:admin-modules run lint:fix",
-        "format:admin": "@npm:admin run format",
-        "format:admin:fix": "@npm:admin run format:fix",
+        "eslint:acceptance": "@npm:acceptance run lint",
+        "eslint:acceptance:fix": "@npm:acceptance run lint:fix",
+        "format:acceptance": "@npm:acceptance run format",
+        "format:acceptance:fix": "@npm:acceptance run format:fix",
+        "format:admin": [
+            "@npm:admin run format",
+            "@npm:storefront:admin-modules run format"
+        ],
+        "format:admin:fix": [
+            "@npm:admin run format:fix",
+            "@npm:storefront:admin-modules run format:fix"
+        ],
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "hook:pre-commit": [
             "bin/pre-commit"
@@ -416,6 +454,7 @@
         "init:js": [
             "@npm:admin clean-install --no-audit --prefer-offline",
             "@npm:storefront clean-install --no-audit --prefer-offline",
+            "@npm:acceptance clean-install --no-audit --prefer-offline",
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
@@ -425,7 +464,7 @@
         "lint": [
             "@stylelint",
             "@eslint",
-            "@ecs",
+            "@cs",
             "@php bin/shopware translation:validate"
         ],
         "lint:snippets": "@php bin/shopware translation:validate",
@@ -434,6 +473,8 @@
         "make:coverage": [
             "@php bin/console make:coverage $(git diff --name-only origin/trunk -- \"*.php\" | grep -vE 'Test\\.php$' | sed 's/.*/\"&\"/' | tr '\\n' ' ')"
         ],
+        "npm:acceptance": "@npm:acceptance:bin npm",
+        "npm:acceptance:bin": "export PROJECT_ROOT=\"$PWD\"; cd tests/acceptance; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:admin": "@npm:admin:bin npm",
         "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:admin:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Administration/Resources/app/administration; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
@@ -445,6 +486,7 @@
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "phpbench": "phpbench run --report=compressed",
+        "dependency-analyzer":  "composer-dependency-analyser",
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
@@ -485,6 +527,11 @@
         ],
         "static-analyze": [
             "@phpstan src/"
+        ],
+        "storefront:lint:snippets": "src/Storefront/Resources/app/storefront/node_modules/.bin/eslint --no-cache --no-error-on-unmatched-pattern --config src/Storefront/Resources/app/storefront/eslint.config.js \"src/Storefront/Resources/snippet/storefront.*.json\"",
+        "storefront:lint:snippets:all": [
+            "@putenv SNIPPET_ALLOW_LIST_DISABLED=1",
+            "@storefront:lint:snippets"
         ],
         "storefront:unit": [
             "@npm:storefront run unit"

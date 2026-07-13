@@ -44,11 +44,8 @@
                 "labelDescription": "Description",
                 "messageEmptyTitle": "No roles yet",
                 "messageEmptySubline": "Create roles to start managing user rights.",
-                "contextMenuEdit": "Edit",
-                "contextMenuDelete": "Delete",
                 "titleModalDelete": "Delete role",
                 "textModalDelete": "Do you really want to delete the role \"{name}\"?",
-                "labelButtonDelete": "Delete",
                 "notification": {
                     "deleteSuccess": {
                         "message": "Role \"{name}\" deleted."
@@ -131,12 +128,8 @@
                 "status": "Status",
                 "messageEmptyTitle": "No users yet",
                 "messageEmptySubline": "Create users to manage access to the Administration.",
-                "contextMenuEdit": "Edit",
-                "contextMenuDelete": "Delete",
-                "contextMenuDuplicate": "Duplicate",
                 "titleModalDelete": "Delete user",
                 "textModalDelete": "Do you really want to delete the user \"{name}\"?",
-                "labelButtonDelete": "Delete",
                 "notification": {
                     "deleteSuccess": {
                         "message": "User \"{name}\" deleted."
@@ -150,8 +143,9 @@
                 }
             },
             "user-detail": {
-                "labelCard": "Basic information",
+                "labelCard": "Information",
                 "labelIntegrationsCard": "Integrations",
+                "labelRolesPermissionsCard": "Roles & permissions",
                 "labelFirstName": "First name",
                 "labelLastName": "Last name",
                 "labelEmail": "Email address",
@@ -160,9 +154,11 @@
                 "labelUsername": "User name",
                 "labelPassword": "Password",
                 "labelProfilePicture": "Profile picture",
+                "labelUserInterface": "User interface",
                 "labelLanguage": "User interface language",
                 "labelLanguagePlaceholder": "Choose language...",
                 "labelChangePassword": "Change password",
+                "labelActive": "Active",
                 "labelAdministrator": "Administrator",
                 "labelTimezone": "Timezone",
                 "labelJobTitle": "Job title",
@@ -172,11 +168,9 @@
                 "placeholderNewPassword": "Enter new password...",
                 "placeholderNewPasswordConfirm": "Confirm new password...",
                 "labelButtonChangePassword": "Change",
-                "labelButtonSave": "Save",
                 "writeAccess": "Write",
                 "readAccess": "Read",
                 "contextMenuEdit": "Edit integration",
-                "contextMenuDelete": "Delete",
                 "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
                 "addAccessKey": "Create access key",
                 "noAccessKeysTitle": "No access keys available",
@@ -188,17 +182,13 @@
                     "titleConfirmPasswordModal": "Confirm password",
                     "labelConfirmPassword": "Password",
                     "placeholderConfirmPassword": "Enter your current password...",
-                    "labelButtonConfirm": "Confirm",
-                    "notificationPasswordErrorTitle": "Error",
                     "notificationPasswordErrorMessage": "Please submit your current password correctly."
                 },
                 "modal": {
                     "detailModalTitle": "Create integration",
-                    "detailModalTitleEdit": "Edit",
                     "confirmDelete": "Are you sure you want to delete this integration?",
                     "buttonApply": "Save integration",
                     "buttonApplyEdit": "Save changes",
-                    "buttonDelete": "Delete",
                     "buttonCreateNewApiKeys": "Create new API key",
                     "hintCreateNewApiKeys": "For generating new API access keys, updating all associated scripts and applications is recommended.",
                     "labelFieldLabel": "Name",

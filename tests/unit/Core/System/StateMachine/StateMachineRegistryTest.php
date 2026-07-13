@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\StateMachine;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -55,7 +56,9 @@ class StateMachineRegistryTest extends TestCase
             $this->createStateTransition('paid', $fromPlace, $toPlace),
         ]);
         $dispatcher = new CollectingEventDispatcher();
-        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher);
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
         $fixture->historyRepository->expects($this->once())
             ->method('create')
@@ -96,7 +99,9 @@ class StateMachineRegistryTest extends TestCase
             $this->createStateTransition('paid', $fromPlace, $toPlace),
         ]);
         $dispatcher = new CollectingEventDispatcher();
-        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher);
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
         // The history entry is written first inside the transaction; if it fails, the state must not be
         // updated, so no entity-written events are dispatched for a state change that never commits.
@@ -120,7 +125,9 @@ class StateMachineRegistryTest extends TestCase
         $stateMachine = $this->createStateMachine([
             $this->createStateTransition('paid', $fromPlace, $toPlace),
         ]);
-        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher());
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher(), $entityRepository, $historyRepository);
 
         $fixture->historyRepository->expects($this->once())
             ->method('create');
@@ -142,7 +149,9 @@ class StateMachineRegistryTest extends TestCase
             $this->createStateTransition('paid', $this->createState('open'), $fromPlace),
         ]);
         $dispatcher = new CollectingEventDispatcher();
-        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher);
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
         $fixture->historyRepository->expects($this->never())
             ->method('create');
@@ -166,7 +175,9 @@ class StateMachineRegistryTest extends TestCase
         $stateMachine = $this->createStateMachine([
             $this->createStateTransition('paid', $fromPlace, $toPlace),
         ]);
-        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher());
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher(), $entityRepository, $historyRepository);
 
         $fixture->historyRepository->expects($this->never())
             ->method('create');
@@ -188,7 +199,9 @@ class StateMachineRegistryTest extends TestCase
         $toPlace = $this->createState('paid');
         $stateMachine = $this->createStateMachine([]);
         $dispatcher = new CollectingEventDispatcher();
-        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $toPlace);
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository, $toPlace);
 
         $fixture->historyRepository->expects($this->once())
             ->method('create');
@@ -276,19 +289,19 @@ class StateMachineRegistryTest extends TestCase
     private function createRegistry(StateMachineLocker $locker, EventDispatcherInterface $dispatcher): StateMachineRegistry
     {
         return new StateMachineRegistry(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $dispatcher,
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
             $locker,
             $this->createConnection()
         );
     }
 
-    private function createConnection(): Connection&MockObject
+    private function createConnection(): Connection&Stub
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('transactional')
             ->willReturnCallback(function (\Closure $func): mixed {
                 ++$this->transactionalCalls;
@@ -299,25 +312,27 @@ class StateMachineRegistryTest extends TestCase
         return $connection;
     }
 
+    /**
+     * @param EntityRepository<EntityCollection<Entity>>&MockObject $entityRepository
+     * @param EntityRepository<StateMachineHistoryCollection>&MockObject $historyRepository
+     */
     private function createRegistryFixture(
         StateMachineEntity $stateMachine,
         StateMachineStateEntity $fromPlace,
         EventDispatcherInterface $dispatcher,
+        EntityRepository&MockObject $entityRepository,
+        EntityRepository&MockObject $historyRepository,
         ?StateMachineStateEntity $forcedToPlace = null
     ): StateMachineRegistryFixture {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository<StateMachineCollection>&MockObject $stateMachineRepository */
-        $stateMachineRepository = $this->createMock(EntityRepository::class);
-        /** @var EntityRepository<StateMachineStateCollection>&MockObject $stateMachineStateRepository */
-        $stateMachineStateRepository = $this->createMock(EntityRepository::class);
-        /** @var EntityRepository<StateMachineHistoryCollection>&MockObject $historyRepository */
-        $historyRepository = $this->createMock(EntityRepository::class);
-        /** @var EntityRepository<EntityCollection<Entity>>&MockObject $entityRepository */
-        $entityRepository = $this->createMock(EntityRepository::class);
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        /** @var EntityRepository<StateMachineCollection>&Stub $stateMachineRepository */
+        $stateMachineRepository = static::createStub(EntityRepository::class);
+        /** @var EntityRepository<StateMachineStateCollection>&Stub $stateMachineStateRepository */
+        $stateMachineStateRepository = static::createStub(EntityRepository::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definition = new StateMachineRegistryTestEntityDefinition();
         $definition->compile($definitionRegistry);
-        $locker = $this->createMock(StateMachineLocker::class);
+        $locker = static::createStub(StateMachineLocker::class);
 
         $stateMachineRepository->method('search')
             ->willReturn($this->createSearchResult('state_machine', new StateMachineCollection([$stateMachine]), $context));
@@ -337,12 +352,10 @@ class StateMachineRegistryTest extends TestCase
             ));
 
         $definitionRegistry->method('getByEntityName')
-            ->with('order_transaction')
-            ->willReturn($definition);
+            ->willReturnMap([['order_transaction', $definition]]);
 
         $definitionRegistry->method('getRepository')
-            ->with('order_transaction')
-            ->willReturn($entityRepository);
+            ->willReturnMap([['order_transaction', $entityRepository]]);
 
         $locker->method('locked')
             ->willReturnCallback(static fn (Transition $transition, Context $context, \Closure $closure): StateMachineTransitionResult => $closure());

@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,7 +43,8 @@ class CategoryBreadcrumbBuilder
     public function __construct(
         private readonly EntityRepository $categoryRepository,
         private readonly SalesChannelRepository $productRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly EntityRouteResolver $entityRouteResolver,
     ) {
     }
 
@@ -68,6 +70,7 @@ class CategoryBreadcrumbBuilder
 
         $category = $this->categoryRepository
             ->search($criteria, $context)
+            ->getEntities()
             ->get($categoryId);
 
         if (!$category instanceof CategoryEntity) {
@@ -107,7 +110,7 @@ class CategoryBreadcrumbBuilder
         $criteria->addFilter($this->getSalesChannelFilter($context->getSalesChannel()));
         $criteria->addSorting(new FieldSorting('level', FieldSorting::DESCENDING));
 
-        return $this->categoryRepository->search($criteria, $context->getContext())->first();
+        return $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first();
     }
 
     public function getCategoryBreadcrumbUrls(CategoryEntity $category, Context $context, SalesChannelEntity $salesChannel): BreadcrumbCollection
@@ -173,6 +176,7 @@ class CategoryBreadcrumbBuilder
 
         $product = $this->productRepository
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         if (!$product instanceof SalesChannelProductEntity) {
@@ -220,7 +224,7 @@ class CategoryBreadcrumbBuilder
                 $this->getSalesChannelFilter($context->getSalesChannel(), 'category.path'),
             ]));
 
-        $product = $context->getContext()->enableInheritance(fn (): ?ProductEntity => $this->productRepository->search($criteria, $context)->first());
+        $product = $context->getContext()->enableInheritance(fn (): ?ProductEntity => $this->productRepository->search($criteria, $context)->getEntities()->first());
 
         if (!$product instanceof ProductEntity || !$product->getMainCategories() instanceof MainCategoryCollection) {
             return null;
@@ -298,8 +302,8 @@ class CategoryBreadcrumbBuilder
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
         $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $query->setParameter('routeName', 'frontend.navigation.page');
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME);
+        $query->setParameter('routeName', $routeName);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));
         $query->setParameter('categoryIds', Uuid::fromHexToBytesList($categoryIds), ArrayParameterType::BINARY);

@@ -97,6 +97,9 @@ return [
         // The implemented Twig extension contract already documents this as array<NodeVisitorInterface>
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
 
+        // Twig added this method in 3.27 via https://github.com/twigphp/Twig/pull/4816
+        preg_quote('REMOVED: Method Twig\TokenParser\AbstractTokenParser#isAlwaysAllowedInSandbox() was removed', '/'),
+
         // MailDataSimulatorFieldEvent no longer exposes Faker in the runtime simulate feature
         preg_quote('REMOVED: Property Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent#$faker was removed', '/'),
         preg_quote('REMOVED: Parameter faker was removed from Method Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent::__construct()', '/'),
@@ -110,6 +113,9 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule#$lineItemCreationDate changed from string|null to string|array|null', '/'),
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
+
+        // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
+        preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
 
         // DocumentType translations were incorrectly typed as product translations
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#$translations changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),
@@ -126,15 +132,20 @@ return [
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
 
-        // Revert of #15865 (grouped product listings / "display as group"). The public API that PR
-        // introduced is intentionally removed again as part of the revert; coordinated with the
-        // SwagCommercial revert (shopware/SwagCommercial#3003).
-        preg_quote('REMOVED: Class Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder has been deleted', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder have been removed:', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder#enrichCriteria() was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
-        preg_quote('REMOVED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$displayAsGroup was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#isDisplayAsGroup() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#setDisplayAsGroup() was removed', '/'),
+        // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
+        'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
+
+        // Translated CustomerGroupEntity properties are now nullable like the translation entity (fixes #16461).
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationTitle changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationIntroduction changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationOnlyCompanyRegistration changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationSeoMetaDescription changed from string to string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationTitle() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationIntroduction() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
+
+        // parent method has no type. not really a break
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
     ],
 ];

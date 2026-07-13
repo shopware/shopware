@@ -22,8 +22,8 @@ class SmtpOauthTokenProviderTest extends TestCase
     public function testGetTokenFetchesFromCache(): void
     {
         $cache = $this->createMock(CacheInterface::class);
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
+        $httpClient = static::createStub(HttpClientInterface::class);
+        $configService = static::createStub(SystemConfigService::class);
 
         $cache->expects($this->once())
             ->method('get')
@@ -41,7 +41,7 @@ class SmtpOauthTokenProviderTest extends TestCase
     {
         $cache = $this->createMock(CacheInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
+        $configService = static::createStub(SystemConfigService::class);
         $cacheItem = $this->createMock(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
@@ -101,8 +101,8 @@ class SmtpOauthTokenProviderTest extends TestCase
     {
         $cache = $this->createMock(CacheInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $configService = $this->createMock(SystemConfigService::class);
-        $cacheItem = $this->createMock(ItemInterface::class);
+        $configService = static::createStub(SystemConfigService::class);
+        $cacheItem = static::createStub(ItemInterface::class);
         $response = $this->createMock(ResponseInterface::class);
 
         $cache->expects($this->once())

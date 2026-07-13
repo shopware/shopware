@@ -56,8 +56,8 @@ class RequestCriteriaBuilderTest extends TestCase
                 new ProductCategoryDefinition(),
                 new CategoryDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $this->requestCriteriaBuilder = new RequestCriteriaBuilder(

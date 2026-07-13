@@ -427,7 +427,7 @@ XML,
             $this->activeAppsLoader,
             AppFixture::createLanguageRepository(),
             $this->systemConfigService,
-            $this->createMock(ConfigValidator::class),
+            static::createStub(ConfigValidator::class),
             $this->integrationRepository,
             $aclRoleRepository,
             $this->assetService,
@@ -435,10 +435,10 @@ XML,
             __DIR__,
             $this->customEntityLifecycleService,
             '6.5.0.0',
-            $this->createMock(AppFeatureValidator::class),
+            static::createStub(AppFeatureValidator::class),
             $this->sourceResolver,
             $this->configReader,
-            $this->createMock(DeletedAppsGateway::class),
+            static::createStub(DeletedAppsGateway::class),
             $this->requirementsValidator,
             new NativeClock()
         );
@@ -446,7 +446,7 @@ XML,
 
     private function createDefaultCustomEntityLifecycleService(): CustomEntityLifecycleService
     {
-        $customEntityLifecycleService = $this->createMock(CustomEntityLifecycleService::class);
+        $customEntityLifecycleService = static::createStub(CustomEntityLifecycleService::class);
         $customEntityLifecycleService->method('allowsDisabling')->willReturn(true);
 
         return $customEntityLifecycleService;

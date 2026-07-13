@@ -6,6 +6,18 @@ const { Service } = Shopware;
 const READ_NOTIFICATION = 'notification.lastReadAt';
 
 /**
+ * Maps a backend notification status to a default title snippet key, mirroring the
+ * defaults the `notification` mixin applies to frontend notifications. Only the statuses
+ * emitted by Shopware core are mapped (`info`, `warning`, `positive`); any other status
+ * keeps no title, preserving the previous behaviour.
+ */
+const STATUS_TITLE_MAP = {
+    info: 'global.default.info',
+    warning: 'global.default.warning',
+    positive: 'global.default.success',
+};
+
+/**
  * @private
  */
 export default class AdminNotificationWorker {
@@ -62,10 +74,17 @@ export default class AdminNotificationWorker {
     }
 
     createNotification(variant, message) {
-        Shopware.Store.get('notification').createNotification({
+        const notification = {
             variant,
             message,
-        });
+        };
+
+        const title = STATUS_TITLE_MAP[variant];
+        if (title) {
+            notification.title = title;
+        }
+
+        Shopware.Store.get('notification').createNotification(notification);
     }
 
     async fetchUserConfig() {

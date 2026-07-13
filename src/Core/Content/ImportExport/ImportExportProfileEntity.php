@@ -54,6 +54,9 @@ class ImportExportProfileEntity extends Entity
      */
     protected array $config;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     protected ?ImportExportProfileTranslationCollection $translations = null;
 
     public function getTechnicalName(): string

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\ContactForm\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -76,18 +76,20 @@ class ContactFormRouteTest extends TestCase
             }
         });
 
+        $slotConfigResolverMock = static::createStub(CmsFormSlotConfigResolver::class);
+        $slotConfigResolverMock->method('resolve')->willReturn([
+            'receivers' => ['foo' => 'bar'],
+            'message' => 'baz',
+        ]);
+
         $contactFormRoute = new ContactFormRoute(
             static::createStub(DataValidationFactoryInterface::class),
             $mock,
             static::createStub(EventDispatcherInterface::class),
-            static::createStub(SystemConfigService::class),
-            $entityRepository,
-            $entityRepository,
-            $entityRepository,
-            $entityRepository,
             $entityRepository,
             static::createStub(RequestStack::class),
-            static::createStub(RateLimiter::class)
+            static::createStub(RateLimiter::class),
+            $slotConfigResolverMock,
         );
 
         $contactFormRoute->load($requestData, $this->salesChannelContext);

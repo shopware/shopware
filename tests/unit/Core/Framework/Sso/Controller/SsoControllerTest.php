@@ -93,14 +93,14 @@ class SsoControllerTest extends TestCase
     private function createController(LoginConfigService $loginConfigService, RouterInterface $router): SsoController
     {
         return new SsoController(
-            $this->createMock(AuthorizationServer::class),
-            $this->createMock(PsrHttpFactory::class),
+            static::createStub(AuthorizationServer::class),
+            static::createStub(PsrHttpFactory::class),
             $loginConfigService,
-            $this->createMock(LoginResponseService::class),
-            $this->createMock(StateValidator::class),
-            $this->createMock(SsoUserService::class),
-            $this->createMock(SsoUserInvitationMailService::class),
-            $this->createMock(SsoService::class),
+            static::createStub(LoginResponseService::class),
+            static::createStub(StateValidator::class),
+            static::createStub(SsoUserService::class),
+            static::createStub(SsoUserInvitationMailService::class),
+            static::createStub(SsoService::class),
             $router,
         );
     }

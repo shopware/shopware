@@ -46,12 +46,17 @@
                         }
                     },
                     "400": {
-                      "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -133,11 +138,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": ["success","status"],
+                                    "required": [
+                                        "success",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "success": {
-                                          "description": "Indicates whether the subscribe request was successful.",
-                                          "type": "boolean"
+                                            "description": "Indicates whether the subscribe request was successful.",
+                                            "type": "boolean"
                                         },
                                         "status": {
                                             "$ref": "#/components/schemas/NewsletterStatus"
@@ -155,6 +163,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -204,6 +217,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

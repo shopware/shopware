@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -44,6 +46,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document_base_config.repository'),
             service('country.repository'),
+            service('media.repository'),
+            service(SystemConfigService::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -96,6 +100,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.document_v2.renderer');
 
+    $services->set(PdfRenderer::class)
+        ->public()
+        ->args([
+            param('shopware.dompdf.options'),
+        ])
+        ->tag('shopware.document_v2.renderer');
+
     $services->set(DocumentRendererRegistry::class)
         ->args([
             tagged_iterator('shopware.document_v2.renderer'),
@@ -115,6 +126,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(DocumentGenerator::class)
+        ->public()
         ->args([
             service(DocumentDataProviderRegistry::class),
             service(DocumentRendererRegistry::class),

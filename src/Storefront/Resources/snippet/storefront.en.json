@@ -397,7 +397,11 @@
     "addressNewBilling": "Add new billing address",
     "addressSaveAndUse": "Save and use",
     "addressSuccessfulChange": "Address successful changed",
-    "addressSearchPlaceholder": "Search addresses..."
+    "addressSearchPlaceholder": "Search addresses...",
+    "convertGuestTitle": "Create customer account",
+    "convertGuestInfo": "Set password for <span class=\"account-guest-conversion__subtitle\">%email%</span>",
+    "privacyNoticeTextModal": "By setting a password you confirm that you have read our %privacyModalTagOpen%data protection information%privacyModalTagClose% and accepted our %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
+    "convertSucceeded": "Account successfully created. You can now log in."
   },
   "address": {
     "streetLabel": "Street address",
@@ -529,7 +533,9 @@
     "customerCommentPlaceholder": "Comment here...",
     "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
     "collapseTriggerMore": "Show more",
-    "collapseTriggerLess": "Show less"
+    "collapseTriggerLess": "Show less",
+    "createAccountHeading": "To accelerate future purchases create a user account.",
+    "createAccountButton": "Create account"
   },
   "listing": {
     "filterTitleText": "Filter products",

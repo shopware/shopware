@@ -313,7 +313,11 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->never())->method('update');
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
-        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', $context);
+        // update() looks the service up, then uninstall() looks it up again by name
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+
+        $this->createLifecycle($appRepo)->update('MyCoolService', $context);
     }
 
     public function testUpdateDoesNothingWhenTheServiceCannotBeFetched(): void

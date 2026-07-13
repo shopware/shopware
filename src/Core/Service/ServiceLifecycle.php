@@ -101,7 +101,7 @@ class ServiceLifecycle
         }
 
         if (!$this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::INSTALLATION)) {
-            $this->performUninstall($service, $context);
+            $this->uninstall($entry->name, $context);
 
             return;
         }
@@ -164,7 +164,9 @@ class ServiceLifecycle
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $this->performUninstall($service, $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+            $this->appManager->uninstall($service->app, $context, true);
+        });
     }
 
     /**
@@ -261,13 +263,6 @@ class ServiceLifecycle
         $manifest->getMetadata()->setSelfManaged(true);
 
         return $manifest;
-    }
-
-    private function performUninstall(ServiceDto $service, Context $context): void
-    {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->appManager->uninstall($service->app, $context, true);
-        });
     }
 
     private function upgradeAppToService(string $appId, ServiceEntry $entry, AppInfo $appInfo, Context $context): bool

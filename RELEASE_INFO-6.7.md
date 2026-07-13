@@ -2,9 +2,9 @@
 
 ## Core
 
-### Mail template cloning no longer fails on the write-protected `wasModifiedByUser` field
+### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
-Cloning a mail template, including via `POST /api/_action/clone/mail-template/{id}`, previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. The clone process now omits the field, so the cloned mail template is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
+Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
 
 ### Cache invalidated on cross-selling updates and deletions
 

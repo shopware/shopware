@@ -30,11 +30,11 @@ final class OpenApiDtoGenerationCommand extends Command
         #[Option('Checks whether generated DTO files are up to date without writing them.')]
         bool $check = false,
     ): int {
-        $result = $this->generator->generate();
-
         if ($check) {
             return $this->doCheck($io);
         }
+
+        $result = $this->generator->generate();
 
         $io->success(\sprintf('Generated %d PHP DTO file(s).', \count($result->writtenFiles)));
 

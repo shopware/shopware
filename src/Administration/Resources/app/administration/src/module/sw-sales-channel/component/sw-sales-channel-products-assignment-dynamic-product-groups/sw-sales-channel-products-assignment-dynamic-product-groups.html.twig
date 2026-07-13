@@ -97,7 +97,10 @@
                             ? $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
                             : $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
                         "
-                        description=""
+                        :description="productStreams.length <= 0 && term
+                            ? $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.descriptionNoProductStreamsMatching')
+                            : $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.descriptionNoProductStreamsAvailable')
+                        "
                         icon="solid-products"
                         centered
                     />

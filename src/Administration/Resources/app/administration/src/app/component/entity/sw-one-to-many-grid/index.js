@@ -155,7 +155,7 @@ export default {
 
             return this.repository.search(this.result.criteria, this.result.context).then((response) => {
                 this.applyResult(response);
-                this.$emit('load-finish');
+                this.$emit('load-finish', this.result);
             });
         },
 

@@ -337,6 +337,7 @@
       "titleEmptyState": "No properties assigned to this product yet.",
       "descriptionEmptyState": "Manage properties here.",
       "titleEmptyStateList": "No properties found.",
+      "descriptionEmptyStateList": "Try a different search term.",
       "columnProperty": "Property",
       "columnValue": "Property value",
       "placeholderSearchAddedProperties": "Search added properties...",

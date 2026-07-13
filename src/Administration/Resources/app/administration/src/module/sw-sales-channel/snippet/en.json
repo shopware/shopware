@@ -148,7 +148,9 @@
             "columnDomainUnitSystem": "Unit system",
             "products": {
                 "titleEmptyState": "No more products found",
+                "textEmptyState": "Assign products to this Sales Channel.",
                 "titleEmptyStateTable": "No matching products found",
+                "textEmptyStateTable": "Try a different search term.",
                 "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
                 "columnProductName": "Product name",
                 "columnActive": "Active",
@@ -418,7 +420,9 @@
                     "columnName": "Name",
                     "searchFieldPlaceholder": "Search dynamic product groups...",
                     "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
-                    "titleNoProductStreamsAvailable": "No dynamic product groups available."
+                    "descriptionNoProductStreamsMatching": "Try a different search term.",
+                    "titleNoProductStreamsAvailable": "No dynamic product groups available.",
+                    "descriptionNoProductStreamsAvailable": "Create a dynamic product group to assign it here."
                 }
             },
             "measurementSystem": {

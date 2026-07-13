@@ -94,14 +94,14 @@ describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
         wrapper.vm.term = 'unknown';
         wrapper.vm.orders = getOrderCollection([]);
         wrapper.vm.orders.total = 0;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.mt-empty-state');
         const cardFilter = wrapper.find('.sw-card-filter');
         const orderList = wrapper.find('sw-entity-listing-stub');
 
-        expect(emptyState.exists()).toBeTruthy();
-        expect(cardFilter.exists()).toBeTruthy();
-        expect(orderList.exists()).toBeFalsy();
+        expect(emptyState.exists()).toBe(true);
+        expect(cardFilter.exists()).toBe(true);
+        expect(orderList.exists()).toBe(false);
     });
 });

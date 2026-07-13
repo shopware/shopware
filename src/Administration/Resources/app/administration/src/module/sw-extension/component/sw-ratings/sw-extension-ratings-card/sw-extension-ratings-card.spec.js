@@ -56,10 +56,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                         'sw-meteor-card': {
                             template: '<div><slot></slot></div>',
                         },
-                        'mt-empty-state': {
-                            props: ['headline'],
-                            template: '<div>{{ headline }}</div>',
-                        },
+                        'mt-empty-state': true,
                     },
                 },
                 props: {
@@ -76,7 +73,10 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
     it('should display empty state when there are no ratings', async () => {
         const wrapper = await createWrapper(true);
 
-        expect(wrapper.text()).toBe(
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.attributes('headline')).toBe(
             'sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews',
         );
     });

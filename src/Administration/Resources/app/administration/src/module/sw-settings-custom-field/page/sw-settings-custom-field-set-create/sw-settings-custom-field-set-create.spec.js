@@ -54,21 +54,7 @@ async function createWrapper() {
                         props: ['title'],
                         template: '<div class="mt-card" :data-title="title"><slot></slot></div>',
                     },
-                    'mt-empty-state': {
-                        props: [
-                            'headline',
-                            'description',
-                            'icon',
-                        ],
-                        template: `
-                            <div
-                                class="mt-empty-state"
-                                :data-headline="headline"
-                                :data-description="description"
-                                :data-icon="icon"
-                            ></div>
-                        `,
-                    },
+                    'mt-empty-state': true,
                     'sw-custom-field-set-detail-base': true,
                     'sw-button-process': true,
                     'sw-card-view': {
@@ -134,9 +120,9 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         const emptyState = wrapper.get('.sw-settings-custom-field-set-create__custom-fields-empty-state');
 
         expect(card.attributes('data-title')).toBe('sw-settings-custom-field.set.detail.titleCardCustomFields');
-        expect(emptyState.attributes('data-icon')).toBe('regular-bars-square');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-custom-field.set.detail.createStateTitle');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-custom-field.set.detail.createStateDescription');
+        expect(emptyState.attributes('icon')).toBe('regular-bars-square');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-custom-field.set.detail.createStateTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-custom-field.set.detail.createStateDescription');
         expect(emptyState.attributes('centered')).toBeUndefined();
         expect(emptyState.attributes('role')).toBe('status');
         expect(emptyState.attributes('aria-live')).toBe('polite');

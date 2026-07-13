@@ -92,33 +92,9 @@
                 :is-loading="isLoading"
                 :show-header="!showEmptyState"
                 @column-sort="setAddressSorting"
-                @load-finish="checkEmptyState"
+                @load-finish="showEmptyState = $event.total === 0"
             >
                 {% block sw_customer_detail_addresses_grid_columns %}
-                {% block sw_customer_detail_addresses_grid_columns_default_shipping_address_label %}
-                <template #column-label-defaultShippingAddress="{ column }">
-                    <mt-icon
-                        v-tooltip="column.iconTooltip"
-                        :name="column.iconLabel"
-                        size="16px"
-                    >
-                        {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
-                    </mt-icon>
-                </template>
-                {% endblock %}
-
-                {% block sw_customer_detail_addresses_grid_columns_default_billing_address_label %}
-                <template #column-label-defaultBillingAddress="{ column }">
-                    <mt-icon
-                        v-tooltip="column.iconTooltip"
-                        :name="column.iconLabel"
-                        size="16px"
-                    >
-                        {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
-                    </mt-icon>
-                </template>
-                {% endblock %}
-
                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
                 <template #column-defaultShippingAddress="{ item }">
                     <sw-radio-field
@@ -264,26 +240,12 @@
             <mt-empty-state
                 v-if="showEmptyState"
                 icon="regular-map-marker"
-                :headline="addressEmptyTitle"
-                :description="addressEmptyDescription"
-                :role="term ? 'status' : undefined"
-                :aria-live="term ? 'polite' : undefined"
-                :aria-atomic="term ? 'true' : undefined"
-            >
-                <template
-                    v-if="showAddressEmptyStateAction"
-                    #button
-                >
-                    <mt-button
-                        class="sw-customer-detail-addresses__add-address-action"
-                        :disabled="!customerEditMode"
-                        variant="secondary"
-                        @click="onCreateNewAddress"
-                    >
-                        {{ $t('sw-customer.detailAddresses.buttonAddAddress') }}
-                    </mt-button>
-                </template>
-            </mt-empty-state>
+                :headline="$t('sw-customer.detailAddresses.emptySearchTitle')"
+                :description="$t('sw-empty-state.messageNoResultSublineSimple')"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+            />
             {% endblock %}
         </template>
         {% endblock %}

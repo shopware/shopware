@@ -66,6 +66,7 @@
                     "individual": {
                         "description": "Individuelle Aktionscodes",
                         "emptyStateTitle": "Noch keine Aktionscodes angelegt.",
+                        "emptyStateSubline": "Generiere individuelle Codes, um sie mit deinen Kunden zu teilen.",
                         "generateButton": "Erstelle neue Aktionscodes",
                         "searchPlaceholder": "Durchsuche Aktionscodes ...",
                         "addButton": "Füge Aktionscodes hinzu",

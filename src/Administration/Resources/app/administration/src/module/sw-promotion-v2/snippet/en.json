@@ -66,6 +66,7 @@
                     "individual": {
                         "description": "Individual promotion codes",
                         "emptyStateTitle": "No promotion codes generated yet.",
+                        "emptyStateSubline": "Generate individual codes to share with your customers.",
                         "generateButton": "Generate new codes",
                         "searchPlaceholder": "Search promotion codes...",
                         "addButton": "Add codes",

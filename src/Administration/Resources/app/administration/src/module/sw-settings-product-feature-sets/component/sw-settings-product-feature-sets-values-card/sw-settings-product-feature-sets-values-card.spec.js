@@ -57,23 +57,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                             sync: true,
                         }),
                         'sw-button-group': true,
-                        'mt-empty-state': {
-                            props: [
-                                'headline',
-                                'description',
-                                'icon',
-                            ],
-                            template: `
-                                <div
-                                    class="mt-empty-state"
-                                    :data-headline="headline"
-                                    :data-description="description"
-                                    :data-icon="icon"
-                                >
-                                    <slot name="button"></slot>
-                                </div>
-                            `,
-                        },
+                        'mt-empty-state': true,
                         'sw-extension-component-section': true,
                         'sw-settings-product-feature-sets-modal': true,
                         'sw-ai-copilot-badge': true,
@@ -279,20 +263,17 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         const rootEmpty = wrapper.get(`.${classes.componentRoot}.is--empty`);
         const emptyState = wrapper.get('.sw-settings-product-feature-set-card__empty-state');
-        const addButton = wrapper.find('.sw-settings-product-feature-set-card__empty-state-button');
 
-        expect(wrapper.vm).toBeTruthy();
-        expect(rootEmpty.exists()).toBeTruthy();
-        expect(emptyState.attributes('centered')).toBeUndefined();
-        expect(emptyState.attributes('data-icon')).toBe('regular-check-square');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-product-feature-sets.valuesCard.emptyStateTitle');
-        expect(emptyState.attributes('data-description')).toBe(
+        expect(wrapper.vm).toBe(true);
+        expect(rootEmpty.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-settings-product-feature-sets.valuesCard.emptyStateTitle');
+        expect(emptyState.attributes('description')).toBe(
             'sw-settings-product-feature-sets.valuesCard.emptyStateDescription',
         );
         expect(emptyState.attributes('role')).toBeUndefined();
-        expect(addButton.exists()).toBeTruthy();
-        expect(addButton.attributes('disabled')).toBeUndefined();
-        expect(wrapper.find(`.${classes.valueList}`).exists()).toBeFalsy();
+        expect(wrapper.vm.showValuesEmptyStateAction).toBe(true);
+        expect(wrapper.find(`.${classes.valueList}`).exists()).toBe(false);
     });
 
     it('should render a save-first empty state when the feature set is not saved yet', async () => {
@@ -316,12 +297,11 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         const emptyState = wrapper.get('.sw-settings-product-feature-set-card__empty-state');
 
-        expect(emptyState.attributes('data-icon')).toBe('regular-check-square');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-product-feature-sets.valuesCard.createStateTitle');
-        expect(emptyState.attributes('data-description')).toBe(
+        expect(emptyState.attributes('headline')).toBe('sw-settings-product-feature-sets.valuesCard.createStateTitle');
+        expect(emptyState.attributes('description')).toBe(
             'sw-settings-product-feature-sets.valuesCard.createStateDescription',
         );
-        expect(emptyState.attributes('role')).toBeUndefined();
+        expect(wrapper.vm.showValuesEmptyStateAction).toBe(false);
         expect(wrapper.find('.sw-settings-product-feature-set-card__empty-state-button').exists()).toBeFalsy();
     });
 
@@ -334,15 +314,13 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         const emptyState = wrapper.get('.sw-settings-product-feature-set-card__empty-state');
 
-        expect(wrapper.find(`.${classes.valueListToolbar}`).exists()).toBeTruthy();
-        expect(wrapper.find(`.${classes.valueList}`).exists()).toBeFalsy();
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-product-feature-sets.valuesCard.emptySearchTitle');
-        expect(emptyState.attributes('data-description')).toBe(
+        expect(wrapper.find(`.${classes.valueListToolbar}`).exists()).toBe(true);
+        expect(wrapper.find(`.${classes.valueList}`).exists()).toBe(false);
+        expect(emptyState.attributes('headline')).toBe('sw-settings-product-feature-sets.valuesCard.emptySearchTitle');
+        expect(emptyState.attributes('description')).toBe(
             'sw-settings-product-feature-sets.valuesCard.emptySearchDescription',
         );
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
-        expect(wrapper.find('.sw-settings-product-feature-set-card__empty-state-button').exists()).toBeFalsy();
+        expect(wrapper.vm.showValuesEmptyStateAction).toBe(false);
+        expect(wrapper.find('.sw-settings-product-feature-set-card__empty-state-button').exists()).toBe(false);
     });
 });

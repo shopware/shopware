@@ -177,9 +177,7 @@
       "columnZipCode": "Postal code",
       "columnCity": "City",
       "columnActions": "Actions",
-      "emptyTitle": "No addresses yet",
       "emptySearchTitle": "No search result",
-      "emptySubline": "Manage your customers' addresses here",
       "contextMenuDefaultShippingAddress": "Set as default delivery address",
       "contextMenuDefaultBillingAddress": "Set as default billing address"
     },

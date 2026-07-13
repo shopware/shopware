@@ -232,7 +232,8 @@
           "cardTitle": "Bewertungen und Rezensionen",
           "labelMoreReviewsBtn": "Mehr Rezensionen lesen",
           "footerHeadline": "Rezension hinzufügen",
-          "labelNoReviews": "Diese Erweiterung hat bisher noch keine Bewertungen oder Rezensionen erhalten."
+          "labelNoReviews": "Diese Erweiterung hat bisher noch keine Bewertungen oder Rezensionen erhalten.",
+          "sublineNoReviews": "Bewertungen erscheinen hier, sobald Kunden diese Erweiterung bewerten."
         },
         "sw-extension-review-creation-inputs": {
           "title": "Erweiterung bewerten",
@@ -306,11 +307,13 @@
       "sw-extension-my-extensions-listing": {
         "apps": {
           "noActivePlugins": "Keine aktiven Erweiterungen gefunden",
+          "textNoActivePlugins": "Aktiviere eine App, um ihre Funktionen zu nutzen.",
           "titleEmptyState": "Noch keine Apps installiert",
           "textEmptyState": "Installiere Apps, um Deinem Shop Funktionen hinzuzufügen."
         },
         "themes": {
           "noActivePlugins": "Keine aktiven Themes gefunden.",
+          "textNoActivePlugins": "Aktiviere ein Theme, um das Aussehen deines Storefronts zu ändern.",
           "titleEmptyState": "Noch keine Themes installiert",
           "textEmptyState": "Installiere Themes, um das Aussehen Deiner Storefront zu ändern."
         },

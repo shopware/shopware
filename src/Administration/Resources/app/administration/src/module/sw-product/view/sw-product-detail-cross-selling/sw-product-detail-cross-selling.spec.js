@@ -23,17 +23,7 @@ async function createWrapper() {
                         template: '<div class="mt-card" :data-title="title"><slot></slot></div>',
                     },
                     'mt-empty-state': {
-                        props: [
-                            'headline',
-                            'description',
-                        ],
-                        template: `
-                            <div class="mt-empty-state">
-                                <div class="mt-empty-state__headline">{{ headline }}</div>
-                                <div class="mt-empty-state__description">{{ description }}</div>
-                                <slot name="button"></slot>
-                            </div>
-                        `,
+                        template: '<div class="mt-empty-state"><slot name="button"></slot></div>',
                     },
                     'mt-switch': {
                         props: [
@@ -144,7 +134,9 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
         expect(wrapper.find('.mt-card').attributes('data-title')).toBe('sw-product.crossselling.cardTitleCrossSelling');
-        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-product.crossselling.emptyStateTitle');
-        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-product.crossselling.emptyStateDescription');
+        expect(wrapper.find('.mt-empty-state').attributes('headline')).toBe('sw-product.crossselling.emptyStateTitle');
+        expect(wrapper.find('.mt-empty-state').attributes('description')).toBe(
+            'sw-product.crossselling.emptyStateDescription',
+        );
     });
 });

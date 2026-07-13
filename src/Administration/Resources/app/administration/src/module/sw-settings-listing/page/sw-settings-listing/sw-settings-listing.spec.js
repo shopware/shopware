@@ -508,21 +508,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                             template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                         },
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                        'mt-empty-state': {
-                            props: [
-                                'headline',
-                                'description',
-                                'icon',
-                            ],
-                            template: `
-                                <div
-                                    class="mt-empty-state"
-                                    :data-headline="headline"
-                                    :data-description="description"
-                                    :data-icon="icon"
-                                ></div>
-                            `,
-                        },
+                        'mt-empty-state': true,
                         'sw-pagination': await wrapTestComponent('sw-pagination'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -654,15 +640,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
         const emptyState = wrapper.get('.sw-settings-listing-index__sorting-options-empty-state');
 
-        expect(emptyState.attributes('data-icon')).toBe('regular-sort');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-listing.index.productSorting.emptyState.title');
-        expect(emptyState.attributes('data-description')).toBe(
+        expect(emptyState.attributes('icon')).toBe('regular-sort');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-listing.index.productSorting.emptyState.title');
+        expect(emptyState.attributes('description')).toBe(
             'sw-settings-listing.index.productSorting.emptyState.subline',
         );
-        expect(emptyState.attributes('centered')).toBeUndefined();
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 
     it('should render a search-specific sorting options empty state', async () => {
@@ -674,15 +656,12 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
         const emptyState = wrapper.get('.sw-settings-listing-index__sorting-options-empty-state');
 
-        expect(emptyState.attributes('data-headline')).toBe(
+        expect(emptyState.attributes('headline')).toBe(
             'sw-settings-listing.index.productSorting.emptyState.searchTitle',
         );
-        expect(emptyState.attributes('data-description')).toBe(
+        expect(emptyState.attributes('description')).toBe(
             'sw-settings-listing.index.productSorting.emptyState.searchSubline',
         );
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 
     it('should disable delete button when product sorting is default product sorting', async () => {

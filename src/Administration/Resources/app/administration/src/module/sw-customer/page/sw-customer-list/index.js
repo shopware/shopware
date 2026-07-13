@@ -210,26 +210,6 @@ export default {
 
             return Context.app.adminEsEnable ?? false;
         },
-
-        isCustomerListEmpty() {
-            if (this.total === 0) {
-                return true;
-            }
-
-            if (this.total > 0) {
-                return false;
-            }
-
-            if (!this.customers) {
-                return true;
-            }
-
-            if (typeof this.customers.length === 'number') {
-                return this.customers.length === 0;
-            }
-
-            return this.customers.data?.length === 0;
-        },
     },
 
     created() {

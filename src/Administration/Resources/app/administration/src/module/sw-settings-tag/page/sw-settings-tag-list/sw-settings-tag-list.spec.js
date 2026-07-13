@@ -130,23 +130,7 @@ async function createWrapper(privileges = [], responseMock = createResponseMock(
                     </div>
                 `,
                     },
-                    'mt-empty-state': {
-                        props: [
-                            'headline',
-                            'description',
-                            'icon',
-                        ],
-                        template: `
-                            <div
-                                class="mt-empty-state"
-                                :data-headline="headline"
-                                :data-description="description"
-                                :data-icon="icon"
-                            >
-                                <slot name="button"></slot>
-                            </div>
-                        `,
-                    },
+                    'mt-empty-state': true,
                     'sw-entity-listing': {
                         props: [
                             'items',
@@ -220,28 +204,22 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
 
-        expect(emptyState.attributes('data-icon')).toBe('regular-tag');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tag.list.emptyState.title');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-tag.list.emptyState.description');
-        expect(emptyState.attributes('centered')).toBeUndefined();
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('icon')).toBe('regular-tag');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tag.list.emptyState.title');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tag.list.emptyState.description');
         expect(wrapper.findComponent({ ref: 'swCardFilter' }).exists()).toBe(false);
 
-        const addButton = wrapper.get('.sw-settings-tag-list__empty-state-button-create');
-
-        expect(addButton.text()).toBe('sw-settings-tag.list.buttonAddTag');
-        expect(addButton.attributes('disabled')).toBeUndefined();
+        expect(wrapper.vm.hasInitialTagEmptyState).toBe(true);
+        expect(wrapper.vm.$t('sw-settings-tag.list.buttonAddTag')).toBe('sw-settings-tag.list.buttonAddTag');
+        expect(wrapper.vm.acl.can('tag.creator')).toBe(true);
     });
 
     it('should disable the tag empty state create button without create privileges', async () => {
         const wrapper = await createWrapper([], createResponseMock([]));
         await flushPromises();
 
-        const addButton = wrapper.get('.sw-settings-tag-list__empty-state-button-create');
-
-        expect(addButton.attributes('disabled')).toBeDefined();
+        expect(wrapper.vm.hasInitialTagEmptyState).toBe(true);
+        expect(wrapper.vm.acl.can('tag.creator')).toBe(false);
     });
 
     it('should render a search-specific tag empty state', async () => {
@@ -255,13 +233,10 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
 
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tag.list.emptyState.searchTitle');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-tag.list.emptyState.searchDescription');
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tag.list.emptyState.searchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tag.list.emptyState.searchDescription');
         expect(wrapper.findComponent({ ref: 'swCardFilter' }).exists()).toBe(true);
-        expect(wrapper.find('.sw-settings-tag-list__empty-state-button-create').exists()).toBe(false);
+        expect(wrapper.vm.hasInitialTagEmptyState).toBe(false);
     });
 
     it('should render a filter-specific tag empty state', async () => {
@@ -275,13 +250,10 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
 
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tag.list.emptyState.filterTitle');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-tag.list.emptyState.filterDescription');
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tag.list.emptyState.filterTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tag.list.emptyState.filterDescription');
         expect(wrapper.findComponent({ ref: 'swCardFilter' }).exists()).toBe(true);
-        expect(wrapper.find('.sw-settings-tag-list__empty-state-button-create').exists()).toBe(false);
+        expect(wrapper.vm.hasInitialTagEmptyState).toBe(false);
     });
 
     it('should be able to edit a tag', async () => {

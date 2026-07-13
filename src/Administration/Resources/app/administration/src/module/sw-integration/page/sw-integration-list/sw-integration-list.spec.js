@@ -4,13 +4,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
 
-const defaultIntegration = {
-    id: '44de136acf314e7184401d36406c1e90',
-    label: 'Test integration',
-    admin: false,
-    aclRoles: [],
-};
-
 const appIntegration = {
     id: 'app-integration-id',
     label: 'MyApp',
@@ -20,7 +13,7 @@ const appIntegration = {
 };
 
 async function createWrapper(privileges = [], integrations = null, options = {}) {
-    const defaultIntegrations = integrations ?? [defaultIntegration];
+    const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
     const saveMock = options.saveMock ?? jest.fn().mockResolvedValue();
     const searchMock = options.searchMock ?? jest.fn().mockResolvedValue(defaultIntegrations);
     const updateAdminMock = options.updateAdminMock ?? jest.fn().mockResolvedValue();
@@ -104,51 +97,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                         </div>
                         `,
                 },
-                'mt-data-table': {
-                    name: 'mt-data-table',
-                    props: [
-                        'dataSource',
-                        'columns',
-                        'disableEdit',
-                        'disableDelete',
-                        'disableSearch',
-                        'searchValue',
-                        'filters',
-                        'appliedFilters',
-                        'numberOfResults',
-                        'additionalContextButtons',
-                    ],
-                    emits: [
-                        'open-details',
-                        'item-delete',
-                        'context-select',
-                        'search-value-change',
-                        'update:applied-filters',
-                    ],
-                    template: `
-                        <div class="mt-data-table">
-                            <template
-                                v-for="data in dataSource"
-                                :key="data.id"
-                            >
-                                <slot
-                                    name="column-label"
-                                    v-bind="{ data }"
-                                ></slot>
-                                <slot
-                                    name="column-permissions"
-                                    v-bind="{ data }"
-                                ></slot>
-                            </template>
-                        </div>
-                    `,
-                },
-                'mt-badge': {
-                    template: '<span class="mt-badge"><slot></slot></span>',
-                },
-                'mt-empty-state': true,
-                'sw-label': true,
-                'sw-integration-mcp-allowlist': true,
                 'sw-language-switch': true,
                 'sw-search-bar': true,
                 'sw-container': {
@@ -163,7 +111,27 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': true,
                 'sw-field-copyable': true,
+
                 'sw-entity-multi-select': true,
+                'sw-entity-listing': {
+                    props: [
+                        'items',
+                        'dataSource',
+                        'detailRoute',
+                    ],
+                    template: `
+                        <div>
+                            <template v-for="item in (dataSource || items)" :key="item.id">
+                                <slot name="actions" v-bind="{ item }">
+                                </slot>
+                                <slot name="action-modals" v-bind="{ item }">
+                                </slot>
+                            </template>
+                        </div>
+                    `,
+                },
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
@@ -193,9 +161,11 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const createButton = wrapper.find('.sw-integration-list__add-integration-action');
         expect(createButton.attributes().disabled).toBeDefined();
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.props('disableEdit')).toBe(true);
-        expect(dataTable.props('disableDelete')).toBe(true);
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).toContain('is--disabled');
+
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).toContain('is--disabled');
     });
 
     it('should be able to create a integration', async () => {
@@ -235,8 +205,8 @@ describe('module/sw-integration/page/sw-integration-list', () => {
             'integration.editor',
         ]);
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        dataTable.vm.$emit('open-details', wrapper.vm.integrations[0]);
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        await editMenuItem.trigger('click');
         await flushPromises();
 
         const modal = wrapper.find('.sw-modal.sw-integration-list__detail');
@@ -330,16 +300,17 @@ describe('module/sw-integration/page/sw-integration-list', () => {
             'integration.deleter',
         ]);
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        dataTable.vm.$emit('item-delete', wrapper.vm.integrations[0]);
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        await deleteMenuItem.trigger('click');
         await flushPromises();
 
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.findByText('button', 'global.default.delete');
+        const deleteButton = deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete');
         expect(deleteButton.text()).toBe('global.default.delete');
-        expect(deleteButton.classes()).toContain('mt-button--critical');
         await deleteButton.trigger('click');
         await flushPromises();
 
@@ -354,15 +325,15 @@ describe('module/sw-integration/page/sw-integration-list', () => {
             'integration.deleter',
         ]);
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        dataTable.vm.$emit('open-details', wrapper.vm.integrations[0]);
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        await editMenuItem.trigger('click');
         await flushPromises();
 
         const adminRoleSwitch = wrapper.findComponent('.sw-settings-user-detail__grid-is-admin');
         expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
-    it('should not open the edit or delete modal for app integrations', async () => {
+    it('should disable edit and delete for app integrations', async () => {
         const wrapper = await createWrapper(
             [
                 'integration.editor',
@@ -371,34 +342,31 @@ describe('module/sw-integration/page/sw-integration-list', () => {
             [appIntegration],
         );
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        dataTable.vm.$emit('open-details', wrapper.vm.integrations[0]);
-        await flushPromises();
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).toContain('is--disabled');
 
-        expect(wrapper.find('.sw-modal.sw-integration-list__detail').exists()).toBeFalsy();
-
-        dataTable.vm.$emit('item-delete', wrapper.vm.integrations[0]);
-        await flushPromises();
-
-        expect(wrapper.find('.sw-modal').exists()).toBeFalsy();
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).toContain('is--disabled');
     });
 
-    it('should expose MCP context action when permitted', async () => {
+    it('should allow editing MCP tools for app integrations', async () => {
         const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.props('additionalContextButtons')).toEqual([
-            expect.objectContaining({
-                key: 'edit-mcp',
-            }),
-        ]);
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).not.toContain('is--disabled');
     });
 
-    it('should not expose MCP context action without permission', async () => {
-        const wrapper = await createWrapper(['integration.editor'], [appIntegration]);
+    it('should not disable edit and delete for manual integrations', async () => {
+        const wrapper = await createWrapper([
+            'integration.editor',
+            'integration.deleter',
+        ]);
 
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.props('additionalContextButtons')).toStrictEqual([]);
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).not.toContain('is--disabled');
+
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).not.toContain('is--disabled');
     });
 
     it('should call integrationService.saveMcpAllowlist on save', async () => {
@@ -414,6 +382,20 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await flushPromises();
 
         expect(saveMock).toHaveBeenCalledWith(integration.id, ['shopware-entity-read']);
+    });
+
+    it('should gate Edit MCP Tools on integration_mcp.editor not integration.editor', async () => {
+        const wrapper = await createWrapper(['integration.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).toContain('is--disabled');
+    });
+
+    it('should enable Edit MCP Tools with integration_mcp.editor', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).not.toContain('is--disabled');
     });
 
     it('should have integration criteria with filters', async () => {
@@ -434,120 +416,6 @@ describe('module/sw-integration/page/sw-integration-list', () => {
                         expect.objectContaining({ field: 'app.id', type: 'equals', value: null }),
                         expect.objectContaining({ field: 'app.active', type: 'equals', value: true }),
                     ]),
-                }),
-            ]),
-        );
-    });
-
-    it('should request the integration page size', async () => {
-        const wrapper = await createWrapper();
-        const criteria = wrapper.vm.integrationCriteria;
-
-        expect(criteria.page).toBe(1);
-        expect(criteria.limit).toBe(25);
-    });
-
-    it('should hide integration table pagination when all integrations fit on one page', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.showIntegrationPagination).toBe(false);
-
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.classes()).toContain('sw-integration-list__overview-table--hide-pagination');
-    });
-
-    it('should show integration table pagination when more pages are available', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.integrations = Object.assign([...wrapper.vm.integrations], {
-            total: wrapper.vm.limit + 1,
-        });
-        await flushPromises();
-
-        expect(wrapper.vm.showIntegrationPagination).toBe(true);
-
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.classes()).not.toContain('sw-integration-list__overview-table--hide-pagination');
-    });
-
-    it('should keep integration table pagination visible after selecting a larger page size', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.limit = 50;
-        wrapper.vm.integrations = Object.assign([...wrapper.vm.integrations], {
-            total: 30,
-        });
-        await flushPromises();
-
-        expect(wrapper.vm.showIntegrationPagination).toBe(true);
-
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.classes()).not.toContain('sw-integration-list__overview-table--hide-pagination');
-    });
-
-    it('should keep search and filters disabled for small integration lists', async () => {
-        const wrapper = await createWrapper();
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-
-        expect(dataTable.props('disableSearch')).toBe(true);
-        expect(dataTable.props('filters')).toStrictEqual([]);
-    });
-
-    it('should enable search and filters for large integration lists', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.integrations = Object.assign([...wrapper.vm.integrations], {
-            total: 30,
-        });
-        await flushPromises();
-
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-        expect(dataTable.props('disableSearch')).toBe(false);
-        expect(dataTable.props('filters')).toStrictEqual([
-            expect.objectContaining({
-                id: 'permissions',
-            }),
-        ]);
-    });
-
-    it('should search integrations through the repository criteria', async () => {
-        const wrapper = await createWrapper();
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-
-        dataTable.vm.$emit('search-value-change', 'debug');
-        await flushPromises();
-
-        expect(wrapper.vm.page).toBe(1);
-        expect(wrapper.vm.searchTerm).toBe('debug');
-        expect(wrapper.vm.integrationCriteria.term).toBe('debug');
-        expect(dataTable.props('searchValue')).toBe('debug');
-    });
-
-    it('should filter integrations by permission', async () => {
-        const wrapper = await createWrapper();
-        const dataTable = wrapper.findComponent({ name: 'mt-data-table' });
-
-        dataTable.vm.$emit('update:applied-filters', [
-            {
-                id: 'permissions',
-                type: {
-                    options: [
-                        {
-                            id: 'admin',
-                        },
-                    ],
-                },
-            },
-        ]);
-        await flushPromises();
-
-        expect(wrapper.vm.appliedIntegrationFilters).toHaveLength(1);
-        expect(wrapper.vm.integrationCriteria.filters).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    field: 'admin',
-                    type: 'equals',
-                    value: true,
                 }),
             ]),
         );

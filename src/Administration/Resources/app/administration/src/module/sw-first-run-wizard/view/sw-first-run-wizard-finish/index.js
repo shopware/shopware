@@ -6,7 +6,6 @@ import './sw-first-run-wizard-finish.scss';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -45,29 +44,6 @@ export default {
             const { edition } = this;
 
             return this.$t('sw-first-run-wizard.finish.message', {}, { edition });
-        },
-
-        successMessageLines() {
-            const message = this.successMessage;
-            const lineBreakIndex = message.indexOf('\n');
-
-            if (lineBreakIndex >= 0) {
-                return [
-                    message.slice(0, lineBreakIndex),
-                    message.slice(lineBreakIndex + 1),
-                ].filter(Boolean);
-            }
-
-            const sentenceEndIndex = message.indexOf('. ');
-
-            if (sentenceEndIndex < 0) {
-                return [message];
-            }
-
-            return [
-                message.slice(0, sentenceEndIndex + 1),
-                message.slice(sentenceEndIndex + 2),
-            ].filter(Boolean);
         },
 
         buttonConfig() {

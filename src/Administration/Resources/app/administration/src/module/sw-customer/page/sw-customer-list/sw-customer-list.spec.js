@@ -127,15 +127,7 @@ async function createWrapper(privileges = [], searchResult = createCustomerSearc
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
                 'sw-time-ago': true,
-                'mt-empty-state': {
-                    props: [
-                        'headline',
-                    ],
-                    template: `
-                        <div class="mt-empty-state">
-                            <div class="mt-empty-state__headline">{{ headline }}</div>
-                        </div>`,
-                },
+                'mt-empty-state': true,
             },
         },
     });
@@ -304,10 +296,13 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await wrapper.vm.getList();
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
-        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        expect(emptyState.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
@@ -322,8 +317,11 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await flushPromises();
 
         expect(wrapper.vm.entitySearchable).toBe(true);
-        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
-        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+        expect(emptyState.exists()).toBe(true);
+
+        expect(emptyState.attributes('headline')).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
     });
 

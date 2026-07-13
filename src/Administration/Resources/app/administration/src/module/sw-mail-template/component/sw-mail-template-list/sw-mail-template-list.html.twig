@@ -6,6 +6,7 @@
     {# @deprecated tag:v6.8.0 - Block `sw_mail_template_list_grid_empty_state_icon` will be removed. Use `sw_mail_template_list_grid_empty_state` instead. #}
     {% block sw_mail_template_list_grid_empty_state %}
     {% block sw_mail_template_list_grid_empty_state_icon %}{% endblock %}
+
     <mt-empty-state
         v-if="!isLoading && !showListing"
         :headline="$t('sw-mail-template.list.emptyStateTitle')"

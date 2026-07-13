@@ -337,6 +337,7 @@
       "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
       "descriptionEmptyState": "Verwalte Eigenschaften hier.",
       "titleEmptyStateList": "Keine Eigenschaften gefunden.",
+      "descriptionEmptyStateList": "Versuche einen anderen Suchbegriff.",
       "columnProperty": "Eigenschaft",
       "columnValue": "Eigenschaftsausprägung",
       "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",

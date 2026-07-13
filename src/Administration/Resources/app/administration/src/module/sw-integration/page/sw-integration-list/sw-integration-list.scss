@@ -7,64 +7,8 @@
         padding: 0;
     }
 
-    &__overview-table.mt-data-table__layout-default {
-        height: auto;
-    }
-
-    &__overview-table {
-        .mt-data-table__table-wrapper {
-            height: auto;
-            max-height: 480px;
-        }
-    }
-
-    &__overview-table--hide-pagination {
-        .mt-card__footer {
-            display: none;
-        }
-    }
-
-    &__overview-empty {
-        padding: var(--scale-size-24);
-    }
-
-    &__integration-name-cell,
-    &__permissions {
-        display: flex;
-        align-items: center;
-    }
-
-    &__integration-name-cell {
-        gap: var(--scale-size-12);
-
-        .sw-label {
-            margin-bottom: 0;
-        }
-    }
-
-    &__integration-name,
-    &__integration-name-text {
-        font-weight: var(--font-weight-semibold);
-    }
-
-    &__integration-name {
-        padding: 0;
-        border: 0;
-        background: none;
-        color: var(--color-text-primary-default);
-        cursor: pointer;
-        text-align: left;
-
-        &:hover,
-        &:focus-visible {
-            color: var(--color-text-brand-default);
-            text-decoration: underline;
-        }
-    }
-
-    &__permissions {
-        flex-wrap: wrap;
-        gap: var(--scale-size-8);
+    .sw-data-grid {
+        border-radius: var(--border-radius-card);
     }
 
     &__app-icon {

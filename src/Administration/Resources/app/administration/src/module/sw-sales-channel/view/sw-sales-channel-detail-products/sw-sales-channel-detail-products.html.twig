@@ -156,6 +156,7 @@
                     v-else
                     icon="solid-products"
                     :headline="$t('sw-sales-channel.detail.products.titleEmptyStateTable')"
+                    :description="$t('sw-sales-channel.detail.products.textEmptyStateTable')"
                 />
                 {% endblock %}
             </sw-card-section>
@@ -173,6 +174,7 @@
         v-if="products.length <= 0 && !searchTerm && !isLoading"
         icon="solid-products"
         :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
+        :description="$t('sw-sales-channel.detail.products.textEmptyState')"
     >
         <template #button>
             <mt-button

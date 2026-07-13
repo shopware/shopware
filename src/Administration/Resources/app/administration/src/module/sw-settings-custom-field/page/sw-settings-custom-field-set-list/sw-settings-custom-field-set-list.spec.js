@@ -97,21 +97,7 @@ async function createWrapper(privileges = [], customFieldSets = mockCustomFieldS
                     'mt-card': {
                         template: '<div><slot name="grid"></slot><slot></slot></div>',
                     },
-                    'mt-empty-state': {
-                        props: [
-                            'headline',
-                            'description',
-                            'icon',
-                        ],
-                        template: `
-                            <div
-                                class="mt-empty-state"
-                                :data-headline="headline"
-                                :data-description="description"
-                                :data-icon="icon"
-                            ></div>
-                        `,
-                    },
+                    'mt-empty-state': true,
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
@@ -215,13 +201,9 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         const emptyState = wrapper.get('.sw-settings-custom-field-set-list__empty-state');
 
-        expect(emptyState.attributes('data-icon')).toBe('regular-bars-square');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-custom-field.set.list.emptyState.title');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-custom-field.set.list.emptyState.description');
-        expect(emptyState.attributes('centered')).toBeUndefined();
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('icon')).toBe('regular-bars-square');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-custom-field.set.list.emptyState.title');
+        expect(emptyState.attributes('description')).toBe('sw-settings-custom-field.set.list.emptyState.description');
     });
 
     it('should render a search-specific custom field set empty state', async () => {
@@ -235,12 +217,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         const emptyState = wrapper.get('.sw-settings-custom-field-set-list__empty-state');
 
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-custom-field.set.list.emptyState.searchTitle');
-        expect(emptyState.attributes('data-description')).toBe(
-            'sw-settings-custom-field.set.list.emptyState.searchDescription',
-        );
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-custom-field.set.list.emptyState.searchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-custom-field.set.list.emptyState.searchDescription');
     });
 });

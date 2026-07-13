@@ -59,21 +59,9 @@
     <template #content>
         {% block sw_customer_list_content %}
         <div class="sw-customer-list__content">
-            {% block sw_customer_list_empty_state %}
-            <mt-empty-state
-                v-if="!isLoading && isCustomerListEmpty"
-                :centered="true"
-                :icon="$route.meta.$module.icon"
-                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-customer.list.messageEmpty')"
-                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
-                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
-                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
-            />
-            {% endblock %}
-
             {% block sw_customer_list_grid %}
             <sw-entity-listing
-                v-else-if="isLoading || (customers && entitySearchable)"
+                v-if="isLoading || (customers?.length && entitySearchable)"
                 ref="swCustomerGrid"
                 class="sw-customer-list-grid"
                 identifier="sw-customer-list"
@@ -359,6 +347,18 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_customer_list_empty_state %}
+            <mt-empty-state
+                v-else
+                :centered="true"
+                :icon="$route.meta.$module.icon"
+                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-customer.list.messageEmpty')"
+                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
             {% endblock %}
         </div>
         {% endblock %}

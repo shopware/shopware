@@ -63,19 +63,7 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-skeleton': true,
-                'mt-empty-state': {
-                    props: [
-                        'headline',
-                        'description',
-                    ],
-                    template: `
-                        <div class="mt-empty-state">
-                            <div class="mt-empty-state__headline">{{ headline }}</div>
-                            <div class="mt-empty-state__description">{{ description }}</div>
-                            <slot name="button"></slot>
-                        </div>
-                    `,
-                },
+                'mt-empty-state': true,
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,
@@ -247,9 +235,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         const emptyState = wrapper.find('.sw-product-detail-reviews__empty-state');
 
         expect(card.attributes('data-title')).toBe('sw-product.reviews.cardTitleReviews');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.exists()).toBe(true);
         expect(emptyState.attributes('empty-module')).toBeUndefined();
-        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-product.reviewForm.messageEmptyTitle');
-        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-product.reviewForm.messageEmptySubline');
+        expect(emptyState.attributes('headline')).toBe('sw-product.reviewForm.messageEmptyTitle');
+        expect(emptyState.attributes('description')).toBe('sw-product.reviewForm.messageEmptySubline');
     });
 });

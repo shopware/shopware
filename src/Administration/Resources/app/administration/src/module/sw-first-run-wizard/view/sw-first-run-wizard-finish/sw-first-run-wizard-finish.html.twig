@@ -14,13 +14,7 @@
         </h3>
 
         <p class="message">
-            <span
-                v-for="(line, index) in successMessageLines"
-                :key="index"
-                class="message__line"
-            >
-                {{ line }}
-            </span>
+            {{ successMessage }}
         </p>
 
         <h3 class="headline-useful-links">

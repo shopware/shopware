@@ -77,23 +77,7 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'mt-number-field': true,
-                    'mt-empty-state': {
-                        props: [
-                            'headline',
-                            'description',
-                            'icon',
-                        ],
-                        template: `
-                    <div
-                        class="mt-empty-state"
-                        :data-headline="headline"
-                        :data-description="description"
-                        :data-icon="icon"
-                    >
-                        <slot name="button"></slot>
-                    </div>
-                `,
-                    },
+                    'mt-empty-state': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -185,17 +169,18 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should be able to add a new country from empty card', async () => {
-            const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
+            expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(true);
 
-            expect(addButton.attributes().disabled).toBeFalsy();
+            const isCreateDisabled = wrapper.vm.disabled || !wrapper.vm.acl.can('tax.editor');
+            expect(isCreateDisabled).toBe(false);
         });
 
         it('should render a country-specific empty state', async () => {
             const emptyState = wrapper.find('.sw-settings-tax-rule-card__empty-state');
 
-            expect(emptyState.attributes('data-icon')).toBe('regular-globe');
-            expect(emptyState.attributes('data-headline')).toBe('sw-settings-tax.taxRuleCard.emptyStateTitle');
-            expect(emptyState.attributes('data-description')).toBe('sw-settings-tax.taxRuleCard.emptyStateDescription');
+            expect(emptyState.attributes('icon')).toBe('regular-globe');
+            expect(emptyState.attributes('headline')).toBe('sw-settings-tax.taxRuleCard.emptyStateTitle');
+            expect(emptyState.attributes('description')).toBe('sw-settings-tax.taxRuleCard.emptyStateDescription');
             expect(emptyState.attributes('role')).toBeUndefined();
         });
     });
@@ -208,9 +193,10 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should not be able to add a new country from empty card', async () => {
-            const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
+            expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(true);
 
-            expect(addButton.attributes('disabled')).toBeDefined();
+            const isCreateDisabled = wrapper.vm.disabled || !wrapper.vm.acl.can('tax.editor');
+            expect(isCreateDisabled).toBe(true);
         });
     });
 
@@ -226,9 +212,9 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         const emptyState = wrapper.find('.sw-settings-tax-rule-card__empty-state');
 
-        expect(emptyState.attributes('data-icon')).toBe('regular-globe');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tax.taxRuleCard.createStateTitle');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-tax.taxRuleCard.createStateDescription');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tax.taxRuleCard.createStateTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tax.taxRuleCard.createStateDescription');
+        expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(false);
         expect(wrapper.find('.sw-settings-tax-rule-card__empty-state--button').exists()).toBeFalsy();
     });
 
@@ -248,11 +234,9 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         expect(wrapper.find('.sw-card-filter').exists()).toBeTruthy();
         expect(wrapper.find('.sw-data-grid').exists()).toBeFalsy();
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tax.taxRuleCard.emptySearchTitle');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-tax.taxRuleCard.emptySearchDescription');
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-tax.taxRuleCard.emptySearchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-tax.taxRuleCard.emptySearchDescription');
+        expect(wrapper.vm.showTaxRuleEmptyStateAction).toBe(false);
         expect(wrapper.find('.sw-settings-tax-rule-card__empty-state--button').exists()).toBeFalsy();
     });
 

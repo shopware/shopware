@@ -52,14 +52,8 @@
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <mt-empty-state
-                :headline="isThemeRoute
-                    ? $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState')
-                    : $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState')
-                "
-                :description="isThemeRoute
-                    ? $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState')
-                    : $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState')
-                "
+                :headline="listingEmptyStateHeadline"
+                :description="listingEmptyStateDescription"
                 icon="regular-plug"
                 centered
             >
@@ -94,11 +88,8 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <mt-empty-state
-                        :headline="isThemeRoute
-                            ? $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins')
-                            : $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins')
-                        "
-                        description=""
+                        :headline="pluginsEmptyStateHeadline"
+                        :description="pluginsEmptyStateDescription"
                         icon="regular-plug"
                         centered
                     />

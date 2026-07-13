@@ -64,22 +64,6 @@ export default {
             return this.getAddressColumns();
         },
 
-        addressEmptyTitle() {
-            return this.term
-                ? this.$t('sw-customer.detailAddresses.emptySearchTitle')
-                : this.$t('sw-customer.detailAddresses.emptyTitle');
-        },
-
-        addressEmptyDescription() {
-            return this.term
-                ? this.$t('sw-empty-state.messageNoResultSublineSimple')
-                : this.$t('sw-customer.detailAddresses.emptySubline');
-        },
-
-        showAddressEmptyStateAction() {
-            return !this.term;
-        },
-
         addressRepository() {
             return this.repositoryFactory.create(this.activeCustomer.addresses.entity, this.activeCustomer.addresses.source);
         },
@@ -170,7 +154,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-shopping-cart',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
-                    iconSize: '20px',
+                    iconSize: '16px',
                 },
                 {
                     property: 'defaultBillingAddress',
@@ -178,7 +162,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-file-text',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
-                    iconSize: '20px',
+                    iconSize: '16px',
                 },
                 {
                     property: 'lastName',
@@ -380,10 +364,6 @@ export default {
 
         refreshList() {
             this.$refs.addressGrid.load();
-        },
-
-        checkEmptyState() {
-            this.showEmptyState = this.$refs.addressGrid?.total === 0;
         },
 
         createPrefix(string, replace) {

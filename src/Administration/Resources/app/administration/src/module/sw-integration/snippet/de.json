@@ -5,15 +5,14 @@
       "headlineIntegrations": "Integrationen",
       "buttonCreateIntegration": "Integration anlegen",
       "heroHeadlineIntegrations": "Integrationen verwalten",
-      "heroDescriptionIntegrations": "Nutze Integrationen, um externe Systeme über die Admin API mit Deinem Store zu verbinden. Jede Integration erhält eigene Zugangsschlüssel, damit Du Berechtigungen verwalten und Änderungen der jeweiligen Anwendung zuordnen kannst."
+      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
     },
     "list": {
       "contextMenuEdit": "Integration bearbeiten",
       "contextMenuEditMcp": "MCP-Allowlist bearbeiten",
       "messageEmpty": "Noch keine Integrationen vorhanden",
-      "sublineEmpty": "Lege eine Integration an, um externe Systeme mit Deinem Store zu verbinden und eigene API-Zugangsschlüssel sowie Berechtigungen zu vergeben.",
-      "tableCaption": "Integrationen mit ihren zugewiesenen Berechtigungen",
-      "permissions": "Berechtigungen",
+      "sublineEmpty": "Verwaltung von Integrationen.",
+      "permissions": "Rollen",
       "writeAccess": "Schreiben",
       "readAccess": "Lesen",
       "integrationName": "Integration",

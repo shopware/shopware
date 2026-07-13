@@ -151,6 +151,7 @@
         {# @deprecated tag:v6.8.0 - Block `sw_flow_list_empty_state_icon` will be removed. Use `sw_flow_list_empty_state` instead. #}
         {% block sw_flow_list_empty_state %}
         {% block sw_flow_list_empty_state_icon %}{% endblock %}
+
         <mt-empty-state
             v-if="!total && !isLoading"
             class="sw-flow-list__empty-state"

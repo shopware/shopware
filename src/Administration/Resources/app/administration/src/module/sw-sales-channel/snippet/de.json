@@ -148,7 +148,9 @@
             "columnDomainUnitSystem": "Einheitensystem",
             "products": {
                 "titleEmptyState": "Keine weiteren Produkte gefunden",
+                "textEmptyState": "Weise diesem Verkaufskanal Produkte zu.",
                 "titleEmptyStateTable": "Keine passenden Produkte gefunden",
+                "textEmptyStateTable": "Versuche einen anderen Suchbegriff.",
                 "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
                 "columnProductName": "Produktname",
                 "columnActive": "Aktiv",
@@ -418,7 +420,9 @@
                     "columnName": "Name",
                     "searchFieldPlaceholder": "Durchsuche alle dynamischen Produktgruppen ...",
                     "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
-                    "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
+                    "descriptionNoProductStreamsMatching": "Versuche einen anderen Suchbegriff.",
+                    "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar.",
+                    "descriptionNoProductStreamsAvailable": "Lege eine dynamische Produktgruppe an, um sie hier zuzuweisen."
                 }
             },
             "measurementSystem": {

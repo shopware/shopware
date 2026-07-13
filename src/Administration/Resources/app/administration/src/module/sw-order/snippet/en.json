@@ -309,7 +309,8 @@
       "headlineTabCreateAddress": "Add address",
       "currentlySelected": "Currently selected",
       "searchAddressToolbarPlaceholder": "Search addresses...",
-      "emptySearchResults": "No addresses found."
+      "emptySearchResults": "No addresses found.",
+      "emptySearchResultsSubline": "Try adjusting your search."
     },
     "leavePageModal": {
       "description": "There are unsaved changes. Are you sure you want to leave this page without saving?",
@@ -496,6 +497,7 @@
         "buttonAddNewCustomer": "Add new customer",
         "placeholderSearchCustomer": "Enter the customer name...",
         "textEmptySearch": "No customers found for \"{name}\".",
+        "emptySubline": "Create a customer to get started.",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Customer number",
         "columnSalesChannel": "Sales Channel",

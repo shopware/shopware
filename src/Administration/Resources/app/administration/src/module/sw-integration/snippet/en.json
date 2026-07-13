@@ -5,15 +5,14 @@
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
       "heroHeadlineIntegrations": "Manage integrations",
-      "heroDescriptionIntegrations": "Use integrations to connect external systems to your store through the Admin API. Each integration gets its own access keys, so you can manage permissions and see which application made changes."
+      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
     },
     "list": {
       "contextMenuEdit": "Edit Integration",
       "contextMenuEditMcp": "Edit MCP Allowlist",
       "messageEmpty": "No integrations yet",
-      "sublineEmpty": "Create an integration to connect external systems to your store with dedicated API access keys and permissions.",
-      "tableCaption": "Integrations with their assigned permissions",
-      "permissions": "Permissions",
+      "sublineEmpty": "The module for managing integrations.",
+      "permissions": "Roles",
       "writeAccess": "Write",
       "readAccess": "Read",
       "integrationName": "Integration",

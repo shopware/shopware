@@ -47,22 +47,6 @@ export default {
             return (this.orders?.total ?? 0) > 0;
         },
 
-        showOrderToolbar() {
-            return this.hasOrders || !!this.term;
-        },
-
-        showOrderGrid() {
-            return this.hasOrders;
-        },
-
-        showOrderEmptyState() {
-            return !this.isLoading && !this.hasOrders;
-        },
-
-        showOrderEmptyStateAction() {
-            return !this.term;
-        },
-
         emptyTitle() {
             return this.term
                 ? this.$t('sw-customer.detailOrder.emptySearchTitle')

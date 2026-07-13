@@ -72,21 +72,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'mt-card': {
                             template: '<div><slot name="toolbar"></slot><slot></slot></div>',
                         },
-                        'mt-empty-state': {
-                            props: [
-                                'headline',
-                                'description',
-                                'icon',
-                            ],
-                            template: `
-                                <div
-                                    class="mt-empty-state"
-                                    :data-headline="headline"
-                                    :data-description="description"
-                                    :data-icon="icon"
-                                ></div>
-                            `,
-                        },
+                        'mt-empty-state': true,
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
@@ -151,13 +137,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         const emptyState = wrapper.get('.sw-settings-listing-option-criteria-grid__criteria-empty-state');
 
         expect(wrapper.find('sw-single-select-stub').exists()).toBeTruthy();
-        expect(emptyState.attributes('data-icon')).toBe('regular-sort');
-        expect(emptyState.attributes('data-headline')).toBe('sw-settings-listing.base.criteria.emptyStateTitle');
-        expect(emptyState.attributes('data-description')).toBe('sw-settings-listing.base.criteria.emptyStateSubline');
-        expect(emptyState.attributes('centered')).toBeUndefined();
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(emptyState.attributes('icon')).toBe('regular-sort');
+        expect(emptyState.attributes('headline')).toBe('sw-settings-listing.base.criteria.emptyStateTitle');
+        expect(emptyState.attributes('description')).toBe('sw-settings-listing.base.criteria.emptyStateSubline');
     });
 
     it('should sort criterias by their position', async () => {

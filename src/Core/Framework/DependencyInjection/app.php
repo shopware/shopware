@@ -45,6 +45,7 @@ use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppLocaleProvider;
+use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
@@ -1015,6 +1016,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('messenger.message_handler');
 
     $services->set(DeletedAppsGateway::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
+    $services->set(AppSecretResolver::class)
         ->args([
             service(Connection::class),
         ]);

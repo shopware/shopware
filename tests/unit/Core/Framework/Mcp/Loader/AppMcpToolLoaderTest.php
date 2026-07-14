@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -14,10 +13,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureException;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @internal
@@ -27,25 +32,39 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 #[Package('framework')]
 class AppMcpToolLoaderTest extends TestCase
 {
-    private Connection&Stub $connection;
+    private AppFeatureStorage&Stub $storage;
 
     private AppMcpCapabilityExecutor&Stub $executor;
+
+    private LanguageLocaleCodeProvider&Stub $localeProvider;
 
     private AppMcpToolLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = static::createStub(Connection::class);
+        $this->storage = static::createStub(AppFeatureStorage::class);
         $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
-        $this->loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger());
+        $this->localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $this->localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
+        $this->loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger());
     }
 
     public function testLoadWithDBALExceptionRegistersNoTools(): void
     {
         $exception = new class('DB error') extends \Exception implements DBALException {};
 
-        $this->connection->method('fetchAllAssociative')
-            ->willThrowException($exception);
+        $this->storage->method('forActiveApps')->willThrowException($exception);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->never())->method('registerTool');
+
+        $this->loader->load($registry);
+    }
+
+    public function testLoadWithUnknownFeatureExceptionRegistersNoTools(): void
+    {
+        // the MCP feature type is only registered when MCP_SERVER is enabled
+        $this->storage->method('forActiveApps')->willThrowException(AppFeatureException::unknownFeature(McpToolConfig::class));
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerTool');
@@ -55,19 +74,7 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testLoadWithOneToolRegistersToolWithCorrectName(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -90,18 +97,9 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testTitleIsNullWhenLabelIsEmpty(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => '',
-            'description' => 'Syncs orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(label: ['en-GB' => ''])),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -122,27 +120,17 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testLoadWithInputSchemaRegistersToolWithCorrectInputSchema(): void
     {
-        $inputSchemaJson = json_encode([
+        $inputSchema = [
             'since' => [
                 'type' => 'string',
                 'description' => 'ISO date',
                 'required' => true,
             ],
-        ]);
-
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => $inputSchemaJson,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
         ];
 
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(inputSchema: $inputSchema)),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -165,72 +153,11 @@ class AppMcpToolLoaderTest extends TestCase
         $this->loader->load($registry);
     }
 
-    public function testLoadWithEmptyAllowlistRegistersAllAppTools(): void
+    public function testNullInputSchemaProducesEmptySchema(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())->method('registerTool');
-
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), []);
-        $loader->load($registry);
-    }
-
-    public function testLoadWithAllowlistRegistersOnlyAllowedAppTools(): void
-    {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
-                static::isCallable(),
-                true,
-            );
-
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['my-app-sync-orders']);
-        $loader->load($registry);
-    }
-
-    public function testInvalidInputSchemaJsonFallsBackToEmptySchema(): void
-    {
-        $toolRow = [
-            'name' => 'broken-tool',
-            'url' => 'https://app.example.com/mcp/broken',
-            'input_schema' => 'not-valid-json',
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Broken',
-            'description' => 'Broken tool',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(inputSchema: null)),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -248,20 +175,39 @@ class AppMcpToolLoaderTest extends TestCase
         $this->loader->load($registry);
     }
 
+    public function testLoadWithEmptyAllowlistRegistersAllAppTools(): void
+    {
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())->method('registerTool');
+
+        $loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger(), []);
+        $loader->load($registry);
+    }
+
+    public function testLoadWithAllowlistRegistersOnlyAllowedAppTools(): void
+    {
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->with(
+                static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
+                static::isCallable(),
+                true,
+            );
+
+        $loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger(), ['my-app-sync-orders']);
+        $loader->load($registry);
+    }
+
     public function testDescriptionFallsBackToToolNameWhenNoLabelOrDescription(): void
     {
-        $toolRow = [
-            'name' => 'mystery-tool',
-            'url' => 'https://app.example.com/mcp/mystery',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => null,
-            'description' => null,
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(name: 'mystery-tool', label: [], description: [])),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -282,25 +228,16 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testRegisteredCallbackInvokesExecutorWithArguments(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '2.1.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(), appVersion: '2.1.0'),
+        ]);
 
         $executor = $this->createMock(AppMcpCapabilityExecutor::class);
         $executor->expects($this->once())
             ->method('execute')
-            ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', ['since' => '2025-01-01'], '2.1.0')
+            ->with('my-app-sync-orders', 'my-app', 'https://app.example.com/mcp/sync', ['since' => '2025-01-01'], '2.1.0')
             ->willReturn('{"success":true}');
-        $loader = new AppMcpToolLoader($this->connection, $executor, new NullLogger());
+        $loader = new AppMcpToolLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -323,25 +260,14 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testRegisteredCallbackWithNonCallToolRequestPassesEmptyArguments(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
 
         $executor = $this->createMock(AppMcpCapabilityExecutor::class);
         $executor->expects($this->once())
             ->method('execute')
-            ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', [], '0.0.0')
+            ->with('my-app-sync-orders', 'my-app', 'https://app.example.com/mcp/sync', [], '0.0.0')
             ->willReturn('{"success":true}');
-        $loader = new AppMcpToolLoader($this->connection, $executor, new NullLogger());
+        $loader = new AppMcpToolLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -364,41 +290,20 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testLoadWithAllowlistSkipsAppToolNotInList(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerTool');
 
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['other-tool-only']);
+        $loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger(), ['other-tool-only']);
         $loader->load($registry);
     }
 
     public function testEmptyStringDescriptionFallsBackToLabel(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => '',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(description: ['en-GB' => ''])),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -418,23 +323,60 @@ class AppMcpToolLoaderTest extends TestCase
 
     public function testLoadSkipsReservedShopwarePrefixedToolName(): void
     {
-        $toolRow = [
-            'name' => 'orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'shopware',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(name: 'orders'), appName: 'shopware'),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerTool');
 
         $this->loader->load($registry);
+    }
+
+    public function testSkipsExternalUrlToolWhenAppHasNoSecret(): void
+    {
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(), appHasSecret: false)]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->never())->method('registerTool');
+
+        $this->loader->load($registry);
+    }
+
+    public function testRegistersInternalUrlToolWhenAppHasNoSecret(): void
+    {
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(url: '/api/script/my-app-sync'), appHasSecret: false),
+        ]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())->method('registerTool');
+
+        $this->loader->load($registry);
+    }
+
+    /**
+     * @param array<string, array{type: string, description?: string, required?: bool}>|null $inputSchema
+     * @param array<string, string> $label
+     * @param array<string, string> $description
+     * @param list<string> $requiredPrivileges
+     */
+    private function toolConfig(
+        string $name = 'sync-orders',
+        string $url = 'https://app.example.com/mcp/sync',
+        ?array $inputSchema = null,
+        array $label = ['en-GB' => 'Sync Orders'],
+        array $description = ['en-GB' => 'Syncs orders'],
+        array $requiredPrivileges = [],
+    ): McpToolConfig {
+        return new McpToolConfig($name, $url, $requiredPrivileges, $inputSchema, new TranslatedString($label), new TranslatedString($description));
+    }
+
+    /**
+     * @return AppFeature<McpToolConfig>
+     */
+    private function feature(McpToolConfig $config, string $appName = 'my-app', string $appVersion = '0.0.0', bool $appHasSecret = true): AppFeature
+    {
+        return new AppFeature('0189aaaabbbbcccc0000000000000001', $appName, true, $appVersion, $appHasSecret, new \DateTimeImmutable(), $config);
     }
 }

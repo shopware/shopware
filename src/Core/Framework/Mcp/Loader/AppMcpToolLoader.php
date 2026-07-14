@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Tool;
 use Mcp\Server\RequestContext;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  *
- * Loads app-provided MCP tools from the database and registers them
- * with the MCP server registry at build time.
+ * Registers app-provided MCP tools with the MCP server registry at build time.
  */
 #[Package('framework')]
 class AppMcpToolLoader extends AbstractAppMcpLoader
@@ -23,38 +23,43 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
     /**
      * @internal
      *
-     * @param list<string> $allowedTools When non-empty, only these tool names are registered. Empty = all allowed.
+     * @param list<string> $allowedTools when non-empty, only these tool names are registered; empty means all allowed
      */
     public function __construct(
-        Connection $connection,
+        AppFeatureStorage $storage,
         AppMcpCapabilityExecutor $executor,
+        LanguageLocaleCodeProvider $localeProvider,
         LoggerInterface $logger,
         private readonly array $allowedTools = [],
     ) {
-        parent::__construct($connection, $executor, $logger);
+        parent::__construct($storage, $executor, $localeProvider, $logger);
     }
 
     protected function fetchRows(): array
     {
-        return $this->connection->fetchAllAssociative(
-            'SELECT
-                t.name,
-                t.url,
-                t.input_schema,
-                a.name AS app_name,
-                a.app_secret,
-                a.version,
-                tt.label,
-                tt.description
-            FROM app_mcp_tool t
-            INNER JOIN app a ON t.app_id = a.id AND a.active = 1
-            LEFT JOIN app_mcp_tool_translation tt
-                ON t.id = tt.app_mcp_tool_id
-                AND tt.language_id = UNHEX(:languageId)
-            WHERE (a.app_secret IS NOT NULL OR t.url LIKE \'/%\')
-            ORDER BY a.name, t.name',
-            ['languageId' => Defaults::LANGUAGE_SYSTEM],
-        );
+        $locale = $this->systemLocale();
+        $features = $this->storage->forActiveApps(McpToolConfig::class);
+
+        $rows = [];
+
+        foreach ($features as $feature) {
+            $config = $feature->config;
+
+            // external-url tools need a secret to sign the request; internal-url tools (app scripts) do not
+            if (!str_starts_with($config->url, '/') && !$feature->appHasSecret) {
+                continue;
+            }
+
+            $rows[] = [
+                ...$config->toArray(),
+                'app_name' => $feature->appName,
+                'version' => $feature->appVersion,
+                'label' => $config->label->forLocale($locale),
+                'description' => $config->description->forLocale($locale),
+            ];
+        }
+
+        return $rows;
     }
 
     protected function registerCapability(RegistryInterface $registry, array $row): void
@@ -72,40 +77,36 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
         }
 
         $description = $this->resolveDescription($row, $toolName);
-        $inputSchema = $this->buildInputSchema(isset($row['input_schema']) ? (string) $row['input_schema'] : null);
+        /** @var array<string, array{type: string, description?: string, required?: bool}>|null $inputSchema */
+        $inputSchema = $row['inputSchema'] ?? null;
 
         $tool = new Tool(
             name: $toolName,
             title: isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null,
-            inputSchema: $inputSchema,
+            inputSchema: $this->buildInputSchema($inputSchema),
             description: $description,
             annotations: null,
         );
 
-        $appSecret = isset($row['app_secret']) ? (string) $row['app_secret'] : null;
         $url = (string) $row['url'];
         $appVersion = (string) ($row['version'] ?? '0.0.0');
 
-        $registry->registerTool($tool, function (RequestContext $context) use ($toolName, $appSecret, $url, $appVersion): string {
+        $registry->registerTool($tool, function (RequestContext $context) use ($toolName, $appName, $url, $appVersion): string {
             $request = $context->getRequest();
             $arguments = $request instanceof CallToolRequest ? $request->arguments : [];
 
-            return $this->executor->execute($toolName, $appSecret, $url, $arguments, $appVersion);
+            return $this->executor->execute($toolName, $appName, $url, $arguments, $appVersion);
         }, true);
     }
 
     /**
+     * @param array<string, array{type: string, description?: string, required?: bool}>|null $inputSchema
+     *
      * @return array{type: 'object', properties: array<string, mixed>, required: list<string>}
      */
-    private function buildInputSchema(?string $inputSchemaJson): array
+    private function buildInputSchema(?array $inputSchema): array
     {
-        if ($inputSchemaJson === null) {
-            return ['type' => 'object', 'properties' => [], 'required' => []];
-        }
-
-        $schema = json_decode($inputSchemaJson, true);
-
-        if (!\is_array($schema)) {
+        if ($inputSchema === null) {
             return ['type' => 'object', 'properties' => [], 'required' => []];
         }
 
@@ -114,7 +115,7 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
         /** @var list<string> $required */
         $required = [];
 
-        foreach ($schema as $name => $config) {
+        foreach ($inputSchema as $name => $config) {
             $prop = ['type' => $config['type'] ?? 'string'];
 
             if (isset($config['description'])) {

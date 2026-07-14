@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  *
- * Reads declared required privileges for app MCP tools from the database.
+ * Reads the declared required privileges for app MCP tools.
  *
  * @internal
  */
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 class AppMcpPrivilegeProvider
 {
     public function __construct(
-        private readonly Connection $connection,
+        private readonly AppFeatureStorage $storage,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -28,12 +29,14 @@ class AppMcpPrivilegeProvider
     public function getAppToolPrivileges(): array
     {
         try {
-            $rows = $this->connection->fetchAllAssociative(
-                'SELECT CONCAT(a.name, \'-\', t.name) AS tool_name, t.required_privileges
-                 FROM app_mcp_tool t
-                 INNER JOIN app a ON t.app_id = a.id AND a.active = 1
-                 WHERE t.required_privileges IS NOT NULL',
-            );
+            $map = [];
+            foreach ($this->storage->forActiveApps(McpToolConfig::class) as $feature) {
+                $config = $feature->config;
+
+                $map[$feature->appName . '-' . $config->name] = $config->requiredPrivileges;
+            }
+
+            return $map;
         } catch (\Throwable $e) {
             $this->logger->error('Failed to load app MCP tool privileges', [
                 'exception' => $e->getMessage(),
@@ -41,15 +44,5 @@ class AppMcpPrivilegeProvider
 
             return [];
         }
-
-        $map = [];
-        foreach ($rows as $row) {
-            $decoded = json_decode((string) $row['required_privileges'], true);
-            if (\is_array($decoded)) {
-                $map[(string) $row['tool_name']] = array_values($decoded);
-            }
-        }
-
-        return $map;
     }
 }

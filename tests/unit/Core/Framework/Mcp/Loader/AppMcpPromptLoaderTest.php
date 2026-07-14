@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -13,10 +12,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @internal
@@ -26,25 +30,28 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 #[Package('framework')]
 class AppMcpPromptLoaderTest extends TestCase
 {
-    private Connection&Stub $connection;
+    private AppFeatureStorage&Stub $storage;
 
     private AppMcpCapabilityExecutor&Stub $executor;
+
+    private LanguageLocaleCodeProvider&Stub $localeProvider;
 
     private AppMcpPromptLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = static::createStub(Connection::class);
+        $this->storage = static::createStub(AppFeatureStorage::class);
         $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
-        $this->loader = new AppMcpPromptLoader($this->connection, $this->executor, new NullLogger());
+        $this->localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $this->localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
+        $this->loader = new AppMcpPromptLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger());
     }
 
     public function testLoadWithDBALExceptionRegistersNoPrompts(): void
     {
         $exception = new class('DB error') extends \Exception implements DBALException {};
 
-        $this->connection->method('fetchAllAssociative')
-            ->willThrowException($exception);
+        $this->storage->method('forActiveApps')->willThrowException($exception);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerPrompt');
@@ -54,17 +61,7 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testLoadWithOnePromptRegistersPromptWithCorrectName(): void
     {
-        $promptRow = [
-            'name' => 'order-context',
-            'url' => 'https://app.example.com/mcp/prompt/order-context',
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'label' => 'Order Context',
-            'description' => 'Context for order management',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$promptRow]);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig())]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -87,16 +84,9 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testTitleIsNullWhenLabelIsEmpty(): void
     {
-        $promptRow = [
-            'name' => 'order-context',
-            'url' => 'https://app.example.com/mcp/prompt/order-context',
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'label' => '',
-            'description' => 'Context for order management',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->promptConfig(label: ['en-GB' => ''])),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -118,16 +108,9 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testDescriptionFallsBackToPromptNameWhenNoLabelOrDescription(): void
     {
-        $promptRow = [
-            'name' => 'mystery-prompt',
-            'url' => 'https://app.example.com/mcp/prompt/mystery',
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'label' => null,
-            'description' => null,
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->promptConfig(name: 'mystery-prompt', label: [], description: [])),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
@@ -149,23 +132,14 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testRegisteredCallbackInvokesExecutorWithEmptyArguments(): void
     {
-        $promptRow = [
-            'name' => 'order-context',
-            'url' => 'https://app.example.com/mcp/prompt/order-context',
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'label' => 'Order Context',
-            'description' => 'Context for orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig())]);
 
         $executor = $this->createMock(AppMcpCapabilityExecutor::class);
         $executor->expects($this->once())
             ->method('execute')
-            ->with('my-app-order-context', 'test-secret', 'https://app.example.com/mcp/prompt/order-context', [])
+            ->with('my-app-order-context', 'my-app', 'https://app.example.com/mcp/prompt/order-context', [])
             ->willReturn('{"messages":[]}');
-        $loader = new AppMcpPromptLoader($this->connection, $executor, new NullLogger());
+        $loader = new AppMcpPromptLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
 
         $capturedCallback = null;
         $registry = $this->createMock(RegistryInterface::class);
@@ -190,8 +164,7 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testLoadWithEmptyResultRegistersNoPrompts(): void
     {
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([]);
+        $this->storage->method('forActiveApps')->willReturn([]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerPrompt');
@@ -201,20 +174,44 @@ class AppMcpPromptLoaderTest extends TestCase
 
     public function testPromptWithReservedShopwarePrefixIsSkipped(): void
     {
-        $promptRow = [
-            'name' => 'context',
-            'url' => 'https://app.example.com/mcp/prompt/context',
-            'app_name' => 'shopware',
-            'app_secret' => 'secret',
-            'label' => null,
-            'description' => null,
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->promptConfig(name: 'context'), appName: 'shopware'),
+        ]);
 
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerPrompt');
 
         $this->loader->load($registry);
+    }
+
+    public function testSkipsPromptWhenAppHasNoSecret(): void
+    {
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->promptConfig(), appHasSecret: false)]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->never())->method('registerPrompt');
+
+        $this->loader->load($registry);
+    }
+
+    /**
+     * @param array<string, string> $label
+     * @param array<string, string> $description
+     */
+    private function promptConfig(
+        string $name = 'order-context',
+        string $url = 'https://app.example.com/mcp/prompt/order-context',
+        array $label = ['en-GB' => 'Order Context'],
+        array $description = ['en-GB' => 'Context for order management'],
+    ): McpPromptConfig {
+        return new McpPromptConfig($name, $url, new TranslatedString($label), new TranslatedString($description));
+    }
+
+    /**
+     * @return AppFeature<McpPromptConfig>
+     */
+    private function feature(McpPromptConfig $config, string $appName = 'my-app', bool $appHasSecret = true): AppFeature
+    {
+        return new AppFeature('0189aaaabbbbcccc0000000000000001', $appName, true, '0.0.0', $appHasSecret, new \DateTimeImmutable(), $config);
     }
 }

@@ -137,7 +137,10 @@ steps:
     env:
       ISSUE: ${{ github.event.issue.number || inputs.issue_number }}
       VERSION: ${{ steps.version.outputs.is_trunk == 'true' && 'trunk' || steps.version.outputs.target_version }}
-      APP_URL: ${{ steps.provision.outputs.app_url }}
+      # The agent is always sandboxed (strict: true), so it reaches the shop only at
+      # host.docker.internal — context.md must show that, not the host-side localhost URL (which is
+      # reserved for the trusted post-agent verify steps). Matches "Export shop coordinates" below.
+      APP_URL: http://host.docker.internal:8000
     run: bash .github/actions/reproduce/steps/compose-prompt.sh
 
   # The sandboxed agent reaches the shop via host.docker.internal (localhost inside the awf sandbox

@@ -42,6 +42,15 @@ export function validate() {
   add(typeof plan.issue !== 'number', 'issue must be the issue number');
   add(!plan.version, 'version is required');
 
+  // Pin script_path to the per-executor default. The bundle artifact uploaded for the trunk leg only
+  // carries the default file (repro.spec.ts / ReproTest.php), so a custom path would be absent on the
+  // trunk runner and block the leg. There is no reason to deviate — one executor writes one test file.
+  const defaultSpec = plan.executor === 'direct' ? FILES.testPhp : FILES.specTs;
+  add(
+    plan.script_path && plan.script_path !== defaultSpec,
+    `script_path must be the default '${defaultSpec}' for the ${plan.executor} executor (the trunk leg only receives the default path)`,
+  );
+
   // Visual issues need Playwright because HTTP/direct cannot observe rendering symptoms.
   const issueClass = fs.existsSync('issue-class.txt') ? fs.readFileSync('issue-class.txt', 'utf8').trim() : '';
   add(

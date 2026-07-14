@@ -54,7 +54,10 @@ export function computeVerdict(art = process.env.ART || 'artifacts') {
   const reported = reportedLeg?.status ?? 'null';
   const trunk = trunkLeg?.status ?? 'null';
 
-  const confidence = plan.confidence ?? 1;
+  // A missing OR malformed confidence conservatively routes to needs_human_review: default to 0, not
+  // 1. `?? 0` alone wouldn't catch a non-number (e.g. "high" → NaN, and `NaN < 0.7` is false → falsely
+  // trusted), so require an actual number and treat anything else as 0 (fully untrusted).
+  const confidence = typeof plan.confidence === 'number' ? plan.confidence : 0;
   const blockedReason = plan.blocked_reason || '';
   let unsureReason = '';
   if (blockedReason && blockedReason !== 'null') {

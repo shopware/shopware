@@ -1,0 +1,9 @@
+/* Update the CSS styles for the TAG column to remove whitespace */
+.tags-column {
+    white-space: nowrap;
+}
+
+.tag {
+    display: inline-block;
+    margin-right: 5px;
+}

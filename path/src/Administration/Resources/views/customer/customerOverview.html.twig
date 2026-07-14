@@ -1,0 +1,44 @@
+# Verify the fix by creating a customer with a small tag and checking that the tag is displayed correctly in the TAG column on the customer overview page.
+{% extends 'customerOverview.html.twig' %}
+
+{% block customerOverviewTable %}
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans %}Tags{% endtrans %}</th>
+                <!-- Other table headers -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+                <tr>
+                    <td class="tags-column">
+                        {% for tag in customer.tags %}
+                            <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </td>
+                    <!-- Other table columns -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block customerOverviewScript %}
+    <script>
+        // Test the fix by creating a customer with a small tag
+        var customer = {
+            tags: ['B2C']
+        };
+        var table = $('.customerOverviewTable');
+        var row = $('<tr>');
+        var cell = $('<td>');
+        cell.addClass('tags-column');
+        var tag = $('<span>');
+        tag.addClass('tag');
+        tag.text(customer.tags[0]);
+        cell.append(tag);
+        row.append(cell);
+        table.find('tbody').append(row);
+    </script>
+{% endblock %}

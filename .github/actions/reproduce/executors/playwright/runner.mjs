@@ -37,9 +37,48 @@ export function runPlaywright({ plan, target, authored, spec, storageState, view
  * and `repro try` fails. Prefer `RUNNER_TEMP` when it is actually writable, otherwise fall back to
  * a workspace-local dir, which the sandbox leaves writable.
  */
+const SANDBOX = process.env.REPRO_SANDBOX === '1';
+
+/**
+ * Builds the command that runs the (untrusted, agent-authored) spec.
+ *
+ * Host-side (`npx`) by default. When `REPRO_SANDBOX=1` the spec runs inside a Playwright container
+ * whose only reachable destination is the shop on the runner host (`host.docker.internal`) — the
+ * job applies a `DOCKER-USER` egress DROP so the container has no internet, so a spec that escapes
+ * validate.mjs's correctness gates still cannot exfiltrate, abuse the network, or reach the token.
+ * The workspace is bind-mounted at the same path (and set as workdir) so relative config, storage
+ * state, report, and output paths resolve exactly as they do host-side. The image's own Playwright
+ * + browsers are used (no host node_modules), so the container is self-contained.
+ */
+function specRunCommand(configPath, env) {
+  if (!SANDBOX) {
+    return { cmd: 'npx', args: ['playwright', 'test', '--config', configPath] };
+  }
+  const image = process.env.REPRO_SANDBOX_PW_IMAGE || 'mcr.microsoft.com/playwright:v1.55.0-noble';
+  const ws = process.cwd();
+  const passthrough = ['APP_URL', 'PW_STORAGE', 'PW_JSON_REPORT', 'PW_OUTPUT_DIR', 'PW_HTML_REPORT', 'PW_VIDEO', 'PW_VIEWPORT', 'REPRO_VIDEO_SLOWMO']
+    .filter((key) => env[key] != null && env[key] !== '')
+    .flatMap((key) => ['-e', `${key}=${env[key]}`]);
+  return {
+    cmd: 'docker',
+    args: [
+      'run', '--rm',
+      '--add-host=host.docker.internal:host-gateway',
+      '--user', `${process.getuid()}:${process.getgid()}`, // outputs land owned by the runner, not root
+      '-e', 'HOME=/tmp',
+      '-v', `${ws}:${ws}`, '-w', ws,
+      ...passthrough,
+      image,
+      'npx', 'playwright', 'test', '--config', configPath,
+    ],
+  };
+}
+
 function createRunDir(suffix) {
   const candidates = [
-    process.env.RUNNER_TEMP ? path.join(process.env.RUNNER_TEMP, `repro-playwright${suffix}`) : null,
+    // Under the sandbox the run dir must live inside the bind-mounted workspace so the container
+    // sees the config/spec; RUNNER_TEMP is not mounted, so skip it there.
+    (!SANDBOX && process.env.RUNNER_TEMP) ? path.join(process.env.RUNNER_TEMP, `repro-playwright${suffix}`) : null,
     `.repro-playwright${suffix}`,
   ].filter(Boolean);
   for (const dir of candidates) {
@@ -60,8 +99,10 @@ function createRunDir(suffix) {
 function runSpec(spec, storageState, { video, viewport }) {
   const suffix = video ? '-video' : '';
   const runDir = createRunDir(suffix);
+  // Host-side reuses the workspace node_modules; the sandbox uses the image's own Playwright, so a
+  // symlink to the host modules (whose browsers live at a host path) must NOT leak into the container.
   const runNodeModules = path.join(runDir, 'node_modules');
-  if (fs.existsSync('node_modules') && !fs.existsSync(runNodeModules)) {
+  if (!SANDBOX && fs.existsSync('node_modules') && !fs.existsSync(runNodeModules)) {
     fs.symlinkSync(path.resolve('node_modules'), runNodeModules);
   }
   fs.copyFileSync(path.join(boilerplateDir, 'playwright.config.ts'), path.join(runDir, 'playwright.config.ts'));
@@ -82,7 +123,8 @@ function runSpec(spec, storageState, { video, viewport }) {
     ...(viewport ? { PW_VIEWPORT: viewport } : {}),
   };
 
-  spawnSync('npx', ['playwright', 'test', '--config', path.join(runDir, 'playwright.config.ts')], {
+  const { cmd, args } = specRunCommand(path.join(runDir, 'playwright.config.ts'), env);
+  spawnSync(cmd, args, {
     stdio: ['ignore', fs.openSync(`pw-stdout${suffix}.txt`, 'w'), fs.openSync(`pw-stderr${suffix}.txt`, 'w')],
     env,
   });

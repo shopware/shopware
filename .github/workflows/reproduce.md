@@ -405,8 +405,30 @@ safe-outputs:
             npm i -D @playwright/test
             npx playwright install --with-deps chromium
 
-        # UNTRUSTED: re-executes the agent-authored spec host-side. Read-only token; the trunk leg is
-        # uploaded as data for reproduce-report to judge — this job renders no verdict and posts nothing.
+        # SANDBOX (playwright only): the agent-authored spec is the ONE untrusted thing here, and the
+        # trusted verify runs it host-side — so run it in a Playwright container with NO internet.
+        # Register host.docker.internal as a storefront domain + resolve it on the host (so host-side
+        # seed/readiness/login create auth cookies for the SAME origin the container's baseURL uses),
+        # pre-pull the image BEFORE egress is cut, then DROP all container egress: host-gateway traffic
+        # (shop + DB) is delivered locally and bypasses the FORWARD/DOCKER-USER chain, so it stays
+        # reachable while the internet does not. Mechanism validated on fork run 29320621690.
+        - name: Arm playwright sandbox
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success'
+          env:
+            SHOP_DIR: shop
+            SANDBOX_URL: http://host.docker.internal:8000
+            REPRO_SANDBOX_PW_IMAGE: mcr.microsoft.com/playwright:v1.55.0-noble
+          run: |
+            set -euo pipefail
+            bash .github/actions/reproduce/steps/register-sandbox-domain.sh
+            echo '127.0.0.1 host.docker.internal' | sudo tee -a /etc/hosts >/dev/null
+            docker pull "$REPRO_SANDBOX_PW_IMAGE"      # pull while the network is still open
+            sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
+
+        # UNTRUSTED: re-executes the agent-authored spec. For playwright the spec runs in the egress-
+        # locked container (REPRO_SANDBOX=1) reaching the shop at host.docker.internal; direct/http
+        # stay host-side on localhost (not sandboxed in this increment). Read-only token; the trunk
+        # leg is uploaded as data for reproduce-report to judge — this job renders no verdict.
         - name: Verify on trunk
           id: trunk_verify
           if: steps.bundle.outputs.run_trunk == 'true' && steps.provision.outcome == 'success'
@@ -414,8 +436,10 @@ safe-outputs:
           env:
             REPRO_ALLOW_VERIFY: "1"
             TARGET: trunk
-            APP_URL: ${{ steps.provision.outputs.app_url }}
+            APP_URL: ${{ steps.plan.outputs.executor == 'playwright' && 'http://host.docker.internal:8000' || steps.provision.outputs.app_url }}
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
+            REPRO_SANDBOX: ${{ steps.plan.outputs.executor == 'playwright' && '1' || '' }}
+            REPRO_SANDBOX_PW_IMAGE: mcr.microsoft.com/playwright:v1.55.0-noble
           run: node .github/actions/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
 
         # Assemble the trunk leg (result.json + evidence) as a data artifact. A missing result.json is

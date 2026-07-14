@@ -68,6 +68,7 @@ use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\App\Cookie\CookieFeatureDefinition;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
@@ -468,9 +469,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AppCookieCollectListener::class)
         ->args([
-            service('app.repository'),
+            service(AppFeatureStorage::class),
         ])
         ->tag('kernel.event_listener');
+
+    $services->set(CookieFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
     $services->set(AppPaymentHandler::class)
         ->args([

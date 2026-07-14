@@ -4,18 +4,18 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-13 15:04:47
+ * Last generated: 2026-07-14 11:37:53
  */
 
-namespace Shopware\Core\Framework\Api\Dto;
+namespace Shopware\Core\Framework\Api\Request;
 
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-final readonly class SuccessResponse
+final readonly class SubAggregations
 {
     public function __construct(
-        public ?bool $success = null,
+        public mixed $aggregation = null,
     ) {
     }
 }

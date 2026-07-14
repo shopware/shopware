@@ -4,18 +4,15 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-13 15:04:47
+ * Last generated: 2026-07-14 11:31:39
  */
 
-namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;
+namespace Shopware\Core\Framework\Api\Response;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * Returns a success response indicating a successful update
- */
 #[Package('framework')]
-final readonly class ChangeProfileResponse
+final readonly class SuccessResponse
 {
     public function __construct(
         public ?bool $success = null,

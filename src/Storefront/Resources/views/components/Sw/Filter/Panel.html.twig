@@ -11,14 +11,25 @@
     showLayoutSwitch = true,
     visibleFilterCount = 3,
     slots = [],
+    displayType = 'dropdown',
 %}
 
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,
 } %}
 
+{% set panelCVA = cva({
+    base: 'sw-filter-panel container',
+    variants: {
+        displayType: {
+            dropdown: 'is--dropdown',
+            collapse: 'is--collapse',
+        },
+    },
+}) %}
+
 {% set defaultAttributes = {
-    class: 'sw-filter-panel container',
+    class: panelCVA.apply({ displayType }),
     'data-component': 'Sw:Filter:Panel',
     'data-component-options': filterPanelOptions|json_encode,
 } %}
@@ -34,7 +45,10 @@
         {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
         {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item :filterName="manufacturerFilterName">
+        <twig:Sw:Filter:Item 
+            :filterName="manufacturerFilterName" 
+            :displayType="displayType"
+        >
             <twig:Sw:Filter:Type:MultiSelectFilter
                 name="manufacturer"
                 :displayName="manufacturerFilterName"
@@ -48,7 +62,10 @@
     {% if ratingAggregation is defined %}
         {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item :filterName="ratingFilterName">
+        <twig:Sw:Filter:Item 
+            :filterName="ratingFilterName" 
+            :displayType="displayType"
+        >
             <twig:Sw:Filter:Type:RatingFilter name="rating"></twig:Sw:Filter:Type:RatingFilter>
         </twig:Sw:Filter:Item>
     {% endif %}
@@ -58,7 +75,10 @@
     {% if priceAggregation is defined %}
         {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item :filterName="priceFilterName">
+        <twig:Sw:Filter:Item 
+            :filterName="priceFilterName" 
+            :displayType="displayType"
+        >
             <twig:Sw:Filter:Type:RangeFilter
                 minKey="min-price"
                 maxKey="max-price"
@@ -73,7 +93,10 @@
 {% set propertiesFilter %}
     {% if propertiesAggregation.entities|length > 0 %}
         {% for property in propertiesAggregation.entities %}
-            <twig:Sw:Filter:Item :filterName="property.translated.name">
+            <twig:Sw:Filter:Item 
+                :filterName="property.translated.name" 
+                :displayType="displayType"
+            >
                 <twig:Sw:Filter:Type:MultiSelectFilter
                     name="properties"
                     :displayName="property.translated.name"
@@ -114,7 +137,7 @@
                 {{ filters[filter] }}
             {% endfor %}
         {% endblock %}
-    {% endset%}
+    {% endset %}
 
     <twig:Sw:Content:Offcanvas id="filter-offcanvas" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
         <div class="sw-filter-panel__filter">
@@ -127,23 +150,27 @@
 
             {# Expand or collapse hidden filters #}
             {% if filterAggregations|length > visibleFilterCount %}
-                <button class="sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn d-none d-md-block">
+                <twig:Sw:Button 
+                    variant="filter" 
+                    class="sw-filter-panel__expand d-none d-md-block"
+                >
                     <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
                     <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
                     <twig:Sw:Icon name="sliders-horizontal" size="xs" />
-                </button>
+                </twig:Sw:Button>
             {% endif %}
         </div>
     </twig:Sw:Content:Offcanvas>
 
     {# Offcanvas filter button for mobile #}
-    <button
-        class="sw-filter-panel__filter-btn btn-light btn d-block d-md-none"
+    <twig:Sw:Button
+        variant="filter"
+        class="d-block d-md-none"
         aria-controls="filter-offcanvas"
         data-bs-toggle="offcanvas"
         data-bs-target="#filter-offcanvas">
         {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
-    </button>
+    </twig:Sw:Button>
 
     {% block actions %}
         <div class="sw-filter-panel__actions">

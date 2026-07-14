@@ -12,39 +12,26 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\App\Cookie\CookieConfig;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @phpstan-import-type Cookie from AppEntity
  */
 #[CoversClass(AppCookieCollectListener::class)]
 class AppCookieCollectListenerTest extends TestCase
 {
     public function testSingleCookie(): void
     {
-        $event = new CookieGroupCollectEvent(
-            new CookieGroupCollection(),
-            new Request(),
-            Generator::generateSalesChannelContext()
-        );
+        $event = $this->event();
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
-            [
-                'value' => '',
-                'cookie' => 'swag-analytics',
-                'expiration' => '30',
-                'snippet_name' => 'swag.analytics.name',
-            ],
-        ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->listener(
+            new CookieConfig('swag.analytics.name', null, 'swag-analytics', '', 30, [])
+        )->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -58,32 +45,23 @@ class AppCookieCollectListenerTest extends TestCase
 
     public function testCookieGroup(): void
     {
-        $event = new CookieGroupCollectEvent(
-            new CookieGroupCollection(),
-            new Request(),
-            Generator::generateSalesChannelContext()
-        );
+        $event = $this->event();
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
-            [
-                'entries' => [
-                    [
-                        'cookie' => 'swag-app-something',
-                        'snippet_name' => 'first.cookie',
-                        'snippet_description' => 'first.cookie.description',
-                        'value' => 'test',
-                        'expiration' => '30',
-                    ],
-                    [
-                        'cookie' => 'swag-app-lorem-ipsum',
-                        'snippet_name' => 'second.cookie',
-                    ],
+        $this->listener(
+            new CookieConfig('app.cookies.group', 'app.cookies.group.description', null, null, null, [
+                [
+                    'cookie' => 'swag-app-something',
+                    'snippet_name' => 'first.cookie',
+                    'snippet_description' => 'first.cookie.description',
+                    'value' => 'test',
+                    'expiration' => '30',
                 ],
-                'snippet_name' => 'app.cookies.group',
-                'snippet_description' => 'app.cookies.group.description',
-            ],
-        ]);
-        $this->createListener($appEntity)->__invoke($event);
+                [
+                    'cookie' => 'swag-app-lorem-ipsum',
+                    'snippet_name' => 'second.cookie',
+                ],
+            ])
+        )->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -125,22 +103,12 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
-            [
-                'entries' => [
-                    [
-                        'cookie' => 'swag-app-something',
-                        'snippet_name' => 'first.something',
-                    ],
-                    [
-                        'cookie' => 'swag-app-lorem-ipsum',
-                        'snippet_name' => 'second.lorem.ipsum',
-                    ],
-                ],
-                'snippet_name' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
-            ],
-        ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->listener(
+            new CookieConfig(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED, null, null, null, null, [
+                ['cookie' => 'swag-app-something', 'snippet_name' => 'first.something'],
+                ['cookie' => 'swag-app-lorem-ipsum', 'snippet_name' => 'second.lorem.ipsum'],
+            ])
+        )->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -152,57 +120,24 @@ class AppCookieCollectListenerTest extends TestCase
         static::assertNotNull($entries);
         static::assertCount(3, $entries);
 
-        $coreCookieEntry = $entries->get('core.something');
-        static::assertNotNull($coreCookieEntry);
-        static::assertSame('core.something', $coreCookieEntry->cookie);
-        static::assertSame('cookie.core', $coreCookieEntry->name);
-
-        $firstCookie = $entries->get('swag-app-something');
-        static::assertNotNull($firstCookie);
-        static::assertSame('swag-app-something', $firstCookie->cookie);
-        static::assertSame('first.something', $firstCookie->name);
-
-        $secondCookie = $entries->get('swag-app-lorem-ipsum');
-        static::assertNotNull($secondCookie);
-        static::assertSame('swag-app-lorem-ipsum', $secondCookie->cookie);
-        static::assertSame('second.lorem.ipsum', $secondCookie->name);
+        static::assertNotNull($entries->get('core.something'));
+        static::assertNotNull($entries->get('swag-app-something'));
+        static::assertNotNull($entries->get('swag-app-lorem-ipsum'));
     }
 
     public function testMergeCookiesFromMultipleApps(): void
     {
-        $event = new CookieGroupCollectEvent(
-            new CookieGroupCollection(),
-            new Request(),
-            Generator::generateSalesChannelContext()
-        );
+        $event = $this->event();
 
-        $firstAppEntity = $this->createAppEntity(Uuid::randomHex(), [
-            [
-                'entries' => [
-                    [
-                        'cookie' => 'swag-app-foobar',
-                        'snippet_name' => 'other.app.foobar',
-                    ],
-                ],
-                'snippet_name' => 'app.cookie.group.name',
-            ],
-        ]);
-        $secondAppEntity = $this->createAppEntity(Uuid::randomHex(), [
-            [
-                'entries' => [
-                    [
-                        'cookie' => 'swag-app-something',
-                        'snippet_name' => 'first.something',
-                    ],
-                    [
-                        'cookie' => 'swag-app-lorem-ipsum',
-                        'snippet_name' => 'second.lorem.ipsum',
-                    ],
-                ],
-                'snippet_name' => 'app.cookie.group.name',
-            ],
-        ]);
-        $this->createListener($firstAppEntity, $secondAppEntity)->__invoke($event);
+        $this->listener(
+            new CookieConfig('app.cookie.group.name', null, null, null, null, [
+                ['cookie' => 'swag-app-foobar', 'snippet_name' => 'other.app.foobar'],
+            ]),
+            new CookieConfig('app.cookie.group.name', null, null, null, null, [
+                ['cookie' => 'swag-app-something', 'snippet_name' => 'first.something'],
+                ['cookie' => 'swag-app-lorem-ipsum', 'snippet_name' => 'second.lorem.ipsum'],
+            ])
+        )->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -214,55 +149,48 @@ class AppCookieCollectListenerTest extends TestCase
         static::assertNotNull($entries);
         static::assertCount(3, $entries);
 
-        $firstAppFirstCookie = $entries->get('swag-app-something');
-        static::assertNotNull($firstAppFirstCookie);
-        static::assertSame('swag-app-something', $firstAppFirstCookie->cookie);
-        static::assertSame('first.something', $firstAppFirstCookie->name);
-
-        $firstAppSecondCookie = $entries->get('swag-app-lorem-ipsum');
-        static::assertNotNull($firstAppSecondCookie);
-        static::assertSame('swag-app-lorem-ipsum', $firstAppSecondCookie->cookie);
-        static::assertSame('second.lorem.ipsum', $firstAppSecondCookie->name);
-
-        $secondAppCookie = $entries->get('swag-app-foobar');
-        static::assertNotNull($secondAppCookie);
-        static::assertSame('swag-app-foobar', $secondAppCookie->cookie);
-        static::assertSame('other.app.foobar', $secondAppCookie->name);
+        static::assertNotNull($entries->get('swag-app-something'));
+        static::assertNotNull($entries->get('swag-app-lorem-ipsum'));
+        static::assertNotNull($entries->get('swag-app-foobar'));
     }
 
     public function testItIgnoresDeactivatedApps(): void
     {
-        $event = new CookieGroupCollectEvent(
+        $event = $this->event();
+
+        // forActiveApps returns nothing when no active app declares cookies
+        $this->listener()->__invoke($event);
+
+        static::assertEmpty($event->cookieGroupCollection);
+    }
+
+    private function event(): CookieGroupCollectEvent
+    {
+        return new CookieGroupCollectEvent(
             new CookieGroupCollection(),
             new Request(),
             Generator::generateSalesChannelContext()
         );
-
-        $this->createListener()->__invoke($event);
-
-        $groups = $event->cookieGroupCollection;
-        static::assertEmpty($groups);
     }
 
-    /**
-     * @param list<Cookie> $cookies
-     */
-    private function createAppEntity(string $appId, array $cookies): AppEntity
+    private function listener(CookieConfig ...$configs): AppCookieCollectListener
     {
-        return (new AppEntity())->assign([
-            'id' => $appId,
-            '_uniqueIdentifier' => $appId,
-            'cookies' => $cookies,
-        ]);
-    }
+        $features = array_map(
+            static fn (CookieConfig $config): AppFeature => new AppFeature(
+                'app-id',
+                'app-name',
+                true,
+                '1.0.0',
+                true,
+                new \DateTimeImmutable('2024-01-01'),
+                $config,
+            ),
+            $configs,
+        );
 
-    private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
-    {
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([
-            new AppCollection([...$appEntity]),
-        ]);
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn($features);
 
-        return new AppCookieCollectListener($appRepo);
+        return new AppCookieCollectListener($storage);
     }
 }

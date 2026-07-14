@@ -260,8 +260,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Cookie\AppCookieCollectListener">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Feature\AppFeatureStorage"/>
             <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Cookie\CookieFeatureDefinition">
+            <tag name="shopware.app_feature.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">

@@ -819,7 +819,6 @@ class AppManagerTest extends TestCase
             'label' => 'test',
             'accessToken' => 'test',
             'modules' => [['test']],
-            'cookies' => [['test']],
             'mainModule' => ['test'],
             'appSecret' => 'iamsecret',
             'integration' => [
@@ -848,7 +847,6 @@ class AppManagerTest extends TestCase
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEmpty($appEntity->getModules());
-        static::assertEmpty($appEntity->getCookies());
         static::assertNull($appEntity->getMainModule());
     }
 

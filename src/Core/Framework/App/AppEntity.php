@@ -25,7 +25,6 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
  * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
- * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
  *
  * @phpstan-import-type SourceConfig from AppDefinition
  */
@@ -68,11 +67,6 @@ class AppEntity extends Entity
      * @var Module|null
      */
     protected ?array $mainModule = null;
-
-    /**
-     * @var list<Cookie>
-     */
-    protected array $cookies;
 
     /**
      * @var list<string>|null
@@ -306,22 +300,6 @@ class AppEntity extends Entity
     public function setMainModule(array $mainModule): void
     {
         $this->mainModule = $mainModule;
-    }
-
-    /**
-     * @return list<Cookie>
-     */
-    public function getCookies(): array
-    {
-        return $this->cookies;
-    }
-
-    /**
-     * @param list<Cookie> $cookies
-     */
-    public function setCookies(array $cookies): void
-    {
-        $this->cookies = $cookies;
     }
 
     /**

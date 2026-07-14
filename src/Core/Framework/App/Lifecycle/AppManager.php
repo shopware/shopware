@@ -338,7 +338,6 @@ class AppManager
         $metadata['id'] = $id;
         $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->getIcon($manifest);
-        $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
         $metadata['baseAppUrl'] = $manifest->getAdmin()?->getBaseAppUrl();
         $metadata['allowedHosts'] = $manifest->getAllHosts();
         $metadata['templateLoadPriority'] = $manifest->getStorefront() ? $manifest->getStorefront()->getTemplateLoadPriority() : 0;

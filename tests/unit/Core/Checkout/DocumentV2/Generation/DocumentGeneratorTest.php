@@ -209,7 +209,7 @@ class DocumentGeneratorTest extends TestCase
                 DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . DocumentType::INVOICE->value,
                 $context,
                 $salesChannelId,
-                false,
+                true,
             )
             ->willReturn('generated-number');
 

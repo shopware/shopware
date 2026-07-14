@@ -56,10 +56,7 @@ final readonly class DocumentGenerator
             'renderInput' => $renderInput,
             'renderState' => $renderState,
             'requestedFormats' => $requestedFormats,
-        ] = $this->generateDocument(
-            $generationRequest,
-            $apiContext
-        );
+        ] = $this->generateDocument($generationRequest, $apiContext);
 
         return $this->documentPersister->persist(
             $generationRequest,
@@ -82,10 +79,7 @@ final readonly class DocumentGenerator
         [
             'renderState' => $renderState,
             'requestedFormats' => $requestedFormats,
-        ] = $this->generateDocument(
-            $generationRequest,
-            $apiContext
-        );
+        ] = $this->generateDocument($generationRequest, $apiContext, true);
 
         $result = $renderState->require($requestedFormats[0]);
 
@@ -109,8 +103,11 @@ final readonly class DocumentGenerator
      *     requestedFormats: list<string>
      * }
      */
-    private function generateDocument(DocumentGenerationRequest $generationRequest, Context $apiContext): array
-    {
+    private function generateDocument(
+        DocumentGenerationRequest $generationRequest,
+        Context $apiContext,
+        bool $preview = false,
+    ): array {
         $this->validateGenerationRequest($generationRequest);
 
         $requestedFormats = $this->normalizeRequestedFormats($generationRequest->requestedFormats);
@@ -145,6 +142,7 @@ final readonly class DocumentGenerator
             $generationRequest,
             $order,
             $apiContext,
+            $preview,
         );
 
         $generationRequest = $generationRequest->withDocumentNumber($documentNumber);

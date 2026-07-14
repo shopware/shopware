@@ -73,6 +73,7 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
+        // @codeCoverageIgnoreStart
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
@@ -105,9 +106,7 @@ class Framework extends Bundle
         $loader->load('notification.xml');
         $loader->load('sso.xml');
 
-        // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
-        // @codeCoverageIgnoreEnd
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -115,6 +114,7 @@ class Framework extends Bundle
             $loader->load('seo_test.xml');
             $phpLoader->load('app_test.php');
         }
+        // @codeCoverageIgnoreEnd
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);

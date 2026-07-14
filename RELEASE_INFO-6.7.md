@@ -283,6 +283,19 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 `loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
+### FormFieldToggle can toggle related submit button labels
+
+The storefront `FormFieldToggle` plugin now supports optionally updating a related button label when the toggle value changes.
+
+This is useful for dynamic forms (for example subscribe vs unsubscribe flows) where hidden/visible field groups and the submit action label should stay in sync without introducing a dedicated custom plugin.
+
+For extension and theme developers, two optional data attributes are available on the controlling field:
+
+- `data-form-field-toggle-button-target`: CSS selector for the related button.
+- `data-form-field-toggle-button-text`: Alternate button text that is applied when the toggle target is hidden.
+
+If those attributes are not provided, `FormFieldToggle` behaves exactly as before.
+
 ## API
 
 ### Store API OpenAPI: JSON schema files take precedence over generated entity schemas

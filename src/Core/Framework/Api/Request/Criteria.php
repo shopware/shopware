@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 12:22:24
+ * Last generated: 2026-07-14 15:33:06
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -19,8 +19,9 @@ final readonly class Criteria
         public ?int $page = null,
         public ?int $limit = null,
         /**
-         * @var array<string, mixed>
+         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
          */
+        #[Assert\Valid]
         public ?array $filter = null,
         /**
          * @var list<Sort>
@@ -28,13 +29,19 @@ final readonly class Criteria
         #[Assert\Valid]
         public ?array $sort = null,
         /**
-         * @var array<string, mixed>
+         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
          */
+        #[Assert\Valid]
         public ?array $postFilter = null,
-        public mixed $associations = null,
         /**
-         * @var array<string, mixed>
+         * @var array<string, Criteria>
          */
+        #[Assert\Valid]
+        public ?array $associations = null,
+        /**
+         * @var list<AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange>
+         */
+        #[Assert\Valid]
         public ?array $aggregations = null,
         /**
          * @var list<string>
@@ -56,8 +63,18 @@ final readonly class Criteria
          */
         #[Assert\All(new Assert\Type('string'))]
         public ?array $ids = null,
-        public mixed $includes = null,
-        public mixed $excludes = null,
+        /**
+         * Specify the fields that should be returned for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Fields will not be included, if they are also specified in the excludes. Note that the include fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons. To return a DAL extension, list the extension by its name (for example `myExtension`); the `extensions` wrapper is then kept automatically. Listing the keyword `extensions` returns all extensions.
+         *
+         * @var array<string, list<string>>
+         */
+        public ?array $includes = null,
+        /**
+         * Specify the fields that should be excluded from the response for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Note that the exclude fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons. Use an extension name to remove a single extension, or the keyword `extensions` to remove all of them.
+         *
+         * @var array<string, list<string>>
+         */
+        public ?array $excludes = null,
         /**
          * Search term
          */

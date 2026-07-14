@@ -240,14 +240,46 @@ post-steps:
         [ -s agent-summary.md.tmp ] && mv agent-summary.md.tmp agent-summary.md || rm -f agent-summary.md.tmp
       fi
 
+  # Sandbox the reported leg the same way as the trunk leg: the reported verify also re-executes the
+  # agent-authored spec/test host-side (post-agent, read-only token). Read the executor from the plan
+  # and arm the matching container (playwright image / PHP image + socat DB relay), add /etc/hosts so
+  # host-side login/seed hit the SAME host.docker.internal origin the container uses, then DROP
+  # container egress. continue-on-error so an arm hiccup degrades to a blocked leg, never a dead run.
+  # host.docker.internal is already registered as a sales-channel domain by the pre-agent step.
+  - name: Arm reported-leg sandbox
+    if: always() && hashFiles('reproduction-plan.json') != ''
+    continue-on-error: true
+    run: |
+      set -euo pipefail
+      EXE=$(jq -r '.executor // ""' reproduction-plan.json 2>/dev/null || echo "")
+      echo '127.0.0.1 host.docker.internal' | sudo tee -a /etc/hosts >/dev/null
+      if [ "$EXE" = playwright ]; then
+        PW_VER=$(node -p "require('@playwright/test/package.json').version")
+        IMG="mcr.microsoft.com/playwright:v${PW_VER}-noble"
+        docker pull "$IMG"
+        { echo "REPRO_SANDBOX=1"; echo "REPRO_SANDBOX_PW_IMAGE=$IMG"; } >> "$GITHUB_ENV"
+        sudo iptables -I DOCKER-USER -j DROP
+      elif [ "$EXE" = direct ]; then
+        docker build -t repro-php:local - < .github/actions/reproduce/dev/php-sandbox.Dockerfile
+        { echo "REPRO_SANDBOX=1"; echo "REPRO_SANDBOX_PHP_IMAGE=repro-php:local"; } >> "$GITHUB_ENV"
+        command -v socat >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q socat; }
+        GW=$(ip -4 -o addr show docker0 | awk '{print $4}' | cut -d/ -f1)
+        sudo socat "TCP-LISTEN:3306,bind=${GW},fork,reuseaddr" TCP:127.0.0.1:3306 &
+        sleep 2
+        sudo iptables -I DOCKER-USER -j DROP
+      fi   # http: no container (data-only)
+
   - name: Authoritative reported-version verification
     id: reported_verify
     if: always() && hashFiles('reproduction-plan.json') != ''
     continue-on-error: true
+    # APP_URL is the ambient http://host.docker.internal:8000 (set by "Export shop coordinates"), which
+    # host-side legs now resolve via the /etc/hosts entry the arm step adds; REPRO_SANDBOX + the image
+    # come from the arm step's GITHUB_ENV. So playwright's host-side login mints cookies for the same
+    # origin the sandboxed spec uses.
     env:
       REPRO_ALLOW_VERIFY: "1"
       TARGET: reported
-      APP_URL: ${{ steps.provision.outputs.app_url }}
     run: |
       set -euo pipefail
       node /tmp/reproduce/cli/repro.mjs validate
@@ -431,10 +463,27 @@ safe-outputs:
             docker pull "$IMG"                          # pull while the network is still open
             sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
 
-        # UNTRUSTED: re-executes the agent-authored spec. For playwright the spec runs in the egress-
-        # locked container (REPRO_SANDBOX=1) reaching the shop at host.docker.internal; direct/http
-        # stay host-side on localhost (not sandboxed in this increment). Read-only token; the trunk
-        # leg is uploaded as data for reproduce-report to judge — this job renders no verdict.
+        # SANDBOX (direct only): run the agent-authored PHPUnit test in an egress-locked PHP container.
+        # Build the PHP image (kernel-boot extensions), then relay the docker0 gateway:3306 -> the host
+        # MySQL: the builtin MySQL binds 127.0.0.1, so the container's DB traffic must arrive as a LOCAL
+        # connection (existing root@localhost grant applies) — no MySQL reconfig. Then DROP container
+        # internet. Validated on fork run 29324172458.
+        - name: Arm direct sandbox
+          if: steps.bundle.outputs.run_trunk == 'true' && steps.plan.outputs.executor == 'direct' && steps.provision.outcome == 'success'
+          run: |
+            set -euo pipefail
+            docker build -t repro-php:local - < .github/actions/reproduce/dev/php-sandbox.Dockerfile
+            echo "REPRO_SANDBOX_PHP_IMAGE=repro-php:local" >> "$GITHUB_ENV"
+            command -v socat >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q socat; }
+            GW=$(ip -4 -o addr show docker0 | awk '{print $4}' | cut -d/ -f1)
+            sudo socat "TCP-LISTEN:3306,bind=${GW},fork,reuseaddr" TCP:127.0.0.1:3306 &  # relay survives to the verify step
+            sleep 2
+            sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
+
+        # UNTRUSTED: re-executes the agent-authored spec/test. playwright → egress-locked Playwright
+        # container reaching the shop at host.docker.internal; direct → egress-locked PHP container
+        # reaching the DB via the socat relay; http stays host-side (data-only, no code execution).
+        # Read-only token; the trunk leg is uploaded as data for reproduce-report to judge.
         - name: Verify on trunk
           id: trunk_verify
           if: steps.bundle.outputs.run_trunk == 'true' && steps.provision.outcome == 'success'
@@ -444,8 +493,8 @@ safe-outputs:
             TARGET: trunk
             APP_URL: ${{ steps.plan.outputs.executor == 'playwright' && 'http://host.docker.internal:8000' || steps.provision.outputs.app_url }}
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
-            REPRO_SANDBOX: ${{ steps.plan.outputs.executor == 'playwright' && '1' || '' }}
-            # REPRO_SANDBOX_PW_IMAGE is exported by "Arm playwright sandbox" (matched to the host Playwright).
+            REPRO_SANDBOX: ${{ (steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct') && '1' || '' }}
+            # REPRO_SANDBOX_PW_IMAGE / REPRO_SANDBOX_PHP_IMAGE are exported by the matching "Arm … sandbox" step.
           run: node .github/actions/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
 
         # Assemble the trunk leg (result.json + evidence) as a data artifact. A missing result.json is

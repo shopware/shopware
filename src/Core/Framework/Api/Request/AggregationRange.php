@@ -13,21 +13,23 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Package('framework')]
-final readonly class MultiNotFilter
+final readonly class AggregationRange
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['multi', 'not'])]
-        public string $type,
+        public string $name,
         #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['and', 'or', 'nor', 'nand'])]
-        public string $operator,
+        public string $field,
         /**
-         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
+         * @var array<string, mixed>
          */
         #[Assert\NotNull]
+        public array $ranges,
+        #[Assert\NotBlank]
+        #[Assert\Choice(choices: ['range'])]
+        public string $type = 'range',
         #[Assert\Valid]
-        public array $queries,
+        public AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange|null $aggregation = null,
     ) {
     }
 }

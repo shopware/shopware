@@ -1534,7 +1534,7 @@
     "keyboardShortcutAccessibilityMoveFocusForward": "Tab",
     "functionAccessibilityMoveFocusBackward": "Move to previous focusable element",
     "keyboardShortcutAccessibilityMoveFocusBackward": "Shift-Tab",
-    "functionAccessibilityCloseDialog": "Close dialog",
+    "functionAccessibilityCloseDialog": "Close dialogue",
     "keyboardShortcutAccessibilityCloseDialog": "Esc",
     "functionSpecialShortcutFocusSearch": "Focus search",
     "keyboardShortcutSpecialShortcutFocusSearch": "F",

@@ -42,7 +42,7 @@ When Shopware rotates an already-registered app's secret (re-registration), the 
 
 The previous-secret signature lets the app confirm the request comes from the installation that already holds its current secret before it switches to the new one. Apps built on the [app-php-sdk](https://github.com/shopware/app-php-sdk) need no changes. If you validate the confirmation request yourself, accept the registration when **either** signature verifies against a secret you know, and prefer the new secret once confirmed.
 
-An interrupted rotation whose app kept its old credentials should be recovered promptly with `bin/console app:secret:recover`; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until recovery completes.
+An interrupted rotation whose app kept its old credentials should be recovered promptly by running `bin/console app:install <app-name>` or retrying the installation through the Administration API; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until recovery completes.
 
 # 6.7.12.0
 

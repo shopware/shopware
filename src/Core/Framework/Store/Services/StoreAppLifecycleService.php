@@ -54,7 +54,11 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             throw StoreException::extensionInstallException(\sprintf('Cannot find app by name %s', $technicalName));
         }
 
-        $this->appLifecycle->install($manifests[$technicalName], new AppInstallParameters(activate: false), $context);
+        $this->appLifecycle->install(
+            $manifests[$technicalName],
+            new AppInstallParameters(activate: false, recoverAppSecret: true),
+            $context
+        );
     }
 
     public function uninstallExtension(string $technicalName, Context $context, bool $keepUserData = false): void

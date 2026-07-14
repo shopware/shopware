@@ -435,6 +435,27 @@ class AppSecretRotationServiceTest extends TestCase
         $this->service->recoverNow($appId, $context);
     }
 
+    public function testRecoverUsesAnAlreadyHeldLockWithoutReacquiringIt(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $app->setAppSecret('committed-secret');
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+        $this->setupAppLookup($appId, $app);
+        $this->setupResolvableManifestWithSetup();
+
+        $this->registrationLock->expects($this->never())->method('locked');
+        $this->registrationLock->expects($this->once())
+            ->method('refresh')
+            ->with($this->lock, $appId);
+
+        static::assertSame(
+            AppSecretRecoveryResult::Recovered,
+            $this->service->recoverNow($appId, $context, $this->lock)
+        );
+    }
+
     /**
      * Builds the service under test. The doubles a given test needs to assert on (a real mock with
      * expectations) are passed in; everything else falls back to the shared setUp double.

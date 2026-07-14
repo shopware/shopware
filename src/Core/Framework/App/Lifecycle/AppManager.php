@@ -52,6 +52,7 @@ use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Symfony\Component\Lock\LockInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -98,12 +99,29 @@ class AppManager
 
     public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void
     {
+        $appName = $manifest->getMetadata()->getName();
+        $app = null;
+
+        // Credential repair for a completed app does not install the supplied manifest, so a compatibility or
+        // requirements change must not prevent it. Half-finished installs are validated under the lock before
+        // recovery commits their pending secret. Non-opt-in callers retain the legacy validation order below.
+        if ($parameters->recoverAppSecret) {
+            $app = $this->loadAppByName($appName, $context);
+            if ($app?->getUnconfirmedAppSecrets() !== null) {
+                $this->recoverInstallation($manifest, $parameters, $app, $context);
+
+                return;
+            }
+        }
+
         $this->ensureIsCompatible($manifest);
         $this->ensureMeetsRequirements($manifest);
 
-        $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
+        $app ??= $this->loadAppByName($appName, $context);
         if ($app) {
-            throw AppException::alreadyInstalled($manifest->getMetadata()->getName());
+            $this->recoverInstallation($manifest, $parameters, $app, $context);
+
+            return;
         }
 
         $defaultLocale = $this->getDefaultLocale($context);
@@ -122,13 +140,7 @@ class AppManager
             true
         );
 
-        $this->dispatchInstalled($app, $manifest, $context);
-
-        if ($parameters->activate) {
-            $this->activate($app, $context);
-        }
-
-        $this->updateAclRole($app->getName(), $context);
+        $this->completeInstallation($app, $manifest, $parameters, $context);
     }
 
     /**
@@ -139,7 +151,6 @@ class AppManager
     public function refreshRegistration(AppEntity $app, Context $context): void
     {
         $manifest = $this->manifestFactory->createFromApp($app);
-
         if (!$manifest->getSetup()) {
             return;
         }
@@ -163,6 +174,12 @@ class AppManager
     public function reregister(AppEntity $app, Context $context): void
     {
         $manifest = $this->manifestFactory->createFromApp($app);
+
+        if ($app->getUnconfirmedAppSecrets() !== null) {
+            // A new shop identity deliberately abandons the old registration. Same-identity moves must never
+            // do this: their pending candidates are the only way to repair an ambiguous rotation.
+            $this->appSecretRotationService->discardNow($app->getId(), $context);
+        }
 
         if (!$manifest->getSetup()) {
             return;
@@ -277,6 +294,80 @@ class AppManager
         $this->activeAppsLoader->reset();
     }
 
+    private function recoverInstallation(
+        Manifest $manifest,
+        AppInstallParameters $parameters,
+        AppEntity $app,
+        Context $context
+    ): void {
+        if (!$parameters->recoverAppSecret || $app->getUnconfirmedAppSecrets() === null) {
+            throw AppException::alreadyInstalled($app->getName());
+        }
+
+        $this->registrationLock->locked($app->getId(), function (LockInterface $lock) use ($manifest, $parameters, $app, $context): void {
+            // Re-read after taking the lock: another installation may have completed recovery in the meantime.
+            $app = $this->loadApp($app->getId(), $context);
+            if ($app->getUnconfirmedAppSecrets() === null) {
+                throw AppException::alreadyInstalled($app->getName());
+            }
+
+            // Capture this before recovery commits a secret and the installed event removes a retained
+            // deleted-app secret. These are the two durable markers that the install lifecycle never finished.
+            $resumeInstallation = !$app->getAppSecret()
+                || $this->deletedAppsGateway->getDeletedAppSecret($app->getName()) !== null;
+
+            if ($resumeInstallation) {
+                // These checks belong to installation, not credential repair. Run them before recovery clears
+                // the only durable pending marker, otherwise a failed validation would strand the app row.
+                $this->ensureIsCompatible($manifest);
+                $this->ensureMeetsRequirements($manifest);
+                $this->registrationLock->refresh($lock, $app->getId());
+            }
+
+            $result = $this->appSecretRotationService->recoverNow($app->getId(), $context, $lock);
+            if ($result === AppSecretRecoveryResult::Claimed) {
+                throw AppException::appSecretRecoveryFailed($app->getName());
+            }
+
+            if ($result === AppSecretRecoveryResult::NothingToRecover) {
+                throw AppException::alreadyInstalled($app->getName());
+            }
+
+            // A completed app only needed its credentials repaired. Replaying install handlers or changing
+            // activation would duplicate side effects on an app that was already fully installed.
+            if (!$resumeInstallation) {
+                return;
+            }
+
+            $this->registrationLock->refresh($lock, $app->getId());
+
+            $app = $this->persistAppAfterRegistration(
+                $manifest,
+                $app->getId(),
+                $this->getDefaultLocale($context),
+                $context,
+                true
+            );
+
+            $this->completeInstallation($app, $manifest, $parameters, $context);
+        });
+    }
+
+    private function completeInstallation(
+        AppEntity $app,
+        Manifest $manifest,
+        AppInstallParameters $parameters,
+        Context $context
+    ): void {
+        $this->dispatchInstalled($app, $manifest, $context);
+
+        if ($parameters->activate) {
+            $this->activate($app, $context);
+        }
+
+        $this->updateAclRole($app->getName(), $context);
+    }
+
     private function removeApp(AppEntity $app, Context $context, bool $keepUserData): void
     {
         $this->removeAppAndAclRole($app, $context, $keepUserData, true);
@@ -351,8 +442,8 @@ class AppManager
 
         // Serialise the whole persist against a concurrent rotation or recovery of the same app: a rotation
         // reads the manifest and metadata this method rewrites, and a registration below must not interleave
-        // with one. Cheap (one per-app lock round trip on an operator path), and unconditional is simpler than
-        // locking only the paths that end up registering.
+        // with one. Cheap (one per-app lock round trip on an installation path), and unconditional is simpler
+        // than locking only the paths that end up registering.
         $this->registrationLock->locked($id, function () use ($manifest, $metadata, $id, $install, $parameters, $secretAccessKey, $context): void {
             $this->updateMetadata($metadata, $context);
 
@@ -376,8 +467,8 @@ class AppManager
                     $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
                 } catch (AppRegistrationException $e) {
                     // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting the
-                    // app would lose it — keep the half-installed app for app:secret:recover. Roll back only a
-                    // clean failure that left no unconfirmed secret.
+                    // app would lose it — keep the half-installed app for a later installation repair. Roll
+                    // back only a clean failure that left no unconfirmed secret.
                     if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
                         $this->removeAppData($app, $context);
                     }
@@ -387,6 +478,16 @@ class AppManager
             }
         });
 
+        return $this->persistAppAfterRegistration($manifest, $id, $defaultLocale, $context, $install);
+    }
+
+    private function persistAppAfterRegistration(
+        Manifest $manifest,
+        string $id,
+        string $defaultLocale,
+        Context $context,
+        bool $install
+    ): AppEntity {
         // Refetch app to get secret after registration
         $app = $this->loadApp($id, $context);
 

@@ -130,7 +130,7 @@ class AppLifecycleIterator
             unset($appsFromDb[$app]);
         }
         foreach ($appsFromDb as $appName => $app) {
-            // Mid-recovery: this app still holds an unconfirmed secret that app:secret:recover needs. This
+            // Mid-recovery: this app still holds an unconfirmed secret that a later installation needs. This
             // cleanup also runs on a routine refresh, so uninstalling here would silently destroy it — skip.
             if ($app['hasUnconfirmedSecrets']) {
                 continue;

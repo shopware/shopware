@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -47,6 +49,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
@@ -59,13 +62,13 @@ class AppManagerTest extends TestCase
 
     private PermissionLifecycleService $permissionLifecycle;
 
-    private AppRegistrationService $registrationService;
+    private AppRegistrationService&MockObject $registrationService;
 
     private AppSecretRotationService $appSecretRotationService;
 
     private ManifestFactory $manifestFactory;
 
-    private ActiveAppsLoader $activeAppsLoader;
+    private ActiveAppsLoader&MockObject $activeAppsLoader;
 
     private SystemConfigService $systemConfigService;
 
@@ -74,9 +77,9 @@ class AppManagerTest extends TestCase
      */
     private StaticEntityRepository $integrationRepository;
 
-    private AssetService $assetService;
+    private AssetService&MockObject $assetService;
 
-    private ScriptExecutor $scriptExecutor;
+    private ScriptExecutor&MockObject $scriptExecutor;
 
     private CustomEntityLifecycleService $customEntityLifecycleService;
 
@@ -85,6 +88,10 @@ class AppManagerTest extends TestCase
     private ConfigReader $configReader;
 
     private AppRequirementsValidator $requirementsValidator;
+
+    private DeletedAppsGateway $deletedAppsGateway;
+
+    private AppRegistrationLock $registrationLock;
 
     protected function setUp(): void
     {
@@ -102,16 +109,20 @@ class AppManagerTest extends TestCase
         $this->sourceResolver = new StaticSourceResolver();
         $this->configReader = $this->createMock(ConfigReader::class);
         $this->requirementsValidator = static::createStub(AppRequirementsValidator::class);
+        $this->deletedAppsGateway = static::createStub(DeletedAppsGateway::class);
+        $this->registrationLock = new AppRegistrationLock(new LockFactory(new InMemoryStore()), new NullLogger());
     }
 
     public function testInstallThrowsIfAppIsNotCompatible(): void
     {
         $manifest = ManifestFixture::empty();
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+        $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $existingApp->setUnconfirmedAppSecrets(['pending-secret']);
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
-        $this->createAppManager(AppFixture::createAppRepository())
+        $this->createAppManager(AppFixture::createAppRepository($existingApp))
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
@@ -130,6 +141,8 @@ class AppManagerTest extends TestCase
     {
         $manifest = ManifestFixture::empty();
         $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
+        $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $existingApp->setUnconfirmedAppSecrets(['pending-secret']);
 
         $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
         $requirementsValidator->expects($this->once())
@@ -141,7 +154,7 @@ class AppManagerTest extends TestCase
 
         $this->requirementsValidator = $requirementsValidator;
 
-        $this->createAppManager(AppFixture::createAppRepository())
+        $this->createAppManager(AppFixture::createAppRepository($existingApp))
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
@@ -214,7 +227,7 @@ class AppManagerTest extends TestCase
         $installedApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
         $appRepository->addSearch(new AppCollection([$installedApp]));
         // The failure path re-reads the app: an ambiguous registration (5xx/timeout) left a pending secret the
-        // app may already hold, so the app must be KEPT for app:secret:recover, not deleted.
+        // app may already hold, so the app must be KEPT for a later app:install repair, not deleted.
         $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
         $pendingApp->setUnconfirmedAppSecrets(['left-over-pending']);
         $appRepository->addSearch(new AppCollection([$pendingApp]));
@@ -233,6 +246,251 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository)
             ->install($manifest, new AppInstallParameters(), $context);
+    }
+
+    public function testRecoveryOptInKeepsNormalAlreadyInstalledBehaviour(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('recoverNow');
+
+        $this->expectExceptionObject(AppException::alreadyInstalled('test'));
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->install(
+            ManifestFixture::empty(),
+            new AppInstallParameters(recoverAppSecret: true),
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testInstallRepairsCompletedAppWithoutReplayingLifecycleOrActivation(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $app->setAppSecret('committed-secret');
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+        $appRepository = AppFixture::createAppRepository($app);
+        $appRepository->addSearch(new AppCollection([$app]));
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('recoverNow')
+            ->with($app->getId(), $context, static::isInstanceOf(LockInterface::class))
+            ->willReturn(AppSecretRecoveryResult::Recovered);
+
+        $handler = $this->createMock(AbstractLifecycleHandler::class);
+        $handler->expects($this->never())->method('install');
+        $handler->expects($this->never())->method('activate');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->requirementsValidator = $this->createMock(AppRequirementsValidator::class);
+        $this->requirementsValidator->expects($this->never())->method('validate');
+
+        $this->createAppManager($appRepository, persisters: [$handler])->install(
+            $manifest,
+            new AppInstallParameters(activate: true, recoverAppSecret: true),
+            $context
+        );
+
+        static::assertFalse($app->isActive());
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testInstallValidatesFreshHalfFinishedInstallBeforeRecovery(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+        $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $pendingApp->setAppSecret(null);
+        $pendingApp->setUnconfirmedAppSecrets(['pending-secret']);
+
+        $appRepository = AppFixture::createAppRepository($pendingApp);
+        $appRepository->addSearch(new AppCollection([$pendingApp]));
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('recoverNow');
+
+        $this->expectExceptionObject(AppException::notCompatible('test'));
+
+        $this->createAppManager($appRepository)->install(
+            $manifest,
+            new AppInstallParameters(recoverAppSecret: true),
+            $context
+        );
+    }
+
+    public function testInstallValidatesInterruptedReinstallRequirementsBeforeRecovery(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
+        $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $pendingApp->setAppSecret('deleted-app-secret');
+        $pendingApp->setUnconfirmedAppSecrets(['pending-secret']);
+
+        $appRepository = AppFixture::createAppRepository($pendingApp);
+        $appRepository->addSearch(new AppCollection([$pendingApp]));
+
+        $this->deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
+        $this->deletedAppsGateway->expects($this->once())
+            ->method('getDeletedAppSecret')
+            ->with('test')
+            ->willReturn('deleted-app-secret');
+
+        $this->requirementsValidator = $this->createMock(AppRequirementsValidator::class);
+        $this->requirementsValidator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([$violation]);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('recoverNow');
+
+        $this->expectExceptionObject(AppException::requirementsNotMet($violation));
+
+        $this->createAppManager($appRepository)->install(
+            $manifest,
+            new AppInstallParameters(recoverAppSecret: true),
+            $context
+        );
+    }
+
+    public function testInstallResumesFreshHalfFinishedInstallAndHonoursActivation(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $pendingApp->setUnconfirmedAppSecrets(['pending-secret']);
+        $recoveredApp = clone $pendingApp;
+        $recoveredApp->setAppSecret('recovered-secret');
+        $recoveredApp->setUnconfirmedAppSecrets(null);
+
+        $appRepository = AppFixture::createAppRepository($pendingApp);
+        $appRepository->addSearch(new AppCollection([$pendingApp]), new AppCollection([$recoveredApp]));
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('recoverNow')
+            ->with($pendingApp->getId(), $context, static::isInstanceOf(LockInterface::class))
+            ->willReturn(AppSecretRecoveryResult::Recovered);
+        $this->registrationService->expects($this->never())->method('registerApp');
+
+        $handler = $this->createMock(AbstractLifecycleHandler::class);
+        $handler->expects($this->once())->method('install');
+        $handler->expects($this->once())->method('activate');
+        $this->scriptExecutor->expects($this->exactly(2))->method('execute');
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->assetService->expects($this->once())
+            ->method('copyAssetsFromApp')
+            ->with('test', 'test');
+
+        $this->createAppManager($appRepository, persisters: [$handler])->install(
+            $manifest,
+            new AppInstallParameters(activate: true, recoverAppSecret: true),
+            $context
+        );
+
+        static::assertTrue($recoveredApp->isActive());
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testInstallResumesInterruptedReinstallMarkedByDeletedSecret(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $pendingApp->setAppSecret('deleted-app-secret');
+        $pendingApp->setUnconfirmedAppSecrets(['pending-secret']);
+        $recoveredApp = clone $pendingApp;
+        $recoveredApp->setAppSecret('recovered-secret');
+        $recoveredApp->setUnconfirmedAppSecrets(null);
+
+        $appRepository = AppFixture::createAppRepository($pendingApp);
+        $appRepository->addSearch(new AppCollection([$pendingApp]), new AppCollection([$recoveredApp]));
+
+        $this->deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
+        $this->deletedAppsGateway->expects($this->once())
+            ->method('getDeletedAppSecret')
+            ->with('test')
+            ->willReturn('deleted-app-secret');
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('recoverNow')
+            ->willReturn(AppSecretRecoveryResult::Recovered);
+        $this->registrationService->expects($this->never())->method('registerApp');
+
+        $handler = $this->createMock(AbstractLifecycleHandler::class);
+        $handler->expects($this->once())->method('install');
+        $handler->expects($this->never())->method('activate');
+        $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $this->createAppManager($appRepository, persisters: [$handler])->install(
+            $manifest,
+            new AppInstallParameters(activate: false, recoverAppSecret: true),
+            $context
+        );
+
+        static::assertFalse($recoveredApp->isActive());
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testInstallSurfacesAllRejectedRecoveryWithoutResumingLifecycle(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $app->setAppSecret('committed-secret');
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+        $appRepository = AppFixture::createAppRepository($app);
+        $appRepository->addSearch(new AppCollection([$app]));
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('recoverNow')
+            ->willReturn(AppSecretRecoveryResult::Claimed);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->expectExceptionObject(AppException::appSecretRecoveryFailed('test'));
+
+        $this->createAppManager($appRepository)->install(
+            ManifestFixture::empty()->withSetup(),
+            new AppInstallParameters(recoverAppSecret: true),
+            $context
+        );
+    }
+
+    public function testInstallPropagatesAmbiguousRecoveryForRetry(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $app->setAppSecret('committed-secret');
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+        $appRepository = AppFixture::createAppRepository($app);
+        $appRepository->addSearch(new AppCollection([$app]));
+        $failure = AppException::registrationFailed('test', 'confirm timed out');
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('recoverNow')
+            ->willThrowException($failure);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->expectExceptionObject($failure);
+
+        $this->createAppManager($appRepository)->install(
+            ManifestFixture::empty()->withSetup(),
+            new AppInstallParameters(recoverAppSecret: true),
+            $context
+        );
     }
 
     public function testRefreshRegistrationRefreshesRemoteRegistrationWithoutLifecycleEvents(): void
@@ -278,6 +536,24 @@ class AppManagerTest extends TestCase
 
         $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
+    }
+
+    public function testRefreshRegistrationPreservesPendingSecretForSameIdentityMove(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty()->withSetup());
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('discardNow');
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
 
         $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
     }
@@ -359,6 +635,32 @@ class AppManagerTest extends TestCase
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
     }
 
+    public function testReregisterDiscardsPendingSecretForNewIdentityBeforeRotation(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty()->withSetup());
+
+        $discarded = false;
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('discardNow')
+            ->with($app->getId(), $context)
+            ->willReturnCallback(static function () use (&$discarded): void {
+                $discarded = true;
+            });
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->willReturnCallback(static function () use (&$discarded): void {
+                self::assertTrue($discarded, 'Pending recovery state must be discarded before new-identity registration.');
+            });
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
+    }
+
     public function testReregisterSkipsAppsWithoutSetup(): void
     {
         $context = Context::createDefaultContext();
@@ -380,6 +682,24 @@ class AppManagerTest extends TestCase
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class));
+    }
+
+    public function testReregisterDiscardsPendingSecretWithoutSetupForNewIdentity(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+        $app->setUnconfirmedAppSecrets(['pending-secret']);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty());
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('discardNow')
+            ->with($app->getId(), $context);
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
     }
 
     public function testActivateDoesNothingIfAppIsAlreadyActive(): void
@@ -635,10 +955,10 @@ XML,
             static::createStub(AppFeatureValidator::class),
             $this->sourceResolver,
             $this->configReader,
-            static::createStub(DeletedAppsGateway::class),
+            $this->deletedAppsGateway,
             $this->requirementsValidator,
             new NativeClock(),
-            new AppRegistrationLock(new LockFactory(new InMemoryStore()), new NullLogger())
+            $this->registrationLock
         );
     }
 

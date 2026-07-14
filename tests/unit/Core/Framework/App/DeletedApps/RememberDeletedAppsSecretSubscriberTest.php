@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Context;
@@ -51,8 +52,8 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         static::assertSame([
             AppDeletedEvent::class => 'saveSecretFromDeletedApp',
             AppInstalledEvent::class => 'removeDeletedAppSecret',
-            ShopIdChangedEvent::class => 'purgeOldSecrets',
-            ShopIdDeletedEvent::class => 'purgeOldSecrets',
+            ShopIdChangedEvent::class => 'purgeOldSecretsAfterShopIdChange',
+            ShopIdDeletedEvent::class => 'purgeOldSecretsAfterShopIdDeletion',
         ], RememberDeletedAppsSecretSubscriber::getSubscribedEvents());
     }
 
@@ -114,5 +115,42 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
             ->with('test-app');
 
         $this->subscriber->removeDeletedAppSecret($event);
+    }
+
+    public function testSameIdentityShopIdChangePreservesDeletedAppSecrets(): void
+    {
+        $this->deletedAppsGateway->expects($this->never())->method('purgeOldSecrets');
+
+        $this->subscriber->purgeOldSecretsAfterShopIdChange(new ShopIdChangedEvent(
+            ShopId::v2('same-shop', ['app_url' => 'https://new.example.com']),
+            ShopId::v2('same-shop', ['app_url' => 'https://old.example.com']),
+        ));
+    }
+
+    public function testNewIdentityShopIdChangePurgesDeletedAppSecrets(): void
+    {
+        $this->deletedAppsGateway->expects($this->once())->method('purgeOldSecrets');
+
+        $this->subscriber->purgeOldSecretsAfterShopIdChange(new ShopIdChangedEvent(
+            ShopId::v2('new-shop'),
+            ShopId::v2('old-shop'),
+        ));
+    }
+
+    public function testInitialShopIdCreationPurgesDeletedAppSecrets(): void
+    {
+        $this->deletedAppsGateway->expects($this->once())->method('purgeOldSecrets');
+
+        $this->subscriber->purgeOldSecretsAfterShopIdChange(new ShopIdChangedEvent(
+            ShopId::v2('new-shop'),
+            null,
+        ));
+    }
+
+    public function testShopIdDeletionPurgesDeletedAppSecrets(): void
+    {
+        $this->deletedAppsGateway->expects($this->once())->method('purgeOldSecrets');
+
+        $this->subscriber->purgeOldSecretsAfterShopIdDeletion(new ShopIdDeletedEvent());
     }
 }

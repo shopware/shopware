@@ -378,18 +378,16 @@ Defining custom fields inline in `manifest.xml` via the `<custom-fields>` elemen
 
 When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
 
-### Atomic app secret rotation and a recovery command
+### Atomic app secret rotation with install-based recovery
 
 Rotating an app's shared secret is now atomic. The new secret is stored as a *pending* secret and only becomes the app's active secret once the app confirms it; until then the app keeps authenticating with its current secret. If a rotation is interrupted — a worker crash, a timeout, or the app being briefly unreachable — the mismatch is detectable and operator-recoverable.
 
-A new CLI command finishes or inspects an interrupted rotation:
+Reinstalling an app that has an unconfirmed secret now recovers its credentials instead of reporting that the app is already installed. Run `bin/console app:install <app-name>` or retry the installation through the Administration API. If the app still cannot be recovered, Shopware retains every pending secret so the installation can be retried later.
 
-- `bin/console app:secret:recover` lists every app that still has an unconfirmed secret.
-- `bin/console app:secret:recover <app-name>` re-registers that app with a fresh integration, either committing the recovered secret or, when the app still cannot be recovered, leaving the pending secrets for another retry.
+An interrupted rotation whose app kept its old credentials should be recovered promptly by installing the app again; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until it completes.
 
-An interrupted rotation whose app kept its old credentials should be recovered promptly with `app:secret:recover`; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until it completes.
+Operators who run a fleet of shops get a `app.unconfirmed_app_secrets.count` telemetry gauge so a pending registration or rotation is visible without inspecting the database.
 
-Operators who run a fleet of shops get a `app.unconfirmed_app_secrets.count` telemetry gauge so a stuck rotation is visible without inspecting the database.
 ### Tax provider priority is preserved across app updates
 
 An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.

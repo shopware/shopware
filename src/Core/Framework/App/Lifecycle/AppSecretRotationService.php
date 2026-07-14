@@ -121,7 +121,7 @@ class AppSecretRotationService
             } catch (\Throwable $exception) {
                 // Switch the app back to the integration it used before this rotation — unless the confirm
                 // was uncertain and left an unconfirmed secret, in which case the new integration must stay so
-                // app:secret:recover can re-register against it.
+                // a later app installation can re-register against it.
                 if ($this->loadApp($appId, $context)->getUnconfirmedAppSecrets() === null) {
                     $this->restorePreviousIntegration(
                         appId: $appId,
@@ -143,16 +143,8 @@ class AppSecretRotationService
         });
     }
 
-    public function findAppsWithUnconfirmedSecrets(Context $context): AppCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new NotEqualsFilter('unconfirmedAppSecrets', null));
-
-        return $this->appRepository->search($criteria, $context)->getEntities();
-    }
-
     /**
-     * How many apps have an unconfirmed secret. This is the value reported as the "stuck rotation" metric.
+     * How many apps have an unconfirmed secret. This is the value reported as the pending registration metric.
      * Counts rows only, without loading the full app entities.
      */
     public function countAppsWithUnconfirmedSecrets(Context $context): int
@@ -166,16 +158,17 @@ class AppSecretRotationService
     }
 
     /**
-     * Run by an operator to fix a rotation that ended without a clear answer (the confirm request timed out
-     * or returned a 5xx). An unconfirmed secret was left behind, and we cannot tell whether the app switched to
-     * the new credentials. We re-register the app with a fresh integration, signing the handshake first with
-     * the unconfirmed secret (the one the app most likely holds) and, if that is refused, with the current one.
-     * The first secret the app accepts wins. The expected verdicts are returned as a result; an attempt whose
-     * outcome stays unknown (the app never confirmed) throws instead, so the operator retries. No database
-     * transaction is held open across the registration HTTP call.
+     * Repairs a registration that ended without a clear answer (the confirm request timed out or returned a
+     * 5xx). Installation calls this while holding the per-app lock; direct callers may let this method acquire
+     * it. The expected verdicts are returned as a result, while an unknown outcome throws so installation can
+     * be retried. No database transaction is held open across the registration HTTP call.
      */
-    public function recoverNow(string $appId, Context $context): AppSecretRecoveryResult
+    public function recoverNow(string $appId, Context $context, ?LockInterface $lock = null): AppSecretRecoveryResult
     {
+        if ($lock !== null) {
+            return $this->doRecover($appId, $context, $lock);
+        }
+
         return $this->registrationLock->locked(
             $appId,
             fn (LockInterface $lock) => $this->doRecover($appId, $context, $lock)
@@ -183,9 +176,8 @@ class AppSecretRotationService
     }
 
     /**
-     * Drop the unconfirmed secrets of an app whose recovery was given up on (every candidate rejected and the
-     * operator decided the registration is genuinely lost). Explicit and destructive: after this, only
-     * app:shop-id:change can re-establish the registration.
+     * Drop the unconfirmed secrets before the explicit new-identity shop-ID strategy re-registers the app.
+     * This is destructive and must not be used for same-identity moves, which need the candidates for repair.
      */
     public function discardNow(string $appId, Context $context): void
     {
@@ -268,7 +260,7 @@ class AppSecretRotationService
             }
         } catch (\Throwable $e) {
             // An attempt failed without a clear answer (a 5xx/timeout, or a non-registration failure after the
-            // integration switch). The outcome is unknown, so rethrow for the operator to retry — mirroring
+            // integration switch). The outcome is unknown, so rethrow for installation to retry — mirroring
             // rotateNow's \Throwable handling — and let settle decide whether to undo the integration switch.
             $this->settleAmbiguousRecovery(
                 appId: $appId,

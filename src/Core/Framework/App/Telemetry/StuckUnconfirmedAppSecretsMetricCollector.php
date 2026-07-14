@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInterface;
 
 /**
- * Reports how many apps have an unconfirmed secret (a "stuck" rotation), on the shared
+ * Reports how many apps have an unconfirmed secret (a pending registration or rotation), on the shared
  * `telemetry.collect_periodic_metrics` schedule. It only reports the number — it never changes any data. To
- * fix a stuck app, run `bin/console app:secret:recover <app>`.
+ * repair a pending app, run `bin/console app:install <app>` or retry through the Administration installation API.
  *
  * @internal
  */

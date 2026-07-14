@@ -9,17 +9,21 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Command\AppPrinter;
+use Shopware\Core\Framework\App\Command\InstallAppCommand;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRecoveryResult;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
-use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,6 +31,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Exercises the whole app-secret-rotation lifecycle — install, rotation and recovery — against a fake app
@@ -126,37 +133,50 @@ class AppSecretRotationEndToEndTest extends TestCase
 
     public function testAmbiguousFirstInstallKeepsTheAppSoTheSecretCanBeRecovered(): void
     {
-        // Drives the REAL install path (not a seeded row): a first install whose handshake succeeds — the app
-        // mints and persists a secret — but whose confirm fails ambiguously (5xx). The app may already hold
-        // that secret, and a confirmed app refuses a fresh re-registration, so deleting the row here (the old
-        // behaviour) stranded the install permanently. The row and its pending secret must survive instead.
-        $manifest = Manifest::createFromXmlFile(self::FIXTURE_APP_DIR . '/manifest.xml');
+        $command = new CommandTester($this->createInstallCommand());
+        $installedEvents = new class {
+            public int $count = 0;
+        };
+        $listener = static function (AppInstalledEvent $event) use ($installedEvents): void {
+            ++$installedEvents->count;
+        };
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+        $eventDispatcher->addListener(AppInstalledEvent::class, $listener);
 
+        // First CLI attempt: the app mints and persists a secret, but confirmation fails ambiguously. The row
+        // and pending candidate must survive, while the install lifecycle has not run yet.
         $firstInstallSecret = 'first-install-secret';
         $this->enqueueReRegistrationAttempt(minting: $firstInstallSecret, confirmResponse: new Response(500));
 
         try {
-            static::getContainer()->get(AppLifecycle::class)->install($manifest, new AppInstallParameters(), $this->context);
+            $command->execute(['name' => self::FIXTURE_APP_NAME, '-f' => true]);
             static::fail('An ambiguous first install must surface as a registration failure.');
         } catch (AppRegistrationException $e) {
-            // expected — the confirm outcome is unknown
             static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
         }
 
         try {
             $halfInstalled = $this->getInstalledApp();
-            // The row and the pending secret the app may hold survive — they are not deleted.
             static::assertNull($halfInstalled->getAppSecret(), 'a first install never commits a secret');
             static::assertSame([$firstInstallSecret], $halfInstalled->getUnconfirmedAppSecrets());
+            static::assertSame(0, $installedEvents->count, 'the failed attempt must not emit the installed lifecycle event');
 
-            // Recovery re-registers against that pending secret (its only candidate) and commits a fresh one.
+            // Second CLI attempt repairs credentials and resumes the skipped lifecycle exactly once. --activate
+            // is honoured for a half-finished install, unlike repair of an already completed app.
             $recoveredSecret = 'recovered-secret';
             $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
-            $this->rotationService->recoverNow($halfInstalled->getId(), $this->context);
+            static::assertSame(Command::SUCCESS, $command->execute([
+                'name' => self::FIXTURE_APP_NAME,
+                '-f' => true,
+                '-a' => true,
+            ]));
 
             $recovered = $this->getInstalledApp();
             static::assertSame($recoveredSecret, $recovered->getAppSecret());
             static::assertNull($recovered->getUnconfirmedAppSecrets());
+            static::assertTrue($recovered->isActive());
+            static::assertSame(1, $installedEvents->count);
             // The confirm proves the new secret and authenticates as the pending secret the app held.
             $this->assertConfirmCarriesDualSignature(
                 $this->lastConfirm(),
@@ -164,7 +184,8 @@ class AppSecretRotationEndToEndTest extends TestCase
                 previousSecret: $firstInstallSecret,
             );
         } finally {
-            // Installed via AppLifecycle directly, so the trait's #[After] cleanup does not track this app.
+            $eventDispatcher->removeListener(AppInstalledEvent::class, $listener);
+            // Installed through a standalone command, so the trait's #[After] cleanup does not track this app.
             static::getContainer()->get(Connection::class)->executeStatement(
                 'DELETE FROM app WHERE name = :name',
                 ['name' => self::FIXTURE_APP_NAME]
@@ -423,6 +444,16 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->loadAppsFromDir(self::FIXTURE_APP_DIR);
 
         return $this->getInstalledApp();
+    }
+
+    private function createInstallCommand(): InstallAppCommand
+    {
+        return new InstallAppCommand(
+            new AppLoader(\dirname(self::FIXTURE_APP_DIR), new NullLogger()),
+            static::getContainer()->get(AppLifecycle::class),
+            new AppPrinter($this->appRepository),
+            static::getContainer()->get(ManifestValidator::class)
+        );
     }
 
     private function getInstalledApp(): AppEntity

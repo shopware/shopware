@@ -73,6 +73,17 @@ class AppExceptionTest extends TestCase
         static::assertSame('App registration for "RejectedApp" failed: the app does not trust this secret', $e->getMessage());
     }
 
+    public function testAppSecretRecoveryFailed(): void
+    {
+        $e = AppException::appSecretRecoveryFailed('PendingApp');
+
+        static::assertSame(Response::HTTP_CONFLICT, $e->getStatusCode());
+        static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
+        static::assertStringContainsString('bin/console app:install PendingApp', $e->getMessage());
+        static::assertStringContainsString('Administration installation API', $e->getMessage());
+        static::assertStringContainsString('reinstall-apps', $e->getMessage());
+    }
+
     public function testLicenseCouldNotBeVerified(): void
     {
         $e = AppException::licenseCouldNotBeVerified('UnlicensedApp');

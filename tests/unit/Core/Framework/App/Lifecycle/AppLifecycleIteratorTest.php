@@ -145,8 +145,8 @@ class AppLifecycleIteratorTest extends TestCase
 
     public function testAppWithPendingSecretIsKeptForRecoveryNotDeleted(): void
     {
-        // An app left with a pending secret is mid-recovery: an ambiguous registration kept it so
-        // app:secret:recover can re-register against the secret the app may already hold. A refresh runs this
+        // An app left with a pending secret is mid-recovery: an ambiguous registration kept it so a later
+        // installation can re-register against the secret the app may already hold. A refresh runs this
         // cleanup routinely, so it must not uninstall the app and destroy that secret.
         $existingApp = new PartialEntity();
         $existingApp->setUniqueIdentifier('PendingApp');

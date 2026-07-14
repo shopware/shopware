@@ -35,6 +35,7 @@ class AppException extends HttpException
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
     public const SECRET_ROTATION_ALREADY_PENDING = 'FRAMEWORK__APP_SECRET_ROTATION_ALREADY_PENDING';
+    public const APP_SECRET_RECOVERY_FAILED = 'FRAMEWORK__APP_SECRET_RECOVERY_FAILED';
     public const APP_SECRET_ROTATION_IN_PROGRESS = 'FRAMEWORK__APP_SECRET_ROTATION_IN_PROGRESS';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
@@ -167,7 +168,17 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::SECRET_ROTATION_ALREADY_PENDING,
-            'App "{{ appName }}" has an unconfirmed secret from a previous rotation. Recover or discard it with bin/console app:secret:recover before rotating again.',
+            'App "{{ appName }}" has an unconfirmed secret from a previous registration. Repair it with "bin/console app:install {{ appName }}" or retry the installation through the Administration API before rotating again.',
+            ['appName' => $appName]
+        );
+    }
+
+    public static function appSecretRecoveryFailed(string $appName): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::APP_SECRET_RECOVERY_FAILED,
+            'App "{{ appName }}" rejected every saved credential candidate. The pending recovery state was kept; retry "bin/console app:install {{ appName }}" or the Administration installation API. If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
             ['appName' => $appName]
         );
     }
@@ -177,7 +188,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::APP_SECRET_ROTATION_IN_PROGRESS,
-            'A secret rotation or recovery is already running for app "{{ appId }}"; try again shortly.',
+            'A secret rotation, recovery, or resumed installation is already running for app "{{ appId }}"; try again shortly.',
             ['appId' => $appId]
         );
     }

@@ -32,8 +32,8 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
         return [
             AppDeletedEvent::class => 'saveSecretFromDeletedApp',
             AppInstalledEvent::class => 'removeDeletedAppSecret',
-            ShopIdChangedEvent::class => 'purgeOldSecrets',
-            ShopIdDeletedEvent::class => 'purgeOldSecrets',
+            ShopIdChangedEvent::class => 'purgeOldSecretsAfterShopIdChange',
+            ShopIdDeletedEvent::class => 'purgeOldSecretsAfterShopIdDeletion',
         ];
     }
 
@@ -54,11 +54,18 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
         $this->deletedAppsGateway->deleteSecretForApp($event->getApp()->getName());
     }
 
-    /**
-     * When the shopId changes, all current apps are re-registered
-     * stored old secrets should be dismissed, as they are only valid when you re-install the app on the same shopId
-     */
-    public function purgeOldSecrets(): void
+    public function purgeOldSecretsAfterShopIdChange(ShopIdChangedEvent $event): void
+    {
+        // A permanent move refreshes the fingerprints but intentionally keeps the same shop identity. Retain
+        // deleted-app secrets: an interrupted reinstall still needs both the secret and this lifecycle marker.
+        if ($event->oldShopId?->id === $event->newShopId->id) {
+            return;
+        }
+
+        $this->deletedAppsGateway->purgeOldSecrets();
+    }
+
+    public function purgeOldSecretsAfterShopIdDeletion(ShopIdDeletedEvent $event): void
     {
         $this->deletedAppsGateway->purgeOldSecrets();
     }

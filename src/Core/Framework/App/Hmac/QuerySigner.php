@@ -38,13 +38,18 @@ class QuerySigner
             throw AppException::appSecretMissing($app->getName());
         }
 
+        return $this->signUriFor($uri, $app->getName(), $app->getVersion(), $secret, $context);
+    }
+
+    public function signUriFor(string $uri, string $appName, string $appVersion, string $secret, Context $context): UriInterface
+    {
         $unsignedUri = Uri::withQueryValues(new Uri($uri), [
             'shop-id' => $this->shopIdProvider->getShopId()->id,
             'shop-url' => $this->shopUrl,
             'timestamp' => (string) $this->clock->now()->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
-            'app-version' => $app->getVersion(),
-            'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),
+            'app-version' => $appVersion,
+            'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($appName) ?? ''),
             AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
             AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
             'sw-user-id' => $context->getSource() instanceof AdminApiSource ? ($context->getSource()->getUserId() ?? '') : '',

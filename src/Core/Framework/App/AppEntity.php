@@ -24,8 +24,6 @@ use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
- * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
- *
  * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
@@ -57,16 +55,6 @@ class AppEntity extends Entity
     protected ?string $contextGatewayUrl = null;
 
     protected ?string $inAppPurchasesGatewayUrl = null;
-
-    /**
-     * @var list<Module>
-     */
-    protected array $modules;
-
-    /**
-     * @var Module|null
-     */
-    protected ?array $mainModule = null;
 
     /**
      * @var list<string>|null
@@ -268,38 +256,6 @@ class AppEntity extends Entity
     public function setInAppPurchasesGatewayUrl(?string $inAppPurchasesGatewayUrl): void
     {
         $this->inAppPurchasesGatewayUrl = $inAppPurchasesGatewayUrl;
-    }
-
-    /**
-     * @return list<Module>
-     */
-    public function getModules(): array
-    {
-        return $this->modules;
-    }
-
-    /**
-     * @param list<Module> $modules
-     */
-    public function setModules(array $modules): void
-    {
-        $this->modules = $modules;
-    }
-
-    /**
-     * @return Module|null
-     */
-    public function getMainModule(): ?array
-    {
-        return $this->mainModule;
-    }
-
-    /**
-     * @param Module $mainModule
-     */
-    public function setMainModule(array $mainModule): void
-    {
-        $this->mainModule = $mainModule;
     }
 
     /**

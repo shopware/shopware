@@ -36,10 +36,12 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">
+        <service id="Shopware\Core\Framework\App\Module\ModuleLoader">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\Hmac\QuerySigner"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Feature\AppFeatureStorage"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppSecretResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Validation\TranslationValidator">
@@ -118,11 +120,6 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Handler\TaxProviderLifecycleHandler">
             <argument type="service" id="tax_provider.repository"/>
             <tag name="shopware.app_lifecycle.handler" priority="-400"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler">
-            <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.handler" priority="-500"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ShippingMethodLifecycleHandler">
@@ -265,6 +262,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Cookie\CookieFeatureDefinition">
+            <tag name="shopware.app_feature.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Module\ModuleFeatureDefinition">
             <tag name="shopware.app_feature.definition"/>
         </service>
 
@@ -469,7 +470,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\ActionButtonLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\AppActionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ModuleLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Module\ModuleLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

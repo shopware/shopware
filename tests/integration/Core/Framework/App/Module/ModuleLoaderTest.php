@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\Manifest;
+namespace Shopware\Tests\Integration\Core\Framework\App\Module;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Manifest\ModuleLoader;
+use Shopware\Core\Framework\App\Module\ModuleLoader;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -36,12 +39,15 @@ class ModuleLoaderTest extends TestCase
 
     private ModuleLoader $moduleLoader;
 
+    private Connection $connection;
+
     private string $defaultSecret = 's3cr3t';
 
     protected function setUp(): void
     {
         $this->appRepository = static::getContainer()->get('app.repository');
         $this->moduleLoader = static::getContainer()->get(ModuleLoader::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
     }
@@ -130,6 +136,7 @@ class ModuleLoaderTest extends TestCase
                     ],
                     'name' => 'test-app',
                     'parent' => 'sw-catalogue',
+                    'position' => 1,
                 ],
             ],
         ]);
@@ -154,10 +161,22 @@ class ModuleLoaderTest extends TestCase
      */
     private function createApp(string $name, array ...$params): void
     {
+        $id = Uuid::randomHex();
+
+        $overrides = [];
+        foreach ($params as $additionalParams) {
+            $overrides = [...$overrides, ...$additionalParams];
+        }
+
+        $modules = $overrides['modules'] ?? [];
+        $mainModule = $overrides['mainModule'] ?? null;
+        unset($overrides['modules'], $overrides['mainModule']);
+
         $payload = [
+            'id' => $id,
             'name' => $name,
             'active' => true,
-            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'path' => __DIR__,
             'version' => '0.0.1',
             'label' => "test {$name}",
             'accessToken' => 'test',
@@ -170,13 +189,25 @@ class ModuleLoaderTest extends TestCase
             'aclRole' => [
                 'name' => $name,
             ],
+            ...$overrides,
         ];
 
-        foreach ($params as $additionalParams) {
-            $payload = [...$payload, ...$additionalParams];
+        $this->appRepository->create([$payload], $this->context);
+
+        if ($modules === [] && $mainModule === null) {
+            return;
         }
 
-        $this->appRepository->create([$payload], $this->context);
+        // admin modules now live in the generic app_feature table (one row per app)
+        $this->connection->insert('app_feature', [
+            'id' => Uuid::randomBytes(),
+            'app_id' => Uuid::fromHexToBytes($id),
+            'app_name' => $name,
+            'type' => 'module',
+            'name' => 'admin',
+            'payload' => Json::encode(['modules' => array_values($modules), 'mainModule' => $mainModule]),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
     }
 
     private function registerAppsWithModules(): void
@@ -228,6 +259,7 @@ class ModuleLoaderTest extends TestCase
                     ],
                     'source' => 'https://third.app.com',
                     'name' => 'third-app',
+                    'position' => 1,
                 ],
             ],
         ]);
@@ -248,7 +280,7 @@ class ModuleLoaderTest extends TestCase
     /**
      * @param array<AppModule> $loadedModules
      *
-     * @param-out array<array{name: string, label: array<string, string|null>, modules: array<int, array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}>, mainModule: array{source: string}|null}> $loadedModules
+     * @param-out array<array{name: string, label: array<string, string|null>, modules: array<int, array{name: string, label: array<string, string>, parent: string|null, source?: string|null, position: int}>, mainModule: array{source: string}|null}> $loadedModules
      */
     private function validateSources(array &$loadedModules): void
     {

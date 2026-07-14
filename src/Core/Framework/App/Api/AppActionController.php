@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Api;
 use Shopware\Core\Framework\App\ActionButton\ActionButtonLoader;
 use Shopware\Core\Framework\App\ActionButton\AppActionLoader;
 use Shopware\Core\Framework\App\ActionButton\Executor;
-use Shopware\Core\Framework\App\Manifest\ModuleLoader;
+use Shopware\Core\Framework\App\Module\ModuleLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;

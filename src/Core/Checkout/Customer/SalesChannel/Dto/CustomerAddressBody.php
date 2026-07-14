@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-13
+ * Last generated: 2026-07-13 15:04:47
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\Dto;

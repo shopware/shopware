@@ -7,12 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Command\OpenApiDtoGenerationCommand;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGeneratedFile;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationCheckResult;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoProperty;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
@@ -22,14 +18,6 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(OpenApiDtoGenerationCommand::class)]
-#[CoversClass(OpenApiDtoGenerator::class)]
-#[CoversClass(OpenApiDtoSchemaParser::class)]
-#[CoversClass(OpenApiDtoClassRenderer::class)]
-#[CoversClass(OpenApiDtoDefinition::class)]
-#[CoversClass(OpenApiDtoProperty::class)]
-#[CoversClass(OpenApiDtoGeneratedFile::class)]
-#[CoversClass(OpenApiDtoGenerationResult::class)]
 #[CoversClass(OpenApiDtoGenerationCheckResult::class)]
 class OpenApiDtoGenerationCommandTest extends TestCase
 {
@@ -46,6 +34,7 @@ class OpenApiDtoGenerationCommandTest extends TestCase
             static::assertStringContainsString('Generated 1 PHP DTO file(s)', $tester->getDisplay());
             static::assertFileExists($this->expectedDtoPath($projectRoot));
             $generatedDto = (string) file_get_contents($this->expectedDtoPath($projectRoot));
+            static::assertStringContainsString('Last generated: 2026-07-08 00:00:00', $generatedDto);
             static::assertStringContainsString('use Shopware\\Core\\Framework\\Log\\Package;', $generatedDto);
             static::assertStringContainsString('#[Package(\'framework\')]', $generatedDto);
         } finally {
@@ -57,26 +46,45 @@ class OpenApiDtoGenerationCommandTest extends TestCase
     {
         $filesystem = new Filesystem();
         $projectRoot = $this->createProjectWithSchema($filesystem);
-        $generator = $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-07'));
+        $generator = $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-07 08:09:10'));
         $tester = new CommandTester(new OpenApiDtoGenerationCommand(
-            $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-08')),
+            $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-11 11:12:13')),
         ));
 
         try {
             $generator->generate();
             $filesystem->dumpFile(
                 $this->expectedDtoPath($projectRoot),
-                str_replace(
-                    'Last generated: 2026-07-07',
-                    'Last generated: 2020-01-01',
-                    (string) file_get_contents($this->expectedDtoPath($projectRoot)),
-                ),
+                $filesystem->readFile($this->expectedDtoPath($projectRoot)),
             );
 
             $status = $tester->execute(['--check' => true]);
 
             static::assertSame(Command::SUCCESS, $status);
             static::assertStringContainsString('Generated DTO files are up to date', $tester->getDisplay());
+        } finally {
+            $filesystem->remove($projectRoot);
+        }
+    }
+
+    public function testCommandGenerationDoesNotRewriteCurrentGeneratedFiles(): void
+    {
+        $filesystem = new Filesystem();
+        $projectRoot = $this->createProjectWithSchema($filesystem);
+        $generator = $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-07 08:09:10'));
+        $tester = new CommandTester(new OpenApiDtoGenerationCommand(
+            $this->createGenerator($projectRoot, $filesystem, new MockClock('2026-07-08 11:12:13')),
+        ));
+
+        try {
+            $generator->generate();
+            $initialContents = $filesystem->readFile($this->expectedDtoPath($projectRoot));
+
+            $status = $tester->execute([]);
+
+            static::assertSame(Command::SUCCESS, $status);
+            static::assertStringContainsString('Generated 0 PHP DTO file(s)', $tester->getDisplay());
+            static::assertSame($initialContents, $filesystem->readFile($this->expectedDtoPath($projectRoot)));
         } finally {
             $filesystem->remove($projectRoot);
         }
@@ -138,8 +146,11 @@ class OpenApiDtoGenerationCommandTest extends TestCase
         return new OpenApiDtoGenerationCommand($this->createGenerator($projectRoot, $filesystem));
     }
 
-    private function createGenerator(string $projectRoot, Filesystem $filesystem, ?ClockInterface $generatedAt = null): OpenApiDtoGenerator
-    {
+    private function createGenerator(
+        string $projectRoot,
+        Filesystem $filesystem,
+        ?ClockInterface $generatedAt = null
+    ): OpenApiDtoGenerator {
         return new OpenApiDtoGenerator(
             new OpenApiDtoSchemaParser(),
             new OpenApiDtoClassRenderer($generatedAt ?? new MockClock('2026-07-08')),

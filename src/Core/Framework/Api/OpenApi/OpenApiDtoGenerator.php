@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -38,7 +39,7 @@ final class OpenApiDtoGenerator
         'trace',
     ];
 
-    private const GENERATED_AT_LINE_PATTERN = '# \* Last generated: \d{4}-\d{2}-\d{2}\n#';
+    private const GENERATED_AT_LINE_PATTERN = '# \* Last generated: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n#';
 
     private readonly string $schemaDirectory;
 
@@ -63,6 +64,10 @@ final class OpenApiDtoGenerator
     {
         $writtenFiles = [];
         foreach ($this->generateFiles() as $file) {
+            if ($this->isCurrent($file)) {
+                continue;
+            }
+
             $this->filesystem->dumpFile($file->path, $file->contents);
             $writtenFiles[] = $file->path;
         }
@@ -81,8 +86,7 @@ final class OpenApiDtoGenerator
                 continue;
             }
 
-            $currentContents = $this->filesystem->readFile($file->path);
-            if ($this->normalizeGeneratedAtLine($currentContents) !== $this->normalizeGeneratedAtLine($file->contents)) {
+            if (!$this->isCurrent($file)) {
                 $outdatedFiles[] = $file->path;
             }
         }
@@ -207,6 +211,17 @@ final class OpenApiDtoGenerator
         $relative = preg_replace('#^Shopware/#', '', $relative) ?? $relative;
 
         return $this->sourceDirectory . '/' . $relative;
+    }
+
+    private function isCurrent(OpenApiDtoGeneratedFile $file): bool
+    {
+        try {
+            $currentContents = $this->filesystem->readFile($file->path);
+        } catch (IOException) {
+            return false;
+        }
+
+        return $this->normalizeGeneratedAtLine($currentContents) === $this->normalizeGeneratedAtLine($file->contents);
     }
 
     private function normalizeGeneratedAtLine(string $contents): string

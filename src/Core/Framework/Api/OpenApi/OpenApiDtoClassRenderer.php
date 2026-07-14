@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\OpenApi;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Defaults;
 
 /**
  * @internal
@@ -334,13 +335,13 @@ final class OpenApiDtoClassRenderer
 
         $imports = [];
         if ($this->needsDateTimeFormatAssertion($definition)) {
-            $imports['Shopware\Core\Defaults'] = true;
+            $imports[Defaults::class] = true;
         }
         if ($this->needsAssertImport($definition)) {
             $imports['Symfony\Component\Validator\Constraints as Assert'] = true;
         }
         if ($definition->package !== null) {
-            $imports['Shopware\Core\Framework\Log\Package'] = true;
+            $imports[Package::class] = true;
         }
 
         foreach ($definition->properties as $property) {

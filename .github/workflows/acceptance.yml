@@ -8,9 +8,15 @@ on:
       profile:
         description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
         default: ""
+      major:
+        description: "Filter major variants: '' (all), 'exclude' (non-major only), 'only' (major only)"
+        default: ""
   workflow_call:
     inputs:
       profile:
+        type: string
+        default: ""
+      major:
         type: string
         default: ""
 
@@ -41,7 +47,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
           jq . <<<"$MATRIX"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$MATRIX" >> $GITHUB_OUTPUT
@@ -87,10 +93,12 @@ jobs:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           SLACK_ATS_WORKFLOW_URL: ${{ secrets.SLACK_ATS_WORKFLOW_URL }}
+          RUN_LABEL: ${{ inputs.major == 'only' && 'Major' || '' }}
         run: .github/bin/acceptance-slack-status.bash
 
   acceptance-code-style:
     name: Acceptance code style
+    if: ${{ inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -121,7 +129,7 @@ jobs:
   acceptance-tests-changed:
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -153,7 +161,7 @@ jobs:
     name: tested-versions
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
@@ -169,6 +177,7 @@ jobs:
 
   acceptance-update:
     needs: tested-update-versions
+    if: ${{ inputs.major != 'only' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -381,6 +390,9 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
-          # allow markdown-only PRs to skip the expensive jobs, but fail on unexpected skips otherwise
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '' }}
+          # allow markdown-only PRs to skip the expensive jobs, and the major-only nightly to skip
+          # the jobs that are irrelevant to it, but fail on unexpected skips otherwise
+          allowed-skips: >-
+            ${{ inputs.major == 'only' && 'acceptance-code-style, acceptance-update'
+              || (needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '') }}
           jobs: ${{ toJSON(needs) }}

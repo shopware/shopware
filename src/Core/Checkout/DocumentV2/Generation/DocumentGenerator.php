@@ -51,7 +51,12 @@ final readonly class DocumentGenerator
      */
     public function generate(DocumentGenerationRequest $generationRequest, Context $apiContext): DocumentEntity
     {
-        [$generationRequest, $renderInput, $renderState, $requestedFormats] = $this->generateDocument(
+        [
+            'generationRequest' => $generationRequest,
+            'renderInput' => $renderInput,
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+        ] = $this->generateDocument(
             $generationRequest,
             $apiContext
         );
@@ -74,7 +79,10 @@ final readonly class DocumentGenerator
         DocumentGenerationRequest $generationRequest,
         Context $apiContext,
     ): RenderedDocument {
-        [, , $renderState, $requestedFormats] = $this->generateDocument(
+        [
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+        ] = $this->generateDocument(
             $generationRequest,
             $apiContext
         );
@@ -94,7 +102,12 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      *
-     * @return array{0: DocumentGenerationRequest, 1: RenderInput, 2: RenderState, 3: list<string>}
+     * @return array{
+     *     generationRequest: DocumentGenerationRequest,
+     *     renderInput: RenderInput,
+     *     renderState: RenderState,
+     *     requestedFormats: list<string>
+     * }
      */
     private function generateDocument(DocumentGenerationRequest $generationRequest, Context $apiContext): array
     {
@@ -167,10 +180,10 @@ final readonly class DocumentGenerator
         }
 
         return [
-            $generationRequest,
-            $renderInput,
-            $renderState,
-            $requestedFormats,
+            'generationRequest' => $generationRequest,
+            'renderInput' => $renderInput,
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
         ];
     }
 

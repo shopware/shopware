@@ -151,9 +151,10 @@ class DocumentV2ApiService extends ApiService {
                 },
             )
             .catch(async (error) => {
-                const errorObject = JSON.parse(await error.response.data.text());
-                if (errorObject.errors) {
-                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errorObject.errors.pop()));
+                if (error.response?.data?.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                    );
                 }
             });
     }

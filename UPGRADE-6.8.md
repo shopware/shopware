@@ -334,6 +334,10 @@ XML package configuration below `Resources/config/packages/` can be migrated to 
 
 The deprecated methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class were removed. Please use the methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
 
+## Landing page slot config must not be null
+
+`LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
+
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
 
 `EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.

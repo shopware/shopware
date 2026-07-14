@@ -5,14 +5,15 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
-      nightly:
+      profile:
+        description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
         default: ""
       major:
         description: "Filter major variants: '' (all), 'exclude' (non-major only), 'only' (major only)"
         default: ""
   workflow_call:
     inputs:
-      nightly:
+      profile:
         type: string
         default: ""
       major:
@@ -46,7 +47,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
           jq . <<<"$MATRIX"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$MATRIX" >> $GITHUB_OUTPUT
@@ -69,7 +70,7 @@ jobs:
           major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}
-          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
+          use-currents: ${{ inputs.profile == 'nightly' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
           playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
@@ -80,7 +81,7 @@ jobs:
   acceptance-status-check:
     runs-on: ubuntu-24.04
     needs: acceptance
-    if: ${{ !cancelled() && inputs.nightly == 'true' }}
+    if: ${{ !cancelled() && inputs.profile == 'nightly' }}
     permissions:
       actions: read
     steps:
@@ -294,11 +295,11 @@ jobs:
           working-directory: new-shopware/tests/acceptance
           command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: ${{ (inputs.nightly == 'true' && github.event_name == 'schedule') && 'true' || '' }}
+        if: ${{ (inputs.profile == 'nightly' && github.event_name == 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: ${{ (inputs.nightly != 'true' || github.event_name != 'schedule') && 'true' || '' }}
+        if: ${{ (inputs.profile != 'nightly' || github.event_name != 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 

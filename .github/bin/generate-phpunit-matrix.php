@@ -1,6 +1,7 @@
 <?php
 
-$nightly = $_SERVER['argv'][1] ?? false;
+// argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Only nightly widens the matrix.
+$nightly = ($_SERVER['argv'][1] ?? '') === 'nightly';
 $major = filter_var($_SERVER['argv'][2] ?? false, \FILTER_VALIDATE_BOOLEAN);
 
 // Integration shards: the paths + framework batches together cover the whole tests/integration tree.

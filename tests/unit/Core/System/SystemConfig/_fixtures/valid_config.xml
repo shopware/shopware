@@ -4,6 +4,8 @@
     <card>
         <title>Basic configuration</title>
         <title lang="de-DE">Grundeinstellungen</title>
+        <subtitle>Basic configuration subtitle</subtitle>
+        <subtitle lang="de-DE">Grundkonfiguration Untertitel</subtitle>
         <input-field>
             <name>email</name>
             <copyable>true</copyable>

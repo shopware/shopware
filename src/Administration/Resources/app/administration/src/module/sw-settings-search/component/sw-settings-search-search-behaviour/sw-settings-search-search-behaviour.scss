@@ -14,5 +14,9 @@
             white-space: pre-line;
             display: inline;
         }
+
+        .sw-field__radio-option .sw-field__radio-option-description {
+            color: var(--color-text-primary-default);
+        }
     }
 }

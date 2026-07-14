@@ -171,6 +171,10 @@ class ConfigReaderTest extends TestCase
                         'defaultValue' => 'pop3',
                     ],
                 ],
+                'subtitle' => [
+                    'en-GB' => 'Basic configuration subtitle',
+                    'de-DE' => 'Grundkonfiguration Untertitel',
+                ],
             ],
         ];
     }

@@ -1,9 +1,11 @@
 /**
  * Structural bundle validation command for `repro validate`.
  *
- * Trust in the verdict comes from the deterministic two-leg replay, not from this command. Validation
- * therefore focuses on structural and trust-critical defects: unsafe Playwright specs, missing
- * assertions, and install-specific ids that would make the trunk leg block.
+ * Trust in the verdict comes from the deterministic two-leg replay, not from this command. This is a
+ * CORRECTNESS gate, not a security boundary: it catches structural defects that would make the
+ * two-leg run untrustworthy (missing assertions, non-deterministic setup, install-specific ids that
+ * block the trunk leg). Containment of the agent-authored spec/test — which the trusted verify
+ * executes — is the job of the sandboxed verify container, not of any string-scan here.
  */
 import fs from 'node:fs';
 import { FILES, EXECUTORS, LAYERS, readJson } from '../../bundle.mjs';
@@ -97,32 +99,14 @@ function validateSpec(plan) {
     errors.push('narrate()/mark() must each be a standalone one-line `await …(…);` statement (so they strip cleanly for the verdict run)');
   }
 
-  // Catch every module-loading form so generated specs cannot escape the browser sandbox.
-  const imports = [
-    ...spec.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g),
-    ...spec.matchAll(/\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g),
-    ...spec.matchAll(/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g),
-  ].map((m) => m[1]);
-  const badImport = imports.find((m) => m !== '@playwright/test');
-  if (badImport) {
-    errors.push(`spec may only import @playwright/test (video narration from ./video-helpers.js is allowed and stripped), found ${JSON.stringify(badImport)}`);
-  }
-  // A computed dynamic import evades the allowlist above.
-  if (/\bimport\s*\(/.test(spec)) {
-    errors.push('spec must not use dynamic import() — generated specs are static Playwright tests with no runtime module loading');
-  }
-  if (/\b(?:node:)?child_process\b/.test(spec)) {
-    errors.push('spec must not reference child_process — generated specs must not execute shell commands');
-  }
-  if (/\b(?:eval|Function)\s*\(/.test(spec)) {
-    errors.push('spec must not use eval()/new Function() — generated specs must not execute generated code');
-  }
-  if (/\bprocess\.env\b/.test(spec)) {
-    errors.push('spec must not read process.env — generated specs use the harness baseURL and fixture placeholders only');
-  }
-  if (/\b(?:writeFile(?:Sync)?|appendFile(?:Sync)?|createWriteStream|mkdir(?:Sync)?|rm(?:Sync)?|unlink(?:Sync)?|rmdir(?:Sync)?|openSync)\s*\(/.test(spec)) {
-    errors.push('spec must not write through node:fs APIs — generated specs may only produce files via browser/filechooser flows or Playwright screenshots');
-  }
+  // NOTE: there are deliberately NO eval/child_process/fs/import/process.env bans here. Those were
+  // static string-scans pretending to sandbox an agent-authored spec that the trusted verify then
+  // executes host-side — but they are trivially bypassable (e.g. `(0,eval)(...)`, and narration
+  // arguments are stripped before this scan yet still run in the video pass), so they gave a false
+  // sense of a code-execution boundary while adding maintenance. Execution safety is enforced where
+  // the code actually runs — the sandboxed verify container (egress-locked, no token) — not by a
+  // regex here. The checks below are NOT security: they keep the deterministic two-leg verdict
+  // trustworthy (identical setup + a single symptom assertion on both legs).
 
   const awaitedExpects = (spec.match(/await\s+expect\s*\(/g) || []).length;
   if (awaitedExpects !== 1) {

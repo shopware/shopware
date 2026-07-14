@@ -59,6 +59,12 @@ The deprecated members keep working and will be replaced in Shopware 6.8. Migrat
 
 The new `sales_channel.maintenance_ip_allowlist` database column is added and kept in sync with the deprecated `maintenance_ip_whitelist` column. The deprecated field and column will be removed with Shopware 6.8.
 
+### Deprecated `BeforeCacheControlEvent` and the administration cache-control marker
+
+`Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent`, `Shopware\Administration\Controller\AdministrationController::CACHE_ID_HEADER` and `Shopware\Administration\Controller\AdministrationController::CACHE_ID_ADMINISTRATION` are deprecated and will be removed in Shopware 6.8.0.0, together with the internal dispatching and consuming code.
+
+The event and related headers only existed to skip the `CacheControlListener`. With the new caching (the `CACHE_REWORK` feature flag, which becomes the default in 6.8.0) the response `Cache-Control` headers will be returned to the calling client and whole construction will be removed.
+
 ### Deprecated core script response rendering
 
 `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in Shopware 6.8.0.0.

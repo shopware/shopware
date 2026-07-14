@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class OpenApiDtoProperty
 {
     /**
-     * @param list<string>|null $enum
+     * @param list<string|int|float|bool>|null $enum
      */
     public function __construct(
         public string $name,

@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 11:37:53
+ * Last generated: 2026-07-14 12:22:24
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -54,8 +54,7 @@ final readonly class ReadNewsletterRecipientRequest
          * Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)
          */
         #[Assert\Choice(choices: ['none', 'exact', 'next-pages'])]
-        #[Assert\Valid]
-        public TotalCountMode $totalCountMode = 'none',
+        public string $totalCountMode = 'none',
         /**
          * @var list<string>
          */

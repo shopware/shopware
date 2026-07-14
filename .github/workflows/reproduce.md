@@ -271,6 +271,11 @@ post-steps:
         sleep 2
         sudo iptables -I DOCKER-USER -j DROP
       fi   # http: no container (data-only)
+      # Proof-of-arm: only reached if the taken branch fully succeeded (set -e), i.e. the container
+      # image is present AND egress is dropped. executeBundle refuses to run a playwright/direct
+      # trusted verify without this, so a swallowed arm failure fails CLOSED (blocked leg), never an
+      # unsandboxed execution. (http sets it too but doesn't require it — data-only, no container.)
+      echo "REPRO_SANDBOX_ARMED=1" >> "$GITHUB_ENV"
 
   - name: Authoritative reported-version verification
     id: reported_verify
@@ -465,6 +470,7 @@ safe-outputs:
             echo "REPRO_SANDBOX_PW_IMAGE=$IMG" >> "$GITHUB_ENV"
             docker pull "$IMG"                          # pull while the network is still open
             sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
+            echo "REPRO_SANDBOX_ARMED=1" >> "$GITHUB_ENV"   # proof-of-arm; verify refuses without it (fail closed)
 
         # SANDBOX (direct only): run the agent-authored PHPUnit test in an egress-locked PHP container.
         # Build the PHP image (kernel-boot extensions), then relay the docker0 gateway:3306 -> the host
@@ -482,6 +488,7 @@ safe-outputs:
             sudo socat "TCP-LISTEN:3306,bind=${GW},fork,reuseaddr" TCP:127.0.0.1:3306 &  # relay survives to the verify step
             sleep 2
             sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
+            echo "REPRO_SANDBOX_ARMED=1" >> "$GITHUB_ENV"   # proof-of-arm; verify refuses without it (fail closed)
 
         # UNTRUSTED: re-executes the agent-authored spec/test. playwright → egress-locked Playwright
         # container reaching the shop at host.docker.internal; direct → egress-locked PHP container

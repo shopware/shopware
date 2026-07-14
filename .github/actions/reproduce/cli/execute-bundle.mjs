@@ -23,6 +23,26 @@ const EXECUTORS = {
  */
 export async function executeBundle({ target, out }) {
   const plan = readJson(FILES.plan);
+
+  // Fail CLOSED. A trusted verify (REPRO_ALLOW_VERIFY=1) runs the agent-authored playwright/direct
+  // spec host-side, outside the awf agent sandbox, so it MUST run inside the egress-locked container.
+  // The arm step only exports REPRO_SANDBOX_ARMED=1 after the image is present AND egress is dropped
+  // (set -e). If arming was swallowed (continue-on-error) or skipped, the sentinel is absent and we
+  // refuse to execute — a blocked leg, never an unsandboxed run. (http executes no agent code.)
+  if (process.env.REPRO_ALLOW_VERIFY === '1'
+    && ['playwright', 'direct'].includes(plan.executor)
+    && process.env.REPRO_SANDBOX_ARMED !== '1') {
+    const reason = `refusing to run the ${plan.executor} verify unsandboxed: the egress-locked container was not armed (REPRO_SANDBOX_ARMED unset — sandbox setup failed or was skipped)`;
+    const result = makeResult({
+      plan, target, status: 'blocked', assertion: { matched: null },
+      evidence: { reporter_output: reason }, blockedReason: reason,
+    });
+    writeJson(out, result);
+    console.error(`::error::${reason}`);
+    console.log(`status=blocked  (${reason})`);
+    return result;
+  }
+
   const load = EXECUTORS[plan.executor];
   const result = load ? await (await load()).executor.run({ plan, target }) : makeResult({
     plan,

@@ -164,8 +164,13 @@ final class OpenApiDtoSchemaParser
 
         $names = [];
         foreach ($data as $key => $value) {
-            if ($key === '$ref' && \is_string($value) && str_contains($value, '/components/schemas/')) {
-                $names[] = $this->resolveRefName($value);
+            if ($key === '$ref') {
+                $references = \is_array($value) ? $value : [$value];
+                foreach ($references as $reference) {
+                    if (\is_string($reference) && str_contains($reference, '/components/schemas/')) {
+                        $names[] = $this->resolveRefName($reference);
+                    }
+                }
 
                 continue;
             }
@@ -478,6 +483,37 @@ final class OpenApiDtoSchemaParser
      */
     private function extractDtoFromSchema(string $name, array $schema, array $registry): array
     {
+        $variants = $this->variants($schema);
+        if ($variants !== null && \count($variants) > 1) {
+            $definitions = [];
+            foreach ($variants as $variant) {
+                $variantName = $this->stringOrNull($variant['title'] ?? null);
+                $ref = $this->refFromSchema($variant);
+                if ($variantName === null && $ref !== null) {
+                    $variantName = $this->resolveRefName($ref);
+                }
+
+                if ($variantName === null) {
+                    continue;
+                }
+
+                $extracted = $this->extractFromSchema($variant, $this->toPascalCase($variantName), $registry);
+                if ($extracted['properties'] === []) {
+                    continue;
+                }
+
+                $definitions[] = new OpenApiDtoDefinition(
+                    $this->toPascalCase($variantName),
+                    $extracted['properties'],
+                    $this->stringOrNull($variant['description'] ?? null),
+                    $this->packageFromSchema($variant) ?? $this->packageFromSchema($schema),
+                );
+                $definitions = [...$definitions, ...$extracted['nestedDefinitions']];
+            }
+
+            return $this->deduplicate($definitions);
+        }
+
         $extracted = $this->extractFromSchema($schema, $name, $registry);
         if ($extracted['properties'] === []) {
             return [];
@@ -606,7 +642,33 @@ final class OpenApiDtoSchemaParser
             minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
             arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
             unresolvedReference: $unresolvedReference,
+            arrayMapValueType: $phpType === self::PHP_TYPE_ARRAY ? $this->arrayMapValueType($constraintSchema, $registry) : null,
         );
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     * @param array<string, array<string, mixed>> $registry
+     */
+    private function arrayMapValueType(array $schema, array $registry): ?string
+    {
+        $additionalProperties = $this->schemaAtKey($schema, 'additionalProperties');
+        if ($additionalProperties === null) {
+            return null;
+        }
+
+        $mapped = $this->mapOpenApiTypeToPhp($additionalProperties, $registry);
+        if ($mapped['phpType'] !== self::PHP_TYPE_ARRAY) {
+            return $mapped['phpType'];
+        }
+
+        if ($mapped['arrayItemType'] !== null) {
+            return 'list<' . $mapped['arrayItemType'] . '>';
+        }
+
+        $nestedMapValueType = $this->arrayMapValueType($this->dereferenceSchema($additionalProperties, $registry), $registry);
+
+        return $nestedMapValueType !== null ? 'array<string, ' . $nestedMapValueType . '>' : self::PHP_TYPE_MIXED;
     }
 
     /**
@@ -699,7 +761,7 @@ final class OpenApiDtoSchemaParser
      */
     private function mapOpenApiTypeToPhp(array $schema, array $registry): array
     {
-        $ref = $this->stringOrNull($schema['$ref'] ?? null);
+        $ref = $this->refFromSchema($schema);
         if ($ref !== null) {
             $refName = $this->resolveRefName($ref);
             // Referenced schema is not part of the static schema set (e.g. it is generated at
@@ -735,7 +797,22 @@ final class OpenApiDtoSchemaParser
                 ];
             }
 
-            return ['phpType' => self::PHP_TYPE_MIXED, 'arrayItemType' => null, 'nullable' => $hasNull, 'unresolved' => false];
+            $mappedVariants = array_map(
+                fn (array $variant): array => $this->mapOpenApiTypeToPhp($variant, $registry),
+                $nonNullVariants,
+            );
+            $phpTypes = array_values(array_unique(array_column($mappedVariants, 'phpType')));
+
+            if (\in_array(self::PHP_TYPE_MIXED, $phpTypes, true)) {
+                return ['phpType' => self::PHP_TYPE_MIXED, 'arrayItemType' => null, 'nullable' => $hasNull, 'unresolved' => false];
+            }
+
+            return [
+                'phpType' => implode('|', $phpTypes),
+                'arrayItemType' => null,
+                'nullable' => $hasNull || array_any($mappedVariants, static fn (array $mapped): bool => $mapped['nullable']),
+                'unresolved' => array_any($mappedVariants, static fn (array $mapped): bool => $mapped['unresolved']),
+            ];
         }
 
         $allOf = $this->schemaListAtKey($schema, 'allOf');
@@ -793,7 +870,7 @@ final class OpenApiDtoSchemaParser
      */
     private function dereferenceSchema(array $schema, array $registry): array
     {
-        $ref = $this->stringOrNull($schema['$ref'] ?? null);
+        $ref = $this->refFromSchema($schema);
         if ($ref === null) {
             return $schema;
         }
@@ -958,6 +1035,27 @@ final class OpenApiDtoSchemaParser
         $parts = explode('/', $ref);
 
         return urldecode((string) end($parts));
+    }
+
+    /**
+     * OpenApiFileLoader merges identical component refs from Admin and Store API schemas into a list.
+     *
+     * @param array<string, mixed> $schema
+     */
+    private function refFromSchema(array $schema): ?string
+    {
+        $ref = $schema['$ref'] ?? null;
+        if (\is_string($ref)) {
+            return $ref;
+        }
+
+        if (!\is_array($ref)) {
+            return null;
+        }
+
+        $references = array_values(array_unique(array_filter($ref, 'is_string')));
+
+        return \count($references) === 1 ? $references[0] : null;
     }
 
     private function buildNestedDtoName(string $parentDtoName, string $propertyName): string

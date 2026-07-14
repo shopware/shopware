@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 12:25:03
+ * Last generated: 2026-07-14 15:22:45
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -15,10 +15,10 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class RangeFilterParameters
 {
     public function __construct(
-        public mixed $gte = null,
-        public mixed $gt = null,
-        public mixed $lte = null,
-        public mixed $lt = null,
+        public float|string|null $gte = null,
+        public float|string|null $gt = null,
+        public float|string|null $lte = null,
+        public float|string|null $lt = null,
     ) {
     }
 }

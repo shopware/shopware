@@ -28,7 +28,11 @@ resolve_latest () {
   # release, not a prerelease, and a prerelease's version sorts ABOVE its own final while carrying an
   # older date, which would let the date walk below pick an RC over the stable release it precedes.
   # Empty base = "any version" (used for a version-less report): match all v-tags, no trailing dot.
-  local base="$1" tags="" ghpat="v${base}." glob="v${base}.*"
+  # NB: assign `base` in its own `local` first. A single `local base="$1" ghpat="v${base}."` expands
+  # ${base} before the assignment completes, which under `set -u` throws "base: unbound variable" —
+  # so every resolve_latest call (any underspecified/version-less issue) would have errored.
+  local base="${1:-}" tags=""
+  local ghpat="v${base}." glob="v${base}.*"
   [ -z "$base" ] && { ghpat="v"; glob="v*"; }
   if command -v gh >/dev/null 2>&1; then
     tags=$(gh api "repos/${UPSTREAM}/git/matching-refs/tags/${ghpat}" --jq '.[].ref' 2>/dev/null | sed 's#refs/tags/##; s/^v//' | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -Vr || true)

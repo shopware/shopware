@@ -17,11 +17,20 @@
 #        service containers, not a host process), so we append ${SHOP_PORT} here. No-op on an
 #        unsandboxed lock (no allowlist present).
 #
-#   [P2] Run the deterministic trunk/report job whenever the agent job ran (reproduce.md only).
+#   [P2] Run the deterministic report jobs whenever the agent job ran (reproduce.md only).
 #        gh-aw gates safe-output jobs on the agent emitting a matching safe-output handoff. We want
-#        the trunk re-run + verdict job to run unconditionally after the agent job, because it reads
-#        the uploaded artifacts and decides the outcome itself (the agent never decides). We strip
-#        the `&& contains(needs.agent.outputs.output_types, 'reproduce_on_trunk')` gate.
+#        BOTH post-agent jobs (reproduce_on_trunk + reproduce_report) to run unconditionally after
+#        the agent job, because they read the uploaded artifacts and decide the outcome themselves
+#        (the agent never decides). We strip the
+#        `&& contains(needs.agent.outputs.output_types, '<job>')` gate from each.
+#
+#   [P3] Chain reproduce_report AFTER reproduce_on_trunk (reproduce.md only).
+#        The two jobs are split by trust: reproduce_on_trunk re-runs the UNTRUSTED agent-authored
+#        bundle on trunk with a read-only token and uploads the trunk leg as a data artifact;
+#        reproduce_report holds the write token and turns that artifact into the verdict + comment.
+#        gh-aw compiles every safe-output job with `needs: [agent, detection]` and no ordering
+#        between them, so we add reproduce_on_trunk to reproduce_report's `needs` — otherwise report
+#        races the trunk re-run and downloads a not-yet-uploaded leg.
 #
 # Usage: bash .github/actions/reproduce/dev/compile.sh [source.md ...]
 #   No args → compile+patch every source in SOURCES below.
@@ -56,13 +65,21 @@ patch_lock() {
     echo "  [P1] skipped — no sandbox host-port allowlist in this lock (agent runs unsandboxed)"
   fi
 
-  # [P2] Drop the safe-output gate so the trunk/report job runs whenever the agent job ran.
-  local gate=" && contains(needs.agent.outputs.output_types, 'reproduce_on_trunk')"
-  if grep -qF "$gate" "$lock"; then
-    perl -0pi -e "s/\Q$gate\E//g" "$lock"
-    echo "  [P2] safe-output gate removed (trunk/report job runs whenever the agent job ran)"
+  # [P2] Drop the safe-output gate from both post-agent jobs so they run whenever the agent job ran.
+  if grep -qE "&& contains\(needs\.agent\.outputs\.output_types, '(reproduce_on_trunk|reproduce_report)'\)" "$lock"; then
+    perl -0pi -e "s/ && contains\(needs\.agent\.outputs\.output_types, '(?:reproduce_on_trunk|reproduce_report)'\)//g" "$lock"
+    echo "  [P2] safe-output gates removed (reproduce_on_trunk + reproduce_report run whenever the agent job ran)"
   else
-    echo "  [P2] skipped — no reproduce_on_trunk safe-output gate in this lock"
+    echo "  [P2] skipped — no reproduce_* safe-output gate in this lock"
+  fi
+
+  # [P3] Make reproduce_report depend on reproduce_on_trunk (anchored to the report job's needs block
+  # so the identical agent/detection lines in other jobs are untouched). Idempotent via lookahead.
+  if grep -qE '^  reproduce_report:' "$lock"; then
+    perl -0pi -e "s/(  reproduce_report:\n    needs:\n      - agent\n      - detection\n)(?!      - reproduce_on_trunk\n)/\${1}      - reproduce_on_trunk\n/" "$lock"
+    echo "  [P3] reproduce_report now needs reproduce_on_trunk (report waits for the trunk leg)"
+  else
+    echo "  [P3] skipped — no reproduce_report job in this lock"
   fi
 }
 

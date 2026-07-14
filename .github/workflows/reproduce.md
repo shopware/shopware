@@ -287,23 +287,35 @@ post-steps:
       if-no-files-found: ignore
       retention-days: 7
 
-# --- Deterministic trunk re-run + verdict + comment on a FRESH runner. Compiled as a safe-output job
-#     and lock-patched (dev/compile.sh) to run whenever the agent job ran — it reads the artifacts and
-#     decides everything itself. ---
+# --- Trunk re-run + verdict + comment, split across TWO fresh-runner safe-output jobs by TRUST:
+#
+#   reproduce-on-trunk  UNTRUSTED  contents:read   re-runs the agent-authored bundle on trunk (the
+#                                                  spec executes host-side, OUTSIDE the awf sandbox),
+#                                                  then uploads the trunk leg as a DATA artifact.
+#   reproduce-report    TRUSTED    contents:write  runs only deterministic report code over data
+#                                  issues:write    artifacts; posts the comment + pushes evidence.
+#
+# Why the split: the trunk verify re-executes agent-authored code, and validate.mjs's static checks
+# are a soft boundary (regex-bypassable; narration args are unscanned). Keeping that execution in a
+# job with NO write token means a bypass has nothing to steal or plant against — the token lives only
+# in reproduce-report, which never runs agent code (it reads result.json / screenshots / the plan as
+# data). reproduce-report re-checkouts clean and consumes only declared artifacts, so the untrusted
+# job cannot plant files for it either. Both jobs are lock-patched (dev/compile.sh) to run whenever
+# the agent job ran, and [P3] wires reproduce-report to `needs` reproduce-on-trunk. ---
 safe-outputs:
-  # The agent is sandboxed again, so keep gh-aw threat detection on for the tiny safe-output request
-  # that only asks the deterministic trunk job to inspect post-agent artifacts.
+  # Threat detection stays on for the tiny safe-output handoff that triggers the jobs below.
   threat-detection: true
   jobs:
+    # -- UNTRUSTED trunk re-run. Read-only token on purpose: it re-executes the agent-authored spec,
+    #    so it must hold nothing worth stealing. It only uploads the trunk leg for reproduce-report. --
     reproduce-on-trunk:
       description: >
-        INTERNAL — do not call this tool. The compiled lock is patched so this job runs from the
-        trusted post-agent artifacts, re-runs the bundle on trunk, and posts the verdict.
+        INTERNAL — do not call this tool. Lock-patched to run whenever the agent job ran. Re-runs the
+        authored bundle on trunk with a READ-ONLY token and uploads the trunk leg for reproduce-report.
       runs-on: ubuntu-latest
       permissions:
-        contents: write   # embed-evidence pushes screenshots to the evidence branch
-        issues: write      # post the verdict comment
-      output: "Trunk reproduction complete; verdict comment posted."
+        contents: read
+      output: "Trunk reproduction complete; leg uploaded."
       env:
         FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       steps:
@@ -336,28 +348,12 @@ safe-outputs:
             fi
             reported_status=$(jq -r '.status // ""' artifacts/repro-reported/result.json 2>/dev/null || echo "")
             # Skip the trunk leg entirely when the reported leg is blocked: without a reported baseline
-            # a trunk result is meaningless AND a full trunk provision would be wasted. That case posts
-            # the clear "blocked" comment instead (with the authored bundle).
+            # a trunk result is meaningless AND a full trunk provision would be wasted. reproduce-report
+            # posts the clear "blocked" comment instead (with the authored bundle).
             run_trunk=$([ "$has" = true ] && [ "$reported_status" != blocked ] && echo true || echo false)
             { echo "has=$has"; echo "reported_status=$reported_status"; echo "run_trunk=$run_trunk"; } >> "$GITHUB_OUTPUT"
             echo "bundle=$has reported=$reported_status run_trunk=$run_trunk"
 
-        # ---- No bundle → deterministic "incomplete" comment. ----
-        - name: Render incomplete comment
-          if: steps.bundle.outputs.has != 'true'
-          env:
-            MODE: incomplete
-            REASON: ${{ needs.agent.result == 'success' && 'The agent did not produce a verified reproduction bundle.' || 'The agent run did not complete.' }}
-            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          run: node .github/actions/reproduce/report/comment.mjs
-        - name: Post incomplete comment
-          if: steps.bundle.outputs.has != 'true'
-          env:
-            GH_TOKEN: ${{ github.token }}
-            ISSUE: ${{ github.event.issue.number || inputs.issue_number }}
-          run: gh issue comment "$ISSUE" --repo "${{ github.repository }}" --body-file comment.md
-
-        # ---- Bundle present → trunk re-run + verdict + comment. ----
         - name: Derive trunk build flags
           id: plan
           if: steps.bundle.outputs.run_trunk == 'true'
@@ -409,6 +405,8 @@ safe-outputs:
             npm i -D @playwright/test
             npx playwright install --with-deps chromium
 
+        # UNTRUSTED: re-executes the agent-authored spec host-side. Read-only token; the trunk leg is
+        # uploaded as data for reproduce-report to judge — this job renders no verdict and posts nothing.
         - name: Verify on trunk
           id: trunk_verify
           if: steps.bundle.outputs.run_trunk == 'true' && steps.provision.outcome == 'success'
@@ -420,18 +418,14 @@ safe-outputs:
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
           run: node .github/actions/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
 
-        # Arrange the two legs + the plan the way verdict.mjs / comment.mjs expect.
-        - name: Collect artifacts
+        # Assemble the trunk leg (result.json + evidence) as a data artifact. A missing result.json is
+        # synthesized into a neutral blocked leg via the single-sourced bundle contract, so a failed
+        # trunk provision/verify still hands reproduce-report a well-formed leg to judge.
+        - name: Assemble trunk leg
           if: steps.bundle.outputs.run_trunk == 'true'
           run: |
             set -euo pipefail
-            mkdir -p artifacts/repro-plan artifacts/repro-trunk
-            cp reproduction-plan.json artifacts/repro-plan/ 2>/dev/null || true
-            cp fixtures.json artifacts/repro-plan/ 2>/dev/null || true
-            cp agent-summary.md workspace-edits.txt artifacts/repro-plan/ 2>/dev/null || true
-            # No trunk result.json → synthesize a blocked leg via the single-sourced bundle contract
-            # (bundle.mjs blockedResult). This covers both a failed trunk provision and a verify that
-            # produced no result; the message stays neutral rather than claiming a specific cause.
+            mkdir -p artifacts/repro-trunk
             if [ -f result.json ]; then cp result.json artifacts/repro-trunk/; else
               node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
               cp result.json artifacts/repro-trunk/
@@ -439,6 +433,102 @@ safe-outputs:
             cp -r test-results playwright-report artifacts/repro-trunk/ 2>/dev/null || true
             cp video.webm artifacts/repro-trunk/ 2>/dev/null || true   # only present when record_video opted in
 
+        - name: Upload trunk leg
+          if: steps.bundle.outputs.run_trunk == 'true'
+          uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+          with:
+            name: repro-trunk
+            path: artifacts/repro-trunk
+            if-no-files-found: ignore
+            retention-days: 7
+
+    # -- TRUSTED report. Holds the write token but runs ONLY deterministic report code over the DATA
+    #    artifacts produced above (result.json, screenshots, the plan) — it never executes agent code,
+    #    so the token has nothing to plant against. `needs` reproduce-on-trunk is wired by compile.sh [P3]. --
+    reproduce-report:
+      description: >
+        INTERNAL — do not call this tool. Consumes the reported + trunk leg artifacts, computes the
+        deterministic verdict, pushes evidence, and posts the issue comment. Runs no agent-authored code.
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write   # embed-evidence pushes screenshots to the evidence branch
+        issues: write      # post the verdict comment
+      output: "Verdict comment posted."
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      steps:
+        - name: Checkout
+          uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+          with:
+            persist-credentials: false
+
+        - name: Download repro bundle
+          continue-on-error: true
+          uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+          with:
+            name: repro-plan
+        - name: Download reported leg
+          continue-on-error: true
+          uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+          with:
+            name: repro-reported
+            path: artifacts/repro-reported
+        - name: Download trunk leg
+          continue-on-error: true
+          uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+          with:
+            name: repro-trunk
+            path: artifacts/repro-trunk
+
+        - name: Detect bundle
+          id: bundle
+          run: |
+            # Same detection as reproduce-on-trunk, re-derived from the downloaded artifacts so the two
+            # jobs stay decoupled (no cross-job step outputs to thread).
+            if [ -f giveup.txt ]; then
+              has=false
+            else
+              has=$([ -f reproduction-plan.json ] && [ -f artifacts/repro-reported/result.json ] && echo true || echo false)
+            fi
+            reported_status=$(jq -r '.status // ""' artifacts/repro-reported/result.json 2>/dev/null || echo "")
+            run_trunk=$([ "$has" = true ] && [ "$reported_status" != blocked ] && echo true || echo false)
+            { echo "has=$has"; echo "reported_status=$reported_status"; echo "run_trunk=$run_trunk"; } >> "$GITHUB_OUTPUT"
+            echo "bundle=$has reported=$reported_status run_trunk=$run_trunk"
+
+        # Stage the authored bundle the way verdict.mjs / comment.mjs expect (artifacts/repro-plan).
+        - name: Assemble plan artifacts
+          run: |
+            set -euo pipefail
+            mkdir -p artifacts/repro-plan
+            cp reproduction-plan.json fixtures.json repro.spec.ts ReproTest.php agent-summary.md workspace-edits.txt artifacts/repro-plan/ 2>/dev/null || true
+
+        # If reproduce-on-trunk died before uploading a leg (e.g. an early provision crash), no
+        # repro-trunk artifact exists. Synthesize a neutral blocked leg via the single-sourced bundle
+        # contract so the verdict is a clear "trunk couldn't run" rather than a bare null matrix miss.
+        - name: Ensure trunk leg
+          if: steps.bundle.outputs.run_trunk == 'true' && hashFiles('artifacts/repro-trunk/result.json') == ''
+          run: |
+            set -euo pipefail
+            mkdir -p artifacts/repro-trunk
+            node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
+            cp result.json artifacts/repro-trunk/
+
+        # ---- No bundle → deterministic "incomplete" comment. ----
+        - name: Render incomplete comment
+          if: steps.bundle.outputs.has != 'true'
+          env:
+            MODE: incomplete
+            REASON: ${{ needs.agent.result == 'success' && 'The agent did not produce a verified reproduction bundle.' || 'The agent run did not complete.' }}
+            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          run: node .github/actions/reproduce/report/comment.mjs
+        - name: Post incomplete comment
+          if: steps.bundle.outputs.has != 'true'
+          env:
+            GH_TOKEN: ${{ github.token }}
+            ISSUE: ${{ github.event.issue.number || inputs.issue_number }}
+          run: gh issue comment "$ISSUE" --repo "${{ github.repository }}" --body-file comment.md
+
+        # ---- Bundle present + trunk ran → verdict + comment. ----
         - name: Compute verdict
           id: verdict
           if: steps.bundle.outputs.run_trunk == 'true'
@@ -474,8 +564,8 @@ safe-outputs:
             ISSUE: ${{ github.event.issue.number || inputs.issue_number }}
           run: gh issue comment "$ISSUE" --repo "${{ github.repository }}" --body-file comment.md
 
-        # ---- Reported leg blocked → skip trunk (a trunk result is meaningless without a reported
-        #      baseline) and post the clear blocked reason alongside the authored bundle. ----
+        # ---- Reported leg blocked → no trunk leg was produced; post the clear blocked reason
+        #      alongside the authored bundle. ----
         - name: Render blocked comment
           if: steps.bundle.outputs.has == 'true' && steps.bundle.outputs.reported_status == 'blocked'
           env:
@@ -484,8 +574,6 @@ safe-outputs:
             RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           run: |
             set -euo pipefail
-            mkdir -p artifacts/repro-plan
-            cp reproduction-plan.json fixtures.json repro.spec.ts ReproTest.php agent-summary.md workspace-edits.txt artifacts/repro-plan/ 2>/dev/null || true
             REASON="$(jq -r '.blocked_reason // "the reproduction could not be run on the reported version"' artifacts/repro-reported/result.json)" \
               node .github/actions/reproduce/report/comment.mjs
         - name: Post blocked comment

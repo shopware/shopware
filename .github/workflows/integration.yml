@@ -5,11 +5,12 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
-      nightly:
+      profile:
+        description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
         default: ""
   workflow_call:
     inputs:
-      nightly:
+      profile:
         type: string
         default: ""
 
@@ -40,7 +41,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
+          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.profile }}")
           echo $MATRIX
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$MATRIX" >> $GITHUB_OUTPUT
@@ -217,27 +218,27 @@ jobs:
         run: symfony server:start -d
 
       - name: Install Shopware in previous major version on test DB
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: composer init:testdb
 
       - name: Run next major migrations on test DB
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Install Shopware in previous major version
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: bin/console system:install --basic-setup --create-database --skip-assets-install
 
       - name: Run next major migrations
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: bin/console database:migrate --all core.V6_8
 
       - name: Run blue-green check
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: php .github/bin/blue-green-check.php
 
   blue-green-66-67:
@@ -308,17 +309,17 @@ jobs:
           bin/console system:generate-jwt-secret
 
       - name: Refresh theme in previous major version
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console theme:refresh
 
       - name: Run integration tests in previous major version
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Run blue-green check
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
@@ -326,7 +327,7 @@ jobs:
   update-66-67:
       name: "PHP update 6.6 -> 6.7"
       runs-on: ubuntu-24.04
-      if: inputs.nightly == 'true'
+      if: inputs.profile == 'nightly' || inputs.profile == 'release'
       env:
           APP_ENV: test
           APP_URL: http://localhost:8000

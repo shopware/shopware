@@ -245,7 +245,7 @@ class DocumentGeneratorTest extends TestCase
             new DocumentEntity(),
         );
 
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $generator->generate($generationRequest, Context::createDefaultContext());
     }

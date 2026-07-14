@@ -47,7 +47,7 @@ jobs:
     uses: ./.github/workflows/integration.yml
     secrets: inherit
     with:
-      nightly: true
+      profile: nightly
   integration-major:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/integration-major.yml
@@ -57,7 +57,7 @@ jobs:
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit
     with:
-      nightly: true
+      profile: nightly
   visual-tests:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/visual-tests.yml

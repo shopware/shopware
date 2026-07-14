@@ -68,6 +68,8 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_FORMAT_UNAVAILABLE = 'DOCUMENT_V2__FORMAT_UNAVAILABLE';
 
+    public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -344,6 +346,17 @@ class DocumentV2Exception extends HttpException
             self::INVALID_RENDER_VALUE,
             'Invalid render value for field "{{ field }}": {{ value }} ({{ reason }}).',
             ['field' => $field, 'value' => $value, 'reason' => $previous->getMessage()],
+            $previous,
+        );
+    }
+
+    public static function embedFailed(\Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EMBED_FAILED,
+            'Failed to embed the XML into the PDF: {{ reason }}.',
+            ['reason' => $previous->getMessage()],
             $previous,
         );
     }

@@ -171,6 +171,22 @@
             <tag name="shopware.app_lifecycle.handler" priority="-1200"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Feature\AppFeatureLifecycleHandler">
+            <argument type="service" id="Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Feature\AppFeatureStorage"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-1300"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry">
+            <argument type="tagged_iterator" tag="shopware.app_feature.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Feature\AppFeatureStorage">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>

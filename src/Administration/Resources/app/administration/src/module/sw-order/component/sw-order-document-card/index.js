@@ -487,7 +487,7 @@ export default {
 
         openDocument(documentId, deepLinkCode, fileType) {
             const openRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2Service.getDocument(documentId, deepLinkCode, fileType)
+                ? this.documentV2Service.getDocument(documentId, fileType)
                 : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
 
             openRequest.then((response) => {
@@ -503,10 +503,23 @@ export default {
 
         downloadDocument(documentId, deepLinkCode, fileType) {
             const downloadRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2Service.getDocument(documentId, deepLinkCode, fileType)
+                ? this.documentV2Service.getDocument(documentId, fileType)
                 : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
 
             downloadRequest.then((response) => {
+                if (response.data) {
+                    const filename = fileReaderUtils.getFilenameFromResponse(response);
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.download = filename;
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
+                }
+            });
+        },
+
+        downloadDocumentArchive(documentId) {
+            this.documentV2Service.getDocumentArchive(documentId).then((response) => {
                 if (response.data) {
                     const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
@@ -642,6 +655,12 @@ export default {
         },
 
         onDownloadAll(document) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                this.downloadDocumentArchive(document.id);
+
+                return;
+            }
+
             this.getDocumentActionFormats(document).forEach((format) => {
                 this.onDownload(document.id, document.deepLinkCode, format);
             });

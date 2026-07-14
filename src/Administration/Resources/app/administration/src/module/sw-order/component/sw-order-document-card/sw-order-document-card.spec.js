@@ -120,6 +120,7 @@ let createDocumentMock;
 let createDocumentV2Mock;
 let uploadDocumentV2Mock;
 let getDocumentV2Mock;
+let getDocumentArchiveV2Mock;
 let getDocumentPreviewV2Mock;
 
 async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
@@ -150,6 +151,12 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
             'content-disposition': 'attachment; filename=dummny.html',
         },
         data: 'https://shopware.test/dummny.html',
+    });
+    getDocumentArchiveV2Mock = jest.fn().mockResolvedValue({
+        headers: {
+            'content-disposition': 'attachment; filename=documents.zip',
+        },
+        data: 'https://shopware.test/documents.zip',
     });
     getDocumentPreviewV2Mock = jest.fn().mockResolvedValue({
         data: 'https://shopware.test/dummny.html',
@@ -292,6 +299,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 documentV2Service: {
                     setListener: () => ({}),
                     getDocument: (...args) => getDocumentV2Mock(...args),
+                    getDocumentArchive: (...args) => getDocumentArchiveV2Mock(...args),
                     previewDocument: (...args) => getDocumentPreviewV2Mock(...args),
                     createDocument: (...args) => createDocumentV2Mock(...args),
                     uploadDocument: (...args) => uploadDocumentV2Mock(...args),
@@ -650,7 +658,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.find('.sw-order-document-card__context-button-open-format').trigger('click');
 
-        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'abcd', 'html');
+        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'html');
         dispatchEventSpy.mockRestore();
     });
 
@@ -668,7 +676,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.find('.sw-order-document-card__context-button-download-format').trigger('click');
 
-        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'abcd', 'html');
+        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'html');
         dispatchEventSpy.mockRestore();
     });
 
@@ -720,6 +728,36 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         downloadDocumentSpy.mockRestore();
     });
 
+    it('should download a V2 archive when using the download all action with the feature flag active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                {
+                    ...documentFixture,
+                    documentFiles: [
+                        {
+                            documentFormat: 'html',
+                        },
+                        {
+                            documentFormat: 'pdf',
+                        },
+                    ],
+                    documentMediaFile: null,
+                    documentA11yMediaFile: null,
+                },
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
+
+        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith('document1');
+        dispatchEventSpy.mockRestore();
+    });
+
     it('should use the V2 create endpoint when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
@@ -752,7 +790,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '2026-07-06T00:00:00.000Z',
             '',
         );
-        expect(getDocumentV2Mock).toHaveBeenCalledWith('1234', '12341234', 'html');
+        expect(getDocumentV2Mock).toHaveBeenCalledWith('1234', 'html');
         dispatchEventSpy.mockRestore();
     });
 

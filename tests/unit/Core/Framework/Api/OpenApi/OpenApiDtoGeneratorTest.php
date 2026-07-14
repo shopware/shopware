@@ -163,6 +163,68 @@ class OpenApiDtoGeneratorTest extends TestCase
         static::assertStringNotContainsString('public ?Associations $associations = null,', $criteria);
     }
 
+    public function testSingleReferencedRequestBodyUsesComponentDtoAndGeneratesDependencies(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'openapi' => '3.1.0',
+            'info' => [],
+            'paths' => [
+                '/newsletter-recipient' => [
+                    'post' => [
+                        'operationId' => 'readNewsletterRecipient',
+                        'description' => 'Read newsletter recipients.',
+                        'requestBody' => [
+                            'required' => false,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'allOf' => [
+                                            ['$ref' => '#/components/schemas/Criteria'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'components' => [
+                'schemas' => [
+                    'Criteria' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'sort' => [
+                                'type' => 'array',
+                                'items' => ['$ref' => '#/components/schemas/Sort'],
+                            ],
+                        ],
+                    ],
+                    'Sort' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'field' => ['type' => 'string'],
+                            'options' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'natural' => ['type' => 'boolean'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], includeComponentSchemas: false);
+
+        $request = $this->renderDefinition($this->definitionByName($definitions, 'ReadNewsletterRecipientRequest'));
+
+        static::assertStringContainsString('#[Assert\\Valid]', $request);
+        static::assertStringContainsString('public ?Criteria $criteria = null,', $request);
+        static::assertStringNotContainsString('public ?array $sort = null,', $request);
+        static::assertSame('Criteria', $this->definitionByName($definitions, 'Criteria')->name);
+        static::assertSame('Sort', $this->definitionByName($definitions, 'Sort')->name);
+        static::assertSame('SortOptions', $this->definitionByName($definitions, 'SortOptions')->name);
+    }
+
     public function testNestedDtosInheritPackageFromParentSchema(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([

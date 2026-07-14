@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Defaults;
 
 /**
  * @internal
@@ -221,7 +221,7 @@ final class OpenApiDtoClassRenderer
 
         if ($property->enum !== null) {
             $choices = implode(', ', array_map(
-                fn (string $case): string => '\'' . $this->escapePhpSingleQuoted($case) . '\'',
+                fn (string|int|float|bool $case): string => $this->formatDefaultValue($case),
                 $property->enum,
             ));
             $constraints[] = '        #[Assert\Choice(choices: [' . $choices . '])]';

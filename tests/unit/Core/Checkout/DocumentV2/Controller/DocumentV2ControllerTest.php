@@ -91,7 +91,10 @@ class DocumentV2ControllerTest extends TestCase
         ]);
 
         static::expectExceptionObject(
-            DocumentV2Exception::rendererNotFound(DocumentFormat::PDF->value, DocumentType::INVOICE->value)
+            DocumentV2Exception::unsupportedRequestedDocumentFormat(
+                DocumentFormat::PDF->value,
+                DocumentType::INVOICE->value,
+            )
         );
 
         $controller = new DocumentV2Controller(
@@ -159,7 +162,10 @@ class DocumentV2ControllerTest extends TestCase
         ]);
 
         static::expectExceptionObject(
-            DocumentV2Exception::rendererNotFound(DocumentFormat::PDF->value, DocumentType::INVOICE->value)
+            DocumentV2Exception::unsupportedRequestedDocumentFormat(
+                DocumentFormat::PDF->value,
+                DocumentType::INVOICE->value,
+            )
         );
 
         $controller = new DocumentV2Controller(

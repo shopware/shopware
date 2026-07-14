@@ -30,6 +30,8 @@ class DocumentV2Exception extends HttpException
 
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
+    public const UNSUPPORTED_REQUESTED_DOCUMENT_FORMAT = 'DOCUMENT_V2__UNSUPPORTED_REQUESTED_DOCUMENT_FORMAT';
+
     public const CIRCULAR_DEPENDENCY_CYCLE = 'DOCUMENT_V2__CIRCULAR_DEPENDENCY_CYCLE';
 
     public const MISSING_RENDER_PLAN_DEPENDENCY = 'DOCUMENT_V2__MISSING_RENDER_PLAN_DEPENDENCY';
@@ -140,6 +142,16 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_NOT_FOUND,
             self::RENDERER_NOT_FOUND,
             'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
+            ['format' => $format, 'documentType' => $documentType],
+        );
+    }
+
+    public static function unsupportedRequestedDocumentFormat(string $format, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNSUPPORTED_REQUESTED_DOCUMENT_FORMAT,
+            'Unsupported requested document format "{{ format }}" for document type "{{ documentType }}".',
             ['format' => $format, 'documentType' => $documentType],
         );
     }

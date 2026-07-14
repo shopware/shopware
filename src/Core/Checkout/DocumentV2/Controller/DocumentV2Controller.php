@@ -244,7 +244,7 @@ final class DocumentV2Controller extends AbstractController
 
         foreach ($fileTypes as $fileType) {
             if (!\in_array($fileType, $supportedFormats, true)) {
-                throw DocumentV2Exception::rendererNotFound($fileType, $documentType);
+                throw DocumentV2Exception::unsupportedRequestedDocumentFormat($fileType, $documentType);
             }
         }
     }

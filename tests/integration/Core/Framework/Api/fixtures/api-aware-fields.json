@@ -647,6 +647,7 @@
     "product.type",
     "product.displayGroup",
     "product.manufacturerNumber",
+    "product.guaranteeMonths",
     "product.ean",
     "product.purchaseSteps",
     "product.maxPurchase",

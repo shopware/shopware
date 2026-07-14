@@ -1,0 +1,6 @@
+{
+  "admin_build": false,
+  "storefront_build": false,
+  "demodata": false,
+  "timeout_s": 600
+}

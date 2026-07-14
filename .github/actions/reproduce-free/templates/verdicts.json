@@ -1,0 +1,48 @@
+{
+  "_comment": "All human-facing frame copy for the FREE variant. Edit wording here — render-comment.mjs only selects and fills {{PLACEHOLDER}}s. The agent authors the report BODY itself; this file owns only the harness-controlled frame.",
+  "verdicts": {
+    "live_bug": {
+      "headline": "Bug reproduced — present on the reported version and on trunk",
+      "badge": "🔴 Live bug",
+      "callout": ""
+    },
+    "fixed_on_trunk": {
+      "headline": "Bug reproduced on the reported version — already fixed on trunk",
+      "badge": "🟢 Fixed on trunk",
+      "callout": ""
+    },
+    "regression": {
+      "headline": "Regression — fine on the reported version, broken on trunk",
+      "badge": "🟠 Regression",
+      "callout": "> [!WARNING]\n> Confirm the reported leg actually exercised the symptom — a missing fixture can fake a regression."
+    },
+    "not_reproducible": {
+      "headline": "Could not reproduce the bug",
+      "badge": "⚪ Not reproducible",
+      "callout": "> [!NOTE]\n> The symptom was observed on NEITHER version, including the reported (buggy) one — most often the repro doesn't faithfully hit the scenario. Confirm before closing."
+    },
+    "needs_human_review": {
+      "headline": "Needs human review",
+      "badge": "🟡 Needs human review",
+      "callout": "> [!CAUTION]\n> Treat as unconfirmed — a human should verify the reproduction faithfully matches the report before acting."
+    },
+    "blocked": {
+      "headline": "Reproduction blocked (environment)",
+      "badge": "⚫ Blocked",
+      "callout": ""
+    }
+  },
+  "phrases": {
+    "status": {
+      "reproduced": "🔴 bug observed (exit 1)",
+      "not_reproduced": "🟢 healthy (exit 0)",
+      "blocked": "⚫ blocked",
+      "null": "— not run"
+    },
+    "undisclosed_intro": "**Undisclosed changes** — the agent modified these files without referencing them in its report:",
+    "shop_edits_intro": "**The agent edited the provisioned shop's own code.** The reported leg ran against a modified shop, so this run needs a human judgement:",
+    "inconsistency_intro": "**Inconsistent signals from run.sh** — the exit code and the `##repro` markers disagree:",
+    "footer": "🤖 The narrative above was written by the reproduction agent. Every code block, run output, and image was inserted by the harness from the trusted runs — the agent cannot author those, only reference them. The verdict is computed deterministically from the two legs.",
+    "incomplete_reason_default": "The agent did not produce a runnable reproduction bundle."
+  }
+}

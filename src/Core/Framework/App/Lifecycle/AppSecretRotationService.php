@@ -10,10 +10,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -45,7 +43,6 @@ class AppSecretRotationService
         private readonly AppRegistrationService $registrationService,
         private readonly EntityRepository $appRepository,
         private readonly EntityRepository $integrationRepository,
-        private readonly SourceResolver $sourceResolver,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
@@ -91,7 +88,7 @@ class AppSecretRotationService
             $currentIntegration = $app->getIntegration();
             \assert($currentIntegration !== null);
 
-            $manifest = $this->resolveManifest($app);
+            $manifest = $this->manifestFactory->createFromApp($app);
 
             $this->logger->info('Starting app secret rotation', [
                 'appId' => $app->getId(),
@@ -223,7 +220,7 @@ class AppSecretRotationService
         $currentIntegration = $app->getIntegration();
         \assert($currentIntegration !== null);
 
-        $manifest = $this->resolveManifest($app);
+        $manifest = $this->manifestFactory->createFromApp($app);
 
         // Recovery re-registers, which needs <setup>. If the manifest no longer declares it, the app cannot
         // be re-registered — fail before switching integrations rather than no-op into a false success.
@@ -388,18 +385,11 @@ class AppSecretRotationService
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('integration');
 
-        $app = $this->appRepository->search($criteria, $context)->get($appId);
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->get($appId);
         if (!$app instanceof AppEntity) {
             throw AppException::notFoundByField($appId, 'id');
         }
 
         return $app;
-    }
-
-    private function resolveManifest(AppEntity $app): Manifest
-    {
-        $filesystem = $this->sourceResolver->filesystemForApp($app);
-
-        return $this->manifestFactory->createFromXmlFile($filesystem->path('manifest.xml'));
     }
 }

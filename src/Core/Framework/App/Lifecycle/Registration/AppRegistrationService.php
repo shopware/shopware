@@ -349,7 +349,7 @@ class AppRegistrationService
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('integration');
 
-        $app = $this->appRepository->search($criteria, $context)->get($id);
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->get($id);
         if (!$app instanceof AppEntity) {
             throw AppException::notFoundByField($id, 'id');
         }

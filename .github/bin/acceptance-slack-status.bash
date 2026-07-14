@@ -52,6 +52,10 @@ acceptance_jobs=$(jq -r '
   jq -s -r 'sort_by(.sort)[] | "\(.id);\(.name);\(.conclusion)"')
 
 message=""
+# Optional label to distinguish concurrent runs (e.g. the dedicated "Major" nightly).
+if [ -n "${RUN_LABEL:-}" ]; then
+  message="*${RUN_LABEL}*\n"
+fi
 while IFS=';' read -r job_id job_name job_conclusion; do
   [ -z "$job_name" ] && continue
   case "$job_conclusion" in

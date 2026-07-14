@@ -30,14 +30,16 @@ class InstallTest extends TestCase
 
     public function testCommandWhenServicesAreDisabled(): void
     {
-        $manager = static::createStub(LifecycleManager::class);
+        $manager = $this->createMock(LifecycleManager::class);
         $manager->method('enabled')
             ->willReturn(false);
+        $manager->expects($this->never())->method('install');
 
         $command = new Install($manager);
         $tester = new CommandTester($command);
-        $tester->execute([]);
+        $exitCode = $tester->execute([]);
 
+        static::assertSame(Install::FAILURE, $exitCode);
         static::assertStringContainsString('Services are disabled. Please enable them to install services.', $tester->getDisplay());
     }
 

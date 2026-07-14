@@ -1,0 +1,45 @@
+name: Markdown-only changes
+description: Detect whether the current pull request only changes markdown files
+
+outputs:
+  docs_only:
+    description: Whether the current pull request only changes markdown files
+    value: ${{ steps.check.outputs.docs_only }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        fetch-depth: 0
+
+    - name: Detect markdown-only pull requests
+      id: check
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" != "pull_request" ]; then
+          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        base_sha="${{ github.event.pull_request.base.sha }}"
+        head_sha="${{ github.event.pull_request.head.sha }}"
+
+        if [ -z "$base_sha" ] || [ -z "$head_sha" ]; then
+          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if ! changed_files="$(git diff --name-only "$base_sha" "$head_sha")"; then
+          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [ -z "$changed_files" ] || printf '%s\n' "$changed_files" | grep -Eivq '\.md$'; then
+          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "docs_only=true" >> "$GITHUB_OUTPUT"

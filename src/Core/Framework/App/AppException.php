@@ -77,7 +77,7 @@ class AppException extends HttpException
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const APP_SECRET_LOCK_UNAVAILABLE = 'FRAMEWORK__APP_SECRET_LOCK_UNAVAILABLE';
-    final public const SHOP_ID_CHANGE_REREGISTRATION_FAILED = 'FRAMEWORK__APP_SHOP_ID_CHANGE_REREGISTRATION_FAILED';
+    final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -627,20 +627,6 @@ class AppException extends HttpException
         return new ShopIdChangeStrategyNotFoundException($strategy);
     }
 
-    /**
-     * @param non-empty-list<string> $failedAppNames
-     */
-    public static function shopIdChangeAppReRegistrationFailed(array $failedAppNames, ?\Throwable $previous = null): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::SHOP_ID_CHANGE_REREGISTRATION_FAILED,
-            'Re-registering apps after the shop id change failed for: {{ apps }}. The remaining apps were processed; resolve these and retry the shop id change.',
-            ['apps' => implode(', ', $failedAppNames)],
-            $previous
-        );
-    }
-
     public static function invalidAppUrl(string $reason): self
     {
         return new self(
@@ -657,6 +643,34 @@ class AppException extends HttpException
             self::MANIFEST_NOT_FOUND,
             'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
             ['path' => $path],
+        );
+    }
+
+    /**
+     * @param list<string> $failedAppNames
+     */
+    public static function shopMoveFailed(array $failedAppNames): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RE_REGISTRATION_FAILED,
+            'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
+            . 'retry each failed app with "bin/console app:secret:rotate <app-name>".',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
+        );
+    }
+
+    /**
+     * @param list<string> $failedAppNames
+     */
+    public static function reinstallAppsFailed(array $failedAppNames): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RE_REGISTRATION_FAILED,
+            'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
+            . 'run the shop ID change strategy "reinstall-apps" again.',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
         );
     }
 

@@ -18,14 +18,12 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
@@ -62,8 +60,6 @@ class AppSecretRotationServiceTest extends TestCase
      */
     private EntityRepository&Stub $integrationRepository;
 
-    private SourceResolver&MockObject $sourceResolver;
-
     private MessageBusInterface&Stub $messageBus;
 
     private LoggerInterface&Stub $logger;
@@ -83,7 +79,6 @@ class AppSecretRotationServiceTest extends TestCase
         $this->registrationService = static::createStub(AppRegistrationService::class);
         $this->appRepository = $this->createMock(EntityRepository::class);
         $this->integrationRepository = static::createStub(EntityRepository::class);
-        $this->sourceResolver = $this->createMock(SourceResolver::class);
         $this->messageBus = static::createStub(MessageBusInterface::class);
         $this->logger = static::createStub(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
@@ -136,11 +131,8 @@ class AppSecretRotationServiceTest extends TestCase
         $this->lockRunsOperation();
 
         // the app id resolves to no entity, so loadApp throws before anything is rotated
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->expects($this->once())
-            ->method('get')
-            ->with($appId)
-            ->willReturn(null);
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new AppCollection());
         $this->appRepository->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
@@ -163,10 +155,10 @@ class AppSecretRotationServiceTest extends TestCase
         $this->lockRunsOperation();
 
         $manifest = static::createStub(Manifest::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())->method('path')->with('manifest.xml')->willReturn('/path/to/manifest.xml');
-        $this->sourceResolver->method('filesystemForApp')->with($app)->willReturn($filesystem);
-        $this->manifestFactory->method('createFromXmlFile')->with('/path/to/manifest.xml')->willReturn($manifest);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
 
         $registrationService = $this->createMock(AppRegistrationService::class);
         $registrationService->expects($this->once())
@@ -203,6 +195,48 @@ class AppSecretRotationServiceTest extends TestCase
             ->method('info');
 
         $this->createService(registrationService: $registrationService, integrationRepository: $integrationRepository, logger: $logger)
+            ->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
+    }
+
+    public function testRotateNowLogsErrorOnFailure(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $this->setupAppLookup($appId, $app);
+        $this->lockRunsOperation();
+
+        $manifest = static::createStub(Manifest::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
+
+        $exception = new \RuntimeException('Registration failed');
+        $registrationService = $this->createMock(AppRegistrationService::class);
+        $registrationService->expects($this->once())
+            ->method('registerApp')
+            ->willThrowException($exception);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('info')
+            ->with('Starting app secret rotation', static::anything());
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'App secret rotation failed',
+                [
+                    'appId' => $appId,
+                    'appName' => 'TestApp',
+                    'trigger' => AppSecretRotationService::TRIGGER_CLI,
+                    'error' => 'Registration failed',
+                ]
+            );
+
+        $this->expectExceptionObject($exception);
+
+        $this->createService(registrationService: $registrationService, logger: $logger)
             ->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
     }
 
@@ -385,7 +419,7 @@ class AppSecretRotationServiceTest extends TestCase
 
         $this->lockRunsOperation();
         // one refresh per candidate: two pending + the committed fallback
-        $this->registrationLock->expects($this->exactly(3))->method('refresh')->with($this->lock);
+        $this->registrationLock->expects($this->exactly(3))->method('refresh')->with($this->lock, $appId);
 
         $this->setupResolvableManifestWithSetup();
 
@@ -417,7 +451,6 @@ class AppSecretRotationServiceTest extends TestCase
             $registrationService ?? $this->registrationService,
             $this->appRepository,
             $integrationRepository ?? $this->integrationRepository,
-            $this->sourceResolver,
             $messageBus ?? $this->messageBus,
             $logger ?? $this->logger,
             $this->manifestFactory,
@@ -463,26 +496,20 @@ class AppSecretRotationServiceTest extends TestCase
     private function setupAppLookup(string $appId, ?AppEntity $app): void
     {
         $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('get')->willReturn($app);
+        $searchResult->method('getEntities')->willReturn(new AppCollection($app ? [$app] : []));
 
         $this->appRepository->method('search')->willReturn($searchResult);
     }
 
     /**
-     * Wires the source resolver and manifest factory to return a manifest that still declares <setup>, which
-     * recovery requires before it will re-register. The manifest/filesystem paths are irrelevant here, so they
-     * are left unconstrained.
+     * Wires the manifest factory to return a manifest that still declares <setup>, which recovery requires
+     * before it will re-register.
      */
     private function setupResolvableManifestWithSetup(): void
     {
         $manifest = static::createStub(Manifest::class);
         $manifest->method('getSetup')->willReturn(Setup::fromArray(['registrationUrl' => 'https://example.com/register']));
 
-        $filesystem = static::createStub(Filesystem::class);
-        $filesystem->method('hasFile')->willReturn(false);
-        $filesystem->method('path')->willReturn('/path/to/manifest.xml');
-
-        $this->sourceResolver->method('filesystemForApp')->willReturn($filesystem);
-        $this->manifestFactory->method('createFromXmlFile')->willReturn($manifest);
+        $this->manifestFactory->method('createFromApp')->willReturn($manifest);
     }
 }

@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 12:24:14
+ * Last generated: 2026-07-14 15:33:06
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -32,10 +32,9 @@ final readonly class NoneFieldsCriteria
          */
         public ?int $limit = null,
         /**
-         * List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)
-         *
-         * @var array<string, mixed>
+         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter> List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)
          */
+        #[Assert\Valid]
         public ?array $filter = null,
         /**
          * @var list<string> List of ids to search for
@@ -47,14 +46,14 @@ final readonly class NoneFieldsCriteria
          */
         public ?string $query = null,
         /**
-         * @var array<string, mixed>
+         * @var array<string, Criteria>
          */
+        #[Assert\Valid]
         public ?array $associations = null,
         /**
-         * Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)
-         *
-         * @var array<string, mixed>
+         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter> Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)
          */
+        #[Assert\Valid]
         public ?array $postFilter = null,
         /**
          * @var list<Sort> Sorting in the search result.
@@ -62,8 +61,9 @@ final readonly class NoneFieldsCriteria
         #[Assert\Valid]
         public ?array $sort = null,
         /**
-         * @var array<string, mixed>
+         * @var list<AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange>
          */
+        #[Assert\Valid]
         public ?array $aggregations = null,
         /**
          * @var list<string> Perform groupings over certain fields
@@ -78,13 +78,13 @@ final readonly class NoneFieldsCriteria
         /**
          * Specify the fields that should be returned for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Fields will not be included, if they are also specified in the excludes. Note that the include fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons. To return a DAL extension, list the extension by its name (for example `myExtension`); the `extensions` wrapper is then kept automatically. Listing the keyword `extensions` returns all extensions.
          *
-         * @var array<string, mixed>
+         * @var array<string, list<string>>
          */
         public ?array $includes = null,
         /**
          * Specify the fields that should be excluded from the response for the given entities. Object key needs to be the entity name, and the list of fields needs to be the value. Note that the exclude fields will only be stripped on the API-Level, consider using the `fields` parameter for performance reasons. Use an extension name to remove a single extension, or the keyword `extensions` to remove all of them.
          *
-         * @var array<string, mixed>
+         * @var array<string, list<string>>
          */
         public ?array $excludes = null,
     ) {

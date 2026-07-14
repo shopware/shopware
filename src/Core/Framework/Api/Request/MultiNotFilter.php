@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 11:37:53
+ * Last generated: 2026-07-14 15:24:15
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -22,8 +22,12 @@ final readonly class MultiNotFilter
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['and', 'or', 'nor', 'nand'])]
         public string $operator,
+        /**
+         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
+         */
         #[Assert\NotNull]
-        public mixed $queries,
+        #[Assert\Valid]
+        public array $queries,
     ) {
     }
 }

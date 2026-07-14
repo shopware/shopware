@@ -221,16 +221,12 @@
                 }
             },
             "Associations": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
                 "type": "object",
                 "additionalProperties": {
                     "$ref": "#/components/schemas/Criteria"
                 }
             },
             "Includes": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
                 "type": "object",
                 "additionalProperties": {
                     "type": "array",
@@ -240,8 +236,6 @@
                 }
             },
             "Excludes": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
                 "type": "object",
                 "additionalProperties": {
                     "type": "array",
@@ -251,8 +245,6 @@
                 }
             },
             "Aggregation": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
                 "anyOf": [
                     {
                         "$ref": "#/components/schemas/AggregationMetrics"
@@ -315,8 +307,6 @@
                 ]
             },
             "SubAggregations": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "aggregation": {
@@ -344,8 +334,6 @@
                 }
             },
             "TotalCountMode": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
                 "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
                 "type": "string",
                 "default": "none",

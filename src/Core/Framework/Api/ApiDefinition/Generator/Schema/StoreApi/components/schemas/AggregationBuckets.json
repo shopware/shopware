@@ -5,6 +5,8 @@
     "components": {
         "schemas": {
             "AggregationEntity": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "title": "AggregationEntity",
                 "type": "object",
                 "properties": {
@@ -34,6 +36,8 @@
                 ]
             },
             "AggregationFilter": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "title": "AggregationFilter",
                 "type": "object",
                 "properties": {
@@ -60,6 +64,8 @@
                 ]
             },
             "AggregationTerms": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "title": "AggregationTerms",
                 "type": "object",
                 "properties": {
@@ -95,6 +101,8 @@
                 ]
             },
             "AggregationHistogram": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "title": "AggregationHistogram",
                 "type": "object",
                 "properties": {
@@ -131,6 +139,8 @@
                 ]
             },
             "AggregationRange": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "title": "AggregationRange",
                 "description": "For more information, see [Aggregations Reference > Range Aggregation](https:\/\/developer.shopware.com\/docs\/resources\/references\/core-reference\/dal-reference\/aggregations-reference.html#range-aggregations)",
                 "type": "object",

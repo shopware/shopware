@@ -121,9 +121,8 @@ final class OpenApiDtoClassRenderer
         }
 
         $lines[] = \sprintf(
-            '        public %s%s $%s%s,',
-            $this->phpTypeAllowsNullablePrefix($property->phpType) && $this->isEffectivelyNullable($property) ? '?' : '',
-            $property->phpType,
+            '        public %s $%s%s,',
+            $this->renderPhpType($property),
             $property->name,
             $this->renderDefault($property),
         );
@@ -149,6 +148,18 @@ final class OpenApiDtoClassRenderer
             // TODO: Generate a dedicated DTO for this reference once we also generate static
             // schema files for generic entity definitions (currently produced at runtime by the DAL).
             $lines[] = '         * @todo Replace with the generated DTO once static schema files exist for generic entity definitions.';
+            $lines[] = '         */';
+
+            return $lines;
+        }
+
+        if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->arrayMapValueType !== null) {
+            $lines[] = '        /**';
+            if ($property->description !== null) {
+                $lines[] = '         * ' . $this->escapePhpDoc($property->description);
+                $lines[] = '         *';
+            }
+            $lines[] = '         * @var array<string, ' . $property->arrayMapValueType . '>';
             $lines[] = '         */';
 
             return $lines;
@@ -249,7 +260,7 @@ final class OpenApiDtoClassRenderer
 
     private function renderArrayItemConstraints(OpenApiDtoProperty $property): ?string
     {
-        if ($property->phpType !== OpenApiDtoSchemaParser::PHP_TYPE_ARRAY || $property->arrayItemType === null || !$this->isPrimitive($property->arrayItemType)) {
+        if ($property->phpType !== OpenApiDtoSchemaParser::PHP_TYPE_ARRAY || $property->arrayItemType === null || !\in_array($property->arrayItemType, OpenApiDtoSchemaParser::PHP_TYPES, true)) {
             return null;
         }
 
@@ -268,6 +279,10 @@ final class OpenApiDtoClassRenderer
 
     private function needsValidConstraint(OpenApiDtoProperty $property): bool
     {
+        if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->arrayMapValueType !== null) {
+            return $this->containsDtoType($property->arrayMapValueType);
+        }
+
         if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->arrayItemType !== null) {
             return !$this->isPrimitive($property->arrayItemType);
         }
@@ -324,6 +339,19 @@ final class OpenApiDtoClassRenderer
         return $type !== 'mixed';
     }
 
+    private function renderPhpType(OpenApiDtoProperty $property): string
+    {
+        if (!$this->isEffectivelyNullable($property) || !$this->phpTypeAllowsNullablePrefix($property->phpType)) {
+            return $property->phpType;
+        }
+
+        if (str_contains($property->phpType, '|')) {
+            return $property->phpType . '|null';
+        }
+
+        return '?' . $property->phpType;
+    }
+
     /**
      * @param array<string, string> $externalNamespaces
      *
@@ -345,22 +373,28 @@ final class OpenApiDtoClassRenderer
         }
 
         foreach ($definition->properties as $property) {
-            foreach ([$property->phpType, $property->arrayItemType] as $type) {
-                if ($type === null || $this->isPrimitive($type)) {
+            foreach ([$property->phpType, $property->arrayItemType, $property->arrayMapValueType] as $type) {
+                if ($type === null) {
                     continue;
                 }
 
-                $targetNamespace = $externalNamespaces[$type] ?? null;
-                if ($targetNamespace === null) {
-                    continue;
-                }
+                foreach ($this->typeNames($type) as $singleType) {
+                    if ($this->isPrimitive($singleType)) {
+                        continue;
+                    }
 
-                $targetNamespace = trim($targetNamespace, '\\');
-                if ($targetNamespace === $current) {
-                    continue;
-                }
+                    $targetNamespace = $externalNamespaces[$singleType] ?? null;
+                    if ($targetNamespace === null) {
+                        continue;
+                    }
 
-                $imports[$targetNamespace . '\\' . $type] = true;
+                    $targetNamespace = trim($targetNamespace, '\\');
+                    if ($targetNamespace === $current) {
+                        continue;
+                    }
+
+                    $imports[$targetNamespace . '\\' . $singleType] = true;
+                }
             }
         }
 
@@ -391,7 +425,35 @@ final class OpenApiDtoClassRenderer
 
     private function isPrimitive(string $type): bool
     {
-        return \in_array($type, OpenApiDtoSchemaParser::PHP_TYPES, true);
+        foreach (explode('|', $type) as $singleType) {
+            if (!\in_array($singleType, OpenApiDtoSchemaParser::PHP_TYPES, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function containsDtoType(string $type): bool
+    {
+        foreach ($this->typeNames($type) as $typeName) {
+            if (!$this->isPrimitive($typeName) && $typeName !== 'list' && $typeName !== 'null') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function typeNames(string $type): array
+    {
+        $typeNames = preg_split('/[^a-zA-Z0-9_\\\\]+/', $type, flags: \PREG_SPLIT_NO_EMPTY);
+        \assert(\is_array($typeNames));
+
+        return array_values(array_unique($typeNames));
     }
 
     private function escapePhpDoc(string $text): string

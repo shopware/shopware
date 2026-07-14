@@ -130,7 +130,7 @@ class OpenApiDtoGeneratorTest extends TestCase
         static::assertStringNotContainsString('#[Assert\Valid]', $request);
     }
 
-    public function testReferencedMapSchemasAreRenderedAsArrays(): void
+    public function testReferencedMapSchemasAreRenderedAsTypedArrays(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([
             'openapi' => '3.1.0',
@@ -144,6 +144,9 @@ class OpenApiDtoGeneratorTest extends TestCase
                             'associations' => [
                                 '$ref' => '#/components/schemas/Associations',
                             ],
+                            'includes' => [
+                                '$ref' => '#/components/schemas/Includes',
+                            ],
                         ],
                     ],
                     'Associations' => [
@@ -152,15 +155,25 @@ class OpenApiDtoGeneratorTest extends TestCase
                             '$ref' => '#/components/schemas/Criteria',
                         ],
                     ],
+                    'Includes' => [
+                        'type' => 'object',
+                        'additionalProperties' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                        ],
+                    ],
                 ],
             ],
         ]);
 
         $criteria = $this->renderDefinition($this->definitionByName($definitions, 'Criteria'));
 
-        static::assertStringContainsString('@var array<string, mixed>', $criteria);
+        static::assertStringContainsString('@var array<string, Criteria>', $criteria);
         static::assertStringContainsString('public ?array $associations = null,', $criteria);
+        static::assertStringContainsString('@var array<string, list<string>>', $criteria);
+        static::assertStringContainsString('public ?array $includes = null,', $criteria);
         static::assertStringNotContainsString('public ?Associations $associations = null,', $criteria);
+        static::assertSame(1, substr_count($criteria, '#[Assert\\Valid]'));
     }
 
     public function testSingleReferencedRequestBodyUsesComponentDtoAndGeneratesDependencies(): void
@@ -255,6 +268,86 @@ class OpenApiDtoGeneratorTest extends TestCase
 
         static::assertStringContainsString('use Shopware\\Core\\Framework\\Log\\Package;', $parameters);
         static::assertStringContainsString('#[Package(\'framework\')]', $parameters);
+    }
+
+    public function testSchemaVariantsAreRenderedAsUnionTypes(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'openapi' => '3.1.0',
+            'info' => [],
+            'paths' => [],
+            'components' => [
+                'schemas' => [
+                    'Criteria' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'filter' => [
+                                'type' => 'array',
+                                'items' => [
+                                    'anyOf' => [
+                                        ['$ref' => '#/components/schemas/EqualsFilter'],
+                                        ['$ref' => '#/components/schemas/RangeFilter'],
+                                    ],
+                                ],
+                            ],
+                            'query' => [
+                                'oneOf' => [
+                                    ['$ref' => '#/components/schemas/EqualsFilter'],
+                                    ['$ref' => '#/components/schemas/RangeFilter'],
+                                    ['type' => 'null'],
+                                ],
+                            ],
+                            'aggregations' => [
+                                'type' => 'array',
+                                'items' => [
+                                    '$ref' => [
+                                        '#/components/schemas/Aggregation',
+                                        '#/components/schemas/Aggregation',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'EqualsFilter' => [
+                        'type' => 'object',
+                        'properties' => ['field' => ['type' => 'string']],
+                    ],
+                    'RangeFilter' => [
+                        'type' => 'object',
+                        'properties' => ['field' => ['type' => 'string']],
+                    ],
+                    'Aggregation' => [
+                        'anyOf' => [
+                            ['$ref' => '#/components/schemas/AverageAggregation'],
+                            [
+                                'title' => 'CountAggregation',
+                                'allOf' => [
+                                    ['$ref' => '#/components/schemas/CountAggregation'],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AverageAggregation' => [
+                        'type' => 'object',
+                        'properties' => ['field' => ['type' => 'string']],
+                    ],
+                    'CountAggregation' => [
+                        'type' => 'object',
+                        'properties' => ['field' => ['type' => 'string']],
+                    ],
+                ],
+            ],
+        ]);
+
+        $criteria = $this->renderDefinition($this->definitionByName($definitions, 'Criteria'));
+
+        static::assertStringContainsString('@var list<EqualsFilter|RangeFilter>', $criteria);
+        static::assertStringContainsString('public ?array $filter = null,', $criteria);
+        static::assertStringContainsString('public EqualsFilter|RangeFilter|null $query = null,', $criteria);
+        static::assertStringContainsString('@var list<AverageAggregation|CountAggregation>', $criteria);
+        static::assertSame(3, substr_count($criteria, '#[Assert\\Valid]'));
+        static::assertSame('AverageAggregation', $this->definitionByName($definitions, 'AverageAggregation')->name);
+        static::assertSame('CountAggregation', $this->definitionByName($definitions, 'CountAggregation')->name);
     }
 
     /**

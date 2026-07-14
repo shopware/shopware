@@ -336,7 +336,6 @@ class AppManager
         unset($metadata['accessToken'], $metadata['icon']);
         $metadata['path'] = str_replace($this->projectDir . '/', '', $manifest->getPath());
         $metadata['id'] = $id;
-        $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->getIcon($manifest);
         $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
         $metadata['baseAppUrl'] = $manifest->getAdmin()?->getBaseAppUrl();

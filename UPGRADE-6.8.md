@@ -4,6 +4,12 @@
 
 <details>
 
+## App admin modules moved out of the app entity
+
+App-declared admin modules are now persisted through the generic app feature storage.
+
+The methods `AppEntity::getModules()`, `getMainModule()` and their setters are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes these fields. Extensions must not use these accessors to read an app's modules.
+
 ## Locale-aware sorting for product property group options
 
 To ensure product property group options are sorted more precisely based on locale code:

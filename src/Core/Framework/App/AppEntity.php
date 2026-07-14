@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
@@ -64,11 +65,15 @@ class AppEntity extends Entity
     protected ?string $inAppPurchasesGatewayUrl = null;
 
     /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
      * @var list<Module>
      */
     protected array $modules;
 
     /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
      * @var Module|null
      */
     protected ?array $mainModule = null;
@@ -287,34 +292,62 @@ class AppEntity extends Entity
     }
 
     /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
      * @return list<Module>
      */
     public function getModules(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->modules;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
      * @param list<Module> $modules
      */
     public function setModules(array $modules): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->modules = $modules;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
      * @return Module|null
      */
     public function getMainModule(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->mainModule;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - App modules are stored as app features. Use ModuleLoader instead.
+     *
      * @param Module $mainModule
      */
     public function setMainModule(array $mainModule): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->mainModule = $mainModule;
     }
 

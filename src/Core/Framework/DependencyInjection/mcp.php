@@ -117,7 +117,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpCapabilityDetector::class)
-        ->args([service(Connection::class)]);
+        ->args([service(AppFeatureStorage::class)]);
 
     $services->set(AppMcpCapabilityLifecycleSubscriber::class)
         ->args([

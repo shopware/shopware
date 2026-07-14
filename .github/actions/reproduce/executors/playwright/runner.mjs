@@ -54,7 +54,9 @@ function specRunCommand(configPath, env) {
   if (!SANDBOX) {
     return { cmd: 'npx', args: ['playwright', 'test', '--config', configPath] };
   }
-  const image = process.env.REPRO_SANDBOX_PW_IMAGE || 'mcr.microsoft.com/playwright:v1.55.0-noble';
+  // The workflow exports REPRO_SANDBOX_PW_IMAGE matched to the host-installed Playwright version; the
+  // literal is only a fallback and MUST equal the browsers of the workspace node_modules mounted below.
+  const image = process.env.REPRO_SANDBOX_PW_IMAGE || 'mcr.microsoft.com/playwright:v1.61.1-noble';
   const ws = process.cwd();
   const passthrough = ['APP_URL', 'PW_STORAGE', 'PW_JSON_REPORT', 'PW_OUTPUT_DIR', 'PW_HTML_REPORT', 'PW_VIDEO', 'PW_VIEWPORT', 'REPRO_VIDEO_SLOWMO']
     .filter((key) => env[key] != null && env[key] !== '')

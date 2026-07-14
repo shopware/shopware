@@ -417,12 +417,18 @@ safe-outputs:
           env:
             SHOP_DIR: shop
             SANDBOX_URL: http://host.docker.internal:8000
-            REPRO_SANDBOX_PW_IMAGE: mcr.microsoft.com/playwright:v1.55.0-noble
           run: |
             set -euo pipefail
             bash .github/actions/reproduce/steps/register-sandbox-domain.sh
             echo '127.0.0.1 host.docker.internal' | sudo tee -a /etc/hosts >/dev/null
-            docker pull "$REPRO_SANDBOX_PW_IMAGE"      # pull while the network is still open
+            # Match the container image to the host-installed Playwright EXACTLY: the workspace
+            # node_modules is bind-mounted into the container, so `npx playwright test` runs the host
+            # package against the image's browsers — a mismatched tag ships the wrong browser build
+            # ("Executable doesn't exist"). Deriving the tag keeps them in lockstep automatically.
+            PW_VER=$(node -p "require('@playwright/test/package.json').version")
+            IMG="mcr.microsoft.com/playwright:v${PW_VER}-noble"
+            echo "REPRO_SANDBOX_PW_IMAGE=$IMG" >> "$GITHUB_ENV"
+            docker pull "$IMG"                          # pull while the network is still open
             sudo iptables -I DOCKER-USER -j DROP        # container egress: host only, no internet
 
         # UNTRUSTED: re-executes the agent-authored spec. For playwright the spec runs in the egress-
@@ -439,7 +445,7 @@ safe-outputs:
             APP_URL: ${{ steps.plan.outputs.executor == 'playwright' && 'http://host.docker.internal:8000' || steps.provision.outputs.app_url }}
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
             REPRO_SANDBOX: ${{ steps.plan.outputs.executor == 'playwright' && '1' || '' }}
-            REPRO_SANDBOX_PW_IMAGE: mcr.microsoft.com/playwright:v1.55.0-noble
+            # REPRO_SANDBOX_PW_IMAGE is exported by "Arm playwright sandbox" (matched to the host Playwright).
           run: node .github/actions/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
 
         # Assemble the trunk leg (result.json + evidence) as a data artifact. A missing result.json is

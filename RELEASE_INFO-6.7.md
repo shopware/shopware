@@ -399,6 +399,10 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 ## Administration
 
+### An invalid snippet file no longer breaks the Administration
+
+An invalid administration snippet JSON file (e.g. from a plugin) previously broke the whole Administration with a 500 error. Such files are now skipped and logged with their path; with `APP_DEBUG=1` loading still fails, naming the broken file. (shopware/shopware#8593)
+
 ### Reworked search behaviour options
 
 The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.

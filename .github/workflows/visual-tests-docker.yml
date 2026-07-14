@@ -67,6 +67,7 @@ jobs:
             --ipc=host \
             --init \
             --network=host \
+            --user $(id -u):$(id -g) \
             -e APP_URL=http://localhost:8000 \
             -e SHOPWARE_ADMIN_USERNAME=admin \
             -e SHOPWARE_ADMIN_PASSWORD=shopware \
@@ -80,7 +81,7 @@ jobs:
       - name: Upload visual test results
         if: always()
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-visual-results
           path: |
@@ -102,7 +103,7 @@ jobs:
 
       - name: Configure AWS credentials
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           aws-region: eu-central-1
           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}

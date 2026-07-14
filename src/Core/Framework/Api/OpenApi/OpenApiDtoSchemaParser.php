@@ -275,6 +275,29 @@ final class OpenApiDtoSchemaParser
                     continue;
                 }
 
+                $referencedBodySchema = $this->singleAllOfReference($requestSchema);
+                if ($referencedBodySchema !== null) {
+                    $referenceName = $this->resolveRefName($referencedBodySchema['$ref']);
+                    $requestBody = $this->schemaAtKey($operation, 'requestBody');
+                    $bodyProperty = $this->createProperty(
+                        $this->toPropertyName($referenceName),
+                        $referencedBodySchema,
+                        ($requestBody['required'] ?? null) === true,
+                        $this->toPascalCase($referenceName),
+                        null,
+                        registry: $registry,
+                    );
+
+                    $definitions[] = new OpenApiDtoDefinition(
+                        $dtoName,
+                        [$bodyProperty, ...$parameters],
+                        $this->stringOrNull($operation['description'] ?? null),
+                        $this->packageFromSchema($operation),
+                    );
+
+                    continue;
+                }
+
                 $resolvedRequestSchema = $this->dereferenceSchema($requestSchema, $registry);
                 $variants = $this->variants($resolvedRequestSchema);
 
@@ -816,6 +839,26 @@ final class OpenApiDtoSchemaParser
     private function variants(array $schema): ?array
     {
         return $this->schemaListAtKey($schema, 'oneOf') ?? $this->schemaListAtKey($schema, 'anyOf');
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     *
+     * @return array{'$ref': string}|null
+     */
+    private function singleAllOfReference(array $schema): ?array
+    {
+        $allOf = $this->schemaListAtKey($schema, 'allOf');
+        if ($allOf === null || \count($allOf) !== 1) {
+            return null;
+        }
+
+        $ref = $this->stringOrNull($allOf[0]['$ref'] ?? null);
+        if ($ref === null) {
+            return null;
+        }
+
+        return ['$ref' => $ref];
     }
 
     /**

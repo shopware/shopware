@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -43,7 +44,10 @@ class PdfRendererTest extends TestCase
         $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
 
         static::assertSame(DocumentFormat::PDF->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
+        static::assertSame(
+            [DocumentType::INVOICE->value, DocumentType::CANCELLATION_INVOICE->value],
+            $renderer->getDocumentTypes(),
+        );
         static::assertSame([DocumentFormat::HTML->value], $renderer->getDependencies());
     }
 
@@ -102,7 +106,7 @@ class PdfRendererTest extends TestCase
         );
 
         static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+            DocumentV2Exception::unknownRenderData(DocumentType::INVOICE->value, AbstractRenderData::class),
         );
 
         $renderer->renderToString($input, $state, Context::createDefaultContext());

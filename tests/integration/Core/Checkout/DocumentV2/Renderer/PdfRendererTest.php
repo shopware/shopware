@@ -69,7 +69,7 @@ class PdfRendererTest extends TestCase
 
     public function testGeneratesPdf(): void
     {
-        $this->seedDemoInvoiceBaseConfig();
+        $this->seedDemoBaseConfig('invoice');
 
         $cart = $this->generateDemoCartWithTaxes([19, 7]);
         $cart = $this->applyTenPercentPromotion($cart);
@@ -98,6 +98,38 @@ class PdfRendererTest extends TestCase
         static::assertNotEmpty($bytes);
         static::assertStringStartsWith('%PDF-', $bytes);
         static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($bytes));
+    }
+
+    public function testGeneratesCancellationInvoicePdf(): void
+    {
+        $this->seedDemoBaseConfig('storno');
+
+        $cart = $this->applyTenPercentPromotion($this->generateDemoCartWithTaxes([19, 7]));
+        $orderId = $this->persistCart($cart);
+        $this->enrichOrderForRendering($orderId);
+        $this->seedReferenceInvoice($orderId, '1000');
+
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $request = new DocumentGenerationRequest(
+            orderId: $orderId,
+            orderVersionId: $orderVersionId,
+            documentType: DocumentType::CANCELLATION_INVOICE,
+            requestedFormats: [DocumentFormat::PDF],
+        );
+
+        $document = $this->documentGenerator->generate($request, $this->context);
+
+        $files = $this->loadDocumentFiles($document->getId());
+        static::assertCount(1, $files);
+
+        $file = $files->first();
+        static::assertInstanceOf(DocumentFileEntity::class, $file);
+        static::assertSame(DocumentFormat::PDF->value, $file->getDocumentFormat());
+
+        $bytes = $this->mediaService->loadFile($file->getMediaId(), $this->context);
+        static::assertNotEmpty($bytes);
+        static::assertStringStartsWith('%PDF-', $bytes);
     }
 
     private function loadDocumentFiles(string $documentId): DocumentFileCollection

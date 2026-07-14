@@ -102,7 +102,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
         }
 
-        $lineItems = LineItemView::listFromOrder($order);
+        $allowNegative = DocumentType::tryFrom($generationRequest->documentType)?->allowsNegativeLineItems() ?? false;
+
+        $lineItems = LineItemView::listFromOrder($order, $allowNegative);
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);
 
         return new InvoiceRenderData(

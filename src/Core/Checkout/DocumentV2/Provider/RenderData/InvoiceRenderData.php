@@ -73,4 +73,32 @@ final readonly class InvoiceRenderData extends AbstractRenderData
             $legacyConfig,
         );
     }
+
+    /**
+     * @param array<string, mixed>|null $custom
+     */
+    public function with(?TypeCode $typeCode = null, ?array $custom = null): self
+    {
+        return new self(
+            config: $this->config,
+            company: $this->company,
+            display: $this->display,
+            documentDate: $this->documentDate,
+            documentNumber: $this->documentNumber,
+            documentComment: $this->documentComment,
+            typeCode: $typeCode ?? $this->typeCode,
+            buyerReference: $this->buyerReference,
+            buyer: $this->buyer,
+            deliveryDate: $this->deliveryDate,
+            lineItems: $this->lineItems,
+            allowanceCharges: $this->allowanceCharges,
+            taxBreakdown: $this->taxBreakdown,
+            monetarySummation: $this->monetarySummation,
+            paymentMeans: $this->paymentMeans,
+            paymentDueDate: $this->paymentDueDate,
+            intraCommunityDelivery: $this->intraCommunityDelivery,
+            custom: $custom ?? $this->custom,
+            legacyConfig: $this->legacyConfig,
+        );
+    }
 }

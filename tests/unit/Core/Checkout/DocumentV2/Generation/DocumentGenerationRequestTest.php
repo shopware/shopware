@@ -23,12 +23,15 @@ class DocumentGenerationRequestTest extends TestCase
 
     public function testWithDocumentNumber(): void
     {
+        $referencedDocumentId = Uuid::randomHex();
+
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
             documentDate: '2026-05-05T12:00:00+00:00',
+            referencedDocumentId: $referencedDocumentId,
         );
 
         static::assertNull($request->documentNumber);
@@ -37,6 +40,7 @@ class DocumentGenerationRequestTest extends TestCase
 
         static::assertSame('12345', $request->documentNumber);
         static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
+        static::assertSame($referencedDocumentId, $request->referencedDocumentId);
     }
 
     public function testDocumentDateDefaultsToClockNow(): void

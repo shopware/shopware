@@ -60,6 +60,10 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
 
+    public const REFERENCED_INVOICE_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_INVOICE_NOT_FOUND';
+
+    public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -260,6 +264,26 @@ class DocumentV2Exception extends HttpException
             self::MISSING_DOCUMENT_NUMBER,
             'Document number is missing for document type "{{ documentType }}".',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function referencedInvoiceNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_INVOICE_NOT_FOUND,
+            'Cannot generate cancellation invoice because no invoice document exists for order "{{ orderId }}".',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedInvoiceNumberMissing(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_INVOICE_NUMBER_MISSING,
+            'Cannot generate cancellation invoice because the referenced invoice for order "{{ orderId }}" has no document number.',
+            ['orderId' => $orderId],
         );
     }
 

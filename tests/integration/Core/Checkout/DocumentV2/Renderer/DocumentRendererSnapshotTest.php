@@ -14,7 +14,9 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
@@ -148,6 +150,11 @@ class DocumentRendererSnapshotTest extends TestCase
             DocumentType::INVOICE,
             InvoiceDataProvider::class,
         ];
+
+        yield 'storno' => [
+            DocumentType::CANCELLATION_INVOICE,
+            CancellationInvoiceDataProvider::class,
+        ];
     }
 
     public function testRenderPaginated(): void
@@ -274,7 +281,27 @@ class DocumentRendererSnapshotTest extends TestCase
         /** @phpstan-ignore match.unhandled */
         return match ($documentType) {
             DocumentType::INVOICE => $this->buildInvoiceRenderData($companyCountry, $order, $itemsPerPage),
+            DocumentType::CANCELLATION_INVOICE => $this->buildCancellationInvoiceRenderData($order),
         };
+    }
+
+    private function buildCancellationInvoiceRenderData(OrderEntity $order): InvoiceRenderData
+    {
+        $this->seedDemoBaseConfig('storno');
+        $this->seedReferenceInvoice($order->getId());
+
+        $provider = static::getContainer()->get(CancellationInvoiceDataProvider::class);
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::CANCELLATION_INVOICE,
+            [DocumentFormat::ZUGFERD_XML],
+            self::DOCUMENT_NUMBER,
+            documentDate: self::DOCUMENT_DATE,
+        );
+
+        return $provider->provideRenderingData($order, $request, $this->context);
     }
 
     private function buildInvoiceRenderData(

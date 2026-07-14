@@ -47,7 +47,10 @@ class XmlRendererTest extends TestCase
         );
 
         static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
+        static::assertSame(
+            [DocumentType::INVOICE->value, DocumentType::CANCELLATION_INVOICE->value],
+            $renderer->getDocumentTypes(),
+        );
     }
 
     public function testRenderToString(): void
@@ -137,7 +140,7 @@ class XmlRendererTest extends TestCase
                 DocumentType::CREDIT_NOTE->value,
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $renderData],
+                [DocumentType::CREDIT_NOTE->value => $renderData],
             ),
             new RenderState(),
             Context::createDefaultContext(),

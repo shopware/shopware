@@ -41,7 +41,7 @@ final class OpenApiDtoClassRenderer
             ' * This file is auto-generated.',
             ' * Do not edit manually.',
             ' *',
-            ' * Last generated: ' . $this->clock->now()->format('Y-m-d'),
+            ' * Last generated: ' . $this->clock->now()->format('Y-m-d H:i:s'),
             ' */',
             '',
         ];

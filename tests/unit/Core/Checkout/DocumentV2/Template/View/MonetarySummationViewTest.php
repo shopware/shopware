@@ -86,7 +86,7 @@ class MonetarySummationViewTest extends TestCase
     {
         $order = $this->createOrder(amountTotal: 0.0, amountNet: 0.0, currency: null);
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'currency',
             'Order has no currency assigned.',

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
@@ -50,10 +49,6 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
-        if (\preg_match('/^[a-z0-9_]+$/D', $input->documentType) !== 1) {
-            throw DocumentV2Exception::invalidDocumentType($input->documentType);
-        }
-
         $renderData = $input->requireData(
             $input->documentType,
             AbstractRenderData::class,

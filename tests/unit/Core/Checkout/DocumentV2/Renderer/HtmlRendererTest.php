@@ -148,7 +148,7 @@ class HtmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, static::createStub(TwigEnvironment::class));
 
-        static::expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
 
         $renderer->renderToString(
             new RenderInput(
@@ -177,7 +177,7 @@ class HtmlRendererTest extends TestCase
         );
 
         $this->expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(DocumentType::INVOICE->value, AbstractRenderData::class),
+            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, AbstractRenderData::class),
         );
 
         $renderer->renderToString(

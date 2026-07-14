@@ -79,7 +79,7 @@ class PdfRendererTest extends TestCase
     {
         $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::unknownRenderResult(DocumentFormat::HTML->value),
         );
 
@@ -105,7 +105,7 @@ class PdfRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::unknownRenderData(DocumentType::INVOICE->value, AbstractRenderData::class),
         );
 

@@ -60,6 +60,8 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
 
+    public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
+
     public const REFERENCED_INVOICE_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_INVOICE_NOT_FOUND';
 
     public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
@@ -320,6 +322,17 @@ class DocumentV2Exception extends HttpException
             self::INVALID_RENDER_VALUE,
             'Invalid render value for field "{{ field }}": {{ value }} ({{ reason }}).',
             ['field' => $field, 'value' => $value, 'reason' => $previous->getMessage()],
+            $previous,
+        );
+    }
+
+    public static function embedFailed(\Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EMBED_FAILED,
+            'Failed to embed the XML into the PDF: {{ reason }}.',
+            ['reason' => $previous->getMessage()],
             $previous,
         );
     }

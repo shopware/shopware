@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-final readonly class XmlRenderer extends AbstractDocumentRenderer
+final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::ZUGFERD_XML;
 
@@ -51,13 +51,9 @@ final readonly class XmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
-        if (\preg_match('/^[a-z0-9_]+$/D', $input->documentType) !== 1) {
-            throw DocumentV2Exception::invalidDocumentType($input->documentType);
-        }
-
         $renderData = $input->requireData(
             $input->documentType,
-            InvoiceRenderData::class,
+            AbstractRenderData::class,
         );
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);

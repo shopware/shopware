@@ -131,7 +131,7 @@ Two layers are required: the DI tag **and** the directory must appear in `mcp.ya
 ## Extensibility
 - **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` re-tags them as `mcp.tool` AND calls `addTool()` on the MCP server builder so they appear in both `debug:mcp` and the HTTP endpoint. No `scan_dirs` entry is needed. Use `McpToolResponse` for consistent error handling and response formatting.
 - **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
-- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
+- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), stored in the generic `app_feature` table by the respective feature definition (`McpToolFeatureDefinition`, `McpPromptFeatureDefinition`, `McpResourceFeatureDefinition`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
 - **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`) and ensure the bundle directory is listed in `mcp.yaml` `scan_dirs`. Using `shopware.mcp.tool` here would cause double-registration (compiler pass + scan_dirs).
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.
 
@@ -180,7 +180,7 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 
 `<required-privileges>` in `mcp.xml` is the app-side equivalent of `#[McpToolRequires]` for plugins. It is **informational** — the Admin UI shows the declared privileges as chips in the integration allowlist and warns when the integration role is missing them. Actual enforcement happens via DAL ACL inside the script.
 
-`McpToolPersister` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message.
+`McpToolFeatureDefinition` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message.
 
 ## Future ideas / backlog
 

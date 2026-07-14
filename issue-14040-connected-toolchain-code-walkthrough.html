@@ -1,0 +1,1730 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="The minimal form of the Shopware Administration extension toolchain for issue #14040: a shared config that ships inside the Administration, a generated bridge in node_modules instead of hand-written paths, and plain declaration merging.">
+  <title>Issue #14040 — The minimal version, in code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Fira+Code:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    :root,
+    [data-theme="light"] {
+      --bg: #f3f6ef;
+      --surface: #ffffff;
+      --surface-2: #e9eee5;
+      --surface-3: #dfe7dc;
+      --ink: #172019;
+      --ink-soft: #344239;
+      --muted: #667269;
+      --line: #ccd6ca;
+      --line-strong: #a7b4a5;
+      --accent: #2f7336;
+      --accent-strong: #1d5727;
+      --accent-soft: #dff1d8;
+      --lime: #c8ef55;
+      --lime-ink: #20320d;
+      --blue: #185db8;
+      --blue-soft: #dce9f9;
+      --teal: #0f766e;
+      --teal-soft: #d9efeb;
+      --amber: #a04b12;
+      --amber-soft: #fae6d3;
+      --red: #a73535;
+      --red-soft: #f7dddd;
+      --shadow: 0 22px 55px rgba(24, 46, 30, .10);
+      --shadow-small: 0 8px 24px rgba(24, 46, 30, .07);
+      --font-display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+      --font-body: "DM Sans", "Segoe UI", sans-serif;
+      --font-mono: "Fira Code", "Cascadia Code", monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg: #101612;
+      --surface: #18211b;
+      --surface-2: #202b23;
+      --surface-3: #29362c;
+      --ink: #edf5ed;
+      --ink-soft: #cbd7cc;
+      --muted: #9eada0;
+      --line: #344438;
+      --line-strong: #536858;
+      --accent: #80cc86;
+      --accent-strong: #a3e5a7;
+      --accent-soft: #203e25;
+      --lime: #c8ef55;
+      --lime-ink: #17200d;
+      --blue: #7eb5ff;
+      --blue-soft: #1e354f;
+      --teal: #73d2c7;
+      --teal-soft: #193b37;
+      --amber: #efaa70;
+      --amber-soft: #472f1f;
+      --red: #f09a9a;
+      --red-soft: #472727;
+      --shadow: 0 22px 55px rgba(0, 0, 0, .30);
+      --shadow-small: 0 8px 24px rgba(0, 0, 0, .22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 88% 3%, color-mix(in srgb, var(--lime) 15%, transparent), transparent 24rem),
+        linear-gradient(color-mix(in srgb, var(--line) 32%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--line) 32%, transparent) 1px, transparent 1px);
+      background-size: auto, 34px 34px, 34px 34px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.68;
+      overflow-wrap: break-word;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: .08em;
+      text-underline-offset: .18em;
+    }
+
+    a:hover {
+      color: var(--accent);
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--blue) 56%, transparent);
+      outline-offset: 3px;
+    }
+
+    code,
+    pre {
+      font-family: var(--font-mono);
+    }
+
+    code {
+      padding: .12em .34em;
+      border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--surface-2) 72%, transparent);
+      color: var(--ink-soft);
+      font-size: .87em;
+    }
+
+    strong {
+      color: var(--ink);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      z-index: 500;
+      top: 18px;
+      right: 18px;
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      box-shadow: var(--shadow-small);
+      cursor: pointer;
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-theme="light"] .theme-toggle__moon,
+    [data-theme="dark"] .theme-toggle__sun {
+      display: none;
+    }
+
+    .layout {
+      width: min(1460px, calc(100% - 48px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 0 44px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 22px;
+      grid-row: 1 / -1;
+      align-self: start;
+      max-height: calc(100dvh - 44px);
+      padding: 22px 0;
+      overflow-y: auto;
+    }
+
+    .toc::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .toc::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 3px;
+    }
+
+    .toc__title {
+      padding: 0 10px 12px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .toc a {
+      display: block;
+      padding: 6px 10px;
+      margin: 1px 0;
+      color: var(--muted);
+      border-left: 2px solid transparent;
+      border-radius: 0 5px 5px 0;
+      font-size: 12px;
+      line-height: 1.35;
+      text-decoration: none;
+      transition: color .15s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .toc a:hover {
+      color: var(--ink);
+      background: var(--surface-2);
+    }
+
+    .toc a.active {
+      color: var(--ink);
+      background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .main {
+      min-width: 0;
+      max-width: 1140px;
+      padding: 42px 0 96px;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 470px;
+      padding: clamp(34px, 6vw, 76px);
+      margin-bottom: 34px;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      bottom: -115px;
+      width: 340px;
+      height: 340px;
+      border: 64px solid var(--lime);
+      border-radius: 50%;
+      opacity: .72;
+      pointer-events: none;
+    }
+
+    .hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 5px 9px;
+      margin-bottom: 25px;
+      color: var(--accent-strong);
+      background: var(--accent-soft);
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .hero__eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--font-display);
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 880px;
+      margin: 0;
+      font-size: clamp(42px, 6.8vw, 78px);
+      font-weight: 800;
+      letter-spacing: -.055em;
+      line-height: .96;
+    }
+
+    .hero__lead {
+      max-width: 730px;
+      margin: 28px 0 0;
+      color: var(--ink-soft);
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+
+    .hero__line {
+      display: inline-block;
+      position: relative;
+      z-index: 1;
+      padding: 10px 15px;
+      margin-top: 34px;
+      color: var(--lime-ink);
+      background: var(--lime);
+      border: 1px solid color-mix(in srgb, var(--lime-ink) 25%, transparent);
+      font-family: var(--font-mono);
+      font-size: clamp(13px, 1.7vw, 18px);
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+    }
+
+    .hero__meta {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 12px 24px;
+      flex-wrap: wrap;
+      margin-top: 42px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    section {
+      padding: 42px 0;
+      border-top: 1px solid var(--line);
+      scroll-margin-top: 24px;
+    }
+
+    section:first-of-type {
+      border-top: 0;
+    }
+
+    .section-kicker {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 9px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .section-kicker::before {
+      content: "";
+      width: 22px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(30px, 4.2vw, 50px);
+      font-weight: 750;
+      letter-spacing: -.038em;
+      line-height: 1.05;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.018em;
+      line-height: 1.2;
+    }
+
+    .section-intro {
+      max-width: 78ch;
+      margin: 0 0 28px;
+      color: var(--ink-soft);
+      font-size: 18px;
+      line-height: 1.68;
+      text-wrap: pretty;
+    }
+
+    .prose {
+      max-width: 80ch;
+      color: var(--ink-soft);
+      font-size: 17px;
+      line-height: 1.72;
+    }
+
+    .prose p {
+      margin: 0 0 1.25em;
+    }
+
+    .callout {
+      padding: 20px 23px;
+      margin: 24px 0;
+      color: var(--ink-soft);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      box-shadow: var(--shadow-small);
+    }
+
+    .callout--blue {
+      border-left-color: var(--blue);
+      background: color-mix(in srgb, var(--blue-soft) 53%, var(--surface));
+    }
+
+    .callout--warning {
+      border-left-color: var(--amber);
+      background: color-mix(in srgb, var(--amber-soft) 55%, var(--surface));
+    }
+
+    .callout--danger {
+      border-left-color: var(--red);
+      background: color-mix(in srgb, var(--red-soft) 55%, var(--surface));
+    }
+
+    .callout__title {
+      margin-bottom: 5px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    .callout p {
+      margin: 0 0 .8em;
+    }
+
+    .two-col,
+    .three-col {
+      display: grid;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .three-col {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .panel--recessed {
+      background: var(--surface-2);
+      box-shadow: inset 0 1px 4px rgba(0, 0, 0, .04);
+    }
+
+    .panel--accent {
+      border-top: 4px solid var(--accent);
+    }
+
+    .panel--blue {
+      border-top: 4px solid var(--blue);
+    }
+
+    .panel--amber {
+      border-top: 4px solid var(--amber);
+    }
+
+    .panel__label {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .clean-list {
+      padding: 0;
+      margin: 13px 0 0;
+      list-style: none;
+    }
+
+    .clean-list li {
+      position: relative;
+      padding-left: 18px;
+      margin: 8px 0;
+      color: var(--ink-soft);
+    }
+
+    .clean-list li::before {
+      content: "";
+      position: absolute;
+      top: .72em;
+      left: 0;
+      width: 7px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .code-file {
+      min-width: 0;
+      margin: 16px 0;
+      overflow: hidden;
+      background: #121915;
+      border: 1px solid color-mix(in srgb, var(--line-strong) 56%, #000);
+      border-radius: 8px;
+      box-shadow: var(--shadow-small);
+    }
+
+    .code-file__header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      color: #aebbad;
+      background: #1d2821;
+      border-bottom: 1px solid #334238;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .code-file__header::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--lime);
+      border-radius: 50%;
+      box-shadow: 13px 0 0 #efaa70, 26px 0 0 #7eb5ff;
+      margin-right: 24px;
+    }
+
+    .code-file__badge {
+      margin-left: auto;
+      padding: 2px 7px;
+      color: #cfe0ce;
+      background: #2a3a30;
+      border: 1px solid #3d5245;
+      border-radius: 4px;
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .code-file pre {
+      max-height: 560px;
+      padding: 18px;
+      margin: 0;
+      overflow: auto;
+      color: #e9f1e8;
+      font-size: 12px;
+      line-height: 1.62;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .code-file code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      font-size: inherit;
+    }
+
+    .code-file .c { color: #7a8f7b; font-style: italic; }
+    .code-file .ok { color: #b5e6b9; }
+    .code-file .bad { color: #f0a3a3; }
+    .code-file .hot { color: #efc584; }
+
+    .dir-tree {
+      padding: 20px;
+      margin: 16px 0;
+      overflow-x: auto;
+      color: var(--ink-soft);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.75;
+      white-space: pre;
+    }
+
+    .dir-tree .hl {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .dir-tree .note {
+      color: var(--muted);
+      font-size: 10px;
+      font-style: italic;
+    }
+
+    .flow {
+      padding: 26px;
+      margin: 28px 0;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      overflow-x: auto;
+    }
+
+    .flow__grid {
+      min-width: 820px;
+      display: grid;
+      grid-template-columns: 1fr 46px 1.1fr 46px 1fr;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .flow-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      min-height: 96px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      box-shadow: var(--shadow-small);
+    }
+
+    .flow-card--focus {
+      color: var(--lime-ink);
+      background: var(--lime);
+      border-color: color-mix(in srgb, var(--lime-ink) 30%, transparent);
+      transform: translateY(-6px);
+    }
+
+    .flow-card__label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .flow-card--focus .flow-card__label {
+      color: color-mix(in srgb, var(--lime-ink) 70%, transparent);
+    }
+
+    .flow-card__title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 750;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+    }
+
+    .flow-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .flow-card--focus p {
+      color: color-mix(in srgb, var(--lime-ink) 78%, transparent);
+    }
+
+    .flow-stack {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .flow-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .flow__caption {
+      max-width: 78ch;
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .trace {
+      display: grid;
+      gap: 10px;
+      margin: 26px 0;
+    }
+
+    .trace__step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 16px;
+      padding: 17px 20px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      box-shadow: var(--shadow-small);
+    }
+
+    .trace__num {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      color: var(--lime-ink);
+      background: var(--lime);
+      border-radius: 50%;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .trace__body {
+      min-width: 0;
+    }
+
+    .trace__body h3 {
+      margin: 3px 0 5px;
+      font-size: 17px;
+    }
+
+    .trace__body p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .trace__body code {
+      font-size: .8em;
+    }
+
+    .table-wrap {
+      margin: 24px 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-small);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    th {
+      padding: 13px 15px;
+      color: var(--muted);
+      background: var(--surface-2);
+      border-bottom: 2px solid var(--line-strong);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      min-width: 145px;
+      padding: 14px 15px;
+      color: var(--ink-soft);
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    td:first-child {
+      min-width: 150px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    tbody tr:nth-child(even) {
+      background: color-mix(in srgb, var(--surface-2) 48%, transparent);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    details {
+      margin: 13px 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    summary {
+      position: relative;
+      padding: 15px 48px 15px 18px;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      position: absolute;
+      top: 50%;
+      right: 18px;
+      color: var(--accent);
+      font-size: 18px;
+      transform: translateY(-50%);
+    }
+
+    details[open] summary::after {
+      content: "\2212";
+    }
+
+    .details__body {
+      padding: 17px 20px 20px;
+      color: var(--ink-soft);
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .details__body p:first-child {
+      margin-top: 0;
+    }
+
+    .details__body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer {
+      padding: 30px 0 0;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      line-height: 1.7;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      animation: rise .42s ease-out both;
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        width: min(100% - 40px, 1140px);
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: sticky;
+        z-index: 300;
+        top: 0;
+        grid-row: auto;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        max-height: none;
+        padding: 9px 20px;
+        margin: 0 -20px;
+        overflow-x: auto;
+        background: color-mix(in srgb, var(--bg) 94%, transparent);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+      }
+
+      .toc::-webkit-scrollbar {
+        display: none;
+      }
+
+      .toc__title {
+        display: none;
+      }
+
+      .toc a {
+        flex-shrink: 0;
+        padding: 6px 9px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        border-radius: 4px 4px 0 0;
+        white-space: nowrap;
+      }
+
+      .toc a.active {
+        border-bottom-color: var(--accent);
+      }
+
+      .main {
+        padding-top: 24px;
+      }
+
+      section {
+        scroll-margin-top: 58px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .hero {
+        min-height: 0;
+        padding: 34px 25px 48px;
+      }
+
+      .three-col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .layout {
+        width: min(100% - 24px, 1140px);
+      }
+
+      .toc {
+        padding-left: 12px;
+        padding-right: 60px;
+        margin: 0 -12px;
+      }
+
+      .theme-toggle {
+        top: 6px;
+        right: 8px;
+        width: 38px;
+        height: 38px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .three-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      :root {
+        --bg: #fff;
+        --surface: #fff;
+        --surface-2: #f2f4f0;
+        --ink: #111;
+        --ink-soft: #222;
+        --muted: #555;
+        --line: #bbb;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .layout {
+        display: block;
+        width: 100%;
+      }
+
+      .toc,
+      .theme-toggle {
+        display: none;
+      }
+
+      .main {
+        max-width: none;
+        padding: 0;
+      }
+
+      section,
+      .panel,
+      .callout,
+      .table-wrap,
+      .code-file,
+      details {
+        break-inside: avoid;
+      }
+
+      a {
+        color: inherit;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">
+    <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
+    </svg>
+    <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path>
+    </svg>
+  </button>
+
+  <div class="layout">
+    <nav class="toc" id="toc" aria-label="Report sections">
+      <div class="toc__title">Contents</div>
+      <a href="#overview">The idea</a>
+      <a href="#config">1 · Shared config</a>
+      <a href="#reference">2 · The bridge</a>
+      <a href="#extend">3 · Extend the types</a>
+      <a href="#trace">What happens</a>
+      <a href="#tradeoffs">What we dropped</a>
+      <a href="#v2">V2 · Declarations</a>
+    </nav>
+
+    <main class="main">
+      <header class="hero">
+        <div class="hero__eyebrow">Issue #14040 · The minimal version · 14 July 2026</div>
+        <h1>Types you already have. Paths you never write.</h1>
+        <p class="hero__lead">
+          You have a Shopware checkout whose Administration source is fully typed. You have a plugin. The missing link — where
+          those types live on <em>this</em> machine — is computed for you: the dev setup generates a bridge package inside
+          <code>node_modules</code>, and the plugin’s tsconfig and ESLint config become two static lines that never change.
+        </p>
+        <div class="hero__line">No paths by hand · no publish step · no profiles</div>
+        <div class="hero__meta">
+          <span>Pieces: config inside the Admin + generated bridge</span>
+          <span>Types: the real installed Shopware source</span>
+          <span>Plugin side: two static lines — or zero</span>
+        </div>
+      </header>
+
+      <div class="callout callout--warning">
+        <div class="callout__title">What changed from the earlier walkthrough</div>
+        <p>
+          Still the minimal design — full <code>window.Shopware</code> types, the generated entity schema, open interfaces to
+          extend — but the last piece of manual labor is gone. The previous version asked the plugin developer to write a
+          <code>.d.ts</code> with absolute reference paths by hand. Now a setup step detects the paths programmatically and
+          generates a bridge package inside <code>node_modules</code>, so
+          <code>"extends": "@shopware-ag/administration-extension-tooling/tsconfig"</code> simply resolves. The plugin never
+          contains a machine-specific path.
+        </p>
+      </div>
+
+      <section id="overview">
+        <div class="section-kicker">00 · The idea</div>
+        <h2>Two things you have. The setup connects them.</h2>
+        <p class="section-intro">
+          The Administration source already declares the entire <code>window.Shopware</code> object and the generated entity
+          schema — and it ships a shared config right next to them. Your plugin just has to see it. A setup step that runs with
+          the normal dev workflow bridges that config into <code>node_modules</code>, so a bare <code>extends</code> /
+          <code>import</code> specifier resolves from any extension. That is the whole design.
+        </p>
+
+        <div class="flow" role="img" aria-label="The installed Shopware source and a generated bridge in node_modules feed one plugin project, which the IDE and CLI read identically.">
+          <div class="flow__grid">
+            <div class="flow-stack">
+              <div class="flow-card">
+                <div class="flow-card__label">You already have it</div>
+                <div class="flow-card__title">Installed Shopware</div>
+                <p>Admin source: types, entity schema, <em>and</em> the shared config — versioned together.</p>
+              </div>
+              <div class="flow-card">
+                <div class="flow-card__label">Runs with the dev setup</div>
+                <div class="flow-card__title">Bridge generator</div>
+                <p>Computes the paths, writes a tiny package into <code>node_modules</code>. Nothing by hand.</p>
+              </div>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">&rarr;</div>
+            <div class="flow-card flow-card--focus">
+              <div class="flow-card__label">One project</div>
+              <div class="flow-card__title">Your plugin</div>
+              <p>
+                <code>extends</code> the bridge, imports its ESLint factory, and augments the open interfaces. Two static lines.
+              </p>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">&rarr;</div>
+            <div class="flow-stack">
+              <div class="flow-card">
+                <div class="flow-card__label">Interactive</div>
+                <div class="flow-card__title">IDE / Volar</div>
+                <p>Reads the tsconfig.</p>
+              </div>
+              <div class="flow-card">
+                <div class="flow-card__label">Automated</div>
+                <div class="flow-card__title">CLI</div>
+                <p>Reads the same tsconfig.</p>
+              </div>
+            </div>
+          </div>
+          <p class="flow__caption">
+            Switch the Shopware branch and rerun the setup — config, rules, and types all follow, with no dependency edit.
+          </p>
+        </div>
+
+        <pre class="dir-tree">&lt;shopware project&gt;/
+├── var/plugins.json                        <span class="note">the platform already knows every extension path</span>
+├── node_modules/@shopware-ag/
+│   └── <span class="hl">administration-extension-tooling/</span>   <span class="note">GENERATED bridge — never committed, never hand-edited</span>
+│       ├── package.json                    <span class="note">same name + exports as the real package</span>
+│       ├── tsconfig.json                   <span class="note">{ "extends": "&lt;computed relative path&gt;" }</span>
+│       ├── eslint.mjs                      <span class="note">re-exports the real factory</span>
+│       └── types.d.ts                      <span class="note">pulls the real types entry</span>
+├── …/Administration/…/app/administration/
+│   ├── <span class="hl">extension-tooling/</span>                  <span class="note">the real shared config — ships with Shopware</span>
+│   └── src/
+│       ├── global.types.ts                 <span class="note">window.Shopware</span>
+│       └── entity-schema-definition.d.ts   <span class="note">generated entity schema</span>
+└── custom/plugins/SwagExample/…/app/administration/
+    ├── <span class="hl">tsconfig.json</span>                       <span class="note">static, committable — extends the bridge (optional)</span>
+    ├── <span class="hl">eslint.config.mjs</span>                   <span class="note">static, committable — imports the bridge (optional)</span>
+    └── src/
+        └── <span class="hl">global.d.ts</span>                     <span class="note">your augmentations (optional)</span></pre>
+      </section>
+
+      <section id="config">
+        <div class="section-kicker">01 · Ships with Shopware</div>
+        <h2>A shared config that lives next to the types.</h2>
+        <p class="section-intro">
+          The Administration ships an <code>extension-tooling/</code> folder: a <code>tsconfig</code> base, an ESLint
+          flat-config factory, and a types entry — sitting right next to the source they describe. Because it is versioned with
+          the platform, rules and types can never drift from the Shopware you actually run. Nothing is published; there is no
+          second version number to keep in sync.
+        </p>
+
+        <div class="code-file">
+          <div class="code-file__header">extension-tooling/package.json<span class="code-file__badge">ships with the Admin</span></div>
+          <pre><code>{
+  "name": "@shopware-ag/administration-extension-tooling",
+  "private": true,
+  "type": "module",
+  "types": "./types.d.ts",
+  "exports": {
+    ".":          { "types": "./types.d.ts" },
+    "./eslint":   "./eslint.mjs",
+    "./tsconfig": "./tsconfig.json"
+  }
+}</code></pre>
+        </div>
+
+        <div class="two-col">
+          <div class="code-file">
+            <div class="code-file__header">extension-tooling/tsconfig.json<span class="code-file__badge">base preset</span></div>
+            <pre><code>{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2023",
+    "strict": true,
+    "noEmit": true,
+    <span class="c">// the installed source graph is not YOUR</span>
+    <span class="c">// code to fix — do not check its .d.ts</span>
+    "skipLibCheck": true,
+    <span class="c">// injects window.Shopware + the entity schema</span>
+    <span class="c">// into every program extending this config</span>
+    "types": ["@shopware-ag/administration-extension-tooling"]
+  }
+}</code></pre>
+          </div>
+
+          <div class="code-file">
+            <div class="code-file__header">extension-tooling/eslint.mjs<span class="code-file__badge">flat config factory</span></div>
+            <pre><code>import eslintJs from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import pluginVue from 'eslint-plugin-vue';
+import swDeprecationRules
+  from '../eslint-rules/deprecation-rules/index.js';
+
+export function shopwareAdminExtension(options = {}) {
+  return [
+    eslintJs.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
+    ...pluginVue.configs['flat/recommended'],
+    {
+      plugins: { 'sw-deprecation-rules': swDeprecationRules },
+      rules: {
+        <span class="c">// draws the supported-API line</span>
+        'sw-deprecation-rules/no-deprecated-admin-api': 'error',
+      },
+    },
+    ...(options.overrides ?? []),
+  ];
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="code-file">
+          <div class="code-file__header">extension-tooling/types.d.ts<span class="code-file__badge">the types entry</span></div>
+          <pre><code><span class="c">// The whole “point at the types” problem, solved by location:</span>
+<span class="c">// this file LIVES next to the source, so relative paths always hold.</span>
+import './public-api';                    <span class="c">// window.Shopware</span>
+import '../src/entity-schema-definition'; <span class="c">// generated entity schema</span></code></pre>
+        </div>
+
+        <div class="two-col">
+          <div class="callout callout--blue">
+            <div class="callout__title">Entities come for free</div>
+            <p>
+              The types entry pulls in the generated entity schema, so <code>Entity&lt;'product'&gt;</code> and friends resolve
+              in every extension. The core declares <code>Entity&lt;Name extends keyof EntitySchema.Entities&gt;</code>, so an
+              unknown name is a compile error until you augment the schema — see section 03.
+            </p>
+          </div>
+          <div class="callout">
+            <div class="callout__title">The lint dependencies are not yours either</div>
+            <p>
+              The factory’s imports — <code>typescript-eslint</code>, <code>eslint-plugin-vue</code>, the Shopware rule packages
+              — resolve from the installed Administration’s own <code>node_modules</code>, because Node resolves imports
+              relative to the file doing the importing. A default extension needs no <code>package.json</code> at all.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout--blue">
+          <div class="callout__title">The supported-API boundary lives here, not in the types</div>
+          <p>
+            Because the plugin sees the <em>full</em> Shopware source, every member is typed — including internals. The line
+            between “supported” and “internal” is drawn by the ESLint <code>sw-deprecation-rules/no-deprecated-admin-api</code>
+            rule against <code>@deprecated</code> / <code>@internal</code> markers. You keep full autocomplete; touching an
+            unsupported member is a visible lint error rather than a silent <code>unknown</code>.
+          </p>
+        </div>
+      </section>
+
+      <section id="reference">
+        <div class="section-kicker">02 · Connect</div>
+        <h2>No paths by hand: a generated bridge in node_modules.</h2>
+        <p class="section-intro">
+          Machine-specific paths still exist — the plugin’s TypeScript has to reach the installed Administration somehow. The
+          point is that no human writes them. The platform knows where it lives and where every extension lives
+          (<code>var/plugins.json</code>), so the setup computes the paths once and materializes them as a tiny generated
+          package inside the project’s <code>node_modules</code>. The plugin’s own files stay static and committable.
+        </p>
+
+        <div class="two-col">
+          <div class="code-file">
+            <div class="code-file__header">tsconfig.json<span class="code-file__badge">plugin · committable</span></div>
+            <pre><code>{
+  "extends":
+    "@shopware-ag/administration-extension-tooling/tsconfig",
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}</code></pre>
+          </div>
+          <div class="code-file">
+            <div class="code-file__header">eslint.config.mjs<span class="code-file__badge">plugin · committable</span></div>
+            <pre><code>import { shopwareAdminExtension }
+  from '@shopware-ag/administration-extension-tooling/eslint';
+
+export default shopwareAdminExtension();</code></pre>
+          </div>
+        </div>
+
+        <div class="code-file">
+          <div class="code-file__header">node_modules/@shopware-ag/administration-extension-tooling/<span class="code-file__badge">generated — never committed</span></div>
+          <pre><code><span class="c">// package.json — same name and exports as the real package</span>
+{ "name": "@shopware-ag/administration-extension-tooling", "exports": { <span class="c">…</span> } }
+
+<span class="c">// tsconfig.json — one computed hop to the real config</span>
+{ "extends": "../../../src/Administration/…/administration/extension-tooling/tsconfig.json" }
+
+<span class="c">// eslint.mjs — re-export of the real factory</span>
+export * from '../../../src/Administration/…/administration/extension-tooling/eslint.mjs';
+export { default } from '../../../src/Administration/…/administration/extension-tooling/eslint.mjs';
+
+<span class="c">// types.d.ts — pulls the real types entry</span>
+import '../../../src/Administration/…/administration/extension-tooling/types';</code></pre>
+        </div>
+
+        <div class="code-file">
+          <div class="code-file__header">the setup, in three lines<span class="code-file__badge">runs with the dev setup</span></div>
+          <pre><code><span class="c">// composer run admin:extension-tooling:setup — or hooked into build/watch</span>
+const extensions = discoverExtensions(readJson('var/plugins.json')); <span class="c">// nothing to detect plugin-side</span>
+createBridgePackage(projectRoot, administrationRoot);                <span class="c">// computes + writes the relative paths</span>
+writeManagedRootConfigs(extensions);                                 <span class="c">// zero-config coverage — see below</span></code></pre>
+        </div>
+
+        <div class="callout callout--blue">
+          <div class="callout__title">Why a bare specifier just resolves</div>
+          <p>
+            TypeScript and ESLint resolve <code>@shopware-ag/administration-extension-tooling/…</code> with plain Node
+            resolution: walk up from the plugin directory until a <code>node_modules</code> contains the package. The project
+            root’s does — an installed extension always lives inside the project. From there the bridge’s relative paths land in
+            the installed Administration, whose own relative imports (<code>../src/entity-schema-definition</code>) resolve next
+            to the real source. No <code>paths</code> mapping in the plugin, no <code>preserveSymlinks</code> flags, no magic.
+          </p>
+        </div>
+
+        <div class="two-col">
+          <div class="callout">
+            <div class="callout__title">Symlink or generated files? Both work</div>
+            <p>
+              A symlink into <code>node_modules</code> — the npm-link move — gives the same DX. Generated proxy files win on
+              robustness: no symlink privileges on Windows, <code>..</code> inside them means what it looks like (inside a
+              symlinked directory it escapes to the symlink’s parent, not the real one), and the setup is idempotent — wipe
+              <code>node_modules</code>, rerun, it’s back.
+            </p>
+          </div>
+          <div class="callout callout--blue">
+            <div class="callout__title">Zero-config is the default</div>
+            <p>
+              An extension with no <code>tsconfig.json</code> or <code>eslint.config.mjs</code> at all is covered by managed
+              root configs the same setup writes at the project root. The two static lines above are the <em>opt-in</em> for
+              plugins that want their own local config — and they never contain more than what you see here.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="extend">
+        <div class="section-kicker">03 · Extend</div>
+        <h2>Add your own services, entities, and namespaces.</h2>
+        <p class="section-intro">
+          The core exposes <code>CustomShopwareServices</code>, <code>CustomShopwareProperties</code>, and
+          <code>EntitySchema.Entities</code> as <strong>open</strong> interfaces and namespaces. A plugin merges into them from
+          one <code>.d.ts</code> in <code>src/</code> — no wrapper, no registration API, just TypeScript declaration merging.
+        </p>
+
+        <div class="code-file">
+          <div class="code-file__header">src/global.d.ts<span class="code-file__badge">your plugin</span></div>
+          <pre><code>import type MyBonusService from './service/my-bonus.service';
+
+declare global {
+  <span class="c">// 1 · type your own services → Shopware.Service('…') knows them</span>
+  interface CustomShopwareServices {
+    swagBonusService: MyBonusService;
+  }
+
+  <span class="c">// 2 · add a custom top-level namespace onto the Shopware object</span>
+  interface CustomShopwareProperties {
+    swagBonus: { readonly version: string };
+  }
+}
+
+<span class="c">// 3 · add your DAL entities to the schema (namespace + interface MERGE)</span>
+declare namespace EntitySchema {
+  interface Entities {
+    swag_bonus_point: { id: string; points: number; customerId: string };
+  }
+}
+
+export {};</code></pre>
+        </div>
+
+        <div class="code-file">
+          <div class="code-file__header">anywhere in the plugin<span class="code-file__badge">usage</span></div>
+          <pre><code>const svc = Shopware.Service('swagBonusService');   <span class="ok">// MyBonusService — fully typed</span>
+Shopware.swagBonus.version;                         <span class="ok">// string — your custom namespace</span>
+Shopware.Component.register('swag-bonus-card', {}); <span class="ok">// host API — real, installed types</span>
+
+const rec = repository.get&lt;Entity&lt;'swag_bonus_point'&gt;&gt;('swag_bonus_point', id);
+rec.points;                                         <span class="ok">// number — your own entity</span></code></pre>
+        </div>
+
+        <div class="callout callout--blue">
+          <div class="callout__title">Why declaration merging is the whole trick</div>
+          <p>
+            Because <code>tsconfig.json</code> includes the plugin’s own <code>src/**/*.ts</code> (which covers
+            <code>.d.ts</code> files) alongside the Shopware source injected through the bridge, the compiler sees the host’s declarations and
+            the plugin’s augmentations in one program. Merging is symmetric and order-independent — the host provides the base
+            interfaces, the plugin extends them, neither has to know about the other. It is the same mechanism the core already
+            uses for <code>EntitySchema.Entities</code> and <code>CustomShopwareProperties</code> today.
+          </p>
+        </div>
+      </section>
+
+      <section id="trace">
+        <div class="section-kicker">04 · Lifecycle</div>
+        <h2>What actually happens.</h2>
+        <p class="section-intro">
+          Four steps, and none of them is magic once the reference exists.
+        </p>
+
+        <div class="trace">
+          <div class="trace__step">
+            <div class="trace__num">1</div>
+            <div class="trace__body">
+              <h3>The dev setup generates the bridge</h3>
+              <p><code>composer run admin:extension-tooling:setup</code> — or the same step hooked into build/watch — reads <code>var/plugins.json</code> and writes the bridge into <code>node_modules</code>. Nothing to detect or configure plugin-side.</p>
+            </div>
+          </div>
+          <div class="trace__step">
+            <div class="trace__num">2</div>
+            <div class="trace__body">
+              <h3>Opt in with two static lines — or none</h3>
+              <p>Zero-config extensions are covered by the managed root configs. A plugin that wants local control commits the two-line <code>tsconfig.json</code> and <code>eslint.config.mjs</code> from section 02. Neither ever contains a path.</p>
+            </div>
+          </div>
+          <div class="trace__step">
+            <div class="trace__num">3</div>
+            <div class="trace__body">
+              <h3>Everything reads the same tsconfig</h3>
+              <p>The IDE (Volar), <code>vue-tsc</code>, and <code>eslint</code> all see the full <code>window.Shopware</code> plus your augmentations — identically. No IDE-versus-CLI drift.</p>
+            </div>
+          </div>
+          <div class="trace__step">
+            <div class="trace__num">4</div>
+            <div class="trace__body">
+              <h3>Switch the Shopware version</h3>
+              <p><code>git checkout</code> in the Shopware repo, rerun the setup: the bridge is regenerated and config, rules, and types match the platform again. Wiped <code>node_modules</code>? Same answer — the setup is idempotent.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tradeoffs">
+        <div class="section-kicker">05 · Honesty</div>
+        <h2>What we dropped — and the one trade-off.</h2>
+        <p class="section-intro">
+          The simplicity is real, and so is its cost. Here is exactly what is gone, what stays, and the single downside you are
+          accepting.
+        </p>
+
+        <div class="two-col">
+          <div class="panel panel--accent">
+            <div class="panel__label">Gone</div>
+            <ul class="clean-list">
+              <li>Hand-written reference paths (<code>.shopware/shopware-types.d.ts</code>)</li>
+              <li>A published config package that can drift from the platform</li>
+              <li>Public / internal profiles</li>
+              <li><code>manifest.json</code></li>
+              <li><code>connect</code> / <code>ensure-contract</code> CLI</li>
+              <li>The contract producer &amp; self-contained rollup</li>
+              <li>Released snapshots</li>
+            </ul>
+          </div>
+          <div class="panel panel--blue">
+            <div class="panel__label">Kept</div>
+            <ul class="clean-list">
+              <li>A shared config (tsconfig + ESLint) — now shipped inside the Administration</li>
+              <li>The irreducible bit: machine-specific paths — computed by the setup, living only in <code>node_modules</code></li>
+              <li>Three augmentation seams</li>
+              <li>Zero-config coverage for extensions without their own configs</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout--warning">
+          <div class="callout__title">The trade-off you are accepting</div>
+          <p>
+            Referencing <code>.ts</code> source (not a bundled <code>.d.ts</code>) means TypeScript parses — and, being source,
+            can type-check — Admin’s graph under your config. That is heavier than checking against one declaration file, and it
+            needs the Admin source to be present. Mitigations: <code>skipLibCheck</code> is on; reference the narrowest entry
+            files; and Admin source is CI-clean, so it should not introduce new errors under the same <code>strict</code> +
+            <code>skipLibCheck</code> settings it already uses.
+          </p>
+          <p>
+            If that cost ever bites, flip the referenced entry to a generated <code>.d.ts</code> barrel — identical wiring, and
+            <code>skipLibCheck</code> then applies to it fully. That is an optimization, not a redesign — <a href="#v2">V2
+            below</a> shows exactly what it looks like.
+          </p>
+        </div>
+
+        <div class="callout">
+          <div class="callout__title">The one case this does not cover</div>
+          <p>
+            A standalone plugin checkout with no Shopware project around it has nothing to bridge to. That is exactly the
+            artifact <a href="#v2">V2</a> produces: publish the generated declarations per release, and a standalone checkout
+            pins a version instead of bridging to an installation.
+          </p>
+        </div>
+      </section>
+
+      <section id="v2">
+        <div class="section-kicker">06 · The evolution</div>
+        <h2>V2: generated declarations instead of source.</h2>
+        <p class="section-intro">
+          V1 points the plugin at the Administration’s <code>.ts</code> source — always fresh, zero build steps, but the
+          plugin’s tooling parses (and type-checks) Admin’s graph. V2 changes exactly one thing: a build step emits
+          <code>.d.ts</code> files, and the types entry points at those instead. The bridge, the plugin’s two-line configs, and
+          the three augmentation seams stay byte-identical — declaration merging works against emitted <code>.d.ts</code>
+          exactly as against source. That is why V2 is an optimization you can defer, not a fork in the road.
+        </p>
+
+        <div class="two-col">
+          <div class="code-file">
+            <div class="code-file__header">tsconfig.types.json<span class="code-file__badge">admin build</span></div>
+            <pre><code><span class="c">// package.json: "types:build": "vue-tsc -p tsconfig.types.json"</span>
+<span class="c">// runs where the entity schema generation already runs</span>
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    <span class="c">// @internal members drop out of the contract</span>
+    "stripInternal": true,
+    "outDir": "extension-tooling/dist"
+  },
+  "files": ["src/global.types.ts"]
+}</code></pre>
+          </div>
+          <div class="code-file">
+            <div class="code-file__header">extension-tooling/types.d.ts<span class="code-file__badge">the only change</span></div>
+            <pre><code><span class="c">// V1 — reads the installed source (live, heavy)</span>
+<span class="hot">import './public-api';
+import '../src/entity-schema-definition';</span>
+
+<span class="c">// V2 — reads the generated declarations (flat, light)</span>
+<span class="ok">import './dist/global.types';
+import './dist/entity-schema-definition';</span>
+
+<span class="c">// Everything downstream — bridge, plugin configs,</span>
+<span class="c">// augmentations — does not change by one byte.</span></code></pre>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Dimension</th>
+                  <th scope="col">V1 · reads source</th>
+                  <th scope="col">V2 · reads declarations</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Freshness</td>
+                  <td>Live with every <code>git checkout</code></td>
+                  <td>As fresh as the last <code>types:build</code></td>
+                </tr>
+                <tr>
+                  <td>Build step</td>
+                  <td>None</td>
+                  <td>Declaration emit — must be CI-gated</td>
+                </tr>
+                <tr>
+                  <td>Plugin’s program</td>
+                  <td>The Admin source graph</td>
+                  <td>A flat <code>.d.ts</code> set</td>
+                </tr>
+                <tr>
+                  <td><code>skipLibCheck</code></td>
+                  <td>Skips <code>.d.ts</code>, still checks the <code>.ts</code> source it pulls in</td>
+                  <td>Covers everything Shopware ships</td>
+                </tr>
+                <tr>
+                  <td>Standalone plugin</td>
+                  <td>Not possible — needs the installation</td>
+                  <td>The same <code>dist/</code> can be published per release</td>
+                </tr>
+                <tr>
+                  <td>Internal APIs</td>
+                  <td>Visible; fenced by the ESLint rule</td>
+                  <td>Can physically disappear via <code>stripInternal</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="callout callout--blue">
+            <div class="callout__title">What V2 buys</div>
+            <p>
+              The plugin’s tsserver and <code>vue-tsc</code> load a flat declaration set instead of Admin’s source — cold start
+              and memory shrink accordingly. Admin’s compiler settings stop mattering to the plugin entirely. And the
+              standalone gap from section 05 closes: publish <code>dist/</code> as
+              <code>@shopware-ag/administration-types@&lt;version&gt;</code>, and a checkout without a Shopware project pins a
+              version — while the bridge still wins whenever a real installation is present.
+            </p>
+          </div>
+          <div class="callout callout--warning">
+            <div class="callout__title">What V2 costs</div>
+            <p>
+              The declarations are a maintained artifact. Declaration emit can fail on code <code>tsc</code> cannot name
+              (private types in public positions), so the build must be CI-gated. Against a trunk checkout the types go stale
+              until the next <code>types:build</code> — the same lifecycle the generated entity schema already has. And when
+              you hack on Admin and a plugin simultaneously, V1’s live view is nicer.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout__title">A middle step already exists</div>
+          <p>
+            The current tooling already avoids the worst of V1’s cost without any build step: its types entry is a
+            hand-maintained, dependency-light structural contract (<code>public-api.d.ts</code>) that deliberately imports no
+            Administration implementation types — precisely so extensions do not compile the whole Admin graph. V2 is that same
+            idea with the manual curation automated: the contract becomes an emitted artifact instead of a hand-written one,
+            so it can never lag behind the real source.
+          </p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div>Issue #14040 · Minimal Administration extension toolchain — code walkthrough · Updated 14 July 2026.</div>
+        <div>All code is abstracted and illustrative; the bridge mechanism mirrors <code>scripts/extensionTooling/setup.ts</code> on the package-contract-v2 branch. No runtime, package, Composer, build, or plugin behaviour is changed by this document.</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const button = document.getElementById("theme-toggle");
+      let stored = null;
+      const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+      try {
+        stored = localStorage.getItem("issue-14040-theme");
+      } catch (error) {
+        stored = null;
+      }
+
+      root.setAttribute("data-theme", stored || preferred);
+
+      button.addEventListener("click", function () {
+        const current = root.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+
+        try {
+          localStorage.setItem("issue-14040-theme", next);
+        } catch (error) {
+          // A local file can be opened with storage disabled; the theme still changes for this session.
+        }
+      });
+
+      const toc = document.getElementById("toc");
+      const links = Array.from(toc.querySelectorAll("a"));
+      const sections = links
+        .map(function (link) {
+          const id = link.getAttribute("href").slice(1);
+          return { link: link, section: document.getElementById(id) };
+        })
+        .filter(function (item) {
+          return item.section;
+        });
+
+      function setActive(link) {
+        links.forEach(function (candidate) {
+          candidate.classList.toggle("active", candidate === link);
+        });
+
+        if (window.innerWidth <= 1040) {
+          link.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+      }
+
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          const match = sections.find(function (item) {
+            return item.section === entry.target;
+          });
+
+          if (match) {
+            setActive(match.link);
+          }
+        });
+      }, { rootMargin: "-12% 0px -78% 0px" });
+
+      sections.forEach(function (item) {
+        observer.observe(item.section);
+      });
+
+      links.forEach(function (link) {
+        link.addEventListener("click", function (event) {
+          event.preventDefault();
+          const target = document.getElementById(link.getAttribute("href").slice(1));
+
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+            try {
+              history.replaceState(null, "", link.getAttribute("href"));
+            } catch (error) {
+              // Some file:// policies disallow history mutation; navigation itself still works.
+            }
+
+            setActive(link);
+          }
+        });
+      });
+
+      if (links.length > 0) {
+        links[0].classList.add("active");
+      }
+    }());
+  </script>
+</body>
+</html>

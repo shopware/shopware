@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -135,10 +136,66 @@ class StoreApiMcpServerControllerTest extends TestCase
         $controller->handle($request);
     }
 
+    public function testInitializeRegistersMcpSession(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
+        $sessionRegistry->expects($this->once())
+            ->method('register')
+            ->with(static::callback(static fn (string $sessionId): bool => $sessionId !== ''));
+
+        $psrRequest = new ServerRequest('POST', '/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController(
+            $psrRequest,
+            new HttpFoundationFactory(),
+            sessionRegistry: $sessionRegistry,
+        );
+
+        $sfRequest = Request::create('/store-api/_mcp', 'POST', content: $body);
+        $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+
+        $response = $controller->handle($sfRequest);
+
+        static::assertNotSame('', (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+    }
+
+    public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
+    {
+        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
+        $sessionRegistry->expects($this->never())->method('register');
+
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $controller = $this->buildController(
+            new ServerRequest('GET', '/store-api/_mcp'),
+            $httpFoundationFactory,
+            sessionRegistry: $sessionRegistry,
+        );
+
+        $sfRequest = Request::create('/store-api/_mcp', 'GET');
+        $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+
+        $response = $controller->handle($sfRequest);
+
+        static::assertSame(405, $response->getStatusCode());
+    }
+
     private function buildController(
         ServerRequest $psrRequest,
         ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
         ?Server $server = null,
+        ?McpSessionRegistry $sessionRegistry = null,
     ): StoreApiMcpServerController {
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
@@ -152,6 +209,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
             static::createStub(McpAllowedHostsProvider::class),
+            sessionRegistry: $sessionRegistry,
         );
     }
 

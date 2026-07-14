@@ -12,7 +12,8 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -34,8 +35,8 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(XmlRenderer::class)]
-class XmlRendererTest extends TestCase
+#[CoversClass(ZugferdXmlRenderer::class)]
+class ZugferdXmlRendererTest extends TestCase
 {
     private const ZUGFERD_TEMPLATE_PATH = '@Framework/documents/zugferd/invoice.xml.twig';
 
@@ -105,11 +106,40 @@ class XmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, $env);
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/Generated XML is malformed/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/Generated XML is malformed/');
 
         $renderer->renderToString(
             $this->createInput($renderData),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testResolvesTemplateByDocumentType(): void
+    {
+        $renderData = $this->createRenderData();
+
+        $expectedTemplate = '@Framework/documents/zugferd/credit_note.xml.twig';
+
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->once())
+            ->method('find')
+            ->with($expectedTemplate)
+            ->willReturn($expectedTemplate);
+
+        $env = $this->createMock(TwigEnvironment::class);
+        $env->method('renderWithTimezoneOverride')->willReturn('<root/>');
+
+        $renderer = $this->createRenderer($finder, $env);
+
+        $renderer->renderToString(
+            new RenderInput(
+                DocumentType::CREDIT_NOTE->value,
+                '12345',
+                $this->createOrder(),
+                [DocumentType::CREDIT_NOTE->value => $renderData],
+            ),
             new RenderState(),
             Context::createDefaultContext(),
         );
@@ -129,8 +159,8 @@ class XmlRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, AbstractRenderData::class),
         );
 
         $renderer->renderToString(
@@ -140,9 +170,9 @@ class XmlRendererTest extends TestCase
         );
     }
 
-    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): XmlRenderer
+    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): ZugferdXmlRenderer
     {
-        return new XmlRenderer(
+        return new ZugferdXmlRenderer(
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
@@ -194,9 +224,6 @@ class XmlRendererTest extends TestCase
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
-            templatePaths: [
-                DocumentFormat::ZUGFERD_XML->value => self::ZUGFERD_TEMPLATE_PATH,
-            ],
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: new TradePartyView(

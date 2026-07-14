@@ -8,10 +8,10 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Renderer\EmbeddedRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -32,17 +32,17 @@ use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
  * @internal
  */
 #[Package('after-sales')]
-class EmbeddedRendererTest extends TestCase
+class ZugferdEmbeddedPdfRendererTest extends TestCase
 {
     use DocumentV2Trait;
 
     private HtmlRenderer $htmlRenderer;
 
-    private XmlRenderer $xmlRenderer;
+    private ZugferdXmlRenderer $xmlRenderer;
 
     private PdfRenderer $pdfRenderer;
 
-    private EmbeddedRenderer $embeddedRenderer;
+    private ZugferdEmbeddedPdfRenderer $embeddedRenderer;
 
     private InvoiceDataProvider $dataProvider;
 
@@ -69,9 +69,9 @@ class EmbeddedRendererTest extends TestCase
         );
 
         $this->htmlRenderer = static::getContainer()->get(HtmlRenderer::class);
-        $this->xmlRenderer = static::getContainer()->get(XmlRenderer::class);
+        $this->xmlRenderer = static::getContainer()->get(ZugferdXmlRenderer::class);
         $this->pdfRenderer = static::getContainer()->get(PdfRenderer::class);
-        $this->embeddedRenderer = static::getContainer()->get(EmbeddedRenderer::class);
+        $this->embeddedRenderer = static::getContainer()->get(ZugferdEmbeddedPdfRenderer::class);
         $this->dataProvider = static::getContainer()->get(InvoiceDataProvider::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
 

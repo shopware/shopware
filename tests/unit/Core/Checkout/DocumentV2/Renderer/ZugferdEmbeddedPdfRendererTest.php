@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Renderer\EmbeddedRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
@@ -22,12 +22,12 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(EmbeddedRenderer::class)]
-class EmbeddedRendererTest extends TestCase
+#[CoversClass(ZugferdEmbeddedPdfRenderer::class)]
+class ZugferdEmbeddedPdfRendererTest extends TestCase
 {
     public function testConfig(): void
     {
-        $renderer = new EmbeddedRenderer('version');
+        $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $renderer->getFormat());
         static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
@@ -39,7 +39,7 @@ class EmbeddedRendererTest extends TestCase
 
     public function testThrowsWhenRenderDataMissing(): void
     {
-        $renderer = new EmbeddedRenderer('version');
+        $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         $input = new RenderInput(DocumentType::INVOICE->value, '12345', $this->createOrder(), []);
 
@@ -52,7 +52,7 @@ class EmbeddedRendererTest extends TestCase
 
     public function testThrowsWhenPdfDependencyMissing(): void
     {
-        $renderer = new EmbeddedRenderer('version');
+        $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         $state = new RenderState();
         $state->add($this->renderResult(DocumentFormat::ZUGFERD_XML, '<invoice/>'));
@@ -66,7 +66,7 @@ class EmbeddedRendererTest extends TestCase
 
     public function testThrowsWhenXmlDependencyMissing(): void
     {
-        $renderer = new EmbeddedRenderer('version');
+        $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         $state = new RenderState();
         $state->add($this->renderResult(DocumentFormat::PDF, '%PDF-1.7'));
@@ -80,7 +80,7 @@ class EmbeddedRendererTest extends TestCase
 
     public function testWrapsMergerFailureAsDomainException(): void
     {
-        $renderer = new EmbeddedRenderer('version');
+        $renderer = new ZugferdEmbeddedPdfRenderer('version');
 
         $state = new RenderState();
         $state->add($this->renderResult(DocumentFormat::PDF, 'not-a-pdf'));
@@ -90,7 +90,7 @@ class EmbeddedRendererTest extends TestCase
             $renderer->renderToString($this->createInput(), $state, Context::createDefaultContext());
             static::fail('Expected DocumentV2Exception to be thrown.');
         } catch (DocumentV2Exception $e) {
-            static::assertSame(DocumentV2Exception::ZUGFERD_EMBED_FAILED, $e->getErrorCode());
+            static::assertSame(DocumentV2Exception::EMBED_FAILED, $e->getErrorCode());
             static::assertNotNull($e->getPrevious());
         }
     }

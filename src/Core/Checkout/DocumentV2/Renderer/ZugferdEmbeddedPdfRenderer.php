@@ -16,12 +16,12 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Merges the rendered PDF and Zugferd XML into a single PDF/A-3 with the XML embedded as a
  * Factur-X attachment, via {@see ZugferdDocumentPdfMerger} (which auto-detects the XRechnung
- * profile from the XML). Depends on the {@see PdfRenderer} and {@see XmlRenderer} outputs.
+ * profile from the XML). Depends on the {@see PdfRenderer} and {@see ZugferdXmlRenderer} outputs.
  *
  * @internal
  */
 #[Package('after-sales')]
-final readonly class EmbeddedRenderer extends AbstractDocumentRenderer
+final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::ZUGFERD_EMBEDDED_PDF;
 
@@ -68,7 +68,7 @@ final readonly class EmbeddedRenderer extends AbstractDocumentRenderer
                 ->generateDocument()
                 ->downloadString();
         } catch (\Throwable $exception) {
-            throw DocumentV2Exception::zugferdEmbedFailed($exception);
+            throw DocumentV2Exception::embedFailed($exception);
         }
 
         return new RenderResult(

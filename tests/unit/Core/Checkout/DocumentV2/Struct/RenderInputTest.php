@@ -49,4 +49,15 @@ class RenderInputTest extends TestCase
 
         $this->input->requireData('something', StaticRenderData::class);
     }
+
+    public function testRejectsDocumentTypeThatIsNotATrustedIdentifier(): void
+    {
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+
+        new RenderInput(
+            documentType: '../invoice',
+            documentNumber: '12345',
+            order: new OrderEntity(),
+        );
+    }
 }

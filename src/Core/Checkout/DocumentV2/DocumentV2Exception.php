@@ -60,7 +60,7 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
 
-    public const ZUGFERD_EMBED_FAILED = 'DOCUMENT_V2__ZUGFERD_EMBED_FAILED';
+    public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -302,12 +302,12 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function zugferdEmbedFailed(\Throwable $previous): self
+    public static function embedFailed(\Throwable $previous): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::ZUGFERD_EMBED_FAILED,
-            'Failed to embed Zugferd XML into the PDF: {{ reason }}.',
+            self::EMBED_FAILED,
+            'Failed to embed the XML into the PDF: {{ reason }}.',
             ['reason' => $previous->getMessage()],
             $previous,
         );

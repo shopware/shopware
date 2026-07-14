@@ -85,6 +85,7 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         ];
 
         await wrapper.setProps({
+            useRoutesForExtensions: true,
             items: [
                 { label: 'Tab 1', name: 'tab1' },
                 { label: 'Tab 2', name: 'tab2' },
@@ -149,6 +150,7 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'tab1',
+                useRoutesForExtensions: true,
                 items: [
                     { label: 'Tab 1', name: 'tab1' },
                 ],
@@ -182,6 +184,7 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'sw.test.index.tab3',
+                useRoutesForExtensions: true,
                 items: [
                     { label: 'Tab 1', name: 'sw.test.index' },
                 ],
@@ -193,5 +196,86 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         expect(mtTabsOriginal.props('defaultItem')).toBe('tab3');
         expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(false);
         expect(wrapper.find('.sw-extension-component-section').exists()).toBe(false);
+    });
+
+    it('should infer route mode for extension tabs when the surface items are route-backed', async () => {
+        const routerPush = jest.fn();
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
+            { label: 'Tab 3', componentSectionId: 'tab3' },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultItem: 'tab1',
+                items: [
+                    { label: 'Tab 1', name: 'tab1', onClick: jest.fn() },
+                ],
+            },
+            routerPush,
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+        const extensionTab = mtTabsOriginal.props('items')[1];
+
+        expect(extensionTab.onClick).toEqual(expect.any(Function));
+        expect(wrapper.find('.sw-extension-component-section').exists()).toBe(false);
+
+        extensionTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ path: 'tab3' });
+    });
+
+    it('should infer inline mode for extension tabs when the surface items are not route-backed', async () => {
+        const routerPush = jest.fn();
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
+            { label: 'Tab 3', componentSectionId: 'tab3' },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultItem: 'tab1',
+                items: [
+                    { label: 'Tab 1', name: 'tab1' },
+                ],
+            },
+            routerPush,
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+
+        expect(mtTabsOriginal.props('items')[1].onClick).toBeUndefined();
+
+        await mtTabsOriginal.vm.$emit('new-item-active', 'tab3');
+
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(true);
+        expect(wrapper.getComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe('tab3');
+        expect(routerPush).not.toHaveBeenCalled();
+    });
+
+    it('should let an explicit use-routes-for-extensions="false" override route-backed items', async () => {
+        const routerPush = jest.fn();
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
+            { label: 'Tab 3', componentSectionId: 'tab3' },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultItem: 'tab1',
+                useRoutesForExtensions: false,
+                items: [
+                    { label: 'Tab 1', name: 'tab1', onClick: jest.fn() },
+                ],
+            },
+            routerPush,
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+
+        expect(mtTabsOriginal.props('items')[1].onClick).toBeUndefined();
+
+        await mtTabsOriginal.vm.$emit('new-item-active', 'tab3');
+
+        expect(wrapper.getComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe('tab3');
+        expect(routerPush).not.toHaveBeenCalled();
     });
 });

@@ -22,7 +22,7 @@
             {% block sw_cms_element_product_description_reviews_mt_warning %}
             <mt-banner
                 v-if="isProductPage"
-                class="sw-cms-el-config-buy-box__warning"
+                class="sw-cms-el-config-product-description-reviews__warning"
                 variant="info"
             >
                 {{ $t('sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement') }}
@@ -79,7 +79,7 @@
         {% block sw_cms_el_product_description_rating_config_mt_options %}
         <sw-container
             v-if="activeTab === 'options'"
-            class="sw-cms-el-config-text__tab-options"
+            class="sw-cms-el-config-product-description-reviews__tab-options"
         >
             {% block sw_cms_el_product_description_rating_config_mt_options_alignment %}
             <sw-cms-inherit-wrapper
@@ -139,7 +139,7 @@
                     {% block sw_cms_element_product_description_reviews_warning %}
                     <mt-banner
                         v-if="isProductPage"
-                        class="sw-cms-el-config-buy-box__warning"
+                        class="sw-cms-el-config-product-description-reviews__warning"
                         variant="info"
                     >
                         {{ $t('sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement') }}
@@ -205,7 +205,7 @@
                 {% block sw_cms_el_product_description_rating_config_options %}
                 <sw-container
                     v-if="active === 'options'"
-                    class="sw-cms-el-config-text__tab-options"
+                    class="sw-cms-el-config-product-description-reviews__tab-options"
                 >
                     {% block sw_cms_el_product_description_rating_config_options_alignment %}
                     <sw-cms-inherit-wrapper

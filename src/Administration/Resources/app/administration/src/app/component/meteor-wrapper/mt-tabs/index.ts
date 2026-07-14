@@ -36,10 +36,18 @@ export default Shopware.Component.wrapComponentConfig({
             default: '',
         },
 
+        /**
+         * Controls whether extension-provided tabs navigate via the router or render their
+         * component section inline. When omitted, the wrapper infers the mode from the
+         * surface's own items: route-backed surfaces give their items an `onClick` (route
+         * navigation), local-state surfaces do not. An explicit value always wins over the
+         * inference. Note: a local surface whose items carry an `onClick` for non-routing
+         * reasons (e.g. filtering) must set this to `false` explicitly.
+         */
         useRoutesForExtensions: {
             type: Boolean,
             required: false,
-            default: true,
+            default: undefined,
         },
 
         small: {
@@ -88,7 +96,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         extensionTabsUseRoutes(): boolean {
-            return this.useRoutesForExtensions && !this.$slots.content;
+            if (this.$slots.content) {
+                return false;
+            }
+
+            if (typeof this.useRoutesForExtensions === 'boolean') {
+                return this.useRoutesForExtensions;
+            }
+
+            return this.items.some((item) => typeof item.onClick === 'function');
         },
 
         activeTabExtension(): TabItemEntry | undefined {

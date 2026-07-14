@@ -10,11 +10,8 @@ const orderMock = {
     documents: [],
 };
 
-async function createWrapper({ isEditing = false } = {}) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-documents', { sync: true }), {
-        props: {
-            isEditing,
-        },
         global: {
             stubs: {
                 'mt-banner': {
@@ -50,7 +47,9 @@ describe('src/module/sw-order/view/sw-order-detail-documents', () => {
     });
 
     it('should render the save warning banner while editing', async () => {
-        const wrapper = await createWrapper({ isEditing: true });
+        Shopware.Store.get('swOrderDetail').editing = true;
+
+        const wrapper = await createWrapper();
         const banner = wrapper.get('.sw-order-detail-documents__save-warning');
 
         expect(banner.text()).toBe('sw-order.documentTab.tooltipSaveBeforeCreateDocument');

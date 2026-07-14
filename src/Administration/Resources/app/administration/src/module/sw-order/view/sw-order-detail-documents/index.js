@@ -26,20 +26,14 @@ export default {
         },
     },
 
-    props: {
-        isEditing: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
-
     computed: {
         isLoading: () => Store.get('swOrderDetail').isLoading,
 
         order: () => Store.get('swOrderDetail').order,
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
+
+        isEditing: () => Store.get('swOrderDetail').isEditing,
     },
 
     methods: {

@@ -306,6 +306,30 @@ describe('sw-theme-manager-detail', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
+    it('hides mt-tabs when only a single tab is available', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        wrapper.vm.getTabLabel = jest.fn((key, fallback) => fallback || key);
+
+        await wrapper.setData({
+            defaultTheme: {
+                id: 'default-theme-id',
+                name: 'Storefront',
+            },
+            structuredThemeFields: {
+                tabs: {
+                    default: {
+                        labelSnippetKey: 'default',
+                        label: 'Default',
+                        blocks: {},
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.tabItems).toHaveLength(1);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
     it('updates active content when mt-tabs emits a new active item', async () => {
         const wrapper = await createWrapper({ featureActive: true });
         await showContentWithTabs(wrapper);

@@ -48,16 +48,15 @@ jobs:
     secrets: inherit
     with:
       profile: nightly
-  integration-major:
-    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
-    uses: ./.github/workflows/integration-major.yml
-    secrets: inherit
   acceptance:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit
     with:
       profile: nightly
+      # Major acceptance tests are run by the dedicated nightly-major workflow while the next
+      # major is prepared. Once they are green, drop this line to fold them back into nightly.
+      major: exclude
   visual-tests:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/visual-tests.yml

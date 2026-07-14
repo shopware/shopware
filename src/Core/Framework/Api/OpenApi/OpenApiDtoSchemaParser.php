@@ -423,6 +423,7 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
+            $constraintSchema = $this->dereferenceSchema($schema, $registry);
             $type = $this->mapOpenApiTypeToPhp($schema, $registry);
             $properties[] = new OpenApiDtoProperty(
                 name: $this->toPropertyName($name),
@@ -431,14 +432,14 @@ final class OpenApiDtoSchemaParser
                 nullable: $type['nullable'],
                 arrayItemType: $type['arrayItemType'],
                 description: $this->stringOrNull($parameter['description'] ?? null),
-                format: $this->stringOrNull($schema['format'] ?? null),
-                pattern: $this->stringOrNull($schema['pattern'] ?? null),
-                enum: $this->stringEnum($schema['enum'] ?? null),
-                defaultValue: $this->defaultValue($schema),
-                hasDefaultValue: $this->hasDefaultValue($schema),
-                minItems: $this->intOrNull($schema['minItems'] ?? null),
-                minLength: $this->intOrNull($schema['minLength'] ?? null),
-                arrayItemMinLength: $this->arrayItemMinLength($schema),
+                format: $this->stringOrNull($constraintSchema['format'] ?? null),
+                pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
+                enum: $this->scalarEnum($constraintSchema['enum'] ?? null),
+                defaultValue: $this->defaultValue($constraintSchema),
+                hasDefaultValue: $this->hasDefaultValue($constraintSchema),
+                minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
+                minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
+                arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
                 unresolvedReference: $type['unresolved'],
             );
         }
@@ -480,7 +481,7 @@ final class OpenApiDtoSchemaParser
     {
         $resolved = $this->resolveSchemaProperties($schema, $registry);
 
-        return $this->extractPropertiesFromSchema($resolved['properties'], $resolved['required'], $parentDtoName, $registry);
+        return $this->extractPropertiesFromSchema($resolved['properties'], $resolved['required'], $parentDtoName, $registry, $this->packageFromSchema($schema));
     }
 
     /**
@@ -490,7 +491,7 @@ final class OpenApiDtoSchemaParser
      *
      * @return array{properties: list<OpenApiDtoProperty>, nestedDefinitions: list<OpenApiDtoDefinition>}
      */
-    private function extractPropertiesFromSchema(array $properties, array $requiredFields, string $parentDtoName, array $registry): array
+    private function extractPropertiesFromSchema(array $properties, array $requiredFields, string $parentDtoName, array $registry, ?string $parentPackage = null): array
     {
         $dtoProperties = [];
         $nestedDefinitions = [];
@@ -508,11 +509,11 @@ final class OpenApiDtoSchemaParser
                     $nestedName,
                     $nestedExtracted['properties'],
                     $this->stringOrNull($propertySchema['description'] ?? null),
-                    $this->packageFromSchema($propertySchema),
+                    $this->packageFromSchema($propertySchema) ?? $parentPackage,
                 );
                 $nestedDefinitions = [...$nestedDefinitions, ...$nestedExtracted['nestedDefinitions']];
 
-                $dtoProperties[] = $this->createProperty($propertyName, $propertySchema, $required, $nestedName, null);
+                $dtoProperties[] = $this->createProperty($propertyName, $propertySchema, $required, $nestedName, null, registry: $registry);
 
                 continue;
             }
@@ -525,11 +526,11 @@ final class OpenApiDtoSchemaParser
                     $nestedName,
                     $nestedExtracted['properties'],
                     $this->stringOrNull($items['description'] ?? null),
-                    $this->packageFromSchema($items),
+                    $this->packageFromSchema($items) ?? $parentPackage,
                 );
                 $nestedDefinitions = [...$nestedDefinitions, ...$nestedExtracted['nestedDefinitions']];
 
-                $dtoProperties[] = $this->createProperty($propertyName, $propertySchema, $required, self::PHP_TYPE_ARRAY, $nestedName);
+                $dtoProperties[] = $this->createProperty($propertyName, $propertySchema, $required, self::PHP_TYPE_ARRAY, $nestedName, registry: $registry);
 
                 continue;
             }
@@ -543,6 +544,7 @@ final class OpenApiDtoSchemaParser
                 $type['arrayItemType'],
                 $type['nullable'],
                 $type['unresolved'],
+                $registry,
             );
         }
 
@@ -551,6 +553,7 @@ final class OpenApiDtoSchemaParser
 
     /**
      * @param array<string, mixed> $schema
+     * @param array<string, array<string, mixed>> $registry
      */
     private function createProperty(
         string $propertyName,
@@ -560,22 +563,25 @@ final class OpenApiDtoSchemaParser
         ?string $arrayItemType,
         ?bool $nullable = null,
         bool $unresolvedReference = false,
+        array $registry = [],
     ): OpenApiDtoProperty {
+        $constraintSchema = $this->dereferenceSchema($schema, $registry);
+
         return new OpenApiDtoProperty(
             name: $this->toPropertyName($propertyName),
             phpType: $phpType,
             required: $required,
             nullable: $nullable ?? $this->hasTypeNull($schema),
             arrayItemType: $arrayItemType,
-            description: $this->stringOrNull($schema['description'] ?? null),
-            format: $this->stringOrNull($schema['format'] ?? null),
-            pattern: $this->stringOrNull($schema['pattern'] ?? null),
-            enum: $this->stringEnum($schema['enum'] ?? null),
-            defaultValue: $this->defaultValue($schema),
-            hasDefaultValue: $this->hasDefaultValue($schema),
-            minItems: $this->intOrNull($schema['minItems'] ?? null),
-            minLength: $this->intOrNull($schema['minLength'] ?? null),
-            arrayItemMinLength: $this->arrayItemMinLength($schema),
+            description: $this->stringOrNull($schema['description'] ?? null) ?? $this->stringOrNull($constraintSchema['description'] ?? null),
+            format: $this->stringOrNull($constraintSchema['format'] ?? null),
+            pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
+            enum: $this->scalarEnum($constraintSchema['enum'] ?? null),
+            defaultValue: $this->defaultValue($constraintSchema),
+            hasDefaultValue: $this->hasDefaultValue($constraintSchema),
+            minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
+            minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
+            arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
             unresolvedReference: $unresolvedReference,
         );
     }
@@ -643,7 +649,7 @@ final class OpenApiDtoSchemaParser
                 ...$sharedRequired,
                 ...$this->stringListAtKey($resolvedVariant, 'required'),
             ];
-            $extracted = $this->extractPropertiesFromSchema($variantProperties, array_values(array_unique($variantRequired)), $variantDtoName, $registry);
+            $extracted = $this->extractPropertiesFromSchema($variantProperties, array_values(array_unique($variantRequired)), $variantDtoName, $registry, $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($requestSchema));
             $properties = [...$extracted['properties'], ...$parameters];
 
             if ($properties === []) {
@@ -676,6 +682,10 @@ final class OpenApiDtoSchemaParser
             // Referenced schema is not part of the static schema set (e.g. it is generated at
             // runtime from a generic entity definition). Fall back to a plain array map.
             $resolvable = isset($registry[$refName]);
+            $referencedSchema = $registry[$refName] ?? null;
+            if ($referencedSchema !== null && !$this->hasDtoShape($referencedSchema)) {
+                return $this->mapOpenApiTypeToPhp($referencedSchema, $registry);
+            }
 
             return [
                 'phpType' => $resolvable ? $this->toPascalCase($refName) : self::PHP_TYPE_ARRAY,
@@ -848,6 +858,15 @@ final class OpenApiDtoSchemaParser
     /**
      * @param array<string, mixed> $schema
      */
+    private function hasDtoShape(array $schema): bool
+    {
+        return $this->arrayAtKey($schema, 'properties') !== null
+            || $this->schemaListAtKey($schema, 'allOf') !== null;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
     private function isNullSchema(array $schema): bool
     {
         $type = $schema['type'] ?? null;
@@ -968,9 +987,9 @@ final class OpenApiDtoSchemaParser
     }
 
     /**
-     * @return list<string>|null
+     * @return list<string|int|float|bool>|null
      */
-    private function stringEnum(mixed $value): ?array
+    private function scalarEnum(mixed $value): ?array
     {
         if (!\is_array($value) || $value === []) {
             return null;
@@ -978,7 +997,7 @@ final class OpenApiDtoSchemaParser
 
         $enum = [];
         foreach ($value as $case) {
-            if (!\is_string($case)) {
+            if (!\is_string($case) && !\is_int($case) && !\is_float($case) && !\is_bool($case)) {
                 return null;
             }
 

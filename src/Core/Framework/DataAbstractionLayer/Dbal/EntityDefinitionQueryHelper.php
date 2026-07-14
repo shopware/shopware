@@ -317,6 +317,61 @@ class EntityDefinitionQueryHelper
         );
     }
 
+    public function getFieldAccessorAsArray(string $fieldName, EntityDefinition $definition, string $root, Context $context): array
+    {
+        $fieldName = str_replace('extensions.', '', $fieldName);
+
+        $original = $fieldName;
+        $prefix = $root . '.';
+
+        if (str_starts_with($fieldName, $prefix)) {
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
+        } else {
+            $original = $prefix . $original;
+        }
+
+        $fields = $definition->getFields();
+        if ($fields->has($fieldName)) {
+            $field = $fields->get($fieldName);
+
+            return $this->buildInheritedAccessorAsArray($field, $root, $definition, $context, $fieldName);
+        }
+
+        $parts = explode('.', $fieldName);
+        $associationKey = array_shift($parts);
+
+        if ($associationKey === 'extensions') {
+            $associationKey = array_shift($parts);
+        }
+
+        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
+            throw new UnmappedFieldException($original, $definition);
+        }
+
+        $field = $fields->get($associationKey);
+
+        // case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
+        if (!$field instanceof AssociationField && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
+            return $this->buildInheritedAccessorAsArray($field, $root, $definition, $context, $fieldName);
+        }
+
+        if (!$field instanceof AssociationField) {
+            throw new \RuntimeException(\sprintf('Expected field "%s" to be instance of %s', $associationKey, AssociationField::class));
+        }
+
+        $referenceDefinition = $field->getReferenceDefinition();
+        if ($field instanceof ManyToManyAssociationField) {
+            $referenceDefinition = $field->getToManyReferenceDefinition();
+        }
+
+        return $this->getFieldAccessorAsArray(
+            $original,
+            $referenceDefinition,
+            $root . '.' . $field->getPropertyName(),
+            $context
+        );
+    }
+
     public static function getAssociationPath(string $accessor, EntityDefinition $definition): ?string
     {
         $fields = self::getFieldsOfAccessor($definition, $accessor);
@@ -782,5 +837,55 @@ class EntityDefinitionQueryHelper
         }
 
         return $accessor;
+    }
+
+    public function buildInheritedAccessorAsArray(
+        Field $field,
+        string $root,
+        EntityDefinition $definition,
+        Context $context,
+        string $original
+    ): array {
+        if ($field instanceof TranslatedField) {
+            $translationChain = self::buildTranslationChain(
+                $root,
+                $context,
+                includeParent: $definition->isInheritanceAware() && $context->considerInheritance(),
+            );
+
+            $translatedField = self::getTranslatedField($definition, $field);
+
+            return $this->getTranslationFieldAccessorAsArray($translatedField, $original, $translationChain, $context);
+        }
+
+        $select = $this->buildFieldSelector($root, $field, $context, $original);
+
+        if (!$field->is(Inherited::class) || !$context->considerInheritance()) {
+            return [$select];
+        }
+
+        $parentSelect = $this->buildFieldSelector($root . '.parent', $field, $context, $original);
+
+        return [$select, $parentSelect];
+    }
+
+    private function getTranslationFieldAccessorAsArray(Field $field, string $accessor, array $chain, Context $context): array
+    {
+        if (!$field instanceof StorageAware) {
+            throw new \RuntimeException('Only storage aware fields are supported as translated field');
+        }
+
+        $selects = [];
+        foreach ($chain as $part) {
+            $select = $this->buildFieldSelector($part, $field, $context, $accessor);
+
+            $selects[] = str_replace(
+                '`.' . self::escape($field->getStorageName()),
+                '.' . $field->getPropertyName() . '`',
+                $select
+            );
+        }
+
+        return $selects;
     }
 }

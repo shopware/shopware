@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\FulltextSearchRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -36,7 +37,8 @@ class SqlQueryParser
      */
     public function __construct(
         private readonly EntityDefinitionQueryHelper $queryHelper,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly FulltextSearchRegistry $fulltextRegistry
     ) {
     }
 
@@ -64,14 +66,14 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        \sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote((string) $query->getScore()), $field)
+                        \sprintf('%s * %s * %s', $where, $this->connection->quote((string) $query->getScore()), $field)
                     );
 
                     continue;
                 }
 
                 $result->addWhere(
-                    \sprintf('IF(%s , %s, 0)', $where, $this->connection->quote((string) $query->getScore()))
+                    \sprintf('%s * %s', $where, $this->connection->quote((string) $query->getScore()))
                 );
             }
 
@@ -155,29 +157,67 @@ class SqlQueryParser
     private function parseContainsFilter(ContainsFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
-
-        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
-
         $result = new ParseResult();
-        $result->addWhere($field . ' LIKE :' . $key);
 
-        $escaped = addcslashes((string) $query->getValue(), '\\_%');
-        $result->addParameter($key, '%' . $escaped . '%');
+        // Check if this field has fulltext index enabled
+        if ($this->fulltextRegistry->isFieldFulltextEnabled($definition, $query->getField(), $root)) {
+            $searchValue = (string) $query->getValue();
+
+            $fulltextFields = $this->queryHelper->getFieldAccessorAsArray($query->getField(), $definition, $root, $context);
+            $query = $this->buildMatchFallbackChain($fulltextFields, $searchValue);
+
+            $result->addWhere($query);
+        } else {
+            // Fall back to LIKE for non-fulltext fields
+            $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+            $result->addWhere($field . ' LIKE :' . $key);
+            $escaped = addcslashes((string) $query->getValue(), '\\_%');
+            $result->addParameter($key, '%' . $escaped . '%');
+        }
 
         return $result;
+    }
+
+    private function buildMatchFallbackChain(array $columns, string $keyword, string $mode = 'NATURAL LANGUAGE MODE'): string {
+        $conditions = [];
+        $nullChecks = [];
+
+        foreach ($columns as $i => $col) {
+            if ($i > 0) {
+                $nullChecks[] = "{$columns[$i - 1]} IS NULL";
+            }
+
+            $conditionParts = $nullChecks;
+            $conditionParts[] = "{$col} IS NOT NULL";
+            $conditionParts[] = "MATCH({$col}) AGAINST ('{$keyword}' IN {$mode})";
+
+            $conditions[] = '(' . implode(' AND ', $conditionParts) . ')';
+        }
+
+        return implode(" OR ", $conditions);
     }
 
     private function parsePrefixFilter(PrefixFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
-
-        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
-
         $result = new ParseResult();
-        $result->addWhere($field . ' LIKE :' . $key);
 
-        $escaped = addcslashes($query->getValue(), '\\_%');
-        $result->addParameter($key, $escaped . '%');
+        // Check if this field has fulltext index enabled
+        if ($this->fulltextRegistry->isFieldFulltextEnabled($definition, $query->getField(), $root)) {
+            $searchValue = $query->getValue();
+            $searchValue = $searchValue . '*';
+
+            $fulltextFields = $this->queryHelper->getFieldAccessorAsArray($query->getField(), $definition, $root, $context);
+            $query = $this->buildMatchFallbackChain($fulltextFields, $searchValue);
+
+            $result->addWhere($query);
+        } else {
+            // Fall back to LIKE for non-fulltext fields
+            $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+            $result->addWhere($field . ' LIKE :' . $key);
+            $escaped = addcslashes($query->getValue(), '\\_%');
+            $result->addParameter($key, $escaped . '%');
+        }
 
         return $result;
     }
@@ -185,12 +225,12 @@ class SqlQueryParser
     private function parseSuffixFilter(SuffixFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
-
-        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
-
         $result = new ParseResult();
-        $result->addWhere($field . ' LIKE :' . $key);
 
+        // For SUFFIX searches, fulltext isn't as effective, so we fall back to LIKE
+        // MySQL fulltext doesn't natively support suffix matching well
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $result->addWhere($field . ' LIKE :' . $key);
         $escaped = addcslashes($query->getValue(), '\\_%');
         $result->addParameter($key, '%' . $escaped);
 

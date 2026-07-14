@@ -238,9 +238,14 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\FulltextSearchRegistry">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\FulltextSearchRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver">
@@ -316,6 +321,13 @@
             <tag name="console.command"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\FulltextSearchCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\FulltextSearchRegistry"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber">

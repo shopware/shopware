@@ -158,6 +158,16 @@ return [
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
 
+        // Experimental app MCP DAL aggregates were replaced by the generic app feature storage.
+        // Their accessors lived on stable parent entities, so the BC checker does not infer the
+        // experimental status from the removed aggregate types.
+        preg_quote('REMOVED: Property Shopware\Core\Framework\App\AppEntity#$mcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\AppEntity#getMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\AppEntity#setMcp', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\System\Language\LanguageEntity#$appMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\System\Language\LanguageEntity#getAppMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\System\Language\LanguageEntity#setAppMcp', '/'),
+
         // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
         'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
 

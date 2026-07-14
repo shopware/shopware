@@ -16,7 +16,11 @@
                 &minus;
             {% endif %}
 
-            {{ calculatedTaxValue|abs|currency }}
+            {% if displayMode === 'order' %}
+                {{ calculatedTaxValue|abs|currency(order.currency.isoCode) }}
+            {% else %}
+                {{ calculatedTaxValue|abs|currency }}
+            {% endif %}
             <br>
         {% endfor %}
     {% endblock %}

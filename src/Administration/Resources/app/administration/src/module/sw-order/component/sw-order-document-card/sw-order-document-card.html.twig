@@ -19,8 +19,57 @@
             >
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
+                    <sw-button-group
+                        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && !attachView"
+                        split-button
+                    >
+                        <mt-button
+                            v-tooltip="{
+                                message: tooltipCreateDocumentButton,
+                                disabled: acl.can('document.viewer') && !isEditing,
+                                showOnDisabledElements: true
+                            }"
+                            size="small"
+                            :disabled="!acl.can('document.viewer') || isEditing"
+                            class="sw-order-document-grid-button"
+                            variant="secondary"
+                            data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
+                            @click="onShowSelectDocumentTypeModal"
+                        >
+                            {% block sw_order_document_card_header_create_document_button_label %}
+                            {{ $t('sw-order.components.createDocumentModal.openButtonLabel') }}
+                            {% endblock %}
+                        </mt-button>
+
+                        <sw-context-button
+                            class="sw-order-document-grid-button-arrow"
+                            :disabled="!acl.can('document.viewer') || isEditing"
+                        >
+                            <template #button>
+                                <mt-button
+                                    square
+                                    size="small"
+                                    variant="secondary"
+                                    :disabled="!acl.can('document.viewer') || isEditing"
+                                >
+                                    <mt-icon
+                                        name="regular-chevron-down-xs"
+                                        size="16"
+                                    />
+                                </mt-button>
+                            </template>
+
+                            <sw-context-menu-item
+                                class="sw-order-document-grid-button-upload"
+                                @click="onShowUploadDocumentModal"
+                            >
+                                {{ $t('sw-order.components.uploadDocumentModal.openAction') }}
+                            </sw-context-menu-item>
+                        </sw-context-button>
+                    </sw-button-group>
+
                     <mt-button
-                        v-if="!attachView"
+                        v-else-if="!attachView"
                         v-tooltip="{
                             message: tooltipCreateDocumentButton,
                             disabled: acl.can('document.viewer') && !isEditing,
@@ -33,9 +82,7 @@
                         data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
-                        {% block sw_order_document_card_header_create_document_button_label %}
                         {{ $t('sw-order.documentCard.labelCreateNew') }}
-                        {% endblock %}
                     </mt-button>
                     {% endblock %}
                 </template>
@@ -114,7 +161,7 @@
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
                     data-analytics-id="sw-order-document-card.open-document"
-                    @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, resolveOpenFileType(item))"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
                     {{ $t('sw-order.documentCard.labelOpenDocument') }}
@@ -127,7 +174,7 @@
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
                     data-analytics-id="sw-order-document-card.download-document"
-                    @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
+                    @click="onDownload(item.id, item.deepLinkCode, resolveDownloadFileType(item))"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $t('sw-order.documentCard.labelDownloadPdf') }}
@@ -219,8 +266,29 @@
     {% endblock %}
 
     {% block sw_order_document_card_grid_column_document_type_modal %}
+    <sw-order-create-document-modal
+        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showSelectDocumentTypeModal"
+        v-model:value="currentDocumentType"
+        :order="order"
+        :is-loading-document="isLoadingDocument"
+        :is-loading-preview="isLoadingPreview"
+        @loading-document="onLoadingDocument"
+        @loading-preview="onLoadingPreview"
+        @page-leave="onCloseCreateDocumentModal"
+        @document-create="onCreateDocument"
+        @preview-show="onPreview"
+    />
+    <sw-order-upload-document-modal
+        v-else-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showUploadDocumentModal"
+        v-model:value="currentDocumentType"
+        :order="order"
+        :is-loading-document="isLoadingDocument"
+        @loading-document="onLoadingDocument"
+        @page-leave="onCloseUploadDocumentModal"
+        @document-create="onCreateDocument"
+    />
     <sw-order-select-document-type-modal
-        v-if="showSelectDocumentTypeModal"
+        v-else-if="showSelectDocumentTypeModal"
         v-model:value="currentDocumentType"
         :order="order"
         @modal-close="onCloseSelectDocumentTypeModal"
@@ -246,8 +314,55 @@
         centered
     >
         <template #button>
+            <sw-button-group
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showCreateDocumentButton"
+                split-button
+            >
+                <mt-button
+                    v-tooltip="{
+                        message: tooltipCreateDocumentButton,
+                        disabled: acl.can('document.viewer') && !isEditing,
+                        showOnDisabledElements: true
+                    }"
+                    size="small"
+                    :disabled="!acl.can('document.viewer') || isEditing"
+                    class="sw-order-document-grid-button"
+                    variant="secondary"
+                    data-analytics-id="sw-order-document-card.show-select-document-type-modal"
+                    @click="onShowSelectDocumentTypeModal"
+                >
+                    {{ $t('sw-order.components.createDocumentModal.openButtonLabel') }}
+                </mt-button>
+
+                <sw-context-button
+                    class="sw-order-document-grid-button-arrow"
+                    :disabled="!acl.can('document.viewer') || isEditing"
+                >
+                    <template #button>
+                        <mt-button
+                            square
+                            size="small"
+                            variant="secondary"
+                            :disabled="!acl.can('document.viewer') || isEditing"
+                        >
+                            <mt-icon
+                                name="regular-chevron-down-xs"
+                                size="16"
+                            />
+                        </mt-button>
+                    </template>
+
+                    <sw-context-menu-item
+                        class="sw-order-document-grid-button-upload"
+                        @click="onShowUploadDocumentModal"
+                    >
+                        {{ $t('sw-order.components.uploadDocumentModal.openAction') }}
+                    </sw-context-menu-item>
+                </sw-context-button>
+            </sw-button-group>
+
             <mt-button
-                v-if="showCreateDocumentButton"
+                v-else-if="showCreateDocumentButton"
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
                     disabled: acl.can('document.viewer') && !isEditing,
@@ -260,9 +375,7 @@
                 data-analytics-id="sw-order-document-card.show-select-document-type-modal"
                 @click="onShowSelectDocumentTypeModal"
             >
-                {% block sw_order_document_card_header_create_document_button_label %}
                 {{ $t('sw-order.documentCard.labelCreateNew') }}
-                {% endblock %}
             </mt-button>
         </template>
     </mt-empty-state>

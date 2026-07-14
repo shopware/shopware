@@ -29,6 +29,7 @@ const orderFixture = {
     amountGross: 100,
     lineItems: [],
     deepLinkCode: 'abcdef',
+    versionId: 'order-version-id',
 };
 
 const documentFixture = {
@@ -54,6 +55,20 @@ const documentFixture = {
         id: '12345',
         fileExtension: 'html',
     },
+};
+
+const documentV2Fixture = {
+    ...documentFixture,
+    documentMediaFile: null,
+    documentA11yMediaFile: null,
+    documentFiles: [
+        {
+            documentFormat: 'html',
+        },
+        {
+            documentFormat: 'zugferd_xml',
+        },
+    ],
 };
 
 const documentTypeFixture = [
@@ -101,10 +116,44 @@ const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-d
 
 let documentSearchMock;
 let documentDeleteMock;
+let createDocumentMock;
+let createDocumentV2Mock;
+let uploadDocumentV2Mock;
+let getDocumentV2Mock;
+let getDocumentPreviewV2Mock;
 
 async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
     documentDeleteMock = jest.fn().mockResolvedValue([]);
+    createDocumentMock = jest.fn().mockResolvedValue({
+        data: {
+            documentId: '1234',
+            documentDeepLink: '12341234',
+        },
+    });
+    createDocumentV2Mock = jest.fn().mockResolvedValue({
+        data: {
+            documentId: '1234',
+            documentDeepLink: '12341234',
+            formats: ['html'],
+        },
+    });
+    uploadDocumentV2Mock = jest.fn().mockResolvedValue({
+        data: {
+            documentId: '1234',
+            deepLinkCode: '12341234',
+            formats: ['pdf'],
+        },
+    });
+    getDocumentV2Mock = jest.fn().mockResolvedValue({
+        headers: {
+            'content-disposition': 'attachment; filename=dummny.html',
+        },
+        data: 'https://shopware.test/dummny.html',
+    });
+    getDocumentPreviewV2Mock = jest.fn().mockResolvedValue({
+        data: 'https://shopware.test/dummny.html',
+    });
 
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         props,
@@ -129,6 +178,8 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', {
                     sync: true,
                 }),
+                'sw-order-create-document-modal': true,
+                'sw-order-upload-document-modal': true,
                 'sw-order-send-document-modal': true,
                 'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', {
                     sync: true,
@@ -187,13 +238,14 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                             },
                             data: 'https://shopware.test/dummny.pdf',
                         }),
-                    createDocument: () =>
-                        Promise.resolve({
-                            data: {
-                                documentId: '1234',
-                                documentDeepLink: '12341234',
-                            },
-                        }),
+                    createDocument: (...args) => createDocumentMock(...args),
+                },
+                documentV2Service: {
+                    setListener: () => ({}),
+                    getDocument: (...args) => getDocumentV2Mock(...args),
+                    previewDocument: (...args) => getDocumentPreviewV2Mock(...args),
+                    createDocument: (...args) => createDocumentV2Mock(...args),
+                    uploadDocument: (...args) => uploadDocumentV2Mock(...args),
                 },
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: 1000 }),
@@ -273,6 +325,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         setActivePinia(createPinia());
+    });
+
+    afterEach(() => {
+        global.activeFeatureFlags = [];
     });
 
     it('should have an disabled create new button', async () => {
@@ -420,6 +476,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Select document type modal when click on Create new button', async () => {
+        global.activeFeatureFlags = [];
         global.activeAclRoles = [
             'order.editor',
             'document.viewer',
@@ -431,6 +488,35 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         const documentTypeSelectModal = wrapper.find('.sw-order-select-document-type-modal');
         expect(documentTypeSelectModal.exists()).toBeTruthy();
+    });
+
+    it('should show the reworked create document modal when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+        wrapper = await createWrapper();
+
+        const createNewButton = wrapper.find('.sw-order-document-grid-button');
+        await createNewButton.trigger('click');
+
+        const createDocumentModal = wrapper.find('sw-order-create-document-modal-stub');
+        expect(createDocumentModal.exists()).toBeTruthy();
+    });
+
+    it('should show the upload document modal from the generate button dropdown', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+        wrapper = await createWrapper();
+
+        await wrapper.find('.sw-order-document-grid-button-upload').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-order-upload-document-modal-stub').exists()).toBeTruthy();
     });
 
     it('should show Send document modal when click on Send document option', async () => {
@@ -466,6 +552,154 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         // 5 data columns + 1 action column
         expect(columns).toHaveLength(6);
         expect(columns[3].text()).toBe('sw-order.documentCard.labelAvailableFormats');
+    });
+
+    it('should derive available formats from V2 document files', async () => {
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        expect(wrapper.vm.availableFormatsFilter(documentV2Fixture)).toBe('HTML, ZUGFERD_XML');
+    });
+
+    it('should use the V2 create endpoint when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currentDocumentType: {
+                technicalName: 'invoice',
+            },
+        });
+
+        await wrapper.vm.onCreateDocument(
+            {
+                documentComment: '',
+                documentDate: '2026-07-06T00:00:00.000Z',
+                documentNumber: '1000',
+                requestedFormats: ['html'],
+            },
+            'download',
+        );
+
+        expect(createDocumentMock).not.toHaveBeenCalled();
+        expect(createDocumentV2Mock).toHaveBeenCalledWith(
+            '1234',
+            'order-version-id',
+            'invoice',
+            ['html'],
+            '1000',
+            '2026-07-06T00:00:00.000Z',
+            '',
+        );
+        expect(getDocumentV2Mock).toHaveBeenCalledWith('1234', '12341234', 'html');
+        dispatchEventSpy.mockRestore();
+    });
+
+    it('should open the send modal after creating a V2 document', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currentDocumentType: {
+                technicalName: 'invoice',
+            },
+        });
+
+        await wrapper.vm.onCreateDocument(
+            {
+                documentComment: '',
+                documentDate: '2026-07-06T00:00:00.000Z',
+                documentNumber: '1000',
+                requestedFormats: ['html'],
+            },
+            'send',
+        );
+        await flushPromises();
+
+        expect(createDocumentMock).not.toHaveBeenCalled();
+        expect(createDocumentV2Mock).toHaveBeenCalledWith(
+            '1234',
+            'order-version-id',
+            'invoice',
+            ['html'],
+            '1000',
+            '2026-07-06T00:00:00.000Z',
+            '',
+        );
+        expect(wrapper.vm.showSendDocumentModal).toBe(true);
+    });
+
+    it('should use the V2 upload endpoint for uploaded custom documents', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currentDocumentType: {
+                technicalName: 'invoice',
+            },
+        });
+
+        const file = new File(['pdf'], 'document.pdf', { type: 'application/pdf' });
+
+        await wrapper.vm.onCreateDocument(
+            {
+                documentComment: '',
+                documentDate: '2026-07-06T00:00:00.000Z',
+                documentMediaFileId: null,
+                documentNumber: '1000',
+                requestedFormats: ['pdf'],
+            },
+            false,
+            'referenced-document-id',
+            file,
+        );
+
+        expect(createDocumentV2Mock).not.toHaveBeenCalled();
+        expect(createDocumentMock).not.toHaveBeenCalled();
+        expect(uploadDocumentV2Mock).toHaveBeenCalledWith(
+            '1234',
+            'order-version-id',
+            'invoice',
+            'pdf',
+            '1000',
+            '2026-07-06T00:00:00.000Z',
+            '',
+            null,
+            file,
+            'referenced-document-id',
+        );
+    });
+
+    it('should use the V2 preview endpoint when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:preview');
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currentDocumentType: {
+                technicalName: 'invoice',
+            },
+        });
+
+        await wrapper.vm.onPreview(
+            {
+                documentComment: '',
+                documentDate: '2026-07-06T00:00:00.000Z',
+                documentNumber: '1000',
+            },
+            'html',
+        );
+
+        expect(getDocumentPreviewV2Mock).toHaveBeenCalledWith(
+            '1234',
+            'order-version-id',
+            'invoice',
+            'html',
+            '1000',
+            '2026-07-06T00:00:00.000Z',
+            '',
+        );
     });
 
     it('should show attach column when attachView is true', async () => {

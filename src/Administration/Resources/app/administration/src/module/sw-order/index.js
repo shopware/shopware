@@ -112,6 +112,8 @@ Shopware.Component.register('sw-order-send-document-modal', () => import('./comp
 Shopware.Component.register('sw-order-create-initial-modal', () => import('./component/sw-order-create-initial-modal'));
 Shopware.Component.register('sw-order-customer-grid', () => import('./component/sw-order-customer-grid'));
 Shopware.Component.register('sw-order-create-options', () => import('./component/sw-order-create-options'));
+Shopware.Component.register('sw-order-create-document-modal', () => import('./component/sw-order-create-document-modal'));
+Shopware.Component.register('sw-order-upload-document-modal', () => import('./component/sw-order-upload-document-modal'));
 Shopware.Component.register(
     'sw-order-customer-address-select',
     () => import('./component/sw-order-customer-address-select'),

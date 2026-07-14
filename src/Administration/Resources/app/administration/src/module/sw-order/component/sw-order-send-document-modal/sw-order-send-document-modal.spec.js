@@ -529,6 +529,31 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         });
     });
 
+    it('should fall back to the V2 html document file for a11y links', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            document: {
+                ...mockDocuments[0],
+                documentA11yMediaFile: null,
+                documentFiles: [
+                    {
+                        documentFormat: 'html',
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.a11yDocuments).toEqual([
+            {
+                documentId: mockDocuments[0].id,
+                deepLinkCode: '12345',
+                fileExtension: 'html',
+            },
+        ]);
+    });
+
     describe('auto select mail template by document type', () => {
         it('should have a mapping entry for every DOCUMENT_TYPES value', () => {
             Object.values(DOCUMENT_TYPES).forEach((docType) => {

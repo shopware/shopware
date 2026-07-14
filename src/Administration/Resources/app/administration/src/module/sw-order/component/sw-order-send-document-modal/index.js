@@ -265,14 +265,18 @@ export default {
         },
 
         loadTheLinksForA11y() {
-            if (!this.document?.documentA11yMediaFile) {
+            const a11yFileType =
+                this.document?.documentA11yMediaFile?.fileExtension ??
+                this.document?.documentFiles?.find((documentFile) => documentFile.documentFormat === 'html')?.documentFormat;
+
+            if (!a11yFileType) {
                 return;
             }
 
             this.a11yDocuments.push({
                 documentId: this.document.id,
                 deepLinkCode: this.document.deepLinkCode,
-                fileExtension: this.document.documentA11yMediaFile.fileExtension,
+                fileExtension: a11yFileType,
             });
         },
     },

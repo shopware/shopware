@@ -12,6 +12,19 @@ import { DOCUMENT_TYPES } from '../../order.types';
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const FILE_TYPE_PRIORITY = [
+    'pdf',
+    'html',
+    'zugferd_xml',
+    'zugferd_embedded_pdf',
+];
+
+function getFileTypePriority(fileType) {
+    const priority = FILE_TYPE_PRIORITY.indexOf(fileType);
+
+    return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
+}
+
 /**
  * @private
  */
@@ -30,6 +43,7 @@ export default {
 
     inject: [
         'documentService',
+        'documentV2Service',
         'numberRangeService',
         'repositoryFactory',
         'acl',
@@ -78,6 +92,7 @@ export default {
             isLoadingDocument: false,
             isLoadingPreview: false,
             showSelectDocumentTypeModal: false,
+            showUploadDocumentModal: false,
             showSendDocumentModal: false,
             sendDocument: null,
         };
@@ -146,7 +161,8 @@ export default {
             criteria
                 .addAssociation('documentType')
                 .addAssociation('documentMediaFile')
-                .addAssociation('documentA11yMediaFile');
+                .addAssociation('documentA11yMediaFile')
+                .addAssociation('documentFiles.media');
 
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
 
@@ -282,6 +298,7 @@ export default {
             });
 
             this.documentService.setListener(this.convertStoreEventToVueEvent);
+            this.documentV2Service.setListener(this.convertStoreEventToVueEvent);
         },
 
         convertStoreEventToVueEvent({ action, payload }) {
@@ -297,6 +314,9 @@ export default {
                 });
             } else if (action === DocumentEvents.DOCUMENT_FINISHED) {
                 this.showModal = false;
+                this.showSelectDocumentTypeModal = false;
+                this.showUploadDocumentModal = false;
+                this.currentDocumentType = null;
                 this.$nextTick().then(() => {
                     this.getList().then(() => {
                         this.$emit('document-save');
@@ -348,6 +368,33 @@ export default {
         },
 
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                if (file || params.documentMediaFileId) {
+                    return this.documentV2Service.uploadDocument(
+                        orderId,
+                        this.order.versionId,
+                        documentTypeName,
+                        params.requestedFormats?.[0] ?? 'pdf',
+                        params.documentNumber,
+                        params.documentDate,
+                        params.documentComment,
+                        params.documentMediaFileId,
+                        file,
+                        referencedDocumentId,
+                    );
+                }
+
+                return this.documentV2Service.createDocument(
+                    orderId,
+                    this.order.versionId,
+                    documentTypeName,
+                    params.requestedFormats ?? [],
+                    params.documentNumber,
+                    params.documentDate,
+                    params.documentComment,
+                );
+            }
+
             return this.documentService.createDocument(
                 orderId,
                 documentTypeName,
@@ -359,6 +406,37 @@ export default {
             );
         },
 
+        getDocumentFileTypes(document) {
+            const v2Formats = (document.documentFiles ?? []).map((documentFile) => documentFile.documentFormat);
+            const legacyFormats = [
+                document.documentMediaFile?.fileExtension,
+                document.documentA11yMediaFile?.fileExtension,
+            ].filter((fileType) => fileType);
+
+            return [
+                ...new Set([
+                    ...v2Formats,
+                    ...legacyFormats,
+                ]),
+            ];
+        },
+
+        getPreferredFileType(fileTypes = []) {
+            return (
+                [...fileTypes].sort((left, right) => {
+                    return getFileTypePriority(left) - getFileTypePriority(right);
+                })[0] ?? 'pdf'
+            );
+        },
+
+        resolveOpenFileType(document) {
+            return this.getPreferredFileType(this.getDocumentFileTypes(document));
+        },
+
+        resolveDownloadFileType(document) {
+            return this.getPreferredFileType(this.getDocumentFileTypes(document));
+        },
+
         onCancelCreation() {
             this.showModal = false;
             this.currentDocumentType = null;
@@ -368,9 +446,9 @@ export default {
             this.showModal = true;
         },
 
-        openDocument(documentId, documentDeepLink, fileType) {
+        openDocument(documentId, deepLinkCode, fileType) {
             this.documentService
-                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType)
                 .then((response) => {
                     if (response.data) {
                         const link = document.createElement('a');
@@ -382,9 +460,12 @@ export default {
                 });
         },
 
-        downloadDocument(documentId, documentDeepLink, fileType) {
-            this.documentService
-                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+        downloadDocument(documentId, deepLinkCode, fileType) {
+            const downloadRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2Service.getDocument(documentId, deepLinkCode, fileType)
+                : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
+
+            downloadRequest
                 .then((response) => {
                     if (response.data) {
                         const filename = fileReaderUtils.getFilenameFromResponse(response);
@@ -435,9 +516,9 @@ export default {
 
                 const documentId = Array.isArray(response) ? response[0].documentId : response?.data?.documentId;
 
-                const documentDeepLink = Array.isArray(response)
-                    ? response[0].documentDeepLink
-                    : response?.data?.documentDeepLink;
+                const deepLinkCode = Array.isArray(response)
+                    ? (response[0].deepLinkCode ?? response[0].documentDeepLink)
+                    : (response?.data?.deepLinkCode ?? response?.data?.documentDeepLink);
 
                 if (params.documentMediaFileId) {
                     const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
@@ -446,11 +527,19 @@ export default {
                 }
 
                 if (additionalAction === 'download') {
-                    const fileType = this.isXmlDocument ? 'xml' : 'pdf';
-                    this.downloadDocument(documentId, documentDeepLink, fileType);
+                    const format = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                        ? this.getPreferredFileType(response?.data?.formats ?? params.requestedFormats ?? [])
+                        : this.isXmlDocument
+                          ? 'xml'
+                          : 'pdf';
+
+                    this.downloadDocument(documentId, deepLinkCode, format);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
-                    criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');
+                    criteria
+                        .addAssociation('documentType')
+                        .addAssociation('documentA11yMediaFile')
+                        .addAssociation('documentFiles.media');
 
                     this.documentRepository.get(documentId, Shopware.Context.api, criteria).then((documentData) => {
                         if (!documentData) {
@@ -466,13 +555,28 @@ export default {
             }
         },
 
-        onPreview(params, fileType) {
+        onPreview(params, format) {
             this.isLoadingPreview = true;
 
-            return this.documentService
-                .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params, {
-                    fileType,
-                })
+            const previewRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2Service.previewDocument(
+                      this.order.id,
+                      this.order.versionId,
+                      this.currentDocumentType.technicalName,
+                      format,
+                      params.documentNumber,
+                      params.documentDate,
+                      params.documentComment,
+                  )
+                : this.documentService.getDocumentPreview(
+                      this.order.id,
+                      this.order.deepLinkCode,
+                      this.currentDocumentType.technicalName,
+                      params,
+                      { fileType: format },
+                  );
+
+            return previewRequest
                 .then((response) => {
                     if (response.data) {
                         const link = document.createElement('a');
@@ -515,6 +619,21 @@ export default {
             this.showSendDocumentModal = false;
         },
 
+        onCloseCreateDocumentModal() {
+            this.showSelectDocumentTypeModal = false;
+            this.currentDocumentType = null;
+        },
+
+        onShowUploadDocumentModal() {
+            this.showSelectDocumentTypeModal = false;
+            this.showUploadDocumentModal = true;
+        },
+
+        onCloseUploadDocumentModal() {
+            this.showUploadDocumentModal = false;
+            this.currentDocumentType = null;
+        },
+
         onDocumentSent() {
             this.markDocumentAsSent(this.sendDocument.id);
             this.onCloseSendDocumentModal();
@@ -529,6 +648,7 @@ export default {
         },
 
         onShowSelectDocumentTypeModal() {
+            this.showUploadDocumentModal = false;
             this.showSelectDocumentTypeModal = true;
         },
 
@@ -541,12 +661,7 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            const fileTypesArray = [
-                item.documentMediaFile?.fileExtension,
-                item.documentA11yMediaFile?.fileExtension,
-            ].filter((fileType) => fileType);
-
-            return fileTypesArray.join(', ').toUpperCase();
+            return this.getDocumentFileTypes(item).join(', ').toUpperCase();
         },
     },
 };

@@ -23,7 +23,7 @@ class DocumentV2ApiService extends ApiService {
         orderId,
         orderVersionId,
         documentTypeName,
-        fileTypes,
+        formats,
         documentNumber,
         documentDate,
         documentComment = '',
@@ -38,7 +38,7 @@ class DocumentV2ApiService extends ApiService {
                     orderId,
                     orderVersionId,
                     documentType: documentTypeName,
-                    fileTypes,
+                    formats,
                     documentNumber,
                     documentDate,
                     documentComment,
@@ -65,7 +65,7 @@ class DocumentV2ApiService extends ApiService {
         orderId,
         orderVersionId,
         documentTypeName,
-        fileType,
+        format,
         documentNumber,
         documentDate,
         documentComment = '',
@@ -79,7 +79,7 @@ class DocumentV2ApiService extends ApiService {
             orderId,
             orderVersionId,
             documentType: documentTypeName,
-            fileType,
+            format,
             documentNumber,
             documentDate,
             documentComment,
@@ -125,7 +125,7 @@ class DocumentV2ApiService extends ApiService {
         orderId,
         orderVersionId,
         documentTypeName,
-        fileType,
+        format,
         documentNumber,
         documentDate,
         documentComment = '',
@@ -140,7 +140,7 @@ class DocumentV2ApiService extends ApiService {
                     orderId,
                     orderVersionId,
                     documentType: documentTypeName,
-                    fileType,
+                    format,
                     documentNumber,
                     documentDate,
                     documentComment,
@@ -159,8 +159,8 @@ class DocumentV2ApiService extends ApiService {
             });
     }
 
-    getDocument(documentId, deepLinkCode, fileType = 'pdf') {
-        return this.httpClient.get(`/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${fileType}`, {
+    getDocument(documentId, deepLinkCode, format = 'pdf') {
+        return this.httpClient.get(`/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${format}`, {
             responseType: 'blob',
             headers: this.getBasicHeaders(),
         });

@@ -22,6 +22,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 {
     public function __construct(
         private DataValidator $dataValidator,
+        private DocumentFormatValidator $documentFormatValidator,
     ) {
     }
 
@@ -34,17 +35,28 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             return;
         }
 
-        /** @var array{orderId: string, orderVersionId: string, documentType: string, documentComment?: mixed, documentDate?: mixed, documentNumber?: mixed} $payload */
+        /** @var array{
+         *     orderId: string,
+         *     orderVersionId: string,
+         *     documentType: string,
+         *     format?: mixed,
+         *     formats?: mixed,
+         *     documentComment?: mixed,
+         *     documentDate?: mixed,
+         *     documentNumber?: mixed
+         * } $payload
+         */
         $payload = $request->toArray();
         $this->validate($payload);
 
-        $fileTypes = $this->extractFileTypes($payload);
+        $formats = $this->extractFormats($payload);
+        $this->documentFormatValidator->validate($payload['documentType'], $formats);
 
         yield new DocumentGenerationRequest(
             orderId: $payload['orderId'],
             orderVersionId: $payload['orderVersionId'],
             documentType: $payload['documentType'],
-            requestedFormats: $fileTypes,
+            requestedFormats: $formats,
             documentNumber: $this->extractOptionalString($payload, 'documentNumber'),
             documentComment: $this->extractOptionalString($payload, 'documentComment'),
             documentDate: $this->extractOptionalString($payload, 'documentDate'),
@@ -66,10 +78,10 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             ->add('documentComment', new Type('string'))
             ->add('documentDate', new Type('string'));
 
-        if (\array_key_exists('fileTypes', $payload)) {
-            $definition->add('fileTypes', new NotBlank(), new Type('array'), new Count(min: 1), new All(new Type('string')));
+        if (\array_key_exists('formats', $payload)) {
+            $definition->add('formats', new NotBlank(), new Type('array'), new Count(min: 1), new All(new Type('string')));
         } else {
-            $definition->add('fileType', new NotBlank(), new Type('string'));
+            $definition->add('format', new NotBlank(), new Type('string'));
         }
 
         $this->dataValidator->validate($payload, $definition);
@@ -80,19 +92,19 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
      *
      * @return list<string>
      */
-    private function extractFileTypes(array $payload): array
+    private function extractFormats(array $payload): array
     {
-        if (\array_key_exists('fileTypes', $payload) && \is_array($payload['fileTypes'])) {
-            /** @var list<string> $fileTypes */
-            $fileTypes = array_values($payload['fileTypes']);
+        if (\array_key_exists('formats', $payload) && \is_array($payload['formats'])) {
+            /** @var list<string> $formats */
+            $formats = array_values($payload['formats']);
 
-            return $fileTypes;
+            return $formats;
         }
 
-        /** @var string $fileType */
-        $fileType = $payload['fileType'];
+        /** @var string $format */
+        $format = $payload['format'];
 
-        return [$fileType];
+        return [$format];
     }
 
     /**

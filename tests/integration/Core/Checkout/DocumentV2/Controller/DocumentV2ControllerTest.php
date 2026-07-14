@@ -97,7 +97,7 @@ class DocumentV2ControllerTest extends TestCase
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
                 'documentType' => DocumentType::INVOICE->value,
-                'fileType' => DocumentFormat::HTML->value,
+                'format' => DocumentFormat::HTML->value,
                 'documentNumber' => self::DOCUMENT_NUMBER,
                 'documentDate' => self::DOCUMENT_DATE,
                 'documentComment' => 'comment.',
@@ -129,7 +129,7 @@ class DocumentV2ControllerTest extends TestCase
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
                 'documentType' => DocumentType::INVOICE->value,
-                'fileTypes' => [
+                'formats' => [
                     DocumentFormat::HTML->value,
                 ],
                 'documentNumber' => '1001-' . Uuid::randomHex(),
@@ -145,7 +145,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertTrue(Uuid::isValid($payload['documentId']));
         static::assertIsString($payload['deepLinkCode'] ?? null);
         static::assertNotSame('', $payload['deepLinkCode']);
-        static::assertSame([DocumentFormat::HTML->value], $payload['fileTypes'] ?? null);
+        static::assertSame([DocumentFormat::HTML->value], $payload['formats'] ?? null);
 
         $files = $this->loadDocumentFiles($payload['documentId']);
         static::assertCount(1, $files);
@@ -168,7 +168,7 @@ class DocumentV2ControllerTest extends TestCase
                 'documentType' => DocumentType::INVOICE->value,
                 'extension' => DocumentFormat::PDF->value,
                 'fileName' => 'uploaded-invoice',
-                'fileType' => DocumentFormat::PDF->value,
+                'format' => DocumentFormat::PDF->value,
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
             ], '', '&', \PHP_QUERY_RFC3986),
@@ -189,7 +189,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertTrue(Uuid::isValid($payload['documentId']));
         static::assertIsString($payload['deepLinkCode'] ?? null);
         static::assertNotSame('', $payload['deepLinkCode']);
-        static::assertSame([DocumentFormat::PDF->value], $payload['fileTypes'] ?? null);
+        static::assertSame([DocumentFormat::PDF->value], $payload['formats'] ?? null);
 
         $files = $this->loadDocumentFiles($payload['documentId']);
         static::assertCount(1, $files);

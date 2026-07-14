@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
@@ -52,6 +53,7 @@ final class DocumentV2Controller extends AbstractController
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
         private readonly DocumentRendererRegistry $documentRendererRegistry,
+        private readonly DocumentFormatValidator $documentFormatValidator,
         private readonly EntityRepository $documentRepository,
         private readonly EntityRepository $documentFileRepository,
         private readonly EntityRepository $documentTypeRepository,
@@ -89,8 +91,6 @@ final class DocumentV2Controller extends AbstractController
         DocumentGenerationRequest $generationRequest,
         Context $context,
     ): JsonResponse {
-        $this->assertSupported($generationRequest->documentType, $generationRequest->requestedFormats);
-
         $document = $this->documentGenerator->generate(
             $generationRequest,
             $context,
@@ -99,7 +99,7 @@ final class DocumentV2Controller extends AbstractController
         return new JsonResponse([
             'deepLinkCode' => $document->getDeepLinkCode(),
             'documentId' => $document->getId(),
-            'fileTypes' => $generationRequest->requestedFormats,
+            'formats' => $generationRequest->requestedFormats,
         ]);
     }
 
@@ -114,8 +114,6 @@ final class DocumentV2Controller extends AbstractController
         DocumentGenerationRequest $generationRequest,
         Context $context,
     ): Response {
-        $this->assertSupported($generationRequest->documentType, $generationRequest->requestedFormats);
-
         $preview = $this->documentGenerator->preview(
             $generationRequest,
             $context,
@@ -139,9 +137,9 @@ final class DocumentV2Controller extends AbstractController
         $payload = $request->getContentTypeFormat() === 'json' ? $request->getPayload() : $request->query;
 
         $documentType = $this->requirePayloadString($payload, 'documentType');
-        $fileType = $this->requirePayloadString($payload, 'fileType');
+        $format = $this->requirePayloadString($payload, 'format');
 
-        $this->assertSupported($documentType, [$fileType]);
+        $this->documentFormatValidator->validate($documentType, [$format]);
 
         $documentId = Uuid::randomHex();
         $deepLinkCode = Random::getAlphanumericString(32);
@@ -183,7 +181,7 @@ final class DocumentV2Controller extends AbstractController
             [
                 'id' => Uuid::randomHex(),
                 'documentId' => $documentId,
-                'documentFormat' => $fileType,
+                'documentFormat' => $format,
                 'mediaId' => $mediaId,
             ],
         ], $context);
@@ -191,12 +189,12 @@ final class DocumentV2Controller extends AbstractController
         return new JsonResponse([
             'documentId' => $documentId,
             'deepLinkCode' => $deepLinkCode,
-            'fileTypes' => [$fileType],
+            'formats' => [$format],
         ]);
     }
 
     #[Route(
-        path: '/api/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{fileType}',
+        path: '/api/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{format}',
         name: 'api.action.order.document-v2.download',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']],
         methods: [Request::METHOD_GET],
@@ -204,7 +202,7 @@ final class DocumentV2Controller extends AbstractController
     public function download(
         string $documentId,
         string $deepLinkCode,
-        string $fileType,
+        string $format,
         Context $context,
     ): Response {
         $document = $this->loadDocument($documentId, $deepLinkCode, $context);
@@ -213,10 +211,10 @@ final class DocumentV2Controller extends AbstractController
             throw DocumentV2Exception::documentNotFound($documentId);
         }
 
-        $media = $this->findMediaByFileType($document, $fileType);
+        $media = $this->findMediaByFormat($document, $format);
 
         if (!$media instanceof MediaEntity) {
-            throw DocumentV2Exception::documentFileTypeUnavailable($documentId, $fileType);
+            throw DocumentV2Exception::documentFormatUnavailable($documentId, $format);
         }
 
         $content = $context->scope(
@@ -224,7 +222,7 @@ final class DocumentV2Controller extends AbstractController
             fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),
         );
 
-        $fileExtension = $media->getFileExtension() ?? $fileType;
+        $fileExtension = $media->getFileExtension() ?? $format;
         $fileName = ($media->getFileName() ?? $documentId) . '.' . $fileExtension;
 
         return $this->createResponse(
@@ -233,20 +231,6 @@ final class DocumentV2Controller extends AbstractController
             $media->getMimeType() ?? 'application/octet-stream',
             HeaderUtils::DISPOSITION_ATTACHMENT,
         );
-    }
-
-    /**
-     * @param list<string> $fileTypes
-     */
-    private function assertSupported(string $documentType, array $fileTypes): void
-    {
-        $supportedFormats = array_keys($this->documentRendererRegistry->mapRenderersByFormat($documentType));
-
-        foreach ($fileTypes as $fileType) {
-            if (!\in_array($fileType, $supportedFormats, true)) {
-                throw DocumentV2Exception::unsupportedRequestedDocumentFormat($fileType, $documentType);
-            }
-        }
     }
 
     private function loadDocument(string $documentId, string $deepLinkCode, Context $context): ?DocumentEntity
@@ -260,14 +244,14 @@ final class DocumentV2Controller extends AbstractController
         return $document instanceof DocumentEntity ? $document : null;
     }
 
-    private function findMediaByFileType(DocumentEntity $document, string $fileType): ?MediaEntity
+    private function findMediaByFormat(DocumentEntity $document, string $format): ?MediaEntity
     {
         foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
             if (!$documentFile instanceof DocumentFileEntity) {
                 continue;
             }
 
-            if ($documentFile->getDocumentFormat() !== $fileType) {
+            if ($documentFile->getDocumentFormat() !== $format) {
                 continue;
             }
 

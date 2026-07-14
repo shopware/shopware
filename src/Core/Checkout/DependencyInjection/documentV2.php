@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
@@ -120,6 +121,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentRendererRegistry::class),
         ]);
 
+    $services->set(DocumentFormatValidator::class)
+        ->args([
+            service(DocumentRendererRegistry::class),
+        ]);
+
     $services->set(DocumentPersister::class)
         ->args([
             service('document.repository'),
@@ -142,6 +148,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DocumentGenerationRequestResolver::class)
         ->args([
             service(DataValidator::class),
+            service(DocumentFormatValidator::class),
         ])
         ->tag('controller.argument_value_resolver');
 
@@ -150,6 +157,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentGenerator::class),
             service(DocumentRendererRegistry::class),
+            service(DocumentFormatValidator::class),
             service('document.repository'),
             service('document_file.repository'),
             service('document_type.repository'),

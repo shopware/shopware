@@ -66,7 +66,7 @@ describe('documentV2Service', () => {
         clientMock.onPost('/_action/order/document-v2/create').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-            fileTypes: [
+            formats: [
                 'html',
                 'zugferd_xml',
             ],
@@ -90,7 +90,7 @@ describe('documentV2Service', () => {
             orderId,
             orderVersionId,
             documentType: 'invoice',
-            fileTypes: [
+            formats: [
                 'html',
                 'zugferd_xml',
             ],
@@ -110,7 +110,7 @@ describe('documentV2Service', () => {
         clientMock.onPost('/_action/order/document-v2/upload').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-            fileTypes: ['pdf'],
+            formats: ['pdf'],
         });
 
         await documentV2ApiService.uploadDocument(
@@ -131,7 +131,7 @@ describe('documentV2Service', () => {
             orderId: '4a4a687257644d52bf481b4c20e59213',
             orderVersionId: '4d03324edcd0490b9180df8161c9167f',
             documentType: 'invoice',
-            fileType: 'pdf',
+            format: 'pdf',
             documentNumber: '1000',
             documentDate: '2021-02-22T04:34:56.441Z',
             documentComment: '',
@@ -149,7 +149,7 @@ describe('documentV2Service', () => {
         clientMock.onPost('/_action/order/document-v2/upload').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-            fileTypes: ['pdf'],
+            formats: ['pdf'],
         });
 
         await documentV2ApiService.uploadDocument(
@@ -172,7 +172,7 @@ describe('documentV2Service', () => {
             orderId: '4a4a687257644d52bf481b4c20e59213',
             orderVersionId: '4d03324edcd0490b9180df8161c9167f',
             documentType: 'invoice',
-            fileType: 'pdf',
+            format: 'pdf',
             documentNumber: '1000',
             documentDate: '2021-02-22T04:34:56.441Z',
             documentComment: '',
@@ -209,7 +209,7 @@ describe('documentV2Service', () => {
             orderId: '4a4a687257644d52bf481b4c20e59213',
             orderVersionId: '4d03324edcd0490b9180df8161c9167f',
             documentType: 'invoice',
-            fileType: 'html',
+            format: 'html',
             documentNumber: '1000',
             documentDate: '2021-02-22T04:34:56.441Z',
             documentComment: '',
@@ -220,14 +220,14 @@ describe('documentV2Service', () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
         const documentId = '4a4a687257644d52bf481b4c20e59213';
         const deepLinkCode = 'DEEP_LINK';
-        const fileType = 'pdf';
+        const format = 'pdf';
 
-        clientMock.onGet(`/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${fileType}`).reply(200, '');
+        clientMock.onGet(`/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${format}`).reply(200, '');
 
-        await documentV2ApiService.getDocument(documentId, deepLinkCode, fileType);
+        await documentV2ApiService.getDocument(documentId, deepLinkCode, format);
 
         expect(clientMock.history.get[0].url).toBe(
-            `/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${fileType}`,
+            `/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${format}`,
         );
     });
 });

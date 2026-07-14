@@ -30,7 +30,7 @@ class DocumentV2Exception extends HttpException
 
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
-    public const UNSUPPORTED_REQUESTED_DOCUMENT_FORMAT = 'DOCUMENT_V2__UNSUPPORTED_REQUESTED_DOCUMENT_FORMAT';
+    public const UNSUPPORTED_DOCUMENT_FORMAT = 'DOCUMENT_V2__UNSUPPORTED_DOCUMENT_FORMAT';
 
     public const CIRCULAR_DEPENDENCY_CYCLE = 'DOCUMENT_V2__CIRCULAR_DEPENDENCY_CYCLE';
 
@@ -66,7 +66,7 @@ class DocumentV2Exception extends HttpException
 
     public const INVALID_REQUEST_PARAMETER = 'DOCUMENT_V2__INVALID_REQUEST_PARAMETER';
 
-    public const DOCUMENT_FILE_TYPE_UNAVAILABLE = 'DOCUMENT_V2__FILE_TYPE_UNAVAILABLE';
+    public const DOCUMENT_FORMAT_UNAVAILABLE = 'DOCUMENT_V2__FORMAT_UNAVAILABLE';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -146,12 +146,12 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function unsupportedRequestedDocumentFormat(string $format, string $documentType): self
+    public static function unsupportedDocumentFormat(string $format, string $documentType): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::UNSUPPORTED_REQUESTED_DOCUMENT_FORMAT,
-            'Unsupported requested document format "{{ format }}" for document type "{{ documentType }}".',
+            self::UNSUPPORTED_DOCUMENT_FORMAT,
+            'Unsupported document format "{{ format }}" for document type "{{ documentType }}".',
             ['format' => $format, 'documentType' => $documentType],
         );
     }
@@ -176,13 +176,13 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentFileTypeUnavailable(string $documentId, string $fileType): self
+    public static function documentFormatUnavailable(string $documentId, string $format): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
-            self::DOCUMENT_FILE_TYPE_UNAVAILABLE,
-            'Document with id "{{ documentId }}" has no generated document with file type "{{ fileType }}".',
-            ['documentId' => $documentId, 'fileType' => $fileType],
+            self::DOCUMENT_FORMAT_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no generated document with format "{{ format }}".',
+            ['documentId' => $documentId, 'format' => $format],
         );
     }
 

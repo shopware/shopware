@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
@@ -55,6 +56,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             new StaticEntityRepository([], new DocumentDefinition()),
             new StaticEntityRepository([], new DocumentFileDefinition()),
             new StaticEntityRepository([], new DocumentTypeDefinition()),
@@ -84,34 +86,6 @@ class DocumentV2ControllerTest extends TestCase
         );
     }
 
-    public function testCreateRejectsUnsupportedFormat(): void
-    {
-        $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-        ]);
-
-        static::expectExceptionObject(
-            DocumentV2Exception::unsupportedRequestedDocumentFormat(
-                DocumentFormat::PDF->value,
-                DocumentType::INVOICE->value,
-            )
-        );
-
-        $controller = new DocumentV2Controller(
-            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
-            new StaticEntityRepository([], new DocumentDefinition()),
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
-            static::createStub(MediaService::class),
-        );
-
-        $controller->create(
-            new DocumentGenerationRequest('order-id', 'order-version-id', DocumentType::INVOICE, [DocumentFormat::PDF]),
-            Context::createDefaultContext(),
-        );
-    }
-
     public function testCreateReturnsGeneratedDocumentResponse(): void
     {
         $orderId = Uuid::randomHex();
@@ -125,6 +99,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId, $document),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             new StaticEntityRepository([], new DocumentDefinition()),
             new StaticEntityRepository([], new DocumentFileDefinition()),
             new StaticEntityRepository([], new DocumentTypeDefinition()),
@@ -147,39 +122,11 @@ class DocumentV2ControllerTest extends TestCase
             [
                 'deepLinkCode' => $document->getDeepLinkCode(),
                 'documentId' => $document->getId(),
-                'fileTypes' => [
+                'formats' => [
                     DocumentFormat::HTML->value,
                 ],
             ],
             json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR),
-        );
-    }
-
-    public function testPreviewRejectsUnsupportedFormat(): void
-    {
-        $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-        ]);
-
-        static::expectExceptionObject(
-            DocumentV2Exception::unsupportedRequestedDocumentFormat(
-                DocumentFormat::PDF->value,
-                DocumentType::INVOICE->value,
-            )
-        );
-
-        $controller = new DocumentV2Controller(
-            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
-            new StaticEntityRepository([], new DocumentDefinition()),
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
-            static::createStub(MediaService::class),
-        );
-
-        $controller->preview(
-            new DocumentGenerationRequest('order-id', 'order-version-id', DocumentType::INVOICE, [DocumentFormat::PDF]),
-            Context::createDefaultContext(),
         );
     }
 
@@ -194,6 +141,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             new StaticEntityRepository([], new DocumentDefinition()),
             new StaticEntityRepository([], new DocumentFileDefinition()),
             new StaticEntityRepository([], new DocumentTypeDefinition()),
@@ -241,6 +189,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             $documentRepository,
             $documentFileRepository,
             $documentTypeRepository,
@@ -257,7 +206,7 @@ class DocumentV2ControllerTest extends TestCase
                     'documentDate' => '2026-07-13T00:00:00.000Z',
                     'documentNumber' => '1000',
                     'documentType' => DocumentType::INVOICE->value,
-                    'fileType' => DocumentFormat::PDF->value,
+                    'format' => DocumentFormat::PDF->value,
                     'mediaId' => $mediaId,
                     'orderId' => $orderId,
                     'orderVersionId' => $orderVersionId,
@@ -271,7 +220,7 @@ class DocumentV2ControllerTest extends TestCase
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsString($payload['documentId'] ?? null);
         static::assertIsString($payload['deepLinkCode'] ?? null);
-        static::assertSame([DocumentFormat::PDF->value], $payload['fileTypes'] ?? null);
+        static::assertSame([DocumentFormat::PDF->value], $payload['formats'] ?? null);
 
         static::assertSame([
             [
@@ -293,6 +242,49 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame($payload['documentId'], $documentFileRepository->creates[0][0]['documentId']);
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
+    }
+
+    public function testUploadRejectsUnsupportedFormat(): void
+    {
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
+            new StaticEntityRepository([], new DocumentDefinition()),
+            new StaticEntityRepository([], new DocumentFileDefinition()),
+            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            static::createStub(MediaService::class),
+        );
+
+        static::expectExceptionObject(
+            DocumentV2Exception::unsupportedDocumentFormat(
+                DocumentFormat::PDF->value,
+                DocumentType::INVOICE->value,
+            )
+        );
+
+        $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode([
+                    'documentType' => DocumentType::INVOICE->value,
+                    'format' => DocumentFormat::PDF->value,
+                    'mediaId' => Uuid::randomHex(),
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
     }
 
     public function testUploadStoresBinaryRequestWithQueryPayload(): void
@@ -336,6 +328,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             $documentRepository,
             $documentFileRepository,
             $documentTypeRepository,
@@ -351,7 +344,7 @@ class DocumentV2ControllerTest extends TestCase
                     'documentType' => DocumentType::INVOICE->value,
                     'extension' => DocumentFormat::PDF->value,
                     'fileName' => 'invoice',
-                    'fileType' => DocumentFormat::PDF->value,
+                    'format' => DocumentFormat::PDF->value,
                     'orderId' => $orderId,
                     'orderVersionId' => $orderVersionId,
                 ], '', '&', \PHP_QUERY_RFC3986),
@@ -368,7 +361,7 @@ class DocumentV2ControllerTest extends TestCase
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame([DocumentFormat::PDF->value], $payload['fileTypes'] ?? null);
+        static::assertSame([DocumentFormat::PDF->value], $payload['formats'] ?? null);
         static::assertSame($mediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
         static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
     }
@@ -415,6 +408,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             $documentRepository,
             new StaticEntityRepository([], new DocumentFileDefinition()),
             new StaticEntityRepository([], new DocumentTypeDefinition()),
@@ -434,7 +428,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertStringContainsString('invoice.pdf', (string) $response->headers->get('content-disposition'));
     }
 
-    public function testDownloadThrowsWhenRequestedFileTypeIsUnavailable(): void
+    public function testDownloadThrowsWhenRequestedFormatIsUnavailable(): void
     {
         $documentId = Uuid::randomHex();
         $deepLinkCode = Uuid::randomHex();
@@ -456,6 +450,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             $documentRepository,
             new StaticEntityRepository([], new DocumentFileDefinition()),
             new StaticEntityRepository([], new DocumentTypeDefinition()),
@@ -463,7 +458,7 @@ class DocumentV2ControllerTest extends TestCase
         );
 
         static::expectExceptionObject(
-            DocumentV2Exception::documentFileTypeUnavailable($documentId, DocumentFormat::PDF->value)
+            DocumentV2Exception::documentFormatUnavailable($documentId, DocumentFormat::PDF->value)
         );
 
         $controller->download(
@@ -490,6 +485,7 @@ class DocumentV2ControllerTest extends TestCase
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
             $documentRepository,
             new StaticEntityRepository([], new DocumentFileDefinition()),
             new StaticEntityRepository([], new DocumentTypeDefinition()),

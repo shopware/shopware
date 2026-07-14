@@ -74,28 +74,29 @@ class Framework extends Bundle
         $container->setParameter('locale', 'en-GB');
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
         $loader->load('acl.xml');
         $loader->load('cache.xml');
         $loader->load('api.xml');
-        $loader->load('app.xml');
-        $loader->load('custom-field.xml');
+        $phpLoader->load('app.php');
+        $phpLoader->load('custom-field.php');
         $loader->load('data-abstraction-layer.xml');
         $loader->load('demodata.xml');
         $loader->load('event.xml');
         $loader->load('hydrator.xml');
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
-        $loader->load('plugin.xml');
+        $phpLoader->load('plugin.php');
         $loader->load('rule.xml');
         $loader->load('scheduled-task.xml');
         $loader->load('store.xml');
-        $loader->load('script.xml');
+        $phpLoader->load('script.php');
         $loader->load('language.xml');
         $loader->load('update.xml');
         $loader->load('validation.xml');
         $loader->load('seo.xml');
-        $loader->load('webhook.xml');
+        $phpLoader->load('webhook.php');
         $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
@@ -105,7 +106,6 @@ class Framework extends Bundle
         $loader->load('sso.xml');
 
         // @codeCoverageIgnoreStart
-        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('mcp.php');
         // @codeCoverageIgnoreEnd
 
@@ -113,7 +113,7 @@ class Framework extends Bundle
             $loader->load('services_test.xml');
             $loader->load('store_test.xml');
             $loader->load('seo_test.xml');
-            $loader->load('app_test.xml');
+            $phpLoader->load('app_test.php');
         }
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */

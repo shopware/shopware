@@ -1,7 +1,7 @@
 {% if changeShipping %}
-    {% set type = 'shipping' %}
+    {% set addressType = 'shipping' %}
 {% else %}
-    {% set type = 'billing' %}
+    {% set addressType = 'billing' %}
 {% endif %}
 
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
@@ -25,7 +25,7 @@
         {% block address_manager_modal_address_form_create %}
             <form
                 method="post"
-                action="{% block address_manager_modal_address_form_create_action %}{{ path('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}{% endblock %}"
+                action="{% block address_manager_modal_address_form_create_action %}{{ path('frontend.account.addressmanager', { addressId: postedAddress.id, type: addressType }) }}{% endblock %}"
                 id="address-manager-modal-address-form"
                 data-form-handler="true"
             >
@@ -64,7 +64,7 @@
             <button
                 type="button"
                 class="address-form-create-cancel btn btn-outline-dark btn-icon-hover-white"
-                data-address-type="{{ type }}"
+                data-address-type="{{ addressType }}"
             >
                 {% sw_icon 'arrow-left' style {size: 's'} %}
                 <span class="ps-1">

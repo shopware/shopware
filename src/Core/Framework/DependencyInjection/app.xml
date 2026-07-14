@@ -790,6 +790,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\AppSecretResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>

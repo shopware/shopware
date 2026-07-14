@@ -1,5 +1,5 @@
 {
-    "require": {
+    "require-dev": {
         "shyim/danger-php": "^0.3.13"
     },
     "config": {

@@ -212,9 +212,6 @@ class PdfRendererTest extends TestCase
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
-            templatePaths: [
-                DocumentFormat::HTML->value => '@Framework/documents/invoice.html.twig',
-            ],
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: new TradePartyView(

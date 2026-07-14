@@ -985,7 +985,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return Exception\UnmappedFieldException
      */
     public static function unmappedField(string $field, EntityDefinition $definition): self|UnmappedFieldException
     {
@@ -993,15 +993,7 @@ class DataAbstractionLayerException extends HttpException
             return new UnmappedFieldException($field, $definition);
         }
 
-        $fieldParts = explode('.', $field);
-        $name = array_pop($fieldParts);
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::DBAL_UNMAPPED_FIELD,
-            'Field "{{ field }}" in entity "{{ entity }}" was not found.',
-            ['field' => $name, 'entity' => $definition->getEntityName()]
-        );
+        return new Exception\UnmappedFieldException($field, $definition);
     }
 
     /**

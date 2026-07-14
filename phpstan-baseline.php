@@ -11,12 +11,6 @@ $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 3,
-    'path' => __DIR__ . '/src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 3,
     'path' => __DIR__ . '/src/Core/Content/Flow/Dispatching/Action/SendMailAction.php',
 ];
 $ignoreErrors[] = [
@@ -204,12 +198,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/ProductStream/Service/ProductStreamBuilder.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 3,
-    'path' => __DIR__ . '/src/Core/Content/RevocationRequest/SalesChannel/RevocationRequestRoute.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',

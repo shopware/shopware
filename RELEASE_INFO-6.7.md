@@ -481,6 +481,12 @@ Cookies declared in an app's `manifest.xml` were always shown in the storefront 
 
 The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
 
+### App cookies use generic feature storage
+
+App-declared cookies are now persisted through the generic app feature storage instead of the `cookies` field on the `app` entity. Installed apps do not need to change their manifests.
+
+`AppEntity::getCookies()` and `setCookies()` are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes the field.
+
 ## Hosting & Configuration
 
 ### Optional `Clear-Site-Data` header on customer logout

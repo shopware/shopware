@@ -930,7 +930,7 @@ export default {
                     ttl: 5 * 60 * 1000,
                 })
                 .then((res) => {
-                    Shopware.Store.get('swProductDetail').currencies = res;
+                    Shopware.Store.get('swProductDetail').currencies = [...res];
                 })
                 .finally(() => {
                     Shopware.Store.get('swProductDetail').setLoading([

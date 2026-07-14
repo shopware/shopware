@@ -59,6 +59,38 @@ describe('src/app/service/cache.service.ts', () => {
         expect(fn).toHaveBeenCalledTimes(2);
     });
 
+    it('returns the latest forced reload result to superseded requests', async () => {
+        let resolveFirstRequest: (value: string) => void;
+        let resolveSecondRequest: (value: string) => void;
+        const fn = jest
+            .fn()
+            .mockImplementationOnce(
+                () =>
+                    new Promise<string>((resolve) => {
+                        resolveFirstRequest = resolve;
+                    }),
+            )
+            .mockImplementationOnce(
+                () =>
+                    new Promise<string>((resolve) => {
+                        resolveSecondRequest = resolve;
+                    }),
+            );
+
+        const firstRequest = cacheService.query({ key: ['cache-key'], fn });
+        await flushPromises();
+
+        const secondRequest = cacheService.query({ key: ['cache-key'], fn, forceReload: true });
+        await flushPromises();
+
+        resolveSecondRequest!('fresh-value');
+        await expect(secondRequest).resolves.toBe('fresh-value');
+
+        resolveFirstRequest!('stale-value');
+        await expect(firstRequest).resolves.toBe('fresh-value');
+        await expect(cacheService.query({ key: ['cache-key'], fn })).resolves.toBe('fresh-value');
+    });
+
     it('invalidates exact and child keys', async () => {
         const rootFn = jest.fn().mockResolvedValueOnce('root').mockResolvedValueOnce('root-reloaded');
         const childFn = jest.fn().mockResolvedValueOnce('child').mockResolvedValueOnce('child-reloaded');

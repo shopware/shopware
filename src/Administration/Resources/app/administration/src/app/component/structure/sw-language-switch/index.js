@@ -59,10 +59,27 @@ export default {
             languageId: '',
             lastLanguageId: '',
             newLanguageId: '',
-            activeLanguages: [],
-            isLoadingLanguages: false,
             showUnsavedChangesModal: false,
         };
+    },
+
+    computed: {
+        languageCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addFilter(Criteria.equals('active', true));
+
+            return criteria;
+        },
+
+        languageCacheKey() {
+            return [
+                'shared-data',
+                'active-languages',
+                Shopware.Context.api.languageId ?? 'default',
+            ];
+        },
     },
 
     created() {
@@ -78,41 +95,11 @@ export default {
             this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
 
-            this.loadActiveLanguages();
-
             Shopware.Utils.EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
         },
 
         destroyedComponent() {
             Shopware.Utils.EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
-        },
-
-        loadActiveLanguages() {
-            this.isLoadingLanguages = true;
-
-            const criteria = new Criteria(1, 500);
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-            criteria.addFilter(Criteria.equals('active', true));
-
-            return Shopware.Service('repositoryFactory')
-                .create('language')
-                .search(criteria, Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'active-languages',
-                        Shopware.Context.api.languageId ?? 'default',
-                    ],
-                    ttl: 5 * 60 * 1000,
-                })
-                .then((languages) => {
-                    this.activeLanguages = [...languages];
-
-                    return languages;
-                })
-                .finally(() => {
-                    this.isLoadingLanguages = false;
-                });
         },
 
         onInput(newLanguageId) {

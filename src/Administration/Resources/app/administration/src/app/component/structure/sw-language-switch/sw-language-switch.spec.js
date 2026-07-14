@@ -3,28 +3,18 @@
  */
 
 import { mount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data/entity-collection.data';
-import Criteria from 'src/core/data/criteria.data';
 
 describe('src/app/component/structure/sw-language-switch', () => {
     let wrapper = null;
-    let languageRepositoryMock = null;
 
     beforeEach(async () => {
         jest.restoreAllMocks();
         Shopware.Store.get('context').api.languageId = '123456789';
 
-        languageRepositoryMock = {
-            search: jest.fn(() =>
-                Promise.resolve(new EntityCollection('language', 'language', Shopware.Context.api, new Criteria(), [])),
-            ),
-        };
-        Shopware.Service('repositoryFactory').create = jest.fn(() => languageRepositoryMock);
-
         wrapper = mount(await wrapTestComponent('sw-language-switch', { sync: true }), {
             global: {
                 stubs: {
-                    'sw-single-select': true,
+                    'sw-entity-single-select': true,
                     'sw-modal': {
                         template: `
                         <div class="sw-modal-stub">
@@ -51,8 +41,13 @@ describe('src/app/component/structure/sw-language-switch', () => {
         expect(Shopware.Store.get('context').api.languageId).toBe('456');
     });
 
-    it('uses the language name as select label', () => {
-        expect(wrapper.get('sw-single-select-stub').attributes('label-property')).toBe('name');
+    it('uses cached entity select options for active languages', () => {
+        const languageSelect = wrapper.get('sw-entity-single-select-stub');
+
+        expect(languageSelect.attributes('entity')).toBe('language');
+        expect(languageSelect.attributes('cache-key')).toContain('shared-data');
+        expect(languageSelect.attributes('cache-key')).toContain('active-languages');
+        expect(languageSelect.attributes('cache-ttl')).toBe('300000');
     });
 
     it('should open a modal with a warning if abortChangesFunction is set', async () => {

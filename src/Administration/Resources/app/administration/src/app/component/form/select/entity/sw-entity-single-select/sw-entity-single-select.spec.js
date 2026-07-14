@@ -150,6 +150,59 @@ describe('components/sw-entity-single-select', () => {
         expect(criteria.totalCountMode).toBe(0);
     });
 
+    it('passes unique cache keys for selected entities and search results', async () => {
+        const repository = {
+            get: jest.fn(() => Promise.resolve({ id: 'selected-id', name: 'Selected entity' })),
+            search: jest.fn(() => Promise.resolve(getCollection())),
+        };
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                value: 'selected-id',
+                entity: 'test',
+                cacheKey: ['shared-data', 'test-entities'],
+                cacheTtl: 1000,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => repository,
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith(
+            'selected-id',
+            expect.any(Object),
+            expect.any(Object),
+            {
+                cacheKey: [
+                    'shared-data',
+                    'test-entities',
+                    'selected',
+                    'selected-id',
+                ],
+                ttl: 1000,
+            },
+        );
+
+        await wrapper.vm.loadData();
+
+        expect(repository.search).toHaveBeenCalledWith(
+            expect.any(Object),
+            expect.any(Object),
+            expect.objectContaining({
+                cacheKey: expect.arrayContaining([
+                    'shared-data',
+                    'test-entities',
+                    'search',
+                ]),
+                ttl: 1000,
+            }),
+        );
+    });
+
     it('should have no reset option when it is not defined', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
             props: {

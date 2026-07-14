@@ -30,7 +30,14 @@ function mockCustomFieldSetData() {
     return _customFieldSets;
 }
 
-async function createWrapper(privileges = []) {
+async function createWrapper(
+    privileges = [],
+    repository = {
+        search: () => {
+            return Promise.resolve(mockCustomFieldSetData());
+        },
+    },
+) {
     const { Mixin } = Shopware;
 
     return mount(
@@ -56,11 +63,7 @@ async function createWrapper(privileges = []) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve(mockCustomFieldSetData());
-                            },
-                        }),
+                        create: () => repository,
                     },
                     acl: {
                         can: (identifier) => {
@@ -161,6 +164,22 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
         expect(deleteMenuItem.attributes('disabled')).toBeFalsy();
+    });
+
+    it('invalidates cached custom-field sets after deletion', async () => {
+        const repository = {
+            search: jest.fn(() => Promise.resolve(mockCustomFieldSetData())),
+            delete: jest.fn(() => Promise.resolve()),
+        };
+        const wrapper = await createWrapper(['custom_field.deleter'], repository);
+        const invalidateCaches = jest.spyOn(Shopware.Service('cacheService'), 'invalidateCaches');
+        await flushPromises();
+
+        await wrapper.vm.onConfirmDelete('id0');
+
+        expect(invalidateCaches).toHaveBeenCalledWith({
+            cacheKey: ['custom-field-sets'],
+        });
     });
 
     it('should not be able to edit', async () => {

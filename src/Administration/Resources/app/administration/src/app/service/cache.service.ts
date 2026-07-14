@@ -48,6 +48,12 @@ export default class CacheService {
         nextEntry.pending = Promise.resolve()
             .then(fn)
             .then((value) => {
+                const currentEntry = this.entries.get(cacheId) as CacheEntry<T> | undefined;
+
+                if (currentEntry !== nextEntry) {
+                    return currentEntry ? (currentEntry.pending ?? (currentEntry.value as T)) : value;
+                }
+
                 nextEntry.value = value;
                 nextEntry.loadedAt = Date.now();
                 nextEntry.pending = null;
@@ -56,6 +62,16 @@ export default class CacheService {
                 return value;
             })
             .catch((error) => {
+                const currentEntry = this.entries.get(cacheId) as CacheEntry<T> | undefined;
+
+                if (currentEntry !== nextEntry) {
+                    if (currentEntry) {
+                        return currentEntry.pending ?? (currentEntry.value as T);
+                    }
+
+                    throw error;
+                }
+
                 nextEntry.pending = null;
 
                 if (nextEntry.value === undefined) {

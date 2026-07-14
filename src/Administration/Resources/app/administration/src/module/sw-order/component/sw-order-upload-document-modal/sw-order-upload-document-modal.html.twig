@@ -89,7 +89,7 @@
                     :source="selectedDocumentFile"
                     :label="$t('sw-order.components.uploadDocumentModal.labelDocumentUpload')"
                     :allow-multi-select="false"
-                    :file-accept="features.fileAcceptTypes"
+                    :file-accept="fileAcceptTypes"
                     :max-file-size="features.uploadFileSizeLimit"
                     :button-label="$t('sw-order.components.uploadDocumentModal.buttonUploadFile')"
                     default-folder="document"
@@ -105,7 +105,7 @@
     <sw-media-modal-v2
         v-if="showMediaModal"
         :allow-multi-select="false"
-        :file-accept="features.fileAcceptTypes"
+        :file-accept="fileAcceptTypes"
         @media-modal-selection-change="onAddMediaFromLibrary"
         @modal-close="closeMediaModal"
     />

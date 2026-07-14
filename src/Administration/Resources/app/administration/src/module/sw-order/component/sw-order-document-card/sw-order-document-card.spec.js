@@ -209,6 +209,55 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                             <slot></slot>
                         </div>`,
                 },
+                'mt-dropdown-menu-root': {
+                    template: '<div class="mt-dropdown-menu-root"><slot></slot></div>',
+                },
+                'mt-dropdown-menu-trigger': {
+                    template: '<div class="mt-dropdown-menu-trigger"><slot></slot></div>',
+                },
+                'mt-dropdown-menu-sub': {
+                    template: '<div class="mt-dropdown-menu-sub"><slot></slot></div>',
+                },
+                'mt-dropdown-menu-portal': {
+                    template: '<div class="mt-dropdown-menu-portal"><slot></slot></div>',
+                },
+                'mt-action-menu': {
+                    template: '<div class="mt-action-menu"><slot></slot></div>',
+                },
+                'mt-action-menu-group': {
+                    template: '<div class="mt-action-menu-group"><slot></slot></div>',
+                },
+                'mt-action-menu-item': {
+                    props: {
+                        disabled: {
+                            type: Boolean,
+                            default: false,
+                        },
+                        icon: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        isSubTrigger: {
+                            type: Boolean,
+                            default: false,
+                        },
+                        variant: {
+                            type: String,
+                            required: false,
+                            default: 'default',
+                        },
+                    },
+                    emits: ['select'],
+                    template: `
+                        <div
+                            class="mt-action-menu-item"
+                            :disabled="String(disabled)"
+                            @click="$emit('select')"
+                        >
+                            <slot></slot>
+                        </div>`,
+                },
                 'sw-radio-field': true,
                 'sw-datepicker': true,
                 'sw-textarea-field': true,
@@ -560,6 +609,117 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.availableFormatsFilter(documentV2Fixture)).toBe('HTML, ZUGFERD_XML');
     });
 
+    it('should render open and download actions for each available format', async () => {
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentV2Fixture,
+            ]),
+        });
+
+        const openFormatActions = wrapper.findAll('.sw-order-document-card__context-button-open-format');
+        expect(openFormatActions).toHaveLength(2);
+        expect(openFormatActions.map((action) => action.text())).toEqual(
+            expect.arrayContaining(['sw-order.documentCard.labelOpenFormat']),
+        );
+
+        const downloadFormatActions = wrapper.findAll('.sw-order-document-card__context-button-download-format');
+        expect(downloadFormatActions).toHaveLength(2);
+        expect(downloadFormatActions.map((action) => action.text())).toEqual(
+            expect.arrayContaining(['sw-order.documentCard.labelDownloadFormat']),
+        );
+
+        expect(wrapper.vm.getDocumentFormatLabel('html')).toBe('HTML');
+        expect(wrapper.vm.getDocumentFormatLabel('zugferd_xml')).toBe('ZUGFeRD XML');
+
+        expect(wrapper.find('.sw-order-document-card__context-button-download-all-formats').exists()).toBe(true);
+    });
+
+    it('should open V2 documents from the format action', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:open');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentV2Fixture,
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-open-format').trigger('click');
+
+        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'abcd', 'html');
+        dispatchEventSpy.mockRestore();
+    });
+
+    it('should download V2 documents from the format action', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentV2Fixture,
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-download-format').trigger('click');
+
+        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'abcd', 'html');
+        dispatchEventSpy.mockRestore();
+    });
+
+    it('should only show the download all action when multiple formats are available', async () => {
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                {
+                    ...documentFixture,
+                    documentMediaFile: { fileExtension: 'pdf' },
+                    documentA11yMediaFile: null,
+                },
+            ]),
+        });
+
+        expect(wrapper.find('.sw-order-document-card__context-button-download-all-formats').exists()).toBe(false);
+    });
+
+    it('should download every available format when using the download all action', async () => {
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                {
+                    ...documentFixture,
+                    documentFiles: [
+                        {
+                            documentFormat: 'html',
+                        },
+                        {
+                            documentFormat: 'pdf',
+                        },
+                    ],
+                    documentMediaFile: null,
+                    documentA11yMediaFile: null,
+                },
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
+
+        expect(downloadDocumentSpy).toHaveBeenCalledTimes(2);
+        expect(downloadDocumentSpy).toHaveBeenNthCalledWith(1, 'document1', 'abcd', 'pdf');
+        expect(downloadDocumentSpy).toHaveBeenNthCalledWith(2, 'document1', 'abcd', 'html');
+
+        downloadDocumentSpy.mockRestore();
+    });
+
     it('should use the V2 create endpoint when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
@@ -700,6 +860,30 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '2026-07-06T00:00:00.000Z',
             '',
         );
+    });
+
+    it('should not fail when the V2 preview endpoint handles an error', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+        getDocumentPreviewV2Mock.mockResolvedValue(undefined);
+
+        await wrapper.setData({
+            currentDocumentType: {
+                technicalName: 'invoice',
+            },
+        });
+
+        await expect(
+            wrapper.vm.onPreview(
+                {
+                    documentComment: '',
+                    documentDate: '2026-07-06T00:00:00.000Z',
+                    documentNumber: '1000',
+                },
+                'html',
+            ),
+        ).resolves.toBeUndefined();
+        expect(wrapper.vm.isLoadingPreview).toBe(false);
     });
 
     it('should show attach column when attachView is true', async () => {

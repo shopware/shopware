@@ -182,6 +182,12 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
                 value: 'html',
             },
         ]);
+        expect(wrapper.vm.fileAcceptTypes).toBe('application/pdf,text/html');
+
+        await wrapper.setData({ selectedFileFormat: 'html' });
+        await flushPromises();
+
+        expect(wrapper.vm.fileAcceptTypes).toBe('text/html');
     });
 
     it('emits the uploaded file when uploading a custom document', async () => {
@@ -197,9 +203,11 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
         await flushPromises();
 
         await wrapper.setData({
-            selectedDocumentFile: file,
             selectedFileFormat: 'pdf',
         });
+        await flushPromises();
+
+        await wrapper.setData({ selectedDocumentFile: file });
         await flushPromises();
 
         await wrapper.vm.onUploadDocument();

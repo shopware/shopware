@@ -15,8 +15,8 @@ const { Criteria } = Shopware.Data;
 const FILE_TYPE_PRIORITY = [
     'pdf',
     'html',
-    'zugferd_xml',
     'zugferd_embedded_pdf',
+    'zugferd_xml',
 ];
 
 function getFileTypePriority(fileType) {
@@ -95,6 +95,7 @@ export default {
             showUploadDocumentModal: false,
             showSendDocumentModal: false,
             sendDocument: null,
+            documentDeleteId: null,
         };
     },
 
@@ -224,6 +225,17 @@ export default {
                     label: 'sw-order.documentCard.labelAttach',
                     allowResize: false,
                     align: 'center',
+                });
+            }
+
+            if (!this.attachView) {
+                columns.push({
+                    property: 'documentActions',
+                    dataIndex: 'documentActions',
+                    label: '',
+                    allowResize: false,
+                    sortable: false,
+                    align: 'right',
                 });
             }
 
@@ -429,6 +441,33 @@ export default {
             );
         },
 
+        getDocumentActionFormats(document) {
+            const formats = this.getDocumentFileTypes(document);
+
+            if (formats.length === 0) {
+                return ['pdf'];
+            }
+
+            return [...formats].sort((left, right) => {
+                return getFileTypePriority(left) - getFileTypePriority(right);
+            });
+        },
+
+        hasMultipleDocumentActionFormats(document) {
+            return this.getDocumentActionFormats(document).length > 1;
+        },
+
+        getDocumentFormatLabel(format) {
+            return (
+                {
+                    pdf: 'PDF',
+                    html: 'HTML',
+                    zugferd_embedded_pdf: 'ZUGFeRD PDF',
+                    zugferd_xml: 'ZUGFeRD XML',
+                }[format] ?? format.toUpperCase()
+            );
+        },
+
         resolveOpenFileType(document) {
             return this.getPreferredFileType(this.getDocumentFileTypes(document));
         },
@@ -447,17 +486,19 @@ export default {
         },
 
         openDocument(documentId, deepLinkCode, fileType) {
-            this.documentService
-                .getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType)
-                .then((response) => {
-                    if (response.data) {
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(response.data);
-                        link.target = '_blank';
-                        link.dispatchEvent(new MouseEvent('click'));
-                        link.remove();
-                    }
-                });
+            const openRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2Service.getDocument(documentId, deepLinkCode, fileType)
+                : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
+
+            openRequest.then((response) => {
+                if (response.data) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.target = '_blank';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
+                }
+            });
         },
 
         downloadDocument(documentId, deepLinkCode, fileType) {
@@ -465,17 +506,16 @@ export default {
                 ? this.documentV2Service.getDocument(documentId, deepLinkCode, fileType)
                 : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
 
-            downloadRequest
-                .then((response) => {
-                    if (response.data) {
-                        const filename = fileReaderUtils.getFilenameFromResponse(response);
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(response.data);
-                        link.download = filename;
-                        link.dispatchEvent(new MouseEvent('click'));
-                        link.remove();
-                    }
-                });
+            downloadRequest.then((response) => {
+                if (response.data) {
+                    const filename = fileReaderUtils.getFilenameFromResponse(response);
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.download = filename;
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
+                }
+            });
         },
 
         markDocumentAsSent(documentId) {
@@ -578,7 +618,7 @@ export default {
 
             return previewRequest
                 .then((response) => {
-                    if (response.data) {
+                    if (response?.data) {
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(response.data);
                         link.target = '_blank';
@@ -599,6 +639,31 @@ export default {
 
         onDownload(id, deepLink, fileType) {
             this.downloadDocument(id, deepLink, fileType);
+        },
+
+        onDownloadAll(document) {
+            this.getDocumentActionFormats(document).forEach((format) => {
+                this.onDownload(document.id, document.deepLinkCode, format);
+            });
+        },
+
+        onShowDeleteDocumentModal(id) {
+            this.documentDeleteId = id;
+        },
+
+        onCloseDeleteDocumentModal() {
+            this.documentDeleteId = null;
+        },
+
+        onDeleteDocument(id) {
+            this.documentDeleteId = null;
+
+            return this.documentRepository
+                .delete(id, this.documents.context ?? Shopware.Context.api)
+                .then(() => {
+                    return this.getList();
+                })
+                .catch(() => {});
         },
 
         onSendDocument(id) {

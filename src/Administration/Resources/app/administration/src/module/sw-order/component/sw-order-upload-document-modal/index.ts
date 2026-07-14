@@ -22,6 +22,13 @@ const FILE_FORMAT_PRIORITY = [
     'zugferd_embedded_pdf',
 ];
 
+const FILE_FORMAT_MIME_TYPES: Record<string, string> = {
+    html: 'text/html',
+    pdf: 'application/pdf',
+    zugferd_embedded_pdf: 'application/pdf',
+    zugferd_xml: 'application/xml,text/xml',
+};
+
 function getFileFormatPriority(fileFormat: string): number {
     const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
 
@@ -126,7 +133,6 @@ export default Component.wrapComponentConfig({
             documentTypeLoading: false,
             documentTypes: [],
             features: {
-                fileAcceptTypes: 'application/pdf',
                 uploadFileSizeLimit: 52428800,
             },
             invoiceExists: false,
@@ -205,6 +211,18 @@ export default Component.wrapComponentConfig({
             return this.getFileFormatOptions(this.currentDocumentType.technicalName);
         },
 
+        fileAcceptTypes() {
+            if (this.selectedFileFormat) {
+                return FILE_FORMAT_MIME_TYPES[this.selectedFileFormat] ?? '*/*';
+            }
+
+            const mimeTypes = this.fileFormatOptions.flatMap((option) => {
+                return (FILE_FORMAT_MIME_TYPES[option.value] ?? '').split(',');
+            });
+
+            return [...new Set(mimeTypes.filter((mimeType) => mimeType !== ''))].join(',');
+        },
+
         invalidInput() {
             return (
                 !this.currentDocumentType ||
@@ -245,6 +263,10 @@ export default Component.wrapComponentConfig({
 
                 await this.onDocumentTypeChange(documentType);
             },
+        },
+
+        selectedFileFormat() {
+            this.removeCustomDocument();
         },
     },
 

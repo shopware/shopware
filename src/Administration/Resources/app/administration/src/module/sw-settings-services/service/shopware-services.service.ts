@@ -23,6 +23,8 @@ export type ServiceDescription = {
     requested_privileges: string[];
     privileges: string[];
     domains: string[];
+    requirements: string[];
+    state_change_permitted: boolean;
 };
 
 type ServiceConfigurationConfigValues = {
@@ -119,6 +121,26 @@ export default class ShopwareServicesService extends ApiService {
     disableAllServices(): Promise<void> {
         return this.httpClient.post(
             'services/disable',
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
+    }
+
+    activateService(serviceName: string): Promise<void> {
+        return this.httpClient.post(
+            `service/activate/${serviceName}`,
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
+    }
+
+    deactivateService(serviceName: string): Promise<void> {
+        return this.httpClient.post(
+            `service/deactivate/${serviceName}`,
             {},
             {
                 headers: this.getBasicHeaders(),

@@ -5,6 +5,8 @@
     "components": {
         "schemas": {
             "AccountNewsletterRecipient": {
+                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\NewsletterRecipient",
+                "x-dto-package": "checkout",
                 "type": "object",
                 "properties": {
                     "status": {

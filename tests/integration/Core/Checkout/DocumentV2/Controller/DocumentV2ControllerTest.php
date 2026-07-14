@@ -202,9 +202,8 @@ class DocumentV2ControllerTest extends TestCase
         $this->getBrowser()->request(
             'GET',
             \sprintf(
-                '/api/_action/order/document-v2/%s/%s/download/%s',
+                '/api/_action/order/document-v2/%s/download/%s',
                 $payload['documentId'],
-                $payload['deepLinkCode'],
                 DocumentFormat::PDF->value,
             ),
         );

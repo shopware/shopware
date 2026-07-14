@@ -1,5 +1,6 @@
-.btn {
+.sw-button {
     --bs-btn-disabled-color: var(--btn-link-disabled-color);
+    --bs-btn-focus-box-shadow: 0 0 0 0.125rem var(--bs-white), 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -23,7 +24,6 @@
 
 .btn-link {
     --bs-btn-font-weight: var(--font-weight-semibold);
-    --bs-btn-focus-box-shadow: var(--input-btn-focus-box-shadow);
 }
 
 // Button styling with the appearance of a regular text link
@@ -32,7 +32,6 @@
     --bs-btn-hover-color: var(--btn-link-hover-color);
     --bs-btn-font-weight: var(--font-weight-normal);
     --bs-btn-font-size: inherit;
-    --bs-btn-focus-box-shadow: var(--input-btn-focus-box-shadow);
     --bs-btn-line-height: var(--line-height-base);
     --bs-btn-padding-y: 0;
     --bs-btn-padding-x: 0;
@@ -44,5 +43,24 @@
 
     &:hover {
         text-decoration: underline;
+    }
+}
+
+.btn-filter {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-border-color: var(--bs-border-color);
+    --bs-btn-active-border-color: var(--bs-border-color);
+    --bs-btn-active-bg: var(--bs-white);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-bg: var(--bs-gray-200);
+    --bs-btn-hover-bg: var(--bs-white);
+    font-weight: normal;
+    position: relative;
+    text-align: left;
+
+    .sw-icon {
+        margin-inline: var(--spacer-xs);
     }
 }

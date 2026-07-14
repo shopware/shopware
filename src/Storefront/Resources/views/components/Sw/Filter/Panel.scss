@@ -19,36 +19,16 @@
     gap: 0.5rem;
 }
 
+.is--collapse .sw-filter-panel__filter {
+    flex-direction: column;
+    align-items: start;
+}
+
 .sw-filter-panel__actions {
     display: inline-flex;
     align-items: center;
     justify-content: end;
     gap: 0.5rem;
-}
-
-// Shared styles for filter buttons
-.sw-filter-panel__filter-btn {
-    --bs-btn-color: var(--bs-body-color);
-    --bs-btn-hover-color: var(--bs-body-color);
-    --bs-btn-border-color: transparent;
-    --bs-btn-hover-border-color: var(--bs-border-color);
-    --bs-btn-active-border-color: var(--bs-border-color);
-    --bs-btn-active-bg: var(--bs-white);
-    --bs-btn-active-color: var(--bs-body-color);
-    --bs-btn-bg: var(--bs-gray-200);
-    --bs-btn-hover-bg: var(--bs-white);
-    font-weight: normal;
-    position: relative;
-    padding-right: 2.2rem;
-
-    &.btn .sw-icon {
-        width: 0.8rem;
-        height: 0.8rem;
-        margin-left: 0.5rem;
-        position: absolute;
-        right: 0.8rem;
-        top: 0.7rem;
-    }
 }
 
 .sw-filter-panel__counter {

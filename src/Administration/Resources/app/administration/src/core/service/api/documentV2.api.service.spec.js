@@ -219,15 +219,23 @@ describe('documentV2Service', () => {
     it('downloads a document file', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
         const documentId = '4a4a687257644d52bf481b4c20e59213';
-        const deepLinkCode = 'DEEP_LINK';
         const format = 'pdf';
 
-        clientMock.onGet(`/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${format}`).reply(200, '');
+        clientMock.onGet(`/_action/order/document-v2/${documentId}/download/${format}`).reply(200, '');
 
-        await documentV2ApiService.getDocument(documentId, deepLinkCode, format);
+        await documentV2ApiService.getDocument(documentId, format);
 
-        expect(clientMock.history.get[0].url).toBe(
-            `/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${format}`,
-        );
+        expect(clientMock.history.get[0].url).toBe(`/_action/order/document-v2/${documentId}/download/${format}`);
+    });
+
+    it('downloads all document files as archive', async () => {
+        const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
+        const documentId = '4a4a687257644d52bf481b4c20e59213';
+
+        clientMock.onGet(`/_action/order/document-v2/${documentId}/download-archive`).reply(200, '');
+
+        await documentV2ApiService.getDocumentArchive(documentId);
+
+        expect(clientMock.history.get[0].url).toBe(`/_action/order/document-v2/${documentId}/download-archive`);
     });
 });

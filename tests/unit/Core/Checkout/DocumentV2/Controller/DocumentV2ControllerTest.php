@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -37,6 +38,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -79,6 +81,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -122,6 +125,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId, $document),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -164,6 +168,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -204,6 +209,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -272,6 +278,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -336,6 +343,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -413,6 +421,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -421,7 +430,6 @@ class DocumentV2ControllerTest extends TestCase
 
         $response = $controller->download(
             $documentId,
-            $deepLinkCode,
             DocumentFormat::PDF->value,
             Context::createDefaultContext(),
         );
@@ -430,6 +438,95 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame(DocumentFormat::PDF->mimeType(), $response->headers->get('content-type'));
         static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
         static::assertStringContainsString('invoice.pdf', (string) $response->headers->get('content-disposition'));
+    }
+
+    public function testDownloadArchiveReturnsStoredDocumentFiles(): void
+    {
+        $documentId = Uuid::randomHex();
+        $deepLinkCode = Uuid::randomHex();
+        $pdfMediaId = Uuid::randomHex();
+        $htmlMediaId = Uuid::randomHex();
+
+        $pdfMedia = new MediaEntity();
+        $pdfMedia->setId($pdfMediaId);
+        $pdfMedia->setFileName('invoice');
+        $pdfMedia->setFileExtension(DocumentFormat::PDF->value);
+        $pdfMedia->setMimeType(DocumentFormat::PDF->mimeType());
+
+        $pdfDocumentFile = new DocumentFileEntity();
+        $pdfDocumentFile->setId(Uuid::randomHex());
+        $pdfDocumentFile->setDocumentId($documentId);
+        $pdfDocumentFile->setDocumentFormat(DocumentFormat::PDF->value);
+        $pdfDocumentFile->setMediaId($pdfMediaId);
+        $pdfDocumentFile->setMedia($pdfMedia);
+
+        $htmlMedia = new MediaEntity();
+        $htmlMedia->setId($htmlMediaId);
+        $htmlMedia->setFileName('invoice');
+        $htmlMedia->setFileExtension(DocumentFormat::HTML->value);
+        $htmlMedia->setMimeType(DocumentFormat::HTML->mimeType());
+
+        $htmlDocumentFile = new DocumentFileEntity();
+        $htmlDocumentFile->setId(Uuid::randomHex());
+        $htmlDocumentFile->setDocumentId($documentId);
+        $htmlDocumentFile->setDocumentFormat(DocumentFormat::HTML->value);
+        $htmlDocumentFile->setMediaId($htmlMediaId);
+        $htmlDocumentFile->setMedia($htmlMedia);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDeepLinkCode($deepLinkCode);
+        $document->setConfig(['documentNumber' => '1000']);
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfDocumentFile, $htmlDocumentFile]));
+
+        $this->documentRepository->searches[] = new DocumentCollection([$document]);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
+                $pdfMediaId => 'pdf content',
+                $htmlMediaId => 'html content',
+                default => throw new \RuntimeException('Unexpected media id.'),
+            });
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
+            $rendererRegistry,
+            new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator($mediaService, new Filesystem()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
+            $mediaService,
+        );
+
+        $response = $controller->downloadArchive(
+            $documentId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('application/zip', $response->headers->get('content-type'));
+        static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
+        static::assertStringContainsString('1000.zip', (string) $response->headers->get('content-disposition'));
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-controller-test-');
+        static::assertIsString($tempFile);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertNotFalse(file_put_contents($tempFile, $content));
+
+        $zip = new \ZipArchive();
+        static::assertTrue($zip->open($tempFile));
+        static::assertSame('pdf content', $zip->getFromName('invoice-pdf.pdf'));
+        static::assertSame('html content', $zip->getFromName('invoice-html.html'));
+        $zip->close();
+
+        (new Filesystem())->remove($tempFile);
     }
 
     public function testDownloadThrowsWhenRequestedFormatIsUnavailable(): void
@@ -452,6 +549,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -464,7 +562,6 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller->download(
             $documentId,
-            $deepLinkCode,
             DocumentFormat::PDF->value,
             Context::createDefaultContext(),
         );
@@ -484,6 +581,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
+            new DocumentArchiveGenerator(static::createStub(MediaService::class), new Filesystem()),
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
@@ -494,7 +592,6 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller->download(
             $documentId,
-            Uuid::randomHex(),
             DocumentFormat::PDF->value,
             Context::createDefaultContext(),
         );

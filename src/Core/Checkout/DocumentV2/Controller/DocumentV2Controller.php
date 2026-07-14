@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
@@ -53,6 +54,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly DocumentGenerator $documentGenerator,
         private readonly DocumentRendererRegistry $documentRendererRegistry,
         private readonly DocumentFormatValidator $documentFormatValidator,
+        private readonly DocumentArchiveGenerator $documentArchiveGenerator,
         private readonly EntityRepository $documentRepository,
         private readonly EntityRepository $documentFileRepository,
         private readonly EntityRepository $documentTypeRepository,
@@ -193,18 +195,17 @@ final class DocumentV2Controller extends AbstractController
     }
 
     #[Route(
-        path: '/api/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{format}',
+        path: '/api/_action/order/document-v2/{documentId}/download/{format}',
         name: 'api.action.order.document-v2.download',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']],
         methods: [Request::METHOD_GET],
     )]
     public function download(
         string $documentId,
-        string $deepLinkCode,
         string $format,
         Context $context,
     ): Response {
-        $document = $this->loadDocument($documentId, $deepLinkCode, $context);
+        $document = $this->loadDocument($documentId, $context);
 
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotFound($documentId);
@@ -232,11 +233,40 @@ final class DocumentV2Controller extends AbstractController
         );
     }
 
-    private function loadDocument(string $documentId, string $deepLinkCode, Context $context): ?DocumentEntity
+    #[Route(
+        path: '/api/_action/order/document-v2/{documentId}/download-archive',
+        name: 'api.action.order.document-v2.download.archive',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']],
+        methods: [Request::METHOD_GET],
+    )]
+    public function downloadArchive(
+        string $documentId,
+        Context $context,
+    ): Response {
+        $document = $this->loadDocument($documentId, $context);
+
+        if (!$document instanceof DocumentEntity) {
+            throw DocumentV2Exception::documentNotFound($documentId);
+        }
+
+        $archive = $this->documentArchiveGenerator->archive($document, $context);
+
+        if ($archive === null) {
+            throw DocumentV2Exception::documentArchiveUnavailable($documentId);
+        }
+
+        return $this->createResponse(
+            $archive->getName(),
+            $archive->getContent(),
+            $archive->getContentType(),
+            HeaderUtils::DISPOSITION_ATTACHMENT,
+        );
+    }
+
+    private function loadDocument(string $documentId, Context $context): ?DocumentEntity
     {
         $criteria = (new Criteria([$documentId]))
-            ->addAssociation('documentFiles.media')
-            ->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
+            ->addAssociation('documentFiles.media');
 
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 

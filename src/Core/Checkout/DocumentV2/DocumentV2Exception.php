@@ -68,6 +68,10 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_FORMAT_UNAVAILABLE = 'DOCUMENT_V2__FORMAT_UNAVAILABLE';
 
+    public const DOCUMENT_ARCHIVE_UNAVAILABLE = 'DOCUMENT_V2__ARCHIVE_UNAVAILABLE';
+
+    public const DOCUMENT_ARCHIVE_FAILED = 'DOCUMENT_V2__ARCHIVE_FAILED';
+
     public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
@@ -185,6 +189,25 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_FORMAT_UNAVAILABLE,
             'Document with id "{{ documentId }}" has no generated document with format "{{ format }}".',
             ['documentId' => $documentId, 'format' => $format],
+        );
+    }
+
+    public static function documentArchiveUnavailable(string $documentId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_ARCHIVE_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no generated files to archive.',
+            ['documentId' => $documentId],
+        );
+    }
+
+    public static function documentArchiveFailed(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_ARCHIVE_FAILED,
+            'Failed to create document archive.',
         );
     }
 

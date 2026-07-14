@@ -159,8 +159,15 @@ class DocumentV2ApiService extends ApiService {
             });
     }
 
-    getDocument(documentId, deepLinkCode, format = 'pdf') {
-        return this.httpClient.get(`/_action/order/document-v2/${documentId}/${deepLinkCode}/download/${format}`, {
+    getDocument(documentId, format = 'pdf') {
+        return this.httpClient.get(`/_action/order/document-v2/${documentId}/download/${format}`, {
+            responseType: 'blob',
+            headers: this.getBasicHeaders(),
+        });
+    }
+
+    getDocumentArchive(documentId) {
+        return this.httpClient.get(`/_action/order/document-v2/${documentId}/download-archive`, {
             responseType: 'blob',
             headers: this.getBasicHeaders(),
         });

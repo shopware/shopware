@@ -165,7 +165,7 @@
       "post": {
         "tags": ["Document Management"],
         "summary": "Create a document through the Document V2 pipeline",
-        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `formats` values from `/_action/order/document-v2/available-types`. Use the returned `documentId`, `deepLinkCode`, and one of the returned `formats` to download the created file through `/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{format}`.",
+        "description": "Creates one document with one or more requested output formats using the Document V2 services. Get supported `documentType` and `formats` values from `/_action/order/document-v2/available-types`. Use the returned `documentId` and one of the returned `formats` to download the created file through `/_action/order/document-v2/{documentId}/download/{format}`.",
         "operationId": "createDocumentV2",
         "requestBody": {
           "required": true,
@@ -234,7 +234,7 @@
         },
         "responses": {
           "200": {
-            "description": "Document created successfully. Use `documentId`, `deepLinkCode`, and one of the returned `formats` to download the created file through `/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{format}`.",
+            "description": "Document created successfully. Use `documentId` and one of the returned `formats` to download the created file through `/_action/order/document-v2/{documentId}/download/{format}`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -468,7 +468,7 @@
         },
         "responses": {
           "200": {
-            "description": "Document uploaded successfully. Use `documentId`, `deepLinkCode`, and one of the returned `formats` to download the uploaded file through `/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{format}`.",
+            "description": "Document uploaded successfully. Use `documentId` and one of the returned `formats` to download the uploaded file through `/_action/order/document-v2/{documentId}/download/{format}`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -504,11 +504,11 @@
         }
       }
     },
-    "/_action/order/document-v2/{documentId}/{deepLinkCode}/download/{format}": {
+    "/_action/order/document-v2/{documentId}/download/{format}": {
       "get": {
         "tags": ["Document Management"],
         "summary": "Download a Document V2 file",
-        "description": "Downloads one persisted format for a Document V2 document. Use the `documentId`, `deepLinkCode`, and one of the returned `formats` from `/_action/order/document-v2/create` or `/_action/order/document-v2/upload`.",
+        "description": "Downloads one persisted format for a Document V2 document.",
         "operationId": "downloadDocumentV2",
         "parameters": [
           {
@@ -522,18 +522,9 @@
             }
           },
           {
-            "name": "deepLinkCode",
-            "in": "path",
-            "description": "Deep link code returned when creating or uploading the document.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "format",
             "in": "path",
-            "description": "Format to download. Must be one of the `formats` returned when the document was created or uploaded.",
+            "description": "Persisted document format to download.",
             "required": true,
             "schema": {
               "type": "string",
@@ -570,6 +561,48 @@
                 }
               },
               "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_action/order/document-v2/{documentId}/download-archive": {
+      "get": {
+        "tags": ["Document Management"],
+        "summary": "Download all Document V2 files as ZIP",
+        "description": "Downloads all persisted formats for a Document V2 document as one ZIP archive. The archive contains one file per persisted format.",
+        "operationId": "downloadDocumentV2Archive",
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "Identifier of the document.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A ZIP archive containing all persisted files for the document.",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Contains the attachment filename.",
+                "schema": {
+                  "type": "string",
+                  "example": "attachment; filename=1000.zip"
+                }
+              }
+            },
+            "content": {
+              "application/zip": {
                 "schema": {
                   "type": "string",
                   "format": "binary"

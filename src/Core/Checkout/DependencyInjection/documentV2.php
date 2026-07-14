@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinit
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
@@ -31,6 +32,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -134,6 +136,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentRendererRegistry::class),
         ]);
 
+    $services->set(DocumentArchiveGenerator::class)
+        ->args([
+            service(MediaService::class),
+            service(Filesystem::class),
+        ]);
+
     $services->set(DocumentPersister::class)
         ->args([
             service('document.repository'),
@@ -166,6 +174,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentGenerator::class),
             service(DocumentRendererRegistry::class),
             service(DocumentFormatValidator::class),
+            service(DocumentArchiveGenerator::class),
             service('document.repository'),
             service('document_file.repository'),
             service('document_type.repository'),

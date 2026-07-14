@@ -77,8 +77,9 @@ class DocumentV2ControllerTest extends TestCase
         static::assertEqualsCanonicalizing(
             [
                 DocumentFormat::HTML->value,
-                DocumentFormat::ZUGFERD_XML->value,
                 DocumentFormat::PDF->value,
+                DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
+                DocumentFormat::ZUGFERD_XML->value,
             ],
             array_values($payload['documentTypes'][DocumentType::INVOICE->value]['formats']),
         );

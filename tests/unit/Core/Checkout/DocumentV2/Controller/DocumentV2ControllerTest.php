@@ -46,6 +46,28 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(DocumentV2Controller::class)]
 class DocumentV2ControllerTest extends TestCase
 {
+    /**
+     * @var StaticEntityRepository<DocumentCollection>
+     */
+    private StaticEntityRepository $documentRepository;
+
+    /**
+     * @var StaticEntityRepository<DocumentFileCollection>
+     */
+    private StaticEntityRepository $documentFileRepository;
+
+    /**
+     * @var StaticEntityRepository<DocumentTypeCollection>
+     */
+    private StaticEntityRepository $documentTypeRepository;
+
+    protected function setUp(): void
+    {
+        $this->documentRepository = new StaticEntityRepository([], new DocumentDefinition());
+        $this->documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
+        $this->documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
+    }
+
     public function testAvailableTypesReturnsFormatsForRendererSupportedDocumentTypes(): void
     {
         $rendererRegistry = new DocumentRendererRegistry([
@@ -57,9 +79,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            new StaticEntityRepository([], new DocumentDefinition()),
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 
@@ -100,9 +122,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId, $document),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            new StaticEntityRepository([], new DocumentDefinition()),
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 
@@ -142,9 +164,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            new StaticEntityRepository([], new DocumentDefinition()),
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 
@@ -172,15 +194,7 @@ class DocumentV2ControllerTest extends TestCase
         $orderId = Uuid::randomHex();
         $orderVersionId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([], new DocumentDefinition());
-
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
-
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
-        $documentTypeRepository->searches[] = [$documentTypeId];
+        $this->documentTypeRepository->searches[] = [$documentTypeId];
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
@@ -190,9 +204,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            $documentRepository,
-            $documentFileRepository,
-            $documentTypeRepository,
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 
@@ -238,10 +252,11 @@ class DocumentV2ControllerTest extends TestCase
                     'documentNumber' => '1000',
                 ],
             ],
-        ], $documentRepository->creates[0]);
-        static::assertSame($payload['documentId'], $documentFileRepository->creates[0][0]['documentId']);
-        static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
-        static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
+        ], $this->documentRepository->creates[0]);
+
+        static::assertSame($payload['documentId'], $this->documentFileRepository->creates[0][0]['documentId']);
+        static::assertSame(DocumentFormat::PDF->value, $this->documentFileRepository->creates[0][0]['documentFormat']);
+        static::assertSame($mediaId, $this->documentFileRepository->creates[0][0]['mediaId']);
     }
 
     public function testUploadRejectsUnsupportedFormat(): void
@@ -257,9 +272,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            new StaticEntityRepository([], new DocumentDefinition()),
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 
@@ -296,15 +311,7 @@ class DocumentV2ControllerTest extends TestCase
         $content = 'uploaded invoice';
         $mediaFile = new MediaFile('invoice.pdf', DocumentFormat::PDF->mimeType(), DocumentFormat::PDF->value, \strlen($content));
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([], new DocumentDefinition());
-
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
-
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
-        $documentTypeRepository->searches[] = [$documentTypeId];
+        $this->documentTypeRepository->searches[] = [$documentTypeId];
 
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->once())
@@ -329,9 +336,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, $orderId),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            $documentRepository,
-            $documentFileRepository,
-            $documentTypeRepository,
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             $mediaService,
         );
 
@@ -362,8 +369,8 @@ class DocumentV2ControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame([DocumentFormat::PDF->value], $payload['formats'] ?? null);
-        static::assertSame($mediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
-        static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
+        static::assertSame($mediaId, $this->documentRepository->creates[0][0]['documentMediaFileId']);
+        static::assertSame($mediaId, $this->documentFileRepository->creates[0][0]['mediaId']);
     }
 
     public function testDownloadReturnsStoredDocumentFile(): void
@@ -390,10 +397,7 @@ class DocumentV2ControllerTest extends TestCase
         $document->setDeepLinkCode($deepLinkCode);
         $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
-            new DocumentCollection([$document]),
-        ], new DocumentDefinition());
+        $this->documentRepository->searches[] = new DocumentCollection([$document]);
 
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->once())
@@ -409,9 +413,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            $documentRepository,
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             $mediaService,
         );
 
@@ -438,10 +442,7 @@ class DocumentV2ControllerTest extends TestCase
         $document->setDeepLinkCode($deepLinkCode);
         $document->setDocumentFiles(new DocumentFileCollection([]));
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
-            new DocumentCollection([$document]),
-        ], new DocumentDefinition());
+        $this->documentRepository->searches[] = new DocumentCollection([$document]);
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
@@ -451,9 +452,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            $documentRepository,
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 
@@ -473,10 +474,7 @@ class DocumentV2ControllerTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
-            new DocumentCollection([]),
-        ], new DocumentDefinition());
+        $this->documentRepository->searches[] = new DocumentCollection([]);
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
@@ -486,9 +484,9 @@ class DocumentV2ControllerTest extends TestCase
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
             $rendererRegistry,
             new DocumentFormatValidator($rendererRegistry),
-            $documentRepository,
-            new StaticEntityRepository([], new DocumentFileDefinition()),
-            new StaticEntityRepository([], new DocumentTypeDefinition()),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
             static::createStub(MediaService::class),
         );
 

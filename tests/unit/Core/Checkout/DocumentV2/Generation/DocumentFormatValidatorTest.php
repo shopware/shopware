@@ -21,6 +21,8 @@ class DocumentFormatValidatorTest extends TestCase
 {
     public function testValidateAllowsSupportedFormats(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $validator = new DocumentFormatValidator(new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
             new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
@@ -30,8 +32,6 @@ class DocumentFormatValidatorTest extends TestCase
             DocumentFormat::HTML->value,
             DocumentFormat::PDF->value,
         ]);
-
-        static::assertTrue(true);
     }
 
     public function testValidateRejectsUnsupportedFormats(): void

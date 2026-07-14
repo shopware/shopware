@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollectio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
-use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFormatValidator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -247,10 +246,6 @@ final class DocumentV2Controller extends AbstractController
     private function findMediaByFormat(DocumentEntity $document, string $format): ?MediaEntity
     {
         foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-            if (!$documentFile instanceof DocumentFileEntity) {
-                continue;
-            }
-
             if ($documentFile->getDocumentFormat() !== $format) {
                 continue;
             }
@@ -261,6 +256,9 @@ final class DocumentV2Controller extends AbstractController
         return null;
     }
 
+    /**
+     * @param InputBag<string|int|float|bool|null> $payload
+     */
     private function requirePayloadString(InputBag $payload, string $key): string
     {
         $value = $payload->getString($key);
@@ -272,6 +270,9 @@ final class DocumentV2Controller extends AbstractController
         return $value;
     }
 
+    /**
+     * @param InputBag<string|int|float|bool|null> $payload
+     */
     private function resolveUploadedFileName(InputBag $payload): string
     {
         $fileName = $payload->getString('fileName') ?: $payload->getString('documentNumber');

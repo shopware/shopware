@@ -7,6 +7,7 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\DangerConfigChanged;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\DeprecatedChangelogFormat;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\EntityRepositoryInFrontendLayer;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\IgnoredPhpstanErrorsInTouchedFiles;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\InlineRuleInDangerConfig;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\InvalidFileNameCharacters;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\LegacyTestsInSrc;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingIntegrationTestInSplitSuite;
@@ -28,6 +29,7 @@ foreach (glob(__DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger/Rules/*.php') ?: 
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(new DangerConfigChanged())
+    ->useRule(new InlineRuleInDangerConfig())
     ->useRule(new DeprecatedChangelogFormat())
     ->useRule(new MissingReleaseInfo())
     ->useRule(new IgnoredPhpstanErrorsInTouchedFiles())

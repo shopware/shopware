@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Provider;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
@@ -25,6 +26,7 @@ use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(CancellationInvoiceDataProvider::class)]
 class CancellationInvoiceDataProviderTest extends TestCase
 {
     use DocumentV2Trait;

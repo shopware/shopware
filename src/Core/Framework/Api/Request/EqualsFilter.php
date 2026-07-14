@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 11:37:53
+ * Last generated: 2026-07-14 15:22:45
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -18,7 +18,7 @@ final readonly class EqualsFilter
     public function __construct(
         #[Assert\NotBlank]
         public string $field,
-        public mixed $value,
+        public string|float|bool|null $value,
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['equals'])]
         public string $type = 'equals',

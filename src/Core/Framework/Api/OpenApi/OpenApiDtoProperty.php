@@ -31,6 +31,7 @@ final readonly class OpenApiDtoProperty
         public ?int $minLength = null,
         public ?int $arrayItemMinLength = null,
         public bool $unresolvedReference = false,
+        public ?string $arrayMapValueType = null,
     ) {
     }
 }

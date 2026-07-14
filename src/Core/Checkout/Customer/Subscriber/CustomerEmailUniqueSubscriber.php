@@ -81,7 +81,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         foreach ($conflictingChecks as $check) {
             \assert($check->customerId !== null);
 
-            $this->addViolation($violations, $check->customerId, $check->email);
+            $this->addViolation($violations, $customerCommands[$check->customerId]->getPath(), $check->email);
         }
 
         $event->getExceptions()->add(new WriteConstraintViolationException($violations));
@@ -204,7 +204,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         return $states;
     }
 
-    private function addViolation(ConstraintViolationList $violations, string $customerId, string $email): void
+    private function addViolation(ConstraintViolationList $violations, string $path, string $email): void
     {
         $message = 'The email address {{ email }} is already in use.';
 
@@ -213,7 +213,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
             $message,
             ['{{ email }}' => $email],
             null,
-            '/' . $customerId . '/email',
+            $path . '/email',
             $email,
             null,
             CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE,

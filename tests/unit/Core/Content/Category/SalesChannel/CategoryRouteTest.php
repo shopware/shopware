@@ -131,7 +131,9 @@ class CategoryRouteTest extends TestCase
                 $salesChannelContext,
                 [
                     'content' => [
-                        'value' => $expected,
+                        'field' => [
+                            'value' => $expected,
+                        ],
                     ],
                 ],
                 new EntityResolverContext($salesChannelContext, $request, new CategoryDefinition(), $category),
@@ -249,7 +251,9 @@ class CategoryRouteTest extends TestCase
         $category->setType(CategoryDefinition::TYPE_PAGE);
         $category->addTranslated('slotConfig', [
             'content' => [
-                'value' => 'en config',
+                'field' => [
+                    'value' => 'en config',
+                ],
             ],
         ]);
 
@@ -259,7 +263,9 @@ class CategoryRouteTest extends TestCase
             $translation->setLanguageId(self::LANGUAGE_IDS[$languageCode]);
             $translation->setSlotConfig([
                 'content' => [
-                    'value' => $languageCode . ' config',
+                    'field' => [
+                        'value' => $languageCode . ' config',
+                    ],
                 ],
             ]);
 

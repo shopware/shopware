@@ -2,12 +2,20 @@
 
 $php = ['8.2'];
 
-$nightly = \strtolower($_SERVER['argv'][1] ?? '') === 'true';
+// argv[1] is the run profile: '' (PR), 'nightly' or 'release' (patch release gate).
+$mode = \strtolower($_SERVER['argv'][1] ?? '');
+$nightly = $mode === 'nightly';
+$release = $mode === 'release';
 $major = \strtolower($_SERVER['argv'][2] ?? '') === 'true';
 
 if ($nightly) {
     // We add 8.4 separate because of currents
     $php = ['8.2', '8.5'];
+}
+
+if ($release) {
+    // Patch release gate: cover all supported PHP versions, but without Currents or major simulation.
+    $php = ['8.2', '8.4', '8.5'];
 }
 
 $matrix = [
@@ -22,7 +30,7 @@ $matrix = [
         'include' => [
             [
                 'name' => 'Install',
-                'php-version' => $nightly ? '8.4' : '8.2',
+                'php-version' => ($nightly || $release) ? '8.4' : '8.2',
                 'shard' => 1,
                 'shard-count' => 1,
                 'no-currents' => !$nightly,

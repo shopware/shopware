@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -214,13 +215,19 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $variantId = Uuid::fromStringToHex(\sprintf('%s.%s', $parentId, $key));
             $variantProductNumber = \sprintf('%s.%s', $productNumber, $key);
 
-            $payload[] = [
+            $variant = [
                 'id' => $variantId,
                 'parentId' => $parentId,
                 'productNumber' => $variantProductNumber,
                 'stock' => 0,
                 'options' => $options,
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $variant['type'] = ProductDefinition::TYPE_PHYSICAL;
+            }
+
+            $payload[] = $variant;
         }
 
         return $payload;

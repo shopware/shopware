@@ -141,6 +141,12 @@ export default {
             default: null,
         },
 
+        extensionMimeTypesByExtension: {
+            type: Object,
+            required: false,
+            default: () => ({}),
+        },
+
         maxFileSize: {
             type: Number,
             required: false,
@@ -626,7 +632,12 @@ export default {
 
             const isValidFile = () => {
                 if (this.extensionAccept) {
-                    return this.fileValidationService.checkByExtension(file, this.extensionAccept);
+                    return this.fileValidationService.checkByExtension(
+                        file,
+                        this.extensionAccept,
+                        null,
+                        this.extensionMimeTypesByExtension,
+                    );
                 }
 
                 if (this.fileAccept) {

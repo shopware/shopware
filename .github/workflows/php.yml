@@ -56,7 +56,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache CS Fixer
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./var/cache/cs_fixer
           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
@@ -65,6 +65,9 @@ jobs:
 
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run
+
+      - name: Analyze composer dependencies
+        run: composer dependency-analyzer
 
       - name: Code Style
         run: composer run cs
@@ -89,7 +92,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: var/cache/phpstan
           key: "phpstan-result-cache-${{ github.run_id }}"
@@ -100,7 +103,7 @@ jobs:
         run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
         with:
           path: var/cache/phpstan
@@ -161,7 +164,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache npm packages
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}/var/cache/npm
           key: change-me-on-shopware-api-gen-update
@@ -275,13 +278,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: ./.github/actions/phpunit-run
+      - name: Setup and install Shopware
+        uses: ./.github/actions/phpunit-prepare
+        with:
+          keep-composer-tools: "true"
+          migration-coverage: ${{ matrix.suite == 'migration' }}
+      - name: Run PHPUnit with coverage
+        uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
-          keep-composer-tools: "true"
+          coverage: "true"
+      - name: Upload coverage and test results to Codecov
+        uses: ./.github/actions/phpunit-upload
+        # !cancelled(): junit test results must upload even when the run failed
+        if: ${{ !cancelled() }}
+        with:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
-          migration-coverage: ${{ matrix.suite == 'migration' }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   license-check:

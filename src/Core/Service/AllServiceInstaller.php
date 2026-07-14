@@ -2,14 +2,9 @@
 
 namespace Shopware\Core\Service;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Event\NewServicesInstalledEvent;
 use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceRegistry\Client;
@@ -23,40 +18,30 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class AllServiceInstaller
 {
-    /**
-     * @internal
-     *
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
         private readonly Client $serviceRegistryClient,
+        private readonly ServiceStorage $serviceStorage,
         private readonly ServiceLifecycle $serviceLifecycle,
-        private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     /**
-     * This is a low-level class that is responsible for installing all services.
-     * It should only be called from a higher-level with 'state' awareness class, Specifically: Shopware\Core\Service\LifecycleManager
+     * Discovers services in the registry that are not yet installed and hands each one to
+     * ServiceLifecycle, which resolves the strategy and performs the resulting operation.
+     * It should only be called from a higher-level, 'state'-aware class: Shopware\Core\Service\LifecycleManager.
      *
      * @return array<string> The newly installed services
      */
     public function install(Context $context): array
     {
-        $existingServices = $this->appRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('selfManaged', true)),
-            $context
-        );
+        $existingServices = $this->serviceStorage->findAll($context);
 
         $installedServices = [];
-        $newServices = $this->getNewServices($existingServices);
-        foreach ($newServices as $service) {
-            $result = $this->serviceLifecycle->install($service, $context);
-
-            if ($result) {
-                $installedServices[] = $service->name;
+        foreach ($this->getNewServices($existingServices) as $entry) {
+            if ($this->serviceLifecycle->install($entry, $context)) {
+                $installedServices[] = $entry->name;
             }
         }
 
@@ -73,13 +58,13 @@ class AllServiceInstaller
     }
 
     /**
-     * @param EntitySearchResult<AppCollection> $installedServices
+     * @param list<Service> $installedServices
      *
      * @return array<ServiceEntry>
      */
-    private function getNewServices(EntitySearchResult $installedServices): array
+    private function getNewServices(array $installedServices): array
     {
-        $names = $installedServices->getEntities()->map(static fn (AppEntity $app) => $app->getName());
+        $names = array_map(static fn (Service $service) => $service->name, $installedServices);
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),

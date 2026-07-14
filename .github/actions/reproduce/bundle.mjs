@@ -153,7 +153,10 @@ export function makeResult({ plan, target, status, assertion, evidence = {}, blo
     schema_version: '1',
     issue: plan.issue ?? 0,
     target,
-    version: plan.version ?? 'unknown',
+    // The version the workflow actually resolved + provisioned wins over the agent-authored
+    // plan.version (which is untrusted and can be wrong). The trusted verify steps pass it via
+    // REPRO_RESOLVED_VERSION; fall back to plan.version only outside that path (e.g. local dev).
+    version: process.env.REPRO_RESOLVED_VERSION || plan.version || 'unknown',
     executor: plan.executor ?? 'unknown',
     status,
     assertion,

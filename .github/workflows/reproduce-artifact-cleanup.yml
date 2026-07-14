@@ -38,11 +38,14 @@ jobs:
       - name: Prune evidence branch
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
-          BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH || 'ci/repro-evidence' }}
+          BRANCH: ci/repro-evidence   # hardcoded: a repo var here could redirect the force-push to any branch
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          # This job force-pushes an orphan history with a contents:write token. Refuse any branch
+          # other than the dedicated evidence namespace so it can never rewrite a real branch.
+          [ "$BRANCH" = "ci/repro-evidence" ] || { echo "::error::refusing to prune non-evidence branch '$BRANCH'"; exit 1; }
           cutoff=$(( $(date -u +%s) - 7*24*3600 ))
           work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
           git -C "$work" init -q

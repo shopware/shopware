@@ -288,6 +288,8 @@ post-steps:
     env:
       REPRO_ALLOW_VERIFY: "1"
       TARGET: reported
+      # Trusted resolved version (not the agent's plan.version) → stamped into result.json.
+      REPRO_RESOLVED_VERSION: ${{ steps.version.outputs.is_trunk == 'true' && 'trunk' || steps.version.outputs.target_version }}
     run: |
       set -euo pipefail
       node /tmp/reproduce/cli/repro.mjs validate
@@ -402,7 +404,6 @@ safe-outputs:
             jq -r '"executor=\(.executor // "")"' reproduction-plan.json >> "$GITHUB_OUTPUT"
             jq -r '"admin_build=\(.build_profile.admin_build // false)"' reproduction-plan.json >> "$GITHUB_OUTPUT"
             jq -r '"storefront_build=\(.build_profile.storefront_build // false)"' reproduction-plan.json >> "$GITHUB_OUTPUT"
-            jq -r '"demodata=\(.fixtures.demodata // false)"' reproduction-plan.json >> "$GITHUB_OUTPUT"
 
         - name: Provision trunk
           id: provision-setup
@@ -430,7 +431,10 @@ safe-outputs:
           env:
             PREVIOUS_OUTCOME: ${{ steps.provision-setup.outcome }}
             SHOP_DIR: shop
-            DEMODATA: ${{ steps.plan.outputs.demodata }}
+            # Do NOT generate demodata at provision time. `repro verify` (fullRun) generates it once
+            # when plan.fixtures.demodata is set — the SAME place the reported leg does. Generating it
+            # here too would give trunk demodata twice (provision + fullRun) and diverge from reported.
+            DEMODATA: "false"
           run: bash .github/actions/reproduce/steps/finish-provision.sh
 
         - name: Setup Node + Playwright
@@ -501,6 +505,7 @@ safe-outputs:
           env:
             REPRO_ALLOW_VERIFY: "1"
             TARGET: trunk
+            REPRO_RESOLVED_VERSION: trunk   # trusted version stamped into result.json (not the agent's plan.version)
             APP_URL: ${{ steps.plan.outputs.executor == 'playwright' && 'http://host.docker.internal:8000' || steps.provision.outputs.app_url }}
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
             REPRO_SANDBOX: ${{ (steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct') && '1' || '' }}
@@ -630,7 +635,7 @@ safe-outputs:
           continue-on-error: true
           env:
             ART: artifacts
-            BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH || 'ci/repro-evidence' }}
+            BRANCH: ci/repro-evidence   # hardcoded: a repo var here could redirect the force-push to any branch
             REPO: ${{ github.repository }}
             RUN_ID: ${{ github.run_id }}
             TOKEN: ${{ github.token }}

@@ -11,6 +11,9 @@ set -euo pipefail
 
 ART=${ART:-artifacts}; OUT=${OUT:-evidence.json}
 : "${BRANCH:?BRANCH is required}"; : "${REPO:?REPO is required}"; : "${RUN_ID:?RUN_ID is required}"
+# This script force-pushes an orphan history with a contents:write token. Refuse any branch other
+# than the dedicated evidence namespace so a misconfig can never rewrite trunk/a release branch.
+[ "$BRANCH" = "ci/repro-evidence" ] || { echo "::error::evidence branch must be ci/repro-evidence, got '$BRANCH'"; exit 1; }
 raw="https://raw.githubusercontent.com/$REPO/$BRANCH/runs/$RUN_ID"
 
 # Gather playwright legs that produced a screenshot (parallel arrays: name / png / webm / status).

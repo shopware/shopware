@@ -67,6 +67,19 @@ export function computeVerdict(art = process.env.ART || 'artifacts') {
     unsureReason = plan.agent_explanation
       || `analysis confidence ${confidence} is below the 0.7 trust threshold, so the repro may not faithfully match the report`;
   }
+  // If the agent patched the provisioned shop's own source (shop/src/*), the reported leg ran against
+  // a modified Shopware core, so the verdict may not reflect stock behavior. Don't block — keep the
+  // run and its evidence — but downgrade to needs_human_review with a clear reason. The audit
+  // post-step records such edits in workspace-edits.txt (shop/src lines are prefixed `shop/`).
+  let editsList = '';
+  try {
+    editsList = fs.readFileSync(`${art}/repro-plan/workspace-edits.txt`, 'utf8');
+  } catch {
+    // no edits recorded
+  }
+  if (/(^|\n)shop\/src\//.test(editsList) && !unsureReason) {
+    unsureReason = 'the agent modified the provisioned shop under shop/src, so the reported leg ran against a patched Shopware core — the verdict may not reflect stock behavior; review the workspace edits before trusting it';
+  }
   const unsure = Boolean(unsureReason);
 
   let verdict = 'needs_human_review';

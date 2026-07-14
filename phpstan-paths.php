@@ -46,11 +46,16 @@ $parameters = [
 // The Danger rules and their tests type against the danger-php package from vendor-bin
 // (registered in src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php). Without that install
 // (integration jobs strip vendor-bin, plugin pipelines never have it) the symbols are unknown,
-// so those files are skipped instead of failing the whole run.
+// so those files are skipped instead of failing the whole run. The explicit analyseAndScan
+// structure is required: the shorthand list form is only normalized by the neon loader and
+// gets dropped when returned from a PHP config file. In this form the entries append-merge
+// with the excludePaths in phpstan.neon.dist.
 if (!is_dir(__DIR__ . '/vendor-bin/danger-php/vendor')) {
     $parameters['excludePaths'] = [
-        __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger',
-        __DIR__ . '/tests/unit/Core/DevOps/StaticAnalyze/Danger',
+        'analyseAndScan' => [
+            __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger',
+            __DIR__ . '/tests/unit/Core/DevOps/StaticAnalyze/Danger',
+        ],
     ];
 }
 

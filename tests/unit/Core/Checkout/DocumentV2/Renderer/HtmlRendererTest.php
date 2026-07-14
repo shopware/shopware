@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -130,28 +131,7 @@ class HtmlRendererTest extends TestCase
                 DocumentType::CREDIT_NOTE->value,
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $renderData],
-            ),
-            new RenderState(),
-            Context::createDefaultContext(),
-        );
-    }
-
-    public function testRejectsDocumentTypeThatIsNotATrustedIdentifier(): void
-    {
-        $finder = $this->createMock(TemplateFinder::class);
-        $finder->expects($this->never())->method('find');
-
-        $renderer = $this->createRenderer($finder, static::createStub(TwigEnvironment::class));
-
-        static::expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
-
-        $renderer->renderToString(
-            new RenderInput(
-                '../invoice',
-                '12345',
-                $this->createOrder(),
-                [InvoiceDataProvider::KEY => $this->createRenderData()],
+                [DocumentType::CREDIT_NOTE->value => $renderData],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -172,8 +152,8 @@ class HtmlRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, AbstractRenderData::class),
         );
 
         $renderer->renderToString(

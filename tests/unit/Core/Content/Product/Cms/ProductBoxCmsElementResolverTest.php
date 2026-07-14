@@ -98,7 +98,12 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
         static::assertNotNull($collection);
         static::assertCount(1, $collection->all());
-        static::assertSame([$productId], $collection->all()[ProductDefinition::class]['product_id']->getIds());
+
+        $criteria = $collection->all()[ProductDefinition::class]['product_id'];
+        static::assertSame([$productId], $criteria->getIds());
+        static::assertTrue($criteria->hasAssociation('manufacturer'));
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->getAssociation('options')->hasAssociation('group'));
     }
 
     public function testCollectWithMappedConfigButWithoutEntityResolverContext(): void

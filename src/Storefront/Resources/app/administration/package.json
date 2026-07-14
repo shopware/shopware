@@ -4,9 +4,12 @@
   "description": "Adding the storefront related changes to the administration.",
   "main": "./src/main.js",
   "config": {
-    "admin_path": "../../../../Administration/Resources/app/administration"
+    "admin_path": "../../../../Administration/Resources/app/administration",
+    "prettier_config": "../../../../Administration/Resources/app/administration/.prettierrc.js"
   },
   "scripts": {
+    "format": "$npm_package_config_admin_path/node_modules/.bin/prettier --config \"$npm_package_config_prettier_config\" --check \"src/**/*.{js,ts}\"",
+    "format:fix": "$npm_package_config_admin_path/node_modules/.bin/prettier --config \"$npm_package_config_prettier_config\" --write \"src/**/*.{js,ts}\" --cache",
     "lint": "$npm_package_config_admin_path/node_modules/.bin/eslint src --cache",
     "lint:fix": "npm run lint -- --fix"
   }

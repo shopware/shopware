@@ -39,7 +39,6 @@ readonly class StaticRenderData extends AbstractRenderData
             'date',
             'number',
             null,
-            [],
         );
     }
 }

@@ -102,16 +102,15 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
+        // match added lines in the patch instead of matchesContent(): the diff ships with the file
+        // listing (no per-file API download), and only newly introduced usage is flagged;
+        // lines mentioning a deprecation are excluded, like the previous filter intended
+        $isNewRepoUse = static fn (File $file): bool => preg_match('/^\+(?!.*@deprecated).*EntityRepository/m', $file->patch) === 1;
+
         $newRepoUseInFrontend = array_merge(
-            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
-                ->matchesContent('/EntityRepository/')
-                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
-                ->matchesContent('/EntityRepository/')
-                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
-                ->matchesContent('/EntityRepository/')
-                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')->filter($isNewRepoUse)->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')->filter($isNewRepoUse)->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')->filter($isNewRepoUse)->getElements(),
         );
 
         if (count($newRepoUseInFrontend) > 0) {
@@ -204,7 +203,11 @@ return (new Config())
         checkMigrationForBundle('Storefront', $context);
     })
     ->useRule(function (Context $context): void {
-        $newSqlHeredocs = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_MODIFIED)->matchesContent('/<<<SQL/');
+        // match against the patch instead of matchesContent(): the diff ships with the file listing,
+        // while matchesContent() downloads the full body of every modified file via the API
+        $newSqlHeredocs = $context->platform->pullRequest->getFiles()
+            ->filterStatus(File::STATUS_MODIFIED)
+            ->filter(static fn (File $file): bool => preg_match('/^\+.*<<<SQL/m', $file->patch) === 1);
 
         if ($newSqlHeredocs->count() <= 0) {
             return;
@@ -389,7 +392,7 @@ return (new Config())
             }
 
             // DependencyInjection service-wiring files (PHP closures using ContainerConfigurator) need no unit tests.
-            if (str_contains($file->name, '/DependencyInjection/') && str_contains($content, 'ContainerConfigurator')) {
+            if ((str_contains($file->name, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#', $file->name) === 1) && str_contains($content, 'ContainerConfigurator')) {
                 continue;
             }
 
@@ -402,7 +405,7 @@ return (new Config())
             $fileName = basename($file->name);
 
             foreach ($excludedDirs as $excludedDir) {
-                if (str_starts_with($dir, $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
+                if (str_starts_with($dir . '/', $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
                     continue 2;
                 }
             }

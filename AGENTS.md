@@ -89,7 +89,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 | File Type              | Check Command                 | Fix Command                                  |
 |------------------------|-------------------------------|----------------------------------------------|
-| **PHP** (.php)         | `composer ecs`                | `composer ecs-fix`                           |
+| **PHP** (.php)         | `composer cs`                 | `composer cs-fix`                            |
 | **PHP** (types)        | `composer phpstan`            | N/A - must fix manually                      |
 | **JS/TS/Vue** (Admin)  | `composer eslint:admin`       | `composer eslint:admin:fix`                  |
 | **JS/TS** (Storefront) | `composer eslint:storefront`  | `composer eslint:storefront:fix`             |

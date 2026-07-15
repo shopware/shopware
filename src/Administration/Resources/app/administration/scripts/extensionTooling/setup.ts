@@ -444,11 +444,7 @@ function createIdeBootstraps(context: GeneratorContext, adminRelative: string): 
  * `tsconfig.aliases.json` next to the shim ({ "MyPlugin/*": ["src/*"] },
  * targets relative to the plugin's administration folder).
  */
-function buildShimPaths(
-    context: GeneratorContext,
-    shimDir: string,
-    adminFolder: string,
-): Record<string, string[]> | null {
+function buildShimPaths(context: GeneratorContext, shimDir: string, adminFolder: string): Record<string, string[]> | null {
     const aliasesPath = path.join(adminFolder, 'tsconfig.aliases.json');
 
     if (!fs.existsSync(aliasesPath)) {

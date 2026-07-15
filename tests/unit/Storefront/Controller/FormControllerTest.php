@@ -38,6 +38,56 @@ class FormControllerTest extends TestCase
         $this->assertTranslatedViolation($controller);
     }
 
+    public function testContactFormTranslatesCustomViolationMessage(): void
+    {
+        $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
+        $contactFormRoute->method('load')->willThrowException($this->createViolationException(
+            new ConstraintViolation(
+                'error.urlNotAllowed',
+                'error.urlNotAllowed',
+                [],
+                null,
+                'firstName',
+                null,
+                null,
+                'VIOLATION::REGEX_FAILED_ERROR',
+            ),
+        ));
+
+        $controller = $this->createController(contactFormRoute: $contactFormRoute);
+
+        $controller->sendContactForm(new RequestDataBag(), Generator::generateSalesChannelContext());
+
+        static::assertSame(['translated:error.urlNotAllowed'], $controller->renderViewParameters['list']);
+    }
+
+    public function testContactFormFallsBackToSymfonyViolationMessageWhenTranslationIsMissing(): void
+    {
+        $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
+        $contactFormRoute->method('load')->willThrowException($this->createViolationException(
+            new ConstraintViolation(
+                'This value is not valid.',
+                'This value is not valid.',
+                [],
+                null,
+                'firstName',
+                null,
+                null,
+                'VIOLATION::MISSING_TRANSLATION',
+            ),
+        ));
+
+        $controller = $this->createController(contactFormRoute: $contactFormRoute);
+        $controller->untranslatedSnippets = [
+            'This value is not valid.',
+            'error.VIOLATION::MISSING_TRANSLATION',
+        ];
+
+        $controller->sendContactForm(new RequestDataBag(), Generator::generateSalesChannelContext());
+
+        static::assertSame(['This value is not valid.'], $controller->renderViewParameters['list']);
+    }
+
     public function testRevocationRequestTranslatesViolationCode(): void
     {
         $revocationRequestRoute = $this->createMock(AbstractRevocationRequestRoute::class);
@@ -83,11 +133,11 @@ class FormControllerTest extends TestCase
         $this->assertTranslatedViolation($controller);
     }
 
-    private function createViolationException(): ConstraintViolationException
+    private function createViolationException(?ConstraintViolation $violation = null): ConstraintViolationException
     {
         return new ConstraintViolationException(
             new ConstraintViolationList([
-                new ConstraintViolation('', '', [], null, 'email', null, null, self::VIOLATION_CODE),
+                $violation ?? new ConstraintViolation('', '', [], null, 'email', null, null, self::VIOLATION_CODE),
             ]),
             [],
         );
@@ -121,6 +171,11 @@ class FormControllerTestClass extends FormController
     use StorefrontControllerMockTrait;
 
     /**
+     * @var list<string>
+     */
+    public array $untranslatedSnippets = [];
+
+    /**
      * @var array<string, mixed>
      */
     public array $renderViewParameters = [];
@@ -134,6 +189,10 @@ class FormControllerTestClass extends FormController
 
     protected function trans(string $snippet, array $parameters = []): string
     {
-        return 'translated:' . $snippet;
+        if (\in_array($snippet, $this->untranslatedSnippets, true)) {
+            return $snippet;
+        }
+
+        return str_starts_with($snippet, 'error.') ? 'translated:' . $snippet : $snippet;
     }
 }

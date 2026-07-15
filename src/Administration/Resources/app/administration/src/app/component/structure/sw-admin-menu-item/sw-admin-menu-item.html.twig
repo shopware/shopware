@@ -8,6 +8,7 @@
     :open="collapsibleOpen"
     @update:open="onCollapsibleOpenUpdate"
     @mouseenter="$emit('menu-item-hover', entry, $event.currentTarget)"
+    @focusin="$emit('menu-item-hover', entry, $event.currentTarget)"
 >
     <div class="sw-admin-menu__navigation-item-row">
         <template v-if="entryPath">

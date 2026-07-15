@@ -245,6 +245,8 @@
                 }
             },
             "Aggregation": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "anyOf": [
                     {
                         "$ref": "#/components/schemas/AggregationMetrics"
@@ -307,8 +309,7 @@
                 ]
             },
             "SubAggregations": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
-                "x-dto-package": "framework",
+                "x-dto-inline": true,
                 "type": "object",
                 "properties": {
                     "aggregation": {

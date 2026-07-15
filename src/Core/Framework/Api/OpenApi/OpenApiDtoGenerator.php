@@ -26,6 +26,12 @@ final class OpenApiDtoGenerator
     public const PACKAGE_EXTENSION = 'x-dto-package';
 
     /**
+     * Vendor extension on a component schema that marks it as a reusable composition fragment.
+     * Inline components are flattened into referencing DTOs and are not generated themselves.
+     */
+    public const INLINE_EXTENSION = 'x-dto-inline';
+
+    /**
      * @var list<string>
      */
     private const HTTP_METHODS = [

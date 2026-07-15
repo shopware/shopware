@@ -40,8 +40,7 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->with(
                 $manifest,
                 static::callback(static fn (AppInstallParameters $parameters): bool => !$parameters->activate
-                    && $parameters->acceptPermissions
-                    && $parameters->recoverAppSecret),
+                    && $parameters->acceptPermissions),
                 $context
             );
 

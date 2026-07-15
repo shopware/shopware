@@ -100,28 +100,22 @@ class AppManager
     public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void
     {
         $appName = $manifest->getMetadata()->getName();
-        $app = null;
+        $app = $this->loadAppByName($appName, $context);
 
-        // Credential repair for a completed app does not install the supplied manifest, so a compatibility or
-        // requirements change must not prevent it. Half-finished installs are validated under the lock before
-        // recovery commits their pending secret. Non-opt-in callers retain the legacy validation order below.
-        if ($parameters->recoverAppSecret) {
-            $app = $this->loadAppByName($appName, $context);
-            if ($app?->getUnconfirmedAppSecrets() !== null) {
-                $this->recoverInstallation($manifest, $parameters, $app, $context);
+        // A pending secret is the durable trace of a prior registration that never confirmed. Recover it
+        // before validation so a completed app's credential repair isn't blocked by a later compatibility
+        // change; a half-finished install is still validated inside recoverInstallation.
+        if ($app?->getUnconfirmedAppSecrets() !== null) {
+            $this->recoverInstallation($manifest, $parameters, $app, $context);
 
-                return;
-            }
+            return;
         }
 
         $this->ensureIsCompatible($manifest);
         $this->ensureMeetsRequirements($manifest);
 
-        $app ??= $this->loadAppByName($appName, $context);
-        if ($app) {
-            $this->recoverInstallation($manifest, $parameters, $app, $context);
-
-            return;
+        if ($app !== null) {
+            throw AppException::alreadyInstalled($appName);
         }
 
         $defaultLocale = $this->getDefaultLocale($context);
@@ -300,10 +294,6 @@ class AppManager
         AppEntity $app,
         Context $context
     ): void {
-        if (!$parameters->recoverAppSecret || $app->getUnconfirmedAppSecrets() === null) {
-            throw AppException::alreadyInstalled($app->getName());
-        }
-
         $this->registrationLock->locked($app->getId(), function (LockInterface $lock) use ($manifest, $parameters, $app, $context): void {
             // Re-read after taking the lock: another installation may have completed recovery in the meantime.
             $app = $this->loadApp($app->getId(), $context);

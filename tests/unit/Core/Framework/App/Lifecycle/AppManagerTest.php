@@ -118,7 +118,6 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty();
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
         $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
-        $existingApp->setUnconfirmedAppSecrets(['pending-secret']);
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
@@ -142,7 +141,6 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty();
         $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
         $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
-        $existingApp->setUnconfirmedAppSecrets(['pending-secret']);
 
         $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
         $requirementsValidator->expects($this->once())
@@ -248,7 +246,7 @@ class AppManagerTest extends TestCase
             ->install($manifest, new AppInstallParameters(), $context);
     }
 
-    public function testRecoveryOptInKeepsNormalAlreadyInstalledBehaviour(): void
+    public function testExistingAppWithoutPendingSecretIsAlreadyInstalled(): void
     {
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
 
@@ -259,7 +257,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager(AppFixture::createAppRepository($app))->install(
             ManifestFixture::empty(),
-            new AppInstallParameters(recoverAppSecret: true),
+            new AppInstallParameters(),
             Context::createDefaultContext()
         );
     }
@@ -293,7 +291,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
             $manifest,
-            new AppInstallParameters(activate: true, recoverAppSecret: true),
+            new AppInstallParameters(activate: true),
             $context
         );
 
@@ -321,7 +319,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository)->install(
             $manifest,
-            new AppInstallParameters(recoverAppSecret: true),
+            new AppInstallParameters(),
             $context
         );
     }
@@ -357,7 +355,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository)->install(
             $manifest,
-            new AppInstallParameters(recoverAppSecret: true),
+            new AppInstallParameters(),
             $context
         );
     }
@@ -393,7 +391,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
             $manifest,
-            new AppInstallParameters(activate: true, recoverAppSecret: true),
+            new AppInstallParameters(activate: true),
             $context
         );
 
@@ -435,7 +433,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
             $manifest,
-            new AppInstallParameters(activate: false, recoverAppSecret: true),
+            new AppInstallParameters(activate: false),
             $context
         );
 
@@ -463,7 +461,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository)->install(
             ManifestFixture::empty()->withSetup(),
-            new AppInstallParameters(recoverAppSecret: true),
+            new AppInstallParameters(),
             $context
         );
     }
@@ -488,7 +486,7 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository)->install(
             ManifestFixture::empty()->withSetup(),
-            new AppInstallParameters(recoverAppSecret: true),
+            new AppInstallParameters(),
             $context
         );
     }

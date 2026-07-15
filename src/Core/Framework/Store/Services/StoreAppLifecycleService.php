@@ -56,7 +56,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
         $this->appLifecycle->install(
             $manifests[$technicalName],
-            new AppInstallParameters(activate: false, recoverAppSecret: true),
+            new AppInstallParameters(activate: false),
             $context
         );
     }

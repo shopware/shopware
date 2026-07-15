@@ -91,7 +91,6 @@ class InstallAppCommand extends Command
                     new AppInstallParameters(
                         activate: $input->getOption('activate'),
                         acceptPermissions: true,
-                        recoverAppSecret: true,
                     ),
                     $context
                 );

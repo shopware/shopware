@@ -127,6 +127,16 @@ class ProductDefinition extends EntityDefinition
         ];
     }
 
+    /**
+     * @return array{type: 'physical'}
+     */
+    public function getChildDefaults(): array
+    {
+        return [
+            'type' => self::TYPE_PHYSICAL,
+        ];
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';

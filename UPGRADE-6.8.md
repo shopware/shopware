@@ -1804,6 +1804,11 @@ Instead of overwriting any of those blocks inside `@Storefront/storefront/compon
 ## Removed address book action template
 The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
 
+## Removed `type` variable from address manager templates
+
+The deprecated Twig variable `type` in `address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig` was removed.
+Use `addressType` instead.
+
 ## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
 
 The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.

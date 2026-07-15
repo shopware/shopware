@@ -4,6 +4,9 @@
     {% set addressType = 'billing' %}
 {% endif %}
 
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+{% set type = addressType %}
+
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">
         {% block address_manager_modal_address_title %}

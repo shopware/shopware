@@ -1,3 +1,6 @@
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+{% set addressType = addressType ?? type %}
+
 <li class="col-12 col-lg-6 d-flex" data-address-id="{{ address.id }}" data-address-type="{{ addressType }}">
     <div class="p-3 border address-manager-select-address flex-fill">
         <div class="row h-100">

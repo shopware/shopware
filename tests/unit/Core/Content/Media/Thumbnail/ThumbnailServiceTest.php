@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
@@ -53,6 +55,8 @@ class ThumbnailServiceTest extends TestCase
 
     private ThumbnailSizeCalculator $thumbnailSizeCalculator;
 
+    private LoggerInterface $logger;
+
     /**
      * @var StaticEntityRepository<MediaThumbnailCollection>
      */
@@ -71,6 +75,7 @@ class ThumbnailServiceTest extends TestCase
         $this->indexer = static::createStub(EntityIndexer::class);
         $this->connection = static::createStub(Connection::class);
         $this->thumbnailSizeCalculator = new ThumbnailSizeCalculator();
+        $this->logger = new NullLogger();
         $this->context = Context::createDefaultContext();
         $this->thumbnailRepository = new StaticEntityRepository([]);
         $this->mediaFolderRepository = new StaticEntityRepository([]);
@@ -417,6 +422,7 @@ class ThumbnailServiceTest extends TestCase
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
+            $this->logger,
             true,
         );
 
@@ -437,6 +443,7 @@ class ThumbnailServiceTest extends TestCase
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
+            $this->logger,
             true,
         );
 
@@ -457,6 +464,7 @@ class ThumbnailServiceTest extends TestCase
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
+            $this->logger,
             true,
         );
 
@@ -545,6 +553,7 @@ class ThumbnailServiceTest extends TestCase
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
+            $this->logger,
         );
 
         $result = $service->generate($mediaCollection, $this->context);
@@ -592,6 +601,9 @@ class ThumbnailServiceTest extends TestCase
                 ];
             });
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
+
         $service = new ThumbnailService(
             $this->thumbnailRepository,
             $filesystemPublic,
@@ -602,15 +614,91 @@ class ThumbnailServiceTest extends TestCase
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
+            $logger,
         );
 
-        try {
-            $service->generate($mediaCollection, $this->context);
-            static::fail('Expected RuntimeException was not thrown');
-        } catch (\RuntimeException $e) {
-            static::assertSame('Simulated post-processing failure', $e->getMessage());
-            static::assertContains('/thumbnail/test.png', $deletedPaths);
-        }
+        $result = $service->generate($mediaCollection, $this->context);
+
+        static::assertSame(0, $result);
+        static::assertContains('/thumbnail/test.png', $deletedPaths);
+    }
+
+    public function testGenerateContinuesBatchWhenSingleMediaFails(): void
+    {
+        $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
+
+        $writtenPaths = [];
+        $deletedPaths = [];
+
+        $filesystemPublic = static::createStub(FilesystemOperator::class);
+        $filesystemPublic->method('read')->willReturn($file);
+        $filesystemPublic->method('fileSize')->willReturn(100);
+        $filesystemPublic->method('write')
+            ->willReturnCallback(function (string $path) use (&$writtenPaths): void {
+                $writtenPaths[] = $path;
+            });
+        $filesystemPublic->method('delete')
+            ->willReturnCallback(function (string $path) use (&$deletedPaths): void {
+                $deletedPaths[] = $path;
+            });
+
+        $goodMedia = $this->createMediaEntity($this->createMediaThumbnailEntity(), $this->createMediaFolderEntity());
+        $goodMedia->setId('media-good');
+
+        $badMedia = $this->createMediaEntity($this->createMediaThumbnailEntity(), $this->createMediaFolderEntity());
+        $badMedia->setId('media-bad');
+
+        $mediaCollection = new MediaCollection([$goodMedia, $badMedia]);
+
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')
+            ->willReturnCallback(static function (object $event) {
+                if ($event instanceof ThumbnailGeneratedEvent && $event->getMediaId() === 'media-bad') {
+                    throw new \RuntimeException('Simulated post-processing failure');
+                }
+
+                return $event;
+            });
+
+        // hand out a distinct thumbnail path per generateAndSave() call (good media first)
+        $paths = ['/thumbnail/good.png', '/thumbnail/bad.png'];
+        $call = 0;
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')
+            ->willReturnCallback(static function ($_, $params) use (&$call, $paths) {
+                $path = $paths[$call] ?? '/thumbnail/extra.png';
+                ++$call;
+
+                return [Uuid::fromBytesToHex($params['ids'][0]) => $path];
+            });
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                static::stringContains('Thumbnail generation failed'),
+                static::callback(static fn (array $context): bool => ($context['mediaId'] ?? null) === 'media-bad')
+            );
+
+        $service = new ThumbnailService(
+            $this->thumbnailRepository,
+            $filesystemPublic,
+            $this->filesystemPrivate,
+            $this->mediaFolderRepository,
+            $dispatcher,
+            $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $connection,
+            new GdImageThumbnailProcessor(),
+            $logger,
+        );
+
+        $result = $service->generate($mediaCollection, $this->context);
+
+        static::assertSame(1, $result);
+        static::assertContains('/thumbnail/good.png', $writtenPaths);
+        static::assertContains('/thumbnail/bad.png', $deletedPaths);
+        static::assertNotContains('/thumbnail/good.png', $deletedPaths);
     }
 
     public function testUpdateThumbnailsDeletesAllThumbnailsForNonImageLocalMedia(): void
@@ -648,7 +736,8 @@ class ThumbnailServiceTest extends TestCase
             $indexer ?? $this->indexer,
             $this->thumbnailSizeCalculator,
             $connection ?? $this->connection,
-            new GdImageThumbnailProcessor()
+            new GdImageThumbnailProcessor(),
+            $this->logger
         );
     }
 

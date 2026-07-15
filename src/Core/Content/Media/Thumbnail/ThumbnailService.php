@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -53,6 +54,7 @@ class ThumbnailService
         private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
         private readonly Connection $connection,
         private readonly ThumbnailProcessorInterface $thumbnailProcessor,
+        private readonly LoggerInterface $logger,
         private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
@@ -116,7 +118,16 @@ class ThumbnailService
 
             $config = $media->getMediaFolder()->getConfiguration();
 
-            $thumbnails = $this->generateAndSave($media, $config, $context, $config->getMediaThumbnailSizes());
+            try {
+                $thumbnails = $this->generateAndSave($media, $config, $context, $config->getMediaThumbnailSizes());
+            } catch (\Throwable $e) {
+                $this->logger->error('Thumbnail generation failed for media {mediaId}', [
+                    'mediaId' => $media->getId(),
+                    'exception' => $e,
+                ]);
+
+                continue;
+            }
 
             foreach ($thumbnails as $thumbnail) {
                 $updates[] = $thumbnail;
@@ -288,6 +299,7 @@ class ThumbnailService
                     $id,
                     $path,
                     $media->getMimeType() ?? '',
+                    $fileSystem,
                     $context,
                 ));
 

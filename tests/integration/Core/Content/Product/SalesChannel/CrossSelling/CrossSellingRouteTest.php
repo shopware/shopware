@@ -41,7 +41,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('slow')]
 #[Group('store-api')]
 class CrossSellingRouteTest extends TestCase
 {

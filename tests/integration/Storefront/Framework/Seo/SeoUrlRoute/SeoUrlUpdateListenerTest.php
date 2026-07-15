@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -36,7 +35,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class SeoUrlUpdateListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

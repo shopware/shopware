@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -50,7 +49,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Group('slow')]
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1111,7 +1109,6 @@ class EntityAggregatorTest extends TestCase
     }
 
     #[DataProvider('dateHistogramProvider')]
-    #[Group('slow')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();

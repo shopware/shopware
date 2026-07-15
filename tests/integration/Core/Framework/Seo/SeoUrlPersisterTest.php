@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -405,7 +404,6 @@ class SeoUrlPersisterTest extends TestCase
         static::assertTrue($seoUrl->getIsDeleted());
     }
 
-    #[Group('slow')]
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsNotDeleted(): void
     {
         $isActive = true;

@@ -7,7 +7,6 @@ use Composer\IO\NullIO;
 use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -56,7 +55,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Group('slow')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;

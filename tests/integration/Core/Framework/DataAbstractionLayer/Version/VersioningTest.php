@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -65,7 +64,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Group('slow')]
 class VersioningTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

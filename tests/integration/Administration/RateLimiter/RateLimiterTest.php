@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Administration\RateLimiter;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
@@ -16,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Group('slow')]
 class RateLimiterTest extends TestCase
 {
     use AdminApiTestBehaviour;

@@ -6,7 +6,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
@@ -81,7 +80,6 @@ class ProductIndexerTest extends TestCase
         );
     }
 
-    #[Group('slow')]
     public function testUpdateDoesNotReturnTooBigMessage(): void
     {
         $uuids = $this->getUuids(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION);

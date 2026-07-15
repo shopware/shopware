@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -24,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('slow')]
 class ProductListingTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -144,7 +142,6 @@ class ProductListingTest extends TestCase
         static::assertFalse($options->has($this->testData->getId('cotton')));
     }
 
-    #[Group('slow')]
     public function testListingWithProductStream(): void
     {
         $this->createTestProductStreamEntity($this->categoryStreamId);

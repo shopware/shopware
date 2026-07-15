@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Group('slow')]
 class MediaFolderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

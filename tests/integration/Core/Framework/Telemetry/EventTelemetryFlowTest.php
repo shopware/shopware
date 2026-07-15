@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Telemetry;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -31,7 +30,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Rather a sanity check that the telemetry system is working as intended.
  */
 #[Package('framework')]
-#[Group('slow')]
 class EventTelemetryFlowTest extends TestCase
 {
     /** @use CustomKernelTestBehavior<TelemetryEnabledTestKernel> */

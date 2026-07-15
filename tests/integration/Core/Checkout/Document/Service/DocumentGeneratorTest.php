@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -387,7 +386,6 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
-    #[Group('slow')]
     public function testCreateFileIsWrittenInFs(): void
     {
         /** @var FilesystemOperator $fileSystem */

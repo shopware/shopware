@@ -155,7 +155,6 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertSame(100 * 0.25, $composition[1]['discount']);
     }
 
-    #[Group('slow')]
     public function testPromotionRedemption(): void
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)

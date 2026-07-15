@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -42,7 +41,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Group('slow')]
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

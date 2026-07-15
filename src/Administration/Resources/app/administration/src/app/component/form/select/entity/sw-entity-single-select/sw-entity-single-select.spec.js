@@ -159,7 +159,10 @@ describe('components/sw-entity-single-select', () => {
             props: {
                 value: 'selected-id',
                 entity: 'test',
-                cacheKey: ['shared-data', 'test-entities'],
+                cacheKey: [
+                    'shared-data',
+                    'test-entities',
+                ],
                 cacheTtl: 1000,
             },
             global: {
@@ -172,20 +175,15 @@ describe('components/sw-entity-single-select', () => {
         });
         await flushPromises();
 
-        expect(repository.get).toHaveBeenCalledWith(
-            'selected-id',
-            expect.any(Object),
-            expect.any(Object),
-            {
-                cacheKey: [
-                    'shared-data',
-                    'test-entities',
-                    'selected',
-                    'selected-id',
-                ],
-                ttl: 1000,
-            },
-        );
+        expect(repository.get).toHaveBeenCalledWith('selected-id', expect.any(Object), expect.any(Object), {
+            cacheKey: [
+                'shared-data',
+                'test-entities',
+                'selected',
+                'selected-id',
+            ],
+            ttl: 1000,
+        });
 
         await wrapper.vm.loadData();
 

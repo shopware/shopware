@@ -30,7 +30,7 @@
             "dev-main": "6.7.x-dev",
             "dev-master": "6.7.x-dev",
             "dev-trunk": "6.7.x-dev",
-            "test/importmap-asset-resolution": "6.7.x-dev"
+            "test/global-asset-check": "6.7.x-dev"
         },
         "phpstan/extension-installer": {
             "ignore": [

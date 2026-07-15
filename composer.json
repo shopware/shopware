@@ -353,7 +353,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)"
+            "STREAM=\"${GITHUB_REF_NAME:-$(git branch --show-current)}\"; case \"$STREAM\" in *.x) BASE=$(git tag -l --sort -version:refname | grep \"^v${STREAM%.x}\\.\" | head -n 1);; esac; roave-backward-compatibility-check --install-development-dependencies --from=\"${BASE:-$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)}\""
         ],
         "build:js": [
             "@build:js:admin",

@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 15:39:06
+ * Last generated: 2026-07-15 07:21:31
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -29,6 +29,8 @@ final readonly class AggregationTerms
          */
         #[Assert\Valid]
         public ?array $sort = null,
+        #[Assert\Valid]
+        public AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange|null $aggregation = null,
     ) {
     }
 }

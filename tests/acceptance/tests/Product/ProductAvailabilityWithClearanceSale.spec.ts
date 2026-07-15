@@ -2,7 +2,12 @@ import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'Product should be added to the cart if stock:1 and clearance-sale:true.',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, AddProductToCart }) => {
         const product = await TestDataService.createBasicProduct({
             stock: 1,
@@ -11,12 +16,17 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
-    }
+    },
 );
 
 test(
     'Product should not be added to the cart if stock:0 and clearance-sale:true.',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail }) => {
         const product = await TestDataService.createBasicProduct({
             stock: 0,
@@ -25,12 +35,17 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeHidden();
-    }
+    },
 );
 
 test(
     'Product should be added to the cart if stock:0 and clearance-sale:false.',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, AddProductToCart }) => {
         const product = await TestDataService.createBasicProduct({
             stock: 0,
@@ -39,12 +54,17 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
-    }
+    },
 );
 
 test(
     'Product should be removed from existing cart if stock:0 and cleareance-sale is changed to true.',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -73,12 +93,17 @@ test(
 
         await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
         await ShopCustomer.expects(StorefrontCheckoutCart.emptyCartAlert).toBeVisible();
-    }
+    },
 );
 
 test(
     'Stock reached message should be displayed if stock is changed to 1 and clearance-sale:active after adding 2 products to the cart.',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -109,5 +134,5 @@ test(
 
         await ShopCustomer.expects(StorefrontCheckoutCart.stockReachedAlert).toContainText(product.name);
         await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toContainText(formatPrice(10.0));
-    }
+    },
 );

@@ -9,6 +9,9 @@ import '@testing-library/jest-dom';
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import {
+    MtActionMenu,
+    MtActionMenuGroup,
+    MtActionMenuItem,
     MtBanner,
     MtButton,
     MtCard,
@@ -16,6 +19,9 @@ import {
     MtColorpicker,
     MtDataTable,
     MtDatepicker,
+    MtDropdownMenuPortal,
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
     MtFloatingUi,
@@ -135,7 +141,6 @@ Shopware.Service()
     .forEach((serviceKey) => {
         config.global.provide[serviceKey] = Shopware.Service(serviceKey);
     });
-
 Shopware.Service().register('cacheService', () => cacheService);
 Shopware.Service().register('userConfigService', () => userConfigService);
 
@@ -237,6 +242,9 @@ config.global.stubs = {
     'mt-popover-deprecated': {
         template: `<div class="mt-popover-deprecated"><slot/></div>`,
     },
+    'mt-action-menu': MtActionMenu,
+    'mt-action-menu-group': MtActionMenuGroup,
+    'mt-action-menu-item': MtActionMenuItem,
     'mt-banner': MtBanner,
     'mt-button': MtButton,
     'mt-card': MtCard,
@@ -244,6 +252,9 @@ config.global.stubs = {
     'mt-colorpicker': MtColorpicker,
     'mt-data-table': MtDataTable,
     'mt-datepicker': MtDatepicker,
+    'mt-dropdown-menu-portal': MtDropdownMenuPortal,
+    'mt-dropdown-menu-root': MtDropdownMenuRoot,
+    'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
     'mt-floating-ui': MtFloatingUi,

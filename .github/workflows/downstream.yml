@@ -23,8 +23,21 @@ permissions:
   statuses: read
 
 jobs:
+  markdown-only-changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
   rufus:
     name: Rufus
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - id: sts
@@ -50,6 +63,9 @@ jobs:
 
   commercial:
     name: Commercial
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - id: sts
@@ -76,6 +92,9 @@ jobs:
 
   mergeability-check:
     name: Downstream Mergeability Check
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - id: sts
@@ -211,6 +230,7 @@ jobs:
   downstream-check:
     if: always()
     needs:
+    - markdown-only-changes
     - rufus
     - commercial
     - mergeability-check
@@ -220,5 +240,5 @@ jobs:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
       with:
-        allowed-skips: rufus, commercial
+        allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'rufus, commercial, mergeability-check' || 'rufus, commercial' }}
         jobs: ${{ toJSON(needs) }}

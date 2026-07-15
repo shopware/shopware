@@ -56,6 +56,46 @@ describe('src/core/worker/admin-notification-worker', () => {
         expect(adminNotificationWorker._timestamp).toBe('2025-01-01T10:00:00+00:00');
     });
 
+    it.each([
+        [
+            'info',
+            'global.default.info',
+        ],
+        [
+            'warning',
+            'global.default.warning',
+        ],
+        [
+            'positive',
+            'global.default.success',
+        ],
+    ])('should derive the title key "%s" -> "%s" from the notification status', (status, expectedTitle) => {
+        const createNotification = jest.fn();
+        jest.spyOn(Shopware.Store, 'get').mockReturnValue({ createNotification });
+
+        const adminNotificationWorker = new AdminNotificationWorker();
+        adminNotificationWorker.createNotification(status, 'a-message');
+
+        expect(createNotification).toHaveBeenCalledWith({
+            variant: status,
+            message: 'a-message',
+            title: expectedTitle,
+        });
+    });
+
+    it('should not set a title for a status without a mapping', () => {
+        const createNotification = jest.fn();
+        jest.spyOn(Shopware.Store, 'get').mockReturnValue({ createNotification });
+
+        const adminNotificationWorker = new AdminNotificationWorker();
+        adminNotificationWorker.createNotification('neutral', 'a-message');
+
+        expect(createNotification).toHaveBeenCalledWith({
+            variant: 'neutral',
+            message: 'a-message',
+        });
+    });
+
     it('should fetch user config and set timestamp when value exists', async () => {
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
             data: {

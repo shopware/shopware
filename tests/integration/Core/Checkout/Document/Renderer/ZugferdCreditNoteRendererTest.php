@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -149,7 +150,13 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $content = $renderedDocument->getContent();
         static::assertIsString($content);
 
-        $this->assertSnapshot('zugferd_credit_note_document_default', [
+        // The renderer emits the delivery event from the primary order delivery under v6.8, so the
+        // ZUGFeRD output differs from the pre 6.8 document.
+        $snapshot = Feature::isActive('v6.8.0.0')
+            ? 'zugferd_credit_note_document_default_v6_8'
+            : 'zugferd_credit_note_document_default';
+
+        $this->assertSnapshot($snapshot, [
             [
                 'type' => self::TYPE_XML,
                 'actual' => $content,

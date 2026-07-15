@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationCheckResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\FrameworkException;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -110,6 +111,121 @@ class OpenApiDtoGenerationCommandTest extends TestCase
         }
     }
 
+    public function testGeneratorKeepsApiSchemasSeparated(): void
+    {
+        $filesystem = new Filesystem();
+        $projectRoot = $this->createProjectWithConflictingApiSchemas($filesystem);
+        $generatedDtoPath = $projectRoot . '/src/Core/Framework/Api/Request/SimpleFilter.php';
+        $generatedRequestPath = $projectRoot . '/src/Core/Framework/Api/Request/SearchRequest.php';
+
+        try {
+            $this->createGenerator($projectRoot, $filesystem)->generate();
+
+            static::assertFileExists($generatedDtoPath);
+            $generatedDto = $filesystem->readFile($generatedDtoPath);
+            static::assertStringContainsString('public string $value,', $generatedDto);
+            static::assertStringNotContainsString('public array $value,', $generatedDto);
+            static::assertFileExists($generatedRequestPath);
+            static::assertStringContainsString(
+                'public ?SimpleFilter $simpleFilter = null,',
+                $filesystem->readFile($generatedRequestPath),
+            );
+        } finally {
+            $filesystem->remove($projectRoot);
+        }
+    }
+
+    public function testGeneratorRejectsConflictingOutputPathsAcrossApis(): void
+    {
+        $filesystem = new Filesystem();
+        $projectRoot = $this->createProjectWithConflictingApiSchemas($filesystem, adminSchemaGeneratesDto: true);
+        $generatedDtoPath = $projectRoot . '/src/Core/Framework/Api/Request/SimpleFilter.php';
+
+        try {
+            $this->expectExceptionObject(FrameworkException::invalidArgumentException(\sprintf(
+                'Admin API and Store API DTO schemas generate conflicting class file "%s".',
+                $generatedDtoPath,
+            )));
+
+            $this->createGenerator($projectRoot, $filesystem)->generate();
+        } finally {
+            $filesystem->remove($projectRoot);
+        }
+    }
+
+    private function createProjectWithConflictingApiSchemas(Filesystem $filesystem, bool $adminSchemaGeneratesDto = false): string
+    {
+        $projectRoot = sys_get_temp_dir() . '/open-api-dto-command-' . bin2hex(random_bytes(4));
+        $schemaDirectory = $projectRoot . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema';
+
+        $this->writeSchema($filesystem, $schemaDirectory . '/StoreApi/components/schemas/simple-filter.json', [
+            'paths' => [
+                '/search' => [
+                    'post' => [
+                        'operationId' => 'search',
+                        OpenApiDtoGenerator::NAMESPACE_EXTENSION => 'Shopware\\Core\\Framework\\Api\\Request',
+                        'requestBody' => [
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'allOf' => [
+                                            ['$ref' => '#/components/schemas/SimpleFilter'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'components' => [
+                'schemas' => [
+                    'SimpleFilter' => [
+                        OpenApiDtoGenerator::NAMESPACE_EXTENSION => 'Shopware\\Core\\Framework\\Api\\Request',
+                        OpenApiDtoGenerator::PACKAGE_EXTENSION => 'framework',
+                        'type' => 'object',
+                        'properties' => [
+                            'value' => ['type' => 'string'],
+                        ],
+                        'required' => ['value'],
+                    ],
+                ],
+            ],
+        ]);
+        $this->writeSchema($filesystem, $schemaDirectory . '/AdminApi/components/schemas/simple-filter.json', [
+            'components' => [
+                'schemas' => [
+                    'SimpleFilter' => [
+                        ...($adminSchemaGeneratesDto ? [
+                            OpenApiDtoGenerator::NAMESPACE_EXTENSION => 'Shopware\\Core\\Framework\\Api\\Request',
+                            OpenApiDtoGenerator::PACKAGE_EXTENSION => 'framework',
+                        ] : []),
+                        'anyOf' => [
+                            [
+                                ...($adminSchemaGeneratesDto ? ['title' => 'SimpleFilter'] : []),
+                                'type' => 'object',
+                                'properties' => [
+                                    'value' => [
+                                        'type' => 'array',
+                                        'items' => ['type' => 'string'],
+                                    ],
+                                ],
+                            ],
+                            [
+                                'type' => 'object',
+                                'properties' => [
+                                    'value' => ['type' => 'boolean'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        return $projectRoot;
+    }
+
     private function createProjectWithSchema(Filesystem $filesystem): string
     {
         $projectRoot = sys_get_temp_dir() . '/open-api-dto-command-' . bin2hex(random_bytes(4));
@@ -139,6 +255,15 @@ class OpenApiDtoGenerationCommandTest extends TestCase
         $filesystem->dumpFile($schemaDirectory . '/check-response.json', $schema);
 
         return $projectRoot;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function writeSchema(Filesystem $filesystem, string $path, array $schema): void
+    {
+        $encodedSchema = json_encode($schema, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT);
+        $filesystem->dumpFile($path, $encodedSchema);
     }
 
     private function createCommand(string $projectRoot, Filesystem $filesystem): OpenApiDtoGenerationCommand

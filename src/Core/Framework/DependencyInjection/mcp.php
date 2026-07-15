@@ -241,7 +241,10 @@ return static function (ContainerConfigurator $container): void {
         ]);
 
     $services->set(McpToolsetRegistry::class)
-        ->args([service(McpCapabilityCatalog::class)]);
+        ->args([
+            service(McpCapabilityCatalog::class),
+            service(McpAllowlistProvider::class),
+        ]);
 
     $services->set(McpToolListController::class)
         ->public()

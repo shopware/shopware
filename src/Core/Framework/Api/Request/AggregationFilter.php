@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 07:21:31
+ * Last generated: 2026-07-15 07:28:42
  */
 
 namespace Shopware\Core\Framework\Api\Request;

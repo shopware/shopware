@@ -643,7 +643,18 @@ final class OpenApiDtoSchemaParser
             arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
             unresolvedReference: $unresolvedReference,
             arrayMapValueType: $phpType === self::PHP_TYPE_ARRAY ? $this->arrayMapValueType($constraintSchema, $registry) : null,
+            fixedValue: $this->isFixedApiAlias($propertyName, $constraintSchema),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function isFixedApiAlias(string $propertyName, array $schema): bool
+    {
+        return $this->toPropertyName($propertyName) === 'apiAlias'
+            && $this->schemaType($schema) === 'string'
+            && \count($this->scalarEnum($schema['enum'] ?? null) ?? []) === 1;
     }
 
     /**

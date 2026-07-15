@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 15:24:15
+ * Last generated: 2026-07-14 15:39:06
  */
 
 namespace Shopware\Core\Framework\Api\Request;
@@ -26,8 +26,6 @@ final readonly class AggregationFilter
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['filter'])]
         public string $type = 'filter',
-        #[Assert\Valid]
-        public AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange|null $aggregation = null,
     ) {
     }
 }

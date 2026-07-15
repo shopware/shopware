@@ -100,6 +100,21 @@ export async function schema(entity) {
 }
 
 /**
+ * Returns the running instance's Shopware version string (e.g. "6.7.2.0"), or '' if unavailable.
+ *
+ * Used by the interactive `repro version` check to warn when the live instance differs from the
+ * version an issue reports — a local reproduction reflects whatever is actually installed.
+ */
+export async function version() {
+  const res = await fetch(`${base()}/api/_info/version`, { headers: await authHeaders() });
+  if (!res.ok) {
+    throw new Error(`admin version request failed (HTTP ${res.status})`);
+  }
+  const data = await res.json().catch(() => ({}));
+  return data.version || data.versionText || '';
+}
+
+/**
  * Extracts the first id-like field from an Admin API search result.
  */
 const firstId = (result, field = 'id') => result?.data?.[0]?.[field] ?? '';

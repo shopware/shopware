@@ -5,7 +5,7 @@
  * deterministic client. They work identically on every Shopware version (6.6 included), because
  * `/api/_info/entity-schema.json` and `/api/search/{entity}` are core Admin API, not MCP.
  */
-import { schema, search } from '../../admin-api.mjs';
+import { schema, search, version } from '../../admin-api.mjs';
 
 /**
  * Trims one entity's verbose schema down to what fixture authoring needs.
@@ -57,6 +57,20 @@ export async function schemaCommand(entity) {
     process.exit(1);
   }
   console.log(JSON.stringify({ entity, properties: trimEntity(def) }, null, 2));
+}
+
+/**
+ * `repro version [expected]` — print the running instance's Shopware version.
+ *
+ * When `expected` is given and differs, emit a non-fatal warning: a LOCAL reproduction reflects the
+ * installed version, not the reported one, so the result may not faithfully match the issue.
+ */
+export async function versionCommand(expected) {
+  const live = await version();
+  console.log(live || '(unknown)');
+  if (expected && live && expected !== live) {
+    console.error(`::warning::live instance is ${live} but the issue reports ${expected} — this local reproduction reflects ${live} and may not faithfully match the report`);
+  }
 }
 
 /**

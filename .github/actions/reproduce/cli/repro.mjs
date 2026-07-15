@@ -15,7 +15,7 @@ async function runCli(argv) {
 
   if (!run) {
     console.error(`repro: unknown command ${command ? `'${command}'` : '(none)'}\n`);
-    console.error('commands: validate | reset | seed | check | try | giveup | verify | schema | search | blocked-result');
+    console.error('commands: validate | reset | seed | check | try | giveup | verify | schema | search | version | blocked-result');
     process.exit(2);
   }
 
@@ -49,6 +49,7 @@ function buildCommands(args) {
     verify: async () => (await import('./commands/verify.mjs')).verify(),
     schema: async () => (await import('./commands/inspect.mjs')).schemaCommand(args[0]),
     search: async () => (await import('./commands/inspect.mjs')).searchCommand(args[0], args[1]),
+    version: async () => (await import('./commands/inspect.mjs')).versionCommand(args[0]),
     giveup: async () => {
       fs.writeFileSync('giveup.txt', `${args.join(' ') || 'no reliable reproduction found'}\n`);
       console.log('recorded give-up; the deterministic report will post an "incomplete" comment');

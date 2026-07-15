@@ -46,31 +46,23 @@ class BasicCaptcha extends AbstractCaptcha
             && $activeCaptchas[self::CAPTCHA_NAME]['isActive'];
     }
 
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+    {
+        if ($this->checkCaptcha($request)) {
+            return new ConstraintViolationList();
+        }
+
+        return $this->createViolations();
+    }
+
     /**
-     * validate() is intentionally not overridden: the default implementation dispatches
-     * through the deprecated methods below, so subclass overrides keep working until 6.8.
-     *
      * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
      */
     public function isValid(Request $request, array $captchaConfig): bool
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
 
-        $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
-
-        if ($basicCaptchaValue === null) {
-            return false;
-        }
-
-        $session = $this->requestStack->getSession();
-        $captchaSession = $session->get(RequestParamHelper::get($request, 'formId') . self::BASIC_CAPTCHA_SESSION);
-        $session->remove(RequestParamHelper::get($request, 'formId') . self::BASIC_CAPTCHA_SESSION);
-
-        if ($captchaSession === null) {
-            return false;
-        }
-
-        return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
+        return $this->validate($request, $captchaConfig)->count() === 0;
     }
 
     public function shouldBreak(): bool
@@ -90,6 +82,30 @@ class BasicCaptcha extends AbstractCaptcha
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
 
+        return $this->createViolations();
+    }
+
+    private function checkCaptcha(Request $request): bool
+    {
+        $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
+
+        if ($basicCaptchaValue === null) {
+            return false;
+        }
+
+        $session = $this->requestStack->getSession();
+        $captchaSession = $session->get(RequestParamHelper::get($request, 'formId') . self::BASIC_CAPTCHA_SESSION);
+        $session->remove(RequestParamHelper::get($request, 'formId') . self::BASIC_CAPTCHA_SESSION);
+
+        if ($captchaSession === null) {
+            return false;
+        }
+
+        return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
+    }
+
+    private function createViolations(): ConstraintViolationList
+    {
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation(
             '',

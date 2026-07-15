@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -18,9 +19,13 @@ class McpToolsetRegistry
 
     /**
      * @internal
+     *
+     * $allowlistProvider is null in scopes without a per-integration allowlist (e.g. the Store API
+     * registry, which advertises all its tools); a null provider leaves toolset generation unscoped.
      */
     public function __construct(
         private readonly McpCapabilityCatalog $catalog,
+        private readonly ?McpAllowlistProvider $allowlistProvider = null,
     ) {
     }
 
@@ -31,7 +36,12 @@ class McpToolsetRegistry
     {
         $toolsByGroup = [];
 
-        foreach ($this->catalog->enrichedTools() as $tool) {
+        // Scope discovery to the caller's allowlist: toolsets-list and toolset-enable must never
+        // surface tool names outside the integration's allowlist. A null allowlist (unrestricted
+        // integration, or a scope without allowlists) passes null through and lists everything.
+        $allowlist = $this->allowlistProvider?->toolsForCurrentRequest();
+
+        foreach ($this->catalog->enrichedTools($allowlist) as $tool) {
             $group = $tool['group'];
 
             // The "default" group holds the always-advertised meta-tools and is never an

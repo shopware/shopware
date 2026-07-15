@@ -277,6 +277,29 @@ describe('scripts/extensionTooling/setup', () => {
         );
     });
 
+    it('merges plugin aliases and preset host paths into the shim tsconfig', () => {
+        writeDefaultFixtures();
+        writeFile(
+            path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/tsconfig.aliases.json'),
+            `${JSON.stringify({ 'ZeroConfig/*': ['src/*'] })}\n`,
+        );
+        setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        const shimTsconfig = fs.readFileSync(
+            path.join(
+                projectRoot,
+                'custom/plugins/ZeroConfig/src/Resources/app/administration/.shopware-admin/tsconfig.json',
+            ),
+            'utf8',
+        );
+        const parsed = JSON.parse(shimTsconfig.split('\n').slice(1).join('\n')) as {
+            compilerOptions: { paths: Record<string, string[]> };
+        };
+
+        expect(parsed.compilerOptions.paths['ZeroConfig/*']).toEqual(['../src/*']);
+        expect(parsed.compilerOptions.paths.vue[0]).toContain('node_modules/vue');
+    });
+
     it('generates shims for every writable extension with --shim=all-custom', () => {
         writeDefaultFixtures();
         setupExtensionTooling({ projectRoot, administrationRoot, shim: 'all-custom' });

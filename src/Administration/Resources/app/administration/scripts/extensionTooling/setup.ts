@@ -435,6 +435,55 @@ function createIdeBootstraps(context: GeneratorContext, adminRelative: string): 
     return states;
 }
 
+/**
+ * TypeScript replaces `paths` wholesale across `extends`, so a plugin that
+ * declares its own aliases would erase the preset's host paths. The shim is
+ * therefore the single `paths` declarer: it merges the preset's host paths
+ * (re-relativized to the shim, machine paths are fine in generated files)
+ * with optional plugin aliases from a committed
+ * `tsconfig.aliases.json` next to the shim ({ "MyPlugin/*": ["src/*"] },
+ * targets relative to the plugin's administration folder).
+ */
+function buildShimPaths(
+    context: GeneratorContext,
+    shimDir: string,
+    adminFolder: string,
+): Record<string, string[]> | null {
+    const aliasesPath = path.join(adminFolder, 'tsconfig.aliases.json');
+
+    if (!fs.existsSync(aliasesPath)) {
+        return null;
+    }
+
+    const aliases = JSON.parse(fs.readFileSync(aliasesPath, 'utf8')) as Record<string, string[] | string>;
+    const presetPath = path.join(context.toolingRoot, 'tsconfig.base.json');
+    const preset = JSON.parse(fs.readFileSync(presetPath, 'utf8')) as {
+        compilerOptions?: { paths?: Record<string, string[]> };
+    };
+    const presetDir = path.dirname(presetPath);
+    const mergedPaths: Record<string, string[]> = {};
+
+    for (const [
+        moduleName,
+        targets,
+    ] of Object.entries(preset.compilerOptions?.paths ?? {})) {
+        mergedPaths[moduleName] = targets.map((target) =>
+            asRelativeSpecifier(path.join(shimDir, 'tsconfig.json'), path.resolve(presetDir, target)),
+        );
+    }
+
+    for (const [
+        alias,
+        targets,
+    ] of Object.entries(aliases)) {
+        mergedPaths[alias] = (Array.isArray(targets) ? targets : [targets]).map((target) =>
+            asRelativeSpecifier(path.join(shimDir, 'tsconfig.json'), path.resolve(adminFolder, target)),
+        );
+    }
+
+    return mergedPaths;
+}
+
 function createShims(context: GeneratorContext, projects: ExtensionToolingProject[], shim: string): void {
     const targets =
         shim === 'all-custom'
@@ -463,6 +512,7 @@ function createShims(context: GeneratorContext, projects: ExtensionToolingProjec
             const factoryPath = path.join(context.administrationRoot, 'extension-tooling', 'eslint.mjs');
             const shimTsconfigPath = path.join(shimDir, 'tsconfig.json');
             const shimEslintPath = path.join(shimDir, 'eslint.mjs');
+            const shimPaths = buildShimPaths(context, shimDir, adminFolder);
 
             record(
                 context,
@@ -476,6 +526,7 @@ function createShims(context: GeneratorContext, projects: ExtensionToolingProjec
                         {
                             extends: asRelativeSpecifier(shimTsconfigPath, basePreset),
                             files: [asRelativeSpecifier(shimTsconfigPath, adminTypes)],
+                            ...(shimPaths ? { compilerOptions: { paths: shimPaths } } : {}),
                         },
                         null,
                         4,

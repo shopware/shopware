@@ -41,13 +41,17 @@ export function createSkeletonAdmin(projectRoot: string): string {
     );
 
     for (const fileName of [
-        'tsconfig.base.json',
         'admin-types.d.ts',
         'eslint.mjs',
         'legacy-twig.mjs',
     ]) {
         writeFile(path.join(administrationRoot, 'extension-tooling', fileName));
     }
+
+    writeFile(
+        path.join(administrationRoot, 'extension-tooling', 'tsconfig.base.json'),
+        `${JSON.stringify({ compilerOptions: { paths: { vue: ['../node_modules/vue'] } } })}\n`,
+    );
 
     writeFile(
         path.join(administrationRoot, 'extension-tooling', 'host-modules.json'),

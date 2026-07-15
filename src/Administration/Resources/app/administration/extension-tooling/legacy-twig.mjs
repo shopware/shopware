@@ -41,6 +41,16 @@ export function legacyTwigConfig(files = defaultTwigFiles) {
                 'vue/no-unused-vars': 'off',
                 'vue/no-v-html': 'off',
                 'vue/valid-template-root': 'off',
+                // Pure formatting rules stay warnings on legacy templates:
+                // measured as the dominant noise class on existing plugins,
+                // while functional and deprecation rules remain errors.
+                'vue/attribute-hyphenation': 'warn',
+                'vue/attributes-order': 'warn',
+                'vue/html-closing-bracket-newline': 'warn',
+                'vue/html-closing-bracket-spacing': 'warn',
+                'vue/html-self-closing': 'warn',
+                'vue/max-attributes-per-line': 'warn',
+                'vue/singleline-html-element-content-newline': 'warn',
             },
         },
     ];

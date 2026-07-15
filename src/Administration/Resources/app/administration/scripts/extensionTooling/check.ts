@@ -512,21 +512,26 @@ if (require.main === module) {
         maxWorkers: readCliArgument(argv, 'max-workers') ? Number(readCliArgument(argv, 'max-workers')) : undefined,
     })
         .then((check) => {
+            const printToolOutput = (run: ToolRunResult): void => {
+                if (!run.output.trim()) {
+                    return;
+                }
+
+                if (run.status === 'unmanaged') {
+                    console.log('   probe output (why the custom config does not compose):');
+                }
+
+                console.log(run.output);
+            };
+
             for (const result of check.results) {
                 const vendorSuffix = result.project.vendor ? ' · vendor (non-fatal)' : '';
 
                 console.log(`\n── ${result.project.name} [${result.project.technicalNames.join(', ')}]${vendorSuffix}`);
                 console.log(`   ${formatStatus('TypeScript', result.typescript, result.tsMode)}`);
-
-                if (result.typescript.output.trim()) {
-                    console.log(result.typescript.output);
-                }
-
+                printToolOutput(result.typescript);
                 console.log(`   ${formatStatus('ESLint', result.eslint, result.eslintMode)}`);
-
-                if (result.eslint.output.trim()) {
-                    console.log(result.eslint.output);
-                }
+                printToolOutput(result.eslint);
             }
 
             for (const warning of check.warnings) {

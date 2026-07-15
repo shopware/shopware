@@ -5,6 +5,8 @@
     "components": {
         "schemas": {
             "AggregationMetrics": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": {

@@ -68,6 +68,7 @@ class TestPreparationStartedSubscriberTest extends TestCase
 
     /**
      * @param class-string $class
+     * @param non-empty-string $method
      */
     private function preparationStartedFor(string $class, string $method): PreparationStarted
     {

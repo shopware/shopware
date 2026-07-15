@@ -146,7 +146,48 @@ const notificationDescriptor: ComposableDescriptor = {
     ]),
 };
 
-export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [notificationDescriptor];
+const placeholderDescriptor: ComposableDescriptor = {
+    id: 'placeholder',
+    trigger: { type: 'mixin', mixinNames: ['placeholder'] },
+    import: { source: 'src/app/composables/use-placeholder', name: 'usePlaceholder' },
+    declarationStyle: 'destructure',
+    members: methodMembers(['placeholder']),
+};
+
+const inlineSnippetDescriptor: ComposableDescriptor = {
+    id: 'sw-inline-snippet',
+    trigger: { type: 'mixin', mixinNames: ['sw-inline-snippet'] },
+    import: { source: 'src/app/composables/use-inline-snippet', name: 'useInlineSnippet' },
+    declarationStyle: 'destructure',
+    // Only the `getInlineSnippet` method is mapped. Components that read the
+    // mixin's `swInlineSnippetLocale` / `swInlineSnippetFallbackLocale` computeds
+    // directly are not covered and keep the Options-API backoff.
+    members: methodMembers(['getInlineSnippet']),
+};
+
+const salutationDescriptor: ComposableDescriptor = {
+    id: 'salutation',
+    trigger: { type: 'mixin', mixinNames: ['salutation'] },
+    import: { source: 'src/app/composables/use-salutation', name: 'useSalutation' },
+    declarationStyle: 'destructure',
+    members: methodMembers(['salutation']),
+};
+
+const translateWithFallbackDescriptor: ComposableDescriptor = {
+    id: 'translate-with-fallback',
+    trigger: { type: 'mixin', mixinNames: ['translate-with-fallback'] },
+    import: { source: 'src/app/composables/use-translate-with-fallback', name: 'useTranslateWithFallback' },
+    declarationStyle: 'destructure',
+    members: methodMembers(['tWithFallback']),
+};
+
+export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
+    notificationDescriptor,
+    placeholderDescriptor,
+    inlineSnippetDescriptor,
+    salutationDescriptor,
+    translateWithFallbackDescriptor,
+];
 
 export const COMPOSABLE_REGISTRY: readonly ComposableDescriptor[] = [
     ...GLOBAL_DESCRIPTORS,

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -44,6 +45,11 @@ final class OpenApiDtoGenerator
         'head',
         'trace',
     ];
+
+    /**
+     * @var list<string>
+     */
+    private const API_SCHEMA_DIRECTORIES = ['AdminApi', 'StoreApi'];
 
     private const GENERATED_AT_LINE_PATTERN = '# \* Last generated: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n#';
 
@@ -105,7 +111,36 @@ final class OpenApiDtoGenerator
      */
     private function generateFiles(): array
     {
-        $spec = (new OpenApiFileLoader([$this->schemaDirectory]))->loadOpenapiSpecification();
+        $files = [];
+        foreach (self::API_SCHEMA_DIRECTORIES as $apiSchemaDirectory) {
+            $directory = $this->schemaDirectory . '/' . $apiSchemaDirectory;
+            if (!$this->filesystem->exists($directory)) {
+                continue;
+            }
+
+            $spec = (new OpenApiFileLoader([$directory]))->loadOpenapiSpecification();
+            foreach ($this->generateFilesForSpecification($spec) as $file) {
+                if (isset($files[$file->path]) && $this->normalizeGeneratedAtLine($files[$file->path]->contents) !== $this->normalizeGeneratedAtLine($file->contents)) {
+                    throw FrameworkException::invalidArgumentException(\sprintf(
+                        'Admin API and Store API DTO schemas generate conflicting class file "%s".',
+                        $file->path,
+                    ));
+                }
+
+                $files[$file->path] = $file;
+            }
+        }
+
+        return array_values($files);
+    }
+
+    /**
+     * @param array<string, mixed> $spec
+     *
+     * @return list<OpenApiDtoGeneratedFile>
+     */
+    private function generateFilesForSpecification(array $spec): array
+    {
         $components = \is_array($spec['components'] ?? null) ? $spec['components'] : [];
         $componentSpec = ['components' => $components];
 

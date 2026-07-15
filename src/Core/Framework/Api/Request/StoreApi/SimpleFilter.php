@@ -4,25 +4,25 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 07:28:42
+ * Last generated: 2026-07-15 11:22:29
  */
 
-namespace Shopware\Core\Framework\Api\Request;
+namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Package('framework')]
-final readonly class AggregationMetrics
+final readonly class SimpleFilter
 {
     public function __construct(
         #[Assert\NotBlank]
-        public string $name,
-        #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['avg', 'count', 'max', 'min', 'stats', 'sum'])]
+        #[Assert\Choice(choices: ['contains', 'equalsAny', 'prefix', 'suffix'])]
         public string $type,
         #[Assert\NotBlank]
         public string $field,
+        #[Assert\NotBlank]
+        public string $value,
     ) {
     }
 }

@@ -4,32 +4,41 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 07:28:42
+ * Last generated: 2026-07-15 11:22:29
  */
 
-namespace Shopware\Core\Framework\Api\Request;
+namespace Shopware\Core\Framework\Api\Request\AdminApi;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Search parameters. For more information, see our documentation on [Search Queries](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#structure)
+ */
 #[Package('framework')]
 final readonly class Criteria
 {
     public function __construct(
+        /**
+         * Search result page
+         */
         public ?int $page = null,
+        /**
+         * Number of items per result page
+         */
         public ?int $limit = null,
         /**
-         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
+         * @var list<array|EqualsFilter|MultiNotFilter|RangeFilter> List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)
          */
         #[Assert\Valid]
         public ?array $filter = null,
         /**
-         * @var list<Sort>
+         * @var list<CriteriaSort> Sorting in the search result.
          */
         #[Assert\Valid]
         public ?array $sort = null,
         /**
-         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
+         * @var list<array|EqualsFilter|MultiNotFilter|RangeFilter> Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)
          */
         #[Assert\Valid]
         public ?array $postFilter = null,
@@ -44,12 +53,12 @@ final readonly class Criteria
         #[Assert\Valid]
         public ?array $aggregations = null,
         /**
-         * @var list<string>
+         * @var list<string> Perform groupings over certain fields
          */
         #[Assert\All(new Assert\Type('string'))]
         public ?array $grouping = null,
         /**
-         * @var list<string>
+         * @var list<string> Fields which should be returned in the search result.
          */
         #[Assert\All(new Assert\Type('string'))]
         public ?array $fields = null,
@@ -59,7 +68,7 @@ final readonly class Criteria
         #[Assert\Choice(choices: ['none', 'exact', 'next-pages'])]
         public string $totalCountMode = 'none',
         /**
-         * @var list<string>
+         * @var list<string> List of ids to search for
          */
         #[Assert\All(new Assert\Type('string'))]
         public ?array $ids = null,
@@ -75,14 +84,6 @@ final readonly class Criteria
          * @var array<string, list<string>>
          */
         public ?array $excludes = null,
-        /**
-         * Search term
-         */
-        public ?string $term = null,
-        /**
-         * The query string to search for
-         */
-        public ?string $query = null,
     ) {
     }
 }

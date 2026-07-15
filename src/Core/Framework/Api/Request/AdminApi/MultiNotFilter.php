@@ -4,10 +4,10 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 07:28:42
+ * Last generated: 2026-07-15 11:25:19
  */
 
-namespace Shopware\Core\Framework\Api\Request;
+namespace Shopware\Core\Framework\Api\Request\AdminApi;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,15 +19,14 @@ final readonly class MultiNotFilter
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['multi', 'not'])]
         public string $type,
-        #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['and', 'or', 'nor', 'nand'])]
-        public string $operator,
         /**
-         * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter>
+         * @var list<array|EqualsFilter|MultiNotFilter|RangeFilter>
          */
         #[Assert\NotNull]
         #[Assert\Valid]
         public array $queries,
+        #[Assert\Choice(choices: ['and', 'or', 'nor', 'nand'])]
+        public ?string $operator = null,
     ) {
     }
 }

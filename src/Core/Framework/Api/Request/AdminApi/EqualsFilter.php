@@ -4,26 +4,24 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 07:28:42
+ * Last generated: 2026-07-15 11:25:19
  */
 
-namespace Shopware\Core\Framework\Api\Request;
+namespace Shopware\Core\Framework\Api\Request\AdminApi;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Package('framework')]
-final readonly class RangeFilter
+final readonly class EqualsFilter
 {
     public function __construct(
         #[Assert\NotBlank]
         public string $field,
-        #[Assert\NotNull]
-        #[Assert\Valid]
-        public RangeFilterParameters $parameters,
+        public string|float|bool|null $value,
         #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['range'])]
-        public string $type = 'range',
+        #[Assert\Choice(choices: ['equals'])]
+        public string $type = 'equals',
     ) {
     }
 }

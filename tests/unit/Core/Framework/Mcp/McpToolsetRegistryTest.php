@@ -32,8 +32,8 @@ class McpToolsetRegistryTest extends TestCase
             $registry,
             $this->stubPrivilegeProvider(),
             toolGroups: [
-                McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'default',
-                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'discovery',
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
                 'shopware-entity-search' => 'entity',
                 'shopware-entity-read' => 'entity',
                 'shopware-order-state' => 'order',
@@ -70,7 +70,7 @@ class McpToolsetRegistryTest extends TestCase
                 'my-erp-read-stock' => 'my-erp',
             ]),
             toolGroups: [
-                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
                 'shopware-entity-search' => 'entity',
             ],
         ));
@@ -96,14 +96,14 @@ class McpToolsetRegistryTest extends TestCase
             $registry,
             $this->stubPrivilegeProvider(),
             toolGroups: [
-                McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'default',
-                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'discovery',
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
                 'shopware-entity-search' => 'entity',
             ],
         ));
 
         static::assertSame('entity', $toolsetRegistry->find('entity')['name'] ?? null);
-        static::assertNull($toolsetRegistry->find('default'));
+        static::assertNull($toolsetRegistry->find('discovery'));
         static::assertNull($toolsetRegistry->find('missing'));
     }
 
@@ -121,8 +121,8 @@ class McpToolsetRegistryTest extends TestCase
             $registry,
             $this->stubPrivilegeProvider(),
             toolGroups: [
-                McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'default',
-                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL => 'discovery',
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
                 'shopware-entity-search' => 'entity',
                 'shopware-entity-read' => 'entity',
                 'shopware-order-state' => 'order',
@@ -163,7 +163,7 @@ class McpToolsetRegistryTest extends TestCase
                 $registry,
                 $this->stubPrivilegeProvider(),
                 toolGroups: [
-                    McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                    McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'discovery',
                     'shopware-entity-search' => 'entity',
                     'shopware-entity-read' => 'entity',
                     'shopware-order-state' => 'order',

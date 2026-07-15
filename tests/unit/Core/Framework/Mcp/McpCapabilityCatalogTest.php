@@ -89,6 +89,35 @@ class McpCapabilityCatalogTest extends TestCase
         static::assertSame('other', $catalog->enrichedTools()[0]['group']);
     }
 
+    public function testEnrichedToolsUsesRuntimeAppGroupWhenNoCompileTimeGroupExists(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'my-erp-sync-orders', 'Sync orders');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider([], ['my-erp-sync-orders' => 'my-erp']),
+        );
+
+        static::assertSame('my-erp', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testCompileTimeGroupTakesPrecedenceOverRuntimeAppGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'my-erp-sync-orders', 'Sync orders');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider([], ['my-erp-sync-orders' => 'my-erp']),
+            [],
+            [],
+            ['my-erp-sync-orders' => 'catalogue'],
+        );
+
+        static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void
     {
         $registry = new Registry();
@@ -362,11 +391,13 @@ class McpCapabilityCatalogTest extends TestCase
 
     /**
      * @param array<string, list<string>> $appPrivileges
+     * @param array<string, string> $appGroups
      */
-    private function stubPrivilegeProvider(array $appPrivileges = []): AppMcpPrivilegeProvider
+    private function stubPrivilegeProvider(array $appPrivileges = [], array $appGroups = []): AppMcpPrivilegeProvider
     {
         $stub = static::createStub(AppMcpPrivilegeProvider::class);
         $stub->method('getAppToolPrivileges')->willReturn($appPrivileges);
+        $stub->method('getAppToolGroups')->willReturn($appGroups);
 
         return $stub;
     }

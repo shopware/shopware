@@ -16,8 +16,6 @@ class McpToolsetRegistry
 
     private const DEFAULT_GROUP = 'default';
 
-    private const OTHER_GROUP = 'other';
-
     /**
      * @internal
      */
@@ -35,7 +33,12 @@ class McpToolsetRegistry
 
         foreach ($this->catalog->enrichedTools() as $tool) {
             $group = $tool['group'];
-            if ($group === self::DEFAULT_GROUP || $group === self::OTHER_GROUP) {
+
+            // The "default" group holds the always-advertised meta-tools and is never an
+            // enable-able toolset. Every other group is, including the "other" catch-all: an
+            // ungrouped tool (e.g. a bundle tool without #[McpToolGroup]) must still have a
+            // guaranteed enable path instead of being reachable through tool-search alone.
+            if ($group === self::DEFAULT_GROUP) {
                 continue;
             }
 

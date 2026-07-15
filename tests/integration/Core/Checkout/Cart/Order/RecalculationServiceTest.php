@@ -43,12 +43,13 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Content\Product\State;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -235,7 +236,7 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('lineItems')
             ->addAssociation('deliveries.positions');
 
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         $lineItems = $order->getLineItems();
@@ -260,7 +261,7 @@ class RecalculationServiceTest extends TestCase
             (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
                 ->setLabel('Test custom line item')
                 ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)])))
-                ->setStates([State::IS_DOWNLOAD]),
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
             2,
         ];
     }
@@ -756,6 +757,8 @@ class RecalculationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotions(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         // create order
         $cart = $this->generateDemoCart();
         ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
@@ -776,6 +779,8 @@ class RecalculationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotionsForDelivery(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         // create order
         $cart = $this->generateDemoCart();
 
@@ -1795,7 +1800,7 @@ class RecalculationServiceTest extends TestCase
         $orderId = static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
         $criteria = new Criteria([$orderId]);
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         return [

@@ -141,7 +141,7 @@ class ContainerCartProcessorTest extends TestCase
                     new PercentageItem(-10),
                 ]),
             ]),
-            new CalculatedPrice(97.56, 97.56, new CalculatedTaxes([19 => 7.77, 7 => 3.20]), new HighTaxes()),
+            new CalculatedPrice(97.56, 97.56, new CalculatedTaxes([19 => 7.78, 7 => 3.19]), new HighTaxes()),
         ];
     }
 }

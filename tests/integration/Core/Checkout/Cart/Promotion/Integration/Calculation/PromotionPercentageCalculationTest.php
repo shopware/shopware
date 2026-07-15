@@ -136,7 +136,7 @@ class PromotionPercentageCalculationTest extends TestCase
          */
         static::assertSame(50.0, $cart->getPrice()->getTotalPrice());
         static::assertSame(50.0, $cart->getPrice()->getPositionPrice());
-        static::assertSame(41.66, $cart->getPrice()->getNetPrice());
+        static::assertSame(41.67, $cart->getPrice()->getNetPrice());
 
         $promotion = $cart->getLineItems()->getElements();
         $promotion = array_values($promotion)[1];
@@ -146,7 +146,7 @@ class PromotionPercentageCalculationTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $price);
         static::assertSame(-50.0, $price->getTotalPrice());
         static::assertNotNull($price->getCalculatedTaxes()->first());
-        static::assertSame(-8.33, $price->getCalculatedTaxes()->first()->getTax());
+        static::assertSame(-8.34, $price->getCalculatedTaxes()->first()->getTax());
     }
 
     /**

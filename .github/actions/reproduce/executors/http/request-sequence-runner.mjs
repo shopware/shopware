@@ -70,8 +70,22 @@ export class HttpRequestSequenceRunner {
   }
 
   async fetchRequest({ method, path, body, headers }, index) {
+    // Resolve the authored path against the shop base and REQUIRE it to stay same-origin. The http leg
+    // runs host-side with no container/egress DROP, so string-concatenation (`${appUrl()}${path}`)
+    // would let a path like `@evil.com/x` or `//evil.com` (userinfo / protocol-relative) send the
+    // fetch off-origin. new URL(path, base) resolves a bare path as a path segment (safe), and the
+    // origin assert rejects absolute/protocol-relative/userinfo escapes.
+    let target;
     try {
-      return await fetch(`${appUrl()}${path}`, { method, headers, body: body || undefined });
+      target = new URL(path, `${appUrl()}/`);
+    } catch {
+      throw new HttpRequestBlocked(`request ${index + 1} (${method} ${path}) -- malformed path`);
+    }
+    if (target.origin !== new URL(`${appUrl()}/`).origin) {
+      throw new HttpRequestBlocked(`request ${index + 1} (${method} ${path}) -- refusing off-origin request to ${target.origin}; the path must be same-origin as the shop`);
+    }
+    try {
+      return await fetch(target, { method, headers, body: body || undefined });
     } catch {
       throw new HttpRequestBlocked(`request ${index + 1} (${method} ${path}) -- transport failure`);
     }

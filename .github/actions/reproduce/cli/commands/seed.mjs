@@ -6,24 +6,13 @@
  * `seed-error.txt` and throw so both agent preview and official legs get an actionable blocker.
  */
 import fs from 'node:fs';
-import { FILES, ENTITY_PLACEHOLDERS, readJson, fillPlaceholders, unresolvedPlaceholders } from '../../bundle.mjs';
+import { FILES, ENTITY_PLACEHOLDERS, STABLE_IDS, readJson, fillPlaceholders, unresolvedPlaceholders } from '../../bundle.mjs';
 import { resolvePlaceholders, sync, uploadMedia, refreshIndexes } from '../../admin-api.mjs';
 
 /**
  * Converts Admin API-style entity names to Sync API operation entity names.
  */
 const snakeCase = (name) => name.replace(/-/g, '_');
-
-/**
- * Shopware core ids that are identical on every install and safe to hardcode.
- *
- * Unlike country, salutation, or payment ids, these survive replay on the trunk leg. Keep this set in
- * sync with `validate.mjs`; otherwise valid placeholder fallbacks would be rejected as install ids.
- */
-const STABLE_IDS = new Set([
-  '2fbb5fe2e29a4d70aa5854ce7ce3e20b', // Defaults::LANGUAGE_SYSTEM
-  'b7d2554b0ce847cd82f3ac9bd1c0dfca', // Defaults::LIVE_VERSION
-]);
 
 /**
  * Storefront indexers affected by each seeded entity type.

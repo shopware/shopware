@@ -8,7 +8,7 @@
  * executes — is the job of the sandboxed verify container, not of any string-scan here.
  */
 import fs from 'node:fs';
-import { FILES, EXECUTORS, LAYERS, readJson } from '../../bundle.mjs';
+import { FILES, EXECUTORS, LAYERS, STABLE_IDS, readJson } from '../../bundle.mjs';
 import { stripNarration, hasLeftoverNarration } from '../../executors/playwright/strip-narration.mjs';
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', 'host.docker.internal'];
@@ -155,16 +155,10 @@ function validateSpec(plan) {
 }
 
 /**
- * Core ids that can safely appear as literals in HTTP plans.
- *
- * The plan is replayed verbatim on both legs, but most Shopware ids are generated per install. Bare
- * 32-hex ids usually point at reported-leg rows that do not exist on trunk, so they are rejected
- * unless they are stable core constants or ids created by fixtures/request setup.
+ * Matches a bare 32-hex id. The plan is replayed verbatim on both legs, but most Shopware ids are
+ * generated per install, so a bare id usually points at a reported-leg row absent on trunk — rejected
+ * below unless it is a STABLE_IDS core constant or an id created by fixtures/request setup.
  */
-const STABLE_IDS = new Set([
-  '2fbb5fe2e29a4d70aa5854ce7ce3e20b', // Defaults::LANGUAGE_SYSTEM
-  'b7d2554b0ce847cd82f3ac9bd1c0dfca', // Defaults::LIVE_VERSION
-]);
 const HEX32 = /(?<![0-9a-f])[0-9a-f]{32}(?![0-9a-f])/g;
 
 /**

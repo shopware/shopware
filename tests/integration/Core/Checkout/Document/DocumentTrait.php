@@ -242,7 +242,7 @@ trait DocumentTrait
             $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
         }
 
-        $config = $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
+        $config = $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($config === null) {
             return null;

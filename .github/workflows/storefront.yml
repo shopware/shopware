@@ -39,7 +39,7 @@ jobs:
           install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -75,7 +75,7 @@ jobs:
           install-admin: true
 
       - name: Cache ESLint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Storefront/Resources/app/administration/.eslintcache
@@ -214,7 +214,7 @@ jobs:
       - name: Install npm
         run: npm install -g npm@11.8.0
       - name: Cache npm packages
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
           # offline (see prefer-offline below), which keeps retries off the network.

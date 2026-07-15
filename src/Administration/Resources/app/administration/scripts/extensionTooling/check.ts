@@ -247,11 +247,11 @@ function readEslintMajorVersion(administrationRoot: string): number {
     }
 }
 
-function countTypeScriptFindings(output: string): number {
+export function countTypeScriptFindings(output: string): number {
     return output.split(/\r?\n/).filter((line) => /error TS\d+:/.test(line)).length;
 }
 
-function countEslintFindings(output: string): number {
+export function countEslintFindings(output: string): number {
     const summaryMatch = output.match(/✖ (\d+) problems? \((\d+) errors?, (\d+) warnings?\)/);
 
     if (summaryMatch) {
@@ -319,7 +319,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     const vueTscPath = path.join(administrationRoot, 'node_modules', 'vue-tsc', 'bin', 'vue-tsc.js');
     const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
 
-    if (!fs.existsSync(vueTscPath)) {
+    if (projects.length > 0 && !fs.existsSync(vueTscPath)) {
         fatalDiagnostics.push(
             `vue-tsc is not installed in the Administration (${relativePosix(projectRoot, vueTscPath)}). ` +
                 'Fix: composer init:js',

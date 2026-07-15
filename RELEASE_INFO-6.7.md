@@ -514,6 +514,15 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 ## Administration
 
+### Opt-in TypeScript and ESLint tooling for Administration extensions
+
+Two new opt-in composer commands connect the Administration's own toolchain to every installed extension:
+
+- `composer admin:setup-extension-tooling` discovers all installed extensions with Administration sources and generates disposable, marker-owned configs (per-extension tsconfigs under `var/admin-extension-tooling/`, root `tsconfig.json` / `eslint.config.mjs` projections, IDE bootstraps for VS Code and Zed). A zero-config plugin gets full typed autocomplete — including installation-specific entity types — and lint coverage without any files of its own; plugins that prefer committed configs can generate a self-ignoring `.shopware-admin/` shim via `--shim=<name>` and extend it.
+- `composer admin:check-extensions` runs `vue-tsc` and ESLint per extension with the Administration's pinned tool versions and native output. Extension configs that do not compose the Shopware preset are visibly skipped as `unmanaged`, never silently green; findings in `vendor/`-installed extensions are reported non-fatally by default.
+
+The type surface is the live installed Administration types (`global.types.ts` plus the generated entity schema). The API boundary is expressed through JSDoc annotations (`@deprecated`) enforced via ESLint (`@typescript-eslint/no-deprecated`, `sw-deprecation-rules`); internal plugins may lower `internalApiSeverity` in their own config. Nothing changes for existing flows: no default build, watch, init, or CI pipeline invokes the new commands.
+
 ### Reworked search behaviour options
 
 The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.

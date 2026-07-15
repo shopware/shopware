@@ -79,6 +79,10 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
             throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
         }
 
+        if ($generationRequest->deliveryDate === null) {
+            throw DocumentV2Exception::missingDeliveryDate($generationRequest->documentType);
+        }
+
         return new DeliveryNoteRenderData(
             config: $bundle->config,
             company: $bundle->company,
@@ -88,7 +92,7 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
             documentComment: $generationRequest->documentComment,
             custom: [
                 'deliveryNoteNumber' => $documentNumber,
-                'deliveryDate' => $generationRequest->documentDate,
+                'deliveryDate' => $generationRequest->deliveryDate,
                 'deliveryNoteDate' => $generationRequest->documentDate,
             ],
             legacyConfig: $bundle->legacyConfig,

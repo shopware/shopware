@@ -37,6 +37,8 @@ class DeliveryNoteDataProviderTest extends TestCase
 
     private const DOCUMENT_DATE = '2026-05-05T12:00:00+00:00';
 
+    private const DELIVERY_DATE = '2026-05-08T09:30:00+00:00';
+
     public function testGetDocumentTypes(): void
     {
         $provider = $this->createProvider();
@@ -106,6 +108,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             '12345',
             documentComment: 'ship it',
             documentDate: self::DOCUMENT_DATE,
+            deliveryDate: self::DELIVERY_DATE,
         );
 
         $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
@@ -115,7 +118,7 @@ class DeliveryNoteDataProviderTest extends TestCase
         static::assertSame('ship it', $result->documentComment);
     }
 
-    public function testProvideRenderingDataFillsDeliveryCustomFieldsFromDocumentNumberAndDate(): void
+    public function testProvideRenderingDataUsesRequestDeliveryDateAndDocumentDateForNoteDate(): void
     {
         $provider = $this->createProvider();
         $order = self::createOrder();
@@ -127,12 +130,13 @@ class DeliveryNoteDataProviderTest extends TestCase
             [DocumentFormat::PDF],
             '12345',
             documentDate: self::DOCUMENT_DATE,
+            deliveryDate: self::DELIVERY_DATE,
         );
 
         $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
 
         static::assertSame('12345', $result->custom['deliveryNoteNumber']);
-        static::assertSame(self::DOCUMENT_DATE, $result->custom['deliveryDate']);
+        static::assertSame(self::DELIVERY_DATE, $result->custom['deliveryDate']);
         static::assertSame(self::DOCUMENT_DATE, $result->custom['deliveryNoteDate']);
     }
 
@@ -148,10 +152,33 @@ class DeliveryNoteDataProviderTest extends TestCase
             [DocumentFormat::PDF],
             documentNumber: null,
             documentDate: self::DOCUMENT_DATE,
+            deliveryDate: self::DELIVERY_DATE,
         );
 
         $this->expectExceptionObject(
             DocumentV2Exception::missingDocumentNumber(DocumentType::DELIVERY_NOTE->value),
+        );
+
+        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+    }
+
+    public function testProvideRenderingDataThrowsWhenDeliveryDateMissing(): void
+    {
+        $provider = $this->createProvider();
+        $order = self::createOrder();
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::DELIVERY_NOTE,
+            [DocumentFormat::PDF],
+            '12345',
+            documentDate: self::DOCUMENT_DATE,
+            deliveryDate: null,
+        );
+
+        $this->expectExceptionObject(
+            DocumentV2Exception::missingDeliveryDate(DocumentType::DELIVERY_NOTE->value),
         );
 
         $provider->provideRenderingData($order, $request, Context::createDefaultContext());

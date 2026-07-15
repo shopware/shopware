@@ -85,7 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showSingleOptionActions() {
-            return !this.showStoreDataConsent;
+            return this.visibleOptions.length === 1;
         },
 
         showStoreDataConsent() {
@@ -102,7 +102,8 @@ export default Shopware.Component.wrapComponentConfig({
 
         showSavePreferences() {
             return (
-                this.showStoreDataConsent && (this.storeDataConsent || (this.showUserDataConsent && this.userDataConsent))
+                this.visibleOptions.length > 1 &&
+                (this.storeDataConsent || (this.showUserDataConsent && this.userDataConsent))
             );
         },
     },
@@ -151,10 +152,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         async giveSingleOptionConsent(done: () => void) {
             this.sharesAll = true;
-            this.userDataConsent = true;
+
+            if (this.showStoreDataConsent) {
+                this.storeDataConsent = true;
+            }
+
+            if (this.showUserDataConsent) {
+                this.userDataConsent = true;
+            }
 
             try {
-                await this.updateConsents(this.storeDataConsent, true);
+                await this.updateConsents(this.storeDataConsent, this.userDataConsent);
             } finally {
                 this.sharesAll = false;
                 done();
@@ -163,10 +171,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         async declineSingleOptionConsent(done: () => void) {
             this.revokesAll = true;
-            this.userDataConsent = false;
+
+            if (this.showStoreDataConsent) {
+                this.storeDataConsent = false;
+            }
+
+            if (this.showUserDataConsent) {
+                this.userDataConsent = false;
+            }
 
             try {
-                await this.updateConsents(this.storeDataConsent, false);
+                await this.updateConsents(this.storeDataConsent, this.userDataConsent);
             } finally {
                 this.revokesAll = false;
                 done();

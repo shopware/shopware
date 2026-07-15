@@ -29,6 +29,7 @@
                 <sw-settings-usage-data-store-data-consent-card
                     v-if="showStoreDataConsent"
                     v-model:consent="storeDataConsent"
+                    :hide-switch="showSingleOptionActions"
                     @legal-link-clicked="trackLegalLinkClick('data_use_details')"
                 />
                 <sw-settings-usage-data-user-data-consent-card

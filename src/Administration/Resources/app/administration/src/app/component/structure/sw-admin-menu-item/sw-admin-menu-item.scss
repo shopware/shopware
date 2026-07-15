@@ -37,6 +37,13 @@ $nesting-line-indent: 36px;
         color: var(--color-text-primary-default);
     }
 
+    // Inset ring so the focus outline is never clipped by the necessary
+    // overflow: hidden on the collapsible / scrolling menu body.
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
+        outline-offset: -2px;
+    }
+
     .mt-icon {
         flex-shrink: 0;
     }

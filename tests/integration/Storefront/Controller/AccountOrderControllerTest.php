@@ -61,6 +61,9 @@ class AccountOrderControllerTest extends TestCase
      */
     public function testAjaxOrderDetail(): void
     {
+        // the route throws under the flag (triggerDeprecationOrThrow), leaving the render-event assertions unreached
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
         $browser = $this->login($customer->getEmail());
@@ -568,7 +571,7 @@ class AccountOrderControllerTest extends TestCase
         $repo->create([$customer], $context);
 
         /** @var CustomerEntity|null $customer */
-        $customer = $repo->search(new Criteria([$customerId]), $context)->first();
+        $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
 
         static::assertNotNull($customer);
 

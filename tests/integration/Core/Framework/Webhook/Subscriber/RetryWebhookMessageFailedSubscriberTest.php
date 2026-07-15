@@ -115,7 +115,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
 
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(1, $webhook->getErrorCount());
@@ -283,7 +283,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
 
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(0, $webhook->getErrorCount());
@@ -362,7 +362,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
 
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(10, $webhook->getErrorCount());
@@ -411,7 +411,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $status);
 
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame($startingErrorCount, $webhook->getErrorCount());
         static::assertTrue($webhook->isActive());
@@ -453,7 +453,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
         // Webhook disabled at threshold, error_count reset to 0
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(0, $webhook->getErrorCount());
         static::assertFalse($webhook->isActive());
@@ -532,7 +532,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             static::assertSame($expectedEventLogStatus, $eventLogStatus);
 
             $webhookRepository = static::getContainer()->get('webhook.repository');
-            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
             static::assertInstanceOf(WebhookEntity::class, $webhook);
             static::assertSame($expectedErrorCount, $webhook->getErrorCount());
             static::assertTrue($webhook->isActive());
@@ -599,7 +599,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $status, 'Subscriber must not modify event log when flag is ON');
 
             $webhookRepository = static::getContainer()->get('webhook.repository');
-            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
 
             static::assertInstanceOf(WebhookEntity::class, $webhook);
             static::assertSame(0, $webhook->getErrorCount());
@@ -635,7 +635,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $this->failWithRetrySubscriber($event, $subscriber);
 
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(16, $webhook->getErrorCount());
@@ -681,7 +681,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $status);
 
             $webhookRepository = static::getContainer()->get('webhook.repository');
-            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->getEntities()->first();
             static::assertInstanceOf(WebhookEntity::class, $webhook);
             static::assertSame(0, $webhook->getErrorCount());
             static::assertTrue($webhook->isActive());

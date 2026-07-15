@@ -18,6 +18,8 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 #[Package('framework')]
 class Configuration implements ConfigurationInterface
 {
+    private const ENV_PLACEHOLDER_NOT_SUPPORTED = 'Runtime environment variable placeholders such as "%env(int:VALUE)%" are not supported for this option. Configure a literal value instead.';
+
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('shopware');
@@ -142,7 +144,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('batch_write_size')
                     ->defaultValue(250)
                     ->min(1)
-                    ->info('Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter')
+                    ->info('Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter. ' . self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                 ->end()
             ->end();
 
@@ -308,6 +310,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('batchsize')
                     ->min(1)
                     ->defaultValue(100)
+                    ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                 ->end()
                 ->arrayNode('scheduled_task')
                     ->children()
@@ -365,6 +368,7 @@ class Configuration implements ConfigurationInterface
                             ->defaultValue(5)
                             ->min(1)
                             ->max(10080)
+                            ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                             ->end()
                     ->end()
                 ->end()
@@ -862,16 +866,19 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('batch_size')
                     ->min(1)
                     ->defaultValue(125)
+                    ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                 ->end()
                 ->integerNode('max_rule_prices')
                     ->min(1)
                     ->defaultValue(100)
+                    ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                 ->end()
                 ->arrayNode('versioning')
                     ->children()
                         ->integerNode('expire_days')
                             ->min(1)
                             ->defaultValue(30)
+                            ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                             ->end()
                 ->end()
             ->end();
@@ -892,6 +899,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
+                    ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                 ->end()
                 ->arrayNode('storage')
                     ->children()
@@ -921,6 +929,7 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('expire_days')
                             ->min(1)
                             ->defaultValue(30)
+                            ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                     ->end()
             ->end();
 
@@ -963,6 +972,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
+                    ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                 ->end()
             ->end();
 
@@ -987,6 +997,7 @@ class Configuration implements ConfigurationInterface
                     ->integerNode('relevant_keyword_count')
                         ->min(1)
                         ->defaultValue(8)
+                        ->info(self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                     ->end()
                 ->end()
             ->end();
@@ -1626,7 +1637,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue([])
                 ->end()
                 ->integerNode('app_tool_timeout')
-                    ->info('Timeout in seconds for app webhook MCP tool calls.')
+                    ->info('Timeout in seconds for app webhook MCP tool calls. ' . self::ENV_PLACEHOLDER_NOT_SUPPORTED)
                     ->defaultValue(10)
                     ->min(1)
                 ->end()

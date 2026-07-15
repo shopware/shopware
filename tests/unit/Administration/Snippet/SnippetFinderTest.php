@@ -400,6 +400,43 @@ class SnippetFinderTest extends TestCase
         );
     }
 
+    #[TestDox('An empty snippet file is skipped without logging an error')]
+    public function testEmptySnippetFileIsSkipped(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $emptyFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
+        $this->filesystem->write($emptyFilePath, '');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->never())
+            ->method('error');
+
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock([]),
+            translationConfig: $config,
+            logger: $logger,
+        );
+
+        static::assertSame(
+            ['plugin_administration' => 'Plugin admin'],
+            $snippetFinder->findSnippets('es-ES'),
+            'snippets of intact files must survive an empty file'
+        );
+    }
+
     #[TestDox('In debug mode an invalid snippet file throws an exception naming the file')]
     public function testInvalidSnippetFileThrowsInDebugMode(): void
     {

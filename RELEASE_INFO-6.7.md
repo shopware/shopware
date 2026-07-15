@@ -59,12 +59,6 @@ The deprecated members keep working and will be replaced in Shopware 6.8. Migrat
 
 The new `sales_channel.maintenance_ip_allowlist` database column is added and kept in sync with the deprecated `maintenance_ip_whitelist` column. The deprecated field and column will be removed with Shopware 6.8.
 
-### Deprecated `BeforeCacheControlEvent` and the administration cache-control marker
-
-`Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent`, `Shopware\Administration\Controller\AdministrationController::CACHE_ID_HEADER` and `Shopware\Administration\Controller\AdministrationController::CACHE_ID_ADMINISTRATION` are deprecated and will be removed in Shopware 6.8.0.0, together with the internal dispatching and consuming code.
-
-The event and related headers only existed to skip the `CacheControlListener`. With the new caching (the `CACHE_REWORK` feature flag, which becomes the default in 6.8.0) the response `Cache-Control` headers will be returned to the calling client and whole construction will be removed.
-
 ### Deprecated core script response rendering
 
 `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in Shopware 6.8.0.0.
@@ -285,19 +279,6 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 `loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
-### FormFieldToggle can toggle related submit button labels
-
-The storefront `FormFieldToggle` plugin now supports optionally updating a related button label when the toggle value changes.
-
-This is useful for dynamic forms (for example subscribe vs unsubscribe flows) where hidden/visible field groups and the submit action label should stay in sync without introducing a dedicated custom plugin.
-
-For extension and theme developers, two optional data attributes are available on the controlling field:
-
-- `data-form-field-toggle-button-target`: CSS selector for the related button.
-- `data-form-field-toggle-button-text`: Alternate button text that is applied when the toggle target is hidden.
-
-If those attributes are not provided, `FormFieldToggle` behaves exactly as before.
-
 ## API
 
 ### Store API OpenAPI: JSON schema files take precedence over generated entity schemas
@@ -398,10 +379,6 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 ```
 
 ## Administration
-
-### An invalid snippet file no longer breaks the Administration
-
-An invalid administration snippet JSON file (e.g. from a plugin) previously broke the whole Administration with a 500 error. Such files are now skipped and logged with their path; with `APP_DEBUG=1` loading still fails, naming the broken file. (shopware/shopware#8593)
 
 ### Reworked search behaviour options
 

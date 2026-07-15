@@ -1,6 +1,8 @@
 import type { CompositionScriptState } from './composition-script-state';
 import { emitCreateExtendableSetup } from './emit-create-extendable-setup';
-import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
+import { emitIdent } from './identifiers';
+import type { ComposableDescriptor } from './composable-registry';
+import type { ActiveComposable } from './types';
 import { IDENTIFIER_TEMPLATE_MARKER, identTemplate, renderIdentifierTemplates } from './identifier-template';
 import type { IdentifierTemplate, IdentifierToken, ScriptLine } from './identifier-template';
 
@@ -65,42 +67,54 @@ function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState):
 }
 
 function emitImports(lines: ScriptLine[], state: CompositionScriptState): void {
-    const { usedComposables, vueImports } = state;
+    const { activeComposables, vueImports } = state;
 
     lines.push(`import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';`);
     if (vueImports.length > 0) {
         lines.push(`import { ${[...new Set(vueImports)].join(', ')} } from 'vue';`);
     }
 
-    const routerImports: string[] = [];
-    if (usedComposables.needsRouter) routerImports.push('useRouter');
-    if (usedComposables.needsRoute) routerImports.push('useRoute');
-    if (routerImports.length > 0) {
-        lines.push(`import { ${routerImports.join(', ')} } from 'vue-router';`);
+    // Group non-'vue' composable imports by source, in first-seen order.
+    // 'vue'-sourced composables (useSlots/useAttrs) are already part of the vue
+    // import line above, so they are skipped here.
+    const importsBySource = new Map<string, string[]>();
+    for (const { descriptor } of activeComposables) {
+        if (descriptor.import.source === 'vue') {
+            continue;
+        }
+        const names = importsBySource.get(descriptor.import.source) ?? [];
+        if (!names.includes(descriptor.import.name)) {
+            names.push(descriptor.import.name);
+        }
+        importsBySource.set(descriptor.import.source, names);
     }
-    if (usedComposables.needsI18n) {
-        lines.push(`import { useI18n } from 'vue-i18n';`);
+    for (const [source, names] of importsBySource) {
+        lines.push(`import { ${names.join(', ')} } from '${source}';`);
     }
+
     lines.push('');
 }
 
 function emitComposableDeclarations(lines: ScriptLine[], state: CompositionScriptState): void {
-    const { usedComposables } = state;
+    const { activeComposables } = state;
 
-    if (usedComposables.needsRouter) lines.push(identTemplate`const ${routerIdent} = useRouter();`);
-    if (usedComposables.needsRoute) lines.push(identTemplate`const ${routeIdent} = useRoute();`);
-    if (usedComposables.needsSlots) lines.push(identTemplate`const ${slotsIdent} = useSlots();`);
-    if (usedComposables.needsAttrs) lines.push(identTemplate`const ${attrsIdent} = useAttrs();`);
-    if (usedComposables.needsI18n) lines.push(createI18nDeclarationTemplate());
-    const hasComposableDeclarations =
-        usedComposables.needsRouter ||
-        usedComposables.needsRoute ||
-        usedComposables.needsSlots ||
-        usedComposables.needsAttrs ||
-        usedComposables.needsI18n;
-    if (hasComposableDeclarations) {
+    for (const active of activeComposables) {
+        lines.push(buildComposableDeclaration(active));
+    }
+    if (activeComposables.length > 0) {
         lines.push('');
     }
+}
+
+function buildComposableDeclaration(active: ActiveComposable): ScriptLine {
+    const { descriptor, memberKeys } = active;
+
+    if (descriptor.declarationStyle === 'whole') {
+        // `binding` is always set for whole descriptors.
+        return identTemplate`const ${descriptor.binding as IdentifierToken} = ${descriptor.import.name}();`;
+    }
+
+    return createDestructureDeclarationTemplate(descriptor, memberKeys);
 }
 
 function emitTemplateRefs(lines: ScriptLine[], state: CompositionScriptState): void {
@@ -121,16 +135,36 @@ function collectTakenNames(state: CompositionScriptState): Set<string> {
     ]);
 }
 
-function createI18nDeclarationTemplate(): IdentifierTemplate {
+/**
+ * Emits `const { a, b: b2 } = useX();` for a destructure descriptor. Each unique
+ * binding renders as its source key, or `sourceKey: renamed` when the identifier
+ * resolver had to rename it to avoid a collision.
+ */
+function createDestructureDeclarationTemplate(descriptor: ComposableDescriptor, memberKeys: string[]): IdentifierTemplate {
+    const usedKeys = new Set(memberKeys);
+    const seen = new Set<IdentifierToken>();
+    const entries: { ident: IdentifierToken; sourceKey: string }[] = [];
+    for (const [key, member] of Object.entries(descriptor.members)) {
+        if (!usedKeys.has(key) || seen.has(member.ident)) {
+            continue;
+        }
+        seen.add(member.ident);
+        entries.push({ ident: member.ident, sourceKey: member.sourceKey ?? '' });
+    }
+
     return {
         [IDENTIFIER_TEMPLATE_MARKER]: true,
         getIdentifierTokens(): IdentifierToken[] {
-            return [tIdent];
+            return entries.map((entry) => entry.ident);
         },
         render(resolve: (token: IdentifierToken) => string): string {
-            const resolvedName = resolve(tIdent);
+            const parts = entries.map(({ ident, sourceKey }) => {
+                const resolved = resolve(ident);
 
-            return resolvedName === 't' ? 'const { t } = useI18n();' : `const { t: ${resolvedName} } = useI18n();`;
+                return resolved === sourceKey ? sourceKey : `${sourceKey}: ${resolved}`;
+            });
+
+            return `const { ${parts.join(', ')} } = ${descriptor.import.name}();`;
         },
     };
 }

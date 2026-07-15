@@ -3,6 +3,7 @@ import { buildCompositionApiScript } from './build-composition-api-script';
 import { buildOptionsApiBackoff } from './build-options-api-backoff';
 import { detectBlockers } from './extract-component-options';
 import { analyzeUnsupportedInjectEntries } from './extract-inject';
+import { resolveComponentMixins } from './extract-mixins';
 import type { TransformScriptResult } from './types';
 
 export function transformScript(jsContent: string): TransformScriptResult {
@@ -24,6 +25,12 @@ export function transformScript(jsContent: string): TransformScriptResult {
     }
 
     const blockers = detectBlockers(optionsObj, registration);
+    const mixinResolution = resolveComponentMixins(optionsObj, sourceFile);
+    if (mixinResolution.unresolved.length > 0) {
+        // All-or-nothing: any mixin the registry can't resolve keeps the whole
+        // component on the safe Options-API backoff.
+        blockers.push(...mixinResolution.unresolved);
+    }
     const unsupportedInjectAnalysis = analyzeUnsupportedInjectEntries(optionsObj);
 
     if (blockers.includes('render function')) {
@@ -50,7 +57,12 @@ export function transformScript(jsContent: string): TransformScriptResult {
         };
     }
 
-    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(optionsObj, registration, sourceFile);
+    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(
+        optionsObj,
+        registration,
+        sourceFile,
+        mixinResolution.descriptors,
+    );
     return {
         script,
         scriptType: 'setup',

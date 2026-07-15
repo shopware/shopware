@@ -322,7 +322,7 @@ describe('runMigration — report paths', () => {
             '✓  fully-migrated        [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-order/sw-customer-detail-order.vue',
         );
         expect(report).toContain(
-            '~  partially-migrated  [mixins]  [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.vue',
+            "~  partially-migrated  [mixins: no composable registered for mixin module 'src/app/mixin/listing.mixin']  [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.vue",
         );
         expect(report.join('\n')).not.toContain(tmpDir);
     });

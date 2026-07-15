@@ -1,5 +1,17 @@
 import type { CallExpression, ObjectLiteralExpression } from 'ts-morph';
 import type { MigrationStatus } from '../types';
+import type { ComposableDescriptor, ComposableMemberKind } from './composable-registry';
+import type { IdentifierToken } from './identifier-template';
+
+/**
+ * A composable the component actually uses, together with the `this.<key>`
+ * members that were accessed. Drives the generic import + declaration emit for
+ * both globals and mixins.
+ */
+export interface ActiveComposable {
+    descriptor: ComposableDescriptor;
+    memberKeys: string[];
+}
 
 export interface TransformScriptResult {
     script: string;
@@ -107,6 +119,12 @@ export interface CodeSnippet {
     kind: RewriteSnippetKind;
 }
 
+export interface ComposableMemberRewrite {
+    /** The setup binding this member rewrites to (renameable on collision). */
+    binding: IdentifierToken;
+    kind: ComposableMemberKind;
+}
+
 export interface RewriteContext {
     propNames: Set<string>;
     dataNames: Set<string>;
@@ -114,6 +132,12 @@ export interface RewriteContext {
     methodNames: Set<string>;
     /** inject() keys — accessed as plain identifiers in Composition API */
     injectNames: Set<string>;
+    /**
+     * `this.<key>` members provided by an active mixin composable, keyed by the
+     * access name. Component-declared members take precedence over these (Vue
+     * override semantics), so they are consulted after the sets above.
+     */
+    composableMembers: Map<string, ComposableMemberRewrite>;
 }
 
 export interface UsedComposables {

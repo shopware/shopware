@@ -399,6 +399,40 @@ const {
 );"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script notification-mixin-component: converts a resolvable mixin to its composable matches the complete generated setup script snapshot 1`] = `
+"const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { useNotification } from 'src/app/composables/use-notification';
+
+const { createNotificationSuccess, createNotificationError } = useNotification();
+
+const {
+    onSave,
+    onFail,
+} = createExtendableSetup(
+    {
+        name: 'sw-notification-demo',
+        props,
+    },
+    () => {
+        const onSave = () => {
+            createNotificationSuccess({ message: 'Saved' });
+        };
+        const onFail = () => {
+            createNotificationError({ message: 'Failed' });
+        };
+
+        return {
+            public: {
+                onSave,
+                onFail,
+            },
+        };
+    },
+);"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
 "const props = defineProps({});
 const emit = defineEmits(['save']);

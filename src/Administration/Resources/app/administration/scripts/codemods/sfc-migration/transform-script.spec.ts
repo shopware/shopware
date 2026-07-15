@@ -296,9 +296,10 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('mixin-component.index.js'));
         });
 
-        it('reports status partially-migratable with mixins as the blocker', () => {
+        it('reports status partially-migratable with the unresolved mixin as the blocker', () => {
             expect(result.status).toBe('partially-migratable');
-            expect(result.blockers).toContain('mixins');
+            // `listing` has no composable in the registry, so the whole component backs off.
+            expect(result.blockers.some((blocker) => blocker.startsWith('mixins'))).toBe(true);
         });
 
         it('produces an options script type (backoff — no createExtendableSetup)', () => {
@@ -319,6 +320,35 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it('matches the complete Options API backoff script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('notification-mixin-component: converts a resolvable mixin to its composable', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('notification-mixin-component.index.js'));
+        });
+
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('imports the composable and destructures only the used members', () => {
+            expect(result.script).toContain("import { useNotification } from 'src/app/composables/use-notification';");
+            expect(result.script).toContain('const { createNotificationSuccess, createNotificationError } = useNotification();');
+        });
+
+        it('rewrites this.<member>() calls to the destructured composable bindings', () => {
+            expect(result.script).toContain('createNotificationSuccess({ message: ');
+            expect(result.script).not.toContain('this.createNotificationSuccess');
+            expect(result.script).not.toContain('mixins:');
+        });
+
+        it('matches the complete generated setup script snapshot', () => {
             expect(result.script).toMatchSnapshot();
         });
     });

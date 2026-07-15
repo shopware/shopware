@@ -149,9 +149,10 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             result = mergeComponentFiles('<div class="sw-mixin-list"></div>', readFixture('mixin-component.index.js'));
         });
 
-        it('reports status partially-migrated with mixins listed as a blocker', () => {
+        it('reports status partially-migrated with the unresolved mixin listed as a blocker', () => {
             expect(result.status).toBe('partially-migrated');
-            expect(result.blockers).toContain('mixins');
+            // `listing` has no composable in the registry, so the component keeps the backoff.
+            expect(result.blockers.some((blocker) => blocker.startsWith('mixins'))).toBe(true);
         });
 
         it('produces a plain <script> block (not <script setup>) as Options API backoff', () => {

@@ -25,8 +25,10 @@ import {
     hasDirectThisPropertyUsage,
 } from './rewrite-this';
 import type {
+    ActiveComposable,
     CodeSnippet,
     ComponentRegistration,
+    ComposableMemberRewrite,
     ComputedProp,
     DataProp,
     EmitsDefinition,
@@ -37,6 +39,8 @@ import type {
     UsedComposables,
     WatchProp,
 } from './types';
+import type { ComposableDescriptor } from './composable-registry';
+import { GLOBAL_DESCRIPTORS } from './composable-registry';
 
 export interface CompositionScriptState {
     registration: ComponentRegistration;
@@ -57,6 +61,7 @@ export interface CompositionScriptState {
     lifecycleHooks: LifecycleHook[];
     regularHooks: LifecycleHook[];
     usedComposables: UsedComposables;
+    activeComposables: ActiveComposable[];
     templateRefNames: string[];
     publicNames: string[];
     vueImports: string[];
@@ -92,7 +97,9 @@ export function collectCompositionScriptState(
     optionsObj: ObjectLiteralExpression,
     registration: ComponentRegistration,
     sourceFile: SourceFile,
+    mixinDescriptors: ComposableDescriptor[] = [],
 ): CompositionScriptState {
+    const composableMembers = buildComposableMemberMap(mixinDescriptors);
     let lifecycleHooks = extractLifecycleHooks(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
@@ -117,7 +124,7 @@ export function collectCompositionScriptState(
         pushManualMigration(manualMigrationReasons, todoComments, 'emits', emitsIssue.reason);
     }
 
-    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propsText);
+    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propsText, composableMembers);
     manualMigrationReasons.push(...supportedMembers.manualMigrationReasons);
     todoComments.push(...supportedMembers.todoComments);
 
@@ -135,12 +142,22 @@ export function collectCompositionScriptState(
         injectNames,
     } = supportedMembers;
 
-    const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
+    const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames, composableMembers };
     lifecycleHooks = filterInstanceDependentLifecycleHooks(lifecycleHooks, ctx, manualMigrationReasons, todoComments);
 
     const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks);
 
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
+    const activeComposables = [
+        ...collectActiveGlobalComposables(usedComposables),
+        ...collectActiveMixinComposables(mixinDescriptors, allSnippets, {
+            propNames,
+            dataNames,
+            computedNames,
+            methodNames,
+            injectNames,
+        }),
+    ];
     const templateRefNames = collectThisRefNames(allSnippets);
 
     if (hasDirectThisPropertyUsage(allSnippets, '$store')) {
@@ -200,6 +217,7 @@ export function collectCompositionScriptState(
         lifecycleHooks,
         regularHooks,
         usedComposables,
+        activeComposables,
         templateRefNames,
         publicNames,
         vueImports,
@@ -213,6 +231,7 @@ export function collectCompositionScriptState(
 function collectSupportedCompositionMembers(
     optionsObj: ObjectLiteralExpression,
     propsText: string | null,
+    composableMembers: Map<string, ComposableMemberRewrite>,
 ): SupportedCompositionMembers {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
@@ -283,7 +302,7 @@ function collectSupportedCompositionMembers(
     };
 
     for (;;) {
-        const ctx = buildMemberContext(members, propNames);
+        const ctx = buildMemberContext(members, propNames, composableMembers);
         const filteredData = filterInstanceDependentData(
             members.supportedDataProps,
             ctx,
@@ -340,7 +359,7 @@ function collectSupportedCompositionMembers(
             methodNames,
             injectNames,
         ),
-        buildMemberContext(members, propNames),
+        buildMemberContext(members, propNames, composableMembers),
         unsupportedWatchEntries,
     );
 
@@ -362,13 +381,18 @@ function collectSupportedCompositionMembers(
     };
 }
 
-function buildMemberContext(members: SupportedPublicMembers, propNames: Set<string>): RewriteContext {
+function buildMemberContext(
+    members: SupportedPublicMembers,
+    propNames: Set<string>,
+    composableMembers: Map<string, ComposableMemberRewrite>,
+): RewriteContext {
     return {
         propNames,
         dataNames: new Set(members.supportedDataProps.map((p) => p.name)),
         computedNames: new Set(members.supportedComputedProps.map((p) => p.name)),
         methodNames: new Set(members.supportedMethodProps.map((p) => p.name)),
         injectNames: new Set(members.supportedInjectProps.map((p) => p.localName)),
+        composableMembers,
     };
 }
 
@@ -779,6 +803,77 @@ function collectSetupSnippets(
         })),
         ...lifecycleHooks.map((h) => ({ text: h.bodyText, kind: 'body' as const })),
     ].filter(isDefined);
+}
+
+/**
+ * Turns the detected global usage flags into the descriptor-driven emit input.
+ * Mixin descriptors are appended to this list in a later phase; the emitter treats
+ * globals and mixins uniformly from here on.
+ */
+function collectActiveGlobalComposables(usedComposables: UsedComposables): ActiveComposable[] {
+    const activeById: Record<string, boolean> = {
+        router: usedComposables.needsRouter,
+        route: usedComposables.needsRoute,
+        slots: usedComposables.needsSlots,
+        attrs: usedComposables.needsAttrs,
+        i18n: usedComposables.needsI18n,
+    };
+
+    return GLOBAL_DESCRIPTORS.filter((descriptor) => activeById[descriptor.id]).map((descriptor) => ({
+        descriptor,
+        memberKeys: Object.keys(descriptor.members),
+    }));
+}
+
+/** Flattens every mixin descriptor's members into a `this.<key>` → binding map. */
+function buildComposableMemberMap(mixinDescriptors: ComposableDescriptor[]): Map<string, ComposableMemberRewrite> {
+    const map = new Map<string, ComposableMemberRewrite>();
+
+    for (const descriptor of mixinDescriptors) {
+        for (const [key, member] of Object.entries(descriptor.members)) {
+            map.set(key, { binding: member.ident, kind: member.kind });
+        }
+    }
+
+    return map;
+}
+
+interface ComponentMemberNames {
+    propNames: Set<string>;
+    dataNames: Set<string>;
+    computedNames: Set<string>;
+    methodNames: Set<string>;
+    injectNames: Set<string>;
+}
+
+/**
+ * Determines which mixin composables the component actually uses. A member is
+ * sourced from the composable only when it is accessed via `this` and NOT
+ * redefined by the component itself (a component member of the same name wins —
+ * Vue override semantics). Descriptors with no sourced members are dropped so no
+ * unused import/declaration is emitted.
+ */
+function collectActiveMixinComposables(
+    mixinDescriptors: ComposableDescriptor[],
+    snippets: CodeSnippet[],
+    componentMembers: ComponentMemberNames,
+): ActiveComposable[] {
+    const overriding = new Set<string>([
+        ...componentMembers.propNames,
+        ...componentMembers.dataNames,
+        ...componentMembers.computedNames,
+        ...componentMembers.methodNames,
+        ...componentMembers.injectNames,
+    ]);
+
+    return mixinDescriptors
+        .map((descriptor) => ({
+            descriptor,
+            memberKeys: Object.keys(descriptor.members).filter(
+                (key) => !overriding.has(key) && hasDirectThisPropertyUsage(snippets, key),
+            ),
+        }))
+        .filter((active) => active.memberKeys.length > 0);
 }
 
 function collectVueImports(

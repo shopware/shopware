@@ -1,6 +1,7 @@
 import type { Node as TsNode, PropertyAccessExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
+import { emitIdent, routeIdent } from './identifiers';
+import { findGlobalDescriptorByThisKey } from './composable-registry';
 import { createIdentifierTemplate, identTemplate, isIdentifierToken } from './identifier-template';
 import type { IdentifierTemplateValue, IdentifierToken, ScriptSnippet } from './identifier-template';
 import type { CodeSnippet, RewriteContext, RewriteSnippetKind, UsedComposables, WatchProp } from './types';
@@ -131,15 +132,11 @@ export function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
  */
 function isSupportedThisPropertyName(name: string, ctx: RewriteContext): boolean {
     return (
+        findGlobalDescriptorByThisKey(name) !== undefined ||
+        ctx.composableMembers.has(name) ||
         name === '$emit' ||
-        name === '$router' ||
-        name === '$route' ||
         name === '$nextTick' ||
-        name === '$slots' ||
         name === '$props' ||
-        name === '$attrs' ||
-        name === '$tc' ||
-        name === '$t' ||
         name === '$refs' ||
         name === '$el' ||
         name === '$store' ||
@@ -317,24 +314,20 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
         return null;
     }
 
+    // Registry-owned globals ($router, $route, $slots, $attrs, $t, $tc) rewrite to
+    // their composable binding token; the identifier resolver renames it on collision.
+    const globalMember = findGlobalDescriptorByThisKey(name)?.members[name];
+    if (globalMember) {
+        return globalMember.ident;
+    }
+
     switch (name) {
         case '$emit':
             return emitIdent;
-        case '$router':
-            return routerIdent;
-        case '$route':
-            return routeIdent;
         case '$nextTick':
             return 'nextTick';
-        case '$slots':
-            return slotsIdent;
         case '$props':
             return 'props';
-        case '$attrs':
-            return attrsIdent;
-        case '$tc':
-        case '$t':
-            return tIdent;
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
             // transitional bridge. collectPlaceholderApiReasons keeps the
@@ -370,6 +363,15 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
 
     if (ctx.methodNames.has(name) || ctx.injectNames.has(name)) {
         return name;
+    }
+
+    // Members provided by an active mixin composable are checked last, so a
+    // component-declared member of the same name wins (Vue override semantics).
+    const composableMember = ctx.composableMembers.get(name);
+    if (composableMember) {
+        // Phase 2 mixin members are all methods/values (bare binding). `ref`-kind
+        // members (`.value`) arrive with the host-coupled mixins in a later phase.
+        return composableMember.binding;
     }
 
     // Unknown `this.<name>` is left unrewritten here; findUnsupportedThisUsage

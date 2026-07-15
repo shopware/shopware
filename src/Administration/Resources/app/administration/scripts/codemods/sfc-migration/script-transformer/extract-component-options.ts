@@ -264,7 +264,9 @@ export function detectBlockers(optionsObj: ObjectLiteralExpression, registration
             registration.parentComponentName ? `extends (parent: ${registration.parentComponentName})` : 'extends',
         );
     }
-    if (optionsObj.getProperty('mixins')) blockers.push('mixins');
+    // `mixins` are no longer a blanket blocker: resolvable mixins are converted to
+    // composables. Unresolved mixins are gated in transformScript (which has the
+    // source file needed to resolve imported mixin identifiers).
     if (!registration.componentNameIsLiteral) {
         blockers.push('component name: non-literal component name requires manual migration');
     }

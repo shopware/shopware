@@ -514,7 +514,7 @@ function createShims(context: GeneratorContext, projects: ExtensionToolingProjec
 export function setupExtensionTooling(options: SetupExtensionToolingOptions): SetupExtensionToolingResult {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
-    const pluginsConfigPath = path.resolve(options.pluginsConfigPath ?? path.join(projectRoot, 'var', 'plugins.json'));
+    const pluginsConfigPath = path.resolve(projectRoot, options.pluginsConfigPath ?? path.join('var', 'plugins.json'));
     const context: GeneratorContext = {
         projectRoot,
         administrationRoot,

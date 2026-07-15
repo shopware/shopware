@@ -149,18 +149,15 @@ export function findNearestConfig(startPath: string, boundaryPath: string, fileN
 /**
  * Walks up from a bundle base path to the nearest directory containing a
  * composer.json — the extension owner root. Multi-bundle suites group under
- * their shared composer root this way.
+ * their shared composer root this way. The project root itself never counts
+ * as an extension root (its composer.json is the shop, not an extension).
  */
 export function findExtensionRoot(projectRoot: string, bundleBasePath: string): string {
     let currentPath = bundleBasePath;
 
-    while (isWithin(currentPath, projectRoot)) {
+    while (isWithin(currentPath, projectRoot) && currentPath !== projectRoot) {
         if (fs.existsSync(path.join(currentPath, 'composer.json'))) {
             return currentPath;
-        }
-
-        if (currentPath === projectRoot) {
-            break;
         }
 
         currentPath = path.dirname(currentPath);

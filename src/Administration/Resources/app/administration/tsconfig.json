@@ -34,6 +34,7 @@
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",
+    "./scripts/extensionTooling/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",
     "./twigVuePlugin/**/*.ts"

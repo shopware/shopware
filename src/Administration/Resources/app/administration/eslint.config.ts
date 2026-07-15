@@ -182,6 +182,11 @@ export default [
             'jest.config.ts',
             'test/e2e/**/*',
             'scripts/**/*',
+            '!scripts/extensionTooling/',
+            '!scripts/extensionTooling/**/*',
+            // Declaration-only type surface; imports the gitignored generated
+            // entity schema, so it must stay outside the admin's typed-lint program.
+            'extension-tooling/admin-types.d.ts',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             '**/*.fixtures.js',
@@ -640,6 +645,15 @@ export default [
             '**/*.tsx',
             '**/*.vue',
         ],
+    },
+    {
+        files: ['extension-tooling/**/*.mjs', 'scripts/extensionTooling/**/*.ts'],
+        rules: {
+            'filename-rules/match': 'off',
+            'import/extensions': 'off',
+            'no-console': 'off',
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
     },
 
     // Snippet JSON files: parse as JSON and flag entries that duplicate a global.default translation

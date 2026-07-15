@@ -63,8 +63,6 @@ jobs:
           CURRENTS_BUILD_ID: ${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}
           ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
         run: |
-          # Derive the Playwright image tag from the version npm ci installed,
-          # so the browser image can never drift from the test runner.
           PLAYWRIGHT_VERSION=$(jq -r '.packages["node_modules/playwright-core"].version' package-lock.json)
           docker run --rm \
             --ipc=host \

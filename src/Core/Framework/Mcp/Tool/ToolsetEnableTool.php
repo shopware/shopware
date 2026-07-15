@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  */
-#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.', meta: ['deferred' => false])]
-#[McpToolGroup('default')]
+#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.')]
+#[McpToolGroup('discovery')]
 #[Package('framework')]
 class ToolsetEnableTool extends McpToolResponse
 {

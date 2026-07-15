@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
  * the service id (= class). It is wired with the store-api toolset registry, session storage and
  * the store-api listChanged notifier, so enabling a toolset only refreshes store-api sessions.
  */
-#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.', meta: ['deferred' => false])]
-#[McpToolGroup('default')]
+#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.')]
+#[McpToolGroup('discovery')]
 #[Package('framework')]
 class StoreApiToolsetEnableTool extends ToolsetEnableTool
 {

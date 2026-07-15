@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
  *
  * @internal
  */
-#[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the Store API MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.', meta: ['deferred' => false])]
-#[McpToolGroup('default')]
+#[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the Store API MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.')]
+#[McpToolGroup('discovery')]
 #[Package('framework')]
 class StoreApiToolSearchTool extends AbstractToolSearchTool
 {

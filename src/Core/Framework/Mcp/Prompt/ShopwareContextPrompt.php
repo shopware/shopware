@@ -28,7 +28,7 @@ class ShopwareContextPrompt
                 'content' => <<<'PROMPT'
 You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 
-## Core tools
+## Domain tools (deferred — enable the matching toolset first)
 - `shopware-entity-schema`: entity (string) — field and association definitions for any entity
 - `shopware-entity-search`: entity (string), criteria (string, optional JSON), limit, page, term
 - `shopware-entity-read`: entity (string), id (string UUID), criteria (string, optional)
@@ -45,10 +45,10 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `swag-dev-tools-log-search`: query (string), level (string, optional) — full-text search of application log entries
 - `swag-dev-tools-log-stream`: limit (int, optional) — stream the most recent log lines
 
-## Tool discovery
-- Not every available Shopware MCP tool is listed initially. If you need a capability that is not visible, call `shopware-tool-search` first.
-- For broader workflow areas, call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, and refresh `tools/list` after the server sends a list-changed notification.
-- Toolsets only change visibility for the current MCP session. The allowlist and ACL permissions remain the security boundary.
+## Tool discovery (start here)
+- On a fresh session only the discovery tools are advertised: `shopware-toolsets-list`, `shopware-toolset-enable`, `shopware-tool-search`. No domain tool is callable until you enable its toolset — the tools listed below become available only after enabling.
+- For any task, first call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
+- Enabling a toolset lasts the whole MCP session and accumulates: enabling another toolset keeps the previously enabled ones. The allowlist and ACL permissions remain the security boundary.
 
 ## Key concepts
 - Shopware uses a Data Abstraction Layer (DAL). Use `shopware-entity-schema` when you need field or association names for an unfamiliar entity.

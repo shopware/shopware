@@ -104,7 +104,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 $overriddenSchemaNames[] = $schemaName;
             }
 
-            $openApi->components->merge($schema);
+            $openApi->components->merge(array_values($schema));
         }
 
         $this->addGeneralInformation($openApi);

@@ -15,7 +15,13 @@ class McpToolsetRegistry
 
     final public const ENABLE_TOOLSET_TOOL = 'shopware-toolset-enable';
 
-    private const DEFAULT_GROUP = 'default';
+    /**
+     * The always-advertised discovery interface (tool-search + toolsets-list/-enable). It is the
+     * single source of truth for what is visible on a fresh session: tools in this group are the
+     * only ones advertised up front, and it is never itself an enable-able toolset. Every other
+     * tool is deferred and reachable only after its toolset is enabled.
+     */
+    final public const DISCOVERY_GROUP = 'discovery';
 
     /**
      * @internal
@@ -44,11 +50,11 @@ class McpToolsetRegistry
         foreach ($this->catalog->enrichedTools($allowlist) as $tool) {
             $group = $tool['group'];
 
-            // The "default" group holds the always-advertised meta-tools and is never an
+            // The "discovery" group holds the always-advertised meta-tools and is never an
             // enable-able toolset. Every other group is, including the "other" catch-all: an
             // ungrouped tool (e.g. a bundle tool without #[McpToolGroup]) must still have a
             // guaranteed enable path instead of being reachable through tool-search alone.
-            if ($group === self::DEFAULT_GROUP) {
+            if ($group === self::DISCOVERY_GROUP) {
                 continue;
             }
 

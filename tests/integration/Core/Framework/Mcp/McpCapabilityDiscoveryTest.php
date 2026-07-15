@@ -68,6 +68,73 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
     }
 
+    public function testFreshSessionAdvertisesOnlyDiscoveryTools(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $browser = $this->getBrowser();
+
+        // Initialize a session but do NOT enable any toolset.
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => new \stdClass(),
+                    'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+                ],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
+
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            array_filter([
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_MCP_SESSION_ID' => $sessionId,
+            ]),
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'tools/list',
+                'params' => new \stdClass(),
+                'id' => 2,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content, 'MCP response was empty');
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+        static::assertArrayHasKey('result', $response, 'MCP response missing result: ' . $content);
+
+        $tools = array_column($response['result']['tools'] ?? [], 'name');
+
+        // The discovery interface is always advertised...
+        static::assertContains('shopware-tool-search', $tools);
+        static::assertContains('shopware-toolset-enable', $tools);
+        static::assertContains('shopware-toolsets-list', $tools);
+
+        // ...but no domain tool is, until its toolset is enabled.
+        static::assertNotContains('shopware-entity-schema', $tools);
+        static::assertNotContains('shopware-entity-search', $tools);
+        static::assertNotContains('shopware-entity-read', $tools);
+        static::assertNotContains('shopware-entity-delete', $tools);
+        static::assertNotContains('shopware-system-config-read', $tools);
+        static::assertNotContains('shopware-order-state', $tools);
+    }
+
     /**
      * @return iterable<string, array{string}>
      */

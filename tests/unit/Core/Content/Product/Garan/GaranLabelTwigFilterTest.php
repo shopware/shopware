@@ -4,8 +4,17 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Garan;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
+use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Twig\Environment;
 
 /**
  * @internal
@@ -13,22 +22,124 @@ use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
 #[CoversClass(GaranLabelTwigFilter::class)]
 class GaranLabelTwigFilterTest extends TestCase
 {
-    public function testGetFiltersRegistersSwGaranLabelDuration(): void
+    public function testGetFiltersRegistersSwGaranLabelFilters(): void
     {
-        $filter = new GaranLabelTwigFilter(new GaranLabelDurationFormatter());
+        $filter = $this->createFilter([]);
 
         $filters = $filter->getFilters();
 
-        static::assertCount(1, $filters);
+        static::assertCount(3, $filters);
         static::assertSame('sw_garan_label_duration', $filters[0]->getName());
+        static::assertSame('sw_garan_label', $filters[1]->getName());
+        static::assertSame('sw_garan_label_nested', $filters[2]->getName());
     }
 
     public function testFormatDurationDelegatesToFormatter(): void
     {
-        $filter = new GaranLabelTwigFilter(new GaranLabelDurationFormatter());
+        $filter = $this->createFilter([]);
 
         static::assertSame('3', $filter->formatDuration(36));
         static::assertNull($filter->formatDuration(12));
         static::assertNull($filter->formatDuration(null));
+    }
+
+    public function testRenderReturnsNullForNullProductId(): void
+    {
+        $filter = $this->createFilter([]);
+
+        static::assertNull($filter->render(null, Context::createDefaultContext()));
+    }
+
+    public function testRenderReturnsNullWhenProductNotFound(): void
+    {
+        $filter = $this->createFilter([new ProductCollection()]);
+
+        static::assertNull($filter->render('product-id', Context::createDefaultContext()));
+    }
+
+    public function testRenderReturnsNullWhenProductNotConfirmed(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: false);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertNull($filter->render($product->getId(), Context::createDefaultContext()));
+    }
+
+    public function testRenderReturnsSvgForCompleteConfirmedProduct(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        $svg = $filter->render($product->getId(), Context::createDefaultContext());
+
+        static::assertIsString($svg);
+        static::assertStringContainsString('ACME-123', $svg);
+    }
+
+    public function testRenderNestedLabelReturnsNullForNullProductId(): void
+    {
+        $filter = $this->createFilter([]);
+
+        static::assertNull($filter->renderNestedLabel(null, Context::createDefaultContext()));
+    }
+
+    public function testRenderNestedLabelReturnsNullWhenProductNotConfirmed(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: false);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertNull($filter->renderNestedLabel($product->getId(), Context::createDefaultContext()));
+    }
+
+    public function testRenderNestedLabelReturnsSvgForCompleteConfirmedProduct(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        $svg = $filter->renderNestedLabel($product->getId(), Context::createDefaultContext());
+
+        static::assertIsString($svg);
+        static::assertStringContainsString('nested', $svg);
+        static::assertStringContainsString('3', $svg);
+    }
+
+    /**
+     * @param list<mixed> $searchResults
+     */
+    private function createFilter(array $searchResults): GaranLabelTwigFilter
+    {
+        $twig = $this->createMock(Environment::class);
+        $twig->method('render')->willReturnCallback(
+            static fn (string $template, array $context) => str_contains($template, 'nested-label')
+                ? \sprintf('<svg>nested %s</svg>', $context['guarantee'])
+                : \sprintf('<svg>%s %s %s</svg>', $context['manufacturer'], $context['productNumber'], $context['guarantee'])
+        );
+
+        $resolver = new GaranLabelResolver(new GaranLabelDurationFormatter(), new GaranLabelRenderer($twig));
+
+        /** @var StaticEntityRepository<ProductCollection> $productRepository */
+        $productRepository = new StaticEntityRepository($searchResults, new ProductDefinition());
+
+        return new GaranLabelTwigFilter(new GaranLabelDurationFormatter(), $productRepository, $resolver);
+    }
+
+    private function createProduct(bool $guaranteeConfirmed): ProductEntity
+    {
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId('manufacturer-id');
+        $manufacturer->setName('ACME');
+
+        $product = new ProductEntity();
+        $product->setId('product-id');
+        $product->setManufacturer($manufacturer);
+        $product->setManufacturerNumber('ACME-123');
+        $product->setGuaranteeMonths(36);
+        $product->setGuaranteeConfirmed($guaranteeConfirmed);
+
+        return $product;
     }
 }

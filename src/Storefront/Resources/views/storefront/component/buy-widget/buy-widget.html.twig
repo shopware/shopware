@@ -305,16 +305,62 @@
             {% set garanGuaranteeMonths = product.guaranteeMonths %}
             {% set garanGuarantee = garanGuaranteeMonths|sw_garan_label_duration %}
             {% set garanManufacturer = product.manufacturer.translated.name ?? product.manufacturer.name ?? null %}
-            {% set garanModelIdentifier = product.manufacturerNumber ?? product.productNumber %}
+            {% set garanModelIdentifier = product.manufacturerNumber %}
 
-            {% if garanGuarantee and garanManufacturer and garanModelIdentifier %}
-                <div class="product-detail-garan-label">
-                    {% sw_include '@Framework/garan/label.svg.twig' with {
-                        manufacturer: garanManufacturer,
-                        productNumber: garanModelIdentifier,
-                        guarantee: garanGuarantee
-                    } only %}
-                </div>
+            {% if product.guaranteeConfirmed and garanGuarantee and garanManufacturer and garanModelIdentifier %}
+                {% set garanLabelModalId = 'garanLabelModal-' ~ product.id %}
+
+                {% block buy_widget_garan_label_preview %}
+                    <div class="product-detail-garan-label">
+                        <button type="button"
+                                class="product-detail-garan-label-trigger"
+                                aria-haspopup="dialog"
+                                aria-label="{{ 'detail.garanLabelModalTitle'|trans|striptags }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#{{ garanLabelModalId }}">
+                            {% sw_include '@Framework/garan/nested-label.svg.twig' with {
+                                guarantee: garanGuarantee
+                            } only %}
+                        </button>
+                    </div>
+                {% endblock %}
+
+                {% block buy_widget_garan_label_modal %}
+                    <div class="modal modal-lg fade"
+                         id="{{ garanLabelModalId }}"
+                         tabindex="-1"
+                         role="dialog"
+                         aria-modal="true"
+                         aria-hidden="true"
+                         aria-labelledby="{{ garanLabelModalId }}-header">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                {% block buy_widget_garan_label_modal_header %}
+                                    <div class="modal-header">
+                                        <div id="{{ garanLabelModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
+                                            {{ 'detail.garanLabelModalTitle'|trans|sw_sanitize }}
+                                        </div>
+                                        <button class="btn-close close"
+                                                type="button"
+                                                data-bs-dismiss="modal"
+                                                aria-label="{{ 'global.default.close'|trans|striptags }}">
+                                        </button>
+                                    </div>
+                                {% endblock %}
+
+                                {% block buy_widget_garan_label_modal_body %}
+                                    <div class="modal-body product-detail-garan-label-modal-body">
+                                        {% sw_include '@Framework/garan/label.svg.twig' with {
+                                            manufacturer: garanManufacturer,
+                                            productNumber: garanModelIdentifier,
+                                            guarantee: garanGuarantee
+                                        } only %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                {% endblock %}
             {% endif %}
         {% endblock %}
     </div>

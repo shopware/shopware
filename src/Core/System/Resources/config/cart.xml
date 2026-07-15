@@ -90,6 +90,15 @@
             <helpText>Displays the EU-harmonised legal guarantee notice in the customer's storefront language.</helpText>
             <helpText lang="de-DE">Zeigt den EU-weit harmonisierten Gewährleistungshinweis in der Storefront-Sprache des Kunden an.</helpText>
         </input-field>
+
+        <input-field type="bool">
+            <name>showGaranLabelInOrderConfirmation</name>
+            <defaultValue>true</defaultValue>
+            <label>Show producer durability guarantee label in order confirmation email</label>
+            <label lang="de-DE">Herstellerseitige Haltbarkeitsgarantie-Kennzeichnung in Bestellbestätigungs-E-Mail anzeigen</label>
+            <helpText>Displays the GARAN pictogram for each ordered product that has a confirmed producer commercial durability guarantee.</helpText>
+            <helpText lang="de-DE">Zeigt das GARAN-Piktogramm für jedes bestellte Produkt mit bestätigter herstellerseitiger gewerblicher Haltbarkeitsgarantie an.</helpText>
+        </input-field>
     </card>
 
     <card>

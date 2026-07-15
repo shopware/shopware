@@ -42,6 +42,7 @@ class GaranLabelRouteTest extends TestCase
             ->build();
         $product['manufacturerNumber'] = 'ACME-123';
         $product['guaranteeMonths'] = 36;
+        $product['guaranteeConfirmed'] = true;
 
         static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
@@ -52,6 +53,50 @@ class GaranLabelRouteTest extends TestCase
         static::assertIsString($response['svg']);
         static::assertStringContainsString('ACME-123', $response['svg']);
         static::assertStringContainsString('3', $response['svg']);
+
+        static::assertIsString($response['nestedSvg']);
+        static::assertStringContainsString('3', $response['nestedSvg']);
+    }
+
+    public function testGaranLabelIsNullWhenGuaranteeConfirmedIsFalse(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'garan-product-unconfirmed'))
+            ->price(10)
+            ->visibility($this->ids->get('sales-channel'))
+            ->manufacturer('acme')
+            ->build();
+        $product['manufacturerNumber'] = 'ACME-123';
+        $product['guaranteeMonths'] = 36;
+        $product['guaranteeConfirmed'] = false;
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $this->browser->request('GET', '/store-api/product/' . $this->ids->get('garan-product-unconfirmed') . '/garan-label');
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNull($response['svg']);
+        static::assertNull($response['nestedSvg']);
+    }
+
+    public function testGaranLabelIsNullWhenManufacturerNumberIsMissingEvenWithProductNumber(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'garan-product-no-manufacturer-number'))
+            ->price(10)
+            ->visibility($this->ids->get('sales-channel'))
+            ->manufacturer('acme')
+            ->build();
+        $product['guaranteeMonths'] = 36;
+        $product['guaranteeConfirmed'] = true;
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $this->browser->request('GET', '/store-api/product/' . $this->ids->get('garan-product-no-manufacturer-number') . '/garan-label');
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNull($response['svg']);
+        static::assertNull($response['nestedSvg']);
     }
 
     public function testGaranLabelIsNullWhenGuaranteeMonthsIsMissing(): void
@@ -69,6 +114,7 @@ class GaranLabelRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNull($response['svg']);
+        static::assertNull($response['nestedSvg']);
     }
 
     public function testGaranLabelRouteReturnsNotFoundForUnknownProduct(): void

@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<array{svg: string|null}>>
+ * @extends StoreApiResponse<ArrayStruct<array{svg: string|null, nestedSvg: string|null}>>
  */
 #[Package('inventory')]
 class GaranLabelRouteResponse extends StoreApiResponse
 {
-    public function __construct(?string $svg)
+    public function __construct(?string $svg, ?string $nestedSvg = null)
     {
-        parent::__construct(new ArrayStruct(['svg' => $svg], 'garan_label'));
+        parent::__construct(new ArrayStruct(['svg' => $svg, 'nestedSvg' => $nestedSvg], 'garan_label'));
     }
 }

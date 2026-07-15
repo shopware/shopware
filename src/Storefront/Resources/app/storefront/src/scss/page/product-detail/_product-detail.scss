@@ -54,9 +54,25 @@
 .product-detail-garan-label {
     margin-bottom: $spacer;
 
+    &-trigger {
+        display: inline-block;
+        padding: 0;
+        border: 0;
+        background: none;
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+    }
+}
+
+.product-detail-garan-label-modal-body {
+    text-align: center;
+
     svg {
         width: 100%;
-        max-width: 260px;
+        max-width: 480px;
         height: auto;
     }
 }

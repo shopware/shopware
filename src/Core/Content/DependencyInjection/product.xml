@@ -159,17 +159,24 @@
 
         <service id="Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter"/>
 
+        <service id="Shopware\Core\Content\Product\Garan\GaranLabelRenderer">
+            <argument type="service" id="twig"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Garan\GaranLabelResolver">
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelRenderer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter">
             <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelResolver"/>
             <tag name="twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Garan\GaranLabelProductValidator">
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Product\Garan\GaranLabelRenderer">
-            <argument type="service" id="twig"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
@@ -604,8 +611,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelRenderer"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute" alias="Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute"/>

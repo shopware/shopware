@@ -11,18 +11,23 @@ use Twig\Environment;
 #[Package('inventory')]
 class GaranLabelRenderer
 {
-    private const TEMPLATE = '@Framework/garan/label.svg.twig';
-
     public function __construct(private readonly Environment $twig)
     {
     }
 
     public function render(string $duration, string $brand, string $modelIdentifier): string
     {
-        return $this->twig->render(self::TEMPLATE, [
+        return $this->twig->render('@Framework/garan/label.svg.twig', [
             'guarantee' => $duration,
             'manufacturer' => $brand,
             'productNumber' => $modelIdentifier,
+        ]);
+    }
+
+    public function renderNestedLabel(string $duration): string
+    {
+        return $this->twig->render('@Framework/garan/nested-label.svg.twig', [
+            'guarantee' => $duration,
         ]);
     }
 }

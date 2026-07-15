@@ -212,6 +212,22 @@
         </mt-card>
         {% endblock %}
 
+        {% block sw_product_detail_base_guarantee_card %}
+        <mt-card
+            v-show="showProductCard('labelling')"
+            class="sw-product-detail-base__guarantee-card"
+            position-identifier="sw-product-detail-base-guarantee"
+            :title="$t('sw-product.detailBase.cardTitleGuarantee')"
+            :is-loading="loading.product"
+        >
+
+            {% block sw_product_detail_base_guarantee_form %}
+            <sw-product-guarantee-form :allow-edit="acl.can('product.editor')" />
+            {% endblock %}
+
+        </mt-card>
+        {% endblock %}
+
     </template>
 </div>
 {% endblock %}

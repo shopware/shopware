@@ -2,8 +2,8 @@
  * @sw-package inventory
  */
 
-import template from './sw-product-settings-form.html.twig';
-import './sw-product-settings-form.scss';
+import template from './sw-product-guarantee-form.html.twig';
+import './sw-product-guarantee-form.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -29,14 +29,8 @@ export default {
         },
 
         ...mapPropertyErrors('product', [
-            'releaseDate',
-            'stock',
-            'minPurchase',
-            'maxPurchase',
-            'ean',
-            'manufacturerNumber',
-            'shippingFree',
-            'markAsTopseller',
+            'guaranteeMonths',
+            'guaranteeConfirmed',
         ]),
     },
 };

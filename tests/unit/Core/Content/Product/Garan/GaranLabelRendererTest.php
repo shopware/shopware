@@ -16,6 +16,8 @@ class GaranLabelRendererTest extends TestCase
 {
     private const TEMPLATE_PATH = __DIR__ . '/../../../../../../src/Core/Framework/Resources/views/garan/label.svg.twig';
 
+    private const NESTED_TEMPLATE_PATH = __DIR__ . '/../../../../../../src/Core/Framework/Resources/views/garan/nested-label.svg.twig';
+
     public function testRenderIncludesManufacturerProductNumberAndGuarantee(): void
     {
         $templateSource = file_get_contents(self::TEMPLATE_PATH);
@@ -31,6 +33,23 @@ class GaranLabelRendererTest extends TestCase
 
         static::assertStringContainsString('Acme', $result);
         static::assertStringContainsString('ACME-123', $result);
+        static::assertStringContainsString('3', $result);
+        static::assertStringContainsString('<svg', $result);
+    }
+
+    public function testRenderNestedLabelIncludesGuarantee(): void
+    {
+        $templateSource = file_get_contents(self::NESTED_TEMPLATE_PATH);
+        static::assertIsString($templateSource);
+
+        $twig = new Environment(new ArrayLoader([
+            '@Framework/garan/nested-label.svg.twig' => $templateSource,
+        ]));
+
+        $renderer = new GaranLabelRenderer($twig);
+
+        $result = $renderer->renderNestedLabel('3');
+
         static::assertStringContainsString('3', $result);
         static::assertStringContainsString('<svg', $result);
     }

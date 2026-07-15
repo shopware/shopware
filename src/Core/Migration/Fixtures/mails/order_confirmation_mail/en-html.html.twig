@@ -78,6 +78,15 @@
                     <td>{{ nestedItem.totalPrice|currency(currencyIsoCode) }}</td>
                 </tr>
 
+                {% if config('core.cart.showGaranLabelInOrderConfirmation') and nestedItem.productId is defined and nestedItem.productId %}
+                    {% set garanLabelSvg = nestedItem.productId|sw_garan_label(context) %}
+                    {% if garanLabelSvg %}
+                        <tr>
+                            <td colspan="6">{{ garanLabelSvg }}</td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+
                 {% if nestedItem.children.count > 0 %}
                     {% set nestingLevel = nestingLevel + 1 %}
                     {% for lineItem in nestedItem.children %}

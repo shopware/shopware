@@ -646,6 +646,7 @@
     "metaTitle": "Suchergebnis"
   },
   "detail": {
+    "garanLabelModalTitle": "Herstellerseitige Haltbarkeitsgarantie",
     "ordernumberLabel": "Produktnummer:",
     "productNumberLabel": "Produktnummer:",
     "addProduct": "In den Warenkorb",

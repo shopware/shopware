@@ -68,6 +68,8 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?int $guaranteeMonths = null;
 
+    protected bool $guaranteeConfirmed = false;
+
     protected ?string $ean = null;
 
     protected int $sales;
@@ -374,6 +376,16 @@ class ProductEntity extends Entity implements \Stringable
     public function setGuaranteeMonths(?int $guaranteeMonths): void
     {
         $this->guaranteeMonths = $guaranteeMonths;
+    }
+
+    public function isGuaranteeConfirmed(): bool
+    {
+        return $this->guaranteeConfirmed;
+    }
+
+    public function setGuaranteeConfirmed(bool $guaranteeConfirmed): void
+    {
+        $this->guaranteeConfirmed = $guaranteeConfirmed;
     }
 
     public function getEan(): ?string

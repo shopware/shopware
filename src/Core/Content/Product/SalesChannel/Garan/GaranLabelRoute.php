@@ -3,8 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Garan;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
-use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -30,8 +29,7 @@ class GaranLabelRoute extends AbstractGaranLabelRoute
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
-        private readonly GaranLabelDurationFormatter $durationFormatter,
-        private readonly GaranLabelRenderer $renderer,
+        private readonly GaranLabelResolver $resolver,
     ) {
     }
 
@@ -48,15 +46,11 @@ class GaranLabelRoute extends AbstractGaranLabelRoute
     public function load(string $productId, SalesChannelContext $context): GaranLabelRouteResponse
     {
         $product = $this->loadProduct($productId, $context);
-        $brand = trim((string) $product->getManufacturer()?->getName());
-        $modelIdentifier = trim($product->getManufacturerNumber() ?? $product->getProductNumber());
-        $duration = $this->durationFormatter->formatMonths($product->getGuaranteeMonths());
 
-        if ($brand === '' || $modelIdentifier === '' || $duration === null) {
-            return new GaranLabelRouteResponse(null);
-        }
-
-        return new GaranLabelRouteResponse($this->renderer->render($duration, $brand, $modelIdentifier));
+        return new GaranLabelRouteResponse(
+            $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_FULL),
+            $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_NESTED),
+        );
     }
 
     private function loadProduct(string $productId, SalesChannelContext $context): SalesChannelProductEntity

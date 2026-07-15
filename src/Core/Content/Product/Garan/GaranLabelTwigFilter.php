@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Garan;
 
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -11,9 +16,14 @@ class GaranLabelTwigFilter extends AbstractExtension
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductCollection> $productRepository
      */
-    public function __construct(private readonly GaranLabelDurationFormatter $durationFormatter)
-    {
+    public function __construct(
+        private readonly GaranLabelDurationFormatter $durationFormatter,
+        private readonly EntityRepository $productRepository,
+        private readonly GaranLabelResolver $resolver,
+    ) {
     }
 
     /**
@@ -23,11 +33,49 @@ class GaranLabelTwigFilter extends AbstractExtension
     {
         return [
             new TwigFilter('sw_garan_label_duration', $this->formatDuration(...)),
+            new TwigFilter('sw_garan_label', $this->render(...), ['is_safe' => ['html']]),
+            new TwigFilter('sw_garan_label_nested', $this->renderNestedLabel(...), ['is_safe' => ['html']]),
         ];
     }
 
     public function formatDuration(?int $guaranteeMonths): ?string
     {
         return $this->durationFormatter->formatMonths($guaranteeMonths);
+    }
+
+    public function render(?string $productId, Context $context): ?string
+    {
+        $product = $this->loadProduct($productId, $context);
+
+        if ($product === null) {
+            return null;
+        }
+
+        return $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_FULL);
+    }
+
+    public function renderNestedLabel(?string $productId, Context $context): ?string
+    {
+        $product = $this->loadProduct($productId, $context);
+
+        if ($product === null) {
+            return null;
+        }
+
+        return $this->resolver->resolve($product, GaranLabelResolver::LABEL_TYPE_NESTED);
+    }
+
+    private function loadProduct(?string $productId, Context $context): ?ProductEntity
+    {
+        if ($productId === null) {
+            return null;
+        }
+
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('manufacturer');
+
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+
+        return $product instanceof ProductEntity ? $product : null;
     }
 }

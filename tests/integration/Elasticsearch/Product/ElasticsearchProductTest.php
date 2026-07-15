@@ -59,6 +59,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -2446,7 +2447,12 @@ class ElasticsearchProductTest extends TestCase
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
-        $categoryIds = \array_column($product['categoriesRo'], 'id');
+        if (Feature::isActive('v6.8.0.0')) {
+            // categoriesRo is removed from the documents with v6.8.0.0, categoryTree holds the ids
+            $categoryIds = $product['categoryTree'];
+        } else {
+            $categoryIds = \array_column($product['categoriesRo'], 'id');
+        }
 
         static::assertContains($ids->get('c1'), $categoryIds);
         static::assertContains($ids->get('c2'), $categoryIds);
@@ -2732,6 +2738,8 @@ class ElasticsearchProductTest extends TestCase
 
     public function testFilterByStates(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $ids = self::$indexedIds;
 
         $context = $this->context;

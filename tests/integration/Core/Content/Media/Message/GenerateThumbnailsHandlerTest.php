@@ -79,7 +79,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         ], $this->context);
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $this->getPublicFilesystem()->writeStream(
             $media->getPath(),
@@ -96,7 +96,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('thumbnails');
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
         static::assertCount(2, $mediaThumbnailCollection);
@@ -138,7 +138,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         ], $this->context);
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $url = $media->getPath();
 
@@ -158,7 +158,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
         static::assertCount(2, $mediaThumbnailCollection);

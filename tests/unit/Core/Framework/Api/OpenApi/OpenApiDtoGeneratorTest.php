@@ -303,7 +303,24 @@ class OpenApiDtoGeneratorTest extends TestCase
         $definitions = (new OpenApiDtoSchemaParser())->parse([
             'openapi' => '3.1.0',
             'info' => [],
-            'paths' => [],
+            'paths' => [
+                '/search' => [
+                    'post' => [
+                        'operationId' => 'search',
+                        'requestBody' => [
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'allOf' => [
+                                            ['$ref' => '#/components/schemas/Criteria'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             'components' => [
                 'schemas' => [
                     'Criteria' => [
@@ -348,9 +365,10 @@ class OpenApiDtoGeneratorTest extends TestCase
                         'anyOf' => [
                             ['$ref' => '#/components/schemas/AverageAggregation'],
                             [
-                                'title' => 'CountAggregation',
+                                'title' => 'NestedCountAggregation',
                                 'allOf' => [
                                     ['$ref' => '#/components/schemas/CountAggregation'],
+                                    ['$ref' => '#/components/schemas/SubAggregations'],
                                 ],
                             ],
                         ],
@@ -363,19 +381,32 @@ class OpenApiDtoGeneratorTest extends TestCase
                         'type' => 'object',
                         'properties' => ['field' => ['type' => 'string']],
                     ],
+                    'SubAggregations' => [
+                        OpenApiDtoGenerator::INLINE_EXTENSION => true,
+                        'type' => 'object',
+                        'properties' => [
+                            'aggregation' => ['$ref' => '#/components/schemas/AverageAggregation'],
+                        ],
+                    ],
                 ],
             ],
-        ]);
+        ], includeComponentSchemas: false);
 
         $criteria = $this->renderDefinition($this->definitionByName($definitions, 'Criteria'));
+        $nestedCountAggregation = $this->renderDefinition($this->definitionByName($definitions, 'NestedCountAggregation'));
 
         static::assertStringContainsString('@var list<EqualsFilter|RangeFilter>', $criteria);
         static::assertStringContainsString('public ?array $filter = null,', $criteria);
         static::assertStringContainsString('public EqualsFilter|RangeFilter|null $query = null,', $criteria);
-        static::assertStringContainsString('@var list<AverageAggregation|CountAggregation>', $criteria);
+        static::assertStringContainsString('@var list<AverageAggregation|NestedCountAggregation>', $criteria);
         static::assertSame(3, substr_count($criteria, '#[Assert\\Valid]'));
         static::assertSame('AverageAggregation', $this->definitionByName($definitions, 'AverageAggregation')->name);
-        static::assertSame('CountAggregation', $this->definitionByName($definitions, 'CountAggregation')->name);
+        static::assertStringContainsString('public ?string $field = null,', $nestedCountAggregation);
+        static::assertStringContainsString('public ?AverageAggregation $aggregation = null,', $nestedCountAggregation);
+        static::assertNotContains('SubAggregations', array_map(
+            static fn (OpenApiDtoDefinition $definition): string => $definition->name,
+            $definitions,
+        ));
     }
 
     /**

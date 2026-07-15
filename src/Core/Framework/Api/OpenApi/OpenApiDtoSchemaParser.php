@@ -78,7 +78,7 @@ final class OpenApiDtoSchemaParser
         $definitions = [];
         foreach ($schemaNames as $name) {
             $schemaData = $registry[$name] ?? null;
-            if ($schemaData === null) {
+            if ($schemaData === null || $this->isInlineComponent($schemaData)) {
                 continue;
             }
 
@@ -105,7 +105,7 @@ final class OpenApiDtoSchemaParser
         $definitions = [];
         foreach ($this->collectReferencedSchemaNames($schema, $registry) as $name) {
             $schemaData = $registry[$name] ?? null;
-            if ($schemaData === null) {
+            if ($schemaData === null || $this->isInlineComponent($schemaData)) {
                 continue;
             }
 
@@ -220,7 +220,7 @@ final class OpenApiDtoSchemaParser
 
         $definitions = [];
         foreach ($schemas as $schemaName => $schemaData) {
-            if (!\is_string($schemaName) || !\is_array($schemaData)) {
+            if (!\is_string($schemaName) || !\is_array($schemaData) || $this->isInlineComponent($schemaData)) {
                 continue;
             }
 
@@ -828,6 +828,16 @@ final class OpenApiDtoSchemaParser
 
         $allOf = $this->schemaListAtKey($schema, 'allOf');
         if ($allOf !== null) {
+            $title = $this->stringOrNull($schema['title'] ?? null);
+            if ($title !== null) {
+                return [
+                    'phpType' => $this->toPascalCase($title),
+                    'arrayItemType' => null,
+                    'nullable' => false,
+                    'unresolved' => false,
+                ];
+            }
+
             if (\count($allOf) === 1) {
                 return $this->mapOpenApiTypeToPhp($allOf[0], $registry);
             }
@@ -984,6 +994,14 @@ final class OpenApiDtoSchemaParser
         return $this->schemaType($schema) === 'object'
             && $this->arrayAtKey($schema, 'properties') !== null
             && !isset($schema['$ref']);
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function isInlineComponent(array $schema): bool
+    {
+        return ($schema[OpenApiDtoGenerator::INLINE_EXTENSION] ?? null) === true;
     }
 
     /**

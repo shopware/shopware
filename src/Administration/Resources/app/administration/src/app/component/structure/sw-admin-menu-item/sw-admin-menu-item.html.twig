@@ -4,7 +4,7 @@
     v-if="showMenuItem && usesCollapsible"
     as="li"
     :class="collapsibleLiClass"
-    :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
+    :aria-current="rowActive ? 'page' : 'false'"
     :open="collapsibleOpen"
     @update:open="onCollapsibleOpenUpdate"
     @mouseenter="$emit('menu-item-hover', entry, $event.currentTarget)"
@@ -14,7 +14,7 @@
             <router-link
                 class="sw-admin-menu__navigation-link"
                 :to="getLinkToProp"
-                :class="{ 'router-link-active': subIsActive(entryPath, entry.id) }"
+                :class="{ 'router-link-active': rowActive }"
                 :aria-expanded="collapsibleOpen"
                 @click="toggleSubmenu"
                 @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
@@ -56,7 +56,7 @@
             v-else
             type="button"
             class="sw-admin-menu__navigation-link"
-            :class="{ 'router-link-active': subIsActive(entry.id) }"
+            :class="{ 'router-link-active': rowActive }"
             @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
         >
             {% block sw_admin_menu_item_navigation_icon_fold %}
@@ -120,7 +120,7 @@
 <li
     v-else-if="showMenuItem"
     :class="legacyLiClass"
-    :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
+    :aria-current="rowActive ? 'page' : 'false'"
     @mouseenter="$emit('menu-item-hover', entry, $event.target)"
     @click.prevent="handleLegacyRowClick($event)"
     @keydown.enter="handleLegacyRowClick($event)"
@@ -132,7 +132,7 @@
             v-if="entryPath"
             class="sw-admin-menu__navigation-link"
             :to="getLinkToProp"
-            :class="{ 'router-link-active': subIsActive(entryPath, entry.id) }"
+            :class="{ 'router-link-active': rowActive }"
         >
             <mt-icon
                 v-if="displayIcon"
@@ -180,7 +180,7 @@
         <span
             v-else
             class="sw-admin-menu__navigation-link"
-            :class="{ 'router-link-active': subIsActive(entry.id) }"
+            :class="{ 'router-link-active': rowActive }"
         >
             <mt-icon
                 v-if="displayIcon"

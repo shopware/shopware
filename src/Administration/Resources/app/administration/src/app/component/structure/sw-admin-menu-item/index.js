@@ -1,6 +1,6 @@
 import { MtCollapsible, MtCollapsibleContent, MtCollapsibleTrigger } from '@shopware-ag/meteor-component-library';
 import template from './sw-admin-menu-item.html.twig';
-import { getMatchedRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from './menu-item-active.helper';
+import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from './menu-item-active.helper';
 import './sw-admin-menu-item.scss';
 
 /**
@@ -97,9 +97,35 @@ export default {
             return this.menuDepth >= 3;
         },
 
-        /** Route names of the currently resolved route chain (current route + ancestors). */
-        matchedRouteNames() {
-            return getMatchedRouteNames(this.$route);
+        /** Route names that count as "current": the resolved chain + the parentPath bridge. */
+        activeRouteNames() {
+            return getActiveRouteNames(this.$route, this.$router);
+        },
+
+        /**
+         * Whether this row should show the "current page" highlight (`router-link-active`).
+         * True when the entry (or a descendant) is on the active route, except that an open
+         * parent yields the highlight to its active child.
+         */
+        rowActive() {
+            if (!isEntryOnActiveRoute(this.entry, this.$route, this.activeRouteNames)) {
+                return false;
+            }
+
+            const activeChild = this.children.some((child) =>
+                isEntryOnActiveRoute(child, this.$route, this.activeRouteNames),
+            );
+            const selfIsCurrent =
+                !activeChild &&
+                !!this.entry.path &&
+                this.activeRouteNames.has(this.entry.path) &&
+                entryParamsMatchRoute(this.entry, this.$route);
+
+            if (!selfIsCurrent && this.children.length > 0 && this.submenuVisuallyOpen) {
+                return false;
+            }
+
+            return true;
         },
 
         getLinkToProp() {
@@ -179,17 +205,7 @@ export default {
                 return false;
             }
 
-            const entryKey = this.entry.id ?? this.entry.path;
-            const meta = this.$route.meta;
-            const currentKey = typeof meta?.$current?.path === 'string' ? meta.$current.path : this.$route?.name;
-
-            if (!currentKey || typeof currentKey !== 'string') {
-                return false;
-            }
-
-            const chain = this.getEntryHierarchy(currentKey);
-
-            return entryKey !== undefined && entryKey !== '' && chain.includes(entryKey);
+            return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
         },
 
         submenuVisuallyOpen() {
@@ -246,7 +262,7 @@ export default {
         },
 
         navigationIconName() {
-            const isActive = this.subIsActive(this.entry.path || this.entry.id, this.entry.id) || this.childRouteActive;
+            const isActive = this.rowActive || this.childRouteActive;
 
             return this.getIconName(this.entry.icon, isActive);
         },
@@ -256,24 +272,8 @@ export default {
                 return false;
             }
 
-            // Route-derived: a descendant's route is the current route (or an ancestor of it).
-            if (this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.matchedRouteNames))) {
-                return true;
-            }
-
-            const meta = this.$route.meta;
-            const path = this.entryPath || this.entry.id;
-
-            if (meta.$current) {
-                const [
-                    currentPath,
-                    ...ancestorPaths
-                ] = this.getEntryHierarchy(meta.$current.path);
-
-                return currentPath !== path && ancestorPaths.includes(path);
-            }
-
-            return false;
+            // A descendant's route is the current route (or an ancestor of it).
+            return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
         },
     },
 
@@ -304,111 +304,6 @@ export default {
 
         getItemName(menuItemName) {
             return menuItemName.replace(/\./g, '-');
-        },
-
-        getEntryHierarchy(currentPath, foundPaths = []) {
-            const adminMenuEntries = Shopware.Store.get('adminMenu').adminModuleNavigation;
-            let walkKey = typeof currentPath === 'string' && currentPath.length > 0 ? currentPath : null;
-            const visited = new Set();
-
-            while (walkKey) {
-                const searchKey = walkKey;
-
-                if (visited.has(searchKey)) {
-                    break;
-                }
-                visited.add(searchKey);
-
-                const foundEntry = adminMenuEntries.find((entry) => {
-                    return entry.path === searchKey || entry.id === searchKey;
-                });
-
-                if (!foundEntry) {
-                    break;
-                }
-
-                foundPaths.push(foundEntry.path || foundEntry.id);
-
-                const parentRef = foundEntry.parent;
-                if (!parentRef?.length) {
-                    break;
-                }
-
-                walkKey = typeof parentRef === 'string' ? parentRef : null;
-            }
-
-            return foundPaths;
-        },
-
-        subIsActive(path, entryId) {
-            if (this.$route.name?.startsWith('sw.sales.channel.') && entryId) {
-                return this.$route.params?.id === entryId;
-            }
-
-            // Prefer Vue Router's resolved route chain. This is robust for any routing and,
-            // unlike the $current-based resolution below, works for path-less grouping parents
-            // (e.g. "Extensions") whose route is never an entry itself.
-            if (isEntryOnActiveRoute(this.entry, this.$route, this.matchedRouteNames)) {
-                const activeChild = this.children.some((child) =>
-                    isEntryOnActiveRoute(child, this.$route, this.matchedRouteNames),
-                );
-                const selfIsCurrent =
-                    !activeChild &&
-                    !!this.entry.path &&
-                    this.matchedRouteNames.has(this.entry.path) &&
-                    entryParamsMatchRoute(this.entry, this.$route);
-
-                // An open parent yields the "current page" highlight to its active child.
-                if (!selfIsCurrent && this.children.length > 0 && this.submenuVisuallyOpen) {
-                    return false;
-                }
-
-                return true;
-            }
-
-            const meta = this.$route.meta;
-            let compareTo;
-
-            if (meta.$current) {
-                const matchingPaths = this.getEntryHierarchy(meta.$current.path);
-                const isInPath = matchingPaths.includes(path);
-                const isCurrentRoute = matchingPaths[0] === path;
-
-                if (isInPath && !isCurrentRoute && this.children.length > 0 && this.submenuVisuallyOpen) {
-                    return false;
-                }
-
-                return isInPath;
-            }
-
-            if (meta.parentPath) {
-                compareTo = meta.parentPath;
-            }
-
-            if (meta.$module?.navigation?.[0].parent) {
-                compareTo = meta.$module.navigation[0].parent;
-            }
-
-            if (!compareTo) {
-                compareTo = this.$route?.name;
-            }
-
-            if (this.entry.path) {
-                const isActive = compareTo
-                    ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0
-                    : false;
-                const isCurrentRoute = compareTo
-                    ? compareTo.replace(/-/g, '.').replace(/\.index/g, '') === path.replace(/\.index/g, '')
-                    : false;
-
-                if (isActive && !isCurrentRoute && this.children.length > 0 && this.submenuVisuallyOpen) {
-                    return false;
-                }
-
-                return isActive;
-            }
-
-            return this.entry.id === compareTo;
         },
 
         getElementClasses(menuItemName) {

@@ -3,32 +3,69 @@
  */
 
 import {
-    getMatchedRouteNames,
+    getActiveRouteNames,
     entryParamsMatchRoute,
     isEntryOnActiveRoute,
 } from 'src/app/component/structure/sw-admin-menu-item/menu-item-active.helper';
 
 describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper', () => {
-    describe('getMatchedRouteNames', () => {
+    describe('getActiveRouteNames', () => {
         it('collects the route names of the resolved chain', () => {
             const route = {
-                matched: [{ name: 'core' }, { name: 'sw.extension.my-extensions' }, { name: 'sw.extension.my-extensions.listing' }],
+                matched: [
+                    { name: 'core' },
+                    { name: 'sw.extension.my-extensions' },
+                    { name: 'sw.extension.my-extensions.listing' },
+                ],
             };
 
-            expect(getMatchedRouteNames(route)).toEqual(
+            expect(getActiveRouteNames(route)).toEqual(
                 new Set(['core', 'sw.extension.my-extensions', 'sw.extension.my-extensions.listing']),
             );
         });
 
         it('is empty for a route without a matched chain', () => {
-            expect(getMatchedRouteNames({})).toEqual(new Set());
-            expect(getMatchedRouteNames(undefined)).toEqual(new Set());
+            expect(getActiveRouteNames({})).toEqual(new Set());
+            expect(getActiveRouteNames(undefined)).toEqual(new Set());
         });
 
         it('ignores records without a name', () => {
             const route = { matched: [{ name: 'core' }, {}, { name: undefined }, { name: 'sw.product.index' }] };
 
-            expect(getMatchedRouteNames(route)).toEqual(new Set(['core', 'sw.product.index']));
+            expect(getActiveRouteNames(route)).toEqual(new Set(['core', 'sw.product.index']));
+        });
+
+        it('bridges sibling detail pages to their owning nav route via the parentPath chain (multi-hop)', () => {
+            // sw.settings.payment.detail → parentPath sw.settings.payment.overview → parentPath sw.settings.index
+            const route = {
+                name: 'sw.settings.payment.detail',
+                matched: [{ name: 'sw.settings.payment.detail' }],
+                meta: { parentPath: 'sw.settings.payment.overview' },
+            };
+            const router = {
+                getRoutes: () => [
+                    { name: 'sw.settings.payment.overview', meta: { parentPath: 'sw.settings.index' } },
+                    { name: 'sw.settings.index', meta: {} },
+                ],
+            };
+
+            const names = getActiveRouteNames(route, router);
+
+            expect(names.has('sw.settings.payment.detail')).toBe(true);
+            expect(names.has('sw.settings.payment.overview')).toBe(true);
+            expect(names.has('sw.settings.index')).toBe(true);
+        });
+
+        it('does not loop on a cyclic parentPath chain', () => {
+            const route = { name: 'a', matched: [{ name: 'a' }], meta: { parentPath: 'b' } };
+            const router = {
+                getRoutes: () => [
+                    { name: 'b', meta: { parentPath: 'a' } },
+                    { name: 'a', meta: { parentPath: 'b' } },
+                ],
+            };
+
+            expect(getActiveRouteNames(route, router)).toEqual(new Set(['a', 'b']));
         });
     });
 
@@ -98,6 +135,19 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
 
             expect(isEntryOnActiveRoute(entryA, route)).toBe(true);
             expect(isEntryOnActiveRoute(entryB, route)).toBe(false);
+        });
+
+        it('lights a leaf reachable only through the parentPath bridge', () => {
+            const route = {
+                name: 'sw.product.detail.base',
+                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
+                meta: { parentPath: 'sw.product.index' },
+                params: {},
+            };
+            const router = { getRoutes: () => [{ name: 'sw.product.index', meta: {} }] };
+            const activeNames = getActiveRouteNames(route, router);
+
+            expect(isEntryOnActiveRoute({ path: 'sw.product.index' }, route, activeNames)).toBe(true);
         });
     });
 });

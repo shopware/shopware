@@ -1,5 +1,5 @@
 import template from './sw-admin-menu.html.twig';
-import { getMatchedRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
+import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
 
 const { Mixin } = Shopware;
@@ -530,71 +530,20 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
-            // Route-derived pass: open the top-level branch that owns the current route. Works
-            // for any routing, incl. path-less parents (e.g. "Extensions") where the legacy
-            // $current/parentPath resolution below cannot find a navigation leaf.
-            const matchedNames = getMatchedRouteNames(this.$route);
+            // Open the top-level branch that owns the current route. Derived from the resolved
+            // route chain (+ parentPath bridge), so it works for any routing — including path-less
+            // parents (e.g. "Extensions") and detail/create sub-pages.
+            const activeNames = getActiveRouteNames(this.$route, this.$router);
+
             this.mainMenuEntries.forEach((entry) => {
                 if (
-                    this.getChildren(entry).length > 0 &&
-                    isEntryOnActiveRoute(entry, this.$route, matchedNames) &&
+                    (entry.children?.length ?? 0) > 0 &&
+                    isEntryOnActiveRoute(entry, this.$route, activeNames) &&
                     !this.isNavigationEntryExpanded(entry)
                 ) {
                     this.adminMenuStore.expandMenuEntry(entry);
                 }
             });
-
-            let navigationLeaf =
-                this.$route.meta && this.$route.meta.$current !== undefined && this.$route.meta.$current !== null
-                    ? this.$route.meta.$current
-                    : null;
-
-            if (!navigationLeaf && typeof this.$route.name === 'string') {
-                navigationLeaf =
-                    this.navigationEntries.find((navigationEntry) => navigationEntry.path === this.$route.name) ?? null;
-            }
-
-            if (!navigationLeaf) {
-                return;
-            }
-
-            const flatNavigation = this.navigationEntries;
-
-            const resolveNavigationParent = (child) => {
-                if (!child || !child.parent?.length) {
-                    return null;
-                }
-
-                return (
-                    flatNavigation.find((candidate) => candidate?.id !== undefined && candidate.id === child.parent) ??
-                    flatNavigation.find((candidate) => candidate?.path !== undefined && candidate.path === child.parent) ??
-                    null
-                );
-            };
-
-            const isTopLevelNavigationEntry = (candidate) =>
-                !!candidate &&
-                this.mainMenuEntries.some(
-                    (rootEntry) => (rootEntry?.id ?? rootEntry?.path) === (candidate?.id ?? candidate?.path),
-                );
-
-            let walker = navigationLeaf;
-
-            while (walker) {
-                const parentEntry = resolveNavigationParent(walker);
-
-                if (!parentEntry) {
-                    break;
-                }
-
-                if (isTopLevelNavigationEntry(parentEntry) && this.getChildren(parentEntry).length > 0) {
-                    if (!this.isNavigationEntryExpanded(parentEntry)) {
-                        this.adminMenuStore.expandMenuEntry(parentEntry);
-                    }
-                }
-
-                walker = parentEntry;
-            }
         },
 
         isNavigationEntryExpanded(entry) {

@@ -9,7 +9,7 @@ import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
-async function createWrapper({ props = {}, privileges = [], route = {} } = {}) {
+async function createWrapper({ props = {}, privileges = [], route = {}, routerRoutes = null } = {}) {
     const collectRoutes = (entry) => {
         if (!entry) {
             return [];
@@ -23,6 +23,7 @@ async function createWrapper({ props = {}, privileges = [], route = {} } = {}) {
 
     const $router = {
         getRoutes: () =>
+            routerRoutes ??
             collectRoutes(props.entry)
                 .filter((entry) => entry.path)
                 .map((entry) => ({
@@ -602,7 +603,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
+        expect(wrapper.vm.rowActive).toBe(false);
     });
 
     const extensionsEntry = () => ({
@@ -654,7 +655,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         await flushPromises();
 
         // Collapsed: the parent itself carries the active highlight.
-        expect(wrapper.vm.subIsActive('sw-extension')).toBe(true);
+        expect(wrapper.vm.rowActive).toBe(true);
     });
 
     it('should defer the "Extensions" parent highlight to its active child when the branch is open', async () => {
@@ -670,7 +671,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         await flushPromises();
 
         // Open branch: the child shows the "current page" highlight, the parent shows the child-active state.
-        expect(wrapper.vm.subIsActive('sw-extension')).toBe(false);
+        expect(wrapper.vm.rowActive).toBe(false);
         expect(wrapper.vm.childRouteActive).toBe(true);
     });
 
@@ -692,7 +693,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.subIsActive('sw.extension.my-extensions')).toBe(true);
+        expect(wrapper.vm.rowActive).toBe(true);
     });
 
     it('should not mark "Extensions" active on an unrelated route', async () => {
@@ -707,8 +708,44 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.subIsActive('sw-extension')).toBe(false);
+        expect(wrapper.vm.rowActive).toBe(false);
         expect(wrapper.vm.childRouteActive).toBe(false);
+    });
+
+    it('should keep a core module parent active on a detail page via the parentPath bridge', async () => {
+        // sw.product.detail is a *sibling* of the nav route sw.product.index (not in `matched`);
+        // it bridges back through meta.parentPath. Verifies the full refactor did not regress this.
+        const wrapper = await createWrapper({
+            route: {
+                name: 'sw.product.detail.base',
+                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
+                meta: { parentPath: 'sw.product.index' },
+            },
+            routerRoutes: [{ name: 'sw.product.index', meta: {} }],
+            props: {
+                entry: {
+                    id: 'sw-catalogue',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+                    icon: 'regular-products',
+                    level: 1,
+                    children: [
+                        {
+                            id: 'sw-product',
+                            path: 'sw.product.index',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            parent: 'sw-catalogue',
+                            level: 2,
+                            children: [],
+                        },
+                    ],
+                },
+                sidebarExpanded: false,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.rowActive).toBe(true);
     });
 
     it('should not show the icon on sub menu items', async () => {

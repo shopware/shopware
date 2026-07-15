@@ -107,7 +107,13 @@
 
         {% block cms_form_revocation_hidden_fields %}
             <div class="form-hidden-fields">
-                <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
+                {% if page.navigationId and page.entityName %}
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ page.navigationId }}">
+                    <input type="hidden" id="{{ formPrefix }}-entityName" name="entityName" value="{{ page.entityName }}">
+                {% else %}
+                    <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
+                {% endif %}
+
                 <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">
                 <input type="submit" class="submit--hidden d-none">
             </div>

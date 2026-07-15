@@ -5,6 +5,30 @@
 
             <p>{{ $t('sw-settings-services.deactivate-modal.p-2') }}</p>
 
+            <div
+                v-if="servicesWithAccountRequirement.length > 0"
+                class="sw-settings-services-deactivate-modal__account-requirement-info"
+            >
+                <div class="sw-settings-services-deactivate-modal__account-requirement-message">
+                    <mt-icon
+                        class="sw-settings-services-deactivate-modal__account-requirement-icon"
+                        name="solid-info-circle"
+                        size="16"
+                    />
+
+                    <p>{{ $t('sw-settings-services.deactivate-modal.p-3') }}</p>
+                </div>
+
+                <ul class="sw-settings-services-deactivate-modal__services-list">
+                    <li
+                        v-for="service in servicesWithAccountRequirement"
+                        :key="service.name"
+                    >
+                        {{ service.label }}
+                    </li>
+                </ul>
+            </div>
+
             <mt-link
                 type="external"
                 as="a"
@@ -40,4 +64,3 @@
         {{ $t('sw-settings-services.general.deactivate') }}
     </mt-modal-trigger>
 </mt-modal-root>
-

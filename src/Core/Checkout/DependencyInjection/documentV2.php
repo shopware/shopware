@@ -15,7 +15,8 @@ use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
@@ -99,7 +100,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(XmlFormatter::class);
 
-    $services->set(XmlRenderer::class)
+    $services->set(ZugferdXmlRenderer::class)
         ->public()
         ->args([
             service(DocumentTemplateRenderer::class),
@@ -111,6 +112,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             param('shopware.dompdf.options'),
+        ])
+        ->tag('shopware.document_v2.renderer');
+
+    $services->set(ZugferdEmbeddedPdfRenderer::class)
+        ->public()
+        ->args([
+            param('kernel.shopware_version'),
         ])
         ->tag('shopware.document_v2.renderer');
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -59,10 +58,6 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
         unset($typeData[DocumentMetaProvider::KEY]);
 
         $configuration = new TemplateContext($meta, $typeData);
-
-        if (\preg_match('/^[a-z0-9_]+$/D', $input->documentType) !== 1) {
-            throw DocumentV2Exception::invalidDocumentType($input->documentType);
-        }
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 

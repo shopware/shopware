@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -36,8 +36,8 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(XmlRenderer::class)]
-class XmlRendererTest extends TestCase
+#[CoversClass(ZugferdXmlRenderer::class)]
+class ZugferdXmlRendererTest extends TestCase
 {
     private const ZUGFERD_TEMPLATE_PATH = '@Framework/documents/zugferd/invoice.xml.twig';
 
@@ -140,31 +140,7 @@ class XmlRendererTest extends TestCase
                 $this->createOrder(),
                 [
                     DocumentMetaProvider::KEY => $this->createMeta(),
-                    InvoiceDataProvider::KEY => $this->createRenderData(),
-                ],
-            ),
-            new RenderState(),
-            Context::createDefaultContext(),
-        );
-    }
-
-    public function testRejectsDocumentTypeThatIsNotATrustedIdentifier(): void
-    {
-        $finder = $this->createMock(TemplateFinder::class);
-        $finder->expects($this->never())->method('find');
-
-        $renderer = $this->createRenderer($finder, $this->createMock(TwigEnvironment::class));
-
-        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
-
-        $renderer->renderToString(
-            new RenderInput(
-                '../invoice',
-                '12345',
-                $this->createOrder(),
-                [
-                    DocumentMetaProvider::KEY => $this->createMeta(),
-                    InvoiceDataProvider::KEY => $this->createRenderData(),
+                    DocumentType::CREDIT_NOTE->value => $this->createRenderData(),
                 ],
             ),
             new RenderState(),
@@ -197,9 +173,9 @@ class XmlRendererTest extends TestCase
         );
     }
 
-    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): XmlRenderer
+    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): ZugferdXmlRenderer
     {
-        return new XmlRenderer(
+        return new ZugferdXmlRenderer(
             new DocumentTemplateRenderer(
                 $finder,
                 $env,

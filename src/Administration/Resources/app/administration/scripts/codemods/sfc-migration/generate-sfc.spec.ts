@@ -267,5 +267,20 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.blockers).toContain('twig syntax inside comment');
             expect(result.sfc).toBe('');
         });
+
+        it('reports orphaned cross-block v-else cases as a blocker', () => {
+            const result = mergeComponentFiles(
+                `
+{% block sw_first %}
+    <div v-else>fallback</div>
+{% endblock %}
+                `,
+                readFixture('simple-component.index.js'),
+            );
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain('orphaned cross-block v-else');
+            expect(result.sfc).toBe('');
+        });
     });
 });

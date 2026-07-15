@@ -3,7 +3,7 @@
  */
 import template from './sw-bulk-edit-product-media.html.twig';
 
-const { Context, Utils, Mixin } = Shopware;
+const { Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
 

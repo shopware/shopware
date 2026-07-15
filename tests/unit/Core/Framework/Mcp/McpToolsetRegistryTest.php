@@ -42,11 +42,45 @@ class McpToolsetRegistryTest extends TestCase
         $toolsets = $toolsetRegistry->toolsets();
         $toolsetsByName = array_column($toolsets, null, 'name');
 
-        static::assertSame(['entity', 'order'], array_keys($toolsetsByName));
+        // The ungrouped tool falls to the "other" catch-all, which is surfaced as an enable-able
+        // toolset so it still has a guaranteed enable path. Only the "default" group is excluded.
+        static::assertSame(['entity', 'order', 'other'], array_keys($toolsetsByName));
         static::assertSame(['shopware-entity-read', 'shopware-entity-search'], $toolsetsByName['entity']['tools']);
         static::assertSame(['shopware-order-state'], $toolsetsByName['order']['tools']);
+        static::assertSame(['ungrouped-tool'], $toolsetsByName['other']['tools']);
         static::assertSame('Entity tools', $toolsetsByName['entity']['title']);
+        static::assertSame('Other tools', $toolsetsByName['other']['title']);
         static::assertSame('Tools explicitly assigned to the "entity" MCP tool group.', $toolsetsByName['entity']['description']);
+    }
+
+    public function testBuildsToolsetPerAppFromRuntimeAppGroups(): void
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            'shopware-entity-search',
+            'my-erp-sync-orders',
+            'my-erp-read-stock',
+        ]);
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider([
+                'my-erp-sync-orders' => 'my-erp',
+                'my-erp-read-stock' => 'my-erp',
+            ]),
+            toolGroups: [
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                'shopware-entity-search' => 'entity',
+            ],
+        ));
+
+        $toolsetsByName = array_column($toolsetRegistry->toolsets(), null, 'name');
+
+        // App tools without a compile-time #[McpToolGroup] are grouped under their owning app,
+        // forming a real toolset instead of vanishing into "other".
+        static::assertSame(['entity', 'my-erp'], array_keys($toolsetsByName));
+        static::assertSame(['my-erp-read-stock', 'my-erp-sync-orders'], $toolsetsByName['my-erp']['tools']);
+        static::assertNotNull($toolsetRegistry->find('my-erp'));
     }
 
     public function testFindReturnsToolsetByName(): void
@@ -131,10 +165,14 @@ class McpToolsetRegistryTest extends TestCase
         return $registry;
     }
 
-    private function stubPrivilegeProvider(): AppMcpPrivilegeProvider
+    /**
+     * @param array<string, string> $appGroups
+     */
+    private function stubPrivilegeProvider(array $appGroups = []): AppMcpPrivilegeProvider
     {
         $stub = static::createStub(AppMcpPrivilegeProvider::class);
         $stub->method('getAppToolPrivileges')->willReturn([]);
+        $stub->method('getAppToolGroups')->willReturn($appGroups);
 
         return $stub;
     }

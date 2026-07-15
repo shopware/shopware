@@ -9,7 +9,7 @@ import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
-async function createWrapper({ props = {}, privileges = [] } = {}) {
+async function createWrapper({ props = {}, privileges = [], route = {} } = {}) {
     const collectRoutes = (entry) => {
         if (!entry) {
             return [];
@@ -55,7 +55,10 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
             },
             mocks: {
                 $route: {
-                    meta: { $module: { name: '' } },
+                    name: route.name,
+                    params: route.params ?? {},
+                    matched: route.matched ?? [],
+                    meta: { $module: { name: '' }, ...(route.meta ?? {}) },
                 },
                 $router,
             },
@@ -600,6 +603,112 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         await flushPromises();
 
         expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
+    });
+
+    const extensionsEntry = () => ({
+        id: 'sw-extension',
+        label: 'sw-extension.mainMenu.mainMenuItemExtensionStore',
+        icon: 'regular-plug',
+        moduleType: 'core',
+        position: 70,
+        level: 1,
+        children: [
+            {
+                id: 'sw-extension-store',
+                path: 'sw.extension.store',
+                label: 'sw-extension.mainMenu.store',
+                parent: 'sw-extension',
+                level: 2,
+                children: [],
+            },
+            {
+                id: 'sw-extension-my-extensions',
+                path: 'sw.extension.my-extensions',
+                label: 'sw-extension.mainMenu.purchased',
+                parent: 'sw-extension',
+                level: 2,
+                children: [],
+            },
+        ],
+    });
+
+    // Landing on a deeply-nested extension route (no parentPath, no matching nav path → $current is null).
+    const myExtensionsRoute = {
+        name: 'sw.extension.my-extensions.listing.app',
+        matched: [
+            { name: 'sw.extension.my-extensions' },
+            { name: 'sw.extension.my-extensions.listing' },
+            { name: 'sw.extension.my-extensions.listing.app' },
+        ],
+    };
+
+    it('should mark the path-less "Extensions" parent active on a child route when the sidebar is collapsed', async () => {
+        const wrapper = await createWrapper({
+            route: myExtensionsRoute,
+            props: {
+                entry: extensionsEntry(),
+                sidebarExpanded: false,
+            },
+        });
+
+        await flushPromises();
+
+        // Collapsed: the parent itself carries the active highlight.
+        expect(wrapper.vm.subIsActive('sw-extension')).toBe(true);
+    });
+
+    it('should defer the "Extensions" parent highlight to its active child when the branch is open', async () => {
+        const wrapper = await createWrapper({
+            route: myExtensionsRoute,
+            props: {
+                entry: extensionsEntry(),
+                sidebarExpanded: true,
+                isExpanded: true,
+            },
+        });
+
+        await flushPromises();
+
+        // Open branch: the child shows the "current page" highlight, the parent shows the child-active state.
+        expect(wrapper.vm.subIsActive('sw-extension')).toBe(false);
+        expect(wrapper.vm.childRouteActive).toBe(true);
+    });
+
+    it('should mark the active extension child item active', async () => {
+        const wrapper = await createWrapper({
+            route: myExtensionsRoute,
+            props: {
+                entry: {
+                    id: 'sw-extension-my-extensions',
+                    path: 'sw.extension.my-extensions',
+                    label: 'sw-extension.mainMenu.purchased',
+                    parent: 'sw-extension',
+                    level: 2,
+                    children: [],
+                },
+                menuDepth: 2,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.subIsActive('sw.extension.my-extensions')).toBe(true);
+    });
+
+    it('should not mark "Extensions" active on an unrelated route', async () => {
+        const wrapper = await createWrapper({
+            route: { name: 'sw.order.index', matched: [{ name: 'sw.order.index' }] },
+            props: {
+                entry: extensionsEntry(),
+                sidebarExpanded: true,
+                isExpanded: true,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.subIsActive('sw-extension')).toBe(false);
+        expect(wrapper.vm.childRouteActive).toBe(false);
     });
 
     it('should not show the icon on sub menu items', async () => {

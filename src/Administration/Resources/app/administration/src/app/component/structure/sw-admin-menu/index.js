@@ -1,4 +1,5 @@
 import template from './sw-admin-menu.html.twig';
+import { getMatchedRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
 
 const { Mixin } = Shopware;
@@ -528,6 +529,20 @@ The admin menu only supports up to three levels of nesting.`,
             if (!this.isExpanded) {
                 return;
             }
+
+            // Route-derived pass: open the top-level branch that owns the current route. Works
+            // for any routing, incl. path-less parents (e.g. "Extensions") where the legacy
+            // $current/parentPath resolution below cannot find a navigation leaf.
+            const matchedNames = getMatchedRouteNames(this.$route);
+            this.mainMenuEntries.forEach((entry) => {
+                if (
+                    this.getChildren(entry).length > 0 &&
+                    isEntryOnActiveRoute(entry, this.$route, matchedNames) &&
+                    !this.isNavigationEntryExpanded(entry)
+                ) {
+                    this.adminMenuStore.expandMenuEntry(entry);
+                }
+            });
 
             let navigationLeaf =
                 this.$route.meta && this.$route.meta.$current !== undefined && this.$route.meta.$current !== null

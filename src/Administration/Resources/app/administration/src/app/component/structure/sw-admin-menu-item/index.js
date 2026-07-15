@@ -1,5 +1,6 @@
 import { MtCollapsible, MtCollapsibleContent, MtCollapsibleTrigger } from '@shopware-ag/meteor-component-library';
 import template from './sw-admin-menu-item.html.twig';
+import { getMatchedRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from './menu-item-active.helper';
 import './sw-admin-menu-item.scss';
 
 /**
@@ -94,6 +95,11 @@ export default {
         /** Admin menu supports at most three levels; level-3 rows are leaf items only */
         leafDepth() {
             return this.menuDepth >= 3;
+        },
+
+        /** Route names of the currently resolved route chain (current route + ancestors). */
+        matchedRouteNames() {
+            return getMatchedRouteNames(this.$route);
         },
 
         getLinkToProp() {
@@ -250,6 +256,11 @@ export default {
                 return false;
             }
 
+            // Route-derived: a descendant's route is the current route (or an ancestor of it).
+            if (this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.matchedRouteNames))) {
+                return true;
+            }
+
             const meta = this.$route.meta;
             const path = this.entryPath || this.entry.id;
 
@@ -332,6 +343,27 @@ export default {
         subIsActive(path, entryId) {
             if (this.$route.name?.startsWith('sw.sales.channel.') && entryId) {
                 return this.$route.params?.id === entryId;
+            }
+
+            // Prefer Vue Router's resolved route chain. This is robust for any routing and,
+            // unlike the $current-based resolution below, works for path-less grouping parents
+            // (e.g. "Extensions") whose route is never an entry itself.
+            if (isEntryOnActiveRoute(this.entry, this.$route, this.matchedRouteNames)) {
+                const activeChild = this.children.some((child) =>
+                    isEntryOnActiveRoute(child, this.$route, this.matchedRouteNames),
+                );
+                const selfIsCurrent =
+                    !activeChild &&
+                    !!this.entry.path &&
+                    this.matchedRouteNames.has(this.entry.path) &&
+                    entryParamsMatchRoute(this.entry, this.$route);
+
+                // An open parent yields the "current page" highlight to its active child.
+                if (!selfIsCurrent && this.children.length > 0 && this.submenuVisuallyOpen) {
+                    return false;
+                }
+
+                return true;
             }
 
             const meta = this.$route.meta;

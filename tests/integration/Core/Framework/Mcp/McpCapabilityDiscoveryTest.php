@@ -75,6 +75,45 @@ class McpCapabilityDiscoveryTest extends TestCase
         );
     }
 
+    public function testInitializeResponseInstructionsGuideToolDiscovery(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => new \stdClass(),
+                    'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+                ],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content, 'MCP response was empty');
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+        static::assertArrayHasKey('result', $response, 'MCP initialize missing result: ' . $content);
+
+        $instructions = $response['result']['instructions'] ?? '';
+        static::assertIsString($instructions);
+        static::assertStringContainsString(
+            'shopware-tool-search',
+            $instructions,
+            'Server instructions must point clients at shopware-tool-search when no advertised tool matches the requested action.',
+        );
+    }
+
     /**
      * @return iterable<string, array{string}>
      */

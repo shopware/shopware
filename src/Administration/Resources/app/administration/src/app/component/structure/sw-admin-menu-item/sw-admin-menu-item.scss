@@ -64,6 +64,18 @@ $nesting-line-indent: 36px;
 .sw-admin-menu__navigation-link-expand-icon {
     flex-shrink: 0;
     color: var(--color-text-primary-default);
+    transition: transform 0.15s ease-out;
+}
+
+// Chevron points down when collapsed: nudge it down on hover.
+.sw-admin-menu__navigation-link:hover .sw-admin-menu__navigation-link-expand-icon {
+    transform: translateY(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sw-admin-menu__navigation-link-expand-icon {
+        transition: none;
+    }
 }
 
 .sw-admin-menu__navigation-link-expand-icon-box {
@@ -217,6 +229,15 @@ $nesting-line-indent: 36px;
 
     & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active .collapsible-text {
         color: var(--color-icon-brand-default);
+    }
+
+    // Chevron points up when expanded: lift it slightly, more so on hover.
+    & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link .sw-admin-menu__navigation-link-expand-icon {
+        transform: translateY(-1px);
+    }
+
+    & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link:hover .sw-admin-menu__navigation-link-expand-icon {
+        transform: translateY(-2px);
     }
 
     .sw-admin-menu__navigation-list-item {

@@ -1,5 +1,5 @@
 ---
-name: Reproduce Issue
+name: Shopware Reproduce Issue
 description: >
   Turn a Shopware bug report into ONE verified reproduction. The agent only authors a bundle
   (reproduction-plan.json + optional fixtures.json + one test); deterministic steps then re-run that
@@ -39,6 +39,11 @@ network:
 engine:
   id: claude
   model: claude-sonnet-4-6
+  env:
+    # The repo's ANTHROPIC_API_KEY secret is empty on upstream; the real Quality-Initiative key is in
+    # QUALITY_INITIATIVE_ANTHROPIC_API_KEY. Map it into what the claude engine reads (matches sw-review /
+    # sw-triage / sw-bugfixer). Without this the agent job fails on upstream with an empty key.
+    ANTHROPIC_API_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY }}
 
 # Sandboxed agent: it runs behind awf (network firewall + host-chroot), reaches the shop at
 # host.docker.internal (see "Export shop coordinates" + the sales-channel-domain step below), and its

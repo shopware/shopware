@@ -123,7 +123,15 @@ export function fillPlaceholders(value, ids) {
   }
 
   for (const key of keys) {
-    out = out.split(`{{${key}}}`).join(ids[key] ?? '');
+    const value_ = ids[key];
+    // An EMPTY resolution (e.g. firstId() on a search that returned no rows) is NOT a valid
+    // substitution — substituting '' would erase the {{KEY}} token and slip a malformed request
+    // (empty UUID) past unresolvedPlaceholders. Leave the token instead so the leg blocks with a
+    // clear "unresolved placeholder" reason rather than silently diverging on install differences.
+    if (value_ === undefined || value_ === null || value_ === '') {
+      continue;
+    }
+    out = out.split(`{{${key}}}`).join(value_);
   }
   return out;
 }

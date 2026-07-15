@@ -213,6 +213,10 @@ final class OpenApiDtoClassRenderer
      */
     private function renderConstraints(OpenApiDtoProperty $property): array
     {
+        if ($property->fixedValue) {
+            return [];
+        }
+
         $constraints = [];
 
         if ($property->required && !$property->nullable) {

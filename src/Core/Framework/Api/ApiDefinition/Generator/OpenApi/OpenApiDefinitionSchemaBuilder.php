@@ -635,8 +635,8 @@ class OpenApiDefinitionSchemaBuilder
         $property = [
             'property' => $relationship->property,
             'description' => $relationship->description,
-            // Create a context with OpenAPI 3.1.0 to ensure descriptions work with $ref
-            '_context' => new OpenApiContext(['version' => OpenApi::VERSION_3_1_0]),
+            // Create a context with OpenAPI 3.2.0 to ensure descriptions work with $ref
+            '_context' => new OpenApiContext(['version' => OpenApi::VERSION_3_2_0]),
         ];
 
         if ($relationshipData['type'] === 'array') {

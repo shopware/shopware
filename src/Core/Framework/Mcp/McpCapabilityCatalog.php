@@ -52,6 +52,7 @@ class McpCapabilityCatalog
         }
 
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
+        $appToolGroups = $this->privilegeProvider->getAppToolGroups();
 
         $tools = [];
 
@@ -62,7 +63,7 @@ class McpCapabilityCatalog
                 continue;
             }
 
-            $tools[] = $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges);
+            $tools[] = $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges, $appToolGroups);
         }
 
         usort($tools, static fn (array $a, array $b): int => $a['name'] <=> $b['name']);
@@ -82,13 +83,14 @@ class McpCapabilityCatalog
         }
 
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
+        $appToolGroups = $this->privilegeProvider->getAppToolGroups();
 
         foreach ($this->registry->getTools()->references as $tool) {
             if (!$tool instanceof Tool || $tool->name !== $name) {
                 continue;
             }
 
-            return $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges);
+            return $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges, $appToolGroups);
         }
 
         return null;
@@ -170,10 +172,11 @@ class McpCapabilityCatalog
 
     /**
      * @param array<string, list<string>> $appToolPrivileges
+     * @param array<string, string> $appToolGroups
      *
      * @return array{name: string, title: ?string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}
      */
-    private function buildToolEntry(string $name, ?string $title, ?string $description, array $appToolPrivileges): array
+    private function buildToolEntry(string $name, ?string $title, ?string $description, array $appToolPrivileges, array $appToolGroups): array
     {
         $privileges = $this->toolPrivileges[$name]
             ?? (isset($appToolPrivileges[$name])
@@ -184,7 +187,7 @@ class McpCapabilityCatalog
             'name' => $name,
             'title' => $title,
             'description' => $description,
-            'group' => $this->toolGroups[$name] ?? 'other',
+            'group' => $this->toolGroups[$name] ?? $appToolGroups[$name] ?? 'other',
             'dependencies' => $this->toolDependencies[$name] ?? [],
             'requiredPrivileges' => $privileges,
         ];

@@ -4,24 +4,22 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 07:28:42
+ * Last generated: 2026-07-15 11:22:29
  */
 
-namespace Shopware\Core\Framework\Api\Request;
+namespace Shopware\Core\Framework\Api\Request\AdminApi;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Package('framework')]
-final readonly class EqualsFilter
+final readonly class CriteriaSort
 {
     public function __construct(
         #[Assert\NotBlank]
         public string $field,
-        public string|float|bool|null $value,
-        #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['equals'])]
-        public string $type = 'equals',
+        public ?string $order = null,
+        public ?bool $naturalSorting = null,
     ) {
     }
 }

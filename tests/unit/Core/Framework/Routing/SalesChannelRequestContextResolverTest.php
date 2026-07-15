@@ -15,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @internal
@@ -22,6 +23,37 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(SalesChannelRequestContextResolver::class)]
 class SalesChannelRequestContextResolverTest extends TestCase
 {
+    public function testDoesNotInitializeLazySession(): void
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService
+            ->expects($this->once())
+            ->method('get')
+            ->willReturnCallback(static function (SalesChannelContextServiceParameters $parameters) use ($context): SalesChannelContext {
+                static::assertNull($parameters->getImitatingUserId());
+
+                return $context;
+            });
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'test-token');
+        $request->setSessionFactory(static fn (): SessionInterface => throw new \RuntimeException('The lazy session must not be initialized.'));
+
+        $resolver = new SalesChannelRequestContextResolver(
+            static::createStub(RequestContextResolverInterface::class),
+            $contextService,
+            new EventDispatcher(),
+            new RouteScopeRegistry([new StoreApiRouteScope()])
+        );
+
+        $resolver->resolve($request);
+
+        static::assertFalse($request->hasSession(true));
+    }
+
     public function testEmptyLanguageAndCurrencyHeadersAreIgnored(): void
     {
         $context = static::createStub(SalesChannelContext::class);

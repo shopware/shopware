@@ -2,6 +2,15 @@
 
 ## Core
 
+### OpenAPI generation uses swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 for OpenAPI 3.2 generation.
+Most extensions are not affected: OpenAPI annotations and attributes continue to be read by swagger-php 6, and extensions that only define `OpenApi\Annotations` or `OpenApi\Attributes` metadata usually do not need code changes.
+
+Extensions or development tools that call swagger-php programmatically should check for removed v4/v5 APIs such as `OpenApi\Generator::scan()` and `OpenApi\Util::finder()`.
+The migration is usually straightforward because the instance API `OpenApi\Generator::generate()` is available in swagger-php 4, 5, and 6.
+See `UPGRADE-6.7.md` for concrete examples.
+
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)

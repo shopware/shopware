@@ -1,5 +1,20 @@
 # 6.7.13.0
 
+## OpenAPI generator dependency upgraded to swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 to generate OpenAPI 3.2 schemas.
+Extensions that only provide OpenAPI metadata through `OpenApi\Annotations` or `OpenApi\Attributes` are expected to keep working, but extension build tools or tests that use swagger-php's programmatic API may need small changes.
+
+The common migration path is:
+
+* Replace `OpenApi\Generator::scan($sources, ['logger' => $logger])` with `(new OpenApi\Generator($logger))->generate($sources)`.
+* Replace `OpenApi\Util::finder($directory)` with the directory path itself when passing sources to `Generator::generate()`, or use swagger-php 6's `SourceFinder` if you only target v6.
+* If custom processors need to support both old and new swagger-php versions, use `method_exists($generator, 'getProcessorPipeline')`: use `getProcessorPipeline()` / `setProcessorPipeline()` for v5/v6 and fall back to `getProcessors()` / `setProcessors()` for v4.
+* Prefer `OpenApi\Generator::isDefault($value)` over direct comparisons with `Generator::UNDEFINED` when code should keep working across versions.
+
+If your extension relies on swagger-php directly, declare an explicit Composer dependency instead of relying on Shopware's transitive dependency.
+For cross-version development tooling, use a constraint that covers the versions you test, for example `^4.9.2 || ^5.0 || ^6.4`.
+
 ## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
 
 The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.

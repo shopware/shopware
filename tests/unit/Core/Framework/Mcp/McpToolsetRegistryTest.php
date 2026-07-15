@@ -6,6 +6,7 @@ use Mcp\Capability\Registry;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
@@ -148,6 +149,39 @@ class McpToolsetRegistryTest extends TestCase
         );
     }
 
+    public function testToolsetsAreScopedToTheCurrentAllowlist(): void
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+            'shopware-entity-search',
+            'shopware-entity-read',
+            'shopware-order-state',
+        ]);
+
+        $toolsetRegistry = new McpToolsetRegistry(
+            new McpCapabilityCatalog(
+                $registry,
+                $this->stubPrivilegeProvider(),
+                toolGroups: [
+                    McpToolsetRegistry::ENABLE_TOOLSET_TOOL => 'default',
+                    'shopware-entity-search' => 'entity',
+                    'shopware-entity-read' => 'entity',
+                    'shopware-order-state' => 'order',
+                ],
+            ),
+            $this->stubAllowlistProvider(['shopware-entity-search']),
+        );
+
+        $toolsetsByName = array_column($toolsetRegistry->toolsets(), null, 'name');
+
+        // Discovery stays inside the allowlist: only the allowed tool surfaces. The denied
+        // "entity-read" and the entirely-denied "order" toolset never leak through list/enable.
+        static::assertSame(['entity'], array_keys($toolsetsByName));
+        static::assertSame(['shopware-entity-search'], $toolsetsByName['entity']['tools']);
+        static::assertNull($toolsetRegistry->find('order'));
+        static::assertSame([], $toolsetRegistry->advertisedTools(['order']));
+    }
+
     /**
      * @param list<string> $toolNames
      */
@@ -173,6 +207,17 @@ class McpToolsetRegistryTest extends TestCase
         $stub = static::createStub(AppMcpPrivilegeProvider::class);
         $stub->method('getAppToolPrivileges')->willReturn([]);
         $stub->method('getAppToolGroups')->willReturn($appGroups);
+
+        return $stub;
+    }
+
+    /**
+     * @param list<string>|null $tools
+     */
+    private function stubAllowlistProvider(?array $tools): McpAllowlistProvider
+    {
+        $stub = static::createStub(McpAllowlistProvider::class);
+        $stub->method('toolsForCurrentRequest')->willReturn($tools);
 
         return $stub;
     }

@@ -7,8 +7,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -32,6 +35,29 @@ class HoneypotCaptchaTest extends TestCase
                 $captcha->validate(new Request(request: $requestParameters), [])->count() === 0
             );
         });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('deprecated isValid() validates through the Symfony validator before 6.8')]
+    public function testDeprecatedIsValidUsesValidator(): void
+    {
+        // Before 6.8 the honeypot is checked with the Symfony validator, which reports a
+        // violation for a filled field and none for an empty one.
+        $emptyValidator = static::createStub(ValidatorInterface::class);
+        $emptyValidator->method('validate')->willReturn(new ConstraintViolationList());
+        static::assertTrue((new HoneypotCaptcha($emptyValidator))->isValid(new Request(), []));
+
+        $failingValidator = static::createStub(ValidatorInterface::class);
+        $failingValidator->method('validate')->willReturn(new ConstraintViolationList([
+            new ConstraintViolation('not blank', '', [], '', 'honeypotValue', 'i-am-a-bot'),
+        ]));
+        static::assertFalse((new HoneypotCaptcha($failingValidator))->isValid(
+            new Request(request: [HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'i-am-a-bot']),
+            []
+        ));
     }
 
     /**

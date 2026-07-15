@@ -46,6 +46,22 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertSame($originalController, $event->getController());
     }
 
+    public function testUnsupportedCaptchaIsSkipped(): void
+    {
+        $event = $this->createControllerEvent(new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]));
+
+        $captcha = $this->createMock(AbstractCaptcha::class);
+        $captcha->expects($this->once())
+            ->method('supports')
+            ->willReturn(false);
+        $captcha->expects($this->never())->method('validate');
+
+        $originalController = $event->getController();
+        $this->createListener($captcha)->validateCaptcha($event);
+
+        static::assertSame($originalController, $event->getController());
+    }
+
     public function testBreakingCaptchaThrowsOnNonXmlRequest(): void
     {
         $event = $this->createControllerEvent(new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]));

@@ -65,6 +65,14 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver">
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="landing_page.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="cms_slot.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

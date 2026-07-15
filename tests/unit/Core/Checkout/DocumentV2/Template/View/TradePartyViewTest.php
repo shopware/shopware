@@ -97,7 +97,7 @@ class TradePartyViewTest extends TestCase
         $order->setId(Uuid::randomHex());
         $order->setOrderCustomer($this->createCustomer('', ''));
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'orderCustomer.name',
             'Buyer name is empty.',
@@ -112,7 +112,7 @@ class TradePartyViewTest extends TestCase
         $order->setId(Uuid::randomHex());
         $order->setOrderCustomer($this->createCustomer('Max', 'Mustermann'));
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'billingAddress',
             'Buyer billing address is missing.',
@@ -134,7 +134,7 @@ class TradePartyViewTest extends TestCase
         $order->setBillingAddress($address);
         $order->setOrderCustomer($this->createCustomer('A', 'B'));
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'billingAddress.country',
             'Buyer billing address country is missing.',

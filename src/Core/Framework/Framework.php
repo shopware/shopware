@@ -76,16 +76,17 @@ class Framework extends Bundle
         // @codeCoverageIgnoreStart
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+
         $loader->load('services.xml');
         $loader->load('acl.xml');
         $loader->load('cache.xml');
         $loader->load('api.xml');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');
-        $loader->load('data-abstraction-layer.xml');
+        $phpLoader->load('data-abstraction-layer.php');
         $loader->load('demodata.xml');
         $loader->load('event.xml');
-        $loader->load('hydrator.xml');
+        $phpLoader->load('hydrator.php');
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
         $phpLoader->load('plugin.php');
@@ -106,6 +107,7 @@ class Framework extends Bundle
         $loader->load('notification.xml');
         $loader->load('sso.xml');
 
+        // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {

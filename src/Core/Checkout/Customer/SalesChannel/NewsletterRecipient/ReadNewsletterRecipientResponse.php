@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-14 12:22:24
+ * Last generated: 2026-07-14 15:39:06
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -25,8 +25,6 @@ final readonly class ReadNewsletterRecipientResponse
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['notSet', 'optIn', 'optOut', 'direct', 'undefined'])]
         public string $status,
-        #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['account_newsletter_recipient'])]
         public string $apiAlias = 'account_newsletter_recipient',
     ) {
     }

@@ -79,9 +79,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "landing_page"
-                        ]
+                        "const": "landing_page"
                     }
                 },
                 "type": "object"

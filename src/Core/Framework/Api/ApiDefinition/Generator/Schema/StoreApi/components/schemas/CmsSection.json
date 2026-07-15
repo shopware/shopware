@@ -111,9 +111,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "cms_section"
-                        ]
+                        "const": "cms_section"
                     }
                 },
                 "type": "object"

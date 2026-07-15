@@ -21,7 +21,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["cart_price_reference"]
+                        "const": "cart_price_reference"
                     },
                     "listPrice": {
                         "oneOf": [
@@ -43,9 +43,7 @@
                                     },
                                     "apiAlias": {
                                         "type": "string",
-                                        "enum": [
-                                            "cart_regulation_price"
-                                        ]
+                                        "const": "cart_regulation_price"
                                     }
                                 }
                             },

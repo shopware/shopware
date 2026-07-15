@@ -32,7 +32,7 @@
           },
           "apiAlias": {
             "type": "string",
-            "enum": ["product_purchase_limit"]
+            "const": "product_purchase_limit"
           }
         }
       }

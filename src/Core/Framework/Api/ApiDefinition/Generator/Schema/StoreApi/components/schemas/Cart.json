@@ -126,7 +126,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["cart"]
+                        "const": "cart"
                     }
                 },
                 "required": ["price", "apiAlias"]

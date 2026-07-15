@@ -26,9 +26,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "cross_selling_element"
-                        ]
+                        "const": "cross_selling_element"
                     }
                 },
                 "required": [

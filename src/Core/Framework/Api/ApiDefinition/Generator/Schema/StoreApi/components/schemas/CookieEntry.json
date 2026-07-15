@@ -27,9 +27,7 @@
           },
           "apiAlias": {
             "type": "string",
-            "enum": [
-              "cookie_entry"
-            ]
+            "const": "cookie_entry"
           }
         },
         "required": [

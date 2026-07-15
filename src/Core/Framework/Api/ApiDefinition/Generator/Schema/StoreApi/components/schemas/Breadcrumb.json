@@ -64,7 +64,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["breadcrumb"]
+                        "const": "breadcrumb"
                     }
                 },
                 "required": [

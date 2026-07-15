@@ -73,9 +73,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "cms_slot"
-                        ]
+                        "const": "cms_slot"
                     }
                 },
                 "type": "object"

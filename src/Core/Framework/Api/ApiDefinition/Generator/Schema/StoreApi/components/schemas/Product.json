@@ -399,9 +399,7 @@
                             },
                             "apiAlias": {
                                 "type": "string",
-                                "enum": [
-                                    "calculated_cheapest_price"
-                                ]
+                                "const": "calculated_cheapest_price"
                             }
                         }
                     },
@@ -569,9 +567,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "product"
-                        ]
+                        "const": "product"
                     },
                     "variantListingConfig": {
                         "oneOf": [

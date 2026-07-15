@@ -10,9 +10,7 @@
         "properties": {
           "apiAlias": {
             "type": "string",
-            "enum": [
-              "simple_test"
-            ]
+            "const": "simple_test"
           }
         },
         "required": [

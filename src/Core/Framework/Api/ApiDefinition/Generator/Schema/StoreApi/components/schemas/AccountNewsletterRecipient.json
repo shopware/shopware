@@ -12,9 +12,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "account_newsletter_recipient"
-                        ]
+                        "const": "account_newsletter_recipient"
                     }
                 },
                 "required": [

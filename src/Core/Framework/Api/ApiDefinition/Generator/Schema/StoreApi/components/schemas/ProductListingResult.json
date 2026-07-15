@@ -100,7 +100,7 @@
                                         },
                                         "apiAlias": {
                                             "type": "string",
-                                            "enum": ["product_sorting"]
+                                            "const": "product_sorting"
                                         }
                                     },
                                     "required": [
@@ -127,7 +127,7 @@
                             },
                             "apiAlias": {
                                 "type": "string",
-                                "enum": ["product_listing"]
+                                "const": "product_listing"
                             }
                         },
                         "required": [

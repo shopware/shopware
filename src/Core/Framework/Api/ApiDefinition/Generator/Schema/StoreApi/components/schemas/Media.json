@@ -108,9 +108,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "media"
-                        ]
+                        "const": "media"
                     }
                 },
                 "type": "object"

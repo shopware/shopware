@@ -30,9 +30,7 @@
           },
           "apiAlias": {
             "type": "string",
-            "enum": [
-              "cookie_group"
-            ]
+            "const": "cookie_group"
           }
         },
         "not": {

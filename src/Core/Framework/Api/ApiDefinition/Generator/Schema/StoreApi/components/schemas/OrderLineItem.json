@@ -276,9 +276,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "order_line_item"
-                        ]
+                        "const": "order_line_item"
                     },
                     "extensions": {
                         "type": "object"

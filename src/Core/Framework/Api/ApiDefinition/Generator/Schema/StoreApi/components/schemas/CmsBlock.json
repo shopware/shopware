@@ -120,9 +120,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "cms_block"
-                        ]
+                        "const": "cms_block"
                     }
                 },
                 "type": "object"

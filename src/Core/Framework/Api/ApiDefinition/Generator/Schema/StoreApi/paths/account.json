@@ -478,10 +478,8 @@
                                             }
                                         },
                                         "apiAlias": {
-                                            "enum": [
-                                                "array_struct"
-                                            ],
-                                            "type": "string"
+                                            "type": "string",
+                                            "const": "array_struct"
                                         }
                                     }
                                 }

@@ -9,7 +9,7 @@
                 "properties": {
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["cart_price_quantity"]
+                        "const": "cart_price_quantity"
                     },
                     "isCalculated": { "type": "boolean" },
                     "listPrice": {

@@ -220,9 +220,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "category"
-                        ]
+                        "const": "category"
                     }
                 },
                 "type": "object"

@@ -85,9 +85,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "cms_page"
-                        ]
+                        "const": "cms_page"
                     }
                 },
                 "type": "object"

@@ -21,7 +21,7 @@
 
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["cart_list_price"]
+                        "const": "cart_list_price"
                     }
                 },
 

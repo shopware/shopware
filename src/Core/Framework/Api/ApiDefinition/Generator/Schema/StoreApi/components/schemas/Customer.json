@@ -235,9 +235,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "customer"
-                        ]
+                        "const": "customer"
                     }
                 },
                 "type": "object",

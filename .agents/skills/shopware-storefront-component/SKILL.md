@@ -281,6 +281,12 @@ The CSS custom poperty must also follow the `--sw-{component-name}-{thing}` nami
 ```
 
 ```scss
+// ✅ Use @property with "inherits: false" to avoid accidental overwrites with nested Twig components
+@property --sw-component-name-height {
+    syntax: '*';
+    inherits: false;
+}
+
 // ✅ Apply styling using the custom property
 .sw-component-name {
     height: var(--sw-component-name-height);

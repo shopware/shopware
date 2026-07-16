@@ -221,29 +221,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     }
 
     /**
-     * Extracts the JSON-RPC "method" of every message in an MCP response body, which may be a
-     * single object or a batch array.
-     *
-     * @return list<string>
-     */
-    private function jsonRpcMethods(string $content): array
-    {
-        $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($decoded);
-
-        $messages = \array_key_exists('jsonrpc', $decoded) ? [$decoded] : $decoded;
-
-        $methods = [];
-        foreach ($messages as $message) {
-            if (\is_array($message) && \is_string($message['method'] ?? null)) {
-                $methods[] = $message['method'];
-            }
-        }
-
-        return $methods;
-    }
-
-    /**
      * @return iterable<string, array{string}>
      */
     public static function expectedTools(): iterable
@@ -364,5 +341,28 @@ class McpCapabilityDiscoveryTest extends TestCase
         foreach ($toolsetRegistry->toolsets() as $toolset) {
             $toolsetSessionStorage->enable($sessionId, $toolset['name']);
         }
+    }
+
+    /**
+     * Extracts the JSON-RPC "method" of every message in an MCP response body, which may be a
+     * single object or a batch array.
+     *
+     * @return list<string>
+     */
+    private function jsonRpcMethods(string $content): array
+    {
+        $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($decoded);
+
+        $messages = \array_key_exists('jsonrpc', $decoded) ? [$decoded] : $decoded;
+
+        $methods = [];
+        foreach ($messages as $message) {
+            if (\is_array($message) && \is_string($message['method'] ?? null)) {
+                $methods[] = $message['method'];
+            }
+        }
+
+        return $methods;
     }
 }

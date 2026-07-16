@@ -1,0 +1,118 @@
+---
+title: Secure webhook target validation
+date: 2026-07-15
+area: framework
+tags: [webhook, security, ssrf, guzzle, validation]
+---
+
+## Context
+
+Webhook delivery sends HTTP requests from the Shopware server to URLs configured by administrators or apps. The delivery result is persisted in `webhook_event_log`, including the response status and response content. This makes webhook targets security-sensitive: if an attacker can configure an internal URL, the webhook worker becomes a server-side request forgery read primitive.
+
+The existing webhook delivery path uses `shopware.webhook.guzzle` through `WebhookClient`. A webhook target is currently accepted as a plain string. Without target validation, direct metadata, loopback, private, link-local, or reserved destinations can be requested from the webhook worker's network.
+
+Guzzle follows redirects by default. Validating only the initially configured URL is therefore insufficient because a public URL can redirect to a private, loopback, link-local, metadata, or otherwise reserved target.
+
+Disabling redirects would close that bypass, but it would also break legitimate webhook receivers that use redirects for endpoint migration, canonical host routing, or infrastructure-level forwarding.
+
+## Decision
+
+Webhook delivery validates every outbound destination before the HTTP request is sent. This includes the initially configured webhook URL and every redirect target.
+
+The validation model is:
+
+- Validate `webhook.url` when it is written through the DAL so invalid targets fail early.
+- Validate the URL again immediately before delivery so old rows and changed DNS records are checked at the actual network boundary.
+- Enforce HTTPS-only targets in production. Non-production environments may keep a controlled HTTP escape hatch for local development and test setups.
+- Require a syntactically valid URL with an existing host.
+- Reject direct IP-literal hosts. Webhook targets must use DNS names so the validator can apply hostname and DNS policy consistently.
+- Reject localhost and reserved hostnames, including `localhost`, `.localhost`, `.local`, `.test`, `.example`, `.invalid`, `.onion`, `.home.arpa`, and exact reserved names such as `example.com`, `example.net`, `example.org`, `home.arpa`, and `localdomain`.
+- Resolve both A and AAAA records for the host. Every resolved address must be public. If any record resolves to a private, loopback, link-local, reserved, or otherwise non-public IP range, the target is invalid.
+- Configure Guzzle redirects explicitly for webhook requests instead of relying on defaults.
+- Use Guzzle's `allow_redirects.on_redirect` callback to validate each redirect target URI before Guzzle follows it.
+- Throw a `GuzzleHttp\Exception\TransferException` from the redirect callback when the target is invalid. `WebhookClient` already treats `TransferException` as a failed delivery result.
+- Restrict redirect protocols to the same scheme policy as the initial target. If webhook targets are HTTPS-only, redirects are HTTPS-only as well.
+- Preserve the webhook request method during redirects by enabling Guzzle's strict redirect handling.
+- Keep a bounded redirect limit.
+- If the active Guzzle handler supports cURL options, pin the validated host and port to a resolved public IP with `CURLOPT_RESOLVE` for the request. This reduces DNS rebinding risk between validation and connection. The request must keep TLS peer and host verification enabled.
+
+The effective Guzzle redirect policy for webhook delivery is:
+
+```php
+'allow_redirects' => [
+    'max' => 5,
+    'protocols' => ['https'],
+    'strict' => true,
+    'on_redirect' => static function (
+        RequestInterface $request,
+        ResponseInterface $response,
+        UriInterface $uri
+    ) use ($validator): void {
+        if (!$validator->isValidTarget((string) $uri)) {
+            throw new TransferException('Redirect target is not allowed.');
+        }
+    },
+]
+```
+
+When cURL options are available, the delivery request options include a resolve pin for the exact hostname and effective port:
+
+```php
+'curl' => [
+    CURLOPT_RESOLVE => [
+        sprintf('%s:%d:%s', $host, $port, $validatedPublicIp),
+    ],
+]
+```
+
+The URL validator must evaluate the complete target URL, not only the host. It must enforce the allowed scheme and port policy, reject IP literals and reserved hostnames, resolve both A and AAAA records, and reject any record resolving to private, loopback, link-local, reserved, or otherwise non-public IP ranges.
+
+Delivery-time validation remains mandatory even with write-time validation. Webhook rows may predate the validation change, and DNS can change after a webhook was saved.
+
+## Alternatives
+
+### Disable redirects
+
+This is the simplest SSRF hardening measure and removes redirect-based bypasses entirely. It was not chosen because existing valid webhook endpoints may depend on redirects. Breaking those endpoints would turn a security fix into an avoidable compatibility issue.
+
+### Follow redirects manually
+
+Shopware could disable Guzzle redirects, inspect `Location` headers, validate the resolved URI, and issue the next request itself. This gives full control over each hop, but duplicates redirect semantics already implemented by Guzzle and increases implementation complexity around relative locations, status-specific method handling, limits, and response propagation.
+
+### Trust post-request redirect history
+
+Guzzle can track redirect history with `track_redirects`. This is not a security control because the redirected request has already been sent by the time the response headers are available. It can be useful for diagnostics but cannot prevent SSRF.
+
+### Pin DNS results with cURL options
+
+Guzzle can pass cURL options such as `CURLOPT_RESOLVE` to pin a validated hostname and port to a resolved IP address. This reduces DNS rebinding risk, but it only works with the cURL handler and does not protect redirect targets by itself. We use it when available as an additional hardening layer, while validation remains the primary security boundary.
+
+### Allow direct IP targets after IP range validation
+
+Direct IP webhooks could be allowed if the IP itself is public. This was not chosen because IP literal parsing has many edge cases across IPv4, IPv6, mapped addresses, octal/decimal/hex notation, and bracketed URI forms. Requiring DNS names keeps the webhook contract simpler and aligns with public HTTPS certificate validation.
+
+## Consequences
+
+### Positive
+
+- Legitimate webhook redirects continue to work.
+- Direct webhook requests to metadata, loopback, private, link-local, reserved, or malformed targets are blocked at write time and delivery time.
+- Redirects to metadata, loopback, private, link-local, or reserved targets are blocked before the redirected request is sent.
+- The same validation policy applies to newly written webhooks, existing webhook rows, and redirect targets.
+- HTTPS-only production delivery prevents clear-text webhook payload delivery and redirect downgrades.
+- cURL resolve pinning reduces DNS rebinding exposure when the active Guzzle handler supports it.
+- Throwing `TransferException` keeps invalid destinations inside the existing webhook failure handling path.
+- Strict redirects avoid Guzzle's browser-like `POST` to `GET` rewrite on `301`, `302`, and `303` responses.
+
+### Negative / trade-offs
+
+- Redirect delivery becomes dependent on the correctness of the URL validator and Guzzle's redirect middleware ordering.
+- Some existing production webhooks using HTTP, direct IP targets, reserved development hostnames, or redirects from HTTPS to HTTP will fail.
+- Some endpoints that intentionally redirect from public hosts to private network hosts will fail.
+- DNS can still change between validation and connection if cURL resolve pinning is unavailable for the active Guzzle handler.
+- Pinning one resolved IP can reduce CDN/load-balancer flexibility for a single delivery attempt.
+- Each redirect hop performs validation and DNS resolution, adding a small amount of latency to redirected deliveries.
+
+### Operational impact
+
+Webhook operators should configure final public HTTPS endpoints with DNS hostnames. Redirects remain supported, but every hop must satisfy the same public target requirements as the original webhook URL. Local HTTP endpoints remain a development-only concern and must not be accepted in production.

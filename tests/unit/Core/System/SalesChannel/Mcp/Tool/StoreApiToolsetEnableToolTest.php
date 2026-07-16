@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
-use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,22 +35,19 @@ class StoreApiToolsetEnableToolTest extends TestCase
             ->method('enable')
             ->with('session-a', 'store-api');
 
-        $notifier = $this->createMock(McpListChangedNotifier::class);
-        $notifier->expects($this->once())
-            ->method('notify')
-            ->with(static::callback(static fn (McpListChangedNotificationSet $notification): bool => $notification->tools && !$notification->resources && !$notification->prompts));
-
         $requestStack = new RequestStack();
         $request = Request::create('/store-api/_mcp', 'POST');
         $request->headers->set('Mcp-Session-Id', 'session-a');
         $requestStack->push($request);
 
-        $tool = new StoreApiToolsetEnableTool($registry, $storage, $notifier, $requestStack);
+        $tool = new StoreApiToolsetEnableTool($registry, $storage, $requestStack);
         $result = json_decode($tool('store-api'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($result['success']);
         static::assertSame('store-api', $result['data']['toolset']['name']);
         static::assertTrue($result['_meta']['listChanged']);
+        // Like the admin tool, the store-api variant records intent; the controller emits it.
+        static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
     }
 
     public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void

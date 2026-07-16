@@ -51,8 +51,8 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         $integrationId = $this->getIntegrationId($context);
         $violationList = new ConstraintViolationList();
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== CustomFieldSetDefinition::ENTITY_NAME || $command instanceof InsertCommand) {
+        foreach ($event->getCommandsForEntity(CustomFieldSetDefinition::ENTITY_NAME) as $command) {
+            if ($command instanceof InsertCommand) {
                 continue;
             }
 

@@ -62,18 +62,14 @@ class MediaFolderIndexer extends EntityIndexer
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
         $updates = $event->getPrimaryKeys(MediaFolderDefinition::ENTITY_NAME);
-        $mediaFolderEvent = $event->getEventByEntityName(MediaFolderDefinition::ENTITY_NAME);
 
-        if ($updates === [] || !$mediaFolderEvent) {
+        if ($updates === []) {
             return null;
         }
 
         $idsWithChangedParentIds = [];
-        foreach ($mediaFolderEvent->getWriteResults() as $result) {
-            $payload = $result->getPayload();
-            if (\array_key_exists('parentId', $payload)) {
-                $idsWithChangedParentIds[] = $payload['id'];
-            }
+        foreach ($event->getResults(MediaFolderDefinition::ENTITY_NAME)->withPayloadProperties('parentId') as $result) {
+            $idsWithChangedParentIds[] = $result->getProperty('id');
         }
 
         if ($idsWithChangedParentIds !== []) {

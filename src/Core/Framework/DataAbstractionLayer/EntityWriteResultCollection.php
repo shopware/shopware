@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('framework')]
 class EntityWriteResultCollection extends Collection
 {
+    /**
+     * @return self<IDStructure>
+     */
     public function only(string ...$operations): self
     {
         return $this->filter(
@@ -20,6 +23,9 @@ class EntityWriteResultCollection extends Collection
         );
     }
 
+    /**
+     * @return self<IDStructure>
+     */
     public function withPayloadProperties(string ...$properties): self
     {
         return $this->filter(

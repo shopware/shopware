@@ -51,7 +51,7 @@ class LanguageValidator implements EventSubscriberInterface
 
     public function postValidate(PostWriteValidationEvent $event): void
     {
-        $commands = $event->getCommands();
+        $commands = $event->getCommandsForEntity(LanguageDefinition::ENTITY_NAME);
         $affectedIds = $this->getAffectedIds($commands);
         if ($affectedIds === []) {
             return;
@@ -68,12 +68,12 @@ class LanguageValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $commands = $event->getCommands();
+        $commands = $event->getCommandsForEntity(LanguageDefinition::ENTITY_NAME);
 
         foreach ($commands as $command) {
             $violations = new ConstraintViolationList();
 
-            if ($command instanceof CascadeDeleteCommand || $command->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
+            if ($command instanceof CascadeDeleteCommand) {
                 continue;
             }
 
@@ -189,9 +189,6 @@ class LanguageValidator implements EventSubscriberInterface
     {
         $ids = [];
         foreach ($commands as $command) {
-            if ($command->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
-                continue;
-            }
             if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {
                 $ids[] = $command->getPrimaryKey()['id'];
             }

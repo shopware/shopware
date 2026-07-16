@@ -80,11 +80,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     {
         $ids = [];
 
-        foreach ($event->getWriteResults() as $writeResult) {
-            if ($writeResult->hasPayload('registrationTitle')) {
-                $pk = $writeResult->getPrimaryKey();
-                $ids[] = $pk['customerGroupId'];
-            }
+        foreach ($event->getResults()->withPayloadProperties('registrationTitle') as $writeResult) {
+            $pk = $writeResult->getPrimaryKey();
+            $ids[] = $pk['customerGroupId'];
         }
 
         if ($ids === []) {

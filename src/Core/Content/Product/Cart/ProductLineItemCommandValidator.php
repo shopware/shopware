@@ -46,12 +46,10 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
             return;
         }
 
-        $products = $this->findProducts($event->getCommands());
+        $commands = $event->getCommandsForEntity(OrderLineItemDefinition::ENTITY_NAME);
+        $products = $this->findProducts($commands);
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
-                continue;
-            }
+        foreach ($commands as $command) {
             if ($command instanceof SetNullOnDeleteCommand) {
                 continue;
             }
@@ -108,10 +106,6 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
     private function findProducts(array $commands): array
     {
         $ids = array_map(static function (WriteCommand $command) {
-            if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
-                return null;
-            }
-
             if ($command instanceof UpdateCommand) {
                 return $command->getPrimaryKey()['id'];
             }

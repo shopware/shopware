@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -60,12 +59,8 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         }
 
         $orderIds = [];
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() === OrderDefinition::ENTITY_NAME
-                && $command instanceof DeleteCommand
-            ) {
-                $orderIds[] = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-            }
+        foreach ($event->getDeletedPrimaryKeys(OrderDefinition::ENTITY_NAME) as $primaryKey) {
+            $orderIds[] = Uuid::fromBytesToHex($primaryKey['id']);
         }
 
         $this->updateCustomer($orderIds, true);

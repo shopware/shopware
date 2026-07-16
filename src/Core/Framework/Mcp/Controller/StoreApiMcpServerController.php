@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -102,9 +103,61 @@ class StoreApiMcpServerController
         $psrResponse = $this->server->run($transport);
         $this->registerSession($psrResponse);
         $this->flushPendingToolsListChanged($request);
-        $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
-        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+        return $this->createHttpResponse($psrResponse);
+    }
+
+    /**
+     * Converts the SDK's PSR response into a spec-compliant Symfony response. See
+     * {@see McpServerController::createHttpResponse()}: an application/json body must be a single
+     * JSON-RPC object, so a drained multi-message batch (e.g. a tools/list_changed alongside the
+     * response) is re-emitted as a text/event-stream with one single-object SSE event per message.
+     */
+    private function createHttpResponse(PsrResponseInterface $psrResponse): Response
+    {
+        $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
+
+        if (str_starts_with($contentType, 'text/event-stream')) {
+            \assert($this->httpFoundationFactory !== null);
+
+            return $this->httpFoundationFactory->createResponse($psrResponse, true);
+        }
+
+        if (str_starts_with($contentType, 'application/json')) {
+            $decoded = json_decode((string) $psrResponse->getBody(), true);
+
+            if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
+                return $this->eventStreamResponse($decoded, $psrResponse);
+            }
+        }
+
+        \assert($this->httpFoundationFactory !== null);
+
+        return $this->httpFoundationFactory->createResponse($psrResponse, false);
+    }
+
+    /**
+     * @param list<mixed> $messages
+     */
+    private function eventStreamResponse(array $messages, PsrResponseInterface $psrResponse): Response
+    {
+        $body = '';
+        foreach ($messages as $message) {
+            $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
+        }
+
+        $response = new Response($body, $psrResponse->getStatusCode(), [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId !== '') {
+            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+        }
+
+        return $response;
     }
 
     /**

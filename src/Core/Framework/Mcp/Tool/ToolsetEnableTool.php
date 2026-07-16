@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
-use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -25,7 +24,6 @@ class ToolsetEnableTool extends McpToolResponse
     public function __construct(
         private readonly McpToolsetRegistry $toolsetRegistry,
         private readonly McpToolsetSessionStorage $sessionStorage,
-        private readonly McpListChangedNotifier $notifier,
         private readonly RequestStack $requestStack,
     ) {
     }
@@ -37,16 +35,19 @@ class ToolsetEnableTool extends McpToolResponse
             return $this->error(\sprintf('Unknown MCP toolset "%s". Call %s first to list available toolsets.', $toolset, McpToolsetRegistry::LIST_TOOLSETS_TOOL));
         }
 
-        $sessionId = $this->requestStack->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
+        $request = $this->requestStack->getCurrentRequest();
+        $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
         if ($sessionId === '') {
             return $this->error('Cannot enable an MCP toolset without an active MCP session.');
         }
 
         $this->sessionStorage->enable($sessionId, $toolset);
 
-        // Enabling a toolset only changes the tool list for this session, so notify just this
-        // session instead of broadcasting to every active session.
-        $this->notifier->notifySession($sessionId, new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+        // Enabling a toolset only changes the tool list for this session. The controller emits the
+        // tools/listChanged after the SDK has saved its session, so that the queued notification is
+        // not overwritten; we merely record the intent here (writing it now would be clobbered by
+        // the SDK's post-tool session save).
+        $request?->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
 
         return $this->success([
             'toolset' => [

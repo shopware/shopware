@@ -21,6 +21,13 @@ use Symfony\Component\Uid\Uuid;
 #[Package('framework')]
 class McpListChangedNotifier
 {
+    /**
+     * Request attribute a tool sets to ask its MCP controller to emit a tools/listChanged for the
+     * current session. The controller flushes it only after the SDK has persisted its in-memory
+     * session (see notifySession()), so the queued notification is not overwritten.
+     */
+    final public const PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE = 'shopware.mcp.pending_tools_list_changed';
+
     private const SESSION_OUTGOING_QUEUE = '_mcp';
     private const SESSION_OUTGOING_QUEUE_KEY = 'outgoing_queue';
 
@@ -54,6 +61,12 @@ class McpListChangedNotifier
      * Queues a list_changed notification for a single MCP session. Use this for session-local
      * changes (e.g. enabling a toolset for the current session) so the work stays O(1) instead of
      * touching every active session.
+     *
+     * This writes directly to the session store, so for the session of the current request it must
+     * be called AFTER the MCP SDK has persisted its in-memory session (i.e. after the server run
+     * completes); otherwise the SDK's own save overwrites the queued notification. Callers inside a
+     * tool must defer via {@see self::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE} instead of calling this
+     * during the tool invocation.
      */
     public function notifySession(string $sessionId, McpListChangedNotificationSet $notifications): void
     {

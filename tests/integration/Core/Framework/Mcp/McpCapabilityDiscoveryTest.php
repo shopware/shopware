@@ -142,6 +142,84 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertNotContains('shopware-order-state', $tools);
     }
 
+    public function testEnablingToolsetDeliversToolsListChangedNotification(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $browser = $this->getBrowser();
+
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => new \stdClass(),
+                    'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+                ],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
+        static::assertIsString($sessionId, 'initialize did not return an MCP session id');
+
+        $toolsetRegistry = static::getContainer()->get(McpToolsetRegistry::class);
+        static::assertInstanceOf(McpToolsetRegistry::class, $toolsetRegistry);
+        $toolsets = $toolsetRegistry->toolsets();
+        static::assertNotEmpty($toolsets, 'expected at least one enable-able toolset');
+        $toolsetName = $toolsets[0]['name'];
+
+        // Enable a toolset via the actual tool call. The notification is not part of this response;
+        // it is queued after the SDK saves its session and drained on the client's next request.
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_SESSION_ID' => $sessionId],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'tools/call',
+                'params' => ['name' => 'shopware-toolset-enable', 'arguments' => ['toolset' => $toolsetName]],
+                'id' => 2,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+        static::assertStringNotContainsString(
+            'notifications/tools/list_changed',
+            (string) $browser->getResponse()->getContent(),
+            'the listChanged must be queued for the next request, not returned inside the toolset-enable response',
+        );
+
+        // Next request drains the queued outgoing messages, which must include the notification.
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_SESSION_ID' => $sessionId],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'tools/list',
+                'params' => new \stdClass(),
+                'id' => 3,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        static::assertStringContainsString(
+            'notifications/tools/list_changed',
+            (string) $browser->getResponse()->getContent(),
+            'client never received tools/list_changed after enabling a toolset',
+        );
+    }
+
     /**
      * @return iterable<string, array{string}>
      */

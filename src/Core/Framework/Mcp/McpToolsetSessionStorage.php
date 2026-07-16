@@ -70,12 +70,4 @@ class McpToolsetSessionStorage
             $this->connection->fetchFirstColumn('SELECT DISTINCT `session_id` FROM `mcp_toolset_session`'),
         ));
     }
-
-    public function deleteCreatedBefore(\DateTimeInterface $before): void
-    {
-        $this->connection->executeStatement(
-            'DELETE FROM `mcp_toolset_session` WHERE `created_at` < :before',
-            ['before' => $before->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-        );
-    }
 }

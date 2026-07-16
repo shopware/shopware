@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -81,6 +83,7 @@ class McpServerController
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
         private readonly ?McpSessionRegistry $sessionRegistry = null,
+        private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
 
@@ -136,6 +139,7 @@ class McpServerController
 
         $psrResponse = $this->server->run($transport);
         $this->registerSession($psrResponse);
+        $this->flushPendingToolsListChanged($request);
 
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
@@ -144,6 +148,33 @@ class McpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    /**
+     * Emits a tools/listChanged for the current session when a tool asked for it (e.g.
+     * shopware-toolset-enable). This runs after {@see Server::run()} has persisted the SDK's
+     * in-memory session, so the queued notification survives instead of being overwritten by the
+     * SDK's own session save; the client drains it on its next poll.
+     */
+    private function flushPendingToolsListChanged(Request $request): void
+    {
+        if ($this->listChangedNotifier === null) {
+            return;
+        }
+
+        if (!$request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE)) {
+            return;
+        }
+
+        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->listChangedNotifier->notifySession(
+            $sessionId,
+            new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
+        );
     }
 
     private function registerSession(PsrResponseInterface $psrResponse): void

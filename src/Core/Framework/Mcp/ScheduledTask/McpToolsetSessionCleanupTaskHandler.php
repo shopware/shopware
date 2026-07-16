@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Mcp\ScheduledTask;
 
 use Mcp\Server\Session\SessionStoreInterface;
-use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -19,19 +18,16 @@ use Symfony\Component\Uid\Uuid;
  *
  * Removes abandoned mcp_toolset_session rows. Rows are normally deleted when the client sends
  * DELETE /api/_mcp, but a client that disconnects without a DELETE would otherwise leave its rows
- * behind forever. This task purges them, tying the cleanup to the MCP session store's own expiry.
+ * behind forever. Cleanup is tied strictly to the MCP session store's own liveness: a row is
+ * dropped only once its session no longer exists in the store. The store expires a session once it
+ * has been idle past its TTL, so an active session (however old) is never purged, while an
+ * abandoned one is reclaimed after it expires. created_at is deliberately not used as a delete
+ * criterion, because an active session can outlive any fixed age.
  */
 #[AsMessageHandler(handles: McpToolsetSessionCleanupTask::class)]
 #[Package('framework')]
 final class McpToolsetSessionCleanupTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * Rows older than this can never belong to a live MCP session (the session store TTL defaults
-     * to one hour), so they are safe to purge by created_at even when the session store cannot be
-     * resolved. This is a generous safety net; the precise cleanup below runs against the store.
-     */
-    private const HARD_RETENTION = 'P1D';
-
     /**
      * @internal
      */
@@ -39,7 +35,6 @@ final class McpToolsetSessionCleanupTaskHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly McpToolsetSessionStorage $sessionStorage,
-        private readonly ClockInterface $clock,
         private readonly ?SessionStoreInterface $sessionStore = null,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
@@ -47,15 +42,15 @@ final class McpToolsetSessionCleanupTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        // Safety net: drop rows far older than any possible live session, independent of the store.
-        $this->sessionStorage->deleteCreatedBefore($this->clock->now()->sub(new \DateInterval(self::HARD_RETENTION)));
-
         $sessionStore = $this->sessionStore;
+
+        // Without a session store we cannot determine liveness. MCP is then unavailable, so no
+        // session can be alive to serve; leaving the rows in place is safe and they are reclaimed
+        // once the store is back and their sessions have expired.
         if ($sessionStore === null) {
             return;
         }
 
-        // Precise cleanup: drop rows whose MCP session has already expired from the session store.
         foreach ($this->sessionStorage->sessionIds() as $sessionId) {
             try {
                 $uuid = Uuid::fromString($sessionId);

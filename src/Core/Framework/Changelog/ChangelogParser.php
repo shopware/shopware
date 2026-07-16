@@ -16,6 +16,13 @@ class ChangelogParser
 
     public const REFERENCE_REGEX = '\((#[0-9]+)\)';
 
+    /**
+     * Matches a conventional commit subject for a user-facing change (feat / fix), capturing the
+     * trailing pull request number, e.g. "fix(scope)!: some description (#12345)".
+     * Compatible with both POSIX ERE (git --grep -E) and PCRE (preg_match).
+     */
+    public const RELEVANT_COMMIT_REGEX = '^(feat|fix)(\([^)]+\))?!?:.*\(#([0-9]+)\)';
+
     public function parse(SplFileInfo $file, string $rootDir): ChangelogDefinition
     {
         $content = trim($file->getContents());

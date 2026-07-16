@@ -57,21 +57,25 @@ class ChangelogProcessor
         $this->featureFlags = $flags;
     }
 
-    public function findLastestTag(): ?string
+    public function findLastestTag(?string $version = null): ?string
     {
-        $result = shell_exec('gh release list -R shopware/shopware --exclude-drafts --exclude-pre-releases --json tagName,isLatest');
-        if (!$result) {
+        if ($version === null || !preg_match('/^v?(\d+)\.(\d+)\./', $version, $matches)) {
             return null;
         }
 
-        $releases = json_decode($result, true) ?: [];
-        foreach ($releases as $release) {
-            if ($release['isLatest']) {
-                return $release['tagName'];
-            }
-        }
+        // Find the latest release tag on the same major.minor line that is reachable from HEAD.
+        // GitHub's global "isLatest" flag cannot be used here, as it points to the latest release
+        // across all branches (e.g. a 6.7.x tag while releasing 6.6.x), which is not an ancestor
+        // of the current branch and would yield a wrong commit range.
+        $tag = shell_exec(\sprintf(
+            'git -C %s describe --tags --abbrev=0 --match %s @ 2>/dev/null',
+            escapeshellarg($this->platformRoot ?? $this->projectDir),
+            escapeshellarg(\sprintf('v%d.%d.*', (int) $matches[1], (int) $matches[2]))
+        ));
 
-        return null;
+        $tag = $tag ? trim($tag) : '';
+
+        return $tag !== '' ? $tag : null;
     }
 
     /**
@@ -79,32 +83,45 @@ class ChangelogProcessor
      */
     public function getFixCommits(string $fromRef): array
     {
+        $root = $this->platformRoot ?? $this->projectDir;
+
         $cmd = \sprintf(
-            'git -C %s log --no-merges @ %s --pretty=format:%s -i -E --grep=%s',
-            escapeshellarg($this->platformRoot ?? $this->projectDir),
+            'git -C %s log --no-merges @ %s --pretty=format:%s -E --grep=%s',
+            escapeshellarg($root),
             escapeshellarg('^' . $fromRef),
             escapeshellarg('%h'),
-            escapeshellarg(ChangelogParser::FIXES_REGEX)
+            escapeshellarg(ChangelogParser::RELEVANT_COMMIT_REGEX)
         );
 
         $fixes = [];
 
         exec($cmd, $refs);
         foreach ($refs as $ref) {
-            $body = shell_exec('git -C ' . escapeshellarg($this->platformRoot ?? $this->projectDir) . ' log -n1 --pretty=format:%B ' . escapeshellarg($ref));
+            $subject = shell_exec(\sprintf(
+                'git -C %s log -n1 --pretty=format:%s %s',
+                escapeshellarg($root),
+                escapeshellarg('%s'),
+                escapeshellarg($ref)
+            ));
+            $subject = $subject ? trim($subject) : '';
 
-            if ($body && preg_match_all('/' . ChangelogParser::FIXES_REGEX . '/i', $body, $matches)) {
-                $fix = [
-                    'headline' => strtok($body, "\n") ?: '',
-                    'fixes' => $matches[3],
-                ];
-                $author = $this->findAuthor($matches[3][0]);
-                if ($author && !$this->isShopwareOrgMember($author['login'])) {
-                    $fix['author'] = $author;
-                }
-
-                $fixes[] = $fix;
+            if ($subject === '' || !preg_match('/' . ChangelogParser::RELEVANT_COMMIT_REGEX . '/', $subject, $matches)) {
+                continue;
             }
+
+            $pullRequest = '#' . $matches[3];
+
+            $fix = [
+                // Drop the trailing "(#12345)" reference; it is rendered separately as the link target.
+                'headline' => trim((string) preg_replace('/\s*\(#[0-9]+\)\s*$/', '', $subject)),
+                'fixes' => [$pullRequest],
+            ];
+            $author = $this->findAuthor($pullRequest);
+            if ($author && !$this->isShopwareOrgMember($author['login'])) {
+                $fix['author'] = $author;
+            }
+
+            $fixes[] = $fix;
         }
 
         return $fixes;

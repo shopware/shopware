@@ -4,9 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\Changelog;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand;
 use Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand;
-use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;

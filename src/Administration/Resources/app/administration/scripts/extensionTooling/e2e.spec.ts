@@ -333,3 +333,55 @@ describe('scripts/extensionTooling e2e', () => {
         ).toBe(true);
     }, 600000);
 });
+
+describe('scripts/extensionTooling e2e — scaffolded committable configs', () => {
+    let projectRoot: string;
+    let administrationRoot: string;
+    const freshAdmin = 'custom/plugins/FreshPlugin/src/Resources/app/administration';
+
+    beforeAll(() => {
+        projectRoot = createTempProject('sw-tooling-scaffold-');
+        administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'real' });
+
+        // A plugin with no Administration config at all.
+        writeFile(path.join(projectRoot, 'custom/plugins/FreshPlugin/composer.json'), '{}\n');
+        writeFile(path.join(projectRoot, freshAdmin, 'src/main.ts'), [
+            "export const productRepository = Shopware.Service('repositoryFactory').create('product');",
+        ]);
+
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'FreshPlugin',
+                basePath: 'custom/plugins/FreshPlugin/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+    });
+
+    afterAll(() => {
+        cleanupTempProject(projectRoot);
+    });
+
+    it(
+        'scaffolds committable tsconfig/eslint that extend the bridge, and the check passes',
+        async () => {
+            setupExtensionTooling({ projectRoot, administrationRoot, shim: 'FreshPlugin' });
+
+            const pluginTsconfig = path.join(projectRoot, freshAdmin, 'tsconfig.json');
+            const pluginEslint = path.join(projectRoot, freshAdmin, 'eslint.config.mjs');
+
+            // Committable configs live at the admin folder (not inside .shopware-admin/) and just
+            // extend the generated bridge.
+            expect(fs.readFileSync(pluginTsconfig, 'utf8')).toContain('"extends": "./.shopware-admin/tsconfig.json"');
+            expect(fs.readFileSync(pluginEslint, 'utf8')).toContain("import shopware from './.shopware-admin/eslint.mjs'");
+
+            const check = await checkExtensions({ projectRoot, administrationRoot, only: 'FreshPlugin' });
+
+            expect(check.results).toHaveLength(1);
+            expect(check.results[0].typescript.status).toBe('passed');
+            expect(check.results[0].eslint.status).toBe('passed');
+            expect(check.exitCode).toBe(0);
+        },
+        CHECK_TIMEOUT,
+    );
+});

@@ -19,7 +19,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
-import { setupExtensionTooling } from './setup';
+import { discoverProjects, setupExtensionTooling } from './setup';
+import { renderCheckReport } from './report';
+import { promptSelection } from './select';
 import { hasCliFlag, readCliArgument, relativePosix } from './shared';
 import type { ConfigMode, ExtensionToolingProject } from './shared';
 
@@ -49,7 +51,7 @@ export interface CheckExtensionsOptions {
     projectRoot: string;
     administrationRoot: string;
     pluginsConfigPath?: string;
-    only?: string;
+    only?: string | string[];
     strictVendor?: boolean;
     maxWorkers?: number;
 }
@@ -261,6 +263,15 @@ export function countEslintFindings(output: string): number {
     return 0;
 }
 
+/** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
+export function normalizeSelection(only: string | string[] | undefined): string[] {
+    if (!only) {
+        return [];
+    }
+
+    return (Array.isArray(only) ? only : only.split(',')).map((value) => value.trim()).filter((value) => value !== '');
+}
+
 export async function checkExtensions(options: CheckExtensionsOptions): Promise<CheckExtensionsResult> {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
@@ -295,16 +306,19 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     }
 
     let projects = setupResult.manifest.projects;
+    const selected = normalizeSelection(options.only);
 
-    if (options.only) {
-        const filter = options.only;
-
-        projects = projects.filter((project) => project.name === filter || project.technicalNames.includes(filter));
+    if (selected.length > 0) {
+        projects = projects.filter(
+            (project) => selected.includes(project.name) || project.technicalNames.some((name) => selected.includes(name)),
+        );
 
         if (projects.length === 0) {
             const available = setupResult.manifest.projects.map((project) => project.name).join(', ');
 
-            fatalDiagnostics.push(`No extension matches --only=${filter}. Discovered: ${available || '(none)'}.`);
+            fatalDiagnostics.push(
+                `No extension matches --only=${selected.join(',')}. Discovered: ${available || '(none)'}.`,
+            );
         }
     }
 
@@ -475,25 +489,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     };
 }
 
-function formatStatus(tool: string, run: ToolRunResult, mode: ConfigMode): string {
-    const seconds = (run.durationMs / 1000).toFixed(1);
-
-    switch (run.status) {
-        case 'passed':
-            return `${tool}: passed (${mode}, ${seconds}s)`;
-        case 'failed':
-            return `${tool}: ${run.findings || 'some'} finding(s) (${mode}, ${seconds}s)`;
-        case 'unmanaged':
-            return `${tool}: SKIPPED — custom config does not compose the Shopware preset (unmanaged)`;
-        case 'no-files':
-            return `${tool}: no lintable files`;
-        default:
-            return `${tool}: TOOLING ERROR (${seconds}s)`;
-    }
-}
-
-if (require.main === module) {
-    const argv = process.argv.slice(2);
+async function runCli(argv: string[]): Promise<void> {
     const administrationRoot = path.resolve(
         readCliArgument(argv, 'administration-root') ?? path.resolve(__dirname, '../..'),
     );
@@ -503,57 +499,56 @@ if (require.main === module) {
         throw new Error('PROJECT_ROOT or --project-root is required.');
     }
 
-    checkExtensions({
+    const pluginsConfigPath = readCliArgument(argv, 'plugins-config');
+    const only = readCliArgument(argv, 'only');
+    let selection: string[] | undefined;
+
+    if (only !== undefined) {
+        selection = normalizeSelection(only);
+    } else if (hasCliFlag(argv, 'all')) {
+        selection = undefined;
+    } else if (process.stdin.isTTY && process.stdout.isTTY) {
+        const pluginsPath = path.resolve(projectRoot, pluginsConfigPath ?? path.join('var', 'plugins.json'));
+        const projects = discoverProjects(path.resolve(projectRoot), administrationRoot, pluginsPath);
+
+        if (projects.length === 0) {
+            console.log('No Administration extensions discovered.');
+
+            return;
+        }
+
+        const choice = await promptSelection(projects);
+
+        if (choice === 'cancel') {
+            console.log('Nothing selected.');
+
+            return;
+        }
+
+        selection = choice === 'all' ? undefined : choice.names;
+    } else {
+        console.log(
+            'Not an interactive terminal and no selection given — checking all extensions. ' +
+                'Pass --only=<name[,name]> or --all to be explicit.',
+        );
+    }
+
+    const check = await checkExtensions({
         projectRoot,
         administrationRoot,
-        pluginsConfigPath: readCliArgument(argv, 'plugins-config'),
-        only: readCliArgument(argv, 'only'),
+        pluginsConfigPath,
+        only: selection,
         strictVendor: hasCliFlag(argv, 'strict-vendor'),
         maxWorkers: readCliArgument(argv, 'max-workers') ? Number(readCliArgument(argv, 'max-workers')) : undefined,
-    })
-        .then((check) => {
-            const printToolOutput = (run: ToolRunResult): void => {
-                if (!run.output.trim()) {
-                    return;
-                }
+    });
 
-                if (run.status === 'unmanaged') {
-                    console.log('   probe output (why the custom config does not compose):');
-                }
+    console.log(renderCheckReport(check, { verbose: hasCliFlag(argv, 'verbose') }));
+    process.exitCode = check.exitCode;
+}
 
-                console.log(run.output);
-            };
-
-            for (const result of check.results) {
-                const vendorSuffix = result.project.vendor ? ' · vendor (non-fatal)' : '';
-
-                console.log(`\n── ${result.project.name} [${result.project.technicalNames.join(', ')}]${vendorSuffix}`);
-                console.log(`   ${formatStatus('TypeScript', result.typescript, result.tsMode)}`);
-                printToolOutput(result.typescript);
-                console.log(`   ${formatStatus('ESLint', result.eslint, result.eslintMode)}`);
-                printToolOutput(result.eslint);
-            }
-
-            for (const warning of check.warnings) {
-                console.warn(`\nWarning: ${warning}`);
-            }
-
-            for (const diagnostic of check.fatalDiagnostics) {
-                console.error(`\nError: ${diagnostic}`);
-            }
-
-            const failed = check.results.filter(
-                (result) => result.typescript.status === 'failed' || result.eslint.status === 'failed',
-            ).length;
-
-            console.log(
-                `\nAdministration extension check: ${check.results.length} extension(s), ` +
-                    `${failed} with findings, exit ${check.exitCode}.`,
-            );
-            process.exitCode = check.exitCode;
-        })
-        .catch((error: unknown) => {
-            console.error(error instanceof Error ? error.message : error);
-            process.exitCode = 1;
-        });
+if (require.main === module) {
+    runCli(process.argv.slice(2)).catch((error: unknown) => {
+        console.error(error instanceof Error ? error.message : error);
+        process.exitCode = 1;
+    });
 }

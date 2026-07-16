@@ -261,7 +261,7 @@
         }
     ],
     "scripts-descriptions": {
-        "admin:check-extensions": "Type-checks and lints all installed Administration extensions with the Administration's own toolchain",
+        "admin:check-extensions": "Type-checks and lints Administration extensions with the Administration's own toolchain (interactive picker; pass --only=<name[,name]> or --all to skip it)",
         "admin:code-mods": "Run admin code mods",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",

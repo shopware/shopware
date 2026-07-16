@@ -119,6 +119,55 @@ describe('scripts/extensionTooling/check', () => {
         expect(check.fatalDiagnostics.join('\n')).toContain('--only=Nope');
     });
 
+    it('reports every requested name when an array selection matches nothing', async () => {
+        writePluginsConfig(projectRoot, []);
+
+        const check = await checkExtensions({
+            projectRoot,
+            administrationRoot,
+            only: [
+                'Nope',
+                'Nada',
+            ],
+        });
+
+        expect(check.exitCode).toBe(1);
+        expect(check.fatalDiagnostics.join('\n')).toContain('--only=Nope,Nada');
+    });
+
+    it('filters to multiple extensions from a comma-separated selection', async () => {
+        for (const name of [
+            'Alpha',
+            'Bravo',
+            'Charlie',
+        ]) {
+            writeFile(path.join(projectRoot, `custom/plugins/${name}/composer.json`), '{}\n');
+            writeFile(path.join(projectRoot, `custom/plugins/${name}/src/Resources/app/administration/src/main.ts`), [
+                'export {};',
+            ]);
+        }
+
+        writePluginsConfig(
+            projectRoot,
+            [
+                'Alpha',
+                'Bravo',
+                'Charlie',
+            ].map((name) => ({
+                technicalName: name,
+                basePath: `custom/plugins/${name}/src`,
+                administrationPath: 'Resources/app/administration/src',
+            })),
+        );
+
+        const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Alpha,Charlie' });
+
+        expect(check.results.map((result) => result.project.name).sort()).toEqual([
+            'Alpha',
+            'Charlie',
+        ]);
+    });
+
     it('visibly skips custom configs that do not compose the Shopware preset', async () => {
         linkRealToolchain(administrationRoot);
         writeFile(path.join(projectRoot, 'custom/plugins/Probe/composer.json'), '{}\n');

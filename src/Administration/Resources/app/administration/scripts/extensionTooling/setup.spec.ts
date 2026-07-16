@@ -298,6 +298,41 @@ describe('scripts/extensionTooling/setup', () => {
         );
     });
 
+    it('scaffolds committable plugin configs that extend the bridge and are never overwritten', () => {
+        writeDefaultFixtures();
+
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+        setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        const pluginTsconfig = fs.readFileSync(path.join(adminFolder, 'tsconfig.json'), 'utf8');
+        const pluginEslint = fs.readFileSync(path.join(adminFolder, 'eslint.config.mjs'), 'utf8');
+
+        // Committable: extends/imports the bridge, carries no generated marker.
+        expect(pluginTsconfig).toContain('"extends": "./.shopware-admin/tsconfig.json"');
+        expect(pluginTsconfig).not.toContain(GENERATED_MARKER);
+        expect(pluginEslint).toContain("import shopware from './.shopware-admin/eslint.mjs'");
+
+        // A developer edit survives a re-run, and the extension is discovered as bridged.
+        fs.appendFileSync(path.join(adminFolder, 'eslint.config.mjs'), '// my custom rule\n');
+        const rerun = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        expect(fs.readFileSync(path.join(adminFolder, 'eslint.config.mjs'), 'utf8')).toContain('// my custom rule');
+        expect(rerun.manifest.projects.find((project) => project.name === 'ZeroConfig')?.bridged).toBe(true);
+    });
+
+    it('never overwrites an existing plugin config and warns how to add the extends', () => {
+        writeDefaultFixtures();
+
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+
+        writeFile(path.join(adminFolder, 'tsconfig.json'), ['{ "compilerOptions": { "strict": true } }']);
+
+        const result = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        expect(fs.readFileSync(path.join(adminFolder, 'tsconfig.json'), 'utf8')).toContain('"strict": true');
+        expect(result.warnings.join('\n')).toContain('extends');
+    });
+
     it('merges plugin aliases and preset host paths into the shim tsconfig', () => {
         writeDefaultFixtures();
         writeFile(

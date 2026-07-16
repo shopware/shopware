@@ -28,7 +28,9 @@ import {
     readBundleConfig,
     readCliArgument,
     relativePosix,
+    toPosix,
     writeManagedFile,
+    writeScaffoldFile,
     writeStateFile,
 } from './shared';
 import type {
@@ -39,6 +41,7 @@ import type {
     ManifestFileState,
     WriteResult,
 } from './shared';
+import { renderSetupReport } from './report';
 
 const ESLINT_CONFIG_NAMES = [
     'eslint.config.mjs',
@@ -166,6 +169,11 @@ export function discoverProjects(
                 sourcePaths
                     .map((source) => findNearestConfig(source, group.extensionRoot, ESLINT_CONFIG_NAMES))
                     .find((configPath) => configPath !== null) ?? null;
+            // Bridged when a generated `.shopware-admin/` bridge sits next to the sources; the
+            // committed plugin config extends it. Lets the report flag plugins that still need one.
+            const bridged = sourcePaths.some((source) =>
+                fs.existsSync(path.join(path.dirname(source), SHIM_DIR_NAME, 'tsconfig.json')),
+            );
 
             return {
                 name,
@@ -173,6 +181,7 @@ export function discoverProjects(
                 basePath: relativePosix(projectRoot, group.extensionRoot),
                 sourcePaths: sourcePaths.map((source) => relativePosix(projectRoot, source)),
                 vendor: isWithin(group.extensionRoot, vendorRoot),
+                bridged,
                 tsconfig: tsconfig ? relativePosix(projectRoot, tsconfig) : null,
                 eslintConfig: eslintConfig ? relativePosix(projectRoot, eslintConfig) : null,
                 tsMode: (tsconfig ? 'custom' : 'managed') as ConfigMode,
@@ -562,7 +571,54 @@ function createShims(context: GeneratorContext, projects: ExtensionToolingProjec
                     context.dryRun,
                 ),
             );
+
+            scaffoldPluginConfigs(context, target.name, adminFolder, sourcePath);
         }
+    }
+}
+
+/**
+ * Scaffolds the plugin's own small, committable tsconfig/eslint that extend the
+ * generated `.shopware-admin/` bridge — created only when absent so the developer
+ * can see and customize them. An existing config is never overwritten; instead we
+ * print the one line to add so it too composes the preset.
+ */
+function scaffoldPluginConfigs(context: GeneratorContext, name: string, adminFolder: string, sourcePath: string): void {
+    const sourceRelative = toPosix(path.relative(adminFolder, path.resolve(context.projectRoot, sourcePath)));
+    const include = SOURCE_EXTENSIONS.map((extension) => `${sourceRelative}/**/*.${extension}`);
+    const tsconfigPath = path.join(adminFolder, 'tsconfig.json');
+    const eslintPath = path.join(adminFolder, 'eslint.config.mjs');
+    const tsconfigContent =
+        `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
+        '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
+        `${JSON.stringify({ extends: './.shopware-admin/tsconfig.json', include }, null, 4)}\n`;
+    const eslintContent = [
+        `// Committed config for ${name}. Composes the generated Shopware bridge in .shopware-admin/`,
+        '// (git-ignored). Safe to edit and commit — keep the import and the ...spread.',
+        "import shopware from './.shopware-admin/eslint.mjs';",
+        '',
+        'export default [',
+        '    ...shopware,',
+        '    // Add your own rules here.',
+        '];',
+        '',
+    ].join('\n');
+
+    const tsconfigResult = record(context, writeScaffoldFile(tsconfigPath, tsconfigContent, context.dryRun));
+    const eslintResult = record(context, writeScaffoldFile(eslintPath, eslintContent, context.dryRun));
+
+    if (tsconfigResult === 'skipped') {
+        context.warnings.push(
+            `${tsconfigPath} already exists and was not touched. Add \`"extends": "./.shopware-admin/tsconfig.json"\` ` +
+                `so ${name} is type-checked with the Shopware preset.`,
+        );
+    }
+
+    if (eslintResult === 'skipped') {
+        context.warnings.push(
+            `${eslintPath} already exists and was not touched. Compose the bridge in it: ` +
+                "import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware, /* your rules */ ];",
+        );
     }
 }
 
@@ -598,13 +654,16 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     }
 
     const entitySchemaAvailable = ensureEntitySchema(context);
-    const discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
-    const projects = createLeafConfigs(context, discovered);
+    let discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
 
     if (options.shim) {
-        createShims(context, projects, options.shim);
+        // Write the shim before leaf/root configs, then re-discover so the bridged
+        // plugin is already recognized as shim-managed within this same run.
+        createShims(context, discovered, options.shim);
+        discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
     }
 
+    const projects = createLeafConfigs(context, discovered);
     const rootTsconfigState = createRootTsconfig(context, projects);
     const rootEslintState = createRootEslintConfig(context, projects);
     const adminRelative = relativePosix(projectRoot, administrationRoot);
@@ -659,75 +718,6 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     };
 }
 
-function printExplanation(result: SetupExtensionToolingResult): void {
-    console.log(`Administration root: ${result.manifest.adminRoot}`);
-    console.log(`Entity schema available: ${result.manifest.entitySchemaAvailable ? 'yes' : 'no (stub in place)'}`);
-    console.log(`Root tsconfig.json: ${result.manifest.rootConfigs.tsconfig}`);
-    console.log(`Root eslint.config.mjs: ${result.manifest.rootConfigs.eslintConfig}`);
-
-    for (const [
-        bootstrap,
-        state,
-    ] of Object.entries(result.manifest.ideBootstraps)) {
-        console.log(`IDE bootstrap ${bootstrap}: ${state}`);
-    }
-
-    console.log(`\nDiscovered extensions (${result.manifest.projects.length}):`);
-
-    for (const project of result.manifest.projects) {
-        const flags = [
-            project.vendor ? 'vendor' : 'writable',
-            `ts: ${project.tsMode}${project.tsconfig ? ` (${project.tsconfig})` : ''}`,
-            `eslint: ${project.eslintMode}${project.eslintConfig ? ` (${project.eslintConfig})` : ''}`,
-        ];
-
-        console.log(`  - ${project.name} [${project.technicalNames.join(', ')}]`);
-        console.log(`      ${flags.join(' · ')}`);
-        console.log(`      check tsconfig: ${project.checkTsconfig}`);
-
-        for (const sourcePath of project.sourcePaths) {
-            console.log(`      source: ${sourcePath}`);
-        }
-    }
-}
-
-function printReport(result: SetupExtensionToolingResult, checkOnly: boolean): void {
-    const created = result.writes.filter((write) => write.state === 'created').length;
-    const updated = result.writes.filter((write) => write.state === 'updated').length;
-    const conflicts = result.writes.filter((write) => write.state === 'conflict');
-    const managedCount = result.manifest.projects.filter((project) => project.tsMode === 'managed').length;
-
-    console.log(
-        `Administration extension tooling: ${result.manifest.projects.length} extension(s) ` +
-            `(${managedCount} zero-config, ${result.manifest.projects.length - managedCount} custom), ` +
-            `${created} file(s) created, ${updated} updated.`,
-    );
-
-    if (checkOnly && result.changed) {
-        console.error('Setup is stale: re-run `composer admin:setup-extension-tooling`.');
-
-        for (const write of result.writes.filter((entry) => entry.state === 'created' || entry.state === 'updated')) {
-            console.error(`  would ${write.state === 'created' ? 'create' : 'update'}: ${write.file}`);
-        }
-
-        for (const staleFile of result.staleFiles) {
-            console.error(`  would delete: ${staleFile}`);
-        }
-    }
-
-    for (const conflict of conflicts) {
-        console.warn(`Conflict: ${conflict.file} is user-owned and was left untouched.`);
-    }
-
-    for (const warning of result.warnings) {
-        console.warn(warning);
-    }
-
-    for (const instruction of result.instructions) {
-        console.log(`\n${instruction}`);
-    }
-}
-
 if (require.main === module) {
     const argv = process.argv.slice(2);
     const administrationRoot = path.resolve(
@@ -740,21 +730,24 @@ if (require.main === module) {
     }
 
     const checkOnly = hasCliFlag(argv, 'check');
-    const result = setupExtensionTooling({
-        projectRoot,
-        administrationRoot,
-        pluginsConfigPath: readCliArgument(argv, 'plugins-config'),
-        shim: readCliArgument(argv, 'shim'),
-        checkOnly,
-    });
+    const shim = readCliArgument(argv, 'shim');
 
-    if (hasCliFlag(argv, 'explain')) {
-        printExplanation(result);
-    }
+    try {
+        const result = setupExtensionTooling({
+            projectRoot,
+            administrationRoot,
+            pluginsConfigPath: readCliArgument(argv, 'plugins-config'),
+            shim,
+            checkOnly,
+        });
 
-    printReport(result, checkOnly);
+        console.log(renderSetupReport(result, { explain: hasCliFlag(argv, 'explain'), checkOnly, shim }));
 
-    if (checkOnly && result.changed) {
+        if (checkOnly && result.changed) {
+            process.exitCode = 1;
+        }
+    } catch (error) {
+        console.error(error instanceof Error ? error.message : error);
         process.exitCode = 1;
     }
 }

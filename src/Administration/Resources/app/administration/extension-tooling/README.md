@@ -21,8 +21,15 @@ You normally do not reference this folder manually. From the project root:
 
 ```bash
 composer admin:setup-extension-tooling   # generate configs for all installed extensions
-composer admin:check-extensions          # type-check + lint all installed extensions
+composer admin:check-extensions          # pick extensions to type-check + lint (interactive picker)
+composer admin:check-extensions -- --only=SwagPayPal,MyPlugin   # check specific ones, no prompt
+composer admin:check-extensions -- --all                        # check every extension, no prompt
 ```
+
+In an interactive terminal `admin:check-extensions` opens a numbered picker (accepts
+numbers, ranges, `a` for all, `w` for writable-only). Non-interactive shells (CI, piped)
+check all extensions. `--verbose` additionally prints the underlying tool output for passing
+and skipped extensions.
 
 Setup discovers every installed extension with Administration sources (from
 `var/plugins.json`), generates one tsconfig per extension under
@@ -30,10 +37,30 @@ Setup discovers every installed extension with Administration sources (from
 projections so IDEs see exactly what the check command checks.
 
 - **Zero-config**: a plugin with no config files at all is fully covered.
-- **Committed configs**: generate a shim with
-  `composer admin:setup-extension-tooling -- --shim=<TechnicalName>` and commit
-  files that extend `.shopware-admin/` inside your plugin. The shim holds the
-  only machine-specific path and ignores itself via its own `.gitignore`.
+- **Committed configs**: bridge the plugin with one command:
+
+  ```bash
+  composer admin:setup-extension-tooling -- --shim=<TechnicalName>
+  ```
+
+  This writes a git-ignored `.shopware-admin/` bridge (which holds the machine-specific paths and
+  composes the preset) and — if the plugin has no config yet — two small **committable** files at
+  the plugin's administration folder that just extend it:
+
+  ```jsonc
+  // tsconfig.json
+  { "extends": "./.shopware-admin/tsconfig.json", "include": ["src/**/*.ts", "src/**/*.vue"] }
+  ```
+  ```js
+  // eslint.config.mjs
+  import shopware from './.shopware-admin/eslint.mjs';
+  export default [ ...shopware, /* your own rules */ ];
+  ```
+
+  Commit those two files and edit them freely — add your own options/rules — as long as the
+  `extends`/import stays. The tool never overwrites them; if you already have configs, it leaves
+  them and prints the one line to add. The check uses your committed configs, so what runs is what
+  you see.
 
 ## The type surface
 

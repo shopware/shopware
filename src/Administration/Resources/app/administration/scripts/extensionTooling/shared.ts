@@ -43,6 +43,8 @@ export interface ExtensionToolingProject {
     sourcePaths: string[];
     /** Whether the extension is installed below vendor/ (read-only, non-fatal findings). */
     vendor: boolean;
+    /** Whether a generated `.shopware-admin/` bridge sits next to the sources (the committed config extends it). */
+    bridged: boolean;
     /** Path to an extension-owned tsconfig.json, if one exists. */
     tsconfig: string | null;
     /** Path to an extension-owned eslint config, if one exists. */
@@ -241,6 +243,23 @@ export function writeStateFile(filePath: string, content: string, dryRun = false
         }
 
         return { file: filePath, state: 'updated' };
+    }
+
+    if (!dryRun) {
+        atomicWrite(filePath, content);
+    }
+
+    return { file: filePath, state: 'created' };
+}
+
+/**
+ * Writes a committable scaffold the developer owns from then on: created only
+ * when absent, never overwritten (so edits survive re-runs). Unlike
+ * writeManagedFile these carry no marker — they are the plugin's own files.
+ */
+export function writeScaffoldFile(filePath: string, content: string, dryRun = false): WriteResult {
+    if (fs.existsSync(filePath)) {
+        return { file: filePath, state: 'skipped' };
     }
 
     if (!dryRun) {

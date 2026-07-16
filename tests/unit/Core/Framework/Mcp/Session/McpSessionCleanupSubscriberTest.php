@@ -69,8 +69,8 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $storeApiRegistry->register('shared-session-id');
 
         $subscriber = new McpSessionCleanupSubscriber(
-            $this->createMock(ToolResultCacheStorage::class),
-            $this->createMock(McpToolsetSessionStorage::class),
+            static::createStub(ToolResultCacheStorage::class),
+            static::createStub(McpToolsetSessionStorage::class),
             $adminRegistry,
             $storeApiRegistry,
         );

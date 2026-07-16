@@ -59,6 +59,8 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
@@ -185,6 +187,7 @@ return static function (ContainerConfigurator $container): void {
             service('logger'),
             service(McpAllowlistFilter::class),
             service(McpSessionRegistry::class),
+            service(McpListChangedNotifier::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -327,6 +330,18 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpToolsetSessionStorage::class)
         ->args([service(Connection::class), service(ClockInterface::class)]);
 
+    $services->set(McpToolsetSessionCleanupTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(McpToolsetSessionCleanupTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(McpToolsetSessionStorage::class),
+            service('mcp.session.store')->nullOnInvalid(),
+        ])
+        ->tag('messenger.message_handler');
+
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([
             service(ToolResultCacheStorage::class),
@@ -466,7 +481,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(McpToolsetRegistry::class),
             service(McpToolsetSessionStorage::class),
-            service(McpListChangedNotifier::class),
             service('request_stack'),
         ])
         ->tag('mcp.tool');

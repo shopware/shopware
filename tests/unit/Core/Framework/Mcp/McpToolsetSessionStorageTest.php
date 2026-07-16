@@ -57,4 +57,17 @@ class McpToolsetSessionStorageTest extends TestCase
         $storage = new McpToolsetSessionStorage($connection, new NativeClock());
         $storage->deleteForSession('session-a');
     }
+
+    public function testSessionIdsReturnsDistinctSessionIds(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->with(static::stringContains('SELECT DISTINCT `session_id` FROM `mcp_toolset_session`'))
+            ->willReturn(['session-a', 'session-b']);
+
+        $storage = new McpToolsetSessionStorage($connection, new NativeClock());
+
+        static::assertSame(['session-a', 'session-b'], $storage->sessionIds());
+    }
 }

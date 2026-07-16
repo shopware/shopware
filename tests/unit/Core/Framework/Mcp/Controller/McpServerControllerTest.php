@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -261,6 +262,39 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
             'method' => 'tools/call',
             'params' => ['name' => 'shopware-tool-search', 'arguments' => ['query' => 'entity']],
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
+
+        $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $response = $controller->handle($sfRequest);
+
+        static::assertStringNotContainsString('allowlist', (string) $response->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function discoveryMetaToolProvider(): iterable
+    {
+        yield 'toolsets-list' => [McpToolsetRegistry::LIST_TOOLSETS_TOOL];
+        yield 'toolset-enable' => [McpToolsetRegistry::ENABLE_TOOLSET_TOOL];
+    }
+
+    #[DataProvider('discoveryMetaToolProvider')]
+    public function testDiscoveryMetaToolCallIsAllowedEvenWhenToolAllowlistIsEmpty(string $toolName): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['name' => $toolName, 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);

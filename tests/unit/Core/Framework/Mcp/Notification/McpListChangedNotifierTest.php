@@ -205,6 +205,49 @@ class McpListChangedNotifierTest extends TestCase
         $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
+    public function testNotifySessionQueuesForOnlyThatSession(): void
+    {
+        $target = Uuid::v4()->toRfc4122();
+        $other = Uuid::v4()->toRfc4122();
+        $registry = $this->registry();
+        $registry->register($target);
+        $registry->register($other);
+
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willReturn(true);
+        $store->method('read')->willReturn(Json::encode(['initialized' => true]));
+        $store->expects($this->once())
+            ->method('write')
+            ->with(
+                static::callback(static fn (Uuid $uuid): bool => $uuid->toRfc4122() === $target),
+                static::anything(),
+            )
+            ->willReturn(true);
+
+        $notifier = new McpListChangedNotifier($store, $registry);
+        $notifier->notifySession($target, new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+    }
+
+    public function testNotifySessionDoesNotWriteWhenNoNotificationTypesChanged(): void
+    {
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->expects($this->never())->method('write');
+
+        $notifier = new McpListChangedNotifier($store, $this->registry());
+        $notifier->notifySession(Uuid::v4()->toRfc4122(), McpListChangedNotificationSet::none());
+    }
+
+    public function testNotifySessionDoesNotWriteWhenSessionStoreIsUnavailable(): void
+    {
+        $store = null;
+
+        $notifier = new McpListChangedNotifier($store, $this->registry());
+        $notifier->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+
+        // No exception and nothing to assert on a null store — the call is simply a no-op.
+        $this->addToAssertionCount(1);
+    }
+
     private function registry(): McpSessionRegistry
     {
         return new McpSessionRegistry(new Psr16Cache(new ArrayAdapter()));

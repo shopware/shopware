@@ -31,6 +31,11 @@ class McpListChangedNotifier
     ) {
     }
 
+    /**
+     * Broadcasts a list_changed notification to every active MCP session. Use only for
+     * installation-wide capability changes (e.g. app install/uninstall); this is O(active sessions)
+     * per call. For a change that only affects one session, use notifySession() instead.
+     */
     public function notify(McpListChangedNotificationSet $notifications): void
     {
         $sessionStore = $this->sessionStore;
@@ -43,6 +48,21 @@ class McpListChangedNotifier
         foreach ($this->sessionRegistry->all() as $sessionId) {
             $this->queueForSession($sessionId, $messages, $sessionStore);
         }
+    }
+
+    /**
+     * Queues a list_changed notification for a single MCP session. Use this for session-local
+     * changes (e.g. enabling a toolset for the current session) so the work stays O(1) instead of
+     * touching every active session.
+     */
+    public function notifySession(string $sessionId, McpListChangedNotificationSet $notifications): void
+    {
+        $sessionStore = $this->sessionStore;
+        if ($sessionStore === null || !$notifications->hasChanges()) {
+            return;
+        }
+
+        $this->queueForSession($sessionId, $this->buildMessages($notifications), $sessionStore);
     }
 
     /**

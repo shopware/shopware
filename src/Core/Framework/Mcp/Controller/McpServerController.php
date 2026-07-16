@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -48,6 +49,17 @@ class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';
     private const TOOL_SEARCH = 'shopware-tool-search';
+
+    /**
+     * Server-owned discovery meta-tools. A tools/call for one of these is never rejected by the
+     * per-integration allowlist, so a restricted integration can always reach the guaranteed
+     * discovery path (toolsets-list -> toolset-enable -> listChanged).
+     */
+    private const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH,
+        McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+        McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+    ];
 
     /**
      * @internal
@@ -180,7 +192,7 @@ class McpServerController
 
         if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
-            if ($toolName === self::TOOL_SEARCH) {
+            if (\in_array($toolName, self::DISCOVERY_META_TOOLS, true)) {
                 return null;
             }
 

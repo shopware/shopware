@@ -39,9 +39,13 @@ class ToolsetEnableToolTest extends TestCase
             ->with('session-a', 'entity');
 
         $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notify');
         $notifier->expects($this->once())
-            ->method('notify')
-            ->with(static::callback(static fn (McpListChangedNotificationSet $notification): bool => $notification->tools && !$notification->resources && !$notification->prompts));
+            ->method('notifySession')
+            ->with(
+                'session-a',
+                static::callback(static fn (McpListChangedNotificationSet $notification): bool => $notification->tools && !$notification->resources && !$notification->prompts),
+            );
 
         $requestStack = new RequestStack();
         $request = Request::create('/api/_mcp', 'POST');
@@ -89,6 +93,7 @@ class ToolsetEnableToolTest extends TestCase
 
         $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->never())->method('notify');
+        $notifier->expects($this->never())->method('notifySession');
 
         $tool = new ToolsetEnableTool($registry, $storage, $notifier, new RequestStack());
 

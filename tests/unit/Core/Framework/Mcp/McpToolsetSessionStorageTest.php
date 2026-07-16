@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\Clock\NativeClock;
 
@@ -56,5 +57,34 @@ class McpToolsetSessionStorageTest extends TestCase
 
         $storage = new McpToolsetSessionStorage($connection, new NativeClock());
         $storage->deleteForSession('session-a');
+    }
+
+    public function testSessionIdsReturnsDistinctSessionIds(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->with(static::stringContains('SELECT DISTINCT `session_id` FROM `mcp_toolset_session`'))
+            ->willReturn(['session-a', 'session-b']);
+
+        $storage = new McpToolsetSessionStorage($connection, new NativeClock());
+
+        static::assertSame(['session-a', 'session-b'], $storage->sessionIds());
+    }
+
+    public function testDeleteCreatedBeforePurgesByCreatedAt(): void
+    {
+        $before = new \DateTimeImmutable('2026-07-01 00:00:00');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('executeStatement')
+            ->with(
+                static::stringContains('DELETE FROM `mcp_toolset_session` WHERE `created_at` < :before'),
+                ['before' => $before->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+            );
+
+        $storage = new McpToolsetSessionStorage($connection, new NativeClock());
+        $storage->deleteCreatedBefore($before);
     }
 }

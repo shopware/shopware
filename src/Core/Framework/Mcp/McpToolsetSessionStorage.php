@@ -11,7 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  *
  * Persists enabled MCP toolsets for the duration of one MCP session.
- * Rows are removed when the MCP session ends (DELETE /api/_mcp).
+ * Rows are removed when the MCP session ends (DELETE /api/_mcp) and, for sessions that are
+ * abandoned without a DELETE, by the periodic McpToolsetSessionCleanupTask.
  */
 #[Package('framework')]
 class McpToolsetSessionStorage
@@ -56,6 +57,25 @@ class McpToolsetSessionStorage
         $this->connection->executeStatement(
             'DELETE FROM `mcp_toolset_session` WHERE `session_id` = :sessionId',
             ['sessionId' => $sessionId],
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function sessionIds(): array
+    {
+        return array_values(array_map(
+            static fn (mixed $sessionId): string => (string) $sessionId,
+            $this->connection->fetchFirstColumn('SELECT DISTINCT `session_id` FROM `mcp_toolset_session`'),
+        ));
+    }
+
+    public function deleteCreatedBefore(\DateTimeInterface $before): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM `mcp_toolset_session` WHERE `created_at` < :before',
+            ['before' => $before->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
         );
     }
 }

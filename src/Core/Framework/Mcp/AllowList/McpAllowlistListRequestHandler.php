@@ -36,6 +36,17 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     private const TOOL_SEARCH = 'shopware-tool-search';
 
     /**
+     * The server-owned discovery meta-tools. They are always advertised and always callable,
+     * independent of the per-integration allowlist, so the guaranteed discovery path stays usable
+     * even for integrations whose allowlist omits them.
+     */
+    private const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH,
+        McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+        McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+    ];
+
+    /**
      * @param list<string> $advertisedTools
      */
     public function __construct(
@@ -110,8 +121,11 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
             return $advertisedTools;
         }
 
+        // The server-owned discovery meta-tools stay advertised even when the integration's
+        // allowlist omits them, so the guaranteed discovery path (toolsets-list -> toolset-enable
+        // -> listChanged) keeps working. Every other tool remains bounded by the allowlist.
         return array_values(array_unique(array_merge(
-            [self::TOOL_SEARCH],
+            array_values(array_intersect($advertisedTools, self::DISCOVERY_META_TOOLS)),
             array_values(array_intersect($advertisedTools, $allowlist->tools)),
         )));
     }

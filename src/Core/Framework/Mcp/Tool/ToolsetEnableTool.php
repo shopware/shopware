@@ -44,7 +44,9 @@ class ToolsetEnableTool extends McpToolResponse
 
         $this->sessionStorage->enable($sessionId, $toolset);
 
-        $this->notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+        // Enabling a toolset only changes the tool list for this session, so notify just this
+        // session instead of broadcasting to every active session.
+        $this->notifier->notifySession($sessionId, new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
 
         return $this->success([
             'toolset' => [

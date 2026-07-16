@@ -46,18 +46,18 @@ const SANDBOX = process.env.REPRO_SANDBOX === '1';
  * whose only reachable destination is the shop on the runner host (`host.docker.internal`) — the
  * job applies a `DOCKER-USER` egress DROP so the container has no internet, so a spec that escapes
  * validate.mjs's correctness gates still cannot exfiltrate, abuse the network, or reach the token.
- * The workspace is bind-mounted at the same path (and set as workdir) so relative config, storage
- * state, report, and output paths resolve exactly as they do host-side. The image's own Playwright
- * + browsers are used (no host node_modules), so the container is self-contained.
+ * ONLY the disposable run dir is bind-mounted (not the workspace): the spec therefore cannot read or
+ * overwrite the harness scripts under `.github/actions/reproduce/**` — which a later host-side step
+ * re-invokes — so a compromised spec cannot reach outside the container. The image's own Playwright +
+ * browsers are used (no host node_modules), so everything it needs lives in that one mounted dir.
  */
-function specRunCommand(configPath, env) {
+function specRunCommand(configPath, env, mountDir) {
   if (!SANDBOX) {
     return { cmd: 'npx', args: ['playwright', 'test', '--config', configPath] };
   }
   // The workflow exports REPRO_SANDBOX_PW_IMAGE matched to the host-installed Playwright version; the
-  // literal is only a fallback and MUST equal the browsers of the workspace node_modules mounted below.
+  // literal is only a fallback and MUST equal the Playwright the spec runs against.
   const image = process.env.REPRO_SANDBOX_PW_IMAGE || 'mcr.microsoft.com/playwright:v1.61.1-noble';
-  const ws = process.cwd();
   const passthrough = ['APP_URL', 'PW_STORAGE', 'PW_JSON_REPORT', 'PW_OUTPUT_DIR', 'PW_HTML_REPORT', 'PW_VIDEO', 'PW_VIEWPORT', 'REPRO_VIDEO_SLOWMO']
     .filter((key) => env[key] != null && env[key] !== '')
     .flatMap((key) => ['-e', `${key}=${env[key]}`]);
@@ -68,7 +68,7 @@ function specRunCommand(configPath, env) {
       '--add-host=host.docker.internal:host-gateway',
       '--user', `${process.getuid()}:${process.getgid()}`, // outputs land owned by the runner, not root
       '-e', 'HOME=/tmp',
-      '-v', `${ws}:${ws}`, '-w', ws,
+      '-v', `${mountDir}:${mountDir}`, '-w', mountDir, // ONLY the run dir — never the workspace/harness
       ...passthrough,
       image,
       'npx', 'playwright', 'test', '--config', configPath,
@@ -101,6 +101,7 @@ function createRunDir(suffix) {
 function runSpec(spec, storageState, { video, viewport }) {
   const suffix = video ? '-video' : '';
   const runDir = createRunDir(suffix);
+  const runDirAbs = path.resolve(runDir);
   // Host-side reuses the workspace node_modules; the sandbox uses the image's own Playwright, so a
   // symlink to the host modules (whose browsers live at a host path) must NOT leak into the container.
   const runNodeModules = path.join(runDir, 'node_modules');
@@ -113,23 +114,38 @@ function runSpec(spec, storageState, { video, viewport }) {
   }
   fs.writeFileSync(path.join(runDir, FILES.specTs), spec);
 
-  const reportPath = path.resolve(`pw-report${suffix}.json`);
-  const outputDir = path.resolve(`test-results${suffix}`);
+  // Under the sandbox only the run dir is mounted, so everything the run reads/writes must live inside
+  // it: copy the harness-owned storage state in, and point the report + output dir there (screenshots
+  // are copied back out below). Host-side keeps the workspace-relative locations.
+  let pwStorage = storageState;
+  if (SANDBOX && storageState && fs.existsSync(storageState)) {
+    fs.copyFileSync(storageState, path.join(runDir, 'storage-state.json'));
+    pwStorage = path.join(runDirAbs, 'storage-state.json');
+  }
+  const reportPath = SANDBOX ? path.join(runDirAbs, `pw-report${suffix}.json`) : path.resolve(`pw-report${suffix}.json`);
+  const outputDir = SANDBOX ? path.join(runDirAbs, `test-results${suffix}`) : path.resolve(`test-results${suffix}`);
   const env = {
     ...process.env,
     APP_URL: appUrl(),
-    PW_STORAGE: storageState,
+    PW_STORAGE: pwStorage,
     PW_JSON_REPORT: reportPath,
     PW_OUTPUT_DIR: outputDir,
     PW_VIDEO: video ? 'on' : 'off',
     ...(viewport ? { PW_VIEWPORT: viewport } : {}),
   };
 
-  const { cmd, args } = specRunCommand(path.join(runDir, 'playwright.config.ts'), env);
+  const { cmd, args } = specRunCommand(path.join(runDirAbs, 'playwright.config.ts'), env, runDirAbs);
   spawnSync(cmd, args, {
     stdio: ['ignore', fs.openSync(`pw-stdout${suffix}.txt`, 'w'), fs.openSync(`pw-stderr${suffix}.txt`, 'w')],
     env,
   });
+
+  // Surface sandbox outputs where the report renderer + artifact upload expect them (cwd/test-results).
+  if (SANDBOX && !video && fs.existsSync(outputDir)) {
+    const dest = path.resolve(`test-results${suffix}`);
+    fs.rmSync(dest, { recursive: true, force: true });
+    fs.cpSync(outputDir, dest, { recursive: true });
+  }
 
   if (video) {
     const webm = findWebm(outputDir);

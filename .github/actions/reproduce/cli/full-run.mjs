@@ -32,7 +32,12 @@ export async function fullRun({ target, out, reset: doReset }) {
   const plan = readJson(FILES.plan);
 
   if (doReset) {
-    reset();
+    // A failed restore of an EXISTING snapshot blocks the leg — never judge a symptom on un-restored,
+    // possibly agent-polluted state (that would post a real-looking but untrustworthy verdict).
+    const r = reset();
+    if (r && r.ok === false) {
+      return fail(target, out, r.reason);
+    }
   }
   if (plan.fixtures?.demodata) {
     generateDemodata();

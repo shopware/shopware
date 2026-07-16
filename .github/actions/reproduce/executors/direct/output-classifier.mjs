@@ -6,18 +6,10 @@
  */
 export function classifyPhpunitOutput(output, plan) {
   const firstError = phpunitFailureBlock(output).replace(/\s+/g, ' ').slice(0, 700);
-  // Include the comma form: PHPUnit 10/11 prints "OK, but there were issues!" for a passing run that
-  // also raised warnings/risky/deprecation notices.
-  if (/^OK[ (,]/m.test(output)) {
-    return { status: 'not_reproduced', matched: true, reporter: 'PHPUnit OK (healthy)', reason: null };
-  }
+  // Order matters: check the authoritative failure/error signals FIRST, so a captured line that merely
+  // starts with "OK" (in a test's own stdout) can't flip a real failure to healthy.
   if (/FAILURES!/.test(output)) {
     return { status: 'reproduced', matched: false, reporter: phpunitFailureBlock(output) || 'assertion failed (symptom present)', reason: null };
-  }
-  // Warnings/risky/deprecation WITHOUT failures or errors is still a passing (healthy) run — the
-  // assertions held. FAILURES!/ERRORS! are handled above, so reaching here means neither is present.
-  if (/^(WARNINGS|RISKY|DEPRECATIONS)!/m.test(output) && !/ERRORS!/.test(output)) {
-    return { status: 'not_reproduced', matched: true, reporter: 'PHPUnit passed with warnings/risky notices (healthy)', reason: null };
   }
   if (/ERRORS!|No tests executed|Fatal error|PHP Fatal|Uncaught/.test(output)) {
     const pattern = plan.assertion?.symptom_pattern;
@@ -30,6 +22,15 @@ export function classifyPhpunitOutput(output, plan) {
       reporter: 'PHPUnit errored (test could not run)',
       reason: `PHPUnit could not run the test (errored before/outside the symptom assertion): ${firstError} -- full output in phpunit-output.txt`,
     };
+  }
+  // Healthy: anchor to PHPUnit's actual summary line — "OK (5 tests, …)" or the 10/11
+  // "OK, but there were issues!" form — not any line that happens to start with "OK".
+  if (/^OK \(\d+ test/m.test(output) || /^OK, but /m.test(output)) {
+    return { status: 'not_reproduced', matched: true, reporter: 'PHPUnit OK (healthy)', reason: null };
+  }
+  // Warnings/risky/deprecation with no failures or errors (both handled above) is still a passing run.
+  if (/^(WARNINGS|RISKY|DEPRECATIONS)!/m.test(output)) {
+    return { status: 'not_reproduced', matched: true, reporter: 'PHPUnit passed with warnings/risky notices (healthy)', reason: null };
   }
 
   return {

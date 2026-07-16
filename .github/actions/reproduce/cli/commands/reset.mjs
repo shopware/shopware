@@ -32,11 +32,11 @@ function parseDatabaseUrl(url) {
 export function reset() {
   if (!fs.existsSync(FILES.snapshot)) {
     console.log('no DB snapshot — running on the current state');
-    return;
+    return { ok: true };
   }
   if (!process.env.DATABASE_URL) {
     console.warn('::warning::DATABASE_URL not set — skipping DB reset');
-    return;
+    return { ok: true };
   }
 
   const db = parseDatabaseUrl(process.env.DATABASE_URL);
@@ -47,8 +47,11 @@ export function reset() {
     { stdio: 'inherit', env: { ...process.env, MYSQL_PWD: db.pass } },
   );
   if (restore.status !== 0) {
-    console.warn('::warning::DB reset failed — running on the current state');
-    return;
+    // A snapshot EXISTS but couldn't be restored → the leg would run on dirty/agent-polluted state and
+    // emit a real reproduced/not_reproduced into the verdict. Fail CLOSED: the caller turns this into a
+    // blocked leg instead of a silently-wrong verdict. (Contrast the no-snapshot case, which is a
+    // legitimate run-on-current-state for previews.)
+    return { ok: false, reason: `DB reset failed (exit ${restore.status}) — refusing to judge a leg on un-restored state` };
   }
 
   const shop = shopDir();
@@ -59,4 +62,5 @@ export function reset() {
       env: { ...process.env, APP_ENV: 'prod' },
     });
   }
+  return { ok: true };
 }

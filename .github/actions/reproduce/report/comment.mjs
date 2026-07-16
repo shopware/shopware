@@ -29,6 +29,19 @@ const readJson = (p) => {
 const fill = (str, vars) => String(str ?? '').replace(/{{(\w+)}}/g, (_, k) => vars[k] ?? '');
 
 /**
+ * Bounds and defangs agent-authored prose before it enters the public verdict comment.
+ *
+ * The agent summary and give-up reason are shaped by the untrusted issue. Secret redaction runs later
+ * at the write() boundary, but this also caps length and neutralizes the `<details>`/`<summary>` tags
+ * the comment is built from, so injected markdown can't break out of a spoiler or balloon the comment.
+ */
+const safeProse = (text, max = 2000) => {
+  const s = String(text ?? '');
+  const capped = s.length > max ? `${s.slice(0, max)}\n… (truncated)` : s;
+  return capped.replace(/<(\/?(?:details|summary)\b[^>]*)>/gi, '&lt;$1&gt;');
+};
+
+/**
  * Reads an auxiliary agent artifact for inclusion in the issue comment.
  *
  * The renderer checks the collected artifact directory first and then the working directory, matching
@@ -121,9 +134,9 @@ if (process.env.MODE === 'incomplete') {
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
   const hasFixtures = fs.existsSync(fixturesPath);
   write(render(tpl, {
-    REASON: giveup || process.env.REASON || DATA.incomplete_reason_default,
+    REASON: safeProse(giveup || process.env.REASON || DATA.incomplete_reason_default),
     RUN_URL: process.env.RUN_URL || '',
-    AGENT_SUMMARY: readExtra('agent-summary.md'),
+    AGENT_SUMMARY: safeProse(readExtra('agent-summary.md')),
     EDITS: edits,
     SCENARIO: scenarioBlock(plan),
     TESTCASE: script,
@@ -173,7 +186,7 @@ function renderVerdict() {
   const script = (fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8').trim() : '') || specLeg?.evidence?.script || '';
   const fixturesPath = `${art}/repro-plan/fixtures.json`;
   const hasFixtures = fs.existsSync(fixturesPath);
-  const agentSummary = readExtra('agent-summary.md');
+  const agentSummary = safeProse(readExtra('agent-summary.md'));
 
   const legStatus = (s) => p.status[s] || p.status.null;
   const ctx = {

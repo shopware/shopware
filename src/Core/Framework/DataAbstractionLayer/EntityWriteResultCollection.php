@@ -20,7 +20,7 @@ class EntityWriteResultCollection extends Collection
         );
     }
 
-    public function with(string ...$properties): self
+    public function withPayloadProperties(string ...$properties): self
     {
         return $this->filter(
             static fn (EntityWriteResult $result): bool => \array_intersect(array_keys($result->getPayload()), $properties) !== []

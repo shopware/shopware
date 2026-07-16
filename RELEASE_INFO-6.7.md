@@ -610,7 +610,7 @@ The Administration role editor also adds these privileges to newly generated rol
 ### Filter DAL entity write results with a typed collection
 
 `EntityWrittenEvent::getResults()` now returns an `EntityWriteResultCollection` that keeps each payload associated with its operation and primary key.
-Extension listeners can use `only()` to select write operations, `with()` to select results containing any of the given payload properties, and `getPrimaryKeys()` to extract the filtered identifiers.
+Extension listeners can use `only()` to select write operations, `withPayloadProperties()` to select results containing any of the given payload properties, and `getPrimaryKeys()` to extract the filtered identifiers.
 `EntityWrittenContainerEvent::getResults(string $entityName)` provides the same API for one entity in a container event.
 The existing `getWriteResults()` methods remain unchanged.
 

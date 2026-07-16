@@ -42,7 +42,7 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
 
         $productSortingIds = [];
 
-        foreach ($event->getResults()->with('fields') as $writeResult) {
+        foreach ($event->getResults()->withPayloadProperties('fields') as $writeResult) {
             $key = $writeResult->getPrimaryKey();
             if (!\is_string($key)) {
                 continue;

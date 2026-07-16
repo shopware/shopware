@@ -37,7 +37,7 @@ class EntityWriteResultCollectionTest extends TestCase
 
         $results = new EntityWriteResultCollection([$withNull, $withName, $withoutMatch]);
 
-        static::assertSame([$withNull, $withName], $results->with('active', 'name')->getElements());
+        static::assertSame([$withNull, $withName], $results->withPayloadProperties('active', 'name')->getElements());
     }
 
     public function testReturnsPrimaryKeys(): void

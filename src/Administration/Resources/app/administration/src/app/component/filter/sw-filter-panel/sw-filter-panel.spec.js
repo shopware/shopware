@@ -307,7 +307,6 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         const itemWithoutBreadcrumb = {
-            breadcrumb: [],
             name: 'Product Name',
             translated: {
                 name: 'Translated Product Name',

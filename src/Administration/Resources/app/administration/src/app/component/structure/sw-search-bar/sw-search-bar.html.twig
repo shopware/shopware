@@ -41,65 +41,71 @@
         {% block sw_search_bar_field %}
         <div
             v-if="isSearchBarShown"
-            class="sw-search-bar__field"
-            :class="searchBarFieldClasses"
+            class="sw-search-bar__field-wrapper"
         >
-
-            {% block sw_search_bar_type %}
-            <span
-                class="sw-search-bar__type--v2"
-                role="button"
-                tabindex="0"
-                @click="onOpenModuleFiltersDropDown"
-                @keydown.enter="onOpenModuleFiltersDropDown"
+            <div
+                class="sw-search-bar__field"
+                :class="searchBarFieldClasses"
             >
-                {{ getLabelSearchType() }}
-                <mt-icon
-                    name="regular-chevron-down-xxs"
-                />
-            </span>
-            {% endblock %}
 
-            {% block sw_search_bar_input %}
-            <slot name="search-input">
-                {% block sw_search_bar_slot_input %}
-                <input
-                    ref="searchInput"
-                    v-model="searchTerm"
-                    class="sw-search-bar__input"
-                    :placeholder="placeholderSearchInput"
-                    :aria-label="placeholderSearchInput"
-                    role="searchbox"
-                    @input="onSearchTermChange"
-                    @focus="onFocusInput"
-                    @blur="onBlur"
-                    @keydown.delete="resetSearchType"
-                    @keyup.esc="clearSearchTerm"
-                    @keyup.enter.prevent="onKeyUpEnter"
-                    @keydown.up.prevent="navigateUpResults"
-                    @keydown.down.prevent="navigateDownResults"
+                {% block sw_search_bar_type %}
+                <span
+                    class="sw-search-bar__type--v2"
+                    role="button"
+                    tabindex="0"
+                    @click="onOpenModuleFiltersDropDown"
+                    @keydown.enter="onOpenModuleFiltersDropDown"
                 >
+                    {{ getLabelSearchType() }}
+                    <mt-icon
+                        name="regular-chevron-down-xxs"
+                    />
+                </span>
                 {% endblock %}
-            </slot>
-            {% endblock %}
 
-            {% block sw_search_bar_icon %}
+                {% block sw_search_bar_input %}
+                <slot name="search-input">
+                    {% block sw_search_bar_slot_input %}
+                    <input
+                        ref="searchInput"
+                        v-model="searchTerm"
+                        class="sw-search-bar__input"
+                        :placeholder="placeholderSearchInput"
+                        :aria-label="placeholderSearchInput"
+                        role="searchbox"
+                        @input="onSearchTermChange"
+                        @focus="onFocusInput"
+                        @blur="onBlur"
+                        @keydown.delete="resetSearchType"
+                        @keyup.esc="clearSearchTerm"
+                        @keyup.enter.prevent="onKeyUpEnter"
+                        @keydown.up.prevent="navigateUpResults"
+                        @keydown.down.prevent="navigateDownResults"
+                    >
+                    {% endblock %}
+                </slot>
+                {% endblock %}
+
+                {% block sw_search_bar_icon %}
+                <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
+                    <mt-icon
+                        name="regular-search"
+                        size="16px"
+                    />
+                </span>
+                {% endblock %}
+            </div>
+
+            {% block sw_search_bar_field_close %}
             <button
-                class="sw-search-bar__field-icon sw-search-bar__field-close"
+                class="sw-search-bar__field-close"
                 @click="hideSearchBar"
             >
                 <mt-icon
                     name="regular-times-s"
-                    size="16px"
+                    size="10px"
                 />
             </button>
-
-            <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
-                <mt-icon
-                    name="regular-search"
-                    size="16px"
-                />
-            </span>
             {% endblock %}
         </div>
         {% endblock %}

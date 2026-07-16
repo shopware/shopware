@@ -2,10 +2,17 @@
  * @sw-package framework
  */
 
+import { classifyPlatform, PLATFORM } from 'src/core/helper/shortcut-key.helper';
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
 const utils = Shopware.Utils;
+
+const PLATFORM_NAMES = {
+    [PLATFORM.MAC]: 'Mac',
+    [PLATFORM.WINDOWS]: 'Windows',
+    [PLATFORM.LINUX]: 'Linux',
+};
 
 /**
  * @private
@@ -13,10 +20,20 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    inject: ['shortcutService'],
+
     emits: [
         'shortcut-open',
         'shortcut-close',
     ],
+
+    props: {
+        showModal: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
 
     shortcuts: {
         '?': 'onOpenShortcutOverviewModal',
@@ -24,13 +41,72 @@ export default {
 
     data() {
         return {
-            showShortcutOverviewModal: false,
+            showShortcutOverviewModal: this.showModal,
+            shortcutsDisabled: false,
         };
     },
 
+    created() {
+        this.createdComponent();
+    },
+
+    watch: {
+        showModal(value) {
+            this.showShortcutOverviewModal = value;
+        },
+    },
+
     computed: {
+        platform() {
+            const userPlatform = this.$device?.getPlatform?.() ?? window.navigator.platform;
+
+            return classifyPlatform(userPlatform);
+        },
+
+        platformShortcutSuffix() {
+            return PLATFORM_NAMES[this.platform];
+        },
+
         sections() {
             return {
+                generalShortcuts: [
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutShortcutListing'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutFocusSearch'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutOpenFilters'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutOpenFilters'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionAccessibilityCloseDialog'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutAccessibilityCloseDialog'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutSaveDetailView'),
+                        content: this.$t(
+                            'sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailView' +
+                                this.platformShortcutSuffix,
+                        ),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutClearCache'),
+                        content: this.$t(
+                            'sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCache' + this.platformShortcutSuffix,
+                        ),
+                        privilege: 'system.clear_cache',
+                    },
+                ],
                 addingItems: [
                     {
                         id: utils.createId(),
@@ -158,55 +234,21 @@ export default {
                         privilege: 'system.plugin_maintain',
                     },
                 ],
-
-                specialShortcuts: [
+                accessibility: [
                     {
                         id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutFocusSearch'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch'),
+                        title: this.$t('sw-shortcut-overview.functionAccessibilitySkipToContent'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutAccessibilitySkipToContent'),
                     },
                     {
                         id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutShortcutListing'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing'),
+                        title: this.$t('sw-shortcut-overview.functionAccessibilityMoveFocusForward'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutAccessibilityMoveFocusForward'),
                     },
                     {
                         id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutSaveDetailViewWindows'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailViewWindows'),
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutSaveDetailViewMac'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailViewMac'),
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutSaveDetailViewLinux'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailViewLinux'),
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutCancelDetailView'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutCancelDetailView'),
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutClearCacheWindows'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheWindows'),
-                        privilege: 'system.clear_cache',
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutClearCacheMac'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheMac'),
-                        privilege: 'system.clear_cache',
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutClearCacheLinux'),
-                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheLinux'),
-                        privilege: 'system.clear_cache',
+                        title: this.$t('sw-shortcut-overview.functionAccessibilityMoveFocusBackward'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutAccessibilityMoveFocusBackward'),
                     },
                 ],
             };
@@ -214,6 +256,10 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.shortcutsDisabled = this.shortcutService.isShortcutsDisabled();
+        },
+
         onOpenShortcutOverviewModal() {
             this.showShortcutOverviewModal = true;
             this.$emit('shortcut-open');
@@ -222,6 +268,11 @@ export default {
         onCloseShortcutOverviewModal() {
             this.showShortcutOverviewModal = false;
             this.$emit('shortcut-close');
+        },
+
+        onToggleShortcutsDisabled(shortcutsDisabled) {
+            this.shortcutsDisabled = shortcutsDisabled;
+            this.shortcutService.setShortcutsDisabled(shortcutsDisabled);
         },
     },
 };

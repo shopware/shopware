@@ -66,7 +66,7 @@
                 </mt-banner>
 
                 <div
-                    v-else-if="services.length === 0"
+                    v-if="!config.disabled && services.length === 0"
                     class="sw-settings-services-index__installing-card"
                 >
                     <div class="sw-settings-services-index__installing-card-loader">
@@ -81,7 +81,7 @@
                 </div>
 
                 <ul
-                    v-else
+                    v-else-if="services.length > 0"
                     class="sw-settings-services__available-services"
                 >
                     <sw-settings-services-service-card
@@ -111,10 +111,12 @@
 
                 <sw-settings-services-revoke-permissions-modal
                     v-if="!config.disabled && config.permissionsConsent"
+                    :services-with-account-requirement="servicesWithAccountRequirement"
                 />
 
                 <sw-settings-services-deactivate-modal
                     v-if="!config.disabled"
+                    :services-with-account-requirement="servicesWithAccountRequirement"
                     :feedback-link="currentRevision.links['feedback-url']"
                 />
             </div>

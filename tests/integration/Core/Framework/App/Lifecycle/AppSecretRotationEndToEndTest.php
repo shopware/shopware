@@ -136,11 +136,11 @@ class AppSecretRotationEndToEndTest extends TestCase
     public function testAmbiguousFirstInstallKeepsTheAppSoTheSecretCanBeRecovered(): void
     {
         $command = new CommandTester($this->createInstallCommand());
-        $installedEvents = 0;
+        $installedEvents = new \ArrayObject();
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
         static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function () use (&$installedEvents): void {
-            ++$installedEvents;
+        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
+            $installedEvents->append($event);
         });
 
         // First CLI attempt: the app mints and persists a secret, but confirmation fails ambiguously. The row
@@ -159,7 +159,7 @@ class AppSecretRotationEndToEndTest extends TestCase
             $halfInstalled = $this->getInstalledApp();
             static::assertNull($halfInstalled->getAppSecret(), 'a first install never commits a secret');
             static::assertSame([$firstInstallSecret], $halfInstalled->getUnconfirmedAppSecrets());
-            static::assertSame(0, $installedEvents, 'the failed attempt must not emit the installed lifecycle event');
+            static::assertCount(0, $installedEvents, 'the failed attempt must not emit the installed lifecycle event');
 
             // Second CLI attempt repairs credentials and resumes the skipped lifecycle exactly once. --activate
             // is honoured for a half-finished install, unlike repair of an already completed app.
@@ -175,7 +175,7 @@ class AppSecretRotationEndToEndTest extends TestCase
             static::assertSame($recoveredSecret, $recovered->getAppSecret());
             static::assertNull($recovered->getUnconfirmedAppSecrets());
             static::assertTrue($recovered->isActive());
-            static::assertSame(1, $installedEvents);
+            static::assertCount(1, $installedEvents);
             // The confirm proves the new secret and authenticates as the pending secret the app held.
             $this->assertConfirmCarriesDualSignature(
                 $this->lastConfirm(),

@@ -80,7 +80,7 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_CONFLICT, $e->getStatusCode());
         static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
         static::assertStringContainsString('bin/console app:install PendingApp', $e->getMessage());
-        static::assertStringContainsString('Administration installation API', $e->getMessage());
+        static::assertStringContainsString('bin/console app:secret:rotate PendingApp', $e->getMessage());
         static::assertStringContainsString('reinstall-apps', $e->getMessage());
     }
 

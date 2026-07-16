@@ -112,6 +112,9 @@ class StoreApiMcpServerController
      * {@see McpServerController::createHttpResponse()}: an application/json body must be a single
      * JSON-RPC object, so a drained multi-message batch (e.g. a tools/list_changed alongside the
      * response) is re-emitted as a text/event-stream with one single-object SSE event per message.
+     *
+     * Guards against mcp/sdk v0.6.0 (symfony/mcp-bundle v0.10.0) emitting batch arrays; remove once
+     * the SDK no longer bundles multiple messages over application/json.
      */
     private function createHttpResponse(PsrResponseInterface $psrResponse): Response
     {

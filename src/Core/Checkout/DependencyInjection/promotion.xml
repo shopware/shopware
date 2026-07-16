@@ -222,12 +222,18 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager"/>
 
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsSubscriber">

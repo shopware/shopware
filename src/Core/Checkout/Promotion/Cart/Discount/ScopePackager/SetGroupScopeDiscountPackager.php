@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\PromotionException;
-use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,8 +23,10 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
     /**
      * @internal
      */
-    public function __construct(private readonly LineItemGroupBuilder $groupBuilder)
-    {
+    public function __construct(
+        private readonly LineItemGroupBuilder $groupBuilder,
+        private readonly SetGroupRuleResolver $ruleResolver,
+    ) {
     }
 
     public function getDecorated(): DiscountPackager
@@ -43,7 +45,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
         /** @var array<mixed> $groups */
         $groups = $discount->getPayloadValue('setGroups');
 
-        $groupDefinitions = $this->buildGroupDefinitionList($groups);
+        $groupDefinitions = $this->buildGroupDefinitionList($groups, $context->getContext());
 
         $resultGroups = $this->groupBuilder->findGroupPackages($groupDefinitions, $cart, $context);
 
@@ -56,7 +58,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
         /** @var string $groupId */
         $groupId = $discount->getPayloadValue('groupId');
 
-        $definition = $this->getGroupDefinition($groupId, $groups);
+        $definition = $this->getGroupDefinition($groupId, $groups, $context->getContext());
 
         $result = $resultGroups->getResult($definition->getId());
 
@@ -88,7 +90,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      *
      * @param array<mixed> $groups
      */
-    private function getGroupDefinition(string $groupId, array $groups): LineItemGroupDefinition
+    private function getGroupDefinition(string $groupId, array $groups, Context $context): LineItemGroupDefinition
     {
         $index = 1;
 
@@ -99,7 +101,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
                     $group['packagerKey'],
                     $group['value'],
                     $group['sorterKey'],
-                    $this->getRules($group['rules'] ?? null)
+                    $this->ruleResolver->resolve($group, $context),
                 );
             }
 
@@ -134,7 +136,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      *
      * @return LineItemGroupDefinition[]
      */
-    private function buildGroupDefinitionList(array $groups): array
+    private function buildGroupDefinitionList(array $groups, Context $context): array
     {
         $definitions = [];
         foreach ($groups as $group) {
@@ -143,23 +145,10 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
                 $group['packagerKey'],
                 $group['value'],
                 $group['sorterKey'],
-                $this->getRules($group['rules'] ?? null)
+                $this->ruleResolver->resolve($group, $context),
             );
         }
 
         return $definitions;
-    }
-
-    /**
-     * @param RuleCollection|array<mixed>|null $rules
-     */
-    private function getRules(RuleCollection|array|null $rules): RuleCollection
-    {
-        $rules ??= new RuleCollection();
-        if (!\is_array($rules)) {
-            return $rules;
-        }
-
-        return (new RuleCollection())->assignRecursive($rules);
     }
 }

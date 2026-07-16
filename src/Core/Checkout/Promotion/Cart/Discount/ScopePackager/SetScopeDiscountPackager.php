@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -22,8 +23,10 @@ class SetScopeDiscountPackager extends DiscountPackager
     /**
      * @internal
      */
-    public function __construct(private readonly LineItemGroupBuilder $groupBuilder)
-    {
+    public function __construct(
+        private readonly LineItemGroupBuilder $groupBuilder,
+        private readonly SetGroupRuleResolver $ruleResolver,
+    ) {
     }
 
     public function getDecorated(): DiscountPackager
@@ -45,7 +48,7 @@ class SetScopeDiscountPackager extends DiscountPackager
         /** @var array<string, mixed> $groups */
         $groups = $discount->getPayloadValue('setGroups');
 
-        $definitions = $this->buildGroupDefinitionList($groups);
+        $definitions = $this->buildGroupDefinitionList($groups, $context->getContext());
 
         $result = $this->groupBuilder->findGroupPackages($definitions, $cart, $context);
 
@@ -94,7 +97,7 @@ class SetScopeDiscountPackager extends DiscountPackager
      *
      * @return LineItemGroupDefinition[]
      */
-    private function buildGroupDefinitionList(array $groups): array
+    private function buildGroupDefinitionList(array $groups, Context $context): array
     {
         $definitions = [];
         foreach ($groups as $group) {
@@ -103,7 +106,7 @@ class SetScopeDiscountPackager extends DiscountPackager
                 $group['packagerKey'],
                 $group['value'],
                 $group['sorterKey'],
-                $group['rules']
+                $this->ruleResolver->resolve($group, $context),
             );
         }
 

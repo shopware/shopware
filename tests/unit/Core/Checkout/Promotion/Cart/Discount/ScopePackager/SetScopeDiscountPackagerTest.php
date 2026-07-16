@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,9 +20,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(SetGroupScopeDiscountPackager::class)]
+#[CoversClass(SetScopeDiscountPackager::class)]
 #[Package('checkout')]
-class SetGroupScopeDiscountPackagerTest extends TestCase
+class SetScopeDiscountPackagerTest extends TestCase
 {
     public function testGroupDefinitionsBuiltFromPayload(): void
     {
@@ -46,7 +46,7 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
             });
 
         $payload = [
-            'discountScope' => 'setgroup',
+            'discountScope' => 'set',
             'discountType' => 'absolute',
             'setGroups' => [
                 [
@@ -66,7 +66,7 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
             ],
         ];
 
-        (new SetGroupScopeDiscountPackager($builder, $ruleResolver))->getMatchingItems(
+        (new SetScopeDiscountPackager($builder, $ruleResolver))->getMatchingItems(
             new DiscountLineItem('label', new AbsolutePriceDefinition(10), $payload, null),
             new Cart('token'),
             static::createStub(SalesChannelContext::class),

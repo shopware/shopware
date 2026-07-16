@@ -160,8 +160,8 @@ class DocumentConfigLoaderTest extends TestCase
             $this->createSystemConfigService(),
         );
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/itemsPerPage/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/itemsPerPage/');
 
         $loader->load(
             DocumentType::INVOICE->value,
@@ -246,8 +246,8 @@ class DocumentConfigLoaderTest extends TestCase
             ], $salesChannelId),
         );
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/companyCountry|companyStreet|companyZipcode|companyCity/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/companyCountry|companyStreet|companyZipcode|companyCity/');
 
         $loader->load(
             DocumentType::INVOICE->value,

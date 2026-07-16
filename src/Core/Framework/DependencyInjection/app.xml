@@ -10,6 +10,7 @@
 
     <services>
         <service id="Shopware\Core\Framework\App\Manifest\ManifestFactory">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber">
@@ -183,11 +184,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\AppStateService">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
-            <argument type="service" id="app.repository"/>
-        </service>
-
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
@@ -226,7 +222,6 @@
         <service id="Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService">
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway">
@@ -277,7 +272,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="integration.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
@@ -286,6 +280,10 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator">
             <argument>%kernel.environment%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppStorage">
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
@@ -302,6 +300,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
@@ -323,7 +323,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -489,8 +489,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider"/>
-            <argument type="service" id="app.repository"/>
 
             <tag name="console.command"/>
         </service>
@@ -506,21 +504,21 @@
 
         <service id="Shopware\Core\Framework\App\Command\UninstallAppCommand">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\ActivateAppCommand">
-            <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\DeactivateAppCommand">
-            <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
 
             <tag name="console.command"/>
         </service>
@@ -545,7 +543,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\AppListCommand">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
 
             <tag name="console.command"/>
         </service>
@@ -573,20 +571,19 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="100"/>
         </service>

@@ -7,20 +7,10 @@
 >
     <template #trigger>
         {% block sw_notification_center_context_button_button_slot %}
-        <mt-button
-            class="sw-notification-center__context-button"
-            :class="[additionalContextButtonClass, { 'is--active': isOpened }]"
-            variant="tertiary"
-            square
-            size="default"
-            :aria-label="$t('global.notification-center.triggerAriaLabel')"
-            @click="togglePanel"
-        >
-            <mt-icon
-                name="bell"
-                size="var(--scale-size-20)"
-            />
-        </mt-button>
+        <mt-icon
+            name="regular-bell"
+            size="20px"
+        />
         {% endblock %}
     </template>
 

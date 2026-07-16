@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\Lock\SharedLockInterface;
 
 /**
  * @internal
@@ -81,7 +81,7 @@ class McpSessionRegistryTest extends TestCase
 
     public function testMutationsAcquireAndReleaseAScopeSpecificLock(): void
     {
-        $lock = $this->createMock(LockInterface::class);
+        $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->exactly(2))->method('acquire')->with(true);
         $lock->expects($this->exactly(2))->method('release');
 

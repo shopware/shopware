@@ -161,8 +161,20 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
-        static::assertArrayHasKey('result', $response, 'Store API MCP response missing result: ' . $content);
 
-        return $response['result'];
+        // A request issued right after a toolset-enable also drains the queued
+        // notifications/tools/list_changed, so the body may be a JSON-RPC batch
+        // [notification, response]. Return the result of the message that carries one.
+        $messages = \array_key_exists('result', $response) || \array_key_exists('error', $response)
+            ? [$response]
+            : $response;
+
+        foreach ($messages as $message) {
+            if (\is_array($message) && \array_key_exists('result', $message)) {
+                return $message['result'];
+            }
+        }
+
+        static::fail('Store API MCP response missing result: ' . $content);
     }
 }

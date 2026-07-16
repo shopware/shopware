@@ -27,6 +27,10 @@ class RegistrationIdempotencyGuard
 {
     private const LOCK_TTL = 30.0;
 
+    private const LOCK_WAIT_TIMEOUT = 5.0;
+
+    private const LOCK_RETRY_DELAY_US = 50000;
+
     private const MARKER_TTL = 30;
 
     private const MARKER_KEY_PREFIX = 'customer-registration-';
@@ -37,6 +41,7 @@ class RegistrationIdempotencyGuard
         private readonly LockFactory $lockFactory,
         private readonly CacheItemPoolInterface $cache,
         private readonly LoggerInterface $logger,
+        private readonly float $lockWaitTimeout = self::LOCK_WAIT_TIMEOUT,
     ) {
     }
 
@@ -72,7 +77,7 @@ class RegistrationIdempotencyGuard
         }
 
         try {
-            $acquired = $lock->acquire(true);
+            $acquired = $this->acquireWithDeadline($lock);
         } catch (\Throwable $e) {
             // acquire() can throw after the store already saved the lock, do not strand it until the TTL expires
             $this->releaseSilently($lock);
@@ -82,7 +87,7 @@ class RegistrationIdempotencyGuard
         }
 
         if (!$acquired) {
-            $this->logger->warning('Registration lock was not acquired, executing the registration unguarded.');
+            $this->logger->warning('Registration lock was not acquired within the wait deadline, executing the registration unguarded.');
 
             return $register();
         }
@@ -123,11 +128,15 @@ class RegistrationIdempotencyGuard
             return null;
         }
 
-        if (!\is_array($marker) || !\is_string($marker['customerId'] ?? null) || !Uuid::isValid($marker['customerId'])) {
+        if (!\is_array($marker)
+            || !\array_key_exists('newContextToken', $marker)
+            || !\is_string($marker['customerId'] ?? null)
+            || !Uuid::isValid($marker['customerId'])
+        ) {
             return null;
         }
 
-        $newContextToken = $marker['newContextToken'] ?? null;
+        $newContextToken = $marker['newContextToken'];
         if ($newContextToken !== null && (!\is_string($newContextToken) || $newContextToken === '')) {
             return null;
         }
@@ -158,6 +167,28 @@ class RegistrationIdempotencyGuard
             }
         } catch (\Throwable $e) {
             $this->logger->warning('Registration marker could not be saved.', ['exception' => $e]);
+        }
+    }
+
+    /**
+     * Non-blocking acquire under a bounded retry budget of roughly $lockWaitTimeout seconds:
+     * blocking acquires wait indefinitely (the default FlockStore ignores TTLs entirely), which
+     * would let requests sharing one token pile up on the worker pool.
+     */
+    private function acquireWithDeadline(SharedLockInterface $lock): bool
+    {
+        $retries = (int) ceil($this->lockWaitTimeout * 1000000 / self::LOCK_RETRY_DELAY_US);
+
+        while (true) {
+            if ($lock->acquire()) {
+                return true;
+            }
+
+            if (--$retries < 0) {
+                return false;
+            }
+
+            usleep(self::LOCK_RETRY_DELAY_US);
         }
     }
 

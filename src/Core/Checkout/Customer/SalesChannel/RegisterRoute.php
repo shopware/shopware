@@ -157,7 +157,7 @@ class RegisterRoute extends AbstractRegisterRoute
         return $this->idempotencyGuard->guard(
             $context->getSalesChannelId(),
             $context->getToken(),
-            $this->buildRequestDigest($data, $validateStorefrontUrl, $additionalValidationDefinitions),
+            $this->buildRequestDigest($data, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
             fn (): CustomerResponse => $this->processRegistration($data, $isGuest, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
             fn (string $customerId, ?string $newContextToken): ?CustomerResponse => $this->replayRegistration($customerId, $newContextToken, $context),
         );
@@ -305,6 +305,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function buildRequestDigest(
         RequestDataBag $data,
+        SalesChannelContext $context,
         bool $validateStorefrontUrl,
         ?DataValidationDefinition $additionalValidationDefinitions
     ): string {
@@ -314,9 +315,13 @@ class RegisterRoute extends AbstractRegisterRoute
             unset($payload[$field]);
         }
 
+        // language and customer group are persisted on the customer, so they change the
+        // registration outcome even for an identical payload
         $mode = ($validateStorefrontUrl ? '1' : '0')
             . '|'
-            . ($additionalValidationDefinitions === null ? 'none' : 'additional:' . $additionalValidationDefinitions->getName());
+            . ($additionalValidationDefinitions === null ? 'none' : 'additional:' . $additionalValidationDefinitions->getName())
+            . '|' . $context->getLanguageId()
+            . '|' . $context->getCustomerGroupId();
 
         return hash_hmac(
             'sha256',
@@ -391,6 +396,9 @@ class RegisterRoute extends AbstractRegisterRoute
         ) {
             return null;
         }
+
+        // the normal path assigns the rotated token to the passed context, mirror that for decorators
+        $context->assign(['token' => $newContextToken]);
 
         $this->eventDispatcher->dispatch(new CustomerRegistrationReplayedEvent($newContextToken, $customerId));
 

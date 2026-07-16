@@ -313,6 +313,7 @@ class RegistrationIdempotencyGuardTest extends TestCase
         yield 'marker is not an array' => ['not-an-array'];
         yield 'customer id is missing' => [['newContextToken' => 'winner-token']];
         yield 'customer id is not a uuid' => [['customerId' => 'not-a-uuid', 'newContextToken' => 'winner-token']];
+        yield 'context token key is missing, a null token would wrongly replay as double-opt-in' => [['customerId' => Uuid::randomHex()]];
         yield 'context token is an empty string' => [['customerId' => Uuid::randomHex(), 'newContextToken' => '']];
         yield 'context token is not a string' => [['customerId' => Uuid::randomHex(), 'newContextToken' => 42]];
     }
@@ -527,7 +528,7 @@ class RegistrationIdempotencyGuardTest extends TestCase
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())
             ->method('acquire')
-            ->with(true)
+            ->with(false)
             ->willThrowException(new \RuntimeException('lock store failed'));
         $lock->expects($this->once())->method('release');
         $lockFactory = $this->createLockFactory($lock);
@@ -561,13 +562,13 @@ class RegistrationIdempotencyGuardTest extends TestCase
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
-    public function testUnacquiredLockRunsTheRegistrationUnguarded(): void
+    public function testUnacquiredLockRunsTheRegistrationUnguardedAfterTheWaitDeadline(): void
     {
         $cache = new ArrayAdapter();
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())
             ->method('acquire')
-            ->with(true)
+            ->with(false)
             ->willReturn(false);
         $lock->expects($this->never())->method('release');
         $lockFactory = $this->createLockFactory($lock);
@@ -591,14 +592,57 @@ class RegistrationIdempotencyGuardTest extends TestCase
             return null;
         };
 
-        $guard = new RegistrationIdempotencyGuard($lockFactory, $cache, $logger);
+        // an already exhausted deadline keeps the test free of retry sleeps
+        $guard = new RegistrationIdempotencyGuard($lockFactory, $cache, $logger, lockWaitTimeout: 0.0);
         $result = $guard->guard(self::SALES_CHANNEL_ID, self::CONTEXT_TOKEN, self::REQUEST_DIGEST, $register, $replay);
 
         static::assertSame($response, $result);
         static::assertSame(1, $registerCalls);
         static::assertSame(0, $replayCalls);
-        static::assertContains('Registration lock was not acquired, executing the registration unguarded.', $warnings);
+        static::assertContains('Registration lock was not acquired within the wait deadline, executing the registration unguarded.', $warnings);
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
+    }
+
+    public function testContendedLockIsRetriedAndAcquiredWithinTheWaitDeadline(): void
+    {
+        $cache = new ArrayAdapter();
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->exactly(2))
+            ->method('acquire')
+            ->with(false)
+            ->willReturnOnConsecutiveCalls(false, true);
+        $lock->expects($this->once())->method('release');
+        $lockFactory = $this->createLockFactory($lock);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $customerId = Uuid::randomHex();
+        $response = $this->createCustomerResponse($customerId, 'new-context-token');
+
+        $registerCalls = 0;
+        $register = static function () use (&$registerCalls, $response): CustomerResponse {
+            ++$registerCalls;
+
+            return $response;
+        };
+
+        $replayCalls = 0;
+        $replay = static function () use (&$replayCalls): ?CustomerResponse {
+            ++$replayCalls;
+
+            return null;
+        };
+
+        $guard = new RegistrationIdempotencyGuard($lockFactory, $cache, $logger, lockWaitTimeout: 5.0);
+        $result = $guard->guard(self::SALES_CHANNEL_ID, self::CONTEXT_TOKEN, self::REQUEST_DIGEST, $register, $replay);
+
+        static::assertSame($response, $result);
+        static::assertSame(1, $registerCalls);
+        static::assertSame(0, $replayCalls);
+        static::assertSame(
+            ['customerId' => $customerId, 'newContextToken' => 'new-context-token'],
+            $cache->getItem(self::markerKey())->get()
+        );
     }
 
     public function testMarkerSaveReturningFalseDoesNotChangeTheResponse(): void
@@ -811,7 +855,7 @@ class RegistrationIdempotencyGuardTest extends TestCase
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->exactly($expectedAcquisitions))
             ->method('acquire')
-            ->with(true)
+            ->with(false)
             ->willReturn(true);
 
         return $lock;

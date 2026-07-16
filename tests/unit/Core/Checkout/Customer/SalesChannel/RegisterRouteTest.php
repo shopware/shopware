@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -23,6 +24,8 @@ use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\RegistrationIdempotencyGuard;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -1277,12 +1280,16 @@ class RegisterRouteTest extends TestCase
         $data = $this->createRegistrationData();
 
         $firstResponse = $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(), false);
-        $secondResponse = $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(), false);
+
+        $replayedRequestContext = $this->createRequestContext();
+        $secondResponse = $registerRoute->register(new RequestDataBag($data), $replayedRequestContext, false);
 
         static::assertCount(1, $customerRepository->creates);
         static::assertSame(self::WINNER_CONTEXT_TOKEN, $firstResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame(self::WINNER_CONTEXT_TOKEN, $secondResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame($customerId, $secondResponse->getCustomer()->getId());
+        // the replay assigns the rotated token to the passed context, mirroring the normal path
+        static::assertSame(self::WINNER_CONTEXT_TOKEN, $replayedRequestContext->getToken());
 
         static::assertCount(1, $replayedEvents);
         $replayedEvent = current($replayedEvents);
@@ -1685,6 +1692,46 @@ class RegisterRouteTest extends TestCase
         static::assertCount(2, $customerRepository->creates);
     }
 
+    public function testSamePayloadWithDifferentLanguageIsNotReplayed(): void
+    {
+        $customer = $this->createActiveCustomer(Uuid::randomHex());
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customer]), new CustomerCollection([$customer])],
+            new CustomerDefinition(),
+        );
+
+        $registerRoute = $this->createRegisterRoute(customerRepository: $customerRepository);
+
+        $data = $this->createRegistrationData();
+
+        $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(), false);
+        $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(languageId: Uuid::randomHex()), false);
+
+        static::assertCount(2, $customerRepository->creates);
+    }
+
+    public function testSamePayloadWithDifferentCustomerGroupIsNotReplayed(): void
+    {
+        $customer = $this->createActiveCustomer(Uuid::randomHex());
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customer]), new CustomerCollection([$customer])],
+            new CustomerDefinition(),
+        );
+
+        $registerRoute = $this->createRegisterRoute(customerRepository: $customerRepository);
+
+        $data = $this->createRegistrationData();
+
+        $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(), false);
+        $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(customerGroupId: Uuid::randomHex()), false);
+
+        static::assertCount(2, $customerRepository->creates);
+    }
+
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */
@@ -1799,9 +1846,20 @@ class RegisterRouteTest extends TestCase
      * Creates a fresh customer-less context per request, sharing the context token across the
      * requests of one double submission like the storefront session does.
      */
-    private function createRequestContext(): SalesChannelContext
+    private function createRequestContext(?string $languageId = null, ?string $customerGroupId = null): SalesChannelContext
     {
-        $context = Generator::generateSalesChannelContext(token: 'duplicated-request-token');
+        $customerGroup = null;
+        if ($customerGroupId !== null) {
+            $customerGroup = new CustomerGroupEntity();
+            $customerGroup->setId($customerGroupId);
+            $customerGroup->setDisplayGross(true);
+        }
+
+        $context = Generator::generateSalesChannelContext(
+            baseContext: $languageId === null ? null : new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]),
+            token: 'duplicated-request-token',
+            currentCustomerGroup: $customerGroup,
+        );
         $context->getSalesChannel()->setDomains(new SalesChannelDomainCollection());
 
         return $context;

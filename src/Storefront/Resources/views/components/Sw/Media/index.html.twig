@@ -4,15 +4,29 @@
 
 {% props
     media,
+    previewMode = false,
+    autoplay = false,
 %}
 
 {% set mediaType = media.getMediaType().getName() %}
 {% set isSpatial = media.isSpatialObject() %}
 
 {% if isSpatial %}
-    <twig:Sw:Media:Spacial :media="media" {{ ...attributes }}></twig:Sw:Media:Spacial>
+    <twig:Sw:Media:Spatial {{ ...attributes }} 
+        :media="media"
+        :previewMode="previewMode"
+    >
+    </twig:Sw:Media:Spatial>
 {% elseif mediaType === 'VIDEO' %}
-    {# Video #}
+    <twig:Sw:Media:Video {{ ...attributes }}
+        :media="media"
+        :previewMode="previewMode"
+        :autoplay="autoplay"
+    >
+    </twig:Sw:Media:Video>
 {% else %}
-    <twig:Sw:Media:Image :media="media" {{ ...attributes }}></twig:Sw:Media:Image>
+    <twig:Sw:Media:Image {{ ...attributes }}
+        :media="media"
+    >
+    </twig:Sw:Media:Image>
 {% endif %}

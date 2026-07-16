@@ -1,0 +1,42 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+{# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+
+{% props
+    qrCodeOptions = null,
+%}
+
+{% block spatial_ar_qr_code_modal_open_ar_session %}
+    <twig:Sw:Content:Modal
+        id="ar-qr-session-modal"
+        title="{{ 'spatial.ar.augmentedRealityView'|trans|striptags }}"
+        :fullscreen="true"
+        class="ar-qr-modal-open-session"
+    >
+        {% block content %}
+            <div class="ar-splash-screen text-center m-3 position-relative">
+                <div class="floor-splash-icon text-center my-3 mx-auto position-absolute mt-2">
+                    {% sw_icon 'floor-ar-splash' style {
+                        size: 'fluid'
+                    } %}
+                </div>
+                <div class="cube-splash-icon text-center my-3 mx-auto position-absolute">
+                    {% sw_icon 'cube-3d-shade' style {
+                        size: 'fluid',
+                        color: '#000'
+                    } %}
+                </div>
+                <button class="ar-btn-open-session btn btn-primary mx-auto position-absolute mb-2"
+                    {% if qrCodeOptions.params.autostartAr %}data-modal-open-ar-session-autostart="{{ qrCodeOptions.params.autostartAr }}"{% endif %}>
+                    <div class="ar-btn-icon-with-label">
+                        {% sw_icon 'augmented' style {
+                            size: 'sm'
+                        } %}
+                        <span id="ar-btn-open-session-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
+                    </div>
+                </button>
+            </div>
+        {% endblock %}
+    </twig:Sw:Content:Modal>
+{% endblock %}

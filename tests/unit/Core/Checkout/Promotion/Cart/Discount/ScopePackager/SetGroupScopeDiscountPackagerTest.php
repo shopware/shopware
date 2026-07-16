@@ -4,17 +4,20 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart\Discount\ScopePackage
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -23,12 +26,20 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class SetGroupScopeDiscountPackagerTest extends TestCase
 {
-    public function testFormatRuleCollection(): void
+    public function testResolvePersistedRuleCollection(): void
     {
+        $rule = new RuleEntity();
+        $rule->setId(Uuid::randomHex());
+        $rule->setName('Rule Name');
+        $rule->setPayload(new AlwaysValidRule());
+
+        $ruleLoader = static::createStub(AbstractRuleLoader::class);
+        $ruleLoader->method('load')->willReturn(new RuleCollection([$rule]));
+
         $builder = static::createStub(LineItemGroupBuilder::class);
         $builder
             ->method('findGroupPackages')
-            ->willReturnCallback(static function (array $groupDefinitions) {
+            ->willReturnCallback(static function (array $groupDefinitions) use ($rule) {
                 static::assertCount(4, $groupDefinitions);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[0]);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[1]);
@@ -41,7 +52,9 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
                 $unset = $groupDefinitions[3]->getRules();
 
                 static::assertCount(1, $array);
-                static::assertSame('Rule Name', $array->first()?->getName());
+                static::assertSame($rule, $array->first());
+                static::assertSame('Rule Name', $array->first()->getName());
+                static::assertInstanceOf(AlwaysValidRule::class, $array->first()->getPayload());
                 static::assertCount(0, $collection);
                 static::assertCount(0, $null);
                 static::assertCount(0, $unset);
@@ -58,7 +71,7 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
                     'packagerKey' => 'key',
                     'value' => 10,
                     'sorterKey' => 'ASC',
-                    'rules' => [['id' => Uuid::randomHex(), 'name' => 'Rule Name']],
+                    'rules' => [['id' => $rule->getId(), 'name' => 'Rule Name']],
                 ],
                 [
                     'groupId' => Uuid::randomHex(),
@@ -83,10 +96,10 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
             ],
         ];
 
-        (new SetGroupScopeDiscountPackager($builder))->getMatchingItems(
+        (new SetGroupScopeDiscountPackager($builder, $ruleLoader))->getMatchingItems(
             new DiscountLineItem('label', new AbsolutePriceDefinition(10), $payload, null),
             new Cart('token'),
-            static::createStub(SalesChannelContext::class)
+            Generator::generateSalesChannelContext(),
         );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
+use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
@@ -23,8 +24,10 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
     /**
      * @internal
      */
-    public function __construct(private readonly LineItemGroupBuilder $groupBuilder)
-    {
+    public function __construct(
+        private readonly LineItemGroupBuilder $groupBuilder,
+        private readonly AbstractRuleLoader $ruleLoader,
+    ) {
     }
 
     public function getDecorated(): DiscountPackager
@@ -43,7 +46,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
         /** @var array<mixed> $groups */
         $groups = $discount->getPayloadValue('setGroups');
 
-        $groupDefinitions = $this->buildGroupDefinitionList($groups);
+        $groupDefinitions = $this->buildGroupDefinitionList($groups, $context);
 
         $resultGroups = $this->groupBuilder->findGroupPackages($groupDefinitions, $cart, $context);
 
@@ -56,7 +59,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
         /** @var string $groupId */
         $groupId = $discount->getPayloadValue('groupId');
 
-        $definition = $this->getGroupDefinition($groupId, $groups);
+        $definition = $this->getGroupDefinition($groupId, $groups, $context);
 
         $result = $resultGroups->getResult($definition->getId());
 
@@ -88,7 +91,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      *
      * @param array<mixed> $groups
      */
-    private function getGroupDefinition(string $groupId, array $groups): LineItemGroupDefinition
+    private function getGroupDefinition(string $groupId, array $groups, SalesChannelContext $context): LineItemGroupDefinition
     {
         $index = 1;
 
@@ -99,7 +102,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
                     $group['packagerKey'],
                     $group['value'],
                     $group['sorterKey'],
-                    $this->getRules($group['rules'] ?? null)
+                    $this->getRules($group['rules'] ?? null, $group['groupId'], $context)
                 );
             }
 
@@ -134,7 +137,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      *
      * @return LineItemGroupDefinition[]
      */
-    private function buildGroupDefinitionList(array $groups): array
+    private function buildGroupDefinitionList(array $groups, SalesChannelContext $context): array
     {
         $definitions = [];
         foreach ($groups as $group) {
@@ -143,7 +146,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
                 $group['packagerKey'],
                 $group['value'],
                 $group['sorterKey'],
-                $this->getRules($group['rules'] ?? null)
+                $this->getRules($group['rules'] ?? null, $group['groupId'], $context)
             );
         }
 
@@ -153,13 +156,24 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
     /**
      * @param RuleCollection|array<mixed>|null $rules
      */
-    private function getRules(RuleCollection|array|null $rules): RuleCollection
+    private function getRules(RuleCollection|array|null $rules, string $groupId, SalesChannelContext $context): RuleCollection
     {
         $rules ??= new RuleCollection();
-        if (!\is_array($rules)) {
-            return $rules;
+        if (!$rules instanceof RuleCollection) {
+            $loadedRules = $this->ruleLoader->load($context->getContext());
+            $resolvedRules = new RuleCollection();
+
+            foreach ($rules as $rule) {
+                if (!\is_array($rule) || !\is_string($rule['id'] ?? null) || ($loadedRule = $loadedRules->get($rule['id'])) === null) {
+                    throw PromotionException::promotionSetGroupNotFound($groupId);
+                }
+
+                $resolvedRules->add($loadedRule);
+            }
+
+            return $resolvedRules;
         }
 
-        return (new RuleCollection())->assignRecursive($rules);
+        return $rules;
     }
 }

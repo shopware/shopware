@@ -4,7 +4,15 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      nightly:
+        type: string
+        default: ""
   workflow_call:
+    inputs:
+      nightly:
+        type: string
+        default: ""
 
 env:
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
@@ -177,11 +185,13 @@ jobs:
         env:
           NPM_CONFIG_PREFIX: ${{ github.workspace }}/var/cache/npm
         run: |
-          echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> $GITHUB_ENV
+          echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> "$GITHUB_ENV"
           curl localhost:8000/
           npm i -g @redocly/cli@2.19.0 @shopware/api-gen
-          export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
-          export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
+          STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
+          export STOREFRONT_ID
+          OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
+          export OPENAPI_ACCESS_KEY
           echo -e "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
           cat .env
 
@@ -317,7 +327,10 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
       - name: Check license
-        run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
+        run: |
+          # Word splitting is intentional: expand .allowed-licenses into repeated "-a <license>" args.
+          # shellcheck disable=SC2046
+          vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
 
   composer-audit:
     needs:

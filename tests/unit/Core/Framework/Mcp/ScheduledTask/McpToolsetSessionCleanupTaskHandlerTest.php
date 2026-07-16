@@ -23,7 +23,7 @@ class McpToolsetSessionCleanupTaskHandlerTest extends TestCase
 
     public function testRunDeletesOnlyRowsWhoseSessionIsNotAliveOrIsMalformed(): void
     {
-        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage = static::createStub(McpToolsetSessionStorage::class);
         $storage->method('sessionIds')->willReturn([self::ALIVE_SESSION, self::EXPIRED_SESSION, self::MALFORMED_SESSION]);
 
         $sessionStore = static::createStub(SessionStoreInterface::class);

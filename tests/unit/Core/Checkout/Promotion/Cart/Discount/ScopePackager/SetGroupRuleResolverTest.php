@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart\Discount\ScopePackage
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -77,17 +78,26 @@ class SetGroupRuleResolverTest extends TestCase
         $ruleEntity->setId($ruleId);
         $ruleEntity->setName('Test Rule');
         $ruleEntity->setUniqueIdentifier($ruleId);
+        $ruleEntity->setPayload(new AlwaysValidRule());
+
+        $serializedRules = json_decode(
+            json_encode(new RuleCollection([$ruleEntity]), \JSON_THROW_ON_ERROR),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR,
+        );
 
         $ruleLoader = static::createStub(AbstractRuleLoader::class);
         $ruleLoader->method('load')->willReturn(new RuleCollection([$ruleEntity]));
 
         $result = (new SetGroupRuleResolver($ruleLoader))->resolve(
-            ['rules' => [['id' => $ruleId, 'name' => 'Test Rule']], 'groupId' => Uuid::randomHex()],
+            ['rules' => $serializedRules, 'groupId' => Uuid::randomHex()],
             Context::createDefaultContext(),
         );
 
         static::assertCount(1, $result);
-        static::assertSame($ruleId, $result->first()?->getId());
+        static::assertSame($ruleEntity, $result->first());
+        static::assertInstanceOf(AlwaysValidRule::class, $result->first()->getPayload());
     }
 
     public function testMultipleArrayRulesRehydrated(): void
@@ -133,6 +143,19 @@ class SetGroupRuleResolverTest extends TestCase
 
         (new SetGroupRuleResolver($ruleLoader))->resolve(
             ['rules' => [['id' => Uuid::randomHex()]], 'groupId' => $groupId],
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testMalformedRuleThrows(): void
+    {
+        $groupId = Uuid::randomHex();
+        $ruleLoader = static::createStub(AbstractRuleLoader::class);
+
+        $this->expectExceptionObject(PromotionException::promotionSetGroupNotFound($groupId));
+
+        (new SetGroupRuleResolver($ruleLoader))->resolve(
+            ['rules' => [['name' => 'Rule without id']], 'groupId' => $groupId],
             Context::createDefaultContext(),
         );
     }

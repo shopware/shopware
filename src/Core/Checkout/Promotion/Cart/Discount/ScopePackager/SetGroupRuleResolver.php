@@ -5,16 +5,15 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('checkout')]
 readonly class SetGroupRuleResolver
 {
-    /**
-     * @internal
-     */
     public function __construct(private AbstractRuleLoader $ruleLoader)
     {
     }
@@ -30,24 +29,34 @@ readonly class SetGroupRuleResolver
             return $rules;
         }
 
-        if ($rules === null) {
+        if ($rules === null || $rules === []) {
             return new RuleCollection();
         }
 
-        $ruleIds = array_column((array) $rules, 'id');
-
-        if ($ruleIds === []) {
-            return new RuleCollection();
-        }
-
-        $loaded = $this->ruleLoader->load($context)->filter(
-            static fn (RuleEntity $rule): bool => \in_array($rule->getId(), $ruleIds, true),
-        );
-
-        if ($loaded->count() !== \count($ruleIds)) {
+        if (!\is_array($rules)) {
             throw PromotionException::promotionSetGroupNotFound((string) ($group['groupId'] ?? ''));
         }
 
-        return new RuleCollection($loaded->getElements());
+        $ruleIds = [];
+        foreach ($rules as $rule) {
+            if (!\is_array($rule) || !\is_string($rule['id'] ?? null)) {
+                throw PromotionException::promotionSetGroupNotFound((string) ($group['groupId'] ?? ''));
+            }
+
+            $ruleIds[] = $rule['id'];
+        }
+
+        $loadedRules = $this->ruleLoader->load($context);
+        $resolvedRules = new RuleCollection();
+
+        foreach ($ruleIds as $ruleId) {
+            if (($loadedRule = $loadedRules->get($ruleId)) === null) {
+                throw PromotionException::promotionSetGroupNotFound((string) ($group['groupId'] ?? ''));
+            }
+
+            $resolvedRules->add($loadedRule);
+        }
+
+        return $resolvedRules;
     }
 }

@@ -33,7 +33,7 @@ class DocumentDataProviderRegistryTest extends TestCase
 
     public function testGetProvidersByDocumentTypeThrowsOnDuplicateProviderKeys(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::duplicateProviderKey('duplicate', DocumentType::INVOICE->value)
         );
 

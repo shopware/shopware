@@ -10,11 +10,11 @@
 
     <services>
         <service id="Shopware\Core\Service\Api\ServiceController" public="true">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
             <argument type="service" id="messenger.default_bus"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Service\Api\PermissionController" public="true">
@@ -36,16 +36,31 @@
         </service>
 
         <service id="Shopware\Core\Service\ServiceLifecycle">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Service\ServiceStorage">
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Command\UninstallAppCommandDecorator"
+                 decorates="Shopware\Core\Framework\App\Command\UninstallAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+
+            <tag name="console.command" command="app:uninstall"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceClientFactory">
@@ -58,11 +73,10 @@
 
         <service id="Shopware\Core\Service\AllServiceInstaller">
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
-            <argument type="service" id="app.repository"/>
             <argument type="service" id="messenger.bus.default"/>
             <argument type="service" id="event_dispatcher"/>
-
         </service>
 
         <service id="Shopware\Core\Service\ScheduledTask\InstallServicesTask">
@@ -148,6 +162,11 @@
             <tag name="shopware.service.requirement"/>
         </service>
 
+        <service id="Shopware\Core\Service\Requirement\ServicesEnabledRequirement">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
         <service id="Shopware\Core\Service\Requirement\ShopwareAccountRequirement">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.service.requirement"/>
@@ -162,8 +181,8 @@
             <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
@@ -185,6 +204,12 @@
 
         <service id="Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Subscriber\ServiceWriteProtectionSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

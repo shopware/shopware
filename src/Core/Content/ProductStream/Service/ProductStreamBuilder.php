@@ -58,9 +58,9 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
     {
         $criteria = new Criteria([$id]);
 
-        /** @var ProductStreamEntity|null $stream */
         $stream = $this->repository
             ->search($criteria, $context)
+            ->getEntities()
             ->get($id);
 
         if (!$stream) {

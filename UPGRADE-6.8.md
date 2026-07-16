@@ -176,6 +176,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Landing page slot config must not be null
+
+`LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
+
 ## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
 
 `EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.
@@ -434,11 +438,10 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
 - \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
 
-## Thrown exception changed in migration helper traits
+## Behavior change in migration helper traits for missing tables
 
-Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
-- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
-- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+`\Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists` no longer throws a `\Doctrine\DBAL\Exception\TableNotFoundException` when the given table does not exist — it returns `false` instead.
+`\Shopware\Core\Framework\Migration\AddColumnTrait::addColumn` still throws a `\Doctrine\DBAL\Exception\TableNotFoundException` for missing tables (from the executed `ALTER TABLE` statement).
 
 ## Cache improvements
 
@@ -646,6 +649,9 @@ Profiles are now identified and displayed only by their technical name.
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
   - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- The `importExportProfileTranslations` association has been removed from `Shopware\Core\System\Language\LanguageDefinition`, and the following methods in `Shopware\Core\System\Language\LanguageEntity` have been removed:
+  - `getImportExportProfileTranslations()`
+  - `setImportExportProfileTranslations()`
 - `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
 - `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
 
@@ -875,6 +881,23 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 ```
 
 </details>
+
+## Moved `UnmappedFieldException`
+
+`UnmappedFieldException` was moved out of the DBAL sub-namespace into the DAL exception namespace, and `DataAbstractionLayerException::unmappedField()` now returns it:
+
+* Before: `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException`
+* After: `Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException`
+
+Update your `use` and `catch` statements accordingly:
+
+```php
+// Before
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+
+// After
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+```
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
 
@@ -1927,6 +1950,15 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 - Client-side caching (browser cache) now respects your configured policies.
 - Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
+The following extension points that only existed to steer this listener were removed together with it:
+
+- `Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent`
+- `Shopware\Administration\Controller\AdministrationController::CACHE_ID_HEADER` and `::CACHE_ID_ADMINISTRATION`
+
+The `X-Shopware-Cache-Id: administration` response header is therefore no longer emitted for administration responses.
+
+Migration: A listener on `BeforeCacheControlEvent` that called `skipCacheControl()` to protect its own `Cache-Control` headers is no longer needed, because those headers are now sent as-is; remove the listener. If you matched on the `X-Shopware-Cache-Id` response header (for example in a CDN or reverse-proxy rule) to detect administration responses, match on other attributes.
+
 ### Removed HTTP cache reverse proxy configuration options
 
 The following HTTP cache reverse proxy configuration options have been removed as they had no effect anymore:
@@ -2032,6 +2064,10 @@ Instead, you must use the `type` field to indicate the product type.
 The `states` field of the `line_item` and `order_line_item` entity has also been removed.
 Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
+
+The `type` field is required as of 6.8. Products and variants created without an explicit `type` default to `physical`.
+Because `type` is immutable, this default cannot be changed afterwards — always send `type` explicitly when creating variants of `digital` products, otherwise they are permanently created as `physical`.
+Converting a variant into a standalone product (writing `parentId: null`) requires sending `type` in the same payload, analogous to the other required fields such as `price` and `taxId`.
 
 ## Customer group registration flow events no longer use a SalesChannelContext
 

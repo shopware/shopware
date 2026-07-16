@@ -11,7 +11,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 /**
  * @internal
@@ -29,8 +29,8 @@ class Elasticsearch extends Bundle
         parent::build($container);
         $this->buildDefaultConfig($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
-        $loader->load('services.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
+        $loader->load('services.php');
 
         $container->addCompilerPass(new ElasticsearchMigrationCompilerPass());
 

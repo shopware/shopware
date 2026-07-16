@@ -317,7 +317,6 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext(),
             ],
             server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
@@ -338,12 +337,9 @@ class StorefrontSubscriberTest extends TestCase
         static::assertTrue($request->getSession()->has('sessionId'));
     }
 
-    public function testDoesNotStartSessionForStoreApiRequest(): void
+    public function testDoesNotStartSessionWithoutStorefrontSalesChannelMarker(): void
     {
-        $request = new Request(attributes: [
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
-        ]);
+        $request = new Request();
         $factoryCalls = 0;
         $request->setSessionFactory(static function () use (&$factoryCalls): Session {
             ++$factoryCalls;
@@ -367,7 +363,6 @@ class StorefrontSubscriberTest extends TestCase
         $mainRequest = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => 'test-sales-channel-id',
             ]
         );
@@ -492,7 +487,6 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]
         );
@@ -523,7 +517,6 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]
         );
@@ -569,7 +562,6 @@ class StorefrontSubscriberTest extends TestCase
         $requestA = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdA,
             ]
         );
@@ -591,7 +583,6 @@ class StorefrontSubscriberTest extends TestCase
         $requestB = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdB,
             ]
         );
@@ -614,7 +605,6 @@ class StorefrontSubscriberTest extends TestCase
         $requestA2 = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelIdA,
             ]
         );

@@ -13,6 +13,8 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -59,6 +61,7 @@ class StoreApiMcpServerController
         private readonly McpAllowedHostsProvider $allowedHostsProvider,
         private readonly ?LoggerInterface $logger = null,
         private readonly ?McpSessionRegistry $sessionRegistry = null,
+        private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
 
@@ -98,9 +101,36 @@ class StoreApiMcpServerController
 
         $psrResponse = $this->server->run($transport);
         $this->registerSession($psrResponse);
+        $this->flushPendingToolsListChanged($request);
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    /**
+     * Emits a tools/listChanged for the current store-api session when a tool asked for it (e.g.
+     * shopware-toolset-enable). Runs after {@see Server::run()} has persisted the SDK session, so
+     * the queued notification is not overwritten and the client drains it on its next poll.
+     */
+    private function flushPendingToolsListChanged(Request $request): void
+    {
+        if ($this->listChangedNotifier === null) {
+            return;
+        }
+
+        if (!$request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE)) {
+            return;
+        }
+
+        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->listChangedNotifier->notifySession(
+            $sessionId,
+            new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
+        );
     }
 
     /**

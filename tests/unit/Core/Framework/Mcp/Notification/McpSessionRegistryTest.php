@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 
 /**
  * @internal
@@ -75,6 +77,30 @@ class McpSessionRegistryTest extends TestCase
 
         static::assertSame(['admin-session'], $admin->all());
         static::assertSame([], $storeApi->all());
+    }
+
+    public function testMutationsAcquireAndReleaseAScopeSpecificLock(): void
+    {
+        $lock = $this->createMock(LockInterface::class);
+        $lock->expects($this->exactly(2))->method('acquire')->with(true);
+        $lock->expects($this->exactly(2))->method('release');
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->expects($this->exactly(2))
+            ->method('createLock')
+            ->with('mcp.session_registry.shopware.mcp.active_session_ids')
+            ->willReturn($lock);
+
+        $registry = new McpSessionRegistry(
+            new Psr16Cache(new ArrayAdapter()),
+            'shopware.mcp.active_session_ids',
+            $lockFactory,
+        );
+
+        $registry->register('session-a');
+        $registry->remove('session-a');
+
+        static::assertSame([], $registry->all());
     }
 
     public function testDefaultCacheKeyIsUsedWhenNoneProvided(): void

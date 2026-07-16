@@ -59,6 +59,35 @@ class McpSessionCleanupSubscriberTest extends TestCase
         static::assertSame([], $sessionRegistry->all());
     }
 
+    public function testStoreApiDeleteRemovesFromStoreApiRegistryOnly(): void
+    {
+        // Both registries share the cache pool but use distinct keys, mirroring production wiring.
+        $cache = new Psr16Cache(new ArrayAdapter());
+        $adminRegistry = new McpSessionRegistry($cache, 'shopware.mcp.active_session_ids');
+        $storeApiRegistry = new McpSessionRegistry($cache, 'shopware.mcp.store_api.active_session_ids');
+        $adminRegistry->register('shared-session-id');
+        $storeApiRegistry->register('shared-session-id');
+
+        $subscriber = new McpSessionCleanupSubscriber(
+            $this->createMock(ToolResultCacheStorage::class),
+            $this->createMock(McpToolsetSessionStorage::class),
+            $adminRegistry,
+            $storeApiRegistry,
+        );
+
+        $request = Request::create('/store-api/_mcp', 'DELETE');
+        $request->headers->set('Mcp-Session-Id', 'shared-session-id');
+
+        $subscriber->onKernelTerminate(new TerminateEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            new Response(),
+        ));
+
+        static::assertSame(['shared-session-id'], $adminRegistry->all(), 'a store-api DELETE must not touch the Admin registry');
+        static::assertSame([], $storeApiRegistry->all(), 'a store-api DELETE must clear the store-api registry');
+    }
+
     public function testIgnoresNonDeleteRequests(): void
     {
         $storage = $this->createMock(ToolResultCacheStorage::class);

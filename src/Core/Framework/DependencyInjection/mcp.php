@@ -104,7 +104,11 @@ return static function (ContainerConfigurator $container): void {
         ->args([service('cache.system')]);
 
     $services->set(McpSessionRegistry::class)
-        ->args([service('shopware.mcp.session_registry_cache')]);
+        ->args([
+            service('shopware.mcp.session_registry_cache'),
+            'shopware.mcp.active_session_ids',
+            service('lock.factory'),
+        ]);
 
     $services->set(McpListChangedNotifier::class)
         ->args([
@@ -225,7 +229,11 @@ return static function (ContainerConfigurator $container): void {
     // Distinct cache key from the Admin registry so the two endpoints' active-session populations
     // stay isolated even though both wrap the cache.system pool.
     $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
-        ->args([service('mcp.store_api.session_registry_cache'), 'shopware.mcp.store_api.active_session_ids']);
+        ->args([
+            service('mcp.store_api.session_registry_cache'),
+            'shopware.mcp.store_api.active_session_ids',
+            service('lock.factory'),
+        ]);
 
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([
@@ -272,6 +280,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowedHostsProvider::class),
             service('logger'),
             service('mcp.store_api.session_registry'),
+            service('mcp.store_api.list_changed_notifier'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -347,6 +356,7 @@ return static function (ContainerConfigurator $container): void {
             service(ToolResultCacheStorage::class),
             service(McpToolsetSessionStorage::class),
             service(McpSessionRegistry::class),
+            service('mcp.store_api.session_registry'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -464,7 +474,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
-            service('mcp.store_api.list_changed_notifier'),
             service('request_stack'),
         ])
         ->tag('shopware.store_api_mcp.tool');

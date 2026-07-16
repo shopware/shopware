@@ -117,7 +117,6 @@ class AppManagerTest extends TestCase
     {
         $manifest = ManifestFixture::empty();
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
-        $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
@@ -140,7 +139,6 @@ class AppManagerTest extends TestCase
     {
         $manifest = ManifestFixture::empty();
         $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
-        $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
 
         $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
         $requirementsValidator->expects($this->once())
@@ -152,7 +150,7 @@ class AppManagerTest extends TestCase
 
         $this->requirementsValidator = $requirementsValidator;
 
-        $this->createAppManager(AppFixture::createAppRepository($existingApp))
+        $this->createAppManager(AppFixture::createAppRepository())
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 

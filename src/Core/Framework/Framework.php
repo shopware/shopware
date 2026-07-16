@@ -73,6 +73,7 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
+        // @codeCoverageIgnoreStart
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
@@ -80,25 +81,25 @@ class Framework extends Bundle
         $phpLoader->load('acl.php');
         $loader->load('cache.xml');
         $phpLoader->load('api.php');
-        $loader->load('app.xml');
-        $loader->load('custom-field.xml');
+        $phpLoader->load('app.php');
+        $phpLoader->load('custom-field.php');
         $phpLoader->load('data-abstraction-layer.php');
         $loader->load('demodata.xml');
         $loader->load('event.xml');
         $phpLoader->load('hydrator.php');
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
-        $loader->load('plugin.xml');
+        $phpLoader->load('plugin.php');
         $loader->load('rule.xml');
         $loader->load('scheduled-task.xml');
         $loader->load('store.xml');
-        $loader->load('script.xml');
+        $phpLoader->load('script.php');
         $loader->load('language.xml');
         $loader->load('update.xml');
         $phpLoader->load('validation.php');
         $loader->load('seo.xml');
-        $loader->load('webhook.xml');
         $phpLoader->load('rate-limiter.php');
+        $phpLoader->load('webhook.php');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
         $loader->load('health.xml');
@@ -108,14 +109,14 @@ class Framework extends Bundle
 
         // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
-        // @codeCoverageIgnoreEnd
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
             $loader->load('store_test.xml');
             $loader->load('seo_test.xml');
-            $loader->load('app_test.xml');
+            $phpLoader->load('app_test.php');
         }
+        // @codeCoverageIgnoreEnd
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);

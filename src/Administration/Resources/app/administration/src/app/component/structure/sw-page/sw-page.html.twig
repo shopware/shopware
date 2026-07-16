@@ -26,15 +26,15 @@
             :style="topBarActionStyles"
         >
             <sw-app-topbar-button />
+            <div class="sw-page__sidebar-container">
+                <sw-help-center-v2 />
+            </div>
+
             {% block sw_page_notification_center %}
             <div class="sw-page__sidebar-container">
                 <sw-notification-center />
             </div>
             {% endblock %}
-
-            <div class="sw-page__sidebar-container">
-                <sw-help-center-v2 />
-            </div>
 
             <sw-app-topbar-sidebar />
         </div>

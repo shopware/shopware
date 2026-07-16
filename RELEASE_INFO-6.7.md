@@ -4,7 +4,7 @@
 
 ### Store API requests no longer start PHP sessions
 
-Store API requests no longer initialize Symfony's lazy session factory while resolving the sales channel context. Previously, every Store API request could start a native PHP session only to check for a storefront customer imitation, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront customer imitation remains unchanged because storefront sessions are started before context resolution. (shopware/shopware#18319)
+Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
 

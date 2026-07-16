@@ -52,6 +52,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         // $skipIfUninitialized = true is intentional: storefront sessions are started before context resolution,
         // while Store API requests only have a lazy session factory and must remain stateless.
         $session = $request->hasSession(true) ? $request->getSession() : null;
+        $session = $session?->isStarted() ? $session : null;
 
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);

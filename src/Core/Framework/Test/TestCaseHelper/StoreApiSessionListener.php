@@ -61,6 +61,10 @@ class StoreApiSessionListener implements EventSubscriberInterface
      *
      * The snapshot is used because the profiler may have initialized the session between kernel.response and
      * kernel.terminate even though application code left the Store API request stateless.
+     *
+     * The assertion is intentionally deferred until kernel.terminate. An assertion thrown during kernel.response is
+     * still inside HttpKernel::handle() and can be converted into an exception response. KernelBrowser calls
+     * HttpKernel::terminate() after handle() returns, so the original assertion propagates directly to PHPUnit.
      */
     public function assertSessionIsNotInitialized(TerminateEvent $event): void
     {

@@ -145,9 +145,64 @@ class McpServerController
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
 
-        $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
+        return $this->createHttpResponse($psrResponse);
+    }
 
-        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    /**
+     * Converts the SDK's PSR response into a spec-compliant Symfony response.
+     *
+     * The MCP Streamable HTTP transport requires an application/json body to be a single JSON-RPC
+     * object (JSON-RPC batching was removed in 2025-06-18). When the SDK drains more than one queued
+     * outgoing message (e.g. a tools/list_changed notification alongside the response) it bundles
+     * them as a top-level JSON array over application/json, which conformant clients cannot parse.
+     * Re-emit such a batch as a text/event-stream where each JSON-RPC message is its own
+     * single-object SSE event, which is where server-initiated notifications belong.
+     */
+    private function createHttpResponse(PsrResponseInterface $psrResponse): Response
+    {
+        $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
+
+        if (str_starts_with($contentType, 'text/event-stream')) {
+            \assert($this->httpFoundationFactory !== null);
+
+            return $this->httpFoundationFactory->createResponse($psrResponse, true);
+        }
+
+        if (str_starts_with($contentType, 'application/json')) {
+            $decoded = json_decode((string) $psrResponse->getBody(), true);
+
+            if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
+                return $this->eventStreamResponse($decoded, $psrResponse);
+            }
+        }
+
+        \assert($this->httpFoundationFactory !== null);
+
+        return $this->httpFoundationFactory->createResponse($psrResponse, false);
+    }
+
+    /**
+     * @param list<mixed> $messages
+     */
+    private function eventStreamResponse(array $messages, PsrResponseInterface $psrResponse): Response
+    {
+        $body = '';
+        foreach ($messages as $message) {
+            $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
+        }
+
+        $response = new Response($body, $psrResponse->getStatusCode(), [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId !== '') {
+            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+        }
+
+        return $response;
     }
 
     /**

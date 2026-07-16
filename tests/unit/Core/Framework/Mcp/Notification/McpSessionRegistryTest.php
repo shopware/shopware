@@ -55,4 +55,35 @@ class McpSessionRegistryTest extends TestCase
 
         static::assertSame([], $registry->all());
     }
+
+    public function testDistinctCacheKeysIsolateSessionPopulations(): void
+    {
+        // Both registries share one cache pool, mirroring the Admin and Store API endpoints wiring.
+        $cache = new Psr16Cache(new ArrayAdapter());
+
+        $admin = new McpSessionRegistry($cache, 'shopware.mcp.active_session_ids');
+        $storeApi = new McpSessionRegistry($cache, 'shopware.mcp.store_api.active_session_ids');
+
+        $admin->register('admin-session');
+        $storeApi->register('store-api-session');
+
+        static::assertSame(['admin-session'], $admin->all());
+        static::assertSame(['store-api-session'], $storeApi->all());
+
+        // Removing from one scope must not affect the other.
+        $storeApi->remove('store-api-session');
+
+        static::assertSame(['admin-session'], $admin->all());
+        static::assertSame([], $storeApi->all());
+    }
+
+    public function testDefaultCacheKeyIsUsedWhenNoneProvided(): void
+    {
+        $cache = new Psr16Cache(new ArrayAdapter());
+
+        $registry = new McpSessionRegistry($cache);
+        $registry->register('session-a');
+
+        static::assertSame(['session-a'], $cache->get('shopware.mcp.active_session_ids'));
+    }
 }

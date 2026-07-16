@@ -219,8 +219,10 @@ return static function (ContainerConfigurator $container): void {
     $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
         ->args([service('cache.system')]);
 
+    // Distinct cache key from the Admin registry so the two endpoints' active-session populations
+    // stay isolated even though both wrap the cache.system pool.
     $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
-        ->args([service('mcp.store_api.session_registry_cache')]);
+        ->args([service('mcp.store_api.session_registry_cache'), 'shopware.mcp.store_api.active_session_ids']);
 
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([

@@ -15,8 +15,14 @@ class McpSessionRegistry
 {
     private const CACHE_KEY = 'shopware.mcp.active_session_ids';
 
+    /**
+     * @param string $cacheKey the cache key holding this scope's active session ids; distinct keys
+     *                         keep the Admin and Store API populations isolated even though both
+     *                         wrap the same cache pool
+     */
     public function __construct(
         private readonly CacheInterface $cache,
+        private readonly string $cacheKey = self::CACHE_KEY,
     ) {
     }
 
@@ -29,7 +35,7 @@ class McpSessionRegistry
         }
 
         $sessionIds[] = $sessionId;
-        $this->cache->set(self::CACHE_KEY, $sessionIds);
+        $this->cache->set($this->cacheKey, $sessionIds);
     }
 
     public function remove(string $sessionId): void
@@ -39,7 +45,7 @@ class McpSessionRegistry
             static fn (string $activeSessionId): bool => $activeSessionId !== $sessionId,
         ));
 
-        $this->cache->set(self::CACHE_KEY, $sessionIds);
+        $this->cache->set($this->cacheKey, $sessionIds);
     }
 
     /**
@@ -47,7 +53,7 @@ class McpSessionRegistry
      */
     public function all(): array
     {
-        $sessionIds = $this->cache->get(self::CACHE_KEY, []);
+        $sessionIds = $this->cache->get($this->cacheKey, []);
 
         if (!\is_array($sessionIds)) {
             return [];

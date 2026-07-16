@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
@@ -59,6 +60,22 @@ class EntityWrittenContainerEvent extends NestedEvent
         }
 
         return null;
+    }
+
+    /**
+     * @return EntityWriteResultCollection<IDStructure>
+     */
+    public function getResults(string $entityName): EntityWriteResultCollection
+    {
+        $event = $this->getEventByEntityName($entityName);
+        if ($event !== null) {
+            return $event->getResults();
+        }
+
+        /** @var EntityWriteResultCollection<IDStructure> $results */
+        $results = new EntityWriteResultCollection();
+
+        return $results;
     }
 
     /**

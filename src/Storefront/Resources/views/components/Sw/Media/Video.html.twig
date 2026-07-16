@@ -1,0 +1,69 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    media,
+    autoplay = false,
+    previewMode = false,
+%}
+
+{% set mediaVideoCVA = cva({
+    base: 'sw-media-video',
+    variants: {
+        previewMode: {
+            true: 'sw-media-video--is-preview-mode',
+        }
+    },
+}) %}
+
+{% set videoCoverMedia = media.extensions.videoCoverMedia ?? null %}
+
+{% set attributeDefaults = {
+    class: mediaVideoCVA.apply({ previewMode }),
+} %}
+
+{% set videoAttributeDefaults = {
+    class: 'sw-media-video__media',
+    preload: 'metadata',
+} %}
+
+{% if media.translated.title is not null %}
+    {% set videoAttributeDefaults = videoAttributeDefaults|merge({ title: media.translated.title }) %}
+{% endif %}
+
+{% if videoCoverMedia %}
+    {% set videoAttributeDefaults = videoAttributeDefaults|merge({
+        poster: videoCoverMedia|sw_encode_media_url,
+        preload: 'none',
+    }) %}
+{% endif %}
+
+{% if autoplay %}
+    {% set videoAttributeDefaults = videoAttributeDefaults|merge({
+        autoplay: true,
+        muted: true,
+        playsinline: true,
+    }) %}
+{% endif %}
+
+{% if not previewMode %}
+    {% set videoAttributeDefaults = videoAttributeDefaults|merge({
+        controls: true,
+    }) %}
+{% endif %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <video {{ attributes.defaults(videoAttributeDefaults) }}>
+        <source src="{{ media|sw_encode_media_url }}#t=0.001" type="{{ media.mimeType }}">
+    </video>
+    {% if previewMode %}
+        <div class="sw-media-video__preview-overlay">
+            <twig:Sw:Icon 
+                :name="playIcon"
+                class="sw-media-video__preview-overlay-icon"
+            >
+            </twig:Sw:Icon>
+        </div>
+    {% endif %}
+</div>

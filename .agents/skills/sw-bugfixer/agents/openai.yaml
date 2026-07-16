@@ -1,0 +1,6 @@
+interface:
+  display_name: "Shopware Bugfixer"
+  short_description: "Explicitly fix a Shopware GitHub issue"
+  default_prompt: "Use $sw-bugfixer to fix the specified Shopware issue."
+policy:
+  allow_implicit_invocation: false

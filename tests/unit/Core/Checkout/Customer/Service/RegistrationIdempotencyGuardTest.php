@@ -603,6 +603,55 @@ class RegistrationIdempotencyGuardTest extends TestCase
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
+    public function testWinnerMarkerWrittenDuringTheWaitDeadlineIsReplayedAfterTimeout(): void
+    {
+        $originalCustomerId = Uuid::randomHex();
+
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->expects($this->exactly(2))
+            ->method('getItem')
+            ->with(self::markerKey())
+            ->willReturnOnConsecutiveCalls(
+                $this->createMissItem(),
+                $this->createMarkerHitItem($originalCustomerId, 'winner-token'),
+            );
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(false)
+            ->willReturn(false);
+        $lock->expects($this->never())->method('release');
+        $lockFactory = $this->createLockFactory($lock);
+
+        $warnings = [];
+        $logger = $this->createWarningCollector($warnings);
+
+        $registerCalls = 0;
+        $unexpectedResponse = $this->createCustomerResponse(Uuid::randomHex());
+        $register = static function () use (&$registerCalls, $unexpectedResponse): CustomerResponse {
+            ++$registerCalls;
+
+            return $unexpectedResponse;
+        };
+
+        $replayedResponse = $this->createCustomerResponse($originalCustomerId, 'winner-token');
+        $replayArguments = [];
+        $replay = static function (string $customerId, ?string $newContextToken) use (&$replayArguments, $replayedResponse): CustomerResponse {
+            $replayArguments[] = [$customerId, $newContextToken];
+
+            return $replayedResponse;
+        };
+
+        $guard = new RegistrationIdempotencyGuard($lockFactory, $cache, $logger, lockWaitTimeout: 0.0);
+        $result = $guard->guard(self::SALES_CHANNEL_ID, self::CONTEXT_TOKEN, self::REQUEST_DIGEST, $register, $replay);
+
+        static::assertSame($replayedResponse, $result);
+        static::assertSame(0, $registerCalls);
+        static::assertSame([[$originalCustomerId, 'winner-token']], $replayArguments);
+        static::assertSame([], $warnings);
+    }
+
     public function testContendedLockIsRetriedAndAcquiredWithinTheWaitDeadline(): void
     {
         $cache = new ArrayAdapter();

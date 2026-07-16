@@ -18,7 +18,8 @@ use Symfony\Component\Lock\SharedLockInterface;
  * global per context token, and its result is remembered in a cache marker scoped to sales
  * channel, token and request digest. Best-effort only - it requires lock and cache backends
  * shared by the competing requests and degrades to unguarded registrations on infrastructure
- * failures. Inert in dev/test, where `cache.app` is a per-process array adapter.
+ * failures. In dev/test, `cache.app` is a per-process array adapter, so duplicates handled by
+ * different workers cannot be suppressed there.
  *
  * @internal
  */
@@ -87,6 +88,12 @@ class RegistrationIdempotencyGuard
         }
 
         if (!$acquired) {
+            // the winner may have finished while we waited, e.g. when its lock release failed
+            $response = $this->replayFromMarker($markerKey, $replay);
+            if ($response !== null) {
+                return $response;
+            }
+
             $this->logger->warning('Registration lock was not acquired within the wait deadline, executing the registration unguarded.');
 
             return $register();

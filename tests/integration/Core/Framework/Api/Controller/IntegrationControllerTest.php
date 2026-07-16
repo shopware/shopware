@@ -96,9 +96,9 @@ class IntegrationControllerTest extends TestCase
             ->search(new Criteria([$ids->get('integration')]), $context);
 
         static::assertNotNull($assigned);
-        static::assertCount(1, $assigned);
-        static::assertNotNull($assigned->first());
-        static::assertTrue($assigned->first()->getAdmin());
+        static::assertCount(1, $assigned->getEntities());
+        static::assertNotNull($assigned->getEntities()->first());
+        static::assertTrue($assigned->getEntities()->first()->getAdmin());
     }
 
     public function testPreventCreateIntegrationWithoutPermissions(): void
@@ -197,10 +197,10 @@ class IntegrationControllerTest extends TestCase
         $assigned = static::getContainer()->get('integration.repository')
             ->search($criteria, $context);
 
-        static::assertNotNull($assigned->first());
-        static::assertNotNull($assigned->first()->getAclRoles());
+        static::assertNotNull($assigned->getEntities()->first());
+        static::assertNotNull($assigned->getEntities()->first()->getAclRoles());
 
-        $aclRoleIds = array_values($assigned->first()->getAclRoles()->getIds());
+        $aclRoleIds = array_values($assigned->getEntities()->first()->getAclRoles()->getIds());
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
 
@@ -240,8 +240,8 @@ class IntegrationControllerTest extends TestCase
         $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
-        static::assertCount(1, $assigned);
-        static::assertNotNull($assigned->first());
-        static::assertFalse($assigned->first()->getAdmin());
+        static::assertCount(1, $assigned->getEntities());
+        static::assertNotNull($assigned->getEntities()->first());
+        static::assertFalse($assigned->getEntities()->first()->getAdmin());
     }
 }

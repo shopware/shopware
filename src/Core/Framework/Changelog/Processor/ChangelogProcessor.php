@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Processor;
 
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
@@ -170,7 +171,7 @@ class ChangelogProcessor
         [$superVersion, $majorVersion] = explode('.', $version);
 
         if (!is_numeric($superVersion) || !is_numeric($majorVersion)) {
-            throw new \InvalidArgumentException('Unable to generate next version number, supplied version seems invalid (' . $version . ')');
+            throw ChangelogException::invalidVersion($version);
         }
 
         $superVersion = (int) $superVersion;
@@ -210,9 +211,9 @@ class ChangelogProcessor
 
                 $violations = $this->validator->validate($definition);
                 if ($violations->count()) {
-                    $messages = \array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), \iterator_to_array($violations));
+                    $messages = \array_map(static fn (ConstraintViolationInterface $violation) => (string) $violation->getMessage(), \iterator_to_array($violations));
 
-                    throw new \InvalidArgumentException(\sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), \implode(', ', $messages)));
+                    throw ChangelogException::invalidChangelogFile((string) $file->getRealPath(), array_values($messages));
                 }
 
                 $featureFlagDefaultOn = false;

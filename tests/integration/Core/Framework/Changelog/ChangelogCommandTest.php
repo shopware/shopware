@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand;
 use Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand;
+use Shopware\Core\Framework\Changelog\ChangelogException;
 use Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
@@ -71,7 +72,7 @@ class ChangelogCommandTest extends TestCase
         return [
             [
                 __DIR__ . '/_fixture/stage/command-invalid',
-                \InvalidArgumentException::class,
+                ChangelogException::class,
                 [
                 ],
             ],
@@ -113,7 +114,7 @@ class ChangelogCommandTest extends TestCase
             'invalid-changelog' => [
                 __DIR__ . '/_fixture/stage/command-invalid',
                 '8.36.22.186',
-                \InvalidArgumentException::class,
+                ChangelogException::class,
                 [
                 ],
             ],

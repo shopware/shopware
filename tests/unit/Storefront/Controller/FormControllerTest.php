@@ -8,6 +8,7 @@ use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -16,6 +17,7 @@ use Shopware\Storefront\Controller\FormController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -77,11 +79,13 @@ class FormControllerTest extends TestCase
             ),
         ));
 
-        $controller = $this->createController(contactFormRoute: $contactFormRoute);
-        $controller->untranslatedSnippets = [
-            'This value is not valid.',
-            'error.VIOLATION::MISSING_TRANSLATION',
-        ];
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+
+        $controller = $this->createController(
+            contactFormRoute: $contactFormRoute,
+            constraintViolationTranslator: new ConstraintViolationTranslator($translator),
+        );
 
         $controller->sendContactForm(new RequestDataBag(), Generator::generateSalesChannelContext());
 
@@ -153,12 +157,19 @@ class FormControllerTest extends TestCase
         ?AbstractNewsletterSubscribeRoute $subscribeRoute = null,
         ?AbstractNewsletterUnsubscribeRoute $unsubscribeRoute = null,
         ?AbstractRevocationRequestRoute $abstractRevocationRequestRoute = null,
+        ?ConstraintViolationTranslator $constraintViolationTranslator = null,
     ): FormControllerTestClass {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id): string => str_starts_with($id, 'error.') ? 'translated:' . $id : $id
+        );
+
         return new FormControllerTestClass(
             $contactFormRoute ?? static::createStub(AbstractContactFormRoute::class),
             $subscribeRoute ?? static::createStub(AbstractNewsletterSubscribeRoute::class),
             $unsubscribeRoute ?? static::createStub(AbstractNewsletterUnsubscribeRoute::class),
             $abstractRevocationRequestRoute ?? static::createStub(AbstractRevocationRequestRoute::class),
+            $constraintViolationTranslator ?? new ConstraintViolationTranslator($translator),
         );
     }
 }
@@ -171,11 +182,6 @@ class FormControllerTestClass extends FormController
     use StorefrontControllerMockTrait;
 
     /**
-     * @var list<string>
-     */
-    public array $untranslatedSnippets = [];
-
-    /**
      * @var array<string, mixed>
      */
     public array $renderViewParameters = [];
@@ -185,14 +191,5 @@ class FormControllerTestClass extends FormController
         $this->renderViewParameters = $parameters;
 
         return 'rendered';
-    }
-
-    protected function trans(string $snippet, array $parameters = []): string
-    {
-        if (\in_array($snippet, $this->untranslatedSnippets, true)) {
-            return $snippet;
-        }
-
-        return str_starts_with($snippet, 'error.') ? 'translated:' . $snippet : $snippet;
     }
 }

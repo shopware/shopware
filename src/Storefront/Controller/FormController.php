@@ -6,6 +6,7 @@ use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -18,7 +19,6 @@ use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
  * @internal
@@ -42,6 +42,7 @@ class FormController extends StorefrontController
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
         private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
         private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
+        private readonly ConstraintViolationTranslator $constraintViolationTranslator,
     ) {
     }
 
@@ -74,7 +75,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $this->translateViolation($violation);
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -146,7 +147,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $this->translateViolation($violation);
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -198,7 +199,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $exception) {
             $errors = [];
             foreach ($exception->getViolations() as $violation) {
-                $errors[] = $this->translateViolation($violation);
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -244,7 +245,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $exception) {
             $errors = [];
             foreach ($exception->getViolations() as $violation) {
-                $errors[] = $this->translateViolation($violation);
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -266,27 +267,5 @@ class FormController extends StorefrontController
         }
 
         return $response;
-    }
-
-    private function translateViolation(ConstraintViolationInterface $violation): string
-    {
-        // use custom message template if available
-        $key = $violation->getMessageTemplate();
-        $message = $this->trans($key, $violation->getParameters());
-
-        if ($message !== $key) {
-            return $message;
-        }
-
-        // use custom error code message if available
-        $key = 'error.' . $violation->getCode();
-        $message = $this->trans($key, $violation->getParameters());
-
-        if ($message !== $key) {
-            return $message;
-        }
-
-        // fallback to default symfony message
-        return (string) $violation->getMessage();
     }
 }

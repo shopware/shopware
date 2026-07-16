@@ -18,6 +18,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -104,7 +105,7 @@ class ThemeDumpCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    public function testExecuteShouldSuccessWithoutInteraction(): void
+    public function testExecuteFailsWithoutInteractionWhenMoreThanOneDomainExists(): void
     {
         $this->setUpExampleThemes();
 
@@ -122,9 +123,46 @@ class ThemeDumpCommandTest extends TestCase
         $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
 
         $commandTester = new CommandTester($themeDumpCommand);
-        $commandTester->execute([], ['interactive' => false]);
+        $commandTester->execute(['theme-id' => $this->parentThemeId], ['interactive' => false]);
+
+        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertStringContainsString('More than one domain URL is available', $commandTester->getDisplay());
+    }
+
+    public function testExecuteResolvesSingleDomainWithoutInteraction(): void
+    {
+        $domainUrl = $this->setUpSingleDomainTheme();
+
+        $themeFileResolverMock = new ThemeFileResolverMock();
+        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
+        $staticFileConfigDumper = $this->createMock(StaticFileConfigDumper::class);
+        $dumpedConfig = null;
+        $staticFileConfigDumper->method('dumpConfigInVar')->willReturnCallback(
+            /**
+             * @param array<string, mixed> $dump
+             */
+            function (string $filePath, array $dump) use (&$dumpedConfig): void {
+                $dumpedConfig = $dump;
+            }
+        );
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $themeFileResolverMock,
+            static::getContainer()->get('theme.repository'),
+            $staticFileConfigDumper,
+            $themeFilesystemResolverMock
+        );
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $commandTester->execute(['theme-id' => $this->parentThemeId], ['interactive' => false]);
 
         $commandTester->assertCommandIsSuccessful();
+        static::assertIsArray($dumpedConfig);
+        static::assertSame($domainUrl, $dumpedConfig['domainUrl']);
     }
 
     public function testInteractiveModeDisplaysThemeAssignmentInfos(): void
@@ -264,6 +302,47 @@ class ThemeDumpCommandTest extends TestCase
 
             $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
         }
+    }
+
+    private function setUpSingleDomainTheme(): string
+    {
+        $themeRepository = static::getContainer()->get('theme.repository');
+        $themeSalesChannelRepository = static::getContainer()->get('theme_sales_channel.repository');
+        $context = Context::createDefaultContext();
+
+        $themeId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $this->parentThemeId = $themeId;
+        $domainUrl = 'http://localhost/single/' . $themeId;
+
+        $themeRepository->create(
+            [
+                [
+                    'id' => $themeId,
+                    'name' => 'Single domain theme',
+                    'technicalName' => 'parentTheme',
+                    'author' => 'test',
+                    'active' => true,
+                ],
+            ],
+            $context
+        );
+
+        $this->createSalesChannel([
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => $domainUrl,
+                ],
+            ],
+        ]);
+
+        $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
+
+        return $domainUrl;
     }
 }
 

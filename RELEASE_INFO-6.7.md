@@ -327,6 +327,10 @@ For extension and theme developers, two optional data attributes are available o
 
 If those attributes are not provided, `FormFieldToggle` behaves exactly as before.
 
+### `theme:dump --no-interaction` resolves the domain URL automatically
+
+`bin/console theme:dump` no longer writes an empty `domainUrl` to `var/theme-files.json` when run non-interactively. Domain resolution previously only happened in the interactive branch, so `--no-interaction` produced an unusable empty value. When exactly one storefront domain is available for the selected theme, it is now used automatically, matching the interactive behavior. When no domain, or more than one domain, is available and no `domain-url` argument is passed, the command now fails with an actionable message instead of succeeding with an empty `domainUrl`. Pass the `domain-url` argument explicitly to select a domain in non-interactive contexts such as CI or deployment scripts. (shopware/shopware#18317)
+
 ## API
 
 ### Store API OpenAPI: JSON schema files take precedence over generated entity schemas

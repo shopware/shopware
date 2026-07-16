@@ -123,8 +123,23 @@ class ThemeDumpCommand extends Command
 
         $themeName = $themeEntity->getTechnicalName() ?? $themeEntity->getId();
         $domainUrl = $input->getArgument('domain-url');
-        if ($input->isInteractive()) {
-            $domainUrl ??= $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
+        if ($domainUrl === null) {
+            $domainUrls = $this->getDomainUrls($themeEntity);
+
+            if (\count($domainUrls) > 1) {
+                if (!$input->isInteractive()) {
+                    $this->io->error(\sprintf(
+                        'More than one domain URL is available for theme %s. Please provide the domain URL as an argument.',
+                        $themeName
+                    ));
+
+                    return self::FAILURE;
+                }
+
+                $domainUrl = $this->askForDomainUrl($domainUrls, $input, $output);
+            } else {
+                $domainUrl = $domainUrls[0] ?? null;
+            }
 
             if ($domainUrl === null) {
                 $this->io->error(\sprintf('No domain URL for theme %s found', $themeName));
@@ -193,39 +208,42 @@ class ThemeDumpCommand extends Command
         return $choices;
     }
 
-    private function askForDomainUrlIfMoreThanOneExists(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string
+    /**
+     * @return list<string>
+     */
+    private function getDomainUrls(ThemeEntity $themeEntity): array
     {
         $salesChannels = $themeEntity->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
         if (!$salesChannels) {
-            return null;
+            return [];
         }
 
         $domainUrls = [];
 
         foreach ($salesChannels as $salesChannel) {
-            if (!$salesChannel->getDomains()?->count()) {
-                continue;
-            }
-
-            foreach ($salesChannel->getDomains() as $domain) {
+            foreach ($salesChannel->getDomains() ?? [] as $domain) {
                 $domainUrls[] = $domain->getUrl();
             }
         }
 
-        if (\count($domainUrls) > 1) {
-            $helper = $this->getHelper('question');
-            \assert($helper instanceof QuestionHelper);
+        return $domainUrls;
+    }
 
-            $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
-            $domainUrl = $helper->ask($input, $output, $question);
+    /**
+     * @param list<string> $domainUrls
+     */
+    private function askForDomainUrl(array $domainUrls, InputInterface $input, OutputInterface $output): ?string
+    {
+        $helper = $this->getHelper('question');
+        \assert($helper instanceof QuestionHelper);
 
-            \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
+        $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
+        $domainUrl = $helper->ask($input, $output, $question);
 
-            return $domainUrl;
-        }
+        \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
 
-        return $domainUrls[0] ?? null;
+        return $domainUrl;
     }
 
     private function getTechnicalName(string $themeId): ?string

@@ -5,10 +5,15 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\Command\ThemeDumpCommand;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -40,6 +45,8 @@ class ThemeDumpCommandTest extends TestCase
 
     private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
 
+    private StaticFileConfigDumper&Stub $staticFileConfigDumper;
+
     private CommandTester $commandTester;
 
     protected function setUp(): void
@@ -47,14 +54,14 @@ class ThemeDumpCommandTest extends TestCase
         $this->pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
         $this->themeFileResolver = static::createStub(ThemeFileResolver::class);
         $this->themeRepository = static::createStub(EntityRepository::class);
-        $staticFileConfigDumper = static::createStub(StaticFileConfigDumper::class);
+        $this->staticFileConfigDumper = static::createStub(StaticFileConfigDumper::class);
         $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
 
         $command = new ThemeDumpCommand(
             $this->pluginRegistry,
             $this->themeFileResolver,
             $this->themeRepository,
-            $staticFileConfigDumper,
+            $this->staticFileConfigDumper,
             $this->themeFilesystemResolver
         );
 
@@ -186,5 +193,100 @@ class ThemeDumpCommandTest extends TestCase
 
         static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
         static::assertStringContainsString('No domain URL for theme', $this->commandTester->getDisplay());
+    }
+
+    public function testResolvesSingleDomainAutomaticallyWithoutInteraction(): void
+    {
+        $themeEntity = $this->createThemeEntityWithDomains(['http://single.example.com']);
+
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('count')->willReturn(1);
+        $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
+
+        $this->themeRepository->method('search')->willReturn($searchResult);
+
+        $this->pluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('technical-name'),
+            ])
+        );
+
+        $this->themeFileResolver->method('resolveFiles')->willReturn(['resolved' => 'files']);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(
+            new Filesystem('')
+        );
+
+        $dumpedConfig = null;
+        $this->staticFileConfigDumper->method('dumpConfigInVar')->willReturnCallback(
+            /**
+             * @param array<string, mixed> $dump
+             */
+            function (string $filePath, array $dump) use (&$dumpedConfig): void {
+                $dumpedConfig = $dump;
+            }
+        );
+
+        $this->commandTester->execute(['theme-id' => 'theme-id'], ['interactive' => false]);
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
+        static::assertIsArray($dumpedConfig);
+        static::assertSame('http://single.example.com', $dumpedConfig['domainUrl']);
+    }
+
+    public function testFailsWithoutInteractionWhenMoreThanOneDomainExists(): void
+    {
+        $themeEntity = $this->createThemeEntityWithDomains([
+            'http://first.example.com',
+            'http://second.example.com',
+        ]);
+
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('count')->willReturn(1);
+        $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
+
+        $this->themeRepository->method('search')->willReturn($searchResult);
+
+        $this->pluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('technical-name'),
+            ])
+        );
+
+        $this->themeFileResolver->method('resolveFiles')->willReturn(['resolved' => 'files']);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(
+            new Filesystem('')
+        );
+
+        $this->commandTester->execute(['theme-id' => 'theme-id'], ['interactive' => false]);
+
+        static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
+        static::assertStringContainsString('More than one domain URL is available', $this->commandTester->getDisplay());
+    }
+
+    /**
+     * @param list<string> $urls
+     */
+    private function createThemeEntityWithDomains(array $urls): ThemeEntity
+    {
+        $domains = [];
+        foreach ($urls as $index => $url) {
+            $domain = new SalesChannelDomainEntity();
+            $domain->setId('domain-' . $index);
+            $domain->setUrl($url);
+            $domains[] = $domain;
+        }
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannel->setDomains(new SalesChannelDomainCollection($domains));
+
+        $themeEntity = new ThemeEntity();
+        $themeEntity->setId('theme-id');
+        $themeEntity->setTechnicalName('technical-name');
+        $themeEntity->setName('Theme Name');
+        $themeEntity->setSalesChannels(new SalesChannelCollection([$salesChannel]));
+
+        return $themeEntity;
     }
 }

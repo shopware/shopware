@@ -12,6 +12,12 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
+ * Ensures that Store API integration requests do not initialize Symfony's lazy session factory.
+ *
+ * Symfony's AbstractSessionListener attaches the factory during kernel.request at priority 128. Storefront requests
+ * deliberately initialize and start it later in StorefrontSubscriber::startSession() at priority 40, while Store API
+ * requests must leave the factory uninitialized.
+ *
  * @internal
  *
  * @codeCoverageIgnore
@@ -31,6 +37,13 @@ class StoreApiSessionListener implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * Records the application-visible state after request handling, but before Symfony's profiler runs.
+     *
+     * The profiler's kernel.response listener has priority -100 and calls Request::hasPreviousSession(), which can
+     * initialize the lazy factory when a session cookie exists. Recording at priority 0 prevents that test tooling
+     * from being mistaken for session usage by the Store API request itself.
+     */
     public function recordSessionState(ResponseEvent $event): void
     {
         $request = $event->getRequest();
@@ -43,6 +56,12 @@ class StoreApiSessionListener implements EventSubscriberInterface
         $request->attributes->set(self::SESSION_INITIALIZED, $request->hasSession(true));
     }
 
+    /**
+     * Asserts the recorded state after all response listeners have finished.
+     *
+     * The snapshot is used because the profiler may have initialized the session between kernel.response and
+     * kernel.terminate even though application code left the Store API request stateless.
+     */
     public function assertSessionIsNotInitialized(TerminateEvent $event): void
     {
         $request = $event->getRequest();

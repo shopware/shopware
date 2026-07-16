@@ -12,19 +12,15 @@ use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\TelemetryException;
-use Shopware\Core\Profiling\Profiler;
 
 /**
- * Owns both the profiling and the `dal.search.duration` metrics for DAL read/search/aggregate operations.
+ * Emits the `dal.search.duration` metric for DAL read/search/aggregate operations.
  *
- * The DAL read path is extremely hot, so the metric is guarded by a single flag resolved once in the constructor:
- * `global telemetry enabled` AND `instrumentor metrics are enabled`. When it is off, `measure()`
- * degrades to the profiler span alone.
+ * The instrumentor does not include profiling, as in this case metrics are emitted only for top-level operations,
+ * while profiler should create spans for recursive calls.
  *
- * When enabled, span and metric emit are separated, mirroring {@see \Shopware\Core\Framework\Telemetry\Telemetry::instrument()}
- *
- * Note that `EntityRepository::_search()` internally issues its own `searchIds`/`aggregate` calls, as result
- * those are emitting additional metrics.
+ * The DAL read path is extremely hot, so the instrumentor is guarded by a single flag resolved once in the constructor:
+ * `global telemetry enabled` && `instrumentor metrics are enabled`. When it is off, `measure()` just runs the callback.
  *
  * @internal
  *
@@ -44,8 +40,6 @@ class DalSearchInstrumentor
     private const BACKEND_ELASTICSEARCH = 'elasticsearch';
 
     private const DURATION_METRIC = 'dal.search.duration';
-
-    private const PROFILER_CATEGORY = 'repository';
 
     /**
      * State the Elasticsearch bundle adds to a result it served, see
@@ -77,15 +71,8 @@ class DalSearchInstrumentor
      */
     public function measure(string $operation, EntityDefinition $definition, Criteria $criteria, \Closure $callback): mixed
     {
-        $title = $criteria->getTitle();
-
         if (!$this->enabled) {
-            // Metric off: keep the profiler span, skip all metric work.
-            return $title === null ? $callback() : Profiler::trace($title, $callback, self::PROFILER_CATEGORY);
-        }
-
-        if ($title !== null) {
-            Profiler::start($title, self::PROFILER_CATEGORY, []);
+            return $callback();
         }
 
         $start = hrtime(true);
@@ -93,9 +80,6 @@ class DalSearchInstrumentor
             $result = $callback();
         } finally {
             $durationMs = (hrtime(true) - $start) / 1_000_000;
-            if ($title !== null) {
-                Profiler::stop($title);
-            }
         }
 
         $this->meter->emit(new ConfiguredMetric(

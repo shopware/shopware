@@ -716,7 +716,7 @@ class EntityRepositoryTest extends TestCase
         static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
     }
 
-    public function testSearchAlsoInstrumentsTheNestedSearchIds(): void
+    public function testSearchWithIdLookupDoesNotEmitANestedSearchIds(): void
     {
         $operations = [];
         $repo = new EntityRepository(
@@ -734,11 +734,31 @@ class EntityRepositoryTest extends TestCase
         $criteria->setTerm('foo');
         $repo->search($criteria, Context::createDefaultContext());
 
-        // search internally calls searchIds, so both operations are measured
-        static::assertEqualsCanonicalizing(
-            [DalSearchInstrumentor::OPERATION_SEARCH, DalSearchInstrumentor::OPERATION_SEARCH_IDS],
-            $operations
+        // the id lookup runs through the private _searchIds(); the outer search is the only measured operation,
+        // so its duration is not double-counted by a nested searchIds sample
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    public function testSearchWithAggregationsDoesNotEmitANestedAggregate(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
         );
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('agg', 'id'));
+        $repo->search($criteria, Context::createDefaultContext());
+
+        // the aggregate is a nested sub-operation (profiled, not metered); only the outer search is measured
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
     }
 
     /**

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\VarExporter\LazyGhostTrait;
 
@@ -64,7 +65,7 @@ class EntityRepository
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $searchFn = fn (): EntitySearchResult => $this->_search($criteria, $context);
+        $searchFn = fn (): EntitySearchResult => $this->profile($criteria, fn (): EntitySearchResult => $this->_search($criteria, $context));
 
         return $this->dalSearchInstrumentor?->measure(
             DalSearchInstrumentor::OPERATION_SEARCH,
@@ -76,7 +77,7 @@ class EntityRepository
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
-        $aggregateFn = fn (): AggregationResultCollection => $this->_aggregate($criteria, $context);
+        $aggregateFn = fn (): AggregationResultCollection => $this->profile($criteria, fn (): AggregationResultCollection => $this->_aggregate($criteria, $context));
 
         return $this->dalSearchInstrumentor?->measure(
             DalSearchInstrumentor::OPERATION_AGGREGATE,
@@ -95,7 +96,7 @@ class EntityRepository
      */
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        $searchIdsFn = fn (): IdSearchResult => $this->_searchIds($criteria, $context);
+        $searchIdsFn = fn (): IdSearchResult => $this->profile($criteria, fn (): IdSearchResult => $this->_searchIds($criteria, $context));
 
         return $this->dalSearchInstrumentor?->measure(
             DalSearchInstrumentor::OPERATION_SEARCH_IDS,
@@ -216,6 +217,23 @@ class EntityRepository
     }
 
     /**
+     * Wraps a read operation in a profiler span (title-gated). Is separate from metrics, so
+     * sub-operations of a search are visible in the profiler without emitting a duplicate metric sample.
+     *
+     * @template TReturn
+     *
+     * @param \Closure(): TReturn $fn
+     *
+     * @return TReturn
+     */
+    private function profile(Criteria $criteria, \Closure $fn): mixed
+    {
+        $title = $criteria->getTitle();
+
+        return $title === null ? $fn() : Profiler::trace($title, $fn, 'repository');
+    }
+
+    /**
      * @return TEntityCollection
      */
     private function read(Criteria $criteria, Context $context): EntityCollection
@@ -245,7 +263,8 @@ class EntityRepository
         $criteria = clone $criteria;
         $aggregations = null;
         if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context);
+            // nested sub-operation: profiled (span) but not metered; keep in sync with SalesChannelRepository
+            $aggregations = $this->profile($criteria, fn (): AggregationResultCollection => $this->_aggregate($criteria, $context));
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
@@ -257,7 +276,8 @@ class EntityRepository
             return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $context);
         }
 
-        $ids = $this->searchIds($criteria, $context);
+        // nested sub-operation: profiled (span) but not metered; keep in sync with SalesChannelRepository
+        $ids = $this->profile($criteria, fn (): IdSearchResult => $this->_searchIds($criteria, $context));
 
         if ($ids->getIds() === []) {
             /** @var TEntityCollection $collection */

@@ -102,7 +102,7 @@ class TemplateContextTest extends TestCase
     {
         $context = $this->createContext();
 
-        static::expectExceptionObject(DocumentV2Exception::templateContextReadOnly('companyName'));
+        $this->expectExceptionObject(DocumentV2Exception::templateContextReadOnly('companyName'));
 
         $context->offsetSet('companyName', 'mutated');
     }
@@ -111,7 +111,7 @@ class TemplateContextTest extends TestCase
     {
         $context = $this->createContext();
 
-        static::expectExceptionObject(DocumentV2Exception::templateContextReadOnly('companyName'));
+        $this->expectExceptionObject(DocumentV2Exception::templateContextReadOnly('companyName'));
 
         $context->offsetUnset('companyName');
     }

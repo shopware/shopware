@@ -382,7 +382,7 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 Rotating an app's shared secret is now atomic. The new secret is stored as a *pending* secret and only becomes the app's active secret once the app confirms it; until then the app keeps authenticating with its current secret. If a rotation is interrupted — a worker crash, a timeout, or the app being briefly unreachable — the mismatch is detectable and operator-recoverable.
 
-Reinstalling an app that has an unconfirmed secret now recovers its credentials instead of reporting that the app is already installed. Run `bin/console app:install <app-name>` or retry the installation through the Administration API. If the app still cannot be recovered, Shopware retains every pending secret so the installation can be retried later.
+Reinstalling an app that has an unconfirmed secret now recovers its credentials instead of reporting that the app is already installed. Run `bin/console app:install <app-name>` or retry the installation through the Administration API. Triggering a rotation on such an app — `bin/console app:secret:rotate` or the app-facing rotation API — reconciles the pending secret the same way instead of rotating over it, so an app that still holds working integration credentials can recover itself. If the app still cannot be recovered, Shopware retains every pending secret so the installation can be retried later.
 
 An interrupted rotation whose app kept its old credentials should be recovered promptly by installing the app again; the retired integration's credentials are cleaned up on the normal daily schedule, so a long-delayed recovery may briefly interrupt the app's inbound API until it completes.
 

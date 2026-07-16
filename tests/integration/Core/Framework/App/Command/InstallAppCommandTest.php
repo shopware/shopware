@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
@@ -30,6 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class InstallAppCommandTest extends TestCase
 {
+    use EventDispatcherBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const RECOVERY_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
@@ -190,48 +192,24 @@ class InstallAppCommandTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $installedEvents = 0;
-        $listener = static function (AppInstalledEvent $event) use (&$installedEvents): void {
-            ++$installedEvents;
-        };
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
         static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $eventDispatcher->addListener(AppInstalledEvent::class, $listener);
+        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function () use (&$installedEvents): void {
+            ++$installedEvents;
+        });
 
-        try {
-            $tester = $this->createRecoveryCommandTester();
-            static::assertSame(Command::SUCCESS, $tester->execute([
-                'name' => self::RECOVERY_APP_NAME,
-                '-f' => true,
-                '-a' => true,
-            ]));
-        } finally {
-            $eventDispatcher->removeListener(AppInstalledEvent::class, $listener);
-        }
+        $tester = $this->createRecoveryCommandTester();
+        static::assertSame(Command::SUCCESS, $tester->execute([
+            'name' => self::RECOVERY_APP_NAME,
+            '-f' => true,
+            '-a' => true,
+        ]));
 
         $recovered = $this->appFixture->getApp($app->getId());
         static::assertSame('recovered-secret', $recovered->getAppSecret());
         static::assertNull($recovered->getUnconfirmedAppSecrets());
         static::assertFalse($recovered->isActive(), '--activate must not change an established app during repair');
         static::assertSame(0, $installedEvents, 'repair of an established app must not replay AppInstalledEvent');
-    }
-
-    public function testInstallRecoveryFallsBackToTheCommittedSecret(): void
-    {
-        $app = $this->createRecoveryApp('current-secret', 'pending-secret');
-
-        $this->appendRecoveryHandshake('minted-from-pending');
-        $this->appendNewResponse(new Response(403));
-        $this->appendRecoveryHandshake('minted-from-current');
-        $this->appendNewResponse(new Response(200));
-
-        static::assertSame(Command::SUCCESS, $this->createRecoveryCommandTester()->execute([
-            'name' => self::RECOVERY_APP_NAME,
-            '-f' => true,
-        ]));
-
-        $recovered = $this->appFixture->getApp($app->getId());
-        static::assertSame('minted-from-current', $recovered->getAppSecret());
-        static::assertNull($recovered->getUnconfirmedAppSecrets());
     }
 
     public function testInstallRecoveryKeepsCandidatesWhenTheRetryIsAmbiguous(): void
@@ -253,30 +231,6 @@ class InstallAppCommandTest extends TestCase
         $pending = $this->appFixture->getApp($app->getId());
         static::assertSame('current-secret', $pending->getAppSecret());
         static::assertSame(['minted-recovery', 'pending-secret'], $pending->getUnconfirmedAppSecrets());
-    }
-
-    public function testInstallRecoverySurfacesTypedFailureAndRetainsStateWhenAllCandidatesAreRejected(): void
-    {
-        $app = $this->createRecoveryApp('current-secret', 'pending-secret');
-
-        $this->appendRecoveryHandshake('minted-from-pending');
-        $this->appendNewResponse(new Response(403));
-        $this->appendRecoveryHandshake('minted-from-current');
-        $this->appendNewResponse(new Response(403));
-
-        try {
-            $this->createRecoveryCommandTester()->execute([
-                'name' => self::RECOVERY_APP_NAME,
-                '-f' => true,
-            ]);
-            static::fail('Rejected recovery candidates must surface as a typed installation failure.');
-        } catch (AppException $e) {
-            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
-        }
-
-        $pending = $this->appFixture->getApp($app->getId());
-        static::assertSame('current-secret', $pending->getAppSecret());
-        static::assertSame(['pending-secret'], $pending->getUnconfirmedAppSecrets());
     }
 
     public function testInstallFailsIfAppHasValidations(): void

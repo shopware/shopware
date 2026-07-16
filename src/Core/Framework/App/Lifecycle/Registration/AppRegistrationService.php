@@ -207,13 +207,16 @@ class AppRegistrationService
             // Prepend, most-recent first: a rotation starts from an empty list; a recovery adds its new secret
             // ahead of the ones it is still trying. Read-then-write is safe under the per-app lock.
             $unconfirmed = $this->fetchApp($id, $context)->getUnconfirmedAppSecrets() ?? [];
-            // Cap to the newest few: the dropped tail is the oldest secrets, the least likely one the app
-            // still holds, so bounding the list this way never costs recovery a candidate that would matter.
-            $unconfirmed = \array_slice(
-                array_values(array_unique(array_merge([$secret], $unconfirmed))),
-                0,
-                self::MAX_UNCONFIRMED_APP_SECRETS
-            );
+            $unconfirmed = array_values(array_unique(array_merge([$secret], $unconfirmed)));
+            if (\count($unconfirmed) > self::MAX_UNCONFIRMED_APP_SECRETS) {
+                // Evict the newest of the old mints, never the tail: in a stuck-ambiguous loop the oldest
+                // entry is the secret the app most likely holds, so it must survive the cap.
+                array_splice(
+                    $unconfirmed,
+                    self::MAX_UNCONFIRMED_APP_SECRETS - 1,
+                    \count($unconfirmed) - self::MAX_UNCONFIRMED_APP_SECRETS
+                );
+            }
 
             $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => $unconfirmed, 'unconfirmedAppSecretsUpdatedAt' => $this->clock->now()]], $context);
         });

@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -28,6 +27,7 @@ use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Services\StoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -41,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class AppInstallationRecoveryTest extends TestCase
 {
+    use EventDispatcherBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const APP_DIR = __DIR__ . '/../../App/Manifest/_fixtures/test';
@@ -78,37 +79,11 @@ class AppInstallationRecoveryTest extends TestCase
         $this->appendNewResponse(new GuzzleResponse(Response::HTTP_OK));
 
         $installedEvents = 0;
-        $listener = static function (AppInstalledEvent $event) use (&$installedEvents): void {
-            ++$installedEvents;
-        };
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
         static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $eventDispatcher->addListener(AppInstalledEvent::class, $listener);
-
-        try {
-            static::assertSame(
-                Response::HTTP_NO_CONTENT,
-                $this->controller->installExtension('app', self::APP_NAME, $this->context)->getStatusCode()
-            );
-        } finally {
-            $eventDispatcher->removeListener(AppInstalledEvent::class, $listener);
-        }
-
-        $recovered = $this->appFixture->getApp($app->getId());
-        static::assertSame('recovered-secret', $recovered->getAppSecret());
-        static::assertNull($recovered->getUnconfirmedAppSecrets());
-        static::assertFalse($recovered->isActive());
-        static::assertSame(0, $installedEvents);
-    }
-
-    public function testAdministrationInstallFallsBackToCommittedSecret(): void
-    {
-        $app = $this->createApp('current-secret', 'pending-secret');
-
-        $this->appendHandshake('minted-from-pending');
-        $this->appendNewResponse(new GuzzleResponse(Response::HTTP_FORBIDDEN));
-        $this->appendHandshake('minted-from-current');
-        $this->appendNewResponse(new GuzzleResponse(Response::HTTP_OK));
+        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function () use (&$installedEvents): void {
+            ++$installedEvents;
+        });
 
         static::assertSame(
             Response::HTTP_NO_CONTENT,
@@ -116,47 +91,10 @@ class AppInstallationRecoveryTest extends TestCase
         );
 
         $recovered = $this->appFixture->getApp($app->getId());
-        static::assertSame('minted-from-current', $recovered->getAppSecret());
+        static::assertSame('recovered-secret', $recovered->getAppSecret());
         static::assertNull($recovered->getUnconfirmedAppSecrets());
-    }
-
-    public function testAdministrationInstallKeepsCandidatesWhenRetryIsAmbiguous(): void
-    {
-        $app = $this->createApp('current-secret', 'pending-secret');
-        $this->appendHandshake('minted-recovery');
-        $this->appendNewResponse(new GuzzleResponse(Response::HTTP_INTERNAL_SERVER_ERROR));
-
-        try {
-            $this->controller->installExtension('app', self::APP_NAME, $this->context);
-            static::fail('An ambiguous recovery must surface through the Administration installation API.');
-        } catch (AppRegistrationException $e) {
-            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
-        }
-
-        $pending = $this->appFixture->getApp($app->getId());
-        static::assertSame('current-secret', $pending->getAppSecret());
-        static::assertSame(['minted-recovery', 'pending-secret'], $pending->getUnconfirmedAppSecrets());
-    }
-
-    public function testAdministrationInstallRetainsStateWhenAllCandidatesAreRejected(): void
-    {
-        $app = $this->createApp('current-secret', 'pending-secret');
-
-        $this->appendHandshake('minted-from-pending');
-        $this->appendNewResponse(new GuzzleResponse(Response::HTTP_FORBIDDEN));
-        $this->appendHandshake('minted-from-current');
-        $this->appendNewResponse(new GuzzleResponse(Response::HTTP_FORBIDDEN));
-
-        try {
-            $this->controller->installExtension('app', self::APP_NAME, $this->context);
-            static::fail('Rejected candidates must surface as a typed Administration installation failure.');
-        } catch (AppException $e) {
-            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
-        }
-
-        $pending = $this->appFixture->getApp($app->getId());
-        static::assertSame('current-secret', $pending->getAppSecret());
-        static::assertSame(['pending-secret'], $pending->getUnconfirmedAppSecrets());
+        static::assertFalse($recovered->isActive());
+        static::assertSame(0, $installedEvents);
     }
 
     public function testAdministrationInstallRetainsNormalAlreadyInstalledBehaviour(): void

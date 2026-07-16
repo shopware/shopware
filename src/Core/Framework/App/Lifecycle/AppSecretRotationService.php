@@ -52,14 +52,13 @@ class AppSecretRotationService
     ) {
     }
 
+    /**
+     * Queues a rotation for the app. A pending unconfirmed secret is not rejected: the handler's
+     * {@see rotateNow} reconciles it instead of rotating over it, so an app that still holds working
+     * integration credentials can use this endpoint to recover itself.
+     */
     public function scheduleRotation(AppEntity $app, string $trigger): void
     {
-        // Reject up front so the caller sees it synchronously; the queued handler can't surface this to them.
-        // rotateNow re-checks under the lock — this is fail-fast, not the authoritative guard.
-        if ($app->getUnconfirmedAppSecrets() !== null) {
-            throw AppException::appSecretRotationAlreadyPending($app->getName());
-        }
-
         $this->logger->info('Scheduling app secret rotation', [
             'appId' => $app->getId(),
             'appName' => $app->getName(),

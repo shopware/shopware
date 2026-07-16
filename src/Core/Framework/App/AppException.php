@@ -34,7 +34,6 @@ class AppException extends HttpException
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
-    public const SECRET_ROTATION_ALREADY_PENDING = 'FRAMEWORK__APP_SECRET_ROTATION_ALREADY_PENDING';
     public const APP_SECRET_RECOVERY_FAILED = 'FRAMEWORK__APP_SECRET_RECOVERY_FAILED';
     public const APP_SECRET_ROTATION_IN_PROGRESS = 'FRAMEWORK__APP_SECRET_ROTATION_IN_PROGRESS';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
@@ -160,16 +159,6 @@ class AppException extends HttpException
             'App registration for "{{ appName }}" failed: {{ reason }}',
             ['appName' => $appName, 'reason' => $reason],
             $previous
-        );
-    }
-
-    public static function appSecretRotationAlreadyPending(string $appName): self
-    {
-        return new self(
-            Response::HTTP_CONFLICT,
-            self::SECRET_ROTATION_ALREADY_PENDING,
-            'App "{{ appName }}" has an unconfirmed secret from a previous rotation or registration. Reconcile it first by re-running "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}".',
-            ['appName' => $appName]
         );
     }
 

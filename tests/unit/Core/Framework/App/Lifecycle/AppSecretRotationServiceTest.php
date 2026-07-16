@@ -39,13 +39,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(AppSecretRotationService::class)]
 class AppSecretRotationServiceTest extends TestCase
 {
-    /**
-     * A freshly generated secret/access-key is base64url-encoded (see AccessKeyHelper): the `+/=` of standard
-     * base64 are mapped to `-_` and stripped. Matching this charset proves the value handed to the app server
-     * is a newly minted secret, not the stale one carried over from the previous integration.
-     */
-    private const FRESHLY_GENERATED_SECRET = '/^[A-Za-z0-9_-]+$/';
-
     private AppSecretRotationService $service;
 
     private AppRegistrationService&Stub $registrationService;
@@ -97,6 +90,12 @@ class AppSecretRotationServiceTest extends TestCase
         $app = new AppEntity();
         $app->setId($appId);
         $app->setName('TestApp');
+        // A pending unconfirmed secret does not block scheduling: the handler's rotateNow reconciles it
+        // instead of rotating over it, so the rotation is queued like for any other app.
+        $app->setUnconfirmedAppSecrets(['left-over-pending']);
+
+        $this->appRepository->expects($this->never())
+            ->method('search');
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
@@ -166,7 +165,7 @@ class AppSecretRotationServiceTest extends TestCase
             ->with(
                 $manifest,
                 $appId,
-                static::matchesRegularExpression(self::FRESHLY_GENERATED_SECRET),
+                static::matchesRegularExpression('/^[A-Za-z0-9_-]+$/'),
                 $context
             );
 

@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Integration\IntegrationCollection;
+use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -35,11 +37,55 @@ class AppSecretRotationServiceTest extends TestCase
      */
     private EntityRepository $appRepository;
 
+    /**
+     * @var EntityRepository<IntegrationCollection>
+     */
+    private EntityRepository $integrationRepository;
+
     protected function setUp(): void
     {
         $this->service = static::getContainer()->get(AppSecretRotationService::class);
         $this->context = Context::createDefaultContext();
         $this->appRepository = static::getContainer()->get('app.repository');
+        $this->integrationRepository = static::getContainer()->get('integration.repository');
+    }
+
+    public function testRotateNowSuccessfullyRotatesAppSecret(): void
+    {
+        $appDir = __DIR__ . '/../Manifest/_fixtures/test';
+        $this->loadAppsFromDir($appDir);
+
+        $app = $this->getInstalledApp();
+        $integration = $app->getIntegration();
+        static::assertNotNull($integration);
+
+        $manifest = Manifest::createFromXmlFile($appDir . '/manifest.xml');
+        $appSecret = 'new-app-secret';
+
+        $this->appendNewResponse(new Response(200, [], $this->buildHandshakeResponse($manifest, $appSecret)));
+        $this->appendNewResponse(new Response(200, []));
+
+        $this->service->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+
+        $updatedApp = $this->getInstalledApp();
+        $updatedIntegration = $updatedApp->getIntegration();
+        static::assertNotNull($updatedIntegration);
+
+        $newIntegrationId = $updatedApp->getIntegrationId();
+        static::assertIsString($newIntegrationId);
+        $newSecretKey = $updatedIntegration->getSecretAccessKey();
+        static::assertNotSame($integration->getSecretAccessKey(), $newSecretKey);
+        static::assertNotSame($integration->getId(), $newIntegrationId);
+
+        // Verify old integration was soft-deleted
+        $criteria = new Criteria([$integration->getId()]);
+        $oldIntegration = $this->integrationRepository->search($criteria, $this->context)->first();
+
+        static::assertInstanceOf(IntegrationEntity::class, $oldIntegration);
+        static::assertNotNull($oldIntegration->getDeletedAt());
+
+        // Verify app secret was updated
+        static::assertSame($appSecret, $updatedApp->getAppSecret());
     }
 
     public function testRotateNowWithAppWithoutSetupDoesNothing(): void

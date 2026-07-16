@@ -121,7 +121,7 @@ class AppManagerTest extends TestCase
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
-        $this->createAppManager(AppFixture::createAppRepository($existingApp))
+        $this->createAppManager(AppFixture::createAppRepository())
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 

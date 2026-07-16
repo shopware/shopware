@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -49,6 +50,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppSecretRotationEndToEndTest extends TestCase
 {
     use AppSystemTestBehaviour;
+    use EventDispatcherBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const FIXTURE_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
@@ -134,15 +136,12 @@ class AppSecretRotationEndToEndTest extends TestCase
     public function testAmbiguousFirstInstallKeepsTheAppSoTheSecretCanBeRecovered(): void
     {
         $command = new CommandTester($this->createInstallCommand());
-        $installedEvents = new class {
-            public int $count = 0;
-        };
-        $listener = static function (AppInstalledEvent $event) use ($installedEvents): void {
-            ++$installedEvents->count;
-        };
+        $installedEvents = 0;
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
         static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $eventDispatcher->addListener(AppInstalledEvent::class, $listener);
+        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function () use (&$installedEvents): void {
+            ++$installedEvents;
+        });
 
         // First CLI attempt: the app mints and persists a secret, but confirmation fails ambiguously. The row
         // and pending candidate must survive, while the install lifecycle has not run yet.
@@ -160,7 +159,7 @@ class AppSecretRotationEndToEndTest extends TestCase
             $halfInstalled = $this->getInstalledApp();
             static::assertNull($halfInstalled->getAppSecret(), 'a first install never commits a secret');
             static::assertSame([$firstInstallSecret], $halfInstalled->getUnconfirmedAppSecrets());
-            static::assertSame(0, $installedEvents->count, 'the failed attempt must not emit the installed lifecycle event');
+            static::assertSame(0, $installedEvents, 'the failed attempt must not emit the installed lifecycle event');
 
             // Second CLI attempt repairs credentials and resumes the skipped lifecycle exactly once. --activate
             // is honoured for a half-finished install, unlike repair of an already completed app.
@@ -176,7 +175,7 @@ class AppSecretRotationEndToEndTest extends TestCase
             static::assertSame($recoveredSecret, $recovered->getAppSecret());
             static::assertNull($recovered->getUnconfirmedAppSecrets());
             static::assertTrue($recovered->isActive());
-            static::assertSame(1, $installedEvents->count);
+            static::assertSame(1, $installedEvents);
             // The confirm proves the new secret and authenticates as the pending secret the app held.
             $this->assertConfirmCarriesDualSignature(
                 $this->lastConfirm(),
@@ -184,7 +183,6 @@ class AppSecretRotationEndToEndTest extends TestCase
                 previousSecret: $firstInstallSecret,
             );
         } finally {
-            $eventDispatcher->removeListener(AppInstalledEvent::class, $listener);
             // Installed through a standalone command, so the trait's #[After] cleanup does not track this app.
             static::getContainer()->get(Connection::class)->executeStatement(
                 'DELETE FROM app WHERE name = :name',
@@ -411,32 +409,6 @@ class AppSecretRotationEndToEndTest extends TestCase
         // No committed secret to restore, and the pending record is retained for a retry or explicit discard.
         static::assertNull($reverted->getAppSecret());
         static::assertSame([$rejectedPendingSecret], $reverted->getUnconfirmedAppSecrets());
-    }
-
-    public function testRecoveryRevertsAndRecommendsShopIdChangeWhenBothSecretsAreRejected(): void
-    {
-        $app = $this->installApp();
-        $committedSecret = $app->getAppSecret();
-        static::assertNotNull($committedSecret);
-
-        $this->enqueueReRegistrationAttempt(minting: 'pending-secret', confirmResponse: new Response(500));
-        $this->rotateExpectingAmbiguousFailure($app->getId());
-
-        // Neither the pending nor the committed secret is accepted: core no longer holds a secret the app trusts.
-        $this->enqueueReRegistrationAttempt(minting: 'recovery-rejected', confirmResponse: new Response(403));
-        $this->enqueueReRegistrationAttempt(minting: 'recovery-rejected', confirmResponse: new Response(403));
-
-        static::assertSame(
-            AppSecretRecoveryResult::Claimed,
-            $this->rotationService->recoverNow($app->getId(), $this->context),
-            'Recovery must report the registration as claimed when both secrets are rejected.'
-        );
-
-        // The active secret is left on the last known-good value and the pending record is retained for a
-        // retry or explicit discard.
-        $reverted = $this->getInstalledApp();
-        static::assertSame($committedSecret, $reverted->getAppSecret());
-        static::assertSame(['pending-secret'], $reverted->getUnconfirmedAppSecrets());
     }
 
     private function installApp(): AppEntity

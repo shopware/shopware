@@ -11,7 +11,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -19,6 +18,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
+use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
@@ -41,28 +42,6 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 #[CoversClass(AppRegistrationService::class)]
 class AppRegistrationServiceTest extends TestCase
 {
-    /**
-     * The app's name in manifest.xml; the service reports it back as the {{ appName }} in every
-     * registration failure, so it is also the first argument to the expected exceptions.
-     */
-    private const APP_NAME = 'test';
-
-    private const SECRET_ACCESS_KEY = 's3cr3t-4cc3s-k3y';
-
-    /**
-     * The secret the shop currently holds for the app before this registration runs. The handshake the
-     * app answers with must mint a *different* one, otherwise the rotation is rejected.
-     */
-    private const CURRENT_APP_SECRET = '4pp-s3cr3t';
-
-    /**
-     * The proof the app server echoes back. parseResponse() accepts the handshake only when this matches
-     * the proof the handshake itself computed, so the stub returns the same value on both sides.
-     */
-    private const MATCHING_PROOF = 'proof';
-
-    private const CONFIRMATION_URL = 'https://app.server/confirm';
-
     private HandshakeFactory&MockObject $handshakeFactoryMock;
 
     private MockHandler $mockHandler;
@@ -74,14 +53,11 @@ class AppRegistrationServiceTest extends TestCase
 
     private AppRegistrationService $appRegistrationService;
 
-    private Meter&Stub $meterMock;
-
     private AppEntity $testApp;
 
     protected function setUp(): void
     {
         $this->handshakeFactoryMock = $this->createMock(HandshakeFactory::class);
-        $this->meterMock = static::createStub(Meter::class);
 
         $this->mockHandler = new MockHandler([]);
         $this->appRepositoryMock = static::createStub(EntityRepository::class);
@@ -106,113 +82,219 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->handshakeFactoryMock->expects($this->never())->method('create');
 
-        $this->registerTestApp($manifest);
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
-    public function testThrowsAppRegistrationExceptionIfTheHandshakeFailsWithoutAResponse(): void
+    public function testThrowsAppRegistrationExceptionIfStoreHandshakeFails(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $handshakeRequest = $this->stubHandshake();
 
-        // Transport error before any response (DNS, connection refused, …): with no response body to read
-        // an error out of, the failure message falls back to the exception's own message.
-        $this->mockHandler->append(
-            new RequestException('Unknown app', $handshakeRequest),
+        $handshake = new StoreHandshake(
+            'https://shopware.swag',
+            'http://app.server/register',
+            'test',
+            'shop-id',
+            static::createStub(StoreClient::class),
+            '6.5.2.0',
+            new NativeClock(),
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'Unknown app'));
+        $registrationRequest = $handshake->assembleRequest();
 
-        $this->registerTestApp($manifest);
+        $handshakeMock = static::createStub(StoreHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new RequestException('Unknown app', $registrationRequest),
+        );
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Unknown app'));
+
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
-    public function testThrowsAppRegistrationExceptionIfTheHandshakeFailsWithAnErrorResponse(): void
+    public function testThrowsAppRegistrationExceptionIfPrivateHandshakeFails(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $handshakeRequest = $this->stubHandshake();
 
-        // The app answered with a 4xx whose body names the error; that error becomes the failure reason.
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
         $this->mockHandler->append(
             new RequestException(
                 '',
-                $handshakeRequest,
-                $this->appServerResponse(['error' => 'Database error on app server'], SymfonyResponse::HTTP_BAD_REQUEST)
+                $registrationRequest,
+                new Response(
+                    SymfonyResponse::HTTP_BAD_REQUEST,
+                    body: json_encode(['error' => 'Database error on app server'], \JSON_THROW_ON_ERROR)
+                )
             ),
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'Database error on app server'));
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
-        $this->registerTestApp($manifest);
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesError(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $this->stubHandshake();
 
-        // No transport error, but the (parsed) response body carries an `error` field, which is surfaced as-is.
-        $this->mockHandler->append(
-            $this->appServerResponse(['error' => 'Database error on app server'], SymfonyResponse::HTTP_BAD_REQUEST),
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'Database error on app server'));
+        $registrationRequest = $handshake->assembleRequest();
 
-        $this->registerTestApp($manifest);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new Response(
+                SymfonyResponse::HTTP_BAD_REQUEST,
+                body: json_encode(['error' => 'Database error on app server'], \JSON_THROW_ON_ERROR)
+            ),
+        );
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
+
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfReturnedSecretMatchesTheOldOne(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $this->testApp->setAppSecret(self::CURRENT_APP_SECRET);
-        $this->stubHandshake(self::MATCHING_PROOF);
 
-        // The app echoes back the secret we already hold. A rotation to the same value is meaningless, so it
-        // is rejected before anything is persisted.
-        $this->mockHandler->append(
-            $this->appServerResponse([
-                'proof' => self::MATCHING_PROOF,
-                'secret' => self::CURRENT_APP_SECRET,
-                'confirmation_url' => self::CONFIRMATION_URL,
-            ], SymfonyResponse::HTTP_BAD_REQUEST),
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'The new app secret returned from the App must be different from the current one.'));
+        $this->testApp->setAppSecret('4pp-s3cr3t');
 
-        $this->registerTestApp($manifest);
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn('proof');
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new Response(
+                SymfonyResponse::HTTP_BAD_REQUEST,
+                body: json_encode([
+                    'proof' => 'proof',
+                    'secret' => $this->testApp->getAppSecret(),
+                    'confirmation_url' => 'https://app.server/confirm',
+                ], \JSON_THROW_ON_ERROR)
+            ),
+        );
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The new app secret returned from the App must be different from the current one.'));
+
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testSuccessfullyRegisters(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $this->stubHandshake(self::MATCHING_PROOF);
 
-        // App mints a new secret and a confirmation URL; the second (empty) response is the 2xx confirm.
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn('proof');
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
         $this->mockHandler->append(
-            $this->appServerResponse([
-                'proof' => self::MATCHING_PROOF,
-                'secret' => self::CURRENT_APP_SECRET,
-                'confirmation_url' => self::CONFIRMATION_URL,
-            ], SymfonyResponse::HTTP_BAD_REQUEST),
+            new Response(
+                SymfonyResponse::HTTP_BAD_REQUEST,
+                body: json_encode([
+                    'proof' => 'proof',
+                    'secret' => '4pp-s3cr3t',
+                    'confirmation_url' => 'https://app.server/confirm',
+                ], \JSON_THROW_ON_ERROR)
+            ),
         );
         $this->mockHandler->append(new Response());
 
-        // Two-phase commit: the new secret is saved as *unconfirmed* (with a timestamp) before the confirm
-        // call, then promoted to app_secret and the unconfirmed fields cleared once the app accepts it.
         $appRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->stubSearchForTestApp($appRepositoryMock);
+        $appRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'app',
+                1,
+                new AppCollection([$this->testApp]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+        // Two-phase commit: the new secret is saved as unconfirmed before the confirm call, then promoted
+        // to app_secret and the unconfirmed fields cleared once the app accepts it.
         $update = $this->exactly(2);
         $appRepositoryMock->expects($update)
             ->method('update')
             ->willReturnCallback(function (array $payload) use ($update): EntityWrittenContainerEvent {
-                $isFirstUpdate = $update->numberOfInvocations() === 1;
-                if ($isFirstUpdate) {
+                if ($update->numberOfInvocations() === 1) {
                     static::assertSame($this->testApp->getId(), $payload[0]['id']);
-                    static::assertSame([self::CURRENT_APP_SECRET], $payload[0]['unconfirmedAppSecrets']);
+                    static::assertSame(['4pp-s3cr3t'], $payload[0]['unconfirmedAppSecrets']);
                     static::assertInstanceOf(\DateTimeInterface::class, $payload[0]['unconfirmedAppSecretsUpdatedAt']);
                 } else {
                     static::assertSame(
                         [[
                             'id' => $this->testApp->getId(),
-                            'appSecret' => self::CURRENT_APP_SECRET,
+                            'appSecret' => '4pp-s3cr3t',
                             'unconfirmedAppSecrets' => null,
                             'unconfirmedAppSecretsUpdatedAt' => null,
                         ]],
@@ -223,137 +305,185 @@ class AppRegistrationServiceTest extends TestCase
                 return static::createStub(EntityWrittenContainerEvent::class);
             });
 
-        $this->createService($appRepositoryMock)
-            ->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
-    }
-
-    public function testRegisterAppDoesNotPersistUnconfirmedSecretWhenConfirmationPayloadCannotBeBuilt(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $this->stubHandshake(self::MATCHING_PROOF);
-
-        $this->mockHandler->append(
-            $this->appServerResponse([
-                'proof' => self::MATCHING_PROOF,
-                'secret' => self::CURRENT_APP_SECRET,
-                'confirmation_url' => self::CONFIRMATION_URL,
-            ], SymfonyResponse::HTTP_BAD_REQUEST),
-        );
-
-        $shopIdProviderMock = static::createStub(ShopIdProvider::class);
-        $shopIdProviderMock->method('getShopId')->willThrowException(new \RuntimeException('shop id backend failed'));
-
-        $appRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->stubSearchForTestApp($appRepositoryMock);
-        $appRepositoryMock->expects($this->never())->method('update');
-
-        $this->expectExceptionObject(new \RuntimeException('shop id backend failed'));
-
-        $this->createService($appRepositoryMock, $shopIdProviderMock)
-            ->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
-    }
-
-    public function testRegisterAppKeepsPendingSecretWhenHandshakeFailsWithClientError(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $handshakeRequest = $this->stubHandshake();
-
-        // A 4xx on the registration handshake is not the same as the app rejecting a confirm, so it must not
-        // clear a pending secret left behind by an earlier rotation that ended without a clear answer.
-        $this->mockHandler->append(
-            new ClientException('app rejected the handshake', $handshakeRequest, new Response(SymfonyResponse::HTTP_FORBIDDEN)),
-        );
-
-        $appRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->stubSearchForTestApp($appRepositoryMock);
-        $appRepositoryMock->expects($this->never())->method('update');
-
-        $this->expectException(AppException::class);
-        $this->createService($appRepositoryMock)
-            ->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
+        $appRegistrationService = $this->createService($appRepositoryMock);
+        $appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidJson(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $this->stubHandshake();
+
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
 
         $this->mockHandler->append(new Response(body: '{invalid-json: test,}'));
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'JSON response could not be decoded'));
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'JSON response could not be decoded'));
 
-        $this->registerTestApp($manifest);
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionWithStatusCodeAndResponseBody(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $handshakeRequest = $this->stubHandshake();
 
-        // A response with no `error` field to surface: the failure quotes the raw status code and body instead.
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
         $responseBody = json_encode(['some' => 'data', 'without' => 'error field'], \JSON_THROW_ON_ERROR);
 
         $this->mockHandler->append(
-            new RequestException('Unknown app', $handshakeRequest, new Response(SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR, body: $responseBody)),
+            new RequestException('Unknown app', $registrationRequest, new Response(SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR, body: $responseBody)),
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'Got status code 500, with response: ' . $responseBody));
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Got status code 500, with response: ' . $responseBody));
 
-        $this->registerTestApp($manifest);
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesNoProof(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        $this->stubHandshake(Uuid::randomHex());
 
-        // `proof` is present but not a string, so it counts as no proof at all.
-        $this->mockHandler->append(
-            $this->appServerResponse([
-                'proof' => 1337,
-                'secret' => self::CURRENT_APP_SECRET,
-                'confirmation_url' => self::CONFIRMATION_URL,
-            ], SymfonyResponse::HTTP_BAD_REQUEST),
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'The app server provided no proof'));
+        $registrationRequest = $handshake->assembleRequest();
 
-        $this->registerTestApp($manifest);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new Response(
+                SymfonyResponse::HTTP_BAD_REQUEST,
+                body: json_encode([
+                    'proof' => 1337,
+                    'secret' => '4pp-s3cr3t',
+                    'confirmation_url' => 'https://app.server/confirm',
+                ], \JSON_THROW_ON_ERROR)
+            ),
+        );
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no proof'));
+
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidProof(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
-        // The handshake expects one proof; the app server returns a different one.
-        $this->stubHandshake(Uuid::randomHex());
 
-        $this->mockHandler->append(
-            $this->appServerResponse([
-                'proof' => Uuid::randomHex(),
-                'secret' => self::CURRENT_APP_SECRET,
-                'confirmation_url' => self::CONFIRMATION_URL,
-            ], SymfonyResponse::HTTP_BAD_REQUEST),
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
         );
 
-        $this->expectExceptionObject(AppException::registrationFailed(self::APP_NAME, 'The app server provided an invalid proof'));
+        $registrationRequest = $handshake->assembleRequest();
 
-        $this->registerTestApp($manifest);
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new Response(
+                SymfonyResponse::HTTP_BAD_REQUEST,
+                body: json_encode([
+                    'proof' => Uuid::randomHex(),
+                    'secret' => '4pp-s3cr3t',
+                    'confirmation_url' => 'https://app.server/confirm',
+                ], \JSON_THROW_ON_ERROR)
+            ),
+        );
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided an invalid proof'));
+
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
-    private function registerTestApp(Manifest $manifest): void
+    public function testKeepsPendingSecretWhenHandshakeFailsWithClientError(): void
     {
-        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), self::SECRET_ACCESS_KEY, Context::createDefaultContext());
-    }
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
 
-    /**
-     * Wire a per-test app repository (a real mock, so the test can constrain update() — which the shared
-     * setUp double, a pure stub, cannot) to resolve the shared test app, like the setUp repository does.
-     *
-     * @param EntityRepository<AppCollection>&MockObject $appRepository
-     */
-    private function stubSearchForTestApp(EntityRepository&MockObject $appRepository): void
-    {
-        $appRepository->method('search')->willReturn(
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        // A 4xx on the handshake is not the app rejecting a confirm: it must not drop a pending secret
+        // left behind by an earlier rotation that ended without a clear answer.
+        $this->mockHandler->append(
+            new ClientException('app rejected the handshake', $registrationRequest, new Response(SymfonyResponse::HTTP_FORBIDDEN)),
+        );
+
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $appRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
                 'app',
                 1,
@@ -363,6 +493,137 @@ class AppRegistrationServiceTest extends TestCase
                 Context::createDefaultContext()
             )
         );
+        $appRepositoryMock->expects($this->never())->method('update');
+
+        $this->expectException(AppException::class);
+
+        $this->createService($appRepositoryMock)
+            ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    public function testDoesNotPersistUnconfirmedSecretWhenConfirmationPayloadCannotBeBuilt(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($handshake->assembleRequest());
+        $handshakeMock->method('fetchAppProof')->willReturn('proof');
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new Response(
+                SymfonyResponse::HTTP_OK,
+                body: json_encode([
+                    'proof' => 'proof',
+                    'secret' => '4pp-s3cr3t',
+                    'confirmation_url' => 'https://app.server/confirm',
+                ], \JSON_THROW_ON_ERROR)
+            ),
+        );
+
+        // A failure while building the confirm payload happens before any confirm is sent: no unconfirmed
+        // record may be written for a secret the app was never asked to confirm.
+        $shopIdProviderMock = static::createStub(ShopIdProvider::class);
+        $shopIdProviderMock->method('getShopId')->willThrowException(new \RuntimeException('shop id backend failed'));
+
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $appRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'app',
+                1,
+                new AppCollection([$this->testApp]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+        $appRepositoryMock->expects($this->never())->method('update');
+
+        $this->expectExceptionObject(new \RuntimeException('shop id backend failed'));
+
+        $this->createService($appRepositoryMock, $shopIdProviderMock)
+            ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    public function testMintingASixthUnconfirmedSecretEvictsTheNewestOldMintAndKeepsTheOldest(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        // old-1 is the newest previous mint, old-5 the oldest — the secret the app most likely still holds.
+        $this->testApp->setUnconfirmedAppSecrets(['old-1', 'old-2', 'old-3', 'old-4', 'old-5']);
+
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = static::createStub(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn('proof');
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $this->mockHandler->append(
+            new Response(
+                SymfonyResponse::HTTP_OK,
+                body: json_encode([
+                    'proof' => 'proof',
+                    'secret' => 'new-secret',
+                    'confirmation_url' => 'https://app.server/confirm',
+                ], \JSON_THROW_ON_ERROR)
+            ),
+        );
+        // The confirm fails without a clear answer, so the capped unconfirmed list is the only write.
+        $this->mockHandler->append(new RequestException('confirm timed out', $registrationRequest));
+
+        $appRepositoryMock = $this->createMock(EntityRepository::class);
+        $appRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'app',
+                1,
+                new AppCollection([$this->testApp]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+        $appRepositoryMock->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(function (array $payload): EntityWrittenContainerEvent {
+                static::assertSame(
+                    ['new-secret', 'old-1', 'old-2', 'old-3', 'old-5'],
+                    $payload[0]['unconfirmedAppSecrets']
+                );
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $this->expectException(AppException::class);
+
+        $this->createService($appRepositoryMock)
+            ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     /**
@@ -384,58 +645,15 @@ class AppRegistrationServiceTest extends TestCase
             '6.5.2.0',
             new NativeClock(),
             new NullLogger(),
-            $this->meterMock,
+            static::createStub(Meter::class),
         );
-    }
-
-    /**
-     * Wire the handshake factory to return a handshake whose request the service will send. The request's
-     * contents are never asserted — it only needs to be a non-null request the MockHandler can answer (and
-     * that a RequestException can carry) — so a single shared instance stands in for all callers.
-     *
-     * Pass the proof the app server is expected to echo back when the test reaches the proof check; omit it
-     * for tests that fail before the response is parsed.
-     *
-     * @return RequestInterface the request the service will send, for tests that need to attach it to a failure
-     */
-    private function stubHandshake(?string $appProof = null): RequestInterface
-    {
-        $handshakeRequest = (new PrivateHandshake(
-            'https://shopware.swag',
-            's3cr3t',
-            'https://app.server/register',
-            self::APP_NAME,
-            'shop-id',
-            '6.5.2.0',
-            new NativeClock()
-        ))->assembleRequest();
-
-        $handshakeMock = static::createStub(PrivateHandshake::class);
-        $handshakeMock->method('assembleRequest')->willReturn($handshakeRequest);
-        if ($appProof !== null) {
-            $handshakeMock->method('fetchAppProof')->willReturn($appProof);
-        }
-
-        $this->handshakeFactoryMock->expects($this->once())
-            ->method('create')
-            ->willReturn($handshakeMock);
-
-        return $handshakeRequest;
-    }
-
-    /**
-     * @param array<string, mixed> $body
-     */
-    private function appServerResponse(array $body, int $status = SymfonyResponse::HTTP_OK): Response
-    {
-        return new Response($status, body: json_encode($body, \JSON_THROW_ON_ERROR));
     }
 
     private function createAppEntity(): AppEntity
     {
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
-        $app->setName(self::APP_NAME);
+        $app->setName('test');
 
         $integration = new IntegrationEntity();
         $integration->setId(Uuid::randomHex());

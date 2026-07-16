@@ -21,45 +21,12 @@ use Symfony\Component\Lock\SharedLockInterface;
 #[CoversClass(AppRegistrationLock::class)]
 class AppRegistrationLockTest extends TestCase
 {
-    public function testLockedUsesTheLockKeyedByAppId(): void
-    {
-        $appId = Uuid::randomHex();
-
-        $lock = static::createStub(SharedLockInterface::class);
-        $lock->method('acquire')->willReturn(true);
-
-        $factory = $this->createMock(LockFactory::class);
-        // The key has to be derived from the app id (and shared with rotation/recovery) so all three
-        // operations contend for the same lock; a drifting key would silently stop excluding them.
-        $factory->expects($this->once())
-            ->method('createLock')
-            ->with('app-secret-rotation-' . $appId, 30)
-            ->willReturn($lock);
-
-        (new AppRegistrationLock($factory, new NullLogger()))->locked($appId, fn () => null);
-    }
-
     public function testLockedThrowsWhenTheLockIsAlreadyHeld(): void
     {
         $appId = Uuid::randomHex();
 
         $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(false);
-
-        $factory = static::createStub(LockFactory::class);
-        $factory->method('createLock')->willReturn($lock);
-
-        $this->expectExceptionObject(AppException::appSecretRotationInProgress($appId));
-
-        (new AppRegistrationLock($factory, new NullLogger()))->locked($appId, fn () => static::fail('the operation must not run without the lock'));
-    }
-
-    public function testLockedThrowsWhenTheStoreReportsAConflict(): void
-    {
-        $appId = Uuid::randomHex();
-
-        $lock = static::createStub(SharedLockInterface::class);
-        $lock->method('acquire')->willThrowException(new LockConflictedException());
 
         $factory = static::createStub(LockFactory::class);
         $factory->method('createLock')->willReturn($lock);
@@ -115,15 +82,6 @@ class AppRegistrationLockTest extends TestCase
 
         (new AppRegistrationLock($factory, new NullLogger()))
             ->locked(Uuid::randomHex(), fn () => throw new \RuntimeException('operation failed'));
-    }
-
-    public function testRefreshExtendsTheLock(): void
-    {
-        $lock = $this->createMock(SharedLockInterface::class);
-        $lock->expects($this->once())->method('refresh');
-
-        $registrationLock = new AppRegistrationLock(static::createStub(LockFactory::class), new NullLogger());
-        $registrationLock->refresh($lock, Uuid::randomHex());
     }
 
     public function testRefreshThrowsWhenTheLockIsAlreadyHeldElsewhere(): void

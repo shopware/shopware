@@ -5,8 +5,6 @@
     "components": {
         "schemas": {
             "Criteria": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "description": "Search parameters. For more information, see our documentation on [Search Queries](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#structure)",
                 "properties": {
@@ -36,8 +34,6 @@
                         "type": "array",
                         "description": "Sorting in the search result.",
                         "items": {
-                            "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                            "x-dto-package": "framework",
                             "type": "object",
                             "properties": {
                                 "field": {
@@ -135,8 +131,6 @@
                 }
             },
             "SimpleFilter": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "anyOf": [
                     {
                         "type": "object",
@@ -175,8 +169,6 @@
                 ]
             },
             "EqualsFilter": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": { "type": "string", "enum": ["equals"] },
@@ -193,8 +185,6 @@
                 "required": ["type", "field", "value"]
             },
             "MultiNotFilter": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": { "type": "string", "enum": ["multi", "not"] },
@@ -207,8 +197,6 @@
                 "required": ["type", "queries"]
             },
             "RangeFilter": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": { "type": "string", "enum": ["range"] },
@@ -246,8 +234,6 @@
                 "required": ["type", "field", "parameters"]
             },
             "Sort": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "field": { "type": "string" },
@@ -264,8 +250,6 @@
                 }
             },
             "Aggregation": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "anyOf": [
                     { "$ref": "#/components/schemas/AggregationMetrics" },
                     {
@@ -326,7 +310,6 @@
                 ]
             },
             "SubAggregations": {
-                "x-dto-inline": true,
                 "type": "object",
                 "properties": {
                     "aggregation": {
@@ -351,8 +334,6 @@
             },
             "AggregationEntity": {
                 "title": "AggregationEntity",
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": {
@@ -377,8 +358,6 @@
             },
             "AggregationFilter": {
                 "title": "AggregationFilter",
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": {
@@ -399,8 +378,6 @@
             },
             "AggregationTerms": {
                 "title": "AggregationTerms",
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": {
@@ -430,8 +407,6 @@
             },
             "AggregationHistogram": {
                 "title": "AggregationHistogram",
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": {
@@ -465,8 +440,6 @@
             "AggregationRange": {
                 "title": "AggregationRange",
                 "description": "For more information, see [Aggregations Reference > Range Aggregation](https://developer.shopware.com/docs/resources/references/core-reference/dal-reference/aggregations-reference.html#range-aggregations)",
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": {
@@ -532,8 +505,6 @@
                 "required": ["name", "type", "field", "ranges"]
             },
             "AggregationMetrics": {
-                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\AdminApi",
-                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "name": { "type": "string" },

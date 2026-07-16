@@ -70,8 +70,6 @@ class McpCapabilityDiscoveryTest extends TestCase
 
     public function testFreshSessionAdvertisesOnlyDiscoveryTools(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->getBrowser();
 
         // Initialize a session but do NOT enable any toolset.

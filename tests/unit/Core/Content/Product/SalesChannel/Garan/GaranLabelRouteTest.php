@@ -5,8 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Garan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
-use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
@@ -29,8 +28,7 @@ class GaranLabelRouteTest extends TestCase
 
         $route = new GaranLabelRoute(
             $productRepository,
-            new GaranLabelDurationFormatter(),
-            static::createStub(GaranLabelRenderer::class),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $this->expectExceptionObject(new DecorationPatternException(GaranLabelRoute::class));
@@ -43,10 +41,10 @@ class GaranLabelRouteTest extends TestCase
         $productId = Uuid::randomHex();
         $product = $this->createProduct($productId, 'Acme', 'ACME-123', 36);
 
-        $renderer = $this->createMock(GaranLabelRenderer::class);
-        $renderer->expects($this->once())
-            ->method('render')
-            ->with('3', 'Acme', 'ACME-123')
+        $resolver = $this->createMock(GaranLabelResolver::class);
+        $resolver->expects($this->exactly(2))
+            ->method('resolve')
+            ->with($product, static::logicalOr(static::equalTo(GaranLabelResolver::LABEL_TYPE_FULL), static::equalTo(GaranLabelResolver::LABEL_TYPE_NESTED)))
             ->willReturn('<svg>rendered</svg>');
 
         /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
@@ -54,60 +52,13 @@ class GaranLabelRouteTest extends TestCase
 
         $route = new GaranLabelRoute(
             $productRepository,
-            new GaranLabelDurationFormatter(),
-            $renderer,
+            $resolver,
         );
 
         $response = $route->load($productId, Generator::generateSalesChannelContext());
 
         static::assertSame('<svg>rendered</svg>', $response->getObject()->get('svg'));
-    }
-
-    public function testLoadReturnsNullSvgWhenManufacturerIsMissing(): void
-    {
-        $productId = Uuid::randomHex();
-        $product = new SalesChannelProductEntity();
-        $product->setId($productId);
-        $product->setProductNumber('ACME-123');
-        $product->setGuaranteeMonths(36);
-
-        $renderer = $this->createMock(GaranLabelRenderer::class);
-        $renderer->expects($this->never())->method('render');
-
-        /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([new ProductCollection([$product])]);
-
-        $route = new GaranLabelRoute(
-            $productRepository,
-            new GaranLabelDurationFormatter(),
-            $renderer,
-        );
-
-        $response = $route->load($productId, Generator::generateSalesChannelContext());
-
-        static::assertNull($response->getObject()->get('svg'));
-    }
-
-    public function testLoadReturnsNullSvgWhenGuaranteeMonthsIsInvalid(): void
-    {
-        $productId = Uuid::randomHex();
-        $product = $this->createProduct($productId, 'Acme', 'ACME-123', 12);
-
-        $renderer = $this->createMock(GaranLabelRenderer::class);
-        $renderer->expects($this->never())->method('render');
-
-        /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([new ProductCollection([$product])]);
-
-        $route = new GaranLabelRoute(
-            $productRepository,
-            new GaranLabelDurationFormatter(),
-            $renderer,
-        );
-
-        $response = $route->load($productId, Generator::generateSalesChannelContext());
-
-        static::assertNull($response->getObject()->get('svg'));
+        static::assertSame('<svg>rendered</svg>', $response->getObject()->get('nestedSvg'));
     }
 
     public function testLoadThrowsWhenProductIsNotFound(): void
@@ -119,8 +70,7 @@ class GaranLabelRouteTest extends TestCase
 
         $route = new GaranLabelRoute(
             $productRepository,
-            new GaranLabelDurationFormatter(),
-            static::createStub(GaranLabelRenderer::class),
+            static::createStub(GaranLabelResolver::class),
         );
 
         $this->expectExceptionObject(ProductException::productNotFound($productId));

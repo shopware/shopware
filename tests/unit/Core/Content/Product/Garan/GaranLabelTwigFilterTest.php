@@ -112,7 +112,7 @@ class GaranLabelTwigFilterTest extends TestCase
      */
     private function createFilter(array $searchResults): GaranLabelTwigFilter
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $twig->method('render')->willReturnCallback(
             static fn (string $template, array $context) => str_contains($template, 'nested-label')
                 ? \sprintf('<svg>nested %s</svg>', $context['guarantee'])

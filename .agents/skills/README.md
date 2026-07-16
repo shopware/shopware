@@ -35,11 +35,12 @@ A skill can additionally run unattended in CI via [GitHub Agentic Workflows](htt
 
 Current twins: `sw-triage`, `sw-bugfixer`, and `sw-review` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
 
-`sw-reproduce` also has an unattended CI counterpart (`.github/workflows/reproduce.md`), but it is
-structured differently: the shared playbook lives on disk in `.github/actions/reproduce/prompt/` and
-is read at runtime by both the CI agent and the skill (rather than via a `.github/aw` policy
-fragment), so there is no drift. A `.github/aw/shared/reproduce-policy.md` fragment can be introduced
-later if the prompt is ever compiled into the lock.
+`sw-reproduce` follows the same pattern with one twist: its **cross-cutting rubric** (role, trust
+boundary, faithfulness) is the shared fragment `.github/aw/shared/reproduce-policy.md` — `runtime-import`ed
+by the CI workflow (`.github/workflows/reproduce.md`) and referenced by the skill, so the two can't
+drift — while the larger **step-by-step playbook + executor guides** stay on disk in
+`.github/actions/reproduce/prompt/` and are read at runtime by both surfaces (kept out of the lock on
+purpose).
 
 For the gh aw setup, secrets, and registration mechanics, see [`.github/aw/README.md`](../../.github/aw/README.md).
 

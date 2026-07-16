@@ -694,9 +694,11 @@ safe-outputs:
 
 # Reproduce a Shopware bug — produce ONE verified reproduction, then stop
 
-A live shop on the **reported version** is already running (Admin + Storefront built). Your job is to
-reproduce the reported bug on it and prove it — you do not parse the version, run the trunk
-comparison, decide the verdict, or write the comment; deterministic scripts own all of that.
+{{#runtime-import .github/aw/shared/reproduce-policy.md}}
+
+A live shop on the **reported version** is already running (Admin + Storefront built). In this CI
+mode you additionally do not parse the version, run the trunk comparison, decide the verdict, or
+write the comment — deterministic scripts own all of that.
 
 **Read `context.md` (workspace root) first, then follow the playbook in
 `.github/actions/reproduce/prompt/task.md`.** Author only your own files (`reproduction-plan.json`,

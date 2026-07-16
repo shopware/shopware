@@ -20,7 +20,9 @@ playbook the CI workflow uses; the only differences are: one instance (your inst
 DB is **not** reset, and nothing is posted anywhere.
 
 This skill is guidance only. All executable logic is the single source in
-`.github/actions/reproduce/` — you drive it, you don't reimplement it.
+`.github/actions/reproduce/` — you drive it, you don't reimplement it. Your role, the trust boundary,
+and what makes a reproduction *faithful* are the shared `.github/aw/shared/reproduce-policy.md` — the
+**same** rubric the CI workflow loads, so the two can't drift. Read it first.
 
 ## Before you start
 
@@ -44,7 +46,8 @@ This skill is guidance only. All executable logic is the single source in
    tell the user plainly: the reproduction reflects *their* installed version and may not match the
    report — offer to continue anyway.
 
-3. **Author the bundle** following the same playbook: read
+3. **Author the bundle** following the shared policy + the same on-disk playbook: read
+   `.github/aw/shared/reproduce-policy.md` (role/trust/faithfulness), then
    `.github/actions/reproduce/prompt/task.md` and the guides under
    `.github/actions/reproduce/prompt/guides/`. Write `reproduction-plan.json`, optional
    `fixtures.json`, and one test artifact (`repro.spec.ts` / `ReproTest.php`) — or an HTTP plan. Pick

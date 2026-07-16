@@ -5,12 +5,12 @@
  *
  * Pipeline: discover extensions (var/plugins.json) → per-extension leaf
  * tsconfigs in var/admin-extension-tooling/ → root tsconfig/eslint
- * projections → IDE bootstraps → optional per-plugin shims → manifest with
- * freshness hash.
+ * projections → IDE bootstraps → optional per-plugin shims → manifest.
  *
- * Everything written is disposable, marker-owned state. Files a human wrote
- * are never overwritten; collisions are reported with integration
- * instructions instead.
+ * Marker-owned files (root configs, IDE bootstraps, shims) a human wrote are
+ * never overwritten; collisions are reported with integration instructions
+ * instead. The var/ state files (leaf configs, manifest.json) are tool-owned
+ * and rewritten on every run.
  */
 
 import fs from 'fs';
@@ -20,7 +20,6 @@ import {
     SHIM_DIR_NAME,
     STATE_DIR,
     asRelativeSpecifier,
-    computeFreshnessHash,
     findExtensionRoot,
     findNearestConfig,
     hasCliFlag,
@@ -298,17 +297,26 @@ function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolin
 
 function createRootEslintConfig(context: GeneratorContext, projects: ExtensionToolingProject[]): ManagedFileState {
     const rootEslintPath = path.join(context.projectRoot, 'eslint.config.mjs');
+    const extensionRoots = projects.flatMap((project) => project.sourcePaths);
+
+    // Without discovered extensions there is nothing to scope the config to.
+    // The factory would then fall back to project-wide globs and lint files
+    // outside the Administration (e.g. real server-side Twig), so the root
+    // config is skipped entirely instead of written empty.
+    if (extensionRoots.length === 0) {
+        return 'skipped';
+    }
+
     const factoryPath = path.join(context.administrationRoot, 'extension-tooling', 'eslint.mjs');
     const factorySpecifier = asRelativeSpecifier(rootEslintPath, factoryPath);
-    const extensionRoots = projects.flatMap((project) => project.sourcePaths);
     const content = [
         `// ${GENERATED_MARKER}`,
-        `import { shopwareAdminExtension } from '${factorySpecifier}';`,
+        `import { shopwareAdminExtension } from ${JSON.stringify(factorySpecifier)};`,
         '',
         'export default shopwareAdminExtension({',
         '    tsconfigRootDir: import.meta.dirname,',
         '    extensionRoots: [',
-        ...extensionRoots.map((extensionRoot) => `        '${extensionRoot}',`),
+        ...extensionRoots.map((extensionRoot) => `        ${JSON.stringify(extensionRoot)},`),
         '    ],',
         '});',
         '',
@@ -319,7 +327,7 @@ function createRootEslintConfig(context: GeneratorContext, projects: ExtensionTo
         context.instructions.push(
             [
                 `${rootEslintPath} exists and is not managed by this tool. To integrate, compose the shared factory:`,
-                `    import { shopwareAdminExtension } from '${factorySpecifier}';`,
+                `    import { shopwareAdminExtension } from ${JSON.stringify(factorySpecifier)};`,
                 '    export default [',
                 '        ...shopwareAdminExtension({ tsconfigRootDir: import.meta.dirname, extensionRoots: [/* … */] }),',
                 '        // your own config',
@@ -538,11 +546,11 @@ function createShims(context: GeneratorContext, projects: ExtensionToolingProjec
                         `// ${GENERATED_MARKER} — machine-specific path into the installed Administration.`,
                         "import path from 'node:path';",
                         "import { fileURLToPath } from 'node:url';",
-                        `import { shopwareAdminExtension } from '${asRelativeSpecifier(shimEslintPath, factoryPath)}';`,
+                        `import { shopwareAdminExtension } from ${JSON.stringify(asRelativeSpecifier(shimEslintPath, factoryPath))};`,
                         '',
                         'const adminFolder = path.dirname(path.dirname(fileURLToPath(import.meta.url)));',
                         '',
-                        `export * from '${asRelativeSpecifier(shimEslintPath, factoryPath)}';`,
+                        `export * from ${JSON.stringify(asRelativeSpecifier(shimEslintPath, factoryPath))};`,
                         '',
                         'export function shopwareAdminExtensionConfig(options = {}) {',
                         '    return shopwareAdminExtension({ tsconfigRootDir: adminFolder, ...options });',
@@ -613,11 +621,6 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         version: 1,
         adminRoot: adminRelative,
         entitySchemaAvailable,
-        freshnessHash: computeFreshnessHash(
-            pluginsConfigPath,
-            path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'),
-            path.join(administrationRoot, 'package.json'),
-        ),
         hostModules,
         rootConfigs: {
             tsconfig: toManifestState(rootTsconfigState),
@@ -659,7 +662,6 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
 function printExplanation(result: SetupExtensionToolingResult): void {
     console.log(`Administration root: ${result.manifest.adminRoot}`);
     console.log(`Entity schema available: ${result.manifest.entitySchemaAvailable ? 'yes' : 'no (stub in place)'}`);
-    console.log(`Freshness hash: ${result.manifest.freshnessHash}`);
     console.log(`Root tsconfig.json: ${result.manifest.rootConfigs.tsconfig}`);
     console.log(`Root eslint.config.mjs: ${result.manifest.rootConfigs.eslintConfig}`);
 

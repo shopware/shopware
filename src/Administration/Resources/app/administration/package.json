@@ -31,7 +31,7 @@
     "lint:debugging": "eslint",
     "lint:deprecations": "FILES=$(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}'); [ -z \"$FILES\" ] || eslint --rule '\"sw-deprecation-rules/private-feature-declarations\": \"error\"' $FILES",
     "lint:fix": "npm run lint -- --fix",
-    "lint:junit": "eslint --format junit src test > eslint.junit.xml",
+    "lint:junit": "eslint --format junit src test extension-tooling scripts/extensionTooling build.ts > eslint.junit.xml",
     "lint:scss": "stylelint **/*.scss --cache",
     "lint:scss-fix": "npm run lint:scss -- --fix",
     "lint:snippets": "eslint \"src/**/snippet/*.json\" --no-cache",

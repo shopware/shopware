@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from './setup';
@@ -144,13 +145,49 @@ describe('scripts/extensionTooling/setup', () => {
 
         for (const project of result.manifest.projects) {
             for (const sourcePath of project.sourcePaths) {
-                expect(rootEslint).toContain(`'${sourcePath}',`);
+                expect(rootEslint).toContain(`${JSON.stringify(sourcePath)},`);
             }
         }
 
         const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'));
 
         expect(leafFiles).toHaveLength(result.manifest.projects.length);
+    });
+
+    it('escapes filesystem paths so a quote in an extension path cannot break the generated config', () => {
+        const pluginPath = "custom/plugins/O'Brien";
+        writeZeroConfigPlugin({ projectRoot, pluginPath });
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'OBrien',
+                basePath: `${pluginPath}/src`,
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const result = setupExtensionTooling({ projectRoot, administrationRoot });
+        const eslintConfigPath = path.join(projectRoot, 'eslint.config.mjs');
+        const rootEslint = fs.readFileSync(eslintConfigPath, 'utf8');
+        const sourcePath = result.manifest.projects.flatMap((project) => project.sourcePaths)[0];
+
+        expect(sourcePath).toContain("O'Brien");
+        expect(rootEslint).toContain(JSON.stringify(sourcePath));
+        expect(() =>
+            execFileSync('node', [
+                '--check',
+                eslintConfigPath,
+            ]),
+        ).not.toThrow();
+    });
+
+    it('skips the root eslint config when no extensions are discovered', () => {
+        writePluginsConfig(projectRoot, []);
+
+        const result = setupExtensionTooling({ projectRoot, administrationRoot });
+
+        expect(result.manifest.projects).toHaveLength(0);
+        expect(result.manifest.rootConfigs.eslintConfig).toBe('skipped');
+        expect(fs.existsSync(path.join(projectRoot, 'eslint.config.mjs'))).toBe(false);
     });
 
     it('never overwrites user-owned files and prints integration instructions instead', () => {
@@ -219,22 +256,6 @@ describe('scripts/extensionTooling/setup', () => {
         const withRealSchema = setupExtensionTooling({ projectRoot, administrationRoot });
 
         expect(withRealSchema.manifest.entitySchemaAvailable).toBe(true);
-    });
-
-    it('changes the freshness hash when plugins.json or the schema change', () => {
-        const pluginsConfigPath = writeDefaultFixtures();
-        const initial = setupExtensionTooling({ projectRoot, administrationRoot });
-
-        fs.appendFileSync(pluginsConfigPath, '\n');
-
-        const afterPluginsChange = setupExtensionTooling({ projectRoot, administrationRoot });
-
-        fs.appendFileSync(path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'), '\n');
-
-        const afterSchemaChange = setupExtensionTooling({ projectRoot, administrationRoot });
-
-        expect(afterPluginsChange.manifest.freshnessHash).not.toBe(initial.manifest.freshnessHash);
-        expect(afterSchemaChange.manifest.freshnessHash).not.toBe(afterPluginsChange.manifest.freshnessHash);
     });
 
     it('removes stale leaf configs when an extension disappears', () => {

@@ -2,11 +2,9 @@
  * @sw-package framework
  *
  * Shared building blocks for the Administration extension tooling:
- * manifest types, generated-file ownership, path helpers, discovery,
- * and the freshness hash.
+ * manifest types, generated-file ownership, path helpers, and discovery.
  */
 
-import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
@@ -63,7 +61,6 @@ export interface ExtensionToolingManifest {
     version: 1;
     adminRoot: string;
     entitySchemaAvailable: boolean;
-    freshnessHash: string;
     hostModules: Record<string, string>;
     rootConfigs: {
         tsconfig: ManifestFileState;
@@ -260,39 +257,6 @@ export function atomicWrite(filePath: string, content: string): void {
 
     fs.writeFileSync(temporaryPath, content);
     fs.renameSync(temporaryPath, filePath);
-}
-
-export function createFreshnessHash(parts: string[]): string {
-    const hash = crypto.createHash('sha256');
-
-    for (const part of parts) {
-        hash.update(part);
-        hash.update(' ');
-    }
-
-    return hash.digest('hex');
-}
-
-/**
- * Inputs for the freshness hash: the bundle dump, the entity schema
- * (content or absence), and the installed Administration version. The check
- * command recomputes the hash and hard-fails when any input changed after
- * the last setup run.
- */
-export function computeFreshnessHash(
-    pluginsConfigPath: string,
-    entitySchemaPath: string,
-    administrationPackageJsonPath: string,
-): string {
-    const pluginsContent = fs.existsSync(pluginsConfigPath) ? fs.readFileSync(pluginsConfigPath, 'utf8') : 'absent';
-    const schemaContent = fs.existsSync(entitySchemaPath) ? fs.readFileSync(entitySchemaPath, 'utf8') : 'absent';
-    const packageJson = JSON.parse(fs.readFileSync(administrationPackageJsonPath, 'utf8')) as { version?: string };
-
-    return createFreshnessHash([
-        pluginsContent,
-        schemaContent,
-        packageJson.version ?? 'unknown',
-    ]);
 }
 
 export function readCliArgument(argv: string[], name: string): string | undefined {

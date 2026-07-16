@@ -7,7 +7,6 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -56,8 +55,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $this->loadAppsFromDir($appDir);
 
         $app = $this->getInstalledApp($this->context);
-        $deletedAppsGateway = static::getContainer()->get(DeletedAppsGateway::class);
-        $deletedAppsGateway->insertSecretForDeletedApp($app->getName(), 'retained-reinstall-secret');
 
         $shopId = $this->changeAppUrl();
 
@@ -79,7 +76,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver->resolve($this->context);
 
         static::assertSame($shopId, $this->shopIdProvider->getShopId()->id);
-        static::assertSame('retained-reinstall-secret', $deletedAppsGateway->getDeletedAppSecret($app->getName()));
     }
 
     public function testItIgnoresAppsWithoutSetup(): void

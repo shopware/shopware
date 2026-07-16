@@ -98,7 +98,7 @@ class AppRegistrationService
         } catch (GuzzleException $e) {
             // The handshake failed before the app gave us a new secret. Leave any unconfirmed secret from an
             // earlier rotation untouched — it is the only saved record of a secret the app minted.
-            $this->recordRegistrationOutcome('handshake_failed');
+            $this->recordRegistrationFailure('handshake_failed');
 
             throw $this->registrationFailedFromResponse($app, $e);
         }
@@ -134,14 +134,14 @@ class AppRegistrationService
             $this->dropRejectedAppSecret($app->getId(), $context, $secret);
 
             $this->logger->warning('App secret rotation rejected by app, kept current secret', $logContext);
-            $this->recordRegistrationOutcome('rejected');
+            $this->recordRegistrationFailure('rejected');
 
             throw $this->registrationFailedFromResponse($app, $e);
         } catch (GuzzleException $e) {
             // Any other failure (5xx, timeout) is unclear: the app may have switched to the new secret before
             // it failed. Keep the unconfirmed secret so recovery can try it later.
             $this->logger->warning('App secret rotation outcome unknown, unconfirmed secret retained', $logContext);
-            $this->recordRegistrationOutcome('ambiguous');
+            $this->recordRegistrationFailure('ambiguous');
 
             throw $this->registrationFailedFromResponse($app, $e);
         }
@@ -153,13 +153,13 @@ class AppRegistrationService
     }
 
     /**
-     * Count a registration/re-registration confirm outcome. The metric is tagged only with the outcome, not
-     * the app, to keep the number of distinct metric series small; which app it was stays in the logs.
-     * Install, rotation and recovery attempts all pass through here.
+     * Count a registration/re-registration confirm *failure*. Tagged only with the failure reason, not the
+     * app, to keep the number of distinct series small; which app it was stays in the logs. Install, rotation
+     * and recovery confirms all pass through here; a successful confirm is not metered.
      */
-    private function recordRegistrationOutcome(string $outcome): void
+    private function recordRegistrationFailure(string $outcome): void
     {
-        $this->meter->emit(new ConfiguredMetric('app.registration.outcome.count', 1, ['outcome' => $outcome]));
+        $this->meter->emit(new ConfiguredMetric('app.registration.failure.count', 1, ['outcome' => $outcome]));
     }
 
     private function registrationFailedFromResponse(AppEntity $app, GuzzleException $e): AppException

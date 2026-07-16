@@ -16,12 +16,12 @@ shopware:
                     description: 'Number of apps with a pending unconfirmed app secret'
                     type: 'gauge'
 
-                app.registration.outcome.count:
-                    description: 'App registration / re-registration confirm outcomes'
+                app.registration.failure.count:
+                    description: 'App registration / re-registration confirm failures'
                     type: 'counter'
                     labels:
                         outcome:
-                            allowed_values: ['committed', 'rejected', 'ambiguous', 'handshake_failed']
+                            allowed_values: ['rejected', 'ambiguous', 'handshake_failed']
 
                 app.secret_recovery.outcome.count:
                     description: 'App-secret recovery outcomes during installation'

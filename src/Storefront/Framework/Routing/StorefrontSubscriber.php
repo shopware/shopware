@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerRegistrationReplayedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
@@ -66,6 +67,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ],
             CustomerLogoutEvent::class => [
                 'updateSessionAfterLogout',
+            ],
+            CustomerRegistrationReplayedEvent::class => [
+                'updateSessionAfterRegistrationReplay',
             ],
             SalesChannelContextResolvedEvent::class => [
                 ['replaceContextToken'],
@@ -142,6 +146,15 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $newToken = Random::getAlphanumericString(32);
 
         $this->updateSession($newToken, true);
+    }
+
+    /**
+     * Attaches the session to the original registration's context token, so login and cart
+     * survive a duplicate submission.
+     */
+    public function updateSessionAfterRegistrationReplay(CustomerRegistrationReplayedEvent $event): void
+    {
+        $this->updateSession($event->contextToken);
     }
 
     public function updateSession(string $token, bool $destroyOldSession = false): void

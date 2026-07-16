@@ -60,6 +60,12 @@
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Service\RegistrationIdempotencyGuard">
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
@@ -279,6 +285,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\RegistrationIdempotencyGuard"/>
+            <argument>%kernel.secret%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">

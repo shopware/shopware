@@ -126,6 +126,59 @@ class RegisterControllerTest extends TestCase
         static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
+    public function testDoubleSubmitAttachesSessionToExistingRegistration(): void
+    {
+        $requestStack = static::getContainer()->get('request_stack');
+
+        // start from an empty stack so the requests created below are the main requests the session subscriber acts on
+        while ($requestStack->getMainRequest() !== null) {
+            $requestStack->pop();
+        }
+
+        $registerController = static::getContainer()->get(RegisterController::class);
+
+        $registrationData = $this->getRegistrationData()->all();
+        $registrationData['redirectTo'] = 'frontend.checkout.confirm.page';
+
+        $originalToken = $this->salesChannelContext->getToken();
+
+        $firstRequest = $this->createRequest();
+        $firstRequest->request->add($registrationData);
+
+        $firstResponse = $registerController->register($firstRequest, new RequestDataBag($registrationData), $this->salesChannelContext);
+
+        static::assertInstanceOf(RedirectResponse::class, $firstResponse);
+        static::assertSame('/checkout/confirm', $firstResponse->getTargetUrl());
+
+        $session = $this->getSession();
+        $loginToken = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($loginToken);
+        static::assertNotSame($originalToken, $loginToken);
+
+        // simulate the duplicate submission of a browser that never received the rotated context token:
+        // the same payload arrives with the stale session token and a customer-less context
+        $requestStack->pop();
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $originalToken);
+
+        $duplicateRequest = $this->createRequest();
+        $duplicateRequest->request->add($registrationData);
+
+        $duplicateContext = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create($originalToken, TestDefaults::SALES_CHANNEL);
+
+        $duplicateResponse = $registerController->register($duplicateRequest, new RequestDataBag($registrationData), $duplicateContext);
+
+        static::assertInstanceOf(RedirectResponse::class, $duplicateResponse);
+        static::assertSame('/checkout/confirm', $duplicateResponse->getTargetUrl());
+        static::assertSame($loginToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($loginToken, $duplicateRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $customers = static::getContainer()->get(Connection::class)
+            ->fetchAllAssociative('SELECT id FROM customer WHERE email = :mail', ['mail' => $registrationData['email']]);
+
+        static::assertCount(1, $customers);
+    }
+
     public function testRegisterWithDoubleOptIn(): void
     {
         $container = static::getContainer();

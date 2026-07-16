@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -1239,7 +1240,7 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testRegistrationWithActiveCart(): void
+    public function testDoubleGuestRegistrationReplaysWinnerAndPreservesActiveCart(): void
     {
         $this->createProductTestData();
         $this->browser
@@ -1262,15 +1263,15 @@ class RegisterRouteTest extends TestCase
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $contextToken);
+        $staleContextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($staleContextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $staleContextToken);
 
-        $additionalData = [
-            'guest' => true,
-        ];
+        $registrationData = json_encode(
+            array_merge_recursive($this->getRegistrationData(), ['guest' => true]),
+            \JSON_THROW_ON_ERROR
+        );
 
-        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
         $this->browser
             ->request(
                 'POST',
@@ -1278,14 +1279,221 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+                $registrationData
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        $newContextToken = $this->browser->getResponse()->headers->all(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertCount(1, $newContextToken);
-        static::assertNotSame($contextToken, $newContextToken);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $firstResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $newContextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($newContextToken);
+        static::assertNotSame($staleContextToken, $newContextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $newContextToken);
+        $this->browser->request('GET', '/store-api/checkout/cart');
+
+        $cart = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertCount(1, $cart['lineItems']);
+        static::assertSame($this->ids->get('p1'), $cart['lineItems'][0]['referencedId']);
+
+        // the second submission of a double-submitted form replays the stale context token
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $staleContextToken);
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                $registrationData
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $secondResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($firstResponse['id'], $secondResponse['id']);
+        static::assertSame($newContextToken, $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            1,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM customer WHERE email = :email', ['email' => 'teg-reg@example.com'])
+        );
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $newContextToken);
+        $this->browser->request('GET', '/store-api/checkout/cart');
+
+        $cart = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertCount(1, $cart['lineItems']);
+        static::assertSame($this->ids->get('p1'), $cart['lineItems'][0]['referencedId']);
+
+        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM cart WHERE token = :token', ['token' => $newContextToken]));
+        static::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM cart WHERE token = :token', ['token' => $staleContextToken]));
+    }
+
+    public function testTwoDifferentRegistrationsWithSameTokenCreateTwoCustomers(): void
+    {
+        $staleContextToken = (string) $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode(array_merge_recursive($this->getRegistrationData(), ['guest' => true]), \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $firstResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $firstContextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($firstContextToken);
+
+        $secondRegistrationData = array_merge_recursive($this->getRegistrationData(), ['guest' => true]);
+        $secondRegistrationData['email'] = 'teg-reg-second@example.com';
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $staleContextToken);
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($secondRegistrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $secondResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $secondContextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($secondContextToken);
+
+        static::assertNotSame($firstResponse['id'], $secondResponse['id']);
+        static::assertNotSame($firstContextToken, $secondContextToken);
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            1,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM customer WHERE email = :email', ['email' => 'teg-reg@example.com'])
+        );
+        static::assertSame(
+            1,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM customer WHERE email = :email', ['email' => 'teg-reg-second@example.com'])
+        );
+    }
+
+    public function testDoubleGuestOrderRegistrationWithDoubleOptIn(): void
+    {
+        $this->systemConfigService->set('core.loginRegistration.doubleOptInGuestOrder', true);
+
+        $contextToken = (string) $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
+
+        $dispatchedDoubleOptInEvents = 0;
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            DoubleOptInGuestOrderEvent::class,
+            static function () use (&$dispatchedDoubleOptInEvents): void {
+                ++$dispatchedDoubleOptInEvents;
+            }
+        );
+
+        $registrationData = json_encode(
+            array_merge_recursive($this->getRegistrationData(), ['guest' => true]),
+            \JSON_THROW_ON_ERROR
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                $registrationData
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $firstResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        // double-opt-in registrations do not log in, the incoming token is only echoed
+        static::assertSame($contextToken, $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                $registrationData
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $secondResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($firstResponse['id'], $secondResponse['id']);
+        static::assertSame($contextToken, $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        static::assertSame(1, $dispatchedDoubleOptInEvents);
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            1,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM customer WHERE email = :email', ['email' => 'teg-reg@example.com'])
+        );
+    }
+
+    public function testStaleTokenAfterLogoutRunsFreshRegistration(): void
+    {
+        $staleContextToken = (string) $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
+
+        $registrationData = json_encode(
+            array_merge_recursive($this->getRegistrationData(), ['guest' => true]),
+            \JSON_THROW_ON_ERROR
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                $registrationData
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $firstResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $firstContextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($firstContextToken);
+
+        // logging out invalidates the rotated context token of the first registration
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $firstContextToken);
+        $this->browser->request('POST', '/store-api/account/logout');
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $staleContextToken);
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                $registrationData
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $secondResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $secondContextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($secondContextToken);
+
+        // the invalidated result is not replayed, a fresh registration creates a second guest
+        static::assertNotSame($firstResponse['id'], $secondResponse['id']);
+        static::assertNotSame($firstContextToken, $secondContextToken);
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            2,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM customer WHERE email = :email', ['email' => 'teg-reg@example.com'])
+        );
     }
 
     public function testRegistrationWithEmptyBillingAddress(): void

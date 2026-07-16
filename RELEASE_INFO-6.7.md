@@ -2,6 +2,10 @@
 
 ## Core
 
+### Duplicate registration submissions no longer create duplicate customers or lose the cart
+
+Double submissions of the registration form (e.g. a mobile double-tap) previously registered twice: two guest customers were created and the context token was rotated twice, losing the cart. `POST /store-api/account/register` and the storefront registration now answer a resubmission with the same context token and an identical payload within a short window with the original result — same customer, same rotated token where a login occurred. This is immediate, best-effort duplicate suppression on top of the configured lock and cache backends, not a general Store API idempotency contract; different payloads on the same token behave as before. (shopware/shopware#18063)
+
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)

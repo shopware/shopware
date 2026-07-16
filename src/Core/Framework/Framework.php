@@ -74,16 +74,18 @@ class Framework extends Bundle
         $container->setParameter('locale', 'en-GB');
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+
         $loader->load('services.xml');
         $loader->load('acl.xml');
         $loader->load('cache.xml');
         $loader->load('api.xml');
         $loader->load('app.xml');
         $loader->load('custom-field.xml');
-        $loader->load('data-abstraction-layer.xml');
+        $phpLoader->load('data-abstraction-layer.php');
         $loader->load('demodata.xml');
         $loader->load('event.xml');
-        $loader->load('hydrator.xml');
+        $phpLoader->load('hydrator.php');
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
         $loader->load('plugin.xml');
@@ -105,7 +107,6 @@ class Framework extends Bundle
         $loader->load('sso.xml');
 
         // @codeCoverageIgnoreStart
-        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('mcp.php');
         // @codeCoverageIgnoreEnd
 

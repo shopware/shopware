@@ -348,6 +348,74 @@ class ProductControllerTest extends TestCase
         static::assertStringNotContainsString('itemprop="length"', $content);
     }
 
+    public function testSeparateProductGalleryCmsElementRendersImageMicrodata(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $cmsPageId = Uuid::randomHex();
+
+        static::getContainer()->get('cms_page.repository')->create([
+            [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'type' => 'default',
+                        'position' => 0,
+                        'blocks' => [
+                            [
+                                'id' => Uuid::randomHex(),
+                                'type' => 'image-gallery',
+                                'position' => 0,
+                                'sectionPosition' => 'main',
+                                'slots' => [
+                                    [
+                                        'id' => Uuid::randomHex(),
+                                        'type' => 'image-gallery',
+                                        'slot' => 'imageGallery',
+                                        'config' => [
+                                            'sliderItems' => ['source' => 'mapped', 'value' => 'product.media'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'cmsPageId' => $cmsPageId,
+            'media' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 0,
+                    'media' => [
+                        'fileName' => 'gallery-image',
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filter('img.gallery-slider-image[itemprop="image"]'));
+    }
+
     public function testReferencePriceIsRenderedWithSingleCalculatedPrice(): void
     {
         $unitId = Uuid::randomHex();

@@ -19,6 +19,8 @@ return $config
 
     /** Only used if `class_exists` is successful in @see \Shopware\Core\Profiling\Integration\Datadog */
     ->ignoreUnknownClassesRegex('~^DDTrace~')
+    /** Danger rules (src/Core/DevOps/StaticAnalyze/Danger) type against the danger-php package from vendor-bin, outside the root autoloader */
+    ->ignoreUnknownClassesRegex('~^Danger\\\\~')
     /** Test plugins used in @see \Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour */
     ->ignoreUnknownClassesRegex('~^Swag~')
     /** Only used if `class_exists` is successful in @see \Shopware\Core\Profiling\Integration\Tideways */

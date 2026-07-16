@@ -229,10 +229,12 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isTryingToChangeAdmin = isset($data['admin']);
+        if (!$source->isAdmin() && \array_key_exists('admin', $data)) {
+            if ($data['admin'] !== false) {
+                throw new PermissionDeniedException();
+            }
 
-        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
-            throw new PermissionDeniedException();
+            unset($data['admin']);
         }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));

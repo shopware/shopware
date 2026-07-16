@@ -318,6 +318,86 @@ class UserControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
+    public function testUpdateNonAdminUserWithUnchangedAdminFlagAsNonAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => false,
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:read', 'user:update']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest(
+            'PATCH',
+            '/api/user/' . $ids->get('user'),
+            ['firstName' => 'Updated', 'admin' => false]
+        );
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $client->jsonRequest('GET', '/api/user/' . $ids->get('user'));
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('Updated', $content['data']['attributes']['firstName']);
+        static::assertFalse($content['data']['attributes']['admin']);
+    }
+
+    public function testUpdateAdminUserWithFalseAdminFlagDoesNotDemoteAsNonAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('admin-user'),
+            'email' => 'target-admin@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-admin',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => true,
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:read', 'user:update']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest(
+            'PATCH',
+            '/api/user/' . $ids->get('admin-user'),
+            ['firstName' => 'Updated', 'admin' => false]
+        );
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $client->jsonRequest('GET', '/api/user/' . $ids->get('admin-user'));
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('Updated', $content['data']['attributes']['firstName']);
+        static::assertTrue($content['data']['attributes']['admin']);
+    }
+
     public function testCreateUserWithAdminFlagAsAdmin(): void
     {
         static::getContainer()->get(Connection::class)

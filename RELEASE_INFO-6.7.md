@@ -11,6 +11,9 @@ Store API requests now remain stateless unless application or extension code exp
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
+### Standard integrations now honor `sw-app-user-id`
+
+Admin API requests authenticated with a standard integration access key now support the `sw-app-user-id` header the same way app integrations already do. When the header contains a valid user id, the resolved permissions are restricted to the intersection of the integration ACL privileges and the user's ACL privileges. Invalid or empty `sw-app-user-id` values continue to be ignored.
 
 ### Cache invalidated on cross-selling updates and deletions
 
@@ -135,6 +138,32 @@ New classes:
 - `Shopware\Core\System\CustomField\CustomFieldXmlLoader` — loads and validates `custom-fields.xml` files
 
 The custom field XML DTO classes have been moved from `Shopware\Core\Framework\App\Manifest\Xml\CustomField` to `Shopware\Core\System\CustomField\Xml` to make them properly reusable outside the app system.
+
+### Custom fields can be marked searchable declaratively
+
+Apps and plugins can now flag a custom field as searchable directly in XML via a new `<include-in-search>` element, setting the field's `includeInSearch` property on creation. For apps, declare it inside the `<custom-fields>` section of `manifest.xml`:
+
+```xml
+<custom-fields>
+    <custom-field-set>
+        <name>swag_example_set</name>
+        <label>Example</label>
+        <related-entities>
+            <product/>
+        </related-entities>
+        <fields>
+            <text name="swag_example_field">
+                <label>Example field</label>
+                <include-in-search>true</include-in-search>
+            </text>
+        </fields>
+    </custom-field-set>
+</custom-fields>
+```
+
+The same element also works in the file-based `Resources/config/custom-fields.xml` format used by plugins and apps.
+
+Previously `includeInSearch` defaulted to `false` and could only be toggled through the Admin UI or the Admin API — and for app-owned custom fields that was not possible at all, because their field sets are not editable in the Administration. A searchable custom field is picked up by the product search indexing and becomes selectable for ranking configuration under Settings → Search. The element defaults to `false`, so existing extensions are unaffected.
 
 ### Scheduled task execution moved to `ScheduledTaskExecutor`
 

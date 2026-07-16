@@ -51,7 +51,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.sw-notification-center__context-button').trigger('click');
         await flushPromises();
 
-        expect(panel().find('.sw-notification-center__empty-text').isVisible()).toBe(true);
+        expect(panel().find('.sw-notification-center__empty-state-wrapper').isVisible()).toBe(true);
         expect(panel().findAll('.sw-notification-center-item')).toHaveLength(0);
 
         expect(panel().find('.sw-notification-center__options-button').attributes('disabled')).toBeDefined();
@@ -82,7 +82,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.sw-notification-center__context-button').trigger('click');
         await flushPromises();
 
-        expect(panel().find('.sw-notification-center__empty-text').isVisible()).toBe(false);
+        expect(panel().find('.sw-notification-center__empty-state-wrapper').isVisible()).toBe(false);
         expect(panel().findAll('.sw-notification-center-item')).toHaveLength(1);
     });
 
@@ -112,8 +112,25 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.sw-notification-center__context-button').trigger('click');
         await flushPromises();
 
-        expect(panel().find('.sw-notification-center__empty-text').isVisible()).toBe(true);
+        expect(panel().find('.sw-notification-center__empty-state-wrapper').isVisible()).toBe(true);
         expect(panel().findAll('.sw-notification-center-item')).toHaveLength(0);
+    });
+
+    it('should ring the empty-state bell when its button is clicked', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.isBellRinging).toBe(false);
+        expect(panel().find('.sw-notification-center__empty-state--ringing').exists()).toBe(false);
+
+        await panel().find('.sw-notification-center__empty-state-bell-button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.isBellRinging).toBe(true);
+        expect(panel().find('.sw-notification-center__empty-state--ringing').exists()).toBe(true);
     });
 
     it('should close the delete modal when the panel is closed', async () => {

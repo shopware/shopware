@@ -130,6 +130,7 @@ class AppRegistrationService
         } catch (ClientException $e) {
             // A 4xx means the app answered and clearly rejected the confirm. Drop the rejected secret so
             // app_secret stays on the current (old) value; both sides now agree on the old secret.
+            // this is true, because we already passed the initial register step at this point
             $this->dropRejectedAppSecret($app->getId(), $context, $secret);
 
             $this->logger->warning('App secret rotation rejected by app, kept current secret', $logContext);
@@ -149,7 +150,6 @@ class AppRegistrationService
         $this->commitAppSecret($app->getId(), $context, $secret);
 
         $this->logger->info('App secret committed after confirmation', $logContext);
-        $this->recordRegistrationOutcome('committed');
     }
 
     /**
@@ -264,8 +264,9 @@ class AppRegistrationService
             'sw-version' => $this->shopwareVersion,
         ];
 
-        // Re-registration also signs with the current secret (shopware-shop-signature-previous), proving we
-        // are the shop the app already knows — so only the initiator can confirm.
+        // For re-registration, also send signature with current/old secret
+        // shopware-shop-signature (new) + shopware-shop-signature-previous (current).
+        // This is to ensure that only the party who initiated the re-registration can confirm it.
         if ($currentSecret !== null) {
             $previousSignature = $this->signPayload($payload, $currentSecret);
             $headers['shopware-shop-signature-previous'] = $previousSignature;
@@ -323,7 +324,8 @@ class AppRegistrationService
             );
         }
 
-        // The integration always exists: it is created with the app and loaded by fetchApp()'s association.
+        // We can safely assume that the app has an integration because it is created together with the app
+        // and explicitly fetched in the ::getApp() method below.
         $integration = $app->getIntegration();
         \assert($integration !== null);
 

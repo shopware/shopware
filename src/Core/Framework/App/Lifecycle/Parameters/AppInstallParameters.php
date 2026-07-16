@@ -14,7 +14,7 @@ final readonly class AppInstallParameters
 {
     public function __construct(
         public bool $activate = true,
-        public bool $acceptPermissions = true,
+        public bool $acceptPermissions = true
     ) {
     }
 }

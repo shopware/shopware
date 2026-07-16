@@ -253,15 +253,12 @@ class AppSecretRotationService
 
                     return AppSecretRecoveryResult::Recovered;
                 } catch (AppRegistrationRejectedException) {
-                    // The app definitively rejected this secret; try the next candidate. The rejection reason
-                    // is already logged in AppRegistrationService. Any other outcome (5xx/timeout/unexpected)
-                    // is not caught here and propagates to the outer handler unchanged.
+                    // App rejected this secret; try the next candidate. Other outcomes (5xx/timeout) propagate unchanged.
                 }
             }
         } catch (\Throwable $e) {
-            // An attempt failed without a clear answer (a 5xx/timeout, or a non-registration failure after the
-            // integration switch). The outcome is unknown, so rethrow for installation to retry — mirroring
-            // rotateNow's \Throwable handling — and let settle decide whether to undo the integration switch.
+            // Ambiguous failure (5xx/timeout, or a post-switch non-registration error): outcome unknown, so
+            // settle the integration and rethrow for a later install to retry.
             $this->settleAmbiguousRecovery(
                 appId: $appId,
                 originalUnconfirmed: $unconfirmed,

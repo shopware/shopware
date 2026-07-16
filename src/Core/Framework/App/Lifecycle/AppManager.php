@@ -430,10 +430,8 @@ class AppManager
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
         $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();
 
-        // Serialise the whole persist against a concurrent rotation or recovery of the same app: a rotation
-        // reads the manifest and metadata this method rewrites, and a registration below must not interleave
-        // with one. Cheap (one per-app lock round trip on an installation path), and unconditional is simpler
-        // than locking only the paths that end up registering.
+        // Serialise against a concurrent rotation/recovery of the same app (it reads the manifest/metadata
+        // this rewrites). Unconditional locking is simpler than locking only the paths that register.
         $this->registrationLock->locked($id, function () use ($manifest, $metadata, $id, $install, $parameters, $secretAccessKey, $context): void {
             $this->updateMetadata($metadata, $context);
 

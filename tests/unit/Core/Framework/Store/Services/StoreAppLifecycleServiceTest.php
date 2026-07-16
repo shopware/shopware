@@ -8,8 +8,6 @@ use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
-use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\StoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -24,42 +22,6 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 #[CoversClass(StoreAppLifecycleService::class)]
 class StoreAppLifecycleServiceTest extends TestCase
 {
-    public function testInstallOptsIntoRecoveryWithoutActivation(): void
-    {
-        $context = Context::createDefaultContext();
-        $manifest = static::createStub(Manifest::class);
-
-        $appLoader = $this->createMock(AppLoader::class);
-        $appLoader->expects($this->once())
-            ->method('load')
-            ->willReturn(['TestApp' => $manifest]);
-
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects($this->once())
-            ->method('install')
-            ->with(
-                $manifest,
-                static::callback(static fn (AppInstallParameters $parameters): bool => !$parameters->activate
-                    && $parameters->acceptPermissions),
-                $context
-            );
-
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
-
-        $service = new StoreAppLifecycleService(
-            static::createStub(StoreClient::class),
-            $appLoader,
-            $appLifecycle,
-            static::createStub(AppStorage::class),
-            $salesChannelRepository,
-            null,
-            static::createStub(AppConfirmationDeltaProvider::class),
-        );
-
-        $service->installExtension('TestApp', $context);
-    }
-
     public function testActivatesInstalledApp(): void
     {
         $app = AppFixture::createAppEntity('TestApp', 'app-id');

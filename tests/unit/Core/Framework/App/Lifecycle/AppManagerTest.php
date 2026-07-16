@@ -548,7 +548,6 @@ class AppManagerTest extends TestCase
         $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty()->withSetup());
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->never())->method('discardNow');
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
@@ -633,32 +632,6 @@ class AppManagerTest extends TestCase
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
     }
 
-    public function testReregisterDiscardsPendingSecretForNewIdentityBeforeRotation(): void
-    {
-        $context = Context::createDefaultContext();
-        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
-        $app->setUnconfirmedAppSecrets(['pending-secret']);
-
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
-        $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty()->withSetup());
-
-        $discarded = false;
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->once())
-            ->method('discardNow')
-            ->with($app->getId(), $context)
-            ->willReturnCallback(static function () use (&$discarded): void {
-                $discarded = true;
-            });
-        $this->appSecretRotationService->expects($this->once())
-            ->method('rotateNow')
-            ->willReturnCallback(static function () use (&$discarded): void {
-                self::assertTrue($discarded, 'Pending recovery state must be discarded before new-identity registration.');
-            });
-
-        $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
-    }
-
     public function testReregisterSkipsAppsWithoutSetup(): void
     {
         $context = Context::createDefaultContext();
@@ -680,24 +653,6 @@ class AppManagerTest extends TestCase
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class));
-    }
-
-    public function testReregisterDiscardsPendingSecretWithoutSetupForNewIdentity(): void
-    {
-        $context = Context::createDefaultContext();
-        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
-        $app->setUnconfirmedAppSecrets(['pending-secret']);
-
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
-        $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty());
-
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->once())
-            ->method('discardNow')
-            ->with($app->getId(), $context);
-        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
-
-        $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
     }
 
     public function testActivateDoesNothingIfAppIsAlreadyActive(): void

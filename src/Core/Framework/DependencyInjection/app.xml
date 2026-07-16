@@ -796,6 +796,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Url\AppUrlVerifier">
             <argument>%kernel.environment%</argument>
             <argument>%kernel.shopware_version%</argument>

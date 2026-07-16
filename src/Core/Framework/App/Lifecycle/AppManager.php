@@ -169,12 +169,6 @@ class AppManager
     {
         $manifest = $this->manifestFactory->createFromApp($app);
 
-        if ($app->getUnconfirmedAppSecrets() !== null) {
-            // A new shop identity deliberately abandons the old registration. Same-identity moves must never
-            // do this: their pending candidates are the only way to repair an ambiguous rotation.
-            $this->appSecretRotationService->discardNow($app->getId(), $context);
-        }
-
         if (!$manifest->getSetup()) {
             return;
         }

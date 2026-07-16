@@ -24,7 +24,10 @@ describe('sw-settings-storefront-index', () => {
                     },
                     'sw-button-process': {
                         props: ['processSuccess'],
-                        emits: ['click', 'update:processSuccess'],
+                        emits: [
+                            'click',
+                            'update:processSuccess',
+                        ],
                         template: `
                             <button class="sw-button-process" @click="$emit('click')"><slot></slot></button>
                         `,
@@ -191,18 +194,22 @@ describe('sw-settings-storefront-index', () => {
 
         const switches = wrapper.findAllComponents({ name: 'mt-switch' });
 
-        expect(switches.at(0).props()).toEqual(expect.objectContaining({
-            disabled: true,
-            inheritedValue: true,
-            isInherited: true,
-            modelValue: true,
-        }));
-        expect(switches.at(1).props()).toEqual(expect.objectContaining({
-            disabled: true,
-            inheritedValue: true,
-            isInherited: true,
-            modelValue: true,
-        }));
+        expect(switches.at(0).props()).toEqual(
+            expect.objectContaining({
+                disabled: true,
+                inheritedValue: true,
+                isInherited: true,
+                modelValue: true,
+            }),
+        );
+        expect(switches.at(1).props()).toEqual(
+            expect.objectContaining({
+                disabled: true,
+                inheritedValue: true,
+                isInherited: true,
+                modelValue: true,
+            }),
+        );
     });
 
     it('normalizes empty values before saving default scoped and global settings', async () => {
@@ -220,10 +227,13 @@ describe('sw-settings-storefront-index', () => {
         expect(saveValues).toHaveBeenCalledWith({
             'core.storefrontSettings.asyncThemeCompilation': false,
         });
-        expect(saveValues).toHaveBeenCalledWith({
-            'core.storefrontSettings.iconCache': true,
-            'core.storefrontSettings.speculationRules': false,
-        }, null);
+        expect(saveValues).toHaveBeenCalledWith(
+            {
+                'core.storefrontSettings.iconCache': true,
+                'core.storefrontSettings.speculationRules': false,
+            },
+            null,
+        );
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
         expect(wrapper.vm.isLoading).toBe(false);
     });
@@ -272,10 +282,13 @@ describe('sw-settings-storefront-index', () => {
         expect(saveValues).toHaveBeenCalledWith({
             'core.storefrontSettings.asyncThemeCompilation': true,
         });
-        expect(saveValues).toHaveBeenCalledWith({
-            'core.storefrontSettings.iconCache': null,
-            'core.storefrontSettings.speculationRules': null,
-        }, 'sales-channel-id');
+        expect(saveValues).toHaveBeenCalledWith(
+            {
+                'core.storefrontSettings.iconCache': null,
+                'core.storefrontSettings.speculationRules': null,
+            },
+            'sales-channel-id',
+        );
         expect(wrapper.vm.isLoading).toBe(false);
     });
 

@@ -1,3 +1,8 @@
+import {
+    CrossBlockConditionTransformError,
+    normalizeCrossBlockConditionals,
+} from './template-transformer/normalize-cross-block-conditionals';
+
 /**
  * Twig is a line-oriented text format, not a language ts-morph understands.
  * Regex is the right tool here: every pattern (block tags, endblock, parent())
@@ -98,6 +103,15 @@ export function transformTemplate(twigContent: string): { template: string } {
             .map((line) => line.replace(BLOCK_END_RE, '</sw-block>'))
             .map((line) => line.replace(PARENT_RE, '<sw-block-parent/>'))
             .join('\n');
+        try {
+            body = normalizeCrossBlockConditionals(body);
+        } catch (err) {
+            if (err instanceof CrossBlockConditionTransformError) {
+                throw new TemplateTransformError(err.blockers, err.message);
+            }
+
+            throw err;
+        }
     }
     // TODO: Silent ignore: `{{ parent() }}` outside a detected Twig block is
     // left as a Vue method call, which is syntactically valid but loses Twig

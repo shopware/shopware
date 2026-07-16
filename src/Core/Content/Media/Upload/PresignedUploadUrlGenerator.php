@@ -77,11 +77,11 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
     public function generate(MediaLocationStruct $location, string $mimeType): PresignedUrlResult
     {
-        if (!$this->enabled) {
+        if (!$this->isEnabled()) {
             throw MediaException::presignedUploadDisabled();
         }
 
-        if (!$this->isSupported()) {
+        if ($this->s3Client === null || $this->bucket === null) {
             throw MediaException::presignedUploadNotSupported();
         }
 
@@ -91,10 +91,6 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
         if ($location->extension === null) {
             throw MediaException::missingFileExtension();
-        }
-
-        if ($this->s3Client === null || $this->bucket === null) {
-            throw MediaException::presignedUploadNotSupported();
         }
 
         $paths = $this->mediaPathStrategy->generate([$location]);

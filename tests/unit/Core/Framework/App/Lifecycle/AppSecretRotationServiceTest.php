@@ -259,7 +259,7 @@ class AppSecretRotationServiceTest extends TestCase
             ->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
     }
 
-    public function testRotateNowAbortsWhenAPendingSecretIsUnresolved(): void
+    public function testRotateNowRecoversAPendingSecretInsteadOfRotatingOverIt(): void
     {
         $appId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -269,17 +269,22 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setUnconfirmedAppSecrets(['left-over-pending']);
         $this->setupAppLookup($appId, $app);
 
-        // the abort still happens under the per-app lock
+        // the reconciliation happens under the per-app lock
         $this->lockRunsOperation();
+        $this->setupResolvableManifestWithSetup();
 
-        // we must not rotate over the unresolved pending secret
-        $registrationService = $this->createMock(AppRegistrationService::class);
-        $registrationService->expects($this->never())->method('registerApp');
+        // re-running the rotation reconciles the pending secret via recovery — re-registering with the
+        // app-held candidate — rather than minting a third secret. A fresh rotation would call registerApp and
+        // never reRegisterWithAppHeldSecret, so the captured candidate below is what proves the recover path.
+        $tried = [];
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willReturnCallback(function (Manifest $manifest, string $id, string $secretAccessKey, Context $context, string $appHeldSecret) use (&$tried): void {
+                $tried[] = $appHeldSecret;
+            });
 
-        $this->expectExceptionObject(AppException::appSecretRotationAlreadyPending('TestApp'));
+        $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
 
-        $this->createService(registrationService: $registrationService)
-            ->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
+        static::assertSame(['left-over-pending'], $tried, 'a pending secret must be recovered, not rotated over');
     }
 
     public function testRecoverRevertsTheIntegrationWhenAnAttemptThrowsANonAppException(): void

@@ -538,7 +538,7 @@ class AppManagerTest extends TestCase
         $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
     }
 
-    public function testRefreshRegistrationPreservesPendingSecretForSameIdentityMove(): void
+    public function testRefreshRegistrationRecoversPendingSecretForSameIdentityMove(): void
     {
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);

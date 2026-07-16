@@ -75,13 +75,19 @@ class AppSecretRotationService
         Context $context,
         string $trigger
     ): void {
-        $this->registrationLock->locked($appId, function () use ($appId, $context, $trigger): void {
+        $this->registrationLock->locked($appId, function (LockInterface $lock) use ($appId, $context, $trigger): void {
             $app = $this->loadApp($appId, $context);
 
-            // An unconfirmed secret from a previous rotation must be recovered first; rotating again would
-            // overwrite the only record of the secret the app may already hold.
+            // A pending secret means a prior rotation/registration never confirmed. Rotating over it would
+            // overwrite the only record of the secret the app may already hold, so reconcile instead: recover
+            // with the secrets the app might still trust. A successful recovery commits a fresh secret — a
+            // completed rotation — so return; only a rejected-every-candidate outcome surfaces as a failure.
             if ($app->getUnconfirmedAppSecrets() !== null) {
-                throw AppException::appSecretRotationAlreadyPending($app->getName());
+                if ($this->doRecover($appId, $context, $lock) === AppSecretRecoveryResult::Claimed) {
+                    throw AppException::appSecretRecoveryFailed($app->getName());
+                }
+
+                return;
             }
 
             $currentIntegrationId = $app->getIntegrationId();

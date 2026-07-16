@@ -168,7 +168,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::SECRET_ROTATION_ALREADY_PENDING,
-            'App "{{ appName }}" has an unconfirmed secret from a previous registration. Repair it with "bin/console app:install {{ appName }}" or retry the installation through the Administration API before rotating again.',
+            'App "{{ appName }}" has an unconfirmed secret from a previous rotation or registration. Reconcile it first by re-running "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}".',
             ['appName' => $appName]
         );
     }
@@ -178,7 +178,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::APP_SECRET_RECOVERY_FAILED,
-            'App "{{ appName }}" rejected every saved credential candidate. The pending recovery state was kept; retry "bin/console app:install {{ appName }}" or the Administration installation API. If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
+            'App "{{ appName }}" rejected every saved credential candidate. The pending recovery state was kept; retry "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}". If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
             ['appName' => $appName]
         );
     }

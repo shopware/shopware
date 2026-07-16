@@ -161,27 +161,33 @@ module.exports = {
         type: 'suggestion',
         docs: {
             description: 'Disallow snippet values that are identical to a `global.default` translation in every locale; '
-                + 'reference the `global.default` snippet instead of redefining it.',
+                + 'reference the `global.default` snippet instead of redefining it. Also disallow defining '
+                + '`global.default` keys outside the central Administration snippets.',
             recommended: true,
         },
         schema: [],
         messages: {
             useGlobalDefault: 'Snippet Key `{{key}}` duplicates `global.default.{{defaultKey}}`. '
                 + 'Please remove it and use `global.default.{{defaultKey}}` instead ({{file}}).',
+            noGlobalDefaultDefinition: 'Snippet Key `{{key}}` is defined in the reserved `global.default` namespace. '
+                + 'Only the central Administration snippets (`src/app/snippet`) may define `global.default` keys. '
+                + 'Either reference an existing `global.default` snippet directly or define the snippet '
+                + 'in your own namespace ({{file}}).',
         },
     },
 
     create(context) {
         const cwd = context.cwd ?? process.cwd();
-        const { map, baseLocale } = getDuplicates(cwd);
-        if (!map.size) {
-            return {};
-        }
-
         const filename = context.filename ?? context.getFilename();
+        const isCentralFile = path.dirname(path.resolve(filename)) === GLOBAL_DEFAULT_DIR;
+        const allowList = loadAllowList(cwd);
+
+        const { map, baseLocale } = getDuplicates(cwd);
 
         // Report each duplicate once, on the base-locale file — the key exists in every locale (all-locale gate), so per-locale reporting would only duplicate each finding.
-        if (path.basename(filename, '.json') !== baseLocale) {
+        const reportDuplicates = map.size > 0 && path.basename(filename, '.json') === baseLocale;
+
+        if (isCentralFile && !reportDuplicates) {
             return {};
         }
 
@@ -197,6 +203,25 @@ module.exports = {
                 }
 
                 const dottedKey = keyPath.join('.');
+
+                if (dottedKey.startsWith('global.default.')) {
+                    if (!isCentralFile && !isAllowed(dottedKey, allowList)) {
+                        context.report({
+                            node,
+                            messageId: 'noGlobalDefaultDefinition',
+                            data: {
+                                key: dottedKey,
+                                file: relativeFile,
+                            },
+                        });
+                    }
+                    return;
+                }
+
+                if (!reportDuplicates) {
+                    return;
+                }
+
                 const defaultKey = map.get(dottedKey);
                 if (!defaultKey) {
                     return;

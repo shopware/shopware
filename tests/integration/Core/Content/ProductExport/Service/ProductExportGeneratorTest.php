@@ -70,7 +70,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -85,7 +85,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
@@ -161,7 +161,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportBehavior = new ExportBehavior();
@@ -231,7 +231,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -248,7 +248,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -267,7 +267,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $result = $this->service->generate($productExport, new ExportBehavior());
@@ -316,7 +316,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -348,7 +348,7 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = static::getContainer()->get('sales_channel.repository');
 
-        $salesChannel = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannel = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         return $salesChannel->getId();
@@ -359,7 +359,7 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
-        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelDomainEntity::class, $salesChannelDomain);
 
         return $salesChannelDomain;

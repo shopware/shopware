@@ -197,7 +197,7 @@ class InvoiceDataProviderTest extends TestCase
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        static::expectExceptionObject(DocumentV2Exception::missingDocumentNumber(DocumentType::INVOICE->value));
+        $this->expectExceptionObject(DocumentV2Exception::missingDocumentNumber(DocumentType::INVOICE->value));
 
         $provider->provideRenderingData($order, $request, Context::createDefaultContext());
     }

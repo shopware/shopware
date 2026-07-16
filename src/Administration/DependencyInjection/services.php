@@ -180,6 +180,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationConfig::class),
             service(TranslationLoader::class),
             service(HtmlSanitizer::class),
+            service('logger'),
+            param('kernel.debug'),
         ]);
 
     $services->set(CachedSnippetFinder::class)

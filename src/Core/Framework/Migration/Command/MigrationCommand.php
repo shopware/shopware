@@ -55,7 +55,7 @@ class MigrationCommand extends Command
     {
         $this
             ->addArgument('identifier', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'identifier to determine which migrations to run', ['core'])
-            ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
+            ->addOption('all', 'a', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('until', 'u', InputOption::VALUE_OPTIONAL, 'timestamp cap for migrations')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
     }

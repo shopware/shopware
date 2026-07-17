@@ -24,8 +24,6 @@ class SalesChannelRepositoryIterator
 
     /**
      * @param SalesChannelRepository<TEntityCollection> $repository
-     * @param int|null $offset resume position for the next batch: an autoIncrement keyset cursor in
-     *                         keyset mode, otherwise a plain row offset
      */
     public function __construct(
         private readonly SalesChannelRepository $repository,
@@ -39,9 +37,6 @@ class SalesChannelRepositoryIterator
             $criteria->setLimit(50);
         }
 
-        // Seek by autoIncrement keyset (like RepositoryIterator) instead of OFFSET, but only when
-        // the entity supports it AND the caller has not defined its own sorting: keyset requires
-        // autoIncrement to be the primary order, so a custom sort keeps using offset pagination.
         if ($criteria->getSorting() === [] && $repository->getDefinition()->hasAutoIncrement()) {
             $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
             $this->autoIncrement = true;
@@ -97,7 +92,6 @@ class SalesChannelRepositoryIterator
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $result = $this->repository->search($this->criteria, $this->context);
 
-        // advance the offset for the next iteration / batch
         $this->offset = (int) $this->criteria->getOffset() + (int) $this->criteria->getLimit();
         $this->criteria->setOffset($this->offset);
 
@@ -108,10 +102,6 @@ class SalesChannelRepositoryIterator
         return $result;
     }
 
-    /**
-     * Resume position for the next batch: the highest autoIncrement seen in keyset mode, or the next
-     * row offset when paginating a sorted criteria by offset.
-     */
     public function getOffset(): int
     {
         return $this->offset ?? 0;
@@ -122,7 +112,6 @@ class SalesChannelRepositoryIterator
      */
     private function fetchByAutoIncrement(): ?EntitySearchResult
     {
-        // Keyset seek: never uses OFFSET, so each page costs the same regardless of depth.
         $this->criteria->setOffset(0);
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 

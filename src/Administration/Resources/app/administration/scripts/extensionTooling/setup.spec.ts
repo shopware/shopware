@@ -137,7 +137,13 @@ describe('scripts/extensionTooling/setup', () => {
         const managedProjects = result.manifest.projects.filter((project) => project.ts.mode === 'managed');
 
         expect(rootTsconfig).toContain(GENERATED_MARKER);
-        expect(references).toEqual(managedProjects.map((project) => `./${project.checkTsconfig}`));
+        // Each managed project contributes its runtime leaf and its spec leaf.
+        expect(references).toEqual(
+            managedProjects.flatMap((project) => [
+                `./${project.checkTsconfig}`,
+                `./${project.specTsconfig}`,
+            ]),
+        );
 
         for (const reference of references) {
             expect(fs.existsSync(path.join(projectRoot, reference))).toBe(true);

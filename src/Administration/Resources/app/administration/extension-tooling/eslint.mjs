@@ -52,10 +52,22 @@ const vueParser = vueParserSetup.languageOptions.parser;
  * - `internalApiSeverity`: severity for the API-boundary rules (usage of
  *   `@deprecated` members). Internal plugins that intentionally consume
  *   internal APIs may lower this in their own config.
+ * - `typedSpecs`: type-aware-lint spec files (adds jest globals on top of the
+ *   type-checked rules). Requires a discoverable spec program — the generated
+ *   root config enables it (the spec leaves are referenced from the root
+ *   solution tsconfig); shim-based configs leave it off, so their specs are
+ *   parsed standalone (vue-tsc still type-checks them).
  * - `ignores`: additional global ignore patterns.
  */
 export function shopwareAdminExtension(options = {}) {
-    const { tsconfigRootDir, extensionRoots = [], legacyTwig = true, internalApiSeverity = 'error', ignores = [] } = options;
+    const {
+        tsconfigRootDir,
+        extensionRoots = [],
+        legacyTwig = true,
+        internalApiSeverity = 'error',
+        typedSpecs = false,
+        ignores = [],
+    } = options;
 
     if (!tsconfigRootDir) {
         throw new Error(
@@ -74,6 +86,27 @@ export function shopwareAdminExtension(options = {}) {
             patterns.map((pattern) => `${extensionRoot.replace(/\/+$/, '')}/${pattern}`),
         );
     };
+
+    // With a discoverable spec program (the generated root config references the
+    // spec leaves) the type-checked rules above already apply to specs, so the
+    // block only adds the jest globals. Otherwise (shim-based config) there is
+    // no program for specs, so type-aware linting is disabled and they are
+    // parsed standalone — vue-tsc still type-checks them.
+    const specFilesConfig = typedSpecs
+        ? {
+            name: 'shopware/admin-extension/spec-files',
+            files: scope(specFilePatterns),
+            languageOptions: { globals: { ...globals.jest } },
+        }
+        : {
+            ...tseslint.configs.disableTypeChecked,
+            name: 'shopware/admin-extension/spec-files',
+            files: scope(specFilePatterns),
+            languageOptions: {
+                ...tseslint.configs.disableTypeChecked.languageOptions,
+                globals: { ...globals.jest },
+            },
+        };
 
     const config = [
         {
@@ -192,18 +225,7 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules/no-deprecated-component-usage': internalApiSeverity,
             },
         },
-        {
-            // Test files are excluded from the type-check program (their
-            // runner's globals are not part of the admin runtime surface), so
-            // type-aware linting cannot apply — parse them standalone instead.
-            ...tseslint.configs.disableTypeChecked,
-            name: 'shopware/admin-extension/spec-files',
-            files: scope(specFilePatterns),
-            languageOptions: {
-                ...tseslint.configs.disableTypeChecked.languageOptions,
-                globals: { ...globals.jest },
-            },
-        },
+        specFilesConfig,
     ];
 
     if (legacyTwig) {

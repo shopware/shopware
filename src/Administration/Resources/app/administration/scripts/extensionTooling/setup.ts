@@ -384,9 +384,15 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
 
 function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolingProject[]): ManagedFileState {
     const rootTsconfigPath = path.join(context.projectRoot, 'tsconfig.json');
+    // Reference both the runtime and spec leaves so the IDE — and ESLint's
+    // project service — can associate every managed source and spec file with a
+    // program (this is what enables type-aware linting of managed specs).
     const references = projects
         .filter((project) => project.ts.mode === 'managed')
-        .map((project) => ({ path: `./${project.checkTsconfig}` }));
+        .flatMap((project) => [
+            { path: `./${project.checkTsconfig}` },
+            { path: `./${project.specTsconfig}` },
+        ]);
     const content = `// ${GENERATED_MARKER} — solution-style index routing each extension file to its leaf project.\n${JSON.stringify(
         {
             files: [],
@@ -430,6 +436,8 @@ function createRootEslintConfig(context: GeneratorContext, projects: ExtensionTo
         '',
         'export default shopwareAdminExtension({',
         '    tsconfigRootDir: import.meta.dirname,',
+        '    // Spec files are type-aware-linted here — their leaves are referenced from the root tsconfig.',
+        '    typedSpecs: true,',
         '    extensionRoots: [',
         ...extensionRoots.map((extensionRoot) => `        ${JSON.stringify(extensionRoot)},`),
         '    ],',

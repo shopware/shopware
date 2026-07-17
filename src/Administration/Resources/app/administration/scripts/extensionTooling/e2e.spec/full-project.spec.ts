@@ -190,12 +190,12 @@ describe('scripts/extensionTooling e2e', () => {
             ),
         ).toBe(true);
 
-        // Root references route every managed project to exactly its leaf config.
+        // Root references route every managed project to its runtime and spec leaves.
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "\.\/(.+)"/g)].map((match) => match[1]);
         const managedLeafs = setupResult.manifest.projects
             .filter((project) => project.ts.mode === 'managed')
-            .map((project) => project.checkTsconfig);
+            .flatMap((project) => [project.checkTsconfig, project.specTsconfig]);
 
         expect(references.sort()).toEqual([...managedLeafs].sort());
 

@@ -7,12 +7,7 @@ use Mcp\Schema\Request\GetPromptRequest;
 use Mcp\Schema\Request\InitializeRequest;
 use Mcp\Schema\Request\ReadResourceRequest;
 use Mcp\Server;
-use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
-use Mcp\Server\Transport\StreamableHttpTransport;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -21,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
-use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
@@ -32,8 +27,6 @@ use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
-use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -66,19 +59,15 @@ class McpServerController
     /**
      * @internal
      *
-     * The five PhpMcp bundle params below are nullable because they are injected via
-     * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     * $server is nullable because it is injected via nullOnInvalid(): when the MCP bundle is absent
+     * it resolves to null (as do the HTTP factories the transport factory wraps). Once MCP is stable
+     * (v6.8.0) the nullable type and the null guard in handle() can be removed.
      */
     public function __construct(
         private readonly ?Server $server,
-        private readonly ?HttpMessageFactoryInterface $httpMessageFactory,
-        private readonly ?HttpFoundationFactoryInterface $httpFoundationFactory,
-        private readonly ?ResponseFactoryInterface $responseFactory,
-        private readonly ?StreamFactoryInterface $streamFactory,
+        private readonly McpHttpTransportFactory $transportFactory,
         private readonly McpRateLimiter $rateLimiter,
         private readonly McpSessionIdValidator $sessionIdValidator,
-        private readonly McpAllowedHostsProvider $allowedHostsProvider,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
@@ -95,13 +84,7 @@ class McpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER')
-            || $this->server === null
-            || $this->httpMessageFactory === null
-            || $this->httpFoundationFactory === null
-            || $this->responseFactory === null
-            || $this->streamFactory === null
-        ) {
+        if (!Feature::isActive('MCP_SERVER') || $this->server === null || !$this->transportFactory->isAvailable()) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
@@ -129,15 +112,7 @@ class McpServerController
             }
         }
 
-        $transport = new StreamableHttpTransport(
-            $this->httpMessageFactory->createRequest($request),
-            $this->responseFactory,
-            $this->streamFactory,
-            logger: $this->logger,
-            middleware: $this->transportMiddleware(),
-        );
-
-        $psrResponse = $this->server->run($transport);
+        $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
         $this->registerSession($psrResponse);
         $this->flushPendingToolsListChanged($request);
 
@@ -145,68 +120,7 @@ class McpServerController
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
 
-        return $this->createHttpResponse($psrResponse);
-    }
-
-    /**
-     * Converts the SDK's PSR response into a spec-compliant Symfony response.
-     *
-     * The MCP Streamable HTTP transport requires an application/json body to be a single JSON-RPC
-     * object (JSON-RPC batching was removed in 2025-06-18). When the SDK drains more than one queued
-     * outgoing message (e.g. a tools/list_changed notification alongside the response) it bundles
-     * them as a top-level JSON array over application/json, which conformant clients cannot parse.
-     * Re-emit such a batch as a text/event-stream where each JSON-RPC message is its own
-     * single-object SSE event, which is where server-initiated notifications belong.
-     *
-     * This guards against mcp/sdk v0.6.0 (symfony/mcp-bundle v0.10.0) still emitting batch arrays.
-     * Once the SDK stops bundling multiple messages over application/json, this becomes a no-op and
-     * can be removed.
-     */
-    private function createHttpResponse(PsrResponseInterface $psrResponse): Response
-    {
-        $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
-
-        if (str_starts_with($contentType, 'text/event-stream')) {
-            \assert($this->httpFoundationFactory !== null);
-
-            return $this->httpFoundationFactory->createResponse($psrResponse, true);
-        }
-
-        if (str_starts_with($contentType, 'application/json')) {
-            $decoded = json_decode((string) $psrResponse->getBody(), true);
-
-            if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
-                return $this->eventStreamResponse($decoded, $psrResponse);
-            }
-        }
-
-        \assert($this->httpFoundationFactory !== null);
-
-        return $this->httpFoundationFactory->createResponse($psrResponse, false);
-    }
-
-    /**
-     * @param list<mixed> $messages
-     */
-    private function eventStreamResponse(array $messages, PsrResponseInterface $psrResponse): Response
-    {
-        $body = '';
-        foreach ($messages as $message) {
-            $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
-        }
-
-        $response = new Response($body, $psrResponse->getStatusCode(), [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'X-Accel-Buffering' => 'no',
-        ]);
-
-        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
-        if ($sessionId !== '') {
-            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
-        }
-
-        return $response;
+        return $this->transportFactory->createResponse($psrResponse);
     }
 
     /**
@@ -248,26 +162,6 @@ class McpServerController
         }
 
         $this->sessionRegistry->register($sessionId);
-    }
-
-    /**
-     * The SDK's default {@see DnsRebindingProtectionMiddleware} only allows localhost, which
-     * rejects every request that reaches Shopware through its configured hostname. Keep the
-     * mitigation but seed it with the shop's own hosts (APP_URL + sales channel domains) so
-     * legitimate Admin API clients pass while cross-origin rebinding attempts are still blocked.
-     *
-     * @return list<MiddlewareInterface>
-     */
-    private function transportMiddleware(): array
-    {
-        $allowedHosts = $this->allowedHostsProvider->getAllowedHosts();
-
-        return array_map(
-            static fn (MiddlewareInterface $middleware): MiddlewareInterface => $middleware instanceof DnsRebindingProtectionMiddleware
-                ? new DnsRebindingProtectionMiddleware($allowedHosts)
-                : $middleware,
-            StreamableHttpTransport::defaultMiddleware(),
-        );
     }
 
     private function checkAllowlistEarlyReject(Request $request, McpAllowlist $allowlist): ?Response
@@ -325,8 +219,6 @@ class McpServerController
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface
     {
-        \assert($this->streamFactory !== null);
-
         $body = $this->decodeJson($request->getContent());
 
         if (!\is_array($body) || ($body['method'] ?? null) !== InitializeRequest::getMethod()) {
@@ -354,7 +246,7 @@ class McpServerController
         }
 
         $newBody = Json::encode($response);
-        $newStream = $this->streamFactory->createStream($newBody);
+        $newStream = $this->transportFactory->createStream($newBody);
 
         return $psrResponse
             ->withBody($newStream)

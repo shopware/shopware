@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
@@ -775,15 +776,19 @@ class McpServerControllerTest extends TestCase
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
 
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $psr17,
+            $psr17,
+            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(McpAllowedHostsProvider::class),
+        );
+
         return new McpServerController(
             $server ?? Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            $psr17,
-            $psr17,
+            $transportFactory,
             new McpRateLimiter($rateLimiter ?? static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
             sessionRegistry: $sessionRegistry,

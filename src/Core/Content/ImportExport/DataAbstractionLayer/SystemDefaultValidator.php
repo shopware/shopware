@@ -8,7 +8,7 @@ use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Content\ImportExport\Repository\ImportExportProfileRepositoryTest;
+use Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @codeCoverageIgnore
  *
- * @see ImportExportProfileRepositoryTest
+ * @see SystemDefaultValidatorTest
  */
 #[Package('fundamentals@after-sales')]
 class SystemDefaultValidator implements EventSubscriberInterface

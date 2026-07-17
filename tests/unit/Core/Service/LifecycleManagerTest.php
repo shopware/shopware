@@ -247,6 +247,32 @@ class LifecycleManagerTest extends TestCase
         $manager->sync($this->context);
     }
 
+    public function testReconcileDelegatesToInstallerAndDoesNotRemoveOrphansWhenEnabled(): void
+    {
+        $this->serviceInstaller->expects($this->once())
+            ->method('reconcile')
+            ->with($this->context);
+
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->client->expects($this->never())
+            ->method('getAll');
+
+        $manager = $this->createManager($this->createAppRepository());
+
+        $manager->reconcile($this->context);
+    }
+
+    public function testReconcileDoesNothingWhenServicesDisabled(): void
+    {
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+
+        $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
+
+        $manager->reconcile($this->context);
+    }
+
     /**
      * @param array<string, bool> $systemConfig
      */

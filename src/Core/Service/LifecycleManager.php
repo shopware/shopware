@@ -64,6 +64,20 @@ class LifecycleManager
         $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
     }
 
+    /**
+     * Periodic (level-triggered) counterpart to the update push (ServiceController::triggerUpdate): installs
+     * new services and converges installed ones to the registry's latest revision, both via the same
+     * idempotent update path. No orphan removal — that stays in sync().
+     */
+    public function reconcile(Context $context): void
+    {
+        if (!$this->enabled()) {
+            return;
+        }
+
+        $this->serviceInstaller->reconcile($context);
+    }
+
     public function syncState(string $serviceName, Context $context): void
     {
         $service = $this->serviceStorage->findByName($serviceName, $context);

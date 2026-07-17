@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Message\InstallServicesMessage;
+use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
@@ -114,6 +116,64 @@ class AllServiceInstallerTest extends TestCase
         static::assertSame([], $installer->install(Context::createDefaultContext()));
     }
 
+    public function testReconcileDoesNotDispatchUpdateMessageForOrphanedService(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'Service1'),
+            AppFixture::createAppEntity(name: 'OrphanedService'),
+        ]));
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1')]);
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($message): bool => $message instanceof UpdateServiceMessage && $message->name === 'Service1'))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $installer->reconcile(Context::createDefaultContext());
+    }
+
+    public function testReconcileInstallsNewServicesWithoutEnqueuingUpdateForThem(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([AppFixture::createAppEntity(name: 'Service1')]));
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1'), $this->entry('Service2')]);
+
+        $this->serviceLifecycle->expects($this->once())
+            ->method('install')
+            ->willReturnCallback(function (ServiceEntry $entry): bool {
+                static::assertSame('Service2', $entry->name);
+
+                return true;
+            });
+
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($message): bool => $message instanceof UpdateServiceMessage && $message->name === 'Service1'))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        static::assertSame(['Service2'], $installer->reconcile(Context::createDefaultContext()));
+    }
+
+    public function testReconcileDispatchesNoUpdatesWhenNoServicesInstalled(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('Service1'), $this->entry('Service2')]);
+
+        $this->serviceLifecycle->expects($this->exactly(2))->method('install')->willReturn(true);
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+
+        // A fresh shop only installs; reconcile must not enqueue update messages when nothing is installed yet.
+        $this->messageBus->expects($this->never())->method('dispatch');
+
+        static::assertSame(['Service1', 'Service2'], $installer->reconcile(Context::createDefaultContext()));
+    }
+
     public function testScheduleInstallDispatchesMessage(): void
     {
         $installer = $this->installer($this->buildAppRepository());
@@ -137,6 +197,7 @@ class AllServiceInstallerTest extends TestCase
             $this->serviceLifecycle,
             $this->messageBus,
             $this->eventDispatcher,
+            static::createStub(LoggerInterface::class),
         );
     }
 

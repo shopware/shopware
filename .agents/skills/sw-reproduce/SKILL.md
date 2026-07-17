@@ -31,20 +31,21 @@ and what makes a reproduction *faithful* are the shared `.github/aw/shared/repro
   absolute path. Admin creds default to `admin` / `shopware` (override `ADMIN_USER` / `ADMIN_PASS`).
 - For a visual (Playwright) repro, `@playwright/test` + a browser must be installed
   (`npm i -D @playwright/test && npx playwright install --with-deps chromium`).
-- **Working directory (portable, gitignored).** The CLI writes the bundle + all artifacts as bare
-  filenames into the current directory, so run everything from a throwaway dir under `var/` — it is
-  already gitignored (`.gitignore` → `/var/`), exists in every checkout, and keeps the bundle out of
-  your working tree and out of any session-temp path. Set up once:
+- **Working directory (portable, self-ignoring).** The CLI writes the bundle + all artifacts as bare
+  filenames into the current directory, so run everything from a dedicated `.sw-reproduce/` dir that
+  carries a self-ignoring `.gitignore` (`*`). This keeps the bundle out of your working tree and out
+  of any session-temp path, and works in ANY repo — it does not depend on the surrounding
+  `.gitignore`. Set up once:
   ```
-  ROOT="$(git rev-parse --show-toplevel)"; SHOP="${SHOP_DIR:-$ROOT}"; APP="${APP_URL:-http://localhost:8000}"
-  mkdir -p "$ROOT/var/repro"
+  ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; SHOP="${SHOP_DIR:-$ROOT}"; APP="${APP_URL:-http://localhost:8000}"
+  WORK="$ROOT/.sw-reproduce"; mkdir -p "$WORK" && printf '*\n' > "$WORK/.gitignore"   # ignores all artifacts + itself
   ```
   Below, **`repro <cmd>`** means run the CLI from that dir:
   ```
-  ( cd "$ROOT/var/repro" && SHOP_DIR="$SHOP" APP_URL="$APP" node "$ROOT/.github/actions/reproduce/cli/repro.mjs" <cmd> )
+  ( cd "$WORK" && SHOP_DIR="$SHOP" APP_URL="$APP" node "$ROOT/.github/actions/reproduce/cli/repro.mjs" <cmd> )
   ```
-  Author the bundle files **inside `var/repro/`** too, so everything — `reproduction-plan.json`, the
-  test artifact, `builder-result.json`, `test-results/`, screenshots, video — stays under `var/repro/`.
+  Author the bundle files **inside `.sw-reproduce/`** too, so everything — `reproduction-plan.json`,
+  the test artifact, `builder-result.json`, `test-results/`, screenshots, video — stays there.
 
 ## Flow
 
@@ -56,7 +57,7 @@ and what makes a reproduction *faithful* are the shared `.github/aw/shared/repro
    the reproduction reflects *their* installed version and may not match the report — offer to
    continue anyway.
 
-3. **Author the bundle** (in `var/repro/`) following the shared policy + the on-disk playbook: read
+3. **Author the bundle** (in `.sw-reproduce/`) following the shared policy + the on-disk playbook: read
    `.github/aw/shared/reproduce-policy.md` (role/trust/faithfulness), then
    `.github/actions/reproduce/prompt/task.md` and its `guides/`. Write `reproduction-plan.json`,
    optional `fixtures.json`, and one test artifact (`repro.spec.ts` / `ReproTest.php`) — or an HTTP
@@ -68,7 +69,7 @@ and what makes a reproduction *faithful* are the shared `.github/aw/shared/repro
    ⚠️ `seed`/`try` hit the **live DB with no reset** — they mutate the running instance (seeded rows
    persist). Warn the user before seeding.
 
-5. **Report** — read `var/repro/builder-result.json` + `var/repro/test-results/`, then present the
+5. **Report** — read `.sw-reproduce/builder-result.json` + `.sw-reproduce/test-results/`, then present the
    report below.
 
 ## Report format
@@ -80,9 +81,9 @@ column:
   (`not_reproduced`); else `Inconclusive` / `Blocked` with the reason (from `builder-result.json`).
 - **Surface:** the plan's `layer` · `executor`.
 - **Result:** http → the failing check(s); playwright/direct → the reporter output.
-- **Evidence (playwright):** **Read the screenshot** (`var/repro/test-results/…png`) so you can see
+- **Evidence (playwright):** **Read the screenshot** (`.sw-reproduce/test-results/…png`) so you can see
   and describe the symptom, and give the user a **clickable link** to both the screenshot and the
-  video (`var/repro/test-results/…webm`). Inline the image when the client renders it; a clickable
+  video (`.sw-reproduce/test-results/…webm`). Inline the image when the client renders it; a clickable
   link is the minimum.
 - **Test case — always inline it.** Show the full authored test in a fenced block (```ts for
   `repro.spec.ts`, ```php for `ReproTest.php`, or the request + assertions for an HTTP plan), plus

@@ -8,6 +8,13 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### Per-thumbnail post-processing event and progressive JPEG thumbnails
+
+Thumbnail generation gained a new extension point and two output improvements:
+
+- A new event `Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent` is dispatched after each individual thumbnail is written to disk. Until now there was no hook for post-processing a single thumbnail — `MediaPathChangedEvent` only fires once for the whole batch — so plugins that want to optimise thumbnails (e.g. `jpegoptim`, `pngquant`) had nowhere to attach. The event exposes the `mediaId`, `thumbnailId`, thumbnail `path`, `mimeType` and the `FilesystemOperator` the thumbnail was written to, so a subscriber can read the file back, optimise it and write it again.
+- JPEG thumbnails are now written as progressive (interlaced) JPEGs. Progressive JPEGs show a full low-quality preview immediately and sharpen as they load, improving perceived load time (LCP) on slow connections; file size stays equal or slightly smaller. This is transparent — no action required.
+- Batch thumbnail generation is now resilient: a single unprocessable media (corrupt source, unsupported format, filesystem error or a throwing `ThumbnailGeneratedEvent` subscriber) is logged and skipped, and its partially written files are cleaned up, so the remaining media in the batch still get their thumbnails instead of the whole run aborting. The single-media path (`Shopware\Core\Content\Media\Thumbnail\ThumbnailService::updateThumbnails()`) still surfaces the exception to its caller. (shopware/shopware#18250)
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
@@ -305,6 +312,10 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 - While you still support the deprecated version, catch both classes, since they do not share a common parent.
 
 ## Storefront
+
+### Form validation messages use Storefront snippets
+
+Validation errors rendered by the Storefront `FormController` for contact, newsletter, and revocation forms are now translated from the violation code through Shopware's snippet system. This ensures that the active Storefront language is used instead of Symfony's validator translation catalogue. Plugin authors using custom constraints in these forms should provide matching `error.<violation-code>` entries in `Resources/snippet/storefront.<locale>.json`.
 
 ### Link categories get SEO URLs again and redirect to their target
 

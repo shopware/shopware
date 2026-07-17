@@ -108,12 +108,17 @@ class PromotionProcessor implements CartProcessorInterface
 
     private function preservePinnedSetPromotions(LineItemCollection $discountLineItems, Cart $calculated, CartBehavior $behavior): void
     {
-        foreach ($discountLineItems as $lineItem) {
-            $pinPermission = $lineItem->getReferencedId()
-                ? CheckoutPermissions::PIN_MANUAL_PROMOTIONS
-                : CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS;
+        $pinManual = $behavior->hasPermission(CheckoutPermissions::PIN_MANUAL_PROMOTIONS);
+        $pinAutomatic = $behavior->hasPermission(CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS);
 
-            if (!$behavior->hasPermission($pinPermission) || !$this->hasSerializedSetGroupRules($lineItem)) {
+        if (!$pinManual && !$pinAutomatic) {
+            return;
+        }
+
+        foreach ($discountLineItems as $lineItem) {
+            $isPinned = $lineItem->getReferencedId() ? $pinManual : $pinAutomatic;
+
+            if (!$isPinned || !$this->hasSerializedSetGroupRules($lineItem)) {
                 continue;
             }
 

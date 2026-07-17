@@ -10,12 +10,6 @@
     }
 }
 
-// The Administration layout relies on a definite height chain for its full-height views.
-html,
-body {
-    height: 100dvh;
-}
-
 #app {
     height: 100%;
     overflow: hidden;

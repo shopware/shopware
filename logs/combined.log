@@ -1,0 +1,2 @@
+{"config":{"logLevel":"info","nodeVersion":"v24.13.0","platform":"darwin","serverName":"react-native-mcp-server"},"level":"info","logLevel":"info","message":"MCP Server starting","nodeVersion":"v24.13.0","platform":"darwin","timestamp":"2026-07-17 11:24:29","version":"1.1.0"}
+{"level":"info","message":"MCP Server shutting down","reason":"SIGINT","timestamp":"2026-07-17 11:50:00"}

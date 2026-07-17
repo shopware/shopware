@@ -39,16 +39,18 @@ export default Shopware.Component.wrapComponentConfig({
         mergedItems(): TabItem[] {
             const mergedItems: TabItem[] = [
                 ...this.items,
-                ...this.tabExtensions.map((extension) => ({
-                    label: this.$t(extension.label) ?? '',
-                    name: extension.componentSectionId,
-                    onClick: () => {
-                        // Push route to extension.componentSectionId path
-                        void this.$router.push({
-                            path: extension.componentSectionId,
-                        });
-                    },
-                })),
+                ...this.tabExtensions
+                    .filter((extension) => extension.visible !== false)
+                    .map((extension) => ({
+                        label: this.$t(extension.label) ?? '',
+                        name: extension.componentSectionId,
+                        onClick: () => {
+                            // Push route to extension.componentSectionId path
+                            void this.$router.push({
+                                path: extension.componentSectionId,
+                            });
+                        },
+                    })),
             ];
 
             return mergedItems;

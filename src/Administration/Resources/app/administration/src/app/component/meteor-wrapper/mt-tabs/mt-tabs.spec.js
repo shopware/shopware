@@ -60,4 +60,25 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
             { label: 'Tab 4', name: 'tab4', onClick: expect.any(Function) },
         ]);
     });
+
+    it('should not pass extension tabs whose visible flag is false', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
+            { label: 'Tab 3', componentSectionId: 'tab3', visible: true },
+            { label: 'Tab 4', componentSectionId: 'tab4', visible: false },
+            { label: 'Tab 5', componentSectionId: 'tab5' },
+        ];
+
+        await wrapper.setProps({
+            items: [{ label: 'Tab 1', name: 'tab1' }],
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+        expect(mtTabsOriginal.props('items')).toEqual([
+            { label: 'Tab 1', name: 'tab1' },
+            { label: 'Tab 3', name: 'tab3', onClick: expect.any(Function) },
+            { label: 'Tab 5', name: 'tab5', onClick: expect.any(Function) },
+        ]);
+    });
 });

@@ -71,5 +71,12 @@ class RedisGroupUsageTest extends TestCase
             '+#[Group(\'redis\')]',
             false,
         ];
+
+        yield 'redis group outside the tests tree is not this rule\'s business' => [
+            'src/Core/DevOps/StaticAnalyze/Danger/Rules/RedisGroupUsage.php',
+            'modified',
+            '+#[Group(\'redis\')]',
+            false,
+        ];
     }
 }

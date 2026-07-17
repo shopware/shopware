@@ -21,6 +21,7 @@ class RedisGroupUsage
     {
         $offenders = $context->platform->pullRequest->getFiles()
             ->filter(static fn (File $file): bool => $file->status !== File::STATUS_REMOVED
+                && str_starts_with($file->name, 'tests/')
                 && preg_match('/^\+.*#\[Group\(\'redis\'\)\]/m', $file->patch) === 1);
 
         if ($offenders->count() <= 0) {
@@ -29,13 +30,7 @@ class RedisGroupUsage
 
         $errorFiles = [];
         foreach ($offenders as $file) {
-            if ($file->name !== '.danger.php') {
-                $errorFiles[] = $file->name . '<br/>';
-            }
-        }
-
-        if (\count($errorFiles) === 0) {
-            return;
+            $errorFiles[] = $file->name . '<br/>';
         }
 
         $context->failure(

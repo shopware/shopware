@@ -73,11 +73,12 @@ final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
         );
 
         $content = $this->xmlFormatter->format($raw);
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
 
         return new RenderResult(
             format: self::FORMAT->value,
             content: $content,
-            fileName: $meta->config->buildFileStem($meta->documentNumber),
+            fileName: $fileStem,
             fileExtension: self::FORMAT->fileExtension(),
             mimeType: self::FORMAT->mimeType(),
         );

@@ -83,6 +83,12 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         DocumentGenerationRequest $generationRequest,
         Context $context,
     ): InvoiceRenderData {
+        $documentNumber = $generationRequest->documentNumber;
+
+        if ($documentNumber === null) {
+            throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
+        }
+
         $bundle = $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),
@@ -95,12 +101,6 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $displayAdditionalNoteDelivery,
             $order,
         );
-
-        $documentNumber = $generationRequest->documentNumber;
-
-        if ($documentNumber === null) {
-            throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
-        }
 
         $lineItems = LineItemView::listFromOrder($order);
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);

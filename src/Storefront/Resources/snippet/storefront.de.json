@@ -143,7 +143,8 @@
     "CHECKOUT__ORDER_ORDER_CANCELLED": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde storniert und kann nicht nachträglich bearbeitet werden.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden.",
     "CHECKOUT__CART_HASH_MISMATCH": "Produkte oder Preise in Deinem Warenkorb haben sich möglicherweise geändert. Bitte überprüfe den Warenkorb, bevor Du die Bestellung aufgibst.",
-    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig."
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig.",
+    "urlNotAllowed": "Bitte geben Sie in diesem Feld keine URL ein."
   },
   "account": {
     "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut.",

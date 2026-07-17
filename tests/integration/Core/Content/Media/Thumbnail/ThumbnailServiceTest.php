@@ -173,7 +173,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaFolderEntity::class, $media->getMediaFolder());
         static::assertInstanceOf(MediaFolderConfigurationEntity::class, $media->getMediaFolder()->getConfiguration());
@@ -204,7 +204,7 @@ class ThumbnailServiceTest extends TestCase
         $this->runWorker();
 
         /** @var MediaEntity $updatedMedia */
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
@@ -240,7 +240,7 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService->updateThumbnails($media, $this->context, false);
 
         /** @var MediaEntity $updatedMedia */
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
@@ -293,7 +293,7 @@ class ThumbnailServiceTest extends TestCase
         );
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
 
         $mediaUrl = $media->getPath();
 
@@ -314,7 +314,7 @@ class ThumbnailServiceTest extends TestCase
         $this->runWorker();
 
         // refresh entity
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         $thumbnails = $media->getThumbnails();
@@ -402,7 +402,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
@@ -419,6 +419,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -477,7 +478,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
@@ -494,6 +495,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -550,7 +552,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
@@ -570,6 +572,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -627,7 +630,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
@@ -648,6 +651,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -700,6 +704,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = static::getContainer()->get('media.repository')
             ->search(new Criteria([$ids->get('media')]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(MediaEntity::class, $media);

@@ -15,10 +15,12 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -55,7 +57,7 @@ class DocumentRendererSnapshotTest extends TestCase
 
     private HtmlRenderer $htmlRenderer;
 
-    private XmlRenderer $xmlRenderer;
+    private ZugferdXmlRenderer $xmlRenderer;
 
     /**
      * @var EntityRepository<OrderCollection>
@@ -82,7 +84,7 @@ class DocumentRendererSnapshotTest extends TestCase
         );
 
         $this->htmlRenderer = static::getContainer()->get(HtmlRenderer::class);
-        $this->xmlRenderer = static::getContainer()->get(XmlRenderer::class);
+        $this->xmlRenderer = static::getContainer()->get(ZugferdXmlRenderer::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->companyCountry = $this->loadCompanyCountry();
     }
@@ -118,7 +120,7 @@ class DocumentRendererSnapshotTest extends TestCase
             documentType: $documentType->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [$dataProvider->getKey() => $this->buildRenderData($documentType, $order)],
+            data: $this->buildRenderData($documentType, $order),
         );
 
         $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
@@ -167,9 +169,7 @@ class DocumentRendererSnapshotTest extends TestCase
             documentType: DocumentType::INVOICE->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [
-                $dataProvider->getKey() => $this->buildRenderData(DocumentType::INVOICE, $order, itemsPerPage: 1),
-            ],
+            data: $this->buildRenderData(DocumentType::INVOICE, $order, itemsPerPage: 1),
         );
 
         $htmlResult = $this->htmlRenderer->renderToString($input, new RenderState(), $this->context);
@@ -229,7 +229,7 @@ class DocumentRendererSnapshotTest extends TestCase
             documentType: $documentType->value,
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
-            data: [$dataProvider->getKey() => $this->buildRenderData($documentType, $order, true)],
+            data: $this->buildRenderData($documentType, $order, true),
         );
 
         $result = $this->htmlRenderer->renderToString(
@@ -263,25 +263,33 @@ class DocumentRendererSnapshotTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, AbstractRenderData>
+     */
     private function buildRenderData(
         DocumentType $documentType,
         OrderEntity $order,
         bool $withoutCompanyCountry = false,
         ?int $itemsPerPage = null,
-    ): AbstractRenderData {
+    ): array {
         $companyCountry = $withoutCompanyCountry ? new CountryEntity() : $this->companyCountry;
 
+        $data = [
+            DocumentMetaProvider::KEY => $this->buildMeta($companyCountry, $itemsPerPage),
+        ];
+
         /** @phpstan-ignore match.unhandled */
-        return match ($documentType) {
-            DocumentType::INVOICE => $this->buildInvoiceRenderData($companyCountry, $order, $itemsPerPage),
+        $data += match ($documentType) {
+            DocumentType::INVOICE => [InvoiceDataProvider::KEY => $this->buildInvoiceRenderData($order)],
         };
+
+        return $data;
     }
 
-    private function buildInvoiceRenderData(
+    private function buildMeta(
         CountryEntity $companyCountry,
-        OrderEntity $order,
         ?int $itemsPerPage = null,
-    ): InvoiceRenderData {
+    ): DocumentMetaRenderData {
         $cfg = $this->getDemoInvoiceLegacyConfig();
 
         $displayOptions = new DocumentDisplayOptions(
@@ -296,16 +304,26 @@ class DocumentRendererSnapshotTest extends TestCase
             displayDivergentDeliveryAddress: $cfg['displayDivergentDeliveryAddress'],
         );
 
-        $lineItems = LineItemView::listFromOrder($order);
-        $allowanceCharges = AllowanceChargeView::listFromOrder($order);
-
-        return new InvoiceRenderData(
+        return new DocumentMetaRenderData(
             config: $this->buildDocumentConfig($itemsPerPage),
             company: $this->buildDocumentCompanyInfo($companyCountry),
             display: $displayOptions,
             documentDate: $cfg['documentDate'],
             documentNumber: $cfg['documentNumber'],
             documentComment: $cfg['documentComment'],
+            legacyConfig: $cfg,
+        );
+    }
+
+    private function buildInvoiceRenderData(
+        OrderEntity $order,
+    ): InvoiceRenderData {
+        $cfg = $this->getDemoInvoiceLegacyConfig();
+
+        $lineItems = LineItemView::listFromOrder($order);
+        $allowanceCharges = AllowanceChargeView::listFromOrder($order);
+
+        return new InvoiceRenderData(
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: TradePartyView::buyerFromOrder($order),
@@ -318,7 +336,6 @@ class DocumentRendererSnapshotTest extends TestCase
             paymentDueDate: new \DateTimeImmutable('2026-06-04T00:00:00+00:00'),
             intraCommunityDelivery: false,
             custom: ['invoiceNumber' => $cfg['documentNumber']],
-            legacyConfig: $cfg,
         );
     }
 

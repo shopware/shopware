@@ -143,7 +143,8 @@
     "CHECKOUT__ORDER_ORDER_CANCELLED": "The order with the order number \"%orderNumber%\" was canceled and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
     "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
-    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect.",
+    "urlNotAllowed": "Please do not enter a URL in this field."
   },
   "account": {
     "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",
@@ -596,6 +597,7 @@
     "subscribeOption": "Subscribe to newsletter",
     "unsubscribeOption": "Unsubscribe from newsletter",
     "formSubmit": "Subscribe",
+    "formSubmitUnsubscribe": "Unsubscribe",
     "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the sign-up process, search your inbox for our confirmation email and click on the link provided with it.",
     "subscriptionPersistedInfo": "If you do not receive a confirmation email in the next few minutes, you may already be subscribed to the newsletter. Check your inbox and spam folder. Then try to subscribe again and contact our support if this does not work either.",
     "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",

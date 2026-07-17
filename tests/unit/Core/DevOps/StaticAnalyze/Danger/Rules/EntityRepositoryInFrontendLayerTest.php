@@ -6,6 +6,7 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\EntityRepositoryInFrontendLayer;
@@ -17,6 +18,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(EntityRepositoryInFrontendLayer::class)]
+#[RequiresMethod(File::class, 'getContent')]
 class EntityRepositoryInFrontendLayerTest extends TestCase
 {
     #[TestDox('Flags newly added EntityRepository usage in the Storefront frontend layer')]
@@ -40,43 +42,43 @@ class EntityRepositoryInFrontendLayerTest extends TestCase
     {
         yield 'new repository usage in a controller fails' => [
             'src/Storefront/Controller/ProductController.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '+        private readonly EntityRepository $productRepository,',
             true,
         ];
         yield 'new repository usage in a page loader fails' => [
             'src/Storefront/Page/Product/ProductPageLoader.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '+        $this->repository = new EntityRepository();',
             true,
         ];
         yield 'new repository usage in a pagelet fails' => [
             'src/Storefront/Pagelet/Menu/MenuPageletLoader.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '+        private readonly EntityRepository $categoryRepository,',
             true,
         ];
         yield 'removed repository usage passes' => [
             'src/Storefront/Controller/ProductController.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '-        private readonly EntityRepository $productRepository,',
             false,
         ];
         yield 'added usage on a line mentioning a deprecation passes' => [
             'src/Storefront/Controller/ProductController.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '+     * @deprecated tag:v6.8.0 - EntityRepository usage will be removed',
             false,
         ];
         yield 'repository usage outside the frontend layer passes' => [
             'src/Storefront/Framework/Routing/Router.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '+        private readonly EntityRepository $repository,',
             false,
         ];
         yield 'added files are not checked, only modified ones' => [
             'src/Storefront/Controller/NewController.php',
-            File::STATUS_ADDED,
+            'added',
             '+        private readonly EntityRepository $repository,',
             false,
         ];

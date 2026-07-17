@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Rules;
 
 use Danger\Context;
+use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingReleaseInfo;
@@ -16,6 +18,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(MissingReleaseInfo::class)]
+#[RequiresMethod(File::class, 'getContent')]
 class MissingReleaseInfoTest extends TestCase
 {
     #[TestDox('Warns when the pull request does not touch the release info file')]

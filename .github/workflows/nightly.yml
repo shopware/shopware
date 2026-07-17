@@ -34,6 +34,8 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+      - name: Install Danger # the unit suite discovers the Danger rule tests, which type against the danger-php package
+        run: composer install -d vendor-bin/danger-php --no-interaction
       - name: Run PHPUnit
         run: |
           ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops

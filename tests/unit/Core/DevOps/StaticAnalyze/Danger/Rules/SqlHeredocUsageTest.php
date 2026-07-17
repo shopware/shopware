@@ -6,6 +6,7 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\SqlHeredocUsage;
@@ -17,6 +18,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(SqlHeredocUsage::class)]
+#[RequiresMethod(File::class, 'getContent')]
 class SqlHeredocUsageTest extends TestCase
 {
     #[TestDox('Fails for newly added SQL heredocs, ignores nowdocs, removals and unmodified files')]
@@ -40,31 +42,31 @@ class SqlHeredocUsageTest extends TestCase
     {
         yield 'added SQL heredoc fails' => [
             'src/Core/Framework/Dal/Indexer.php',
-            File::STATUS_MODIFIED,
+            'modified',
             "+        \$sql = <<<SQL\n+SELECT 1;\n+SQL;",
             true,
         ];
         yield 'added SQL nowdoc passes' => [
             'src/Core/Framework/Dal/Indexer.php',
-            File::STATUS_MODIFIED,
+            'modified',
             "+        \$sql = <<<'SQL'\n+SELECT 1;\n+SQL;",
             false,
         ];
         yield 'removed SQL heredoc passes' => [
             'src/Core/Framework/Dal/Indexer.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '-        $sql = <<<SQL',
             false,
         ];
         yield 'heredoc in an added file passes, only modified files are checked' => [
             'src/Core/Framework/Dal/NewIndexer.php',
-            File::STATUS_ADDED,
+            'added',
             '+        $sql = <<<SQL',
             false,
         ];
         yield 'heredoc in the danger config itself is excluded' => [
             '.danger.php',
-            File::STATUS_MODIFIED,
+            'modified',
             '+        $sql = <<<SQL',
             false,
         ];

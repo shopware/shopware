@@ -6,6 +6,7 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\InvalidFileNameCharacters;
@@ -17,6 +18,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(InvalidFileNameCharacters::class)]
+#[RequiresMethod(File::class, 'getContent')]
 class InvalidFileNameCharactersTest extends TestCase
 {
     #[TestDox('Fails for file names outside alphanumerics, dots, dashes, underscores and slashes')]
@@ -38,12 +40,12 @@ class InvalidFileNameCharactersTest extends TestCase
 
     public static function fileNameProvider(): \Generator
     {
-        yield 'plain php path passes' => ['src/Core/Framework/Framework.php', File::STATUS_ADDED, false];
-        yield 'dashes, dots and underscores pass' => ['src/some-dir/my_file.v2.php', File::STATUS_ADDED, false];
-        yield 'space in file name fails' => ['src/Core/My File.php', File::STATUS_ADDED, true];
-        yield 'parentheses fail' => ['docs/adr/decision(1).md', File::STATUS_ADDED, true];
-        yield 'umlauts fail' => ['src/Core/Überschrift.php', File::STATUS_ADDED, true];
-        yield 'invalid name in a removed file passes, deletions clean up' => ['src/Core/My File.php', File::STATUS_REMOVED, false];
-        yield 'the .run directory is exempt' => ['.run/My Run Config.run.xml', File::STATUS_ADDED, false];
+        yield 'plain php path passes' => ['src/Core/Framework/Framework.php', 'added', false];
+        yield 'dashes, dots and underscores pass' => ['src/some-dir/my_file.v2.php', 'added', false];
+        yield 'space in file name fails' => ['src/Core/My File.php', 'added', true];
+        yield 'parentheses fail' => ['docs/adr/decision(1).md', 'added', true];
+        yield 'umlauts fail' => ['src/Core/Überschrift.php', 'added', true];
+        yield 'invalid name in a removed file passes, deletions clean up' => ['src/Core/My File.php', 'removed', false];
+        yield 'the .run directory is exempt' => ['.run/My Run Config.run.xml', 'added', false];
     }
 }

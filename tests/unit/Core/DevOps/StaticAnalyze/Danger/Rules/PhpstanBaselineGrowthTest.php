@@ -6,6 +6,7 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
@@ -17,6 +18,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(PhpstanBaselineGrowth::class)]
+#[RequiresMethod(File::class, 'getContent')]
 class PhpstanBaselineGrowthTest extends TestCase
 {
     #[TestDox('Fails only when the baseline diff adds more lines than it removes')]

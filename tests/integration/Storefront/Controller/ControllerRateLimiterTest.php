@@ -27,6 +27,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -245,6 +246,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
             static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
 
@@ -280,6 +282,7 @@ class ControllerRateLimiterTest extends TestCase
             $newsletterRequestRoute,
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
             static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
 
@@ -313,6 +316,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             $newsletterRequestRoute,
             static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
 
@@ -346,6 +350,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
             $abstractRevocationRequestRoute,
+            static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
 

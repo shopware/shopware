@@ -115,7 +115,7 @@ class PaymentTokenLifecycleTest extends TestCase
         $connConsumable->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT consumed FROM payment_token WHERE token = :token', ['token' => $tokenId])
-            ->willReturn(['consumed' => 0]);
+            ->willReturn(0);
 
         $lifecycleConsumable = new PaymentTokenLifecycle($connConsumable);
         static::assertTrue($lifecycleConsumable->isConsumable($tokenId));
@@ -125,7 +125,7 @@ class PaymentTokenLifecycleTest extends TestCase
         $connNotConsumable->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT consumed FROM payment_token WHERE token = :token', ['token' => $tokenId])
-            ->willReturn(['consumed' => 1]);
+            ->willReturn(1);
 
         $lifecycleNotConsumable = new PaymentTokenLifecycle($connNotConsumable);
         static::assertFalse($lifecycleNotConsumable->isConsumable($tokenId));

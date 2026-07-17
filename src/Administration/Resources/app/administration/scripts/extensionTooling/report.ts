@@ -161,15 +161,56 @@ function skipReason(tool: string, resolution: ModeResolution): string {
         : 'own config does not compose the Shopware factory';
 }
 
+/**
+ * Baseline annotations for a tool run: the new findings are pointed at by
+ * identity so they can be found among the verbatim baselined ones, and a stale
+ * count nudges toward a re-baseline. Empty unless a baseline is in play.
+ */
+function baselineNotes(run: ToolRunResult): string[] {
+    const notes: string[] = [];
+    const refs = run.newFindingRefs ?? [];
+
+    if (run.status === 'failed' && (run.baselinedFindings ?? 0) > 0 && refs.length > 0) {
+        const shown = refs.slice(0, 10).map((ref) => `${ref.file} · ${ref.code}`);
+        const overflow = refs.length > shown.length ? `, … (+${refs.length - shown.length})` : '';
+
+        notes.push(colors.dim(`      new (not baselined): ${shown.join(', ')}${overflow}`));
+    }
+
+    if ((run.staleBaseline ?? 0) > 0) {
+        const count = run.staleBaseline ?? 0;
+
+        notes.push(
+            colors.dim(
+                `      ⚠ ${count} baseline entr${count === 1 ? 'y' : 'ies'} no longer match — ` +
+                    'prune with -- --update-baseline',
+            ),
+        );
+    }
+
+    return notes;
+}
+
 function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution): string {
     const label = tool.padEnd(11, ' ');
     const meta = colors.dim(`${resolution.mode} · ${seconds(run)}`);
+    const baselined = run.baselinedFindings ?? 0;
 
     switch (run.status) {
-        case 'passed':
-            return `${label}${colors.green('✔ passed')}       ${meta}`;
-        case 'failed':
-            return `${label}${colors.red(`✖ ${run.findings || 'some'} finding(s)`)}  ${meta}`;
+        case 'passed': {
+            const note = baselined > 0 ? ` ${colors.dim(`(${baselined} baselined)`)}` : '';
+
+            return `${label}${colors.green('✔ passed')}${note}       ${meta}`;
+        }
+        case 'failed': {
+            const newCount = run.newFindings ?? run.findings;
+            const text =
+                baselined > 0
+                    ? `✖ ${newCount || 'some'} new · ${baselined} baselined`
+                    : `✖ ${newCount || 'some'} finding(s)`;
+
+            return `${label}${colors.red(text)}  ${meta}`;
+        }
         case 'unmanaged':
             return `${label}${colors.yellow('⊘ skipped')} — ${colors.dim(skipReason(tool, resolution))}`;
         case 'blocked':
@@ -237,6 +278,8 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
             continue;
         }
 
+        lines.push(...baselineNotes(run));
+
         const showOutput =
             run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
 
@@ -272,9 +315,9 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
 function summaryCell(run: ToolRunResult, tool: string): string {
     switch (run.status) {
         case 'passed':
-            return 'passed';
+            return (run.baselinedFindings ?? 0) > 0 ? `${run.baselinedFindings} baselined` : 'passed';
         case 'failed':
-            return `${run.findings || 'some'} finding(s)`;
+            return `${(run.newFindings ?? run.findings) || 'some'} finding(s)`;
         case 'unmanaged':
             return 'skipped';
         case 'blocked':
@@ -356,14 +399,19 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
             ].filter((status) => status === 'unmanaged' || status === 'blocked').length,
         0,
     );
+    const baselined = result.results.reduce(
+        (sum, extension) => sum + (extension.typescript.baselinedFindings ?? 0) + (extension.eslint.baselinedFindings ?? 0),
+        0,
+    );
     const paint = result.exitCode === 0 ? colors.green : colors.red;
     const glyph = result.exitCode === 0 ? '✔' : '✖';
     const toolsSkippedNote = toolsSkipped > 0 ? ` (${toolsSkipped} tool${toolsSkipped === 1 ? '' : 's'} skipped)` : '';
+    const baselinedNote = baselined > 0 ? ` · ${baselined} baselined` : '';
 
     lines.push(
         '',
         paint(
-            `${glyph} ${result.results.length} checked${toolsSkippedNote} · ${withFindings} with findings · ` +
+            `${glyph} ${result.results.length} checked${toolsSkippedNote} · ${withFindings} with findings${baselinedNote} · ` +
                 `${extensionsSkipped} extension${extensionsSkipped === 1 ? '' : 's'} skipped · exit ${result.exitCode}`,
         ),
     );

@@ -36,6 +36,8 @@ import {
 import type { ProbeCacheFile } from './probe';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
+import { diffEslint, diffTypeScript, readBaseline } from './baseline';
+import type { BaselineSplit, EslintFinding, TypeScriptFinding } from './baseline';
 
 export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'blocked' | 'tooling-error';
 
@@ -43,7 +45,16 @@ export interface ToolRunResult {
     status: ToolStatus;
     output: string;
     durationMs: number;
+    /** Total findings the tool reported (native count, never baseline-adjusted). */
     findings: number;
+    /** Findings not covered by the baseline — the count that drives the exit code. */
+    newFindings?: number;
+    /** Findings suppressed by a matching baseline entry. */
+    baselinedFindings?: number;
+    /** Baseline entries that matched nothing this run (prunable via --update-baseline). */
+    staleBaseline?: number;
+    /** Identities of the new findings, for the report to point at them among the baselined ones. */
+    newFindingRefs?: Array<{ file: string; code: string }>;
 }
 
 export interface ExtensionCheckResult {
@@ -202,23 +213,6 @@ export function countEslintFindings(output: string): number {
     return 0;
 }
 
-export interface TypeScriptFinding {
-    /** Path as the tool printed it (project-root-relative). */
-    file: string;
-    /** Diagnostic code, e.g. "TS2322". */
-    code: string;
-    message: string;
-}
-
-export interface EslintFinding {
-    /** Path as the tool printed it (project-root-relative after relativizeToolOutput). */
-    file: string;
-    /** Rule id, or "" for a rule-less problem (e.g. a parsing error). */
-    rule: string;
-    message: string;
-    severity: 'error' | 'warning';
-}
-
 /**
  * Structures the TypeScript findings the counter counts — one per
  * `error TSxxxx:` line, in both the compact `file(l,c):` and the pretty
@@ -282,6 +276,41 @@ export function parseEslintFindings(output: string): EslintFinding[] {
     }
 
     return findings;
+}
+
+/**
+ * Turns a completed tool run and its baseline split into the reported status
+ * and the new/baselined/stale counts. A clean run passes; a run whose findings
+ * are all baselined also passes (its output is then suppressed like any pass);
+ * a non-zero exit we cannot attribute to baselined findings stays failed —
+ * including the parse-mismatch case, so a parser bug never greens real findings.
+ */
+function applyBaseline<F>(
+    runStatus: number,
+    totalFindings: number,
+    split: BaselineSplit<F>,
+    refOf: (finding: F) => { file: string; code: string },
+): Pick<ToolRunResult, 'status' | 'findings' | 'newFindings' | 'baselinedFindings' | 'staleBaseline' | 'newFindingRefs'> {
+    const newFindings = split.newFindings.length;
+    let status: ToolStatus;
+
+    if (runStatus === 0) {
+        status = 'passed';
+    } else if (newFindings > 0 || split.parseMismatch || totalFindings === 0) {
+        status = 'failed';
+    } else {
+        // Non-zero exit, but every reported finding matched the baseline.
+        status = 'passed';
+    }
+
+    return {
+        status,
+        findings: totalFindings,
+        newFindings,
+        baselinedFindings: split.baselinedCount,
+        staleBaseline: split.staleCount,
+        newFindingRefs: split.newFindings.map(refOf),
+    };
 }
 
 export function buildVueTscArguments(vueTscPath: string, tsconfigPath: string): string[] {
@@ -474,6 +503,8 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         let typescript: ToolRunResult;
         let eslint: ToolRunResult;
         const commands: ExtensionCheckResult['commands'] = {};
+        // Read once — the runtime and (later) spec runs share one baseline file.
+        const baseline = readBaseline(projectRoot, project);
 
         if (!setupResult.manifest.entitySchemaAvailable) {
             // Running vue-tsc against the empty-schema stub would bury the one
@@ -521,11 +552,17 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                     findings: 0,
                 };
             } else {
+                const split = diffTypeScript(
+                    parseTypeScriptFindings(run.output),
+                    baseline?.typescript ?? [],
+                    project.basePath,
+                    findings,
+                );
+
                 typescript = {
-                    status: run.status === 0 ? 'passed' : 'failed',
+                    ...applyBaseline(run.status, findings, split, (finding) => ({ file: finding.file, code: finding.code })),
                     output: run.output,
                     durationMs: run.durationMs,
-                    findings,
                 };
             }
         }
@@ -580,11 +617,20 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                         findings: 0,
                     };
                 } else {
+                    const split = diffEslint(
+                        parseEslintFindings(output),
+                        baseline?.eslint ?? [],
+                        project.basePath,
+                        findings,
+                    );
+
                     eslint = {
-                        status: run.status === 0 ? 'passed' : 'failed',
+                        ...applyBaseline(run.status, findings, split, (finding) => ({
+                            file: finding.file,
+                            code: finding.rule,
+                        })),
                         output: applyFix ? output : appendFixHint(output, project.name),
                         durationMs: run.durationMs,
-                        findings,
                     };
                 }
             }

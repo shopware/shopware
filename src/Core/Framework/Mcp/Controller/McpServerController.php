@@ -157,6 +157,10 @@ class McpServerController
      * them as a top-level JSON array over application/json, which conformant clients cannot parse.
      * Re-emit such a batch as a text/event-stream where each JSON-RPC message is its own
      * single-object SSE event, which is where server-initiated notifications belong.
+     *
+     * This guards against mcp/sdk v0.6.0 (symfony/mcp-bundle v0.10.0) still emitting batch arrays.
+     * Once the SDK stops bundling multiple messages over application/json, this becomes a no-op and
+     * can be removed.
      */
     private function createHttpResponse(PsrResponseInterface $psrResponse): Response
     {

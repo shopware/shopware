@@ -217,10 +217,6 @@ jobs:
       - name: Start Webserver
         run: symfony server:start -d
 
-      - name: Install Danger # composer init:testdb discovers the unit suite incl. the Danger rule tests, which type against the danger-php package
-        if: inputs.profile == 'nightly'
-        run: composer install -d vendor-bin/danger-php --no-interaction
-
       - name: Install Shopware in previous major version on test DB
         if: inputs.profile == 'nightly'
         run: composer init:testdb
@@ -282,9 +278,6 @@ jobs:
 
       - name: Start Webserver
         run: symfony server:start -d
-
-      - name: Install Danger # composer init:testdb discovers the unit suite incl. the Danger rule tests, which type against the danger-php package
-        run: composer install -d vendor-bin/danger-php --no-interaction
 
       - name: Install Shopware in previous major version on test DB
         run: composer init:testdb
@@ -366,9 +359,6 @@ jobs:
 
           - name: Start Webserver
             run: symfony server:start -d
-
-          - name: Install Danger # composer init:testdb discovers the unit suite incl. the Danger rule tests, which type against the danger-php package
-            run: composer install -d vendor-bin/danger-php --no-interaction
 
           - name: Install Shopware in previous major version on test DB
             run: composer init:testdb

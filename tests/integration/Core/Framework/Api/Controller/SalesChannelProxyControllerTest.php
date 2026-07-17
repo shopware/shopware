@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -11,6 +12,8 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
+use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
@@ -29,6 +32,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
@@ -1004,6 +1008,37 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
     }
 
+    #[DataProvider('sendMailFlagProvider')]
+    public function testProxyCreateOrderHonorsSendMailFlag(bool $sendMail, bool $mailExpected): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $customerId = $this->createCustomer($salesChannelContext, Uuid::randomHex() . '@example.com');
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
+        $payload = array_merge($payload, [
+            'customerId' => $customerId,
+            'paymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
+        ]);
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
+
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
+
+        $this->mailListener(function (MailEventListener $listener) use ($browser, $salesChannelContext, $sendMail, $mailExpected): void {
+            $browser->jsonRequest('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannelId()), [
+                'sendMail' => $sendMail,
+            ]);
+
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+            static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+            static::assertSame($mailExpected, $listener->sent('order_confirmation_mail'));
+        });
+    }
+
     public function testProxyCreateOrderPrivileges(): void
     {
         try {
@@ -1442,6 +1477,22 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<string, array{sendMail: bool, mailExpected: bool}>
+     */
+    public static function sendMailFlagProvider(): iterable
+    {
+        yield 'send order confirmation mail by default option' => [
+            'sendMail' => true,
+            'mailExpected' => true,
+        ];
+
+        yield 'suppress order confirmation mail when disabled' => [
+            'sendMail' => false,
+            'mailExpected' => false,
+        ];
+    }
+
     private function createCustomer(
         SalesChannelContext $salesChannelContext,
         string $email
@@ -1487,6 +1538,23 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+    }
+
+    private function mailListener(\Closure $closure): mixed
+    {
+        $mapping = static::getContainer()->get(Connection::class)
+            ->fetchAllKeyValue('SELECT LOWER(HEX(id)), technical_name FROM mail_template_type');
+
+        $listener = new MailEventListener($mapping);
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+
+        $dispatcher->addListener(FlowSendMailActionEvent::class, $listener);
+
+        try {
+            return $closure($listener);
+        } finally {
+            $dispatcher->removeListener(FlowSendMailActionEvent::class, $listener);
+        }
     }
 
     private function createShippingMethod(): string

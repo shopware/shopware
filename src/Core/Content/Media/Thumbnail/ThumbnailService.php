@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeE
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
+use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -52,6 +54,7 @@ class ThumbnailService
         private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
         private readonly Connection $connection,
         private readonly ThumbnailProcessorInterface $thumbnailProcessor,
+        private readonly LoggerInterface $logger,
         private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
@@ -115,7 +118,16 @@ class ThumbnailService
 
             $config = $media->getMediaFolder()->getConfiguration();
 
-            $thumbnails = $this->generateAndSave($media, $config, $context, $config->getMediaThumbnailSizes());
+            try {
+                $thumbnails = $this->generateAndSave($media, $config, $context, $config->getMediaThumbnailSizes());
+            } catch (\Throwable $e) {
+                $this->logger->error('Thumbnail generation failed for media {mediaId}', [
+                    'mediaId' => $media->getId(),
+                    'exception' => $e,
+                ]);
+
+                continue;
+            }
 
             foreach ($thumbnails as $thumbnail) {
                 $updates[] = $thumbnail;
@@ -262,6 +274,7 @@ class ThumbnailService
             ['ids' => ArrayParameterType::BINARY]
         );
 
+        $writtenPaths = [];
         try {
             $event = new MediaPathChangedEvent($context);
 
@@ -274,12 +287,21 @@ class ThumbnailService
                 $path = $paths[$id];
 
                 $this->writeThumbnail($thumbnail, $media, $path, $config->getThumbnailQuality());
+                $writtenPaths[] = $path;
 
                 $fileSystem = $this->getFileSystem($media);
                 if ($imageSize === $thumbnailSize && $fileSystem->fileSize($media->getPath()) < $fileSystem->fileSize($path)) {
-                    // write file to file system
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
+
+                $this->dispatcher->dispatch(new ThumbnailGeneratedEvent(
+                    $media->getId(),
+                    $id,
+                    $path,
+                    $media->getMimeType() ?? '',
+                    $fileSystem,
+                    $context,
+                ));
 
                 $event->thumbnailWithMimeType(
                     mediaId: $media->getId(),
@@ -290,9 +312,19 @@ class ThumbnailService
             }
 
             $this->dispatcher->dispatch($event);
-        } finally {
-            return $records;
+        } catch (\Throwable $e) {
+            $fileSystem = $this->getFileSystem($media);
+            foreach ($writtenPaths as $writtenPath) {
+                try {
+                    $fileSystem->delete($writtenPath);
+                } catch (\Throwable) {
+                }
+            }
+
+            throw $e;
         }
+
+        return $records;
     }
 
     private function ensureConfigIsLoaded(MediaEntity $media, Context $context): void

@@ -61,6 +61,16 @@ const SOURCE_EXTENSIONS = [
     'vue',
     'js',
 ];
+/**
+ * Test files are excluded from type-check programs by default: their runner
+ * globals (jest etc.) are not part of the admin runtime surface (the preset
+ * sets `types: []`), so including them floods the check with cascade errors.
+ */
+const SPEC_FILE_SUFFIXES = [
+    'spec.ts',
+    'spec.tsx',
+    'spec.js',
+];
 
 export interface SetupExtensionToolingOptions {
     projectRoot: string;
@@ -290,6 +300,14 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
                     SOURCE_EXTENSIONS.map(
                         (extension) =>
                             `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${extension}`,
+                    ),
+                ),
+                // Exclude patterns resolve relative to this config, so they
+                // carry the same source prefix as the includes.
+                exclude: project.sourcePaths.flatMap((sourcePath) =>
+                    SPEC_FILE_SUFFIXES.map(
+                        (specSuffix) =>
+                            `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${specSuffix}`,
                     ),
                 ),
             },
@@ -635,7 +653,16 @@ function scaffoldPluginConfigs(context: GeneratorContext, name: string, adminFol
     const tsconfigContent =
         `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
         '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
-        `${JSON.stringify({ extends: './.shopware-admin/tsconfig.json', include }, null, 4)}\n`;
+        '// Test files need their runner\'s types — keep them excluded, or add a "types" override in your own config.\n' +
+        `${JSON.stringify(
+            {
+                extends: './.shopware-admin/tsconfig.json',
+                include,
+                exclude: SPEC_FILE_SUFFIXES.map((suffix) => `**/*.${suffix}`),
+            },
+            null,
+            4,
+        )}\n`;
     const eslintContent = [
         `// Committed config for ${name}. Composes the generated Shopware bridge in .shopware-admin/`,
         '// (git-ignored). Safe to edit and commit — keep the import and the ...spread.',

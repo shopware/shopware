@@ -24,6 +24,11 @@ const typescriptFilePatterns = [
     '**/*.tsx',
 ];
 const vueFilePatterns = ['**/*.vue'];
+const specFilePatterns = [
+    '**/*.spec.ts',
+    '**/*.spec.tsx',
+    '**/*.spec.js',
+];
 const templateFilePatterns = [
     ...vueFilePatterns,
     ...defaultTwigFiles,
@@ -185,6 +190,18 @@ export function shopwareAdminExtension(options = {}) {
             rules: {
                 'sw-deprecation-rules/no-deprecated-components': internalApiSeverity,
                 'sw-deprecation-rules/no-deprecated-component-usage': internalApiSeverity,
+            },
+        },
+        {
+            // Test files are excluded from the type-check program (their
+            // runner's globals are not part of the admin runtime surface), so
+            // type-aware linting cannot apply — parse them standalone instead.
+            ...tseslint.configs.disableTypeChecked,
+            name: 'shopware/admin-extension/spec-files',
+            files: scope(specFilePatterns),
+            languageOptions: {
+                ...tseslint.configs.disableTypeChecked.languageOptions,
+                globals: { ...globals.jest },
             },
         },
     ];

@@ -156,6 +156,31 @@ describe('scripts/extensionTooling/setup', () => {
         expect(leafFiles).toHaveLength(result.manifest.projects.length);
     });
 
+    it('excludes test files from generated and scaffolded tsconfigs', () => {
+        writeDefaultFixtures();
+        setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        const leafRaw = fs.readFileSync(
+            path.join(projectRoot, 'var/admin-extension-tooling/projects/zeroconfig.json'),
+            'utf8',
+        );
+        const leaf = JSON.parse(leafRaw.split('\n').slice(1).join('\n')) as { exclude: string[] };
+
+        // Exclude patterns resolve relative to the config file, so the leaf
+        // config (in var/) must prefix them with the source path.
+        expect(leaf.exclude).toEqual(
+            expect.arrayContaining([expect.stringMatching(/custom\/plugins\/ZeroConfig\/.*\*\*\/\*\.spec\.ts$/)]),
+        );
+
+        const scaffold = fs.readFileSync(
+            path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/tsconfig.json'),
+            'utf8',
+        );
+
+        expect(scaffold).toContain('"**/*.spec.ts"');
+        expect(scaffold).toContain("Test files need their runner's types");
+    });
+
     it('escapes filesystem paths so a quote in an extension path cannot break the generated config', () => {
         const pluginPath = "custom/plugins/O'Brien";
         writeZeroConfigPlugin({ projectRoot, pluginPath });

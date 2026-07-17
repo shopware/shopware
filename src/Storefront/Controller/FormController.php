@@ -6,6 +6,7 @@ use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -41,6 +42,7 @@ class FormController extends StorefrontController
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
         private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
         private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
+        private readonly ConstraintViolationTranslator $constraintViolationTranslator,
     ) {
     }
 
@@ -73,7 +75,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -145,7 +147,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -196,8 +198,8 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -242,8 +244,8 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',

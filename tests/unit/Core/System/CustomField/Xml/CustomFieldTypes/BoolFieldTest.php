@@ -33,6 +33,7 @@ class BoolFieldTest extends TestCase
         static::assertSame([], $boolField->getHelpText());
         static::assertSame(1, $boolField->getPosition());
         static::assertFalse($boolField->getRequired());
+        static::assertTrue($boolField->isIncludeInSearch());
     }
 
     public function testToEntityPayload(): void
@@ -46,6 +47,7 @@ class BoolFieldTest extends TestCase
         static::assertEquals([
             'name' => 'test_bool_field',
             'type' => 'bool',
+            'includeInSearch' => true,
             'config' => [
                 'label' => [
                     'en-GB' => 'Test bool field',

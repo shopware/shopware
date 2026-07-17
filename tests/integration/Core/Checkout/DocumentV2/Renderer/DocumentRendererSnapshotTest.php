@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
-use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -55,7 +55,7 @@ class DocumentRendererSnapshotTest extends TestCase
 
     private HtmlRenderer $htmlRenderer;
 
-    private XmlRenderer $xmlRenderer;
+    private ZugferdXmlRenderer $xmlRenderer;
 
     /**
      * @var EntityRepository<OrderCollection>
@@ -82,7 +82,7 @@ class DocumentRendererSnapshotTest extends TestCase
         );
 
         $this->htmlRenderer = static::getContainer()->get(HtmlRenderer::class);
-        $this->xmlRenderer = static::getContainer()->get(XmlRenderer::class);
+        $this->xmlRenderer = static::getContainer()->get(ZugferdXmlRenderer::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->companyCountry = $this->loadCompanyCountry();
     }
@@ -306,7 +306,6 @@ class DocumentRendererSnapshotTest extends TestCase
             documentDate: $cfg['documentDate'],
             documentNumber: $cfg['documentNumber'],
             documentComment: $cfg['documentComment'],
-            templatePaths: InvoiceDataProvider::TEMPLATE_PATHS,
             typeCode: TypeCode::INVOICE,
             buyerReference: '10000',
             buyer: TradePartyView::buyerFromOrder($order),

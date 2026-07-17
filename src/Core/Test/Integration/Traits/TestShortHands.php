@@ -75,7 +75,7 @@ trait TestShortHands
         ]));
 
         $exists = static::getContainer()->get('order_line_item.repository')
-            ->search($criteria, Context::createDefaultContext());
+            ->search($criteria, Context::createDefaultContext())->getEntities();
 
         static::assertCount(1, $exists);
 

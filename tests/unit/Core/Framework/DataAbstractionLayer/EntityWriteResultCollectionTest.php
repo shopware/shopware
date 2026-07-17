@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
+use Shopware\Core\Framework\FrameworkException;
 
 /**
  * @internal
@@ -40,6 +41,32 @@ class EntityWriteResultCollectionTest extends TestCase
         static::assertSame([$withNull, $withName], $results->withPayloadProperties('active', 'name')->getElements());
     }
 
+    public function testFiltersCanBeChainedWithoutChangingOriginalCollection(): void
+    {
+        $matchingUpdate = new EntityWriteResult('matching-id', ['active' => true], 'product', EntityWriteResult::OPERATION_UPDATE);
+        $otherUpdate = new EntityWriteResult('other-id', ['stock' => 10], 'product', EntityWriteResult::OPERATION_UPDATE);
+        $matchingInsert = new EntityWriteResult('insert-id', ['active' => true], 'product', EntityWriteResult::OPERATION_INSERT);
+        $results = new EntityWriteResultCollection([$matchingUpdate, $otherUpdate, $matchingInsert]);
+
+        $filtered = $results
+            ->only(EntityWriteResult::OPERATION_UPDATE)
+            ->withPayloadProperties('active');
+
+        static::assertSame([$matchingUpdate], $filtered->getElements());
+        static::assertSame([$matchingUpdate, $otherUpdate, $matchingInsert], $results->getElements());
+    }
+
+    public function testEmptyFiltersMatchNoResults(): void
+    {
+        $results = new EntityWriteResultCollection([
+            new EntityWriteResult('product-id', ['active' => true], 'product', EntityWriteResult::OPERATION_UPDATE),
+        ]);
+
+        static::assertTrue($results->only()->isEmpty());
+        static::assertTrue($results->withPayloadProperties()->isEmpty());
+        static::assertSame([], $results->only('unknown')->getPrimaryKeys());
+    }
+
     public function testReturnsPrimaryKeys(): void
     {
         $stringResults = new EntityWriteResultCollection([
@@ -58,5 +85,15 @@ class EntityWriteResultCollectionTest extends TestCase
         static::assertSame([
             ['productId' => 'product-id', 'versionId' => 'version-id'],
         ], $compositeResults->getPrimaryKeys());
+    }
+
+    public function testRejectsInvalidElements(): void
+    {
+        $results = new EntityWriteResultCollection();
+
+        static::expectException(FrameworkException::class);
+
+        /** @phpstan-ignore argument.type */
+        $results->add(new \stdClass());
     }
 }

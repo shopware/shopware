@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolv
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
@@ -64,6 +65,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(DocumentMetaProvider::class)
+        ->args([
+            service(DocumentConfigLoader::class),
+        ])
+        ->tag('shopware.document_v2.provider');
 
     $services->set(InvoiceDataProvider::class)
         ->public()

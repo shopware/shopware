@@ -27,9 +27,9 @@ readonly class StaticDocumentDataProvider extends AbstractDocumentDataProvider
     ) {
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return $this->documentTypes;
+        return \in_array($documentType, $this->documentTypes, true);
     }
 
     public function getKey(): string

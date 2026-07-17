@@ -52,6 +52,8 @@ class DocumentV2Exception extends HttpException
 
     public const TEMPLATE_CONTEXT_READ_ONLY = 'DOCUMENT_V2__TEMPLATE_CONTEXT_READ_ONLY';
 
+    public const TEMPLATE_CONTEXT_PROPERTY_COLLISION = 'DOCUMENT_V2__TEMPLATE_CONTEXT_PROPERTY_COLLISION';
+
     public const UNSUPPORTED_CONFIG_CAST_TYPE = 'DOCUMENT_V2__UNSUPPORTED_CONFIG_CAST_TYPE';
 
     public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
@@ -325,6 +327,16 @@ class DocumentV2Exception extends HttpException
             self::TEMPLATE_CONTEXT_READ_ONLY,
             'TemplateContext is read-only; cannot mutate offset "{{ offset }}".',
             ['offset' => $offset],
+        );
+    }
+
+    public static function templateContextPropertyCollision(string $property): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TEMPLATE_CONTEXT_PROPERTY_COLLISION,
+            'Type-specific render data cannot override the shared property "{{ property }}".',
+            ['property' => $property],
         );
     }
 

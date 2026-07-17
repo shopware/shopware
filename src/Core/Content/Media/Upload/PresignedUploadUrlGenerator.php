@@ -6,9 +6,11 @@ use AsyncAws\S3\Input\DeleteObjectRequest;
 use AsyncAws\S3\Input\HeadObjectRequest;
 use AsyncAws\S3\Input\PutObjectRequest;
 use AsyncAws\S3\S3Client;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -26,6 +28,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         private ?string $bucket,
         private string $root,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
         private int $expirationMinutes,
         private bool $enabled,
     ) {
@@ -38,11 +41,12 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         AbstractMediaPathStrategy $mediaPathStrategy,
         array $filesystemConfig,
         LoggerInterface $logger,
+        ClockInterface $clock,
         ?HttpClientInterface $httpClient = null,
         int $expirationMinutes = 5,
         bool $enabled = true,
     ): self {
-        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
+        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $clock, $expirationMinutes, $enabled);
 
         if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
             return $nonSupported;
@@ -65,6 +69,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             $result['bucket'],
             trim($result['root'], '/'),
             $logger,
+            $clock,
             $expirationMinutes,
             $enabled,
         );
@@ -72,11 +77,11 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
     public function generate(MediaLocationStruct $location, string $mimeType): PresignedUrlResult
     {
-        if (!$this->enabled) {
+        if (!$this->isEnabled()) {
             throw MediaException::presignedUploadDisabled();
         }
 
-        if (!$this->isSupported()) {
+        if ($this->s3Client === null || $this->bucket === null) {
             throw MediaException::presignedUploadNotSupported();
         }
 
@@ -88,21 +93,21 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             throw MediaException::missingFileExtension();
         }
 
-        if ($this->s3Client === null || $this->bucket === null) {
-            throw MediaException::presignedUploadNotSupported();
-        }
-
         $paths = $this->mediaPathStrategy->generate([$location]);
         $mediaPath = $paths[$location->id] ?? throw MediaException::strategyNotFound($this->mediaPathStrategy->name());
         $s3Key = $this->ensureRootPrefix($mediaPath);
 
-        $expiresAt = new \DateTimeImmutable(\sprintf('+%d minutes', $this->expirationMinutes));
+        $expiresAt = $this->clock->now()->modify(\sprintf('+%d minutes', $this->expirationMinutes));
 
         try {
+            // The presigned ContentType must match the `Content-Type` header the browser sends on the PUT
+            // byte-for-byte, otherwise S3 rejects the upload with `SignatureDoesNotMatch`. The client applies the
+            // same charset canonicalization before sending — see `withCharset()` in
+            // src/Administration/Resources/app/administration/src/core/service/api/media-presigned-upload.api.service.js
             $request = new PutObjectRequest([
                 'Bucket' => $this->bucket,
                 'Key' => $s3Key,
-                'ContentType' => $mimeType,
+                'ContentType' => FileInfoHelper::addCharset($mimeType),
             ]);
 
             $url = $this->s3Client->presign($request, $expiresAt);
@@ -150,7 +155,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
             return new FileMetadataResult(
                 size: (int) ($result->getContentLength()),
-                lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
+                lastModified: $result->getLastModified() ?? $this->clock->now(),
                 etag: $etag,
                 contentType: $result->getContentType(),
             );

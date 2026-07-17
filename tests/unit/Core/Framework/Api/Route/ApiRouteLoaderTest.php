@@ -22,8 +22,8 @@ class ApiRouteLoaderTest extends TestCase
     {
         $definitionRegistry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $loader = new ApiRouteLoader($definitionRegistry);

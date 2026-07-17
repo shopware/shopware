@@ -135,7 +135,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     private function getBuildBreadcrumbExtension(?CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder = null, ?string $categoryId = null): BuildBreadcrumbExtension
     {
-        $categoryBreadcrumbBuilder ??= $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder ??= static::createStub(CategoryBreadcrumbBuilder::class);
 
         $categories = new CategoryCollection();
         if ($categoryId !== null) {

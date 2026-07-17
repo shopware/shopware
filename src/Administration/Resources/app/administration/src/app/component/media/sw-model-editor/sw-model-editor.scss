@@ -1,7 +1,4 @@
-@import "~scss/variables";
-
 $sw-model-editor-canvas-ui__button-size: 42px;
-$sw-model-editor-canvas-ui__orientation-size: $sw-model-editor-canvas-ui__button-size;
 $sw-model-editor-box-shadow: 0 2px 6px 0 #00000036;
 $sw-button-transition: all 0.15s ease-out;
 
@@ -26,10 +23,10 @@ $sw-button-transition: all 0.15s ease-out;
     display: flex;
     flex-direction: column;
     flex: 0 0 400px;
-    border-left: 1px solid var(--color-border-primary-default);
+    border-left: 1px solid var(--color-border-secondary-default);
 
     .sw-model-editor-sidebar-content-item {
-        border-bottom: 1px solid #d1d9e0;
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-model-editor-sidebar-content-item-header {
             display: grid;
@@ -67,15 +64,15 @@ $sw-button-transition: all 0.15s ease-out;
     border-radius: $sw-model-editor-canvas-ui__button-size;
     overflow: hidden;
     pointer-events: auto;
-    background: $color-white;
+    background: var(--color-background-primary-default);
     display: flex;
     box-shadow: $sw-model-editor-box-shadow;
 
     .sw-model-editor-canvas-ui__button {
         width: $sw-model-editor-canvas-ui__button-size;
         height: $sw-model-editor-canvas-ui__button-size;
-        background: $color-white;
-        color: $color-darkgray-200;
+        background: var(--color-background-primary-default);
+        color: var(--color-icon-primary-default);
         transition: $sw-button-transition;
         border: none;
         outline: none;
@@ -85,22 +82,22 @@ $sw-button-transition: all 0.15s ease-out;
         justify-content: center;
 
         &:disabled {
-            color: $color-gray-300;
+            color: var(--color-icon-primary-disabled);
 
             &:hover {
-                background: $color-white;
+                background: var(--color-background-primary-default);
             }
         }
 
         &:hover {
-            background: $color-gray-100;
+            background: var(--color-background-secondary-default);
         }
     }
 
     &.is--active {
         .sw-model-editor-canvas-ui__button {
-            color: $color-shopware-brand-500;
-            background: $color-shopware-brand-50;
+            color: var(--color-icon-brand-default);
+            background: var(--color-background-brand-default);
         }
     }
 }

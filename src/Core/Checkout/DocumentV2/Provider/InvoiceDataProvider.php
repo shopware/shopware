@@ -9,6 +9,13 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Template\View\AllowanceChargeView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -53,14 +60,16 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             'addresses.salutation',
             'addresses.countryState',
             'orderCustomer.customer',
+            'lineItems.product',
+            'lineItems.children.product',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
             'primaryOrderTransaction.paymentMethod',
-            'primaryOrderDelivery.shippingMethod',
             'primaryOrderDelivery.shippingOrderAddress.country',
         ]);
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
+        $criteria->getAssociation('lineItems.children')->addSorting(new FieldSorting('position'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
         /** @deprecated tag:v6.8.0 - Remove when document templates use primaryOrderTransaction instead. */
@@ -93,21 +102,80 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
         }
 
+        $lineItems = LineItemView::listFromOrder($order);
+        $allowanceCharges = AllowanceChargeView::listFromOrder($order);
+
         return new InvoiceRenderData(
-            $bundle->config,
-            $bundle->company,
-            $generationRequest->documentDate,
-            $documentNumber,
-            $generationRequest->documentComment,
-            $isIntraCommunityDelivery,
-            (bool) ($bundle->legacyConfig['displayDivergentDeliveryAddress'] ?? false),
-            (bool) ($bundle->legacyConfig['displayLineItems'] ?? false),
-            (bool) ($bundle->legacyConfig['displayLineItemPosition'] ?? false),
-            (bool) ($bundle->legacyConfig['displayPrices'] ?? false),
-            $bundle->legacyConfig['deliveryCountries'] ?? [],
-            $bundle->legacyConfig,
-            ['invoiceNumber' => $documentNumber],
+            config: $bundle->config,
+            company: $bundle->company,
+            display: $bundle->display,
+            documentDate: $generationRequest->documentDate,
+            documentNumber: $documentNumber,
+            documentComment: $generationRequest->documentComment,
+            typeCode: TypeCode::INVOICE,
+            buyerReference: $order->getOrderNumber() ?? '',
+            buyer: TradePartyView::buyerFromOrder($order),
+            deliveryDate: $this->resolveDeliveryDate($order),
+            lineItems: $lineItems,
+            allowanceCharges: $allowanceCharges,
+            taxBreakdown: TaxBreakdownView::listFromOrder($order),
+            monetarySummation: MonetarySummationView::fromOrder(
+                $order,
+                $lineItems,
+                $allowanceCharges
+            ),
+            paymentMeans: PaymentMeansView::fromOrder(
+                $order,
+                $bundle->company->bankIban,
+                $bundle->company->bankBic,
+            ),
+            paymentDueDate: $this->resolvePaymentDueDate(
+                $generationRequest->documentDate,
+                $bundle->legacyConfig
+            ),
+            intraCommunityDelivery: $isIntraCommunityDelivery,
+            custom: ['invoiceNumber' => $documentNumber],
+            legacyConfig: $bundle->legacyConfig,
         );
+    }
+
+    /**
+     * @param array<string, mixed> $legacyConfig
+     */
+    private function resolvePaymentDueDate(string $documentDate, array $legacyConfig): ?\DateTimeImmutable
+    {
+        $modifier = $legacyConfig['paymentDueDate'] ?? null;
+
+        if (!\is_string($modifier) || $modifier === '') {
+            return null;
+        }
+
+        try {
+            $base = new \DateTimeImmutable($documentDate);
+        } catch (\Exception) {
+            return null;
+        }
+
+        return $base->modify($modifier) ?: null;
+    }
+
+    private function resolveDeliveryDate(OrderEntity $order): ?\DateTimeImmutable
+    {
+        $delivery = Feature::isActive('v6.8.0.0')
+            ? $order->getPrimaryOrderDelivery()
+            : $order->getDeliveries()?->first();
+
+        $shippingDate = $delivery?->getShippingDateLatest();
+
+        if ($shippingDate instanceof \DateTimeImmutable) {
+            return $shippingDate;
+        }
+
+        if ($shippingDate instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($shippingDate);
+        }
+
+        return null;
     }
 
     private function isIntraCommunityDelivery(bool $displayAdditionalNoteDelivery, OrderEntity $order): bool

@@ -4,23 +4,21 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Template\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Template\TemplateContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Renders the HTML representation of a document via {@see DocumentTemplateRenderer}.
  *
- * Wraps the provider's {@see InvoiceRenderData} in a {@see TemplateContext} together with
- * format-specific overrides (`fileType`, `itemsPerPage`) so the underlying render data stays
- * untouched for any renderer running after this one.
+ * The output doubles as the {@see PdfRenderer} Dompdf input, so browser-only styling
+ * is scoped to `media="screen"` in the templates.
  *
  * @internal
  */
@@ -28,6 +26,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class HtmlRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::HTML;
+
+    private const TEMPLATE_PATTERN = '@Framework/documents/%s.html.twig';
 
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
@@ -49,17 +49,13 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
         $renderData = $input->requireData(
-            InvoiceDataProvider::KEY,
-            InvoiceRenderData::class
+            $input->documentType,
+            AbstractRenderData::class,
         );
 
-        $configuration = new TemplateContext(
-            $renderData,
-            fileType: self::FORMAT->fileExtension(),
-            itemsPerPage: 1000,
-        );
+        $configuration = new TemplateContext($renderData);
 
-        $template = DocumentType::from($input->documentType)->templatePath();
+        $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 
         $content = $this->documentTemplateRenderer->render(
             $template,

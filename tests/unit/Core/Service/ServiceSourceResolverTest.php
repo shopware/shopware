@@ -29,10 +29,10 @@ class ServiceSourceResolverTest extends TestCase
     public function testName(): void
     {
         $source = new ServiceSourceResolver(
-            $this->createMock(Client::class),
+            static::createStub(Client::class),
             new TemporaryDirectoryFactory(),
-            $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class)
+            static::createStub(AppExtractor::class),
+            static::createStub(Filesystem::class)
         );
         static::assertSame('service', $source->name());
     }
@@ -44,10 +44,10 @@ class ServiceSourceResolverTest extends TestCase
         $app->setSourceType('service');
 
         $source = new ServiceSourceResolver(
-            $this->createMock(Client::class),
+            static::createStub(Client::class),
             new TemporaryDirectoryFactory(),
-            $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class)
+            static::createStub(AppExtractor::class),
+            static::createStub(Filesystem::class)
         );
 
         static::assertTrue($source->supports($app));
@@ -59,7 +59,7 @@ class ServiceSourceResolverTest extends TestCase
 
     public function testSupportSelfManagedManifestsWithHttpUrls(): void
     {
-        $manifest = static::createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getPath')->willReturn('https://example.com');
 
         $metadata = Metadata::fromArray([
@@ -76,10 +76,10 @@ class ServiceSourceResolverTest extends TestCase
         $manifest->method('getMetadata')->willReturn($metadata);
 
         $source = new ServiceSourceResolver(
-            $this->createMock(Client::class),
+            static::createStub(Client::class),
             new TemporaryDirectoryFactory(),
-            $this->createMock(AppExtractor::class),
-            $this->createMock(Filesystem::class)
+            static::createStub(AppExtractor::class),
+            static::createStub(Filesystem::class)
         );
 
         static::assertTrue($source->supports($manifest));
@@ -253,12 +253,11 @@ class ServiceSourceResolverTest extends TestCase
     public function testDownloadVersionThrowsExceptionOnServiceError(): void
     {
         $client = $this->createMock(Client::class);
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $appExtractor = $this->createMock(AppExtractor::class);
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
+        $appExtractor = static::createStub(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())
@@ -301,12 +300,11 @@ class ServiceSourceResolverTest extends TestCase
     public function testDownloadVersionThrowsExceptionOnExtractorError(): void
     {
         $client = $this->createMock(Client::class);
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())
@@ -357,12 +355,11 @@ class ServiceSourceResolverTest extends TestCase
     public function testDownloadVersionThrowsExceptionOnFileWriteError(): void
     {
         $client = $this->createMock(Client::class);
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $appExtractor = $this->createMock(AppExtractor::class);
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
+        $appExtractor = static::createStub(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())
@@ -420,8 +417,7 @@ class ServiceSourceResolverTest extends TestCase
         string $zipUrl,
         array $chunks
     ): void {
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())

@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
@@ -21,6 +17,7 @@ Shopware.Component.extend(
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
+ * @sw-package inventory
  * @private
  */
 Module.register('sw-product-stream', {

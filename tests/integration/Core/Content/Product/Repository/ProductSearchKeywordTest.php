@@ -41,6 +41,7 @@ class ProductSearchKeywordTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->repository
             ->search(new Criteria([$id]), $this->context)
+            ->getEntities()
             ->get($id);
 
         $customSearchKeywords = $product->getCustomSearchKeywords();
@@ -58,6 +59,7 @@ class ProductSearchKeywordTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->repository
             ->search(new Criteria([$id]), $this->context)
+            ->getEntities()
             ->get($id);
 
         $customSearchKeywords = $product->getCustomSearchKeywords();
@@ -74,6 +76,7 @@ class ProductSearchKeywordTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->repository
             ->search(new Criteria([$id]), $this->context)
+            ->getEntities()
             ->get($id);
 
         $customSearchKeywords = $product->getCustomSearchKeywords();

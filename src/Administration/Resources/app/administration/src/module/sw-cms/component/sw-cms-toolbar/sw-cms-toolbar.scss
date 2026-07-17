@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-cms-toolbar {
     padding: 0 20px;
     min-height: 81px;
-    border-bottom: 2px solid var(--color-border-primary-default);
+    border-bottom: 2px solid var(--color-border-secondary-default);
     display: grid;
     grid-template-columns: 1fr 1fr auto auto auto;
     align-items: center;
@@ -26,8 +24,8 @@
 
     .sw-cms-toolbar__title h2 {
         color: var(--color-text-primary-default);
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

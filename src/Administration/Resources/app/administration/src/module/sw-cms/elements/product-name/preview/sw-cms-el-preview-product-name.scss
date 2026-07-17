@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-el-preview-product-name {
     display: flex;
     align-items: center;
@@ -8,7 +6,7 @@
 
     &__heading {
         margin: 0;
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
     }
 }

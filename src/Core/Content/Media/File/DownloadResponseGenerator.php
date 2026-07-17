@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
@@ -40,6 +41,7 @@ class DownloadResponseGenerator
         private readonly MediaService $mediaService,
         private readonly string $localPrivateDownloadStrategy,
         private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
+        private readonly ClockInterface $clock,
         private readonly string $privateLocalPathPrefix = ''
     ) {
     }
@@ -49,12 +51,20 @@ class DownloadResponseGenerator
         SalesChannelContext $context,
         string $expiration = self::EXPIRATION_TIME
     ): Response {
+        return $this->getResponseByContext($media, $context->getContext(), $expiration);
+    }
+
+    public function getResponseByContext(
+        MediaEntity $media,
+        Context $context,
+        string $expiration = self::EXPIRATION_TIME
+    ): Response {
         $fileSystem = $this->getFileSystem($media);
 
         $path = $media->getPath();
 
         try {
-            $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
+            $url = $fileSystem->temporaryUrl($path, $this->clock->now()->modify($expiration));
 
             return new RedirectResponse($url);
         } catch (UnableToGenerateTemporaryUrl $exception) {
@@ -66,7 +76,7 @@ class DownloadResponseGenerator
         return $this->getDefaultResponse($media, $context, $fileSystem);
     }
 
-    private function getDefaultResponse(MediaEntity $media, SalesChannelContext $context, FilesystemOperator $fileSystem): Response
+    private function getDefaultResponse(MediaEntity $media, Context $context, FilesystemOperator $fileSystem): Response
     {
         if (!$media->isPrivate()) {
             $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
@@ -107,9 +117,9 @@ class DownloadResponseGenerator
         }
     }
 
-    private function createStreamedResponse(MediaEntity $media, SalesChannelContext $context): StreamedResponse
+    private function createStreamedResponse(MediaEntity $media, Context $context): StreamedResponse
     {
-        $stream = $context->getContext()->scope(
+        $stream = $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
         );

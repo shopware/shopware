@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -765,6 +766,7 @@ SVG;
             static::getContainer()->get(AbstractMediaPathStrategy::class),
             static::getContainer()->get(MediaFileCleanupService::class),
             static::getContainer()->get(MediaFileExtensionValidator::class),
+            new NativeClock()
         );
 
         $mediaPath = $png->getPath();

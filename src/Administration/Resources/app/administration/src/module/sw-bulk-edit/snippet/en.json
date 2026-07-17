@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Bulk edit",
       "descriptionTextModule": "Module to bulk edit data",
       "defaultChangeLabel": "Change:"
     },
@@ -269,10 +268,9 @@
           "columnDocumentType": "Document type",
           "downloadResult": "Download result",
           "downloadHeadline": "Failed documents",
-          "downloadFileName": "bulk-edit-document-generation-result",
           "documentTypes": {
             "invoice": "Invoice",
-            "storno": "Cancellation invoice",
+            "cancellationInvoice": "Cancellation invoice",
             "creditNote": "Credit note",
             "deliveryNote": "Delivery note"
           }

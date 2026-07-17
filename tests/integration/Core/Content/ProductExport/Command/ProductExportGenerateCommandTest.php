@@ -107,7 +107,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $criteria->addAssociation('salesChannel');
         $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        $domain = $repository->search($criteria, $this->context)->first();
+        $domain = $repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelDomainEntity::class, $domain);
 
         return $domain;

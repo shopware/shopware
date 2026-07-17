@@ -93,7 +93,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $ids->get('order-1')));
 
-        $result = $this->trackingOrderRepository->search($criteria, $this->context);
+        $result = $this->trackingOrderRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $result);
 
@@ -116,7 +116,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $ids->get('customer-1')));
 
-        $result = $this->trackingCustomerRepository->search($criteria, $this->context);
+        $result = $this->trackingCustomerRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $result);
 
@@ -135,7 +135,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $ids->get('customer-1')));
 
-        $result = $this->trackingCustomerRepository->search($criteria, $this->context);
+        $result = $this->trackingCustomerRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(0, $result);
     }
@@ -181,7 +181,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $ids->get('customer-1')));
 
-        $result = $this->trackingCustomerRepository->search($criteria, $this->context);
+        $result = $this->trackingCustomerRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(0, $result);
     }

@@ -44,11 +44,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         return self::KEY;
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return [
-            DocumentType::INVOICE->value,
-        ];
+        return $documentType === DocumentType::INVOICE->value;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void

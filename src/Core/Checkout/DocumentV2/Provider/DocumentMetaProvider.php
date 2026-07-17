@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
@@ -32,12 +31,9 @@ final readonly class DocumentMetaProvider extends AbstractDocumentDataProvider
         return self::KEY;
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return array_map(
-            static fn (DocumentType $type): string => $type->value,
-            DocumentType::cases(),
-        );
+        return true;
     }
 
     public function provideRenderingData(

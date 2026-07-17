@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
@@ -39,12 +40,22 @@ class DocumentMetaProviderTest extends TestCase
         static::assertSame('meta', $this->createProvider()->getKey());
     }
 
-    public function testProvidesForEveryDocumentType(): void
+    #[DataProvider('documentTypeProvider')]
+    public function testSupportsEveryDocumentType(string $documentType): void
     {
-        static::assertSame(
-            ['invoice', 'delivery_note', 'credit_note', 'cancellation_invoice'],
-            $this->createProvider()->getDocumentTypes(),
-        );
+        static::assertTrue($this->createProvider()->supports($documentType));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function documentTypeProvider(): \Generator
+    {
+        yield 'core invoice' => [DocumentType::INVOICE->value];
+        yield 'core delivery note' => [DocumentType::DELIVERY_NOTE->value];
+        yield 'core credit note' => [DocumentType::CREDIT_NOTE->value];
+        yield 'core cancellation invoice' => [DocumentType::CANCELLATION_INVOICE->value];
+        yield 'plugin-defined type unknown to the core' => ['my_plugin_document'];
     }
 
     public function testProvideRenderingDataBuildsMetaFromConfigBundleAndRequest(): void

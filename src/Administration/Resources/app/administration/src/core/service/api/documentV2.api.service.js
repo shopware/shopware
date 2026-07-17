@@ -105,9 +105,7 @@ class DocumentV2ApiService extends ApiService {
 
         return request.catch((error) => {
             if (error.response?.data?.errors) {
-                this.$listener(
-                    this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
-                );
+                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()));
             }
         });
     }

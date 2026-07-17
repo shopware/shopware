@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Template\Calculation\OrderInverter;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -57,7 +55,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
             $generationRequest->referencedDocumentId,
         );
 
-        $this->invertOrderPrices($order);
+        OrderInverter::invert($order);
 
         $invoice = $this->invoiceDataProvider->provideRenderingData($order, $generationRequest, $context);
 
@@ -90,80 +88,5 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
         }
 
         return $number;
-    }
-
-    /**
-     * Inverts the order into a cancellation: quantities are negated while the item net price stays
-     * positive, which EN16931 requires (BR-27 forbids a negative item net price; the reversal is
-     * expressed through the negative quantity instead).
-     */
-    private function invertOrderPrices(OrderEntity $order): void
-    {
-        $this->invertLineItemPrices($order->getLineItems());
-
-        foreach ($order->getPrice()->getCalculatedTaxes() as $tax) {
-            $tax->setTax($tax->getTax() * -1);
-            $tax->setPrice($tax->getPrice() * -1);
-        }
-
-        foreach ($order->getDeliveries() ?? [] as $delivery) {
-            $delivery->setShippingCosts($this->invertCalculatedPrice($delivery->getShippingCosts()));
-        }
-
-        $order->setShippingTotal($order->getShippingTotal() * -1);
-        $order->setAmountNet($order->getAmountNet() * -1);
-        $order->setAmountTotal($order->getAmountTotal() * -1);
-
-        $price = $order->getPrice();
-        $order->setPrice(new CartPrice(
-            $price->getNetPrice() * -1,
-            $price->getTotalPrice() * -1,
-            $price->getPositionPrice() * -1,
-            $price->getCalculatedTaxes(),
-            $price->getTaxRules(),
-            $price->getTaxStatus(),
-            $price->getRawTotal() * -1,
-        ));
-    }
-
-    private function invertLineItemPrices(?OrderLineItemCollection $lineItems): void
-    {
-        if ($lineItems === null) {
-            return;
-        }
-
-        foreach ($lineItems as $lineItem) {
-            $lineItem->setQuantity($lineItem->getQuantity() * -1);
-            $lineItem->setTotalPrice($lineItem->getTotalPrice() * -1);
-
-            $price = $lineItem->getPrice();
-
-            if ($price !== null) {
-                $lineItem->setPrice($this->invertCalculatedPrice($price));
-            }
-
-            $this->invertLineItemPrices($lineItem->getChildren());
-        }
-    }
-
-    private function invertCalculatedPrice(CalculatedPrice $price): CalculatedPrice
-    {
-        $calculatedTaxes = $price->getCalculatedTaxes();
-
-        foreach ($calculatedTaxes as $calculatedTax) {
-            $calculatedTax->setTax($calculatedTax->getTax() * -1);
-            $calculatedTax->setPrice($calculatedTax->getPrice() * -1);
-        }
-
-        return new CalculatedPrice(
-            $price->getUnitPrice(),
-            $price->getTotalPrice() * -1,
-            $calculatedTaxes,
-            $price->getTaxRules(),
-            $price->getQuantity(),
-            $price->getReferencePrice(),
-            $price->getListPrice(),
-            $price->getRegulationPrice(),
-        );
     }
 }

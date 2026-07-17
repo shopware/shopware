@@ -75,7 +75,7 @@ class CancellationInvoiceDataProviderTest extends TestCase
         );
     }
 
-    public function testProvideRenderingDataInvertsAmountsAndReferencesTheInvoice(): void
+    public function testProvideRenderingDataReferencesTheInvoiceAndAppliesTheInversion(): void
     {
         $provider = $this->createProvider(rows: [$this->invoiceRow(documentNumber: '1000')]);
 
@@ -87,13 +87,6 @@ class CancellationInvoiceDataProviderTest extends TestCase
         static::assertSame('1000', $data->custom['invoiceNumber']);
 
         static::assertLessThan(0, $data->monetarySummation->grandTotal);
-        static::assertNotEmpty($data->lineItems);
-
-        foreach ($data->lineItems as $lineItem) {
-            static::assertLessThan(0, $lineItem->lineTotal);
-            static::assertLessThan(0, $lineItem->quantity);
-            static::assertGreaterThan(0, $lineItem->netUnitPrice);
-        }
     }
 
     public function testResolvesInvoiceNumberFromConfigWhenColumnIsEmpty(): void

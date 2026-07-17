@@ -54,6 +54,40 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $this->contextService = static::getContainer()->get(SalesChannelContextService::class);
     }
 
+    #[DataProvider('sessionStateProvider')]
+    public function testStoreApiRequestDoesNotInitializeSession(bool $sessionAlreadyInstantiated): void
+    {
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => TestDefaults::SALES_CHANNEL,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['store-api'],
+        ]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Uuid::randomHex());
+
+        $storage = new MockArraySessionStorage();
+        $factoryCalls = 0;
+        $request->setSessionFactory(static function () use ($storage, &$factoryCalls): Session {
+            ++$factoryCalls;
+
+            return new Session($storage);
+        });
+
+        if ($sessionAlreadyInstantiated) {
+            $request->getSession();
+        }
+        $factoryCallsBeforeResolve = $factoryCalls;
+
+        static::getContainer()->get(SalesChannelRequestContextResolver::class)->resolve($request);
+
+        static::assertFalse($storage->isStarted());
+        static::assertSame($factoryCallsBeforeResolve, $factoryCalls);
+    }
+
+    public static function sessionStateProvider(): \Generator
+    {
+        yield 'request has only the lazy session factory' => [false];
+        yield 'session was instantiated but not started' => [true];
+    }
+
     public function testRequestSalesChannelCurrency(): void
     {
         $this->createTestSalesChannel();

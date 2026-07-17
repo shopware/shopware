@@ -80,7 +80,7 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
         $this->injectPageCount($dompdf);
 
         $content = $dompdf->output();
-        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber, self::FORMAT->value);
 
         return new RenderResult(
             format: self::FORMAT->value,

@@ -76,7 +76,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             ],
         );
 
-        $fileStem = $meta->config->buildFileStem($meta->documentNumber);
+        $fileStem = $meta->config->buildFileStem($meta->documentNumber, self::FORMAT->value);
 
         return new RenderResult(
             format: self::FORMAT->value,

@@ -78,7 +78,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront routing starting the storefront session when needed.) */
+        // Calling hasSession() without $skipIfUninitialized is intentional: this method only handles storefront
+        // requests and starts the storefront session below, so taking the PHP session lock is expected and safe.
         if (!$mainRequest->hasSession()) {
             return;
         }

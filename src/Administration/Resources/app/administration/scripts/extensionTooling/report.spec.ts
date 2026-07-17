@@ -116,6 +116,23 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).not.toContain('--shim');
     });
 
+    it('marks skipped platform bundles as such without plugin-facing compose hints', () => {
+        const output = report([
+            extension(
+                project('Storefront', {
+                    basePath: 'src/Storefront',
+                    eslintConfig: 'src/Storefront/Resources/app/administration/eslint.config.mjs',
+                    eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
+                }),
+                { eslint: run('unmanaged') },
+            ),
+        ]);
+
+        expect(output).toContain('platform bundle — its own config decides composition');
+        expect(output).not.toContain('<administration>');
+        expect(output).not.toContain('--shim');
+    });
+
     it('prints raw tool output for failures but not for passing tools', () => {
         const output = report(
             [
@@ -369,6 +386,39 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).toContain('✔ Bridge created for Unwired');
         expect(output).toContain('one step left');
         expect(output).not.toContain('✔ Bridged Unwired');
+    });
+
+    it('replaces the empty state with discovery guidance instead of a green "up to date"', () => {
+        const output = renderSetupReport(setupResult([]));
+
+        expect(output).toContain('no extensions found');
+        expect(output).toContain('bin/console bundle:dump');
+        expect(output).not.toContain('Configs up to date');
+        expect(output).not.toContain('0 extension(s)');
+    });
+
+    it('lists platform bundles in their own dim section, excluded from the count and next steps', () => {
+        const storefront = project('Storefront', {
+            basePath: 'src/Storefront',
+            eslintConfig: 'src/Storefront/Resources/app/administration/eslint.config.mjs',
+            eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
+        });
+        const output = renderSetupReport(
+            setupResult([
+                managed,
+                storefront,
+            ]),
+        );
+
+        expect(output).toContain('— 1 extension(s)');
+        expect(output).toContain('platform   Storefront');
+        expect(output).not.toContain('--shim=Storefront');
+        expect(output).not.toContain('<administration>');
+
+        const emptyWithPlatform = renderSetupReport(setupResult([storefront]));
+
+        expect(emptyWithPlatform).toContain('no extensions found');
+        expect(emptyWithPlatform).toContain('Platform bundles like Storefront');
     });
 
     it('reads "Configs up to date" when nothing changed, lists stale writes under --check', () => {

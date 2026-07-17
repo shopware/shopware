@@ -242,12 +242,7 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
         } else if (state === 'vendor') {
             lines.push(...describeNextStep(result.project).map((step) => colors.dim(`      ${step}`)));
         } else if (state === 'platform') {
-            lines.push(
-                colors.dim('      It ships its own config. Compose the Shopware factory in it so the check can run:'),
-                colors.dim(
-                    "          import { shopwareAdminExtension } from '<administration>/extension-tooling/eslint.mjs';",
-                ),
-            );
+            lines.push(colors.dim('      platform bundle — its own config decides composition.'));
         }
     }
 
@@ -369,13 +364,46 @@ function fileChangeLine(result: SetupExtensionToolingResult): string {
 
 export function renderSetupReport(result: SetupExtensionToolingResult, options: SetupRenderOptions = {}): string {
     const { projects } = result.manifest;
-    const lines = [colors.bold(`Administration extension tooling — ${projects.length} extension(s)`)];
     const stateOf = new Map(
         projects.map((project) => [
             project.name,
             deriveExtensionState(project),
         ]),
     );
+    const platform = projects.filter((project) => stateOf.get(project.name) === 'platform');
+    const ownExtensions = projects.filter((project) => stateOf.get(project.name) !== 'platform');
+
+    // The empty state must never read as a green "up to date": the most likely
+    // cause is a stale var/plugins.json after installing or activating a plugin.
+    if (ownExtensions.length === 0) {
+        const lines = [
+            colors.bold('Administration extension tooling — no extensions found'),
+            '',
+            '  No installed extension with Administration sources was discovered.',
+            '  Discovery reads var/plugins.json. If you just installed or activated a',
+            '  plugin, refresh it:',
+            '',
+            '      bin/console bundle:dump',
+        ];
+
+        if (platform.length > 0) {
+            lines.push(
+                '',
+                colors.dim(
+                    `  (Platform bundles like ${platform.map((project) => project.name).join(', ')} are always ` +
+                        'covered and not listed here.)',
+                ),
+            );
+        }
+
+        for (const warning of result.warnings) {
+            lines.push(colors.yellow(`  ⚠ ${warning}`));
+        }
+
+        return lines.join('\n');
+    }
+
+    const lines = [colors.bold(`Administration extension tooling — ${ownExtensions.length} extension(s)`)];
 
     if (options.shim) {
         const shim = options.shim;
@@ -412,11 +440,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
             return true;
         }
 
-        return (
-            (state === 'vendor' || state === 'platform') &&
-            !project.bridgePresent &&
-            (project.tsconfig !== null || project.eslintConfig !== null)
-        );
+        return state === 'vendor' && !project.bridgePresent && (project.tsconfig !== null || project.eslintConfig !== null);
     });
     const unverifiedBridged = bridged.some(
         (project) =>
@@ -452,6 +476,15 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         lines.push(
             `  ${colors.yellow('● custom')}   ${custom.map((project) => project.name).join(', ')}  ` +
                 colors.dim('(ships own config)'),
+        );
+    }
+
+    if (platform.length > 0) {
+        lines.push(
+            colors.dim(
+                `  platform   ${platform.map((project) => project.name).join(', ')}  ` +
+                    '(always checked with core tooling)',
+            ),
         );
     }
 

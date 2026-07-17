@@ -31,24 +31,10 @@ class AllServiceInstaller
     }
 
     /**
-     * Discovers services in the registry that are not yet installed and hands each one to
-     * ServiceLifecycle, which resolves the strategy and performs the resulting operation.
+     * Converges the shop toward the registry: discovers services that are not yet installed and hands
+     * each one to ServiceLifecycle, and schedules an update for every already-installed service still
+     * listed in the registry so it reaches the registry's latest revision.
      * It should only be called from a higher-level, 'state'-aware class: Shopware\Core\Service\LifecycleManager.
-     *
-     * @return array<string> The newly installed services
-     */
-    public function install(Context $context): array
-    {
-        return $this->installNewServices(
-            $this->serviceStorage->findAll($context),
-            $this->serviceRegistryClient->getAll(),
-            $context
-        );
-    }
-
-    /**
-     * Like install(), but also schedules an update for every already-installed service still listed in
-     * the registry, so it converges to the registry's latest revision.
      *
      * @return array<string> The newly installed services
      */

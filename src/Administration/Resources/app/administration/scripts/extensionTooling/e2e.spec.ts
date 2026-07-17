@@ -254,7 +254,7 @@ describe('scripts/extensionTooling e2e', () => {
     );
 
     it(
-        'fails loudly when only the entity schema stub exists',
+        'blocks TypeScript checks when only the entity schema stub exists',
         async () => {
             const schemaPath = path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts');
 
@@ -265,10 +265,12 @@ describe('scripts/extensionTooling e2e', () => {
 
                 expect(check.exitCode).toBe(1);
                 expect(check.fatalDiagnostics.join('\n')).toContain('composer admin:generate-entity-schema-types');
-                // With the stub in place even known entity names must error —
-                // never a silent degradation to `any`.
-                expect(check.results[0].typescript.status).toBe('failed');
-                expect(hasLineMatching(check.results[0].typescript.output, 'ZeroConfig', 'main.ts', 'product')).toBe(true);
+                // The stub still guards IDEs against a silent degradation to
+                // `any`; the check refuses to run vue-tsc instead of burying
+                // the cause under cascade findings.
+                expect(check.results[0].typescript.status).toBe('blocked');
+                expect(check.results[0].typescript.durationMs).toBe(0);
+                expect(check.results[0].eslint.status).not.toBe('blocked');
             } finally {
                 writeConvertedEntitySchema(schemaPath);
                 setupExtensionTooling({ projectRoot, administrationRoot });

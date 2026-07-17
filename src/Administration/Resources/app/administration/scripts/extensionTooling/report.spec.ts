@@ -179,7 +179,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).toContain('2 checked · 1 with findings · 1 skipped · exit 1');
     });
 
-    it('surfaces warnings and fatal diagnostics', () => {
+    it('surfaces warnings and fatal diagnostics, cause before the extensions', () => {
         const output = report([extension(project('Mine'))], {
             warnings: ['entity schema stub in place'],
             fatalDiagnostics: ['vue-tsc is not installed'],
@@ -188,6 +188,17 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
 
         expect(output).toContain('Warning: entity schema stub in place');
         expect(output).toContain('Error: vue-tsc is not installed');
+        expect(output.indexOf('Error: vue-tsc is not installed')).toBeLessThan(output.indexOf('Mine'));
+    });
+
+    it('renders blocked TypeScript runs with their cause', () => {
+        const output = report([extension(project('Mine'), { typescript: run('blocked', { durationMs: 0 }) })], {
+            exitCode: 1,
+        });
+
+        expect(output).toContain('⊘ blocked');
+        expect(output).toContain('(entity schema missing)');
+        expect(output).toContain('blocked');
     });
 });
 

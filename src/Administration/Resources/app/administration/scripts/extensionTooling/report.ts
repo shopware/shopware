@@ -170,6 +170,8 @@ function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution
             return `${label}${colors.red(`✖ ${run.findings || 'some'} finding(s)`)}  ${meta}`;
         case 'unmanaged':
             return `${label}${colors.yellow('⊘ skipped')} — ${colors.dim(skipReason(tool, resolution))}`;
+        case 'blocked':
+            return `${label}${colors.yellow('⊘ blocked')}     ${colors.dim('(entity schema missing)')}`;
         case 'no-files':
             return `${label}${colors.dim('· no lintable files')}`;
         default:
@@ -257,6 +259,8 @@ function summaryCell(run: ToolRunResult): string {
             return `${run.findings || 'some'} finding(s)`;
         case 'unmanaged':
             return 'skipped';
+        case 'blocked':
+            return 'blocked';
         case 'no-files':
             return 'no files';
         default:
@@ -302,16 +306,17 @@ function hasFindings(result: ExtensionCheckResult): boolean {
 export function renderCheckReport(result: CheckExtensionsResult, options: RenderOptions = {}): string {
     const lines = [colors.bold(`Administration extension check — ${result.results.length} extension(s)`)];
 
+    // Cause before consequence: a fatal explains every blocked line below it.
+    for (const diagnostic of result.fatalDiagnostics) {
+        lines.push(colors.red(`\nError: ${diagnostic}`));
+    }
+
     for (const extension of result.results) {
         lines.push(...renderExtension(extension, options.verbose === true));
     }
 
     for (const warning of result.warnings) {
         lines.push(colors.yellow(`\nWarning: ${warning}`));
-    }
-
-    for (const diagnostic of result.fatalDiagnostics) {
-        lines.push(colors.red(`\nError: ${diagnostic}`));
     }
 
     lines.push(...renderSummary(result.results));

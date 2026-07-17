@@ -37,7 +37,7 @@ import type { ProbeCacheFile } from './probe';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 
-export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'tooling-error';
+export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'blocked' | 'tooling-error';
 
 export interface ToolRunResult {
     status: ToolStatus;
@@ -175,8 +175,8 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
 
     if (!setupResult.manifest.entitySchemaAvailable) {
         fatalDiagnostics.push(
-            'Entity schema types are missing — entity names cannot be type-checked against this installation. ' +
-                'Fix: composer admin:generate-entity-schema-types',
+            'Entity schema types are missing — entity names cannot be type-checked against this installation, ' +
+                'so TypeScript checks were not run. Fix: composer admin:generate-entity-schema-types',
         );
     }
 
@@ -283,7 +283,13 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         let typescript: ToolRunResult;
         let eslint: ToolRunResult;
 
-        if (tsResolution.mode === 'unmanaged') {
+        if (!setupResult.manifest.entitySchemaAvailable) {
+            // Running vue-tsc against the empty-schema stub would bury the one
+            // real cause under hundreds of cascade findings, most of them in
+            // the Administration's own files. Refuse instead; the fatal
+            // diagnostic names the fix. ESLint still runs.
+            typescript = { status: 'blocked', output: '', durationMs: 0, findings: 0 };
+        } else if (tsResolution.mode === 'unmanaged') {
             typescript = {
                 status: 'unmanaged',
                 output: tsResolution.probeOutput ?? '',

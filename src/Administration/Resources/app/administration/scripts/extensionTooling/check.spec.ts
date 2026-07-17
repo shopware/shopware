@@ -101,6 +101,29 @@ describe('scripts/extensionTooling/check', () => {
         expect(check.fatalDiagnostics.join('\n')).toContain('composer admin:generate-entity-schema-types');
     });
 
+    it('blocks TypeScript runs entirely while the entity schema is missing', async () => {
+        fs.rmSync(path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'));
+        writeFile(path.join(projectRoot, 'custom/plugins/Blocked/composer.json'), '{}\n');
+        writeFile(path.join(projectRoot, 'custom/plugins/Blocked/src/Resources/app/administration/src/main.ts'), [
+            'export {};',
+        ]);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'Blocked',
+                basePath: 'custom/plugins/Blocked/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const check = await checkExtensions({ projectRoot, administrationRoot });
+
+        // durationMs 0 proves vue-tsc was never spawned (the skeleton admin has
+        // no real toolchain — a spawn attempt would surface as tooling-error).
+        expect(check.results[0].typescript).toMatchObject({ status: 'blocked', durationMs: 0 });
+        expect(check.results[0].eslint.status).not.toBe('blocked');
+        expect(check.exitCode).toBe(1);
+    });
+
     it('hard-fails when a root config is user-owned', async () => {
         writePluginsConfig(projectRoot, []);
         writeFile(path.join(projectRoot, 'tsconfig.json'), '{"compilerOptions":{}}\n');

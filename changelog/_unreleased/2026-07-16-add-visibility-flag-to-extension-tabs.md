@@ -1,6 +1,7 @@
 ---
 title: Add visibility flag to extension tabs
-author: Mark Ng
+author: Dang Ng
+author_github: socrec
 ---
 # Administration
 * Added optional `visible` property to `sw.ui.tabs().addTabItem()` so an app can show or hide its own registered tab (for example based on the currently opened entity)
@@ -9,4 +10,4 @@ author: Mark Ng
 ___
 # Upgrade Information
 ## Conditional visibility for app-registered tabs
-`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean. When it is omitted the tab is shown, so existing extensions are unaffected. Pass `visible: false` to hide the tab, and re-send `addTabItem` for the same `componentSectionId` to toggle it for the current context — the tab store now upserts by `componentSectionId` instead of appending a new entry.
+`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean. When it is omitted the tab is shown, so existing extensions are unaffected. Pass `visible: false` to hide the tab, and re-send `addTabItem` for the same `componentSectionId` to toggle it for the current context.

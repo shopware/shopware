@@ -18,8 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderIndexerTest;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see MediaFolderIndexerTest
+ */
 #[Package('discovery')]
 class MediaFolderIndexer extends EntityIndexer
 {

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValid
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Tests\Integration\Core\Content\Category\Validation\EntryPointValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -18,6 +19,10 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see EntryPointValidatorTest
  */
 #[Package('discovery')]
 class EntryPointValidator implements EventSubscriberInterface

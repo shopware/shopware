@@ -19,10 +19,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Tests\Integration\Storefront\Checkout\Customer\CustomerGroupSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see CustomerGroupSubscriberTest
  */
 #[Package('checkout')]
 class CustomerGroupSubscriber implements EventSubscriberInterface

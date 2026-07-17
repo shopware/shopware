@@ -15,10 +15,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Content\Product\Cart\ProductLineItemCommandValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see ProductLineItemCommandValidatorTest
  */
 #[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface

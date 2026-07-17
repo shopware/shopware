@@ -6,13 +6,15 @@ use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Type render data whose public field intentionally shadows a shared `config.*` key.
+ *
  * @internal
  */
 #[Package('after-sales')]
-readonly class StaticRenderData extends AbstractRenderData
+readonly class CollidingRenderData extends AbstractRenderData
 {
     public function __construct(
-        public string $testData = 'test',
+        public string $companyName = 'shadowed',
     ) {
     }
 }

@@ -376,7 +376,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)"
+            "STREAM=\"${GITHUB_REF_NAME:-$(git branch --show-current)}\"; case \"$STREAM\" in *.x) BASE=$(git tag -l --sort -version:refname | grep \"^v${STREAM%.x}\\.\" | head -n 1);; esac; roave-backward-compatibility-check --install-development-dependencies --from=\"${BASE:-$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)}\""
         ],
         "build:js": [
             "@build:js:admin",
@@ -401,16 +401,6 @@
             "@php bin/console theme:compile --sync || true"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": [
-            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
-            "php-cs-fixer fix --dry-run --diff"
-        ],
-        "cs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": [
-            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
-            "php-cs-fixer fix -v"
-        ],
-        "cs-fix": "php-cs-fixer fix -v",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront",
@@ -459,7 +449,7 @@
         ],
         "init:testdb": [
             "@putenv FORCE_INSTALL=true",
-            "vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
+            "@php src/Core/TestBootstrap.php"
         ],
         "lint": [
             "@stylelint",
@@ -487,6 +477,16 @@
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "phpbench": "phpbench run --report=compressed",
         "dependency-analyzer":  "composer-dependency-analyser",
+        "ecs": [
+            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": [
+            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
+            "php-cs-fixer fix -v"
+        ],
+        "cs-fix": "php-cs-fixer fix -v",
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
@@ -496,6 +496,10 @@
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
         ],
         "rector": [
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "rector process --dry-run"
+        ],
+        "rector-fix": [
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
             "rector process"
         ],

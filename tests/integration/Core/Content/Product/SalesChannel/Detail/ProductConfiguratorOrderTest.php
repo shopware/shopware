@@ -141,7 +141,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = new Criteria([$variantId]);
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
 
@@ -268,7 +268,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);

@@ -207,6 +207,12 @@ interface SetupRenderOptions {
     explain?: boolean;
     checkOnly?: boolean;
     shim?: string;
+    /**
+     * Shown on plain (flag-less) runs: composer swallows options placed before
+     * "--", so this footer is both flag discovery and the safety net for a
+     * swallowed flag that silently turned into a default run.
+     */
+    showFlagHint?: boolean;
 }
 
 function fileChangeLine(result: SetupExtensionToolingResult): string {
@@ -310,6 +316,14 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     lines.push('', colors.dim('  IDE setup: run with --explain for VS Code / Zed / PhpStorm config'));
+
+    if (options.showFlagHint) {
+        lines.push(
+            colors.dim(
+                '  Options need "--": composer admin:setup-extension-tooling -- --check | --explain | --shim=<name> | --help',
+            ),
+        );
+    }
 
     if (options.explain) {
         lines.push(

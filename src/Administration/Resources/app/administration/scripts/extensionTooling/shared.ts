@@ -277,14 +277,3 @@ export function atomicWrite(filePath: string, content: string): void {
     fs.writeFileSync(temporaryPath, content);
     fs.renameSync(temporaryPath, filePath);
 }
-
-export function readCliArgument(argv: string[], name: string): string | undefined {
-    const prefix = `--${name}=`;
-    const argument = argv.find((value) => value.startsWith(prefix));
-
-    return argument?.slice(prefix.length);
-}
-
-export function hasCliFlag(argv: string[], name: string): boolean {
-    return argv.includes(`--${name}`);
-}

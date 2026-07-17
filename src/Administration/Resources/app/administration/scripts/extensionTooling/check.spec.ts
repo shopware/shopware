@@ -4,7 +4,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { checkExtensions, countEslintFindings, countTypeScriptFindings, runPool } from './check';
+import { checkExtensions, countEslintFindings, countTypeScriptFindings, runCheckCli, runPool } from './check';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -166,6 +166,46 @@ describe('scripts/extensionTooling/check', () => {
             'Alpha',
             'Charlie',
         ]);
+    });
+
+    describe('runCheckCli', () => {
+        it('rejects unknown flags with exit 2', async () => {
+            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const exitCode = await runCheckCli([
+                '--fix',
+                `--project-root=${projectRoot}`,
+                `--administration-root=${administrationRoot}`,
+            ]);
+
+            expect(exitCode).toBe(2);
+            expect(errorSpy.mock.calls.join('\n')).toContain('Unknown option --fix');
+            errorSpy.mockRestore();
+        });
+
+        it('rejects a non-numeric --max-workers with exit 2', async () => {
+            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const exitCode = await runCheckCli([
+                '--max-workers=abc',
+                `--project-root=${projectRoot}`,
+                `--administration-root=${administrationRoot}`,
+            ]);
+
+            expect(exitCode).toBe(2);
+            expect(errorSpy.mock.calls.join('\n')).toContain('--max-workers must be a positive integer');
+            errorSpy.mockRestore();
+        });
+
+        it('prints help with exit 0 without running any check', async () => {
+            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+            const exitCode = await runCheckCli(['--help']);
+
+            expect(exitCode).toBe(0);
+            expect(logSpy.mock.calls.join('\n')).toContain('composer admin:check-extensions -- [options]');
+            logSpy.mockRestore();
+        });
     });
 
     it('visibly skips custom configs that do not compose the Shopware preset', async () => {

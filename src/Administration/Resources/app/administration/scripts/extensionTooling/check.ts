@@ -22,8 +22,10 @@ import { promisify } from 'util';
 import { discoverProjects, setupExtensionTooling } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { hasCliFlag, readCliArgument, relativePosix } from './shared';
+import { relativePosix } from './shared';
 import type { ConfigMode, ExtensionToolingProject } from './shared';
+import { CliUsageError, parseCli, renderHelp } from './cli';
+import type { CommandSpec } from './cli';
 
 const execFileAsync = promisify(execFile);
 
@@ -489,23 +491,78 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     };
 }
 
-async function runCli(argv: string[]): Promise<void> {
-    const administrationRoot = path.resolve(
-        readCliArgument(argv, 'administration-root') ?? path.resolve(__dirname, '../..'),
-    );
-    const projectRoot = readCliArgument(argv, 'project-root') ?? process.env.PROJECT_ROOT;
+const CHECK_COMMAND: CommandSpec = {
+    command: 'admin:check-extensions',
+    description: "Type-check and lint Administration extensions with the Administration's own pinned toolchain.",
+    flags: [
+        {
+            name: '--only',
+            value: 'required',
+            valueName: '<name[,name]>',
+            description: 'Check only the named extensions (skips the interactive picker).',
+        },
+        { name: '--all', description: 'Check every discovered extension (skips the interactive picker).' },
+        { name: '--strict-vendor', description: 'Fail on findings in vendor-installed (read-only) extensions.' },
+        { name: '--verbose', description: 'Also print tool output for passing and skipped extensions.' },
+        {
+            name: '--max-workers',
+            value: 'required',
+            valueName: '<n>',
+            description: 'Bound the number of parallel tool runs.',
+        },
+        { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
+        { name: '--administration-root', value: 'required', valueName: '<path>', description: '', internal: true },
+        { name: '--plugins-config', value: 'required', valueName: '<path>', description: '', internal: true },
+    ],
+};
 
-    if (!projectRoot) {
-        throw new Error('PROJECT_ROOT or --project-root is required.');
+/** Runs the check command; returns the process exit code (0 ok, 1 findings/error, 2 usage error). */
+export async function runCheckCli(argv: string[]): Promise<number> {
+    let parsed;
+
+    try {
+        parsed = parseCli(argv, CHECK_COMMAND);
+    } catch (error) {
+        if (error instanceof CliUsageError) {
+            console.error(`${error.message}\n\n${renderHelp(CHECK_COMMAND)}`);
+
+            return 2;
+        }
+
+        throw error;
     }
 
-    const pluginsConfigPath = readCliArgument(argv, 'plugins-config');
-    const only = readCliArgument(argv, 'only');
+    if (parsed.help) {
+        console.log(renderHelp(CHECK_COMMAND));
+
+        return 0;
+    }
+
+    const administrationRoot = path.resolve(parsed.values['--administration-root'] ?? path.resolve(__dirname, '../..'));
+    const projectRoot = parsed.values['--project-root'] ?? process.env.PROJECT_ROOT;
+
+    if (!projectRoot) {
+        console.error(`PROJECT_ROOT or --project-root is required.\n\n${renderHelp(CHECK_COMMAND)}`);
+
+        return 2;
+    }
+
+    const maxWorkersValue = parsed.values['--max-workers'];
+    const maxWorkers = maxWorkersValue === undefined ? undefined : Number(maxWorkersValue);
+
+    if (maxWorkers !== undefined && (!Number.isInteger(maxWorkers) || maxWorkers < 1)) {
+        console.error(`--max-workers must be a positive integer, got "${maxWorkersValue}".\n\n${renderHelp(CHECK_COMMAND)}`);
+
+        return 2;
+    }
+
+    const pluginsConfigPath = parsed.values['--plugins-config'];
+    const only = parsed.values['--only'];
     let selection: string[] | undefined;
 
     if (only !== undefined) {
         selection = normalizeSelection(only);
-    } else if (hasCliFlag(argv, 'all')) {
+    } else if (parsed.flags.has('--all')) {
         selection = undefined;
     } else if (process.stdin.isTTY && process.stdout.isTTY) {
         const pluginsPath = path.resolve(projectRoot, pluginsConfigPath ?? path.join('var', 'plugins.json'));
@@ -514,7 +571,7 @@ async function runCli(argv: string[]): Promise<void> {
         if (projects.length === 0) {
             console.log('No Administration extensions discovered.');
 
-            return;
+            return 0;
         }
 
         const choice = await promptSelection(projects);
@@ -522,7 +579,7 @@ async function runCli(argv: string[]): Promise<void> {
         if (choice === 'cancel') {
             console.log('Nothing selected.');
 
-            return;
+            return 0;
         }
 
         selection = choice === 'all' ? undefined : choice.names;
@@ -538,17 +595,23 @@ async function runCli(argv: string[]): Promise<void> {
         administrationRoot,
         pluginsConfigPath,
         only: selection,
-        strictVendor: hasCliFlag(argv, 'strict-vendor'),
-        maxWorkers: readCliArgument(argv, 'max-workers') ? Number(readCliArgument(argv, 'max-workers')) : undefined,
+        strictVendor: parsed.flags.has('--strict-vendor'),
+        maxWorkers,
     });
 
-    console.log(renderCheckReport(check, { verbose: hasCliFlag(argv, 'verbose') }));
-    process.exitCode = check.exitCode;
+    console.log(renderCheckReport(check, { verbose: parsed.flags.has('--verbose') }));
+
+    return check.exitCode;
 }
 
 if (require.main === module) {
-    runCli(process.argv.slice(2)).catch((error: unknown) => {
-        console.error(error instanceof Error ? error.message : error);
-        process.exitCode = 1;
-    });
+    runCheckCli(process.argv.slice(2)).then(
+        (exitCode) => {
+            process.exitCode = exitCode;
+        },
+        (error: unknown) => {
+            console.error(error instanceof Error ? error.message : error);
+            process.exitCode = 1;
+        },
+    );
 }

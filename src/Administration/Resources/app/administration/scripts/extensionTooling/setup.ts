@@ -22,17 +22,17 @@ import {
     asRelativeSpecifier,
     findExtensionRoot,
     findNearestConfig,
-    hasCliFlag,
     isGeneratedContent,
     isWithin,
     readBundleConfig,
-    readCliArgument,
     relativePosix,
     toPosix,
     writeManagedFile,
     writeScaffoldFile,
     writeStateFile,
 } from './shared';
+import { CliUsageError, parseCli, renderHelp } from './cli';
+import type { CommandSpec } from './cli';
 import type {
     ConfigMode,
     ExtensionToolingManifest,
@@ -718,36 +718,89 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     };
 }
 
-if (require.main === module) {
-    const argv = process.argv.slice(2);
-    const administrationRoot = path.resolve(
-        readCliArgument(argv, 'administration-root') ?? path.resolve(__dirname, '../..'),
-    );
-    const projectRoot = readCliArgument(argv, 'project-root') ?? process.env.PROJECT_ROOT;
+const SETUP_COMMAND: CommandSpec = {
+    command: 'admin:setup-extension-tooling',
+    description: 'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.',
+    flags: [
+        { name: '--check', description: 'Report what would change, write nothing. Exit 1 on drift.' },
+        { name: '--explain', description: 'Verbose report: discovered extensions, file list, IDE setup.' },
+        {
+            name: '--shim',
+            value: 'required',
+            valueName: '<TechnicalName>|all-custom',
+            description:
+                'Bridge one extension (or "all-custom") with committed configs that extend a generated ' +
+                '.shopware-admin/ bridge.',
+        },
+        { name: '--project-root', value: 'required', valueName: '<path>', description: '', internal: true },
+        { name: '--administration-root', value: 'required', valueName: '<path>', description: '', internal: true },
+        { name: '--plugins-config', value: 'required', valueName: '<path>', description: '', internal: true },
+    ],
+};
 
-    if (!projectRoot) {
-        throw new Error('PROJECT_ROOT or --project-root is required.');
+/** Runs the setup command; returns the process exit code (0 ok, 1 drift/error, 2 usage error). */
+export function runSetupCli(argv: string[]): number {
+    let parsed;
+
+    try {
+        parsed = parseCli(argv, SETUP_COMMAND);
+    } catch (error) {
+        if (error instanceof CliUsageError) {
+            console.error(`${error.message}\n\n${renderHelp(SETUP_COMMAND)}`);
+
+            return 2;
+        }
+
+        throw error;
     }
 
-    const checkOnly = hasCliFlag(argv, 'check');
-    const shim = readCliArgument(argv, 'shim');
+    if (parsed.help) {
+        console.log(renderHelp(SETUP_COMMAND));
+
+        return 0;
+    }
+
+    const administrationRoot = path.resolve(parsed.values['--administration-root'] ?? path.resolve(__dirname, '../..'));
+    const projectRoot = parsed.values['--project-root'] ?? process.env.PROJECT_ROOT;
+
+    if (!projectRoot) {
+        console.error(`PROJECT_ROOT or --project-root is required.\n\n${renderHelp(SETUP_COMMAND)}`);
+
+        return 2;
+    }
+
+    const checkOnly = parsed.flags.has('--check');
+    const explain = parsed.flags.has('--explain');
+    const shim = parsed.values['--shim'];
 
     try {
         const result = setupExtensionTooling({
             projectRoot,
             administrationRoot,
-            pluginsConfigPath: readCliArgument(argv, 'plugins-config'),
+            pluginsConfigPath: parsed.values['--plugins-config'],
             shim,
             checkOnly,
         });
 
-        console.log(renderSetupReport(result, { explain: hasCliFlag(argv, 'explain'), checkOnly, shim }));
+        console.log(
+            renderSetupReport(result, {
+                explain,
+                checkOnly,
+                shim,
+                // The plain run is where flags are discovered — and where a flag
+                // swallowed by composer (missing "--") would have landed.
+                showFlagHint: !checkOnly && !explain && !shim,
+            }),
+        );
 
-        if (checkOnly && result.changed) {
-            process.exitCode = 1;
-        }
+        return checkOnly && result.changed ? 1 : 0;
     } catch (error) {
         console.error(error instanceof Error ? error.message : error);
-        process.exitCode = 1;
+
+        return 1;
     }
+}
+
+if (require.main === module) {
+    process.exitCode = runSetupCli(process.argv.slice(2));
 }

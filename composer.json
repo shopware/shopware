@@ -261,7 +261,7 @@
         }
     ],
     "scripts-descriptions": {
-        "admin:check-extensions": "Type-checks and lints Administration extensions with the Administration's own toolchain (interactive picker; pass --only=<name[,name]> or --all to skip it)",
+        "admin:check-extensions": "Type-checks and lints Administration extensions with the Administration's own toolchain (interactive picker; pass -- --only=<name[,name]> or -- --all to skip it; help: composer admin:check-extensions -- --help)",
         "admin:code-mods": "Run admin code mods",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",
@@ -270,7 +270,7 @@
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
-        "admin:setup-extension-tooling": "Generates TypeScript/ESLint configs and IDE bootstraps for all installed Administration extensions",
+        "admin:setup-extension-tooling": "Generates TypeScript/ESLint configs and IDE bootstraps for all installed Administration extensions (options need --, e.g. composer admin:setup-extension-tooling -- --help)",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",

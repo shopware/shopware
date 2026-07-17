@@ -19,7 +19,7 @@ import path from 'path';
 import { promisify } from 'util';
 import ts from 'typescript';
 import { SHIM_DIR_NAME, STATE_DIR, writeStateFile } from './shared';
-import type { ExtensionToolingProject, ModeResolution } from './shared';
+import type { ExtensionToolingProject, ModeReason, ModeResolution } from './shared';
 
 const execFileAsync = promisify(execFile);
 
@@ -183,6 +183,27 @@ export function analyzeEslintConfigStatically(eslintConfigPath: string): { impor
     };
 }
 
+/** The one sentence rendered under `why:` for a TypeScript verdict. */
+export function detailForTsReason(reason: ModeReason, analysis?: StaticConfigAnalysis): string {
+    const aliasesNote = analysis?.declaresPaths
+        ? ' Own path aliases? Declare them in tsconfig.aliases.json next to the config (see --explain).'
+        : '';
+
+    switch (reason) {
+        case 'config-error':
+            return analysis?.parseError ?? 'the tsconfig does not resolve.';
+        case 'files-override':
+            return (
+                'your tsconfig declares its own "files" array, which replaces the bridge\'s ' +
+                `(tsconfig extends semantics) — admin-types.d.ts never enters the program.${aliasesNote}`
+            );
+        case 'not-extending':
+            return `the extends chain does not reach the Shopware preset or a generated .shopware-admin/ bridge.${aliasesNote}`;
+        default:
+            return `the resolved config does not inject extension-tooling/admin-types.d.ts.${aliasesNote}`;
+    }
+}
+
 /** Static best-guess for a plugin-owned tsconfig; `verified: false` until a live probe confirms it. */
 export function resolveStaticTsMode(tsconfigPath: string | null): ModeResolution {
     if (tsconfigPath === null) {
@@ -192,19 +213,32 @@ export function resolveStaticTsMode(tsconfigPath: string | null): ModeResolution
     const analysis = analyzeTsConfigStatically(tsconfigPath);
 
     if (analysis.parseError) {
-        return { mode: 'unmanaged', reason: 'config-error', verified: false };
+        return { mode: 'unmanaged', reason: 'config-error', detail: analysis.parseError, verified: false };
     }
 
     if (!analysis.reachesPreset) {
-        return { mode: 'unmanaged', reason: 'not-extending', verified: false };
+        return {
+            mode: 'unmanaged',
+            reason: 'not-extending',
+            detail: detailForTsReason('not-extending', analysis),
+            verified: false,
+        };
     }
 
     if (analysis.declaresFiles) {
-        return { mode: 'unmanaged', reason: 'files-override', verified: false };
+        return {
+            mode: 'unmanaged',
+            reason: 'files-override',
+            detail: detailForTsReason('files-override', analysis),
+            verified: false,
+        };
     }
 
     return { mode: 'custom', verified: false };
 }
+
+export const ESLINT_NOT_COMPOSED_DETAIL =
+    'the config does not compose the Shopware factory, so the preset rules never apply.';
 
 /** Static best-guess for a plugin-owned ESLint config; `verified: false` until a live probe confirms it. */
 export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeResolution {
@@ -213,7 +247,12 @@ export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeRe
     }
 
     if (!analyzeEslintConfigStatically(eslintConfigPath).importsFactory) {
-        return { mode: 'unmanaged', reason: 'factory-not-composed', verified: false };
+        return {
+            mode: 'unmanaged',
+            reason: 'factory-not-composed',
+            detail: ESLINT_NOT_COMPOSED_DETAIL,
+            verified: false,
+        };
     }
 
     return { mode: 'custom', verified: false };
@@ -248,7 +287,16 @@ export async function probeTsMode(
     );
 
     if (probe.status !== 0) {
-        return { mode: 'unmanaged', reason: 'config-error', probeOutput: probe.output, verified: true };
+        const firstErrorLine =
+            probe.output.split('\n').find((line) => line.trim() !== '') ?? 'the tsconfig does not resolve.';
+
+        return {
+            mode: 'unmanaged',
+            reason: 'config-error',
+            detail: firstErrorLine,
+            probeOutput: probe.output,
+            verified: true,
+        };
     }
 
     const composes = probe.output.includes('extension-tooling/admin-types') || probe.output.includes('admin-types.d.ts');
@@ -264,7 +312,7 @@ export async function probeTsMode(
           ? 'not-extending'
           : 'surface-not-injected';
 
-    return { mode: 'unmanaged', reason, verified: true };
+    return { mode: 'unmanaged', reason, detail: detailForTsReason(reason, analysis), verified: true };
 }
 
 /**
@@ -301,14 +349,22 @@ export async function probeEslintMode(
     );
 
     if (probe.status !== 0) {
-        return { mode: 'unmanaged', reason: 'config-error', probeOutput: probe.output, verified: true };
+        const firstErrorLine = probe.output.split('\n').find((line) => line.trim() !== '') ?? 'the config does not resolve.';
+
+        return {
+            mode: 'unmanaged',
+            reason: 'config-error',
+            detail: firstErrorLine,
+            probeOutput: probe.output,
+            verified: true,
+        };
     }
 
     if (probe.output.includes('plugin-rules/no-src-imports')) {
         return { mode: 'custom', verified: true };
     }
 
-    return { mode: 'unmanaged', reason: 'factory-not-composed', verified: true };
+    return { mode: 'unmanaged', reason: 'factory-not-composed', detail: ESLINT_NOT_COMPOSED_DETAIL, verified: true };
 }
 
 interface ProbeCacheEntry {

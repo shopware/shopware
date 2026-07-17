@@ -5,7 +5,7 @@
  * against plain text.
  */
 
-import { describeInclusionSteps, renderCheckReport, renderSetupReport } from './report';
+import { describeNextStep, describeToolGuidance, renderCheckReport, renderSetupReport } from './report';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import type { SetupExtensionToolingResult } from './setup';
 import type { ExtensionToolingProject, ModeResolution } from './shared';
@@ -67,18 +67,53 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).not.toContain('module-35');
     });
 
-    it('shows the one-command bridge for unmanaged custom/plugins extensions', () => {
+    it('shows why each tool skipped and the one-command bridge for a plugin without a bridge', () => {
         const output = report([
-            extension(project('Custom', { ts: resolution('unmanaged'), eslint: resolution('unmanaged') }), {
-                typescript: run('unmanaged'),
-                eslint: run('unmanaged'),
-            }),
+            extension(
+                project('Custom', {
+                    tsconfig: 'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
+                    eslintConfig: 'custom/plugins/Custom/src/Resources/app/administration/eslint.config.mjs',
+                    ts: resolution('unmanaged', {
+                        reason: 'not-extending',
+                        detail: 'the extends chain does not reach the preset.',
+                    }),
+                    eslint: resolution('unmanaged', {
+                        reason: 'factory-not-composed',
+                        detail: 'the config does not compose the factory.',
+                    }),
+                }),
+                {
+                    typescript: run('unmanaged'),
+                    eslint: run('unmanaged'),
+                },
+            ),
         ]);
 
-        expect(output).toContain('⊘ SKIPPED');
+        expect(output).toContain('⊘ skipped');
+        expect(output).toContain('why: the extends chain does not reach the preset.');
         expect(output).toContain("isn't checked with the Shopware preset yet");
         expect(output).toContain('--shim=Custom');
         expect(output).not.toContain('extension-tooling/README.md');
+    });
+
+    it('prints the missing edit instead of re-suggesting --shim once the bridge exists', () => {
+        const output = report([
+            extension(
+                project('Unwired', {
+                    bridgePresent: true,
+                    tsconfig: 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+                    ts: resolution('unmanaged', {
+                        reason: 'files-override',
+                        detail: 'your tsconfig declares its own "files" array.',
+                    }),
+                }),
+                { typescript: run('unmanaged') },
+            ),
+        ]);
+
+        expect(output).toContain('why: your tsconfig declares its own "files" array.');
+        expect(output).toContain('fix: remove "files" from the plugin tsconfig');
+        expect(output).not.toContain('--shim');
     });
 
     it('prints raw tool output for failures but not for passing tools', () => {
@@ -139,21 +174,96 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
     });
 });
 
-describe('scripts/extensionTooling/report describeInclusionSteps', () => {
-    it('gives the one-command bridge for a custom/plugins extension', () => {
-        const steps = describeInclusionSteps(
-            project('SwagPayPal', { ts: resolution('custom'), eslint: resolution('custom') }),
+describe('scripts/extensionTooling/report describeNextStep', () => {
+    it('gives the one-command bridge for a custom/plugins extension without a bridge', () => {
+        const steps = describeNextStep(
+            project('SwagPayPal', {
+                tsconfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/tsconfig.json',
+                ts: resolution('unmanaged', { reason: 'not-extending' }),
+            }),
         ).join('\n');
 
         expect(steps).toContain('composer admin:setup-extension-tooling -- --shim=SwagPayPal');
         expect(steps).not.toContain('README');
     });
 
+    it('never re-suggests --shim once the bridge exists', () => {
+        const steps = describeNextStep(
+            project('Unwired', {
+                bridgePresent: true,
+                tsconfig: 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+                ts: resolution('unmanaged', { reason: 'not-extending' }),
+            }),
+        ).join('\n');
+
+        expect(steps).toContain('finish wiring it');
+        expect(steps).toContain('"extends": "./.shopware-admin/tsconfig.json"');
+        expect(steps).not.toContain('--shim');
+    });
+
+    it('returns nothing for extensions whose configs compose the preset', () => {
+        expect(
+            describeNextStep(
+                project('Done', {
+                    bridgePresent: true,
+                    tsconfig: 'custom/plugins/Done/src/Resources/app/administration/tsconfig.json',
+                    ts: resolution('custom'),
+                }),
+            ),
+        ).toEqual([]);
+    });
+
     it('explains vendor extensions are read-only, with no shim command', () => {
-        const steps = describeInclusionSteps(project('Acme', { vendor: true, basePath: 'vendor/acme/admin' })).join('\n');
+        const steps = describeNextStep(project('Acme', { vendor: true, basePath: 'vendor/acme/admin' })).join('\n');
 
         expect(steps).toContain('vendor');
         expect(steps).not.toContain('--shim');
+    });
+});
+
+describe('scripts/extensionTooling/report describeToolGuidance', () => {
+    const unwired = (overrides: Partial<ExtensionToolingProject> = {}) =>
+        project('Unwired', {
+            bridgePresent: true,
+            tsconfig: 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+            eslintConfig: 'custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs',
+            ...overrides,
+        });
+
+    it('tells a files-override plugin to drop its own files array', () => {
+        const guidance = describeToolGuidance(
+            unwired(),
+            'TypeScript',
+            resolution('unmanaged', {
+                reason: 'files-override',
+                detail: 'own "files" replaces the bridge — see tsconfig.aliases.json.',
+            }),
+        );
+
+        expect(guidance?.why).toContain('"files"');
+        expect(guidance?.why).toContain('tsconfig.aliases.json');
+        expect(guidance?.fix.join('\n')).toContain('remove "files"');
+    });
+
+    it('gives the concrete eslint compose snippet for an unwired bridge', () => {
+        const guidance = describeToolGuidance(
+            unwired(),
+            'ESLint',
+            resolution('unmanaged', { reason: 'factory-not-composed' }),
+        );
+
+        expect(guidance?.fix.join('\n')).toContain("import shopware from './.shopware-admin/eslint.mjs';");
+    });
+
+    it('returns null for composing tools and for vendor extensions', () => {
+        expect(describeToolGuidance(unwired(), 'TypeScript', resolution('custom'))).toBeNull();
+        expect(
+            describeToolGuidance(
+                project('Acme', { vendor: true, basePath: 'vendor/acme/admin' }),
+                'TypeScript',
+                resolution('unmanaged', { reason: 'not-extending' }),
+            ),
+        ).toBeNull();
     });
 });
 
@@ -196,21 +306,45 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         tsconfig: 'custom/plugins/Bridged/src/Resources/app/administration/tsconfig.json',
         eslintConfig: 'custom/plugins/Bridged/src/Resources/app/administration/eslint.config.mjs',
     });
+    const unwiredPlugin = project('Unwired', {
+        ts: resolution('unmanaged', { reason: 'not-extending', verified: false }),
+        eslint: resolution('unmanaged', { reason: 'factory-not-composed', verified: false }),
+        bridgePresent: true,
+        tsconfig: 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+        eslintConfig: 'custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs',
+    });
 
-    it('classifies ready / bridged / custom and shows inline next-steps by default', () => {
+    it('classifies ready / bridged / unwired / custom and shows inline next-steps by default', () => {
         const output = renderSetupReport(
             setupResult([
                 managed,
                 customPlugin,
                 bridgedPlugin,
+                unwiredPlugin,
             ]),
         );
 
         expect(output).toContain('✔ ready');
         expect(output).toContain('● bridged');
+        expect(output).toContain('bridge unwired');
         expect(output).toContain('● custom');
         expect(output).toContain('Next steps');
         expect(output).toContain('--shim=SwagPayPal');
+        expect(output).not.toContain('--shim=Unwired');
+        expect(output).toContain('finish wiring it');
+    });
+
+    it('marks statically classified bridged plugins as unverified until a check ran', () => {
+        const staticallyBridged = project('Static', {
+            ts: resolution('custom', { verified: false }),
+            eslint: resolution('custom', { verified: false }),
+            bridgePresent: true,
+            tsconfig: 'custom/plugins/Static/src/Resources/app/administration/tsconfig.json',
+            eslintConfig: 'custom/plugins/Static/src/Resources/app/administration/eslint.config.mjs',
+        });
+
+        expect(renderSetupReport(setupResult([staticallyBridged]))).toContain('unverified');
+        expect(renderSetupReport(setupResult([bridgedPlugin]))).not.toContain('unverified');
     });
 
     it('collapses the full IDE instruction block unless --explain is passed', () => {
@@ -222,11 +356,19 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(renderSetupReport(withInstructions, { explain: true })).toContain('Settings → Languages');
     });
 
-    it('confirms a fresh bridge after --shim', () => {
+    it('confirms a fresh bridge after --shim only when the configs actually compose it', () => {
         const output = renderSetupReport(setupResult([bridgedPlugin]), { shim: 'Bridged' });
 
         expect(output).toContain('✔ Bridged Bridged');
         expect(output).toContain('.shopware-admin/ bridge');
+    });
+
+    it('announces one remaining step after --shim when existing configs were left alone', () => {
+        const output = renderSetupReport(setupResult([unwiredPlugin]), { shim: 'Unwired' });
+
+        expect(output).toContain('✔ Bridge created for Unwired');
+        expect(output).toContain('one step left');
+        expect(output).not.toContain('✔ Bridged Unwired');
     });
 
     it('reads "Configs up to date" when nothing changed, lists stale writes under --check', () => {

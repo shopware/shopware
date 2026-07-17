@@ -613,15 +613,16 @@ function scaffoldPluginConfigs(context: GeneratorContext, name: string, adminFol
 
     if (tsconfigResult === 'skipped') {
         context.warnings.push(
-            `${tsconfigPath} already exists and was not touched. Add \`"extends": "./.shopware-admin/tsconfig.json"\` ` +
-                `so ${name} is type-checked with the Shopware preset.`,
+            `${tsconfigPath} already exists and was not touched — add \`"extends": "./.shopware-admin/tsconfig.json"\` ` +
+                `so ${name} composes the Shopware preset. Own "files" array? Remove it — the bridge provides the ` +
+                'type surface. Own paths? Declare them in tsconfig.aliases.json.',
         );
     }
 
     if (eslintResult === 'skipped') {
         context.warnings.push(
-            `${eslintPath} already exists and was not touched. Compose the bridge in it: ` +
-                "import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware, /* your rules */ ];",
+            `${eslintPath} already exists and was not touched — compose the bridge in it: ` +
+                "import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware /* , your rules */ ];",
         );
     }
 }

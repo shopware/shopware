@@ -51,7 +51,7 @@ describe('scripts/extensionTooling/setup probe cache integration', () => {
 
         const staticRun = setupExtensionTooling({ projectRoot, administrationRoot });
 
-        expect(staticRun.manifest.projects[0].ts).toEqual({
+        expect(staticRun.manifest.projects[0].ts).toMatchObject({
             mode: 'unmanaged',
             reason: 'not-extending',
             verified: false,

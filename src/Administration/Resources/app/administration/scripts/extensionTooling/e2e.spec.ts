@@ -9,6 +9,7 @@ import { spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { checkExtensions } from './check';
+import { renderCheckReport, renderSetupReport } from './report';
 import { setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import {
@@ -385,6 +386,74 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
             expect(check.results[0].typescript.status).toBe('passed');
             expect(check.results[0].eslint.status).toBe('passed');
             expect(check.exitCode).toBe(0);
+        },
+        CHECK_TIMEOUT,
+    );
+
+    it(
+        'diagnoses a files-override tsconfig and reaches bridged after the printed fix',
+        async () => {
+            // The pre-existing standard pattern: an own tsconfig that extends
+            // the bridge but declares its own "files" — the bridge's type
+            // surface injection is silently replaced.
+            const overrideAdmin = 'custom/plugins/FilesOverride/src/Resources/app/administration';
+
+            writeFile(path.join(projectRoot, 'custom/plugins/FilesOverride/composer.json'), '{}\n');
+            writeFile(path.join(projectRoot, overrideAdmin, 'src/main.ts'), ["export const label: string = 'x';"]);
+            writeFile(path.join(projectRoot, overrideAdmin, 'tsconfig.json'), [
+                '{',
+                '    "extends": "./.shopware-admin/tsconfig.json",',
+                '    "files": ["./src/main.ts"],',
+                '    "include": ["src/**/*.ts"]',
+                '}',
+            ]);
+            writePluginsConfig(projectRoot, [
+                {
+                    technicalName: 'FreshPlugin',
+                    basePath: 'custom/plugins/FreshPlugin/src',
+                    administrationPath: 'Resources/app/administration/src',
+                },
+                {
+                    technicalName: 'FilesOverride',
+                    basePath: 'custom/plugins/FilesOverride/src',
+                    administrationPath: 'Resources/app/administration/src',
+                },
+            ]);
+
+            setupExtensionTooling({ projectRoot, administrationRoot, shim: 'FilesOverride' });
+
+            const brokenCheck = await checkExtensions({ projectRoot, administrationRoot, only: 'FilesOverride' });
+
+            expect(brokenCheck.results[0].typescript.status).toBe('unmanaged');
+            expect(brokenCheck.results[0].tsResolution.reason).toBe('files-override');
+
+            const brokenReport = renderCheckReport(brokenCheck);
+
+            expect(brokenReport).toContain('why:');
+            expect(brokenReport).toContain('"files"');
+            expect(brokenReport).toContain('fix: remove "files" from the plugin tsconfig');
+            expect(brokenReport).not.toContain('--shim=FilesOverride');
+
+            // Apply exactly the printed fix: drop the "files" override.
+            writeFile(path.join(projectRoot, overrideAdmin, 'tsconfig.json'), [
+                '{',
+                '    "extends": "./.shopware-admin/tsconfig.json",',
+                '    "include": ["src/**/*.ts"]',
+                '}',
+            ]);
+
+            const fixedCheck = await checkExtensions({ projectRoot, administrationRoot, only: 'FilesOverride' });
+
+            expect(fixedCheck.results[0].tsResolution.mode).toBe('custom');
+            expect(fixedCheck.results[0].typescript.status).toBe('passed');
+
+            // Setup and check agree afterwards: the extension renders as bridged.
+            const setupAfter = setupExtensionTooling({ projectRoot, administrationRoot });
+            const setupReport = renderSetupReport(setupAfter);
+
+            expect(setupReport).toContain('● bridged');
+            expect(setupReport).toContain('FilesOverride');
+            expect(setupReport).not.toContain('--shim=FilesOverride');
         },
         CHECK_TIMEOUT,
     );

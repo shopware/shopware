@@ -237,7 +237,9 @@ describe('scripts/extensionTooling/check', () => {
 
         expect(check.results).toHaveLength(1);
         expect(probe.tsResolution.mode).toBe('unmanaged');
+        expect(probe.tsResolution.reason).toBe('not-extending');
         expect(probe.eslintResolution.mode).toBe('unmanaged');
+        expect(probe.eslintResolution.reason).toBe('factory-not-composed');
         expect(probe.tsResolution.verified).toBe(true);
         expect(probe.typescript.status).toBe('unmanaged');
         expect(probe.eslint.status).toBe('unmanaged');

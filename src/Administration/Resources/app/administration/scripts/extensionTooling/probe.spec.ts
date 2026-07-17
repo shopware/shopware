@@ -109,28 +109,44 @@ describe('scripts/extensionTooling/probe', () => {
             writeFile(tsconfigPath('broken.json'), ['{ "extends": ']);
 
             expect(resolveStaticTsMode(tsconfigPath('composing.json'))).toEqual({ mode: 'custom', verified: false });
-            expect(resolveStaticTsMode(tsconfigPath('files-override.json'))).toEqual({
+            expect(resolveStaticTsMode(tsconfigPath('files-override.json'))).toMatchObject({
                 mode: 'unmanaged',
                 reason: 'files-override',
                 verified: false,
             });
-            expect(resolveStaticTsMode(tsconfigPath('standalone.json'))).toEqual({
+            expect(resolveStaticTsMode(tsconfigPath('standalone.json'))).toMatchObject({
                 mode: 'unmanaged',
                 reason: 'not-extending',
                 verified: false,
             });
-            expect(resolveStaticTsMode(tsconfigPath('broken.json'))).toEqual({
+            expect(resolveStaticTsMode(tsconfigPath('broken.json'))).toMatchObject({
                 mode: 'unmanaged',
                 reason: 'config-error',
                 verified: false,
             });
 
             writeFile(tsconfigPath('own-eslint.mjs'), ['export default [];']);
-            expect(resolveStaticEslintMode(tsconfigPath('own-eslint.mjs'))).toEqual({
+            expect(resolveStaticEslintMode(tsconfigPath('own-eslint.mjs'))).toMatchObject({
                 mode: 'unmanaged',
                 reason: 'factory-not-composed',
                 verified: false,
             });
+        });
+
+        it('explains the files-override trap and points path declarers at tsconfig.aliases.json', () => {
+            writeFile(tsconfigPath('trap.json'), [
+                '{',
+                '    "extends": "./.shopware-admin/tsconfig.json",',
+                '    "files": ["x.d.ts"],',
+                '    "compilerOptions": { "paths": { "MyPlugin/*": ["src/*"] } }',
+                '}',
+            ]);
+
+            const resolution = resolveStaticTsMode(tsconfigPath('trap.json'));
+
+            expect(resolution.reason).toBe('files-override');
+            expect(resolution.detail).toContain('"files"');
+            expect(resolution.detail).toContain('tsconfig.aliases.json');
         });
     });
 

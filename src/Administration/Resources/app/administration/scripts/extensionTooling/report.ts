@@ -11,42 +11,152 @@
 import colors from 'picocolors';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import type { SetupExtensionToolingResult } from './setup';
+import { deriveExtensionState } from './shared';
 import type { ExtensionToolingProject, ModeResolution } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
 }
 
+export interface ToolGuidance {
+    why: string;
+    fix: string[];
+}
+
+const BRIDGE_TSCONFIG_LINE = '"extends": "./.shopware-admin/tsconfig.json"';
+const BRIDGE_ESLINT_LINES = [
+    "import shopware from './.shopware-admin/eslint.mjs';",
+    'export default [ ...shopware /* , your rules */ ];',
+];
+
+function shimCommand(project: ExtensionToolingProject): string {
+    return `composer admin:setup-extension-tooling -- --shim=${project.name}`;
+}
+
 /**
- * Concrete, location-aware "how to get this extension checked" steps — shared by
- * the check runner's `unmanaged` message and the setup report's next-steps.
+ * One `why:` and one `fix:` for a skipped tool — reason- and state-specific,
+ * never suggesting a step the project's facts prove was already done.
  */
-export function describeInclusionSteps(project: ExtensionToolingProject): string[] {
-    if (project.vendor) {
+export function describeToolGuidance(
+    project: ExtensionToolingProject,
+    tool: 'TypeScript' | 'ESLint',
+    resolution: ModeResolution,
+): ToolGuidance | null {
+    if (resolution.mode !== 'unmanaged') {
+        return null;
+    }
+
+    const state = deriveExtensionState(project);
+
+    if (state === 'vendor' || state === 'platform') {
+        // Rendered as a per-extension note instead of per-tool fixes.
+        return null;
+    }
+
+    const why = resolution.detail ?? 'the config does not compose the Shopware preset.';
+
+    if (state === 'needs-bridge') {
+        // The per-extension one-command block covers the fix; repeating it per
+        // tool would print the same command twice.
+        return { why, fix: [] };
+    }
+
+    if (resolution.reason === 'config-error') {
+        return { why, fix: ['fix the config error, then re-run the check.'] };
+    }
+
+    if (tool === 'TypeScript') {
+        switch (resolution.reason) {
+            case 'files-override':
+                return {
+                    why,
+                    fix: ['remove "files" from the plugin tsconfig — the bridge provides the type surface.'],
+                };
+            case 'not-extending':
+                return { why, fix: [`add ${BRIDGE_TSCONFIG_LINE} to the plugin tsconfig.`] };
+            default:
+                return {
+                    why,
+                    fix: [`extend the bridge (${BRIDGE_TSCONFIG_LINE}) and remove own "files" / "types" overrides.`],
+                };
+        }
+    }
+
+    return {
+        why,
+        fix: [
+            'compose the bridge in the config:',
+            ...BRIDGE_ESLINT_LINES.map((line) => `    ${line}`),
+        ],
+    };
+}
+
+/**
+ * The extension's single missing step for the setup report — empty when
+ * nothing is missing.
+ */
+export function describeNextStep(project: ExtensionToolingProject): string[] {
+    const state = deriveExtensionState(project);
+
+    if (state === 'vendor') {
         return [
             'Read-only vendor extension — checked through host-owned configs; findings are',
             'non-fatal (pass --strict-vendor to fail on them).',
         ];
     }
 
-    if (project.basePath.startsWith('custom/plugins/')) {
+    if (state === 'needs-bridge') {
         return [
             "It isn't checked with the Shopware preset yet. Bridge it with one command:",
-            `    composer admin:setup-extension-tooling -- --shim=${project.name}`,
-            'That generates a git-ignored .shopware-admin/ bridge and, if the plugin has no config',
-            'yet, small committed tsconfig/eslint that extend it. If you already have configs, add',
-            '    "extends": "./.shopware-admin/tsconfig.json"   (and import the eslint bridge).',
+            `    ${shimCommand(project)}`,
+            'That generates a git-ignored .shopware-admin/ bridge plus small committed',
+            'tsconfig/eslint that extend it (existing configs are never overwritten).',
         ];
     }
 
-    return [
-        'It ships its own config. Compose the Shopware factory in it so the check can run:',
-        "    import { shopwareAdminExtension } from '<administration>/extension-tooling/eslint.mjs';",
-    ];
+    if (state === 'bridge-unwired') {
+        const lines = ['The .shopware-admin/ bridge exists — finish wiring it:'];
+
+        for (const [
+            tool,
+            resolution,
+        ] of [
+            [
+                'TypeScript',
+                project.ts,
+            ],
+            [
+                'ESLint',
+                project.eslint,
+            ],
+        ] as Array<['TypeScript' | 'ESLint', ModeResolution]>) {
+            const guidance = describeToolGuidance(project, tool, resolution);
+
+            if (guidance) {
+                lines.push(...guidance.fix.map((line) => `    ${line}`));
+            }
+        }
+
+        return lines;
+    }
+
+    return [];
 }
 
 function seconds(run: ToolRunResult): string {
     return `${(run.durationMs / 1000).toFixed(1)}s`;
+}
+
+function skipReason(tool: string, resolution: ModeResolution): string {
+    const configNoun = tool === 'TypeScript' ? 'tsconfig' : 'config';
+
+    if (resolution.reason === 'config-error') {
+        return `own ${configNoun} fails to resolve`;
+    }
+
+    return tool === 'TypeScript'
+        ? 'own tsconfig does not reach the Shopware type surface'
+        : 'own config does not compose the Shopware factory';
 }
 
 function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution): string {
@@ -59,7 +169,7 @@ function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution
         case 'failed':
             return `${label}${colors.red(`✖ ${run.findings || 'some'} finding(s)`)}  ${meta}`;
         case 'unmanaged':
-            return `${label}${colors.yellow('⊘ SKIPPED')}     ${colors.dim('(unmanaged)')}`;
+            return `${label}${colors.yellow('⊘ skipped')} — ${colors.dim(skipReason(tool, resolution))}`;
         case 'no-files':
             return `${label}${colors.dim('· no lintable files')}`;
         default:
@@ -80,7 +190,7 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
     const moduleNote = moduleCount > 1 ? colors.dim(` (${moduleCount} modules)`) : '';
     const lines = [`\n  ${colors.bold(result.project.name)}${moduleNote}  ${colors.dim(location)}`];
 
-    const tools: Array<[string, ToolRunResult, ModeResolution]> = [
+    const tools: Array<['TypeScript' | 'ESLint', ToolRunResult, ModeResolution]> = [
         [
             'TypeScript',
             result.typescript,
@@ -92,6 +202,7 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
             result.eslintResolution,
         ],
     ];
+    const state = deriveExtensionState(result.project);
     let anyUnmanaged = false;
 
     for (const [
@@ -102,6 +213,21 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
         lines.push(`    ${statusLine(tool, run, resolution)}`);
         anyUnmanaged = anyUnmanaged || run.status === 'unmanaged';
 
+        if (run.status === 'unmanaged') {
+            const guidance = describeToolGuidance(result.project, tool, resolution);
+
+            if (guidance) {
+                lines.push(colors.dim(`      why: ${guidance.why}`));
+                lines.push(...guidance.fix.map((line, index) => `      ${index === 0 ? 'fix: ' : '     '}${line}`));
+            }
+
+            if (verbose && resolution.probeOutput && resolution.probeOutput.trim() !== '') {
+                lines.push(indent(resolution.probeOutput.trim(), '      '));
+            }
+
+            continue;
+        }
+
         const showOutput =
             run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
 
@@ -110,9 +236,19 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
         }
     }
 
-    // Both tools skip for the same reason; explain it once per extension.
     if (anyUnmanaged) {
-        lines.push(...describeInclusionSteps(result.project).map((step) => colors.dim(`      ${step}`)));
+        if (state === 'needs-bridge') {
+            lines.push(...describeNextStep(result.project).map((step) => colors.dim(`      ${step}`)));
+        } else if (state === 'vendor') {
+            lines.push(...describeNextStep(result.project).map((step) => colors.dim(`      ${step}`)));
+        } else if (state === 'platform') {
+            lines.push(
+                colors.dim('      It ships its own config. Compose the Shopware factory in it so the check can run:'),
+                colors.dim(
+                    "          import { shopwareAdminExtension } from '<administration>/extension-tooling/eslint.mjs';",
+                ),
+            );
+        }
     }
 
     return lines;
@@ -234,6 +370,12 @@ function fileChangeLine(result: SetupExtensionToolingResult): string {
 export function renderSetupReport(result: SetupExtensionToolingResult, options: SetupRenderOptions = {}): string {
     const { projects } = result.manifest;
     const lines = [colors.bold(`Administration extension tooling — ${projects.length} extension(s)`)];
+    const stateOf = new Map(
+        projects.map((project) => [
+            project.name,
+            deriveExtensionState(project),
+        ]),
+    );
 
     if (options.shim) {
         const shim = options.shim;
@@ -242,20 +384,44 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         );
 
         for (const project of justBridged) {
-            lines.push(
-                '',
-                colors.green(`✔ Bridged ${project.name}. Its tsconfig / eslint.config.mjs now extend the generated`),
-                colors.green('  .shopware-admin/ bridge (git-ignored). Commit them, edit freely — keep the "extends".'),
-            );
+            if (stateOf.get(project.name) === 'bridged') {
+                lines.push(
+                    '',
+                    colors.green(`✔ Bridged ${project.name}. Its tsconfig / eslint.config.mjs now extend the generated`),
+                    colors.green('  .shopware-admin/ bridge (git-ignored). Commit them, edit freely — keep the "extends".'),
+                );
+            } else {
+                lines.push(
+                    '',
+                    colors.green(`✔ Bridge created for ${project.name} at .shopware-admin/ — one step left:`),
+                    ...describeNextStep(project)
+                        .slice(1)
+                        .map((line) => `  ${line}`),
+                );
+            }
         }
     }
 
-    const ready = projects.filter(
-        (project) => !project.bridgePresent && project.tsconfig === null && project.eslintConfig === null,
-    );
-    const bridged = projects.filter((project) => project.bridgePresent);
-    const custom = projects.filter(
-        (project) => !project.bridgePresent && (project.tsconfig !== null || project.eslintConfig !== null),
+    const ready = projects.filter((project) => stateOf.get(project.name) === 'ready');
+    const bridged = projects.filter((project) => stateOf.get(project.name) === 'bridged');
+    const unwired = projects.filter((project) => stateOf.get(project.name) === 'bridge-unwired');
+    const custom = projects.filter((project) => {
+        const state = stateOf.get(project.name);
+
+        if (state === 'needs-bridge') {
+            return true;
+        }
+
+        return (
+            (state === 'vendor' || state === 'platform') &&
+            !project.bridgePresent &&
+            (project.tsconfig !== null || project.eslintConfig !== null)
+        );
+    });
+    const unverifiedBridged = bridged.some(
+        (project) =>
+            (project.tsconfig !== null && !project.ts.verified) ||
+            (project.eslintConfig !== null && !project.eslint.verified),
     );
 
     lines.push('');
@@ -265,7 +431,21 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     if (bridged.length > 0) {
-        lines.push(`  ${colors.cyan('● bridged')}  ${bridged.map((project) => project.name).join(', ')}`);
+        lines.push(
+            `  ${colors.cyan('● bridged')}  ${bridged.map((project) => project.name).join(', ')}  ` +
+                colors.dim(
+                    `(own configs compose the Shopware preset${
+                        unverifiedBridged ? ' — unverified, run composer admin:check-extensions' : ''
+                    })`,
+                ),
+        );
+    }
+
+    if (unwired.length > 0) {
+        lines.push(
+            `  ${colors.yellow('⚠ bridge unwired')}  ${unwired.map((project) => project.name).join(', ')}  ` +
+                colors.dim("(bridge exists — own config doesn't compose it yet)"),
+        );
     }
 
     if (custom.length > 0) {
@@ -301,13 +481,18 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         }
     }
 
-    const needsInclusion = custom.filter((project) => !project.vendor && project.basePath.startsWith('custom/plugins/'));
+    const needsInclusion = projects.filter((project) =>
+        [
+            'needs-bridge',
+            'bridge-unwired',
+        ].includes(stateOf.get(project.name) as string),
+    );
 
     if (needsInclusion.length > 0) {
         lines.push('', colors.bold('  Next steps'));
 
         for (const project of needsInclusion.slice(0, 5)) {
-            lines.push(`  ${colors.bold(project.name)}`, ...describeInclusionSteps(project).map((step) => `    ${step}`));
+            lines.push(`  ${colors.bold(project.name)}`, ...describeNextStep(project).map((step) => `    ${step}`));
         }
 
         if (needsInclusion.length > 5) {
@@ -345,6 +530,13 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
                     `ts:${project.ts.mode} · eslint:${project.eslint.mode}`,
             );
         }
+
+        lines.push(
+            '',
+            '    Own path aliases: declare them in tsconfig.aliases.json next to the plugin config,',
+            '    e.g. { "MyPlugin/*": ["src/*"] } — the generated .shopware-admin/ bridge merges them',
+            '    with the preset paths (tsconfig "paths" cannot be extended additively).',
+        );
 
         for (const instruction of result.instructions) {
             lines.push('', ...instruction.split('\n').map((line) => `    ${line}`));

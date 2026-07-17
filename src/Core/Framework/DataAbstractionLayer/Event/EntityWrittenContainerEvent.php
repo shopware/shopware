@@ -67,13 +67,21 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getResults(string $entityName): EntityWriteResultCollection
     {
-        $event = $this->getEventByEntityName($entityName);
-        if ($event !== null) {
-            return $event->getResults();
+        /** @var list<EntityWriteResult<IDStructure>> $writeResults */
+        $writeResults = [];
+
+        foreach ($this->events as $event) {
+            if (!$event instanceof EntityWrittenEvent || $event->getEntityName() !== $entityName) {
+                continue;
+            }
+
+            foreach ($event->getWriteResults() as $writeResult) {
+                $writeResults[] = $writeResult;
+            }
         }
 
         /** @var EntityWriteResultCollection<IDStructure> $results */
-        $results = new EntityWriteResultCollection();
+        $results = new EntityWriteResultCollection($writeResults);
 
         return $results;
     }

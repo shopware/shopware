@@ -24,17 +24,27 @@ composer admin:setup-extension-tooling   # generate configs for all installed ex
 composer admin:check-extensions          # pick extensions to type-check + lint (interactive picker)
 composer admin:check-extensions -- --only=SwagPayPal,MyPlugin   # check specific ones, no prompt
 composer admin:check-extensions -- --all                        # check every extension, no prompt
+composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
+composer admin:setup-extension-tooling -- --help                # full option reference
 ```
+
+⚠ Options always need the `--` separator — Composer silently swallows anything before it
+(`composer admin:setup-extension-tooling --check` runs a plain setup, not a dry-run).
 
 In an interactive terminal `admin:check-extensions` opens a numbered picker (accepts
 numbers, ranges, `a` for all, `w` for writable-only). Non-interactive shells (CI, piped)
 check all extensions. `--verbose` additionally prints the underlying tool output for passing
-and skipped extensions.
+and skipped extensions; `--show-commands` prints the exact vue-tsc/ESLint invocation per
+extension; `--fix` forwards to ESLint (vendor-installed extensions only when named via
+`--only`).
 
 Setup discovers every installed extension with Administration sources (from
-`var/plugins.json`), generates one tsconfig per extension under
+`var/plugins.json` — refresh it with `bin/console bundle:dump` after installing or
+activating a plugin), generates one tsconfig per extension under
 `var/admin-extension-tooling/`, plus root `tsconfig.json` / `eslint.config.mjs`
-projections so IDEs see exactly what the check command checks.
+projections so IDEs see exactly what the check command checks. The generated root files
+are covered by a marker-fenced block that setup manages in the project `.gitignore`
+(skipped when the entries are already covered; opt out permanently with `--no-gitignore`).
 
 - **Zero-config**: a plugin with no config files at all is fully covered.
 - **Committed configs**: bridge the plugin with one command:
@@ -58,9 +68,47 @@ projections so IDEs see exactly what the check command checks.
   ```
 
   Commit those two files and edit them freely — add your own options/rules — as long as the
-  `extends`/import stays. The tool never overwrites them; if you already have configs, it leaves
-  them and prints the one line to add. The check uses your committed configs, so what runs is what
-  you see.
+  `extends`/import stays. The tool never overwrites them; if you already have configs, the check
+  prints a `why:` naming what is missing and a `fix:` with the exact edit. The check uses your
+  committed configs, so what runs is what you see.
+
+## Own path aliases (`tsconfig.aliases.json`)
+
+TypeScript replaces `paths` **wholesale** across `extends`: declaring
+`"paths": { "MyPlugin/*": ["src/*"] }` in your own tsconfig would erase the preset's
+`vue` / `src/*` mappings. Declare aliases in a committed `tsconfig.aliases.json` next to
+your config instead:
+
+```jsonc
+{ "MyPlugin/*": ["src/*"] }
+```
+
+Re-run `composer admin:setup-extension-tooling -- --shim=<TechnicalName>` afterwards: the
+generated `.shopware-admin/` bridge becomes the single `paths` declarer and merges your
+aliases with the preset's host paths (targets resolve relative to the plugin's
+administration folder). The same mechanism covers type-only imports of host packages,
+e.g. `{ "axios": ["../../../../../../../src/Administration/Resources/app/administration/node_modules/axios"] }`.
+
+## Test files
+
+Generated and scaffolded tsconfigs exclude `**/*.spec.*` by default: test-runner globals
+(jest etc.) are not part of the admin runtime surface (the preset sets `types: []`), so
+including specs floods the check with `Cannot find name 'describe'` cascades. ESLint still
+lints spec files (syntactic and Vue rules, with jest globals) without type-aware rules.
+Type-check your specs through your own test setup, or remove the exclude and add a
+`types` override in your own config deliberately.
+
+## Troubleshooting
+
+| Symptom | Cause → fix |
+| --- | --- |
+| A plugin is missing from the extension list | Discovery reads `var/plugins.json`, which neither `plugin:install` nor `cache:clear` refresh. Run `bin/console bundle:dump`. |
+| `⊘ skipped — own tsconfig does not reach the Shopware type surface` | The printed `why:` names the exact cause: an own `"files"` array replaces the bridge's type-surface injection (remove it), the `extends` chain never reaches the preset (add `"extends": "./.shopware-admin/tsconfig.json"`), or there is no bridge yet (`-- --shim=<name>`). |
+| `⊘ skipped — own config does not compose the Shopware factory` | Compose the bridge: `import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware ];` |
+| `⊘ blocked (entity schema missing)` | Run `composer admin:generate-entity-schema-types`; TypeScript checks refuse to run against the empty-schema stub. |
+| `Duplicate identifier` errors after bridging | Your plugin's own `global.types.ts` re-declares parts of the preset surface — prune the duplicates. |
+| `Cannot find module 'axios'` (or another host package) | The preset drops the old `"*" → node_modules` fallback. Map the package in `tsconfig.aliases.json` (see above). |
+| Three `Script … returned with error code 1` lines after a failing check | Composer prints these for every failing composer script; the check's own summary line above them is the verdict. |
 
 ## The type surface
 

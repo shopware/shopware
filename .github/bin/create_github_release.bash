@@ -9,7 +9,7 @@ fi
 # already available.
 #
 # Can be removed once https://gitlab.shopware.com/infrastructure/docker-base/-/merge_requests/8 is merged.
-if sed --version | grep 'This is not GNU sed' > /dev/null ; then
+if sed --version 2>/dev/null | grep 'This is not GNU sed' > /dev/null ; then
   apk add sed
 fi
 
@@ -18,6 +18,25 @@ TRACE="${TRACE:-}"
 
 TASK="${1}"
 PLATFORM_TAG="${2}"
+
+# Resolve the current major's release info file from the dev-trunk branch alias (same derivation
+# as the bc-check composer script), so this keeps working across majors.
+RELEASE_INFO_FILE="RELEASE_INFO-$(sed -n 's/.*"dev-trunk": "\([0-9]*\.[0-9]*\).*"/\1/p' composer.json).md"
+
+# The nightly dry-run passes the ref name (e.g. "trunk") instead of a tag. Resolve the upcoming
+# version from the release info so the dry run generates a real payload instead of failing the
+# version lookup (a tag can never be the ref name there, and "trunk" is not in the release info).
+if [[ ! "${PLATFORM_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  PLATFORM_TAG="v$(sed -n 's/^# \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' "${RELEASE_INFO_FILE}" | head -n 1)"
+
+  if [ "${PLATFORM_TAG}" = "v" ]; then
+    echo "Could not resolve the upcoming version from ${RELEASE_INFO_FILE}" 1>&2
+    exit 1
+  fi
+
+  echo "No release tag given, resolved upcoming version ${PLATFORM_TAG} from ${RELEASE_INFO_FILE}" 1>&2
+fi
+
 GITHUB_SYNC_TOKEN="${GITHUB_SYNC_TOKEN:-"${GITHUB_TOKEN}"}"
 REPOSITORY_API_URL='https://api.github.com/repos/shopware/shopware'
 
@@ -31,7 +50,7 @@ print_usage() {
 draft_release_payload() {
   local platform_tag; export platform_tag="${1}"
 
-  php ./.github/bin/generate-release-notes.php --output-file "${platform_tag}_release_notes.md" "${platform_tag#v}" 1>&2
+  php ./.github/bin/generate-release-notes.php --input-file "${RELEASE_INFO_FILE}" --output-file "${platform_tag}_release_notes.md" "${platform_tag#v}" 1>&2
 
   jq --rawfile body "${platform_tag}_release_notes.md" -nc '{
     tag_name: env.platform_tag,

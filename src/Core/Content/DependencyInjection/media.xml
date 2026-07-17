@@ -54,6 +54,7 @@
         <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="logger"/>
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
 
             <tag name="messenger.message_handler"/>
@@ -294,6 +295,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface"/>
+            <argument type="service" id="logger"/>
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 

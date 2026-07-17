@@ -69,6 +69,7 @@ describe('scripts/extensionTooling/baseline', () => {
             expect(baseline).toEqual({
                 version: 1,
                 typescript: [{ file: 'src/main.ts', code: 'TS2322', message: 'Type mismatch.', count: 1 }],
+                typescriptSpecs: [],
                 eslint: [],
             });
         });
@@ -179,33 +180,40 @@ describe('scripts/extensionTooling/baseline', () => {
     });
 
     describe('buildBaseline', () => {
-        it('aggregates duplicates into counts, stores plugin-relative paths, and drops warnings', () => {
+        it('aggregates duplicates into counts, keeps spec findings separate, and drops warnings', () => {
             const baseline = buildBaseline(
-                [
-                    tsFinding(),
-                    tsFinding(),
-                ],
-                [
-                    eslintFinding(),
-                    eslintFinding({ severity: 'warning' }),
-                ],
+                {
+                    typescript: [
+                        tsFinding(),
+                        tsFinding(),
+                    ],
+                    typescriptSpecs: [tsFinding({ file: 'custom/plugins/MyPlugin/src/main.spec.ts', code: 'TS2345' })],
+                    eslint: [
+                        eslintFinding(),
+                        eslintFinding({ severity: 'warning' }),
+                    ],
+                },
                 customProject.basePath,
             );
 
             expect(baseline).toEqual({
                 version: 1,
                 typescript: [{ file: 'src/main.ts', code: 'TS2322', message: 'Type mismatch.', count: 2 }],
+                typescriptSpecs: [{ file: 'src/main.spec.ts', code: 'TS2345', message: 'Type mismatch.', count: 1 }],
                 eslint: [{ file: 'src/main.ts', rule: 'no-console', message: 'Unexpected console statement', count: 1 }],
             });
         });
 
         it('sorts entries canonically so committed baselines do not churn', () => {
             const baseline = buildBaseline(
-                [
-                    tsFinding({ file: 'custom/plugins/MyPlugin/src/z.ts' }),
-                    tsFinding({ file: 'custom/plugins/MyPlugin/src/a.ts' }),
-                ],
-                [],
+                {
+                    typescript: [
+                        tsFinding({ file: 'custom/plugins/MyPlugin/src/z.ts' }),
+                        tsFinding({ file: 'custom/plugins/MyPlugin/src/a.ts' }),
+                    ],
+                    typescriptSpecs: [],
+                    eslint: [],
+                },
                 customProject.basePath,
             );
 
@@ -218,7 +226,9 @@ describe('scripts/extensionTooling/baseline', () => {
 
     describe('serializeBaseline', () => {
         it('keeps the ownership marker within the first three lines so the file reads as tool-owned', () => {
-            const serialized = serializeBaseline(buildBaseline([tsFinding()], [], customProject.basePath));
+            const serialized = serializeBaseline(
+                buildBaseline({ typescript: [tsFinding()], typescriptSpecs: [], eslint: [] }, customProject.basePath),
+            );
 
             expect(serialized.split(/\r?\n/, 3).join('\n')).toContain(GENERATED_MARKER);
             expect(isGeneratedContent(serialized)).toBe(true);
@@ -229,7 +239,10 @@ describe('scripts/extensionTooling/baseline', () => {
 
     describe('writeBaselineFile', () => {
         it('records a readable baseline and refuses none-custom-plugins projects', () => {
-            const built = buildBaseline([tsFinding()], [eslintFinding()], customProject.basePath);
+            const built = buildBaseline(
+                { typescript: [tsFinding()], typescriptSpecs: [], eslint: [eslintFinding()] },
+                customProject.basePath,
+            );
 
             expect(writeBaselineFile(projectRoot, { basePath: 'vendor/acme/x', vendor: true }, built)).toBeNull();
 
@@ -247,7 +260,7 @@ describe('scripts/extensionTooling/baseline', () => {
             const write = writeBaselineFile(
                 projectRoot,
                 customProject,
-                buildBaseline([tsFinding()], [], customProject.basePath),
+                buildBaseline({ typescript: [tsFinding()], typescriptSpecs: [], eslint: [] }, customProject.basePath),
             );
 
             expect(write?.state).toBe('conflict');

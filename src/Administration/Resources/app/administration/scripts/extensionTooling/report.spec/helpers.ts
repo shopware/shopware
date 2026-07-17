@@ -45,6 +45,7 @@ export function extension(
         tsResolution: overrides.tsResolution ?? project_.ts,
         eslintResolution: overrides.eslintResolution ?? project_.eslint,
         typescript: overrides.typescript ?? run('passed'),
+        typescriptSpecs: overrides.typescriptSpecs ?? run('no-files'),
         eslint: overrides.eslint ?? run('passed'),
         commands: overrides.commands ?? {},
     };

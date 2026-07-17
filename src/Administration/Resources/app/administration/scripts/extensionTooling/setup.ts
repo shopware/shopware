@@ -65,9 +65,10 @@ const SOURCE_EXTENSIONS = [
     'js',
 ];
 /**
- * Test files are excluded from type-check programs by default: their runner
- * globals (jest etc.) are not part of the admin runtime surface (the preset
- * sets `types: []`), so including them floods the check with cascade errors.
+ * Test files are split off from the runtime program (whose preset sets
+ * `types: []`, so its runner globals are absent) into a dedicated spec program
+ * that adds jest types. The runtime leaf excludes these suffixes; the spec leaf
+ * includes exactly them.
  */
 const SPEC_FILE_SUFFIXES = [
     'spec.ts',
@@ -337,6 +338,14 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
         const specContent = `// ${GENERATED_MARKER}\n${JSON.stringify(
             {
                 extends: asRelativeSpecifier(specConfigPath, basePreset),
+                // Point typeRoots at the Administration's own @types so the jest
+                // reference in spec-types.d.ts resolves — a triple-slash
+                // reference is looked up relative to this config, not the .d.ts.
+                compilerOptions: {
+                    typeRoots: [
+                        asRelativeSpecifier(specConfigPath, path.join(context.administrationRoot, 'node_modules', '@types')),
+                    ],
+                },
                 files: [
                     asRelativeSpecifier(specConfigPath, adminTypes),
                     asRelativeSpecifier(specConfigPath, specTypes),
@@ -755,7 +764,7 @@ function scaffoldPluginConfigs(context: GeneratorContext, name: string, adminFol
     const tsconfigContent =
         `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
         '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
-        '// Test files need their runner\'s types — keep them excluded, or add a "types" override in your own config.\n' +
+        '// Spec files stay excluded here — the check type-checks them separately with jest types.\n' +
         `${JSON.stringify(
             {
                 extends: './.shopware-admin/tsconfig.json',

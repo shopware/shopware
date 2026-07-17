@@ -184,7 +184,7 @@ describe('scripts/extensionTooling/setup', () => {
         );
 
         expect(scaffold).toContain('"**/*.spec.ts"');
-        expect(scaffold).toContain("Test files need their runner's types");
+        expect(scaffold).toContain('type-checks them separately with jest types');
     });
 
     it('escapes filesystem paths so a quote in an extension path cannot break the generated config', () => {

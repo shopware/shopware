@@ -46,11 +46,16 @@ describe('scripts/extensionTooling e2e', () => {
         );
         originalZeroConfigMain = fs.readFileSync(zeroConfigMainPath, 'utf8');
 
-        // Test files are excluded from the type-check program by default —
-        // this jest-flavored spec with a type error must never fail the check.
-        writeFile(path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/src/broken.spec.ts'), [
-            "describe('uses jest globals unknown to the admin runtime', () => {});",
-            "export const brokenSpecValue: number = 'broken';",
+        // Spec files are now type-checked by the dedicated spec program with jest
+        // types — a clean spec that uses jest globals and the admin type surface
+        // must therefore pass (the type-error case lives in typed-specs.spec.ts).
+        writeFile(path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/src/main.spec.ts'), [
+            "describe('loadProduct', () => {",
+            "    it('is typed against the admin type surface', () => {",
+            "        const productId: string = 'product-id';",
+            '        expect(productId).toBe(productId);',
+            '    });',
+            '});',
         ]);
 
         // Committed-config plugin: files extend the generated shim.
@@ -211,8 +216,11 @@ describe('scripts/extensionTooling e2e', () => {
             );
 
             expect(byName.ZeroConfig.typescript.status).toBe('passed');
+            // The dedicated spec program type-checked main.spec.ts with jest types.
+            expect(byName.ZeroConfig.typescriptSpecs.status).toBe('passed');
             expect(byName.ZeroConfig.eslint.status).toBe('passed');
             expect(byName.JsOnly.typescript.status).toBe('no-files');
+            expect(byName.JsOnly.typescriptSpecs.status).toBe('no-files');
             expect(byName.JsOnly.eslint.status).toBe('passed');
             expect(byName.ShimConfig.typescript.status).toBe('passed');
             expect(byName.ShimConfig.tsResolution.mode).toBe('custom');

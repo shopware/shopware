@@ -240,27 +240,35 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
     const moduleNote = moduleCount > 1 ? colors.dim(` (${moduleCount} modules)`) : '';
     const lines = [`\n  ${colors.bold(result.project.name)}${moduleNote}  ${colors.dim(location)}`];
 
-    const tools: Array<['TypeScript' | 'ESLint', ToolRunResult, ModeResolution]> = [
-        [
-            'TypeScript',
-            result.typescript,
-            result.tsResolution,
-        ],
-        [
-            'ESLint',
-            result.eslint,
-            result.eslintResolution,
-        ],
+    const tools: Array<{ label: string; tool: 'TypeScript' | 'ESLint'; run: ToolRunResult; resolution: ModeResolution }> = [
+        { label: 'TypeScript', tool: 'TypeScript', run: result.typescript, resolution: result.tsResolution },
     ];
+
+    // The spec program is a companion of the TypeScript run — only shown when it
+    // actually ran (a plugin without specs, an unmanaged config, or a blocked
+    // schema is already conveyed by the TypeScript line).
+    if (
+        [
+            'passed',
+            'failed',
+            'tooling-error',
+        ].includes(result.typescriptSpecs.status)
+    ) {
+        tools.push({
+            label: 'TS (specs)',
+            tool: 'TypeScript',
+            run: result.typescriptSpecs,
+            resolution: result.tsResolution,
+        });
+    }
+
+    tools.push({ label: 'ESLint', tool: 'ESLint', run: result.eslint, resolution: result.eslintResolution });
+
     const state = deriveExtensionState(result.project);
     let anyUnmanaged = false;
 
-    for (const [
-        tool,
-        run,
-        resolution,
-    ] of tools) {
-        lines.push(`    ${statusLine(tool, run, resolution)}`);
+    for (const { label, tool, run, resolution } of tools) {
+        lines.push(`    ${statusLine(label, run, resolution)}`);
         anyUnmanaged = anyUnmanaged || run.status === 'unmanaged';
 
         if (run.status === 'unmanaged') {
@@ -301,6 +309,7 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
     if (options.showCommands === true) {
         for (const command of [
             result.commands.typescript,
+            result.commands.typescriptSpecs,
             result.commands.eslint,
         ]) {
             if (command) {
@@ -337,11 +346,23 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
     const headers = [
         'extension',
         'ts',
+        'specs',
         'eslint',
     ];
+    // Extensions without specs (or with an unmanaged/blocked TS run) get a dash
+    // rather than a misleading "passed" in the specs column.
+    const specCell = (run: ToolRunResult): string =>
+        [
+            'no-files',
+            'unmanaged',
+            'blocked',
+        ].includes(run.status)
+            ? '—'
+            : summaryCell(run, 'TypeScript');
     const rows = results.map((result) => [
         result.project.name,
         summaryCell(result.typescript, 'TypeScript'),
+        specCell(result.typescriptSpecs),
         summaryCell(result.eslint, 'ESLint'),
     ]);
     const widths = headers.map((header, column) => Math.max(header.length, ...rows.map((row) => row[column].length)));
@@ -362,6 +383,7 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
 function hasFindings(result: ExtensionCheckResult): boolean {
     return [
         result.typescript.status,
+        result.typescriptSpecs.status,
         result.eslint.status,
     ].some((status) => status === 'failed' || status === 'tooling-error');
 }
@@ -408,7 +430,11 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
         0,
     );
     const baselined = result.results.reduce(
-        (sum, extension) => sum + (extension.typescript.baselinedFindings ?? 0) + (extension.eslint.baselinedFindings ?? 0),
+        (sum, extension) =>
+            sum +
+            (extension.typescript.baselinedFindings ?? 0) +
+            (extension.typescriptSpecs.baselinedFindings ?? 0) +
+            (extension.eslint.baselinedFindings ?? 0),
         0,
     );
     const paint = result.exitCode === 0 ? colors.green : colors.red;

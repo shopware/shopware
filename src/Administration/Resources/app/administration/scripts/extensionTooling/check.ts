@@ -37,7 +37,7 @@ import type { ProbeCacheFile } from './probe';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { baselineFilePath, buildBaseline, diffEslint, diffTypeScript, readBaseline, writeBaselineFile } from './baseline';
-import type { BaselineSplit, EslintFinding, TypeScriptFinding } from './baseline';
+import type { BaselineSplit, BaselineTsEntry, EslintFinding, TypeScriptFinding } from './baseline';
 
 export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'blocked' | 'tooling-error';
 
@@ -62,9 +62,11 @@ export interface ExtensionCheckResult {
     tsResolution: ModeResolution;
     eslintResolution: ModeResolution;
     typescript: ToolRunResult;
+    /** The dedicated spec type-check program (jest types, spec files only). */
+    typescriptSpecs: ToolRunResult;
     eslint: ToolRunResult;
     /** Reproduction commands for the tool runs that actually happened. */
-    commands: { typescript?: string; eslint?: string };
+    commands: { typescript?: string; typescriptSpecs?: string; eslint?: string };
 }
 
 export interface CheckExtensionsOptions {
@@ -203,6 +205,39 @@ export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string
     return count;
 }
 
+/**
+ * Counts the spec files the dedicated spec program would type-check
+ * (`.spec.ts`/`.spec.tsx`; `.spec.js` is parsed but not type-checked, like any
+ * `.js`). Zero means the spec program would be vacuous — reported as no-files.
+ */
+export function countSpecFiles(projectRoot: string, sourcePaths: string[]): number {
+    let count = 0;
+
+    for (const sourcePath of sourcePaths) {
+        const queue = [path.resolve(projectRoot, sourcePath)];
+
+        while (queue.length > 0) {
+            const currentDir = queue.shift() as string;
+
+            if (!fs.existsSync(currentDir)) {
+                continue;
+            }
+
+            for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+                const entryPath = path.join(currentDir, entry.name);
+
+                if (entry.isDirectory() && entry.name !== 'node_modules') {
+                    queue.push(entryPath);
+                } else if (entry.isFile() && /\.spec\.(ts|tsx)$/.test(entry.name)) {
+                    count += 1;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+
 export function countTypeScriptFindings(output: string): number {
     return output.split(/\r?\n/).filter((line) => /error TS\d+:/.test(line)).length;
 }
@@ -314,6 +349,60 @@ function applyBaseline<F>(
         baselinedFindings: split.baselinedCount,
         staleBaseline: split.staleCount,
         newFindingRefs: split.newFindings.map(refOf),
+    };
+}
+
+/**
+ * Runs one vue-tsc program (runtime or spec) against a tsconfig and interprets
+ * the outcome through the baseline. Timeouts and empty non-zero exits surface as
+ * tooling errors; otherwise the findings are split against the given baseline
+ * stream. Gating (which program, whether to run at all) stays with the caller.
+ */
+async function runTypeScriptProgram(
+    vueTscPath: string,
+    tsconfigPath: string,
+    projectRoot: string,
+    basePath: string,
+    baselineEntries: BaselineTsEntry[],
+): Promise<{ result: ToolRunResult; command: string }> {
+    const vueTscArguments = buildVueTscArguments(vueTscPath, tsconfigPath);
+    const command = formatCommand(projectRoot, vueTscArguments);
+    const run = await runCommand(process.execPath, vueTscArguments, projectRoot);
+    const findings = countTypeScriptFindings(run.output);
+
+    if (run.timedOut) {
+        return {
+            command,
+            result: {
+                status: 'tooling-error',
+                output: `vue-tsc timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${run.output}`,
+                durationMs: run.durationMs,
+                findings,
+            },
+        };
+    }
+
+    if (run.status !== 0 && findings === 0 && run.output.trim() === '') {
+        return {
+            command,
+            result: {
+                status: 'tooling-error',
+                output: `vue-tsc exited with status ${run.status} and no output.`,
+                durationMs: run.durationMs,
+                findings: 0,
+            },
+        };
+    }
+
+    const split = diffTypeScript(parseTypeScriptFindings(run.output), baselineEntries, basePath, findings);
+
+    return {
+        command,
+        result: {
+            ...applyBaseline(run.status, findings, split, (finding) => ({ file: finding.file, code: finding.code })),
+            output: run.output,
+            durationMs: run.durationMs,
+        },
     };
 }
 
@@ -505,6 +594,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
 
     const checkJobs = resolvedModes.map(({ project, tsResolution, eslintResolution }) => async () => {
         let typescript: ToolRunResult;
+        let typescriptSpecs: ToolRunResult;
         let eslint: ToolRunResult;
         const commands: ExtensionCheckResult['commands'] = {};
         // Read once — the runtime and (later) spec runs share one baseline file.
@@ -534,41 +624,40 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 projectRoot,
                 tsResolution.mode === 'custom' && project.tsconfig ? project.tsconfig : project.checkTsconfig,
             );
-            const vueTscArguments = buildVueTscArguments(vueTscPath, tsconfigPath);
+            const program = await runTypeScriptProgram(
+                vueTscPath,
+                tsconfigPath,
+                projectRoot,
+                project.basePath,
+                baseline?.typescript ?? [],
+            );
 
-            commands.typescript = formatCommand(projectRoot, vueTscArguments);
+            typescript = program.result;
+            commands.typescript = program.command;
+        }
 
-            const run = await runCommand(process.execPath, vueTscArguments, projectRoot);
-            const findings = countTypeScriptFindings(run.output);
+        // The spec program adds jest types over the same surface and checks only
+        // the spec files the runtime program excludes. It is gated on real specs
+        // existing and mirrors the runtime program's blocked/unmanaged states.
+        if (!setupResult.manifest.entitySchemaAvailable) {
+            typescriptSpecs = { status: 'blocked', output: '', durationMs: 0, findings: 0 };
+        } else if (tsResolution.mode === 'unmanaged') {
+            typescriptSpecs = { status: 'unmanaged', output: '', durationMs: 0, findings: 0 };
+        } else if (countSpecFiles(projectRoot, project.sourcePaths) === 0) {
+            typescriptSpecs = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
+        } else if (!fs.existsSync(vueTscPath)) {
+            typescriptSpecs = { status: 'tooling-error', output: 'vue-tsc is not installed.', durationMs: 0, findings: 0 };
+        } else {
+            const program = await runTypeScriptProgram(
+                vueTscPath,
+                path.resolve(projectRoot, project.specTsconfig),
+                projectRoot,
+                project.basePath,
+                baseline?.typescriptSpecs ?? [],
+            );
 
-            if (run.timedOut) {
-                typescript = {
-                    status: 'tooling-error',
-                    output: `vue-tsc timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${run.output}`,
-                    durationMs: run.durationMs,
-                    findings,
-                };
-            } else if (run.status !== 0 && findings === 0 && run.output.trim() === '') {
-                typescript = {
-                    status: 'tooling-error',
-                    output: `vue-tsc exited with status ${run.status} and no output.`,
-                    durationMs: run.durationMs,
-                    findings: 0,
-                };
-            } else {
-                const split = diffTypeScript(
-                    parseTypeScriptFindings(run.output),
-                    baseline?.typescript ?? [],
-                    project.basePath,
-                    findings,
-                );
-
-                typescript = {
-                    ...applyBaseline(run.status, findings, split, (finding) => ({ file: finding.file, code: finding.code })),
-                    output: run.output,
-                    durationMs: run.durationMs,
-                };
-            }
+            typescriptSpecs = program.result;
+            commands.typescriptSpecs = program.command;
         }
 
         if (eslintResolution.mode === 'unmanaged') {
@@ -645,6 +734,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             tsResolution,
             eslintResolution,
             typescript,
+            typescriptSpecs,
             eslint,
             commands,
         };
@@ -660,17 +750,27 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 continue;
             }
 
-            if (result.typescript.status === 'tooling-error' || result.eslint.status === 'tooling-error') {
+            if (
+                result.typescript.status === 'tooling-error' ||
+                result.typescriptSpecs.status === 'tooling-error' ||
+                result.eslint.status === 'tooling-error'
+            ) {
                 warnings.push(`${result.project.name}: baseline not updated — a tool run errored; fix that first.`);
 
                 continue;
             }
 
             const typescriptFindings = parseTypeScriptFindings(result.typescript.output);
+            const typescriptSpecFindings = parseTypeScriptFindings(result.typescriptSpecs.output);
             const eslintFindings = parseEslintFindings(result.eslint.output);
             const recorded =
-                typescriptFindings.length + eslintFindings.filter((finding) => finding.severity === 'error').length;
-            const pruned = (result.typescript.staleBaseline ?? 0) + (result.eslint.staleBaseline ?? 0);
+                typescriptFindings.length +
+                typescriptSpecFindings.length +
+                eslintFindings.filter((finding) => finding.severity === 'error').length;
+            const pruned =
+                (result.typescript.staleBaseline ?? 0) +
+                (result.typescriptSpecs.staleBaseline ?? 0) +
+                (result.eslint.staleBaseline ?? 0);
 
             // Nothing to record and nothing to prune — do not litter a clean plugin with an empty file.
             if (recorded === 0 && readBaseline(projectRoot, result.project) === null) {
@@ -680,7 +780,10 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             const write = writeBaselineFile(
                 projectRoot,
                 result.project,
-                buildBaseline(typescriptFindings, eslintFindings, result.project.basePath),
+                buildBaseline(
+                    { typescript: typescriptFindings, typescriptSpecs: typescriptSpecFindings, eslint: eslintFindings },
+                    result.project.basePath,
+                ),
             );
 
             if (write?.state === 'conflict') {
@@ -704,8 +807,12 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         // they are not failures; a broken toolchain still is.
         const hasFailure =
             result.typescript.status === 'tooling-error' ||
+            result.typescriptSpecs.status === 'tooling-error' ||
             result.eslint.status === 'tooling-error' ||
-            (!options.updateBaseline && (result.typescript.status === 'failed' || result.eslint.status === 'failed'));
+            (!options.updateBaseline &&
+                (result.typescript.status === 'failed' ||
+                    result.typescriptSpecs.status === 'failed' ||
+                    result.eslint.status === 'failed'));
 
         if (hasFailure && (!result.project.vendor || options.strictVendor)) {
             exitCode = 1;

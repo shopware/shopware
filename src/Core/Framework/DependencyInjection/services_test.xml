@@ -101,6 +101,10 @@
 
         <service id="test.browser" alias="test.client" />
 
+        <service id="Shopware\Core\Framework\Test\TestCaseHelper\StoreApiSessionListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="test.client" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
             <argument>%test.client.parameters%</argument>

@@ -18,6 +18,7 @@ use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationRemover;
+use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\Response;
@@ -182,6 +183,7 @@ class TranslationControllerTest extends TestCase
     {
         $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
         $metadataStore = $this->createMock(TranslationMetadataStore::class);
+        $metadataStore->method('getLocalMetadata')->willReturn($metadata);
         $metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->with(null)
@@ -227,10 +229,13 @@ class TranslationControllerTest extends TestCase
         ?AbstractTranslationLoader $translationLoader = null,
         ?TranslationRemover $translationRemover = null,
     ): TranslationController {
+        $metadataStore ??= static::createStub(TranslationMetadataStore::class);
+        $translationLoader ??= static::createStub(AbstractTranslationLoader::class);
+
         return new TranslationController(
             $this->config,
-            $metadataStore ?? static::createStub(TranslationMetadataStore::class),
-            $translationLoader ?? static::createStub(AbstractTranslationLoader::class),
+            $metadataStore,
+            new TranslationUpdater($translationLoader, $metadataStore),
             $translationRemover ?? static::createStub(TranslationRemover::class),
         );
     }

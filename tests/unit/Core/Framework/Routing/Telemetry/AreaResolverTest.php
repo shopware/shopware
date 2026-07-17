@@ -43,6 +43,8 @@ class AreaResolverTest extends TestCase
         yield 'store-api scope' => ['store-api.product.search', [StoreApiRouteScope::ID], 'store-api'];
         yield 'admin-api scope' => ['api.product.search', [ApiRouteScope::ID], 'admin-api'];
         yield 'storefront scope' => ['frontend.detail.page', ['storefront'], 'storefront'];
+        yield 'administration scope' => ['administration.index', ['administration'], 'administration'];
+        yield 'admin dashboard route with administration scope' => ['api.admin.dashboard.order-amount', ['administration'], 'administration'];
         yield 'unknown scope is other' => ['some.route', ['unknown'], 'other'];
 
         // store-api takes precedence when several scopes are present

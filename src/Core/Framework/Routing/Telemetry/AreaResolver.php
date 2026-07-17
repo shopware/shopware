@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Bounded output set (closed match, `other` as default), so the consuming metric labels may use `policy: open`.
  *
- * Known outputs: storefront, store-api, admin-api, sync-api, payment, other.
+ * Known outputs: storefront, store-api, admin-api, administration, sync-api, payment, other.
  *
  * @internal
  *
@@ -49,8 +49,9 @@ class AreaResolver
         return match (true) {
             \in_array(StoreApiRouteScope::ID, $scopes, true) => 'store-api',
             \in_array(ApiRouteScope::ID, $scopes, true) => 'admin-api',
-            // StorefrontRouteScope class is not always present, using string literal
+            // Storefront/Administration route scope classes are not always present, using string literals
             \in_array('storefront', $scopes, true) => 'storefront',
+            \in_array('administration', $scopes, true) => 'administration',
             default => 'other',
         };
     }

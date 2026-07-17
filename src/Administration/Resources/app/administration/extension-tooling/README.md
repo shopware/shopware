@@ -25,6 +25,7 @@ composer admin:check-extensions          # pick extensions to type-check + lint 
 composer admin:check-extensions -- --only=SwagPayPal,MyPlugin   # check specific ones, no prompt
 composer admin:check-extensions -- --all                        # check every extension, no prompt
 composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
+composer admin:check-extensions -- --only=MyPlugin --update-baseline  # record current findings (see Baseline)
 composer admin:setup-extension-tooling -- --help                # full option reference
 ```
 
@@ -91,12 +92,42 @@ e.g. `{ "axios": ["../../../../../../../src/Administration/Resources/app/adminis
 
 ## Test files
 
-Generated and scaffolded tsconfigs exclude `**/*.spec.*` by default: test-runner globals
-(jest etc.) are not part of the admin runtime surface (the preset sets `types: []`), so
-including specs floods the check with `Cannot find name 'describe'` cascades. ESLint still
-lints spec files (syntactic and Vue rules, with jest globals) without type-aware rules.
-Type-check your specs through your own test setup, or remove the exclude and add a
-`types` override in your own config deliberately.
+Spec files (`**/*.spec.{ts,tsx,js}`) are type-checked by a **dedicated program** with jest
+types, separate from the runtime program. The runtime tsconfig still excludes specs — its
+preset sets `types: []` so the runtime globals stay runtime-only — and the check runs a
+second `vue-tsc` pass over a generated spec tsconfig (`…-specs.json`) that injects
+`spec-types.d.ts` (jest `describe`/`it`/`expect`, …) and includes only the specs. Spec
+findings appear on their own `TS (specs)` line.
+
+ESLint **type-aware-lints** specs for zero-config (managed) extensions — the spec leaves are
+referenced from the generated root `tsconfig.json`, so typescript-eslint's project service
+finds them. Bridged plugins (own committed config extending `.shopware-admin/`) keep
+syntactic + jest-globals linting on specs; `vue-tsc` still type-checks those specs, only
+ESLint's type-aware rules are off there.
+
+Type-checking specs surfaces findings that were previously invisible. Record them once with
+`--update-baseline` (see below) so the check fails only on new ones.
+
+## Baseline
+
+A big plugin adopting the tooling can produce hundreds of findings at once, which makes an
+exit-1 check useless. Record the current findings as a baseline; the check then reports them
+separately and fails only on **new** findings (PHPStan-style):
+
+```bash
+composer admin:check-extensions -- --only=MyPlugin --update-baseline
+```
+
+This writes a committed `.shopware-admin-baseline.json` at the plugin root (custom/plugins
+only). Paths inside are stored relative to the plugin root, so the baseline travels with the
+plugin. **Commit it.** Later checks show `N new · M baselined`, and a fully baselined plugin
+reads green. Matching ignores line and column (file + code/rule + message), so a finding
+survives unrelated line drift. Findings that no longer occur are reported as stale and pruned
+on the next `--update-baseline`. Fix findings and re-run `--update-baseline` to shrink the
+baseline; it cannot be combined with `--fix` (fix first, then record).
+
+Vendor-installed extensions carry no baseline — their findings are already non-fatal unless
+`--strict-vendor`.
 
 ## Troubleshooting
 

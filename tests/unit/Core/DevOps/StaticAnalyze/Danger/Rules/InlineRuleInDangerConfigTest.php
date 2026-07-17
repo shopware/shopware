@@ -6,7 +6,6 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\InlineRuleInDangerConfig;
@@ -18,7 +17,6 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(InlineRuleInDangerConfig::class)]
-#[RequiresMethod(File::class, 'getContent')]
 class InlineRuleInDangerConfigTest extends TestCase
 {
     #[TestDox('Fails for inline rules added to .danger.php, allows class registrations, removals and other files')]

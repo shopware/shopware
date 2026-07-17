@@ -6,7 +6,6 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\LegacyTestsInSrc;
@@ -18,7 +17,6 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(LegacyTestsInSrc::class)]
-#[RequiresMethod(File::class, 'getContent')]
 class LegacyTestsInSrcTest extends TestCase
 {
     #[TestDox('Fails only for new TestCase classes added under src/')]
@@ -42,25 +40,25 @@ class LegacyTestsInSrcTest extends TestCase
     {
         yield 'new TestCase under src fails' => [
             'src/Core/Framework/Test/MyFeatureTest.php',
-            'added',
+            File::STATUS_ADDED,
             "class MyFeatureTest extends TestCase\n{\n}",
             true,
         ];
         yield 'new unit test under tests/unit passes' => [
             'tests/unit/Core/Framework/MyFeatureTest.php',
-            'added',
+            File::STATUS_ADDED,
             "class MyFeatureTest extends TestCase\n{\n}",
             false,
         ];
         yield 'Test-suffixed helper under src that is no TestCase passes' => [
             'src/Core/Framework/Test/IdsCollectionTest.php',
-            'added',
+            File::STATUS_ADDED,
             "class IdsCollectionTest\n{\n}",
             false,
         ];
         yield 'modified legacy test under src passes, only additions are flagged' => [
             'src/Core/Framework/Test/MyFeatureTest.php',
-            'modified',
+            File::STATUS_MODIFIED,
             "class MyFeatureTest extends TestCase\n{\n}",
             false,
         ];

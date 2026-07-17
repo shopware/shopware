@@ -6,7 +6,6 @@ use Danger\Context;
 use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ComposerVersionConstraints;
@@ -18,7 +17,6 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(ComposerVersionConstraints::class)]
-#[RequiresMethod(File::class, 'getContent')]
 class ComposerVersionConstraintsTest extends TestCase
 {
     #[TestDox('Enforces caret by default, tilde for symfony-like packages, exact pins for pipeline-critical tools')]
@@ -87,9 +85,9 @@ class ComposerVersionConstraintsTest extends TestCase
 
     public static function exemptFileProvider(): \Generator
     {
-        yield 'composer.json under tests/ is exempt' => ['tests/acceptance/composer.json', 'modified'];
-        yield 'composer.json in a Test fixture directory is exempt' => ['src/Core/Framework/Test/Plugin/_fixture/composer.json', 'modified'];
-        yield 'removed composer.json is exempt' => ['src/Core/composer.json', 'removed'];
+        yield 'composer.json under tests/ is exempt' => ['tests/acceptance/composer.json', File::STATUS_MODIFIED];
+        yield 'composer.json in a Test fixture directory is exempt' => ['src/Core/Framework/Test/Plugin/_fixture/composer.json', File::STATUS_MODIFIED];
+        yield 'removed composer.json is exempt' => ['src/Core/composer.json', File::STATUS_REMOVED];
     }
 
     #[TestDox('Bundle composer files are checked like the root file')]

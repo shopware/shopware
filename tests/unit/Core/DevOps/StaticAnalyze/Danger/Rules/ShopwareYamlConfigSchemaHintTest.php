@@ -3,10 +3,8 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Rules;
 
 use Danger\Context;
-use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ShopwareYamlConfigSchemaHint;
@@ -18,7 +16,6 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
  * @internal
  */
 #[CoversClass(ShopwareYamlConfigSchemaHint::class)]
-#[RequiresMethod(File::class, 'getContent')]
 class ShopwareYamlConfigSchemaHintTest extends TestCase
 {
     /**

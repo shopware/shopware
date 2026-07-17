@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
@@ -59,6 +60,8 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
@@ -102,7 +105,11 @@ return static function (ContainerConfigurator $container): void {
         ->args([service('cache.system')]);
 
     $services->set(McpSessionRegistry::class)
-        ->args([service('shopware.mcp.session_registry_cache')]);
+        ->args([
+            service('shopware.mcp.session_registry_cache'),
+            'shopware.mcp.active_session_ids',
+            service('lock.factory'),
+        ]);
 
     $services->set(McpListChangedNotifier::class)
         ->args([
@@ -170,21 +177,29 @@ return static function (ContainerConfigurator $container): void {
             env('APP_URL'),
         ]);
 
+    $services->set(McpHttpTransportFactory::class)
+        ->args([
+            service('mcp.psr_http_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.http_foundation_factory')->nullOnInvalid(),
+            service(McpAllowedHostsProvider::class),
+            service('logger'),
+        ])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
             service('mcp.server')->nullOnInvalid(),
-            service('mcp.psr_http_factory')->nullOnInvalid(),
-            service('mcp.http_foundation_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
+            service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
-            service(McpAllowedHostsProvider::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
             service(McpSessionRegistry::class),
+            service(McpListChangedNotifier::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -219,8 +234,14 @@ return static function (ContainerConfigurator $container): void {
     $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
         ->args([service('cache.system')]);
 
+    // Distinct cache key from the Admin registry so the two endpoints' active-session populations
+    // stay isolated even though both wrap the cache.system pool.
     $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
-        ->args([service('mcp.store_api.session_registry_cache')]);
+        ->args([
+            service('mcp.store_api.session_registry_cache'),
+            'shopware.mcp.store_api.active_session_ids',
+            service('lock.factory'),
+        ]);
 
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([
@@ -258,15 +279,12 @@ return static function (ContainerConfigurator $container): void {
         ->public()
         ->args([
             service('mcp.store_api.server')->nullOnInvalid(),
-            service('mcp.psr_http_factory')->nullOnInvalid(),
-            service('mcp.http_foundation_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
+            service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
-            service(McpAllowedHostsProvider::class),
             service('logger'),
             service('mcp.store_api.session_registry'),
+            service('mcp.store_api.list_changed_notifier'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -325,11 +343,24 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpToolsetSessionStorage::class)
         ->args([service(Connection::class), service(ClockInterface::class)]);
 
+    $services->set(McpToolsetSessionCleanupTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(McpToolsetSessionCleanupTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(McpToolsetSessionStorage::class),
+            service('mcp.session.store')->nullOnInvalid(),
+        ])
+        ->tag('messenger.message_handler');
+
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([
             service(ToolResultCacheStorage::class),
             service(McpToolsetSessionStorage::class),
             service(McpSessionRegistry::class),
+            service('mcp.store_api.session_registry'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -447,7 +478,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
-            service('mcp.store_api.list_changed_notifier'),
             service('request_stack'),
         ])
         ->tag('shopware.store_api_mcp.tool');
@@ -464,7 +494,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(McpToolsetRegistry::class),
             service(McpToolsetSessionStorage::class),
-            service(McpListChangedNotifier::class),
             service('request_stack'),
         ])
         ->tag('mcp.tool');

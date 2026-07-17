@@ -3,23 +3,18 @@
 namespace Shopware\Core\Framework\Mcp\Controller;
 
 use Mcp\Server;
-use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
-use Mcp\Server\Transport\StreamableHttpTransport;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
-use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,21 +39,18 @@ class StoreApiMcpServerController
     /**
      * @internal
      *
-     * The first five params are nullable because they are injected via
-     * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     * $server is nullable because it is injected via nullOnInvalid(): when the MCP bundle is absent
+     * it resolves to null (as do the HTTP factories the transport factory wraps). Once MCP_SERVER is
+     * stable (v6.8.0) remove the nullable type and the null guard in handle().
      */
     public function __construct(
         private readonly ?Server $server,
-        private readonly ?HttpMessageFactoryInterface $httpMessageFactory,
-        private readonly ?HttpFoundationFactoryInterface $httpFoundationFactory,
-        private readonly ?ResponseFactoryInterface $responseFactory,
-        private readonly ?StreamFactoryInterface $streamFactory,
+        private readonly McpHttpTransportFactory $transportFactory,
         private readonly McpRateLimiter $rateLimiter,
         private readonly McpSessionIdValidator $sessionIdValidator,
-        private readonly McpAllowedHostsProvider $allowedHostsProvider,
         private readonly ?LoggerInterface $logger = null,
         private readonly ?McpSessionRegistry $sessionRegistry = null,
+        private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
 
@@ -70,13 +62,7 @@ class StoreApiMcpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER')
-            || $this->server === null
-            || $this->httpMessageFactory === null
-            || $this->httpFoundationFactory === null
-            || $this->responseFactory === null
-            || $this->streamFactory === null
-        ) {
+        if (!Feature::isActive('MCP_SERVER') || $this->server === null || !$this->transportFactory->isAvailable()) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
@@ -88,19 +74,37 @@ class StoreApiMcpServerController
             'clientIp' => $request->getClientIp(),
         ]);
 
-        $transport = new StreamableHttpTransport(
-            $this->httpMessageFactory->createRequest($request),
-            $this->responseFactory,
-            $this->streamFactory,
-            logger: $this->logger,
-            middleware: $this->transportMiddleware(),
-        );
-
-        $psrResponse = $this->server->run($transport);
+        $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
         $this->registerSession($psrResponse);
-        $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
+        $this->flushPendingToolsListChanged($request);
 
-        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+        return $this->transportFactory->createResponse($psrResponse);
+    }
+
+    /**
+     * Emits a tools/listChanged for the current store-api session when a tool asked for it (e.g.
+     * shopware-toolset-enable). Runs after {@see Server::run()} has persisted the SDK session, so
+     * the queued notification is not overwritten and the client drains it on its next poll.
+     */
+    private function flushPendingToolsListChanged(Request $request): void
+    {
+        if ($this->listChangedNotifier === null) {
+            return;
+        }
+
+        if (!$request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE)) {
+            return;
+        }
+
+        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->listChangedNotifier->notifySession(
+            $sessionId,
+            new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
+        );
     }
 
     /**
@@ -119,25 +123,5 @@ class StoreApiMcpServerController
         }
 
         $this->sessionRegistry->register($sessionId);
-    }
-
-    /**
-     * The SDK's default {@see DnsRebindingProtectionMiddleware} only allows localhost, which
-     * rejects every request that reaches Shopware through its configured hostname. Keep the
-     * mitigation but seed it with the shop's own hosts (APP_URL + sales channel domains) so
-     * legitimate Store API clients pass while cross-origin rebinding attempts are still blocked.
-     *
-     * @return list<MiddlewareInterface>
-     */
-    private function transportMiddleware(): array
-    {
-        $allowedHosts = $this->allowedHostsProvider->getAllowedHosts();
-
-        return array_map(
-            static fn (MiddlewareInterface $middleware): MiddlewareInterface => $middleware instanceof DnsRebindingProtectionMiddleware
-                ? new DnsRebindingProtectionMiddleware($allowedHosts)
-                : $middleware,
-            StreamableHttpTransport::defaultMiddleware(),
-        );
     }
 }

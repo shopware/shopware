@@ -1,5 +1,11 @@
 # 6.7.13.0 (upcoming)
 
+## Critical Fixes
+
+### Store API requests no longer start PHP sessions
+
+Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
+
 ## Core
 
 ### MCP tools can be enabled per session through toolsets
@@ -12,7 +18,7 @@ Tool execution is still bounded by the configured MCP allowlist. Enabling a tool
 The experimental MCP server now queues `notifications/*/list_changed` messages for active MCP sessions when app MCP tools, resources, or prompts change through app install, update, activation, deactivation, or deletion. MCP clients that support list-change notifications can refresh their discovered capabilities after these app lifecycle changes.
 ### MCP tools can be discovered on demand
 
-The MCP server now advertises a bounded non-deferred tool surface and includes the `shopware-tool-search` meta-tool. MCP clients can call this tool with a free-text query to discover relevant tool definitions from the caller's allowlisted catalogue without loading every allowed tool into the initial `tools/list` response. Tools are deferred by default; tools that should be visible immediately opt out with `#[McpTool(..., meta: ['deferred' => false])]`.
+A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.
 
 The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
 ### MCP list responses apply allowlists before pagination
@@ -20,12 +26,31 @@ The per-integration MCP allowlist remains the call-time security boundary. `shop
 MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the current integration allowlist before protocol pagination is calculated. Clients using `nextCursor` receive full pages of allowed capabilities instead of pages that may be partially or completely empty because hidden capabilities were filtered after paging.
 ### MCP tools expose a group for operator-facing selection
 
-MCP tool metadata now includes a stable `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
 
 Tools without an explicit group derive one from their name prefix, so existing core, plugin, and app tools continue to work.
+### Per-thumbnail post-processing event and progressive JPEG thumbnails
+
+Thumbnail generation gained a new extension point and two output improvements:
+
+- A new event `Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent` is dispatched after each individual thumbnail is written to disk. Until now there was no hook for post-processing a single thumbnail — `MediaPathChangedEvent` only fires once for the whole batch — so plugins that want to optimise thumbnails (e.g. `jpegoptim`, `pngquant`) had nowhere to attach. The event exposes the `mediaId`, `thumbnailId`, thumbnail `path`, `mimeType` and the `FilesystemOperator` the thumbnail was written to, so a subscriber can read the file back, optimise it and write it again.
+- JPEG thumbnails are now written as progressive (interlaced) JPEGs. Progressive JPEGs show a full low-quality preview immediately and sharpen as they load, improving perceived load time (LCP) on slow connections; file size stays equal or slightly smaller. This is transparent — no action required.
+- Batch thumbnail generation is now resilient: a single unprocessable media (corrupt source, unsupported format, filesystem error or a throwing `ThumbnailGeneratedEvent` subscriber) is logged and skipped, and its partially written files are cleaned up, so the remaining media in the batch still get their thumbnails instead of the whole run aborting. The single-media path (`Shopware\Core\Content\Media\Thumbnail\ThumbnailService::updateThumbnails()`) still surfaces the exception to its caller. (shopware/shopware#18250)
+
+### Installed translations are refreshed automatically by a scheduled task
+
+A new `translation.update` scheduled task now keeps installed translations up to date without manual intervention. It runs once a day by default and does the same work as the `translation:update` console command / `POST /api/_action/translation/update` route: it fetches the latest remote metadata and re-downloads every installed locale whose translation changed. Shops without any installed translation are a no-op and make no remote request.
+
+Operators can change the interval like any other scheduled task (`scheduled_task.run_interval`) or disable it entirely with `bin/console scheduled-task:deactivate translation.update`.
+
+The translation update orchestration was extracted into the new internal service `Shopware\Core\System\Snippet\Service\TranslationUpdater`, which the Admin API route and the scheduled task share. The HTTP contract of `POST /api/_action/translation/update` is unchanged, except that it now short-circuits without a remote request when no translation is installed (the response is identical).
+
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
+### Standard integrations now honor `sw-app-user-id`
+
+Admin API requests authenticated with a standard integration access key now support the `sw-app-user-id` header the same way app integrations already do. When the header contains a valid user id, the resolved permissions are restricted to the intersection of the integration ACL privileges and the user's ACL privileges. Invalid or empty `sw-app-user-id` values continue to be ignored.
 
 ### Cache invalidated on cross-selling updates and deletions
 
@@ -317,6 +342,10 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 - While you still support the deprecated version, catch both classes, since they do not share a common parent.
 
 ## Storefront
+
+### Form validation messages use Storefront snippets
+
+Validation errors rendered by the Storefront `FormController` for contact, newsletter, and revocation forms are now translated from the violation code through Shopware's snippet system. This ensures that the active Storefront language is used instead of Symfony's validator translation catalogue. Plugin authors using custom constraints in these forms should provide matching `error.<violation-code>` entries in `Resources/snippet/storefront.<locale>.json`.
 
 ### Link categories get SEO URLs again and redirect to their target
 

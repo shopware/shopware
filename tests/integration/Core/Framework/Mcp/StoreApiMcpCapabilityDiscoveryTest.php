@@ -191,10 +191,42 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         $content = $browser->getResponse()->getContent();
         static::assertNotFalse($content, 'Store API MCP response was empty');
 
-        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($response);
-        static::assertArrayHasKey('result', $response, 'Store API MCP response missing result: ' . $content);
+        // A request issued right after a toolset-enable also drains the queued
+        // notifications/tools/list_changed. Per the MCP spec those multiple messages are delivered
+        // as a text/event-stream (one single-object event each), so parse either shape and return
+        // the result of the message that carries one.
+        foreach ($this->decodeMcpMessages($content) as $message) {
+            if (\array_key_exists('result', $message)) {
+                return $message['result'];
+            }
+        }
 
-        return $response['result'];
+        static::fail('Store API MCP response missing result: ' . $content);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function decodeMcpMessages(string $content): array
+    {
+        $trimmed = ltrim($content);
+
+        if ($trimmed !== '' && $trimmed[0] === '{') {
+            $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertIsArray($decoded);
+
+            return [$decoded];
+        }
+
+        $messages = [];
+        foreach (explode("\n", $content) as $line) {
+            if (str_starts_with($line, 'data:')) {
+                $decoded = json_decode(trim(substr($line, 5)), true, 512, \JSON_THROW_ON_ERROR);
+                static::assertIsArray($decoded);
+                $messages[] = $decoded;
+            }
+        }
+
+        return $messages;
     }
 }

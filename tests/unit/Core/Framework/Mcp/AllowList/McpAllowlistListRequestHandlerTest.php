@@ -129,6 +129,67 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertSame(['shopware-tool-search'], array_map(static fn (Tool $tool): string => $tool->name, $result->tools));
     }
 
+    public function testToolsListWithEmptyToolAllowlistStillAdvertisesDiscoveryMetaTools(): void
+    {
+        $registry = new Registry();
+        foreach (['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL, McpToolsetRegistry::ENABLE_TOOLSET_TOOL] as $toolName) {
+            $registry->registerTool($this->tool($toolName), static fn (): string => '');
+        }
+
+        // A deny-all (empty) allowlist must never strip the server-owned discovery meta-tools:
+        // the client still needs toolsets-list/toolset-enable to reach any allowed domain tool.
+        $handler = $this->createHandler(
+            $registry,
+            new McpAllowlist(tools: [], resources: [], prompts: []),
+            advertisedTools: ['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL, McpToolsetRegistry::ENABLE_TOOLSET_TOOL],
+        );
+
+        $firstResult = $this->handleToolsList($handler, null);
+
+        static::assertSame(
+            ['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL],
+            array_map(static fn (Tool $tool): string => $tool->name, $firstResult->tools),
+        );
+        static::assertSame(base64_encode('2'), $firstResult->nextCursor);
+
+        $secondResult = $this->handleToolsList($handler, $firstResult->nextCursor);
+
+        static::assertSame(
+            [McpToolsetRegistry::ENABLE_TOOLSET_TOOL],
+            array_map(static fn (Tool $tool): string => $tool->name, $secondResult->tools),
+        );
+        static::assertNull($secondResult->nextCursor);
+    }
+
+    public function testToolsListAdvertisesDiscoveryMetaToolsEvenWhenRestrictedAllowlistOmitsThem(): void
+    {
+        $registry = new Registry();
+        foreach (['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL, McpToolsetRegistry::ENABLE_TOOLSET_TOOL] as $toolName) {
+            $registry->registerTool($this->tool($toolName), static fn (): string => '');
+        }
+
+        // A restricted integration allowlist that only lists domain tools (and none of the
+        // discovery meta-tools) must still receive the full discovery interface.
+        $handler = $this->createHandler(
+            $registry,
+            new McpAllowlist(tools: ['shopware-entity-search'], resources: [], prompts: []),
+            advertisedTools: ['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL, McpToolsetRegistry::ENABLE_TOOLSET_TOOL],
+        );
+
+        $firstResult = $this->handleToolsList($handler, null);
+        $secondResult = $this->handleToolsList($handler, $firstResult->nextCursor);
+
+        $names = array_merge(
+            array_map(static fn (Tool $tool): string => $tool->name, $firstResult->tools),
+            array_map(static fn (Tool $tool): string => $tool->name, $secondResult->tools),
+        );
+
+        static::assertSame(
+            ['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL, McpToolsetRegistry::ENABLE_TOOLSET_TOOL],
+            $names,
+        );
+    }
+
     public function testToolsListIncludesEnabledSessionToolsetToolsBeforePagination(): void
     {
         $registry = new Registry();

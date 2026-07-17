@@ -56,7 +56,7 @@ class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
             'field' => $config->getField(),
             'term' => $token,
             'ranking' => $config->getRanking(),
-            'type' => 'exact',
+            'type' => $config->isPhrase() ? 'phrase' : 'exact',
             'weighted' => true,
         ]);
 

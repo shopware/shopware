@@ -388,7 +388,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SearchConfigLoader::class),
             service(AbstractTokenQueryBuilder::class),
             service(ElasticsearchTokenizer::class),
-            param('elasticsearch.search.dismax_tie_breaker'),
         ]);
 
     $services->set(AbstractFieldQueryBuilder::class, FieldQueryBuilder::class)

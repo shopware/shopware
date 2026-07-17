@@ -160,11 +160,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $integrationId = $this->getIntegrationIdByAccessKey($clientId);
 
             $userId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID, '');
-            if ($userId === '') {
+            if ($userId === '' || !Uuid::isValid((string) $userId)) {
                 $userId = null;
             }
 
-            if ($userId !== null && !$this->userAppIntegrationHeaderPrivileged($userId, $integrationId)) {
+            if ($userId !== null && $this->isAppIntegration($integrationId) && !$this->userAppIntegrationHeaderPrivileged($userId, $integrationId)) {
                 $userId = null;
             }
 
@@ -272,6 +272,29 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
             $source->setIsAdmin(false);
             $source->setPermissions($appPermissions);
+
+            return $source;
+        }
+
+        if ($userId !== null && $integrationId !== null) {
+            if ($this->isAdminIntegration($integrationId)) {
+                $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
+                $source->setIsAdmin($this->isAdmin($userId));
+
+                return $source;
+            }
+
+            $permissions = $this->fetchIntegrationPermissions($integrationId);
+
+            if (!$this->isAdmin($userId)) {
+                $permissions = array_intersect(
+                    $permissions,
+                    $this->fetchPermissions($userId)
+                );
+            }
+
+            $source->setIsAdmin(false);
+            $source->setPermissions($permissions);
 
             return $source;
         }
@@ -431,6 +454,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return $name;
+    }
+
+    private function isAppIntegration(string $integrationId): bool
+    {
+        return $this->fetchAppNameByIntegrationId($integrationId) !== null;
     }
 
     /**

@@ -36,7 +36,7 @@ import {
 import type { ProbeCacheFile } from './probe';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
-import { diffEslint, diffTypeScript, readBaseline } from './baseline';
+import { baselineFilePath, buildBaseline, diffEslint, diffTypeScript, readBaseline, writeBaselineFile } from './baseline';
 import type { BaselineSplit, EslintFinding, TypeScriptFinding } from './baseline';
 
 export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'blocked' | 'tooling-error';
@@ -78,12 +78,16 @@ export interface CheckExtensionsOptions {
     fix?: boolean;
     /** Names passed literally via --only — vendor extensions are only fixed when named here. */
     explicitOnly?: string[];
+    /** Record the current findings as the baseline instead of failing on them. */
+    updateBaseline?: boolean;
 }
 
 export interface CheckExtensionsResult {
     results: ExtensionCheckResult[];
     fatalDiagnostics: string[];
     warnings: string[];
+    /** Human lines describing baselines written under --update-baseline. */
+    baselineUpdates: string[];
     exitCode: number;
 }
 
@@ -646,15 +650,62 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         };
     });
     const results = await runPool(checkJobs, maxWorkers);
+    const baselineUpdates: string[] = [];
+
+    // Record the current findings as the baseline. Only meaningful once the
+    // full TypeScript surface ran, so it is skipped while the schema is missing.
+    if (options.updateBaseline && setupResult.manifest.entitySchemaAvailable) {
+        for (const result of results) {
+            if (!baselineFilePath(projectRoot, result.project)) {
+                continue;
+            }
+
+            if (result.typescript.status === 'tooling-error' || result.eslint.status === 'tooling-error') {
+                warnings.push(`${result.project.name}: baseline not updated — a tool run errored; fix that first.`);
+
+                continue;
+            }
+
+            const typescriptFindings = parseTypeScriptFindings(result.typescript.output);
+            const eslintFindings = parseEslintFindings(result.eslint.output);
+            const recorded =
+                typescriptFindings.length + eslintFindings.filter((finding) => finding.severity === 'error').length;
+            const pruned = (result.typescript.staleBaseline ?? 0) + (result.eslint.staleBaseline ?? 0);
+
+            // Nothing to record and nothing to prune — do not litter a clean plugin with an empty file.
+            if (recorded === 0 && readBaseline(projectRoot, result.project) === null) {
+                continue;
+            }
+
+            const write = writeBaselineFile(
+                projectRoot,
+                result.project,
+                buildBaseline(typescriptFindings, eslintFindings, result.project.basePath),
+            );
+
+            if (write?.state === 'conflict') {
+                fatalDiagnostics.push(
+                    `${relativePosix(projectRoot, write.file)} is user-owned and not managed by this tool — ` +
+                        'remove it (or restore the marker) and re-run --update-baseline.',
+                );
+            } else if (write) {
+                baselineUpdates.push(
+                    `${relativePosix(projectRoot, write.file)} — ${recorded} recorded` +
+                        `${pruned > 0 ? `, ${pruned} pruned` : ''}`,
+                );
+            }
+        }
+    }
 
     let exitCode = fatalDiagnostics.length > 0 ? 1 : 0;
 
     for (const result of results) {
+        // Under --update-baseline the current findings are being accepted, so
+        // they are not failures; a broken toolchain still is.
         const hasFailure =
-            result.typescript.status === 'failed' ||
-            result.eslint.status === 'failed' ||
             result.typescript.status === 'tooling-error' ||
-            result.eslint.status === 'tooling-error';
+            result.eslint.status === 'tooling-error' ||
+            (!options.updateBaseline && (result.typescript.status === 'failed' || result.eslint.status === 'failed'));
 
         if (hasFailure && (!result.project.vendor || options.strictVendor)) {
             exitCode = 1;
@@ -665,6 +716,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         results,
         fatalDiagnostics,
         warnings,
+        baselineUpdates,
         exitCode,
     };
 }
@@ -684,6 +736,10 @@ const CHECK_COMMAND: CommandSpec = {
         {
             name: '--fix',
             description: 'Apply ESLint autofixes (vendor extensions only when named via --only).',
+        },
+        {
+            name: '--update-baseline',
+            description: 'Record the current findings as the per-plugin baseline; the check then fails only on new ones.',
         },
         { name: '--show-commands', description: 'Print the underlying vue-tsc/ESLint invocation per extension.' },
         { name: '--verbose', description: 'Also print tool output for passing and skipped extensions.' },
@@ -739,6 +795,14 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         return 2;
     }
 
+    if (parsed.flags.has('--update-baseline') && parsed.flags.has('--fix')) {
+        console.error(
+            `--update-baseline and --fix are mutually exclusive — fix first, then record the baseline.\n\n${renderHelp(CHECK_COMMAND)}`,
+        );
+
+        return 2;
+    }
+
     const pluginsConfigPath = parsed.values['--plugins-config'];
     const only = parsed.values['--only'];
     let selection: string[] | undefined;
@@ -782,6 +846,7 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         maxWorkers,
         fix: parsed.flags.has('--fix'),
         explicitOnly: only !== undefined ? normalizeSelection(only) : [],
+        updateBaseline: parsed.flags.has('--update-baseline'),
     });
 
     console.log(

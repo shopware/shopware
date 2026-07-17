@@ -382,6 +382,14 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
         lines.push(colors.yellow(`\nWarning: ${warning}`));
     }
 
+    if (result.baselineUpdates.length > 0) {
+        lines.push('', colors.bold('  Baseline updated'));
+
+        for (const update of result.baselineUpdates) {
+            lines.push(colors.dim(`    ${update}`));
+        }
+    }
+
     lines.push(...renderSummary(result.results));
 
     const withFindings = result.results.filter(hasFindings).length;

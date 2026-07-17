@@ -2,9 +2,19 @@
  * @sw-package framework
  */
 
+import fs from 'fs';
 import path from 'path';
-import { BASELINE_FILE_NAME, diffEslint, diffTypeScript, readBaseline } from './baseline';
+import {
+    BASELINE_FILE_NAME,
+    buildBaseline,
+    diffEslint,
+    diffTypeScript,
+    readBaseline,
+    serializeBaseline,
+    writeBaselineFile,
+} from './baseline';
 import type { EslintFinding, TypeScriptFinding } from './baseline';
+import { GENERATED_MARKER, isGeneratedContent } from './shared';
 import { cleanupTempProject, createTempProject, writeFile } from './test-helpers';
 
 const customProject = { basePath: 'custom/plugins/MyPlugin', vendor: false };
@@ -165,6 +175,83 @@ describe('scripts/extensionTooling/baseline', () => {
             expect(split.parseMismatch).toBe(true);
             expect(split.newFindings).toHaveLength(1);
             expect(split.baselinedCount).toBe(0);
+        });
+    });
+
+    describe('buildBaseline', () => {
+        it('aggregates duplicates into counts, stores plugin-relative paths, and drops warnings', () => {
+            const baseline = buildBaseline(
+                [
+                    tsFinding(),
+                    tsFinding(),
+                ],
+                [
+                    eslintFinding(),
+                    eslintFinding({ severity: 'warning' }),
+                ],
+                customProject.basePath,
+            );
+
+            expect(baseline).toEqual({
+                version: 1,
+                typescript: [{ file: 'src/main.ts', code: 'TS2322', message: 'Type mismatch.', count: 2 }],
+                eslint: [{ file: 'src/main.ts', rule: 'no-console', message: 'Unexpected console statement', count: 1 }],
+            });
+        });
+
+        it('sorts entries canonically so committed baselines do not churn', () => {
+            const baseline = buildBaseline(
+                [
+                    tsFinding({ file: 'custom/plugins/MyPlugin/src/z.ts' }),
+                    tsFinding({ file: 'custom/plugins/MyPlugin/src/a.ts' }),
+                ],
+                [],
+                customProject.basePath,
+            );
+
+            expect(baseline.typescript.map((entry) => entry.file)).toEqual([
+                'src/a.ts',
+                'src/z.ts',
+            ]);
+        });
+    });
+
+    describe('serializeBaseline', () => {
+        it('keeps the ownership marker within the first three lines so the file reads as tool-owned', () => {
+            const serialized = serializeBaseline(buildBaseline([tsFinding()], [], customProject.basePath));
+
+            expect(serialized.split(/\r?\n/, 3).join('\n')).toContain(GENERATED_MARKER);
+            expect(isGeneratedContent(serialized)).toBe(true);
+            // The marker rides in a "//" field, so it stays valid JSON.
+            expect((JSON.parse(serialized) as { version: number }).version).toBe(1);
+        });
+    });
+
+    describe('writeBaselineFile', () => {
+        it('records a readable baseline and refuses none-custom-plugins projects', () => {
+            const built = buildBaseline([tsFinding()], [eslintFinding()], customProject.basePath);
+
+            expect(writeBaselineFile(projectRoot, { basePath: 'vendor/acme/x', vendor: true }, built)).toBeNull();
+
+            const write = writeBaselineFile(projectRoot, customProject, built);
+
+            expect(write?.state).toBe('created');
+            expect(readBaseline(projectRoot, customProject)).toEqual(built);
+        });
+
+        it('never overwrites a human-authored baseline', () => {
+            const file = path.join(projectRoot, customProject.basePath, BASELINE_FILE_NAME);
+
+            writeFile(file, '{ "version": 1, "typescript": [], "eslint": [] }');
+
+            const write = writeBaselineFile(
+                projectRoot,
+                customProject,
+                buildBaseline([tsFinding()], [], customProject.basePath),
+            );
+
+            expect(write?.state).toBe('conflict');
+            expect(fs.readFileSync(file, 'utf8')).toBe('{ "version": 1, "typescript": [], "eslint": [] }');
         });
     });
 });

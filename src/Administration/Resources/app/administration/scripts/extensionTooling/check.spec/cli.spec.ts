@@ -40,6 +40,21 @@ describe('scripts/extensionTooling/check runCheckCli', () => {
         errorSpy.mockRestore();
     });
 
+    it('rejects --update-baseline together with --fix as a usage error', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        const exitCode = await runCheckCli([
+            '--update-baseline',
+            '--fix',
+            `--project-root=${projectRoot}`,
+            `--administration-root=${administrationRoot}`,
+        ]);
+
+        expect(exitCode).toBe(2);
+        expect(errorSpy.mock.calls.join('\n')).toContain('mutually exclusive');
+        errorSpy.mockRestore();
+    });
+
     it('rejects a non-numeric --max-workers with exit 2', async () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 

@@ -54,7 +54,10 @@ export function report(
     overrides: Partial<CheckExtensionsResult> = {},
     verbose = false,
 ): string {
-    return renderCheckReport({ results, fatalDiagnostics: [], warnings: [], exitCode: 0, ...overrides }, { verbose });
+    return renderCheckReport(
+        { results, fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0, ...overrides },
+        { verbose },
+    );
 }
 
 export function setupResult(

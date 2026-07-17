@@ -54,6 +54,15 @@ describe('renderCheckReport findings baseline', () => {
         expect(output).toContain('--update-baseline');
     });
 
+    it('lists the baselines written under --update-baseline', () => {
+        const output = report([extension(project('MyPlugin'))], {
+            baselineUpdates: ['custom/plugins/MyPlugin/.shopware-admin-baseline.json — 43 recorded, 2 pruned'],
+        });
+
+        expect(output).toContain('Baseline updated');
+        expect(output).toContain('custom/plugins/MyPlugin/.shopware-admin-baseline.json — 43 recorded, 2 pruned');
+    });
+
     it('keeps the plain finding wording when no baseline is in play', () => {
         const output = report(
             [

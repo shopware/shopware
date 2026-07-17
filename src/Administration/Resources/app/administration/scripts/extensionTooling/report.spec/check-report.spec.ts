@@ -152,12 +152,12 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
             commands: { typescript: 'cd /srv && node vue-tsc.js', eslint: 'cd /srv && node eslint.js' },
         });
 
-        expect(renderCheckReport({ results: [result], fatalDiagnostics: [], warnings: [], exitCode: 0 })).not.toContain(
-            '$ cd /srv',
-        );
+        expect(
+            renderCheckReport({ results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 }),
+        ).not.toContain('$ cd /srv');
         expect(
             renderCheckReport(
-                { results: [result], fatalDiagnostics: [], warnings: [], exitCode: 0 },
+                { results: [result], fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0 },
                 { showCommands: true },
             ),
         ).toContain('$ cd /srv && node vue-tsc.js');

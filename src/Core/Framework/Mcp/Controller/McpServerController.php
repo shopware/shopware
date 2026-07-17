@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
@@ -49,6 +52,17 @@ class McpServerController
     private const TOOL_SEARCH = 'shopware-tool-search';
 
     /**
+     * Server-owned discovery meta-tools. A tools/call for one of these is never rejected by the
+     * per-integration allowlist, so a restricted integration can always reach the guaranteed
+     * discovery path (toolsets-list -> toolset-enable -> listChanged).
+     */
+    private const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH,
+        McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+        McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+    ];
+
+    /**
      * @internal
      *
      * The five PhpMcp bundle params below are nullable because they are injected via
@@ -68,6 +82,7 @@ class McpServerController
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
         private readonly ?McpSessionRegistry $sessionRegistry = null,
+        private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
 
@@ -122,14 +137,101 @@ class McpServerController
 
         $psrResponse = $this->server->run($transport);
         $this->registerSession($psrResponse);
+        $this->flushPendingToolsListChanged($request);
 
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
 
-        $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
+        return $this->createHttpResponse($psrResponse);
+    }
 
-        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    /**
+     * Converts the SDK's PSR response into a spec-compliant Symfony response.
+     *
+     * The MCP Streamable HTTP transport requires an application/json body to be a single JSON-RPC
+     * object (JSON-RPC batching was removed in 2025-06-18). When the SDK drains more than one queued
+     * outgoing message (e.g. a tools/list_changed notification alongside the response) it bundles
+     * them as a top-level JSON array over application/json, which conformant clients cannot parse.
+     * Re-emit such a batch as a text/event-stream where each JSON-RPC message is its own
+     * single-object SSE event, which is where server-initiated notifications belong.
+     *
+     * This guards against mcp/sdk v0.6.0 (symfony/mcp-bundle v0.10.0) still emitting batch arrays.
+     * Once the SDK stops bundling multiple messages over application/json, this becomes a no-op and
+     * can be removed.
+     */
+    private function createHttpResponse(PsrResponseInterface $psrResponse): Response
+    {
+        $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
+
+        if (str_starts_with($contentType, 'text/event-stream')) {
+            \assert($this->httpFoundationFactory !== null);
+
+            return $this->httpFoundationFactory->createResponse($psrResponse, true);
+        }
+
+        if (str_starts_with($contentType, 'application/json')) {
+            $decoded = json_decode((string) $psrResponse->getBody(), true);
+
+            if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
+                return $this->eventStreamResponse($decoded, $psrResponse);
+            }
+        }
+
+        \assert($this->httpFoundationFactory !== null);
+
+        return $this->httpFoundationFactory->createResponse($psrResponse, false);
+    }
+
+    /**
+     * @param list<mixed> $messages
+     */
+    private function eventStreamResponse(array $messages, PsrResponseInterface $psrResponse): Response
+    {
+        $body = '';
+        foreach ($messages as $message) {
+            $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
+        }
+
+        $response = new Response($body, $psrResponse->getStatusCode(), [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId !== '') {
+            $response->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Emits a tools/listChanged for the current session when a tool asked for it (e.g.
+     * shopware-toolset-enable). This runs after {@see Server::run()} has persisted the SDK's
+     * in-memory session, so the queued notification survives instead of being overwritten by the
+     * SDK's own session save; the client drains it on its next poll.
+     */
+    private function flushPendingToolsListChanged(Request $request): void
+    {
+        if ($this->listChangedNotifier === null) {
+            return;
+        }
+
+        if (!$request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE)) {
+            return;
+        }
+
+        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->listChangedNotifier->notifySession(
+            $sessionId,
+            new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
+        );
     }
 
     private function registerSession(PsrResponseInterface $psrResponse): void
@@ -178,7 +280,7 @@ class McpServerController
 
         if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
-            if ($toolName === self::TOOL_SEARCH) {
+            if (\in_array($toolName, self::DISCOVERY_META_TOOLS, true)) {
                 return null;
             }
 

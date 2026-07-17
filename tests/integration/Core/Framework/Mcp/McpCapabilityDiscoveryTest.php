@@ -133,6 +133,95 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertNotContains('shopware-order-state', $tools);
     }
 
+    public function testEnablingToolsetDeliversToolsListChangedNotification(): void
+    {
+        Feature::skipTestIfInActive('MCP_SERVER', $this);
+
+        $browser = $this->getBrowser();
+
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'initialize',
+                'params' => [
+                    'protocolVersion' => '2025-03-26',
+                    'capabilities' => new \stdClass(),
+                    'clientInfo' => ['name' => 'mcp-discovery-test', 'version' => '1.0'],
+                ],
+                'id' => 1,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
+        static::assertIsString($sessionId, 'initialize did not return an MCP session id');
+
+        $toolsetRegistry = static::getContainer()->get(McpToolsetRegistry::class);
+        static::assertInstanceOf(McpToolsetRegistry::class, $toolsetRegistry);
+        $toolsets = $toolsetRegistry->toolsets();
+        static::assertNotEmpty($toolsets, 'expected at least one enable-able toolset');
+        $toolsetName = $toolsets[0]['name'];
+
+        // Enable a toolset via the actual tool call. The notification is not part of this response;
+        // it is queued after the SDK saves its session and drained on the client's next request.
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_MCP_SESSION_ID' => $sessionId],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'tools/call',
+                'params' => ['name' => 'shopware-toolset-enable', 'arguments' => ['toolset' => $toolsetName]],
+                'id' => 2,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $enableResponse = $browser->getResponse();
+        static::assertSame(200, $enableResponse->getStatusCode());
+        // The toolset-enable response itself is a single JSON-RPC object over application/json.
+        static::assertStringStartsWith('application/json', (string) $enableResponse->headers->get('Content-Type'));
+        static::assertNotContains(
+            'notifications/tools/list_changed',
+            $this->jsonRpcMethods((string) $enableResponse->getContent()),
+            'the listChanged must be queued for the next request, not returned inside the toolset-enable response',
+        );
+
+        // The next request drains the queued notification alongside its own response. Per the MCP
+        // spec these multiple messages must be delivered as an SSE stream (one single-object event
+        // each), never as a JSON-RPC batch array over application/json.
+        $browser->request(
+            'POST',
+            '/api/_mcp',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json, text/event-stream', 'HTTP_MCP_SESSION_ID' => $sessionId],
+            json_encode([
+                'jsonrpc' => '2.0',
+                'method' => 'tools/list',
+                'params' => new \stdClass(),
+                'id' => 3,
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $drainResponse = $browser->getResponse();
+        static::assertStringStartsWith(
+            'text/event-stream',
+            (string) $drainResponse->headers->get('Content-Type'),
+            'multiple MCP messages must be delivered as SSE, not a JSON array over application/json',
+        );
+        static::assertContains(
+            'notifications/tools/list_changed',
+            $this->jsonRpcMethods((string) $drainResponse->getContent()),
+            'client never received tools/list_changed after enabling a toolset',
+        );
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -254,5 +343,39 @@ class McpCapabilityDiscoveryTest extends TestCase
         foreach ($toolsetRegistry->toolsets() as $toolset) {
             $toolsetSessionStorage->enable($sessionId, $toolset['name']);
         }
+    }
+
+    /**
+     * Extracts the JSON-RPC "method" of every message in an MCP response body, which is either a
+     * single JSON object over application/json or one single-object SSE event per message over
+     * text/event-stream.
+     *
+     * @return list<string>
+     */
+    private function jsonRpcMethods(string $content): array
+    {
+        $trimmed = ltrim($content);
+
+        if ($trimmed !== '' && ($trimmed[0] === '{' || $trimmed[0] === '[')) {
+            $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertIsArray($decoded);
+            $messages = \array_key_exists('jsonrpc', $decoded) ? [$decoded] : $decoded;
+        } else {
+            $messages = [];
+            foreach (explode("\n", $content) as $line) {
+                if (str_starts_with($line, 'data:')) {
+                    $messages[] = json_decode(trim(substr($line, 5)), true, 512, \JSON_THROW_ON_ERROR);
+                }
+            }
+        }
+
+        $methods = [];
+        foreach ($messages as $message) {
+            if (\is_array($message) && \is_string($message['method'] ?? null)) {
+                $methods[] = $message['method'];
+            }
+        }
+
+        return $methods;
     }
 }

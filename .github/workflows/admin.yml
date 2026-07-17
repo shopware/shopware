@@ -11,7 +11,22 @@ env:
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:
+  markdown-only-changes:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
   lint:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Setup Shopware
@@ -22,7 +37,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
@@ -43,6 +58,9 @@ jobs:
         run: npm run format
 
   admin:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     name: "Jest Admin (unit)"
     env:
@@ -85,6 +103,9 @@ jobs:
           disable_search: true
 
   license-check:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     name: "License check"
     env:
@@ -97,7 +118,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: install packages
-        uses: ./.github/actions/npm-ci-retry
+        uses: shopware/github-actions/npm-ci-retry@main
         with:
           working-directory: src/Storefront/Resources/app/storefront
       - name: Check license
@@ -111,6 +132,7 @@ jobs:
   admin-check:
     if: always()
     needs:
+    - markdown-only-changes
     - lint
     - admin
     - license-check
@@ -121,5 +143,5 @@ jobs:
       uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
       with:
         # allowed-failures: docs, linters
-        # allowed-skips: non-voting-flaky-job
+        allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
         jobs: ${{ toJSON(needs) }}

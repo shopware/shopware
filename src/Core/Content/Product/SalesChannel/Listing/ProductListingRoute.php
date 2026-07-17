@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -37,7 +38,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -101,19 +102,20 @@ class ProductListingRoute extends AbstractProductListingRoute
 
     private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, PartialEntity $category): void
     {
-        $hasProductStream = $category->get('productAssignmentType') === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM
-            && $category->get('productStreamId') !== null;
+        $productAssignmentType = $category->get('productAssignmentType');
+        $productStreamId = $category->get('productStreamId');
 
-        if ($hasProductStream) {
+        if ($productAssignmentType === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && \is_string($productStreamId) && $productStreamId !== '') {
             $this->cacheTagCollector->addTag(
-                EntityCacheKeyGenerator::buildStreamTag($category->get('productStreamId'))
+                EntityCacheKeyGenerator::buildStreamTag($productStreamId)
             );
 
-            $filters = $this->productStreamBuilder->buildFilters(
-                $category->get('productStreamId'),
-                $salesChannelContext->getContext()
-            );
-            $criteria->addFilter(...$filters);
+            $productStreamBuilder = $this->productStreamBuilder;
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+            }
 
             return;
         }

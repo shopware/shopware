@@ -44,13 +44,25 @@ class DocumentV2Exception extends HttpException
 
     public const TEMPLATE_RENDER_FAILED = 'DOCUMENT_V2__TEMPLATE_RENDER_FAILED';
 
-    public const LEGACY_CONFIG_MISSING_REQUIRED_FIELDS = 'DOCUMENT_V2__LEGACY_CONFIG_MISSING_REQUIRED_FIELDS';
+    public const CONFIG_MISSING_REQUIRED_FIELDS = 'DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS';
 
     public const TEMPLATE_CONTEXT_READ_ONLY = 'DOCUMENT_V2__TEMPLATE_CONTEXT_READ_ONLY';
+
+    public const TEMPLATE_CONTEXT_PROPERTY_COLLISION = 'DOCUMENT_V2__TEMPLATE_CONTEXT_PROPERTY_COLLISION';
 
     public const UNSUPPORTED_CONFIG_CAST_TYPE = 'DOCUMENT_V2__UNSUPPORTED_CONFIG_CAST_TYPE';
 
     public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
+
+    public const MALFORMED_XML = 'DOCUMENT_V2__MALFORMED_XML';
+
+    public const INVALID_ORDER_DATA = 'DOCUMENT_V2__INVALID_ORDER_DATA';
+
+    public const INVALID_RENDER_VALUE = 'DOCUMENT_V2__INVALID_RENDER_VALUE';
+
+    public const INVALID_DOCUMENT_TYPE = 'DOCUMENT_V2__INVALID_DOCUMENT_TYPE';
+
+    public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -117,6 +129,16 @@ class DocumentV2Exception extends HttpException
             self::RENDERER_NOT_FOUND,
             'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
             ['format' => $format, 'documentType' => $documentType],
+        );
+    }
+
+    public static function invalidDocumentType(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_DOCUMENT_TYPE,
+            'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
+            ['documentType' => $documentType],
         );
     }
 
@@ -205,12 +227,12 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function legacyConfigMissingRequiredFields(string $target, string $documentType, string $field): self
+    public static function configMissingRequiredFields(string $target, string $documentType, string $field): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::LEGACY_CONFIG_MISSING_REQUIRED_FIELDS,
-            'Legacy document configuration for document type "{{ documentType }}" is missing required field "{{ field }}" for "{{ target }}".',
+            self::CONFIG_MISSING_REQUIRED_FIELDS,
+            'Document configuration for document type "{{ documentType }}" is missing required field "{{ field }}" for "{{ target }}".',
             ['documentType' => $documentType, 'target' => $target, 'field' => $field],
         );
     }
@@ -222,6 +244,16 @@ class DocumentV2Exception extends HttpException
             self::TEMPLATE_CONTEXT_READ_ONLY,
             'TemplateContext is read-only; cannot mutate offset "{{ offset }}".',
             ['offset' => $offset],
+        );
+    }
+
+    public static function templateContextPropertyCollision(string $property): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TEMPLATE_CONTEXT_PROPERTY_COLLISION,
+            'Type-specific render data cannot override the shared property "{{ property }}".',
+            ['property' => $property],
         );
     }
 
@@ -242,6 +274,54 @@ class DocumentV2Exception extends HttpException
             self::MISSING_DOCUMENT_NUMBER,
             'Document number is missing for document type "{{ documentType }}".',
             ['documentType' => $documentType],
+        );
+    }
+
+    /**
+     * @param array<string, list<string>> $errors
+     */
+    public static function malformedXml(int $count, array $errors): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MALFORMED_XML,
+            'Generated XML is malformed with {{ count }} violation(s): {{ errors }}.',
+            [
+                'count' => $count,
+                'errors' => json_encode($errors),
+            ],
+        );
+    }
+
+    public static function invalidOrderData(string $orderId, string $field, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ORDER_DATA,
+            'Order "{{ orderId }}" has invalid data for field "{{ field }}": {{ reason }}.',
+            ['orderId' => $orderId, 'field' => $field, 'reason' => $reason],
+        );
+    }
+
+    public static function invalidRenderValue(string $field, string $value, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_RENDER_VALUE,
+            'Invalid render value for field "{{ field }}": {{ value }} ({{ reason }}).',
+            ['field' => $field, 'value' => $value, 'reason' => $previous->getMessage()],
+            $previous,
+        );
+    }
+
+    public static function embedFailed(\Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EMBED_FAILED,
+            'Failed to embed the XML into the PDF: {{ reason }}.',
+            ['reason' => $previous->getMessage()],
+            $previous,
         );
     }
 }

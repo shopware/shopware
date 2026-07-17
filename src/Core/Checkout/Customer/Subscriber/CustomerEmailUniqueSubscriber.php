@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -25,7 +24,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  *
  * @codeCoverageIgnore Tested via integration tests.
  *
- * @see CustomerEmailUniqueSubscriberTest
+ * @see \Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriberTest
  */
 #[Package('checkout')]
 class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
@@ -82,7 +81,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         foreach ($conflictingChecks as $check) {
             \assert($check->customerId !== null);
 
-            $this->addViolation($violations, $check->customerId, $check->email);
+            $this->addViolation($violations, $customerCommands[$check->customerId]->getPath(), $check->email);
         }
 
         $event->getExceptions()->add(new WriteConstraintViolationException($violations));
@@ -205,7 +204,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
         return $states;
     }
 
-    private function addViolation(ConstraintViolationList $violations, string $customerId, string $email): void
+    private function addViolation(ConstraintViolationList $violations, string $path, string $email): void
     {
         $message = 'The email address {{ email }} is already in use.';
 
@@ -214,7 +213,7 @@ class CustomerEmailUniqueSubscriber implements EventSubscriberInterface
             $message,
             ['{{ email }}' => $email],
             null,
-            '/' . $customerId . '/email',
+            $path . '/email',
             $email,
             null,
             CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE,

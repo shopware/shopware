@@ -117,7 +117,7 @@ class WebhookHealthServiceTest extends TestCase
     {
         $webhookId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
         $relatedWebhooks->expects($this->once())

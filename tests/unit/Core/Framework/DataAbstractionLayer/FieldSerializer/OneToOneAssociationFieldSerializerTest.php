@@ -40,15 +40,15 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
                 TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
                 CustomerRecoveryDefinition::class => new CustomerRecoveryDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $customerDefinition->getField('recoveryCustomer');
 
         static::assertInstanceOf(OneToOneAssociationField::class, $field);
 
-        $serializer = new OneToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new OneToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $customerDefinition,
@@ -73,15 +73,15 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
                 TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
                 CustomerRecoveryDefinition::class => new CustomerRecoveryDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $customerDefinition->getField('recoveryCustomer');
 
         static::assertInstanceOf(OneToOneAssociationField::class, $field);
 
-        $serializer = new OneToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new OneToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $customerDefinition,
@@ -92,7 +92,7 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 
         $serializer->encode(
             $field,
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             new KeyValuePair('recoveryCustomer', 'foobar', false),
             $params,
         )->next();

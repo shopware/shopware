@@ -31,6 +31,8 @@ class ServiceException extends HttpException
 
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
 
+    public const SERVICE_STATE_CHANGE_NOT_PERMITTED = 'SERVICE__STATE_CHANGE_NOT_PERMITTED';
+
     public const COULD_NOT_FETCH_PERMISSIONS_REVISIONS = 'SERVICE__COULD_NOT_FETCH_PERMISSIONS_REVISIONS';
 
     public const INVALID_PERMISSIONS_REVISION_FORMAT = 'SERVICE__INVALID_PERMISSIONS_REVISION_FORMAT';
@@ -92,7 +94,7 @@ class ServiceException extends HttpException
 
         $message = 'Error performing request. Response code: ' . $response->getStatusCode();
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $message .= '. Errors: ' . json_encode($errors, \JSON_THROW_ON_ERROR);
         }
 
@@ -110,6 +112,16 @@ class ServiceException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_TOGGLE_ACTION_NOT_ALLOWED,
             'Service is not allowed to toggle itself.',
+        );
+    }
+
+    public static function stateChangeNotPermitted(string $serviceName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_STATE_CHANGE_NOT_PERMITTED,
+            'The state of service "{{ serviceName }}" is managed by its requirements and cannot be changed manually.',
+            ['serviceName' => $serviceName]
         );
     }
 

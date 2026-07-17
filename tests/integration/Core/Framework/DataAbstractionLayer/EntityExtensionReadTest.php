@@ -377,6 +377,7 @@ class EntityExtensionReadTest extends TestCase
                 'productNumber' => 'SW10001.1',
                 'parentId' => $productId,
                 'stock' => 1,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
             ],
         ], $context);
 

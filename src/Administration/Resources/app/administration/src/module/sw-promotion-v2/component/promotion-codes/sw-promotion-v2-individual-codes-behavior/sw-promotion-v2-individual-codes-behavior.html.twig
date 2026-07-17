@@ -20,7 +20,6 @@
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_add_codes %}
                     <mt-button
                         class="sw-promotion-v2-individual-codes-behavior__add-codes-action"
-                        ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
                         variant="secondary"
@@ -33,7 +32,6 @@
                     {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_generate_codes %}
                     <mt-button
                         class="sw-promotion-v2-individual-codes-behavior__generate-codes-action"
-                        ghost
                         size="small"
                         :disabled="!acl.can('promotion.editor')"
                         variant="secondary"
@@ -138,7 +136,7 @@
                         :disabled="!acl.can('promotion.editor')"
                         @click="onShowCodeDeleteModal(item.id)"
                     >
-                        {{ $t('sw-property.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -213,7 +211,6 @@
             <template #actions>
                 <mt-button
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-action"
-                    ghost
                     :disabled="!acl.can('promotion.editor')"
                     variant="secondary"
                     @click="onOpenGenerateCodesModal"

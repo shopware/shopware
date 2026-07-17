@@ -32,7 +32,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 275, 'operator' => CartAmountRule::OPERATOR_EQ]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -44,7 +44,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 0, 'operator' => CartAmountRule::OPERATOR_EQ]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -56,7 +56,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 275, 'operator' => CartAmountRule::OPERATOR_LTE]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -68,7 +68,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 300, 'operator' => CartAmountRule::OPERATOR_LTE]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -80,7 +80,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 274, 'operator' => CartAmountRule::OPERATOR_LTE]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -92,7 +92,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 275, 'operator' => CartAmountRule::OPERATOR_GTE]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -104,7 +104,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 100, 'operator' => CartAmountRule::OPERATOR_GTE]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -116,7 +116,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 276, 'operator' => CartAmountRule::OPERATOR_GTE]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -128,7 +128,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 0, 'operator' => CartAmountRule::OPERATOR_NEQ]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -140,7 +140,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 275, 'operator' => CartAmountRule::OPERATOR_NEQ]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -155,7 +155,7 @@ class CartAmountRuleTest extends TestCase
         $rule = (new CartAmountRule())->assign(['amount' => 100, 'operator' => $operator]);
 
         $cart = Generator::createCart();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -175,7 +175,7 @@ class CartAmountRuleTest extends TestCase
 
     public function testMatchShouldReturnFalseScopeIsNotCartRuleScope(): void
     {
-        $ruleScope = new CheckoutRuleScope($this->createMock(SalesChannelContext::class));
+        $ruleScope = new CheckoutRuleScope(static::createStub(SalesChannelContext::class));
         $cartAmountRule = new CartAmountRule();
 
         static::assertFalse($cartAmountRule->match($ruleScope));

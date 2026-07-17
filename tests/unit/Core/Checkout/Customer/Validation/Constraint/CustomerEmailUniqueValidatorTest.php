@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation\Constraint;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator;
@@ -26,31 +26,39 @@ use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 #[CoversClass(CustomerEmailUniqueValidator::class)]
 class CustomerEmailUniqueValidatorTest extends ConstraintValidatorTestCase
 {
-    private CustomerEmailUniqueChecker&MockObject $customerEmailUniqueChecker;
+    private CustomerEmailUniqueChecker&Stub $customerEmailUniqueChecker;
 
     protected function setUp(): void
     {
-        $this->customerEmailUniqueChecker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $this->customerEmailUniqueChecker = static::createStub(CustomerEmailUniqueChecker::class);
 
         parent::setUp();
     }
 
     public function testItIgnoresNullValue(): void
     {
-        $this->customerEmailUniqueChecker->expects($this->never())
+        $checker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $checker->expects($this->never())
             ->method('isUnique');
 
-        $this->validator->validate(null, $this->createConstraint());
+        $validator = new CustomerEmailUniqueValidator($checker);
+        $validator->initialize($this->context);
+
+        $validator->validate(null, $this->createConstraint());
 
         $this->assertNoViolation();
     }
 
     public function testItIgnoresEmptyString(): void
     {
-        $this->customerEmailUniqueChecker->expects($this->never())
+        $checker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $checker->expects($this->never())
             ->method('isUnique');
 
-        $this->validator->validate('', $this->createConstraint());
+        $validator = new CustomerEmailUniqueValidator($checker);
+        $validator->initialize($this->context);
+
+        $validator->validate('', $this->createConstraint());
 
         $this->assertNoViolation();
     }
@@ -60,7 +68,8 @@ class CustomerEmailUniqueValidatorTest extends ConstraintValidatorTestCase
         $email = 'customer@example.com';
         $salesChannelId = Uuid::randomHex();
 
-        $this->customerEmailUniqueChecker->expects($this->once())
+        $checker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $checker->expects($this->once())
             ->method('isUnique')
             ->with(static::callback(static function (CustomerEmailUniqueCheck $check) use ($email, $salesChannelId): bool {
                 static::assertSame($email, $check->email);
@@ -72,7 +81,10 @@ class CustomerEmailUniqueValidatorTest extends ConstraintValidatorTestCase
             }))
             ->willReturn(true);
 
-        $this->validator->validate($email, $this->createConstraint($salesChannelId));
+        $validator = new CustomerEmailUniqueValidator($checker);
+        $validator->initialize($this->context);
+
+        $validator->validate($email, $this->createConstraint($salesChannelId));
 
         $this->assertNoViolation();
     }
@@ -82,13 +94,17 @@ class CustomerEmailUniqueValidatorTest extends ConstraintValidatorTestCase
         $email = 'customer@example.com';
         $this->setValue($email);
 
-        $this->customerEmailUniqueChecker->expects($this->once())
+        $checker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $checker->expects($this->once())
             ->method('isUnique')
             ->willReturn(false);
 
+        $validator = new CustomerEmailUniqueValidator($checker);
+        $validator->initialize($this->context);
+
         $constraint = $this->createConstraint();
 
-        $this->validator->validate($email, $constraint);
+        $validator->validate($email, $constraint);
 
         $this->buildViolation($constraint->getMessage())
             ->setParameter('{{ email }}', '"' . $email . '"')
@@ -118,7 +134,7 @@ class CustomerEmailUniqueValidatorTest extends ConstraintValidatorTestCase
 
     private function createConstraint(?string $salesChannelId = null): CustomerEmailUnique
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')
             ->willReturn($salesChannelId ?? Uuid::randomHex());
 

@@ -10,11 +10,11 @@
     },
     "generalTab": {
       "labelSearchBehaviour": "Suchverhalten",
-      "textTitleSearchBehaviour": "Lege ein Suchverhalten für Deine Verkaufskanäle fest.",
-      "labelSearchAndCondition": "“UND”-Suche",
-      "textSearchAndConditionExplain": "Suchergebnisse beinhalten jeden einzelnen eingegebenen Suchbegriff.\nBeispiel: \"Jeans Sommer\" findet Suchergebnisse, die beide Suchbegriffe \"Jeans\" und \"Sommer\" enthalten.",
-      "labelSearchOrCondition": "“ODER”-Suche",
-      "textSearchOrConditionExplain": "Suchergebnisse beinhalten einen der eingegebenen Suchbegriffe.\nBeispiel: \"Jeans Sommer\" findet Suchergebnisse, die entweder den Suchbegriff \"Jeans\" oder den Suchbegriff \"Sommer\" enthalten.",
+      "textTitleSearchBehaviour": "Wähle aus, wie streng eingegebene Suchbegriffe übereinstimmen müssen.",
+      "labelSearchAndCondition": "Exakte Suche (UND)",
+      "textSearchAndConditionExplain": "Zeigt nur Ergebnisse, die mit allen eingegebenen Suchbegriffen übereinstimmen.",
+      "labelSearchOrCondition": "Breite Suche (ODER)",
+      "textSearchOrConditionExplain": "Zeigt Ergebnisse, die mit einem beliebigen der eingegebenen Suchbegriffe übereinstimmen.",
       "labelMinimalSearchTerm": "Minimale Suchbegrifflänge",
       "labelExcludedSearchTerms": "Ausgeschlossene Suchbegriffe",
       "textEmptyStateExcludedSearchTerms": "Bisher keine Suchbegriffe ausgeschlossen",
@@ -62,8 +62,7 @@
         "columnRankingPoints": "Rangpunktzahl",
         "columnContent": "Inhalt",
         "columnSplitKeywords": "Suchbegriffe trennen",
-        "textResetRanking": "Rangpunktzahl zurücksetzen",
-        "textRemove": "Entfernen"
+        "textResetRanking": "Rangpunktzahl zurücksetzen"
       },
       "configFields": {
         "name": "Produktname",

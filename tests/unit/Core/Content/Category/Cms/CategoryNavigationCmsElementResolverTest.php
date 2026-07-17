@@ -29,7 +29,7 @@ class CategoryNavigationCmsElementResolverTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannel = $salesChannelContext->getSalesChannel();
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $categoryId1 = $salesChannel->getNavigationCategoryId();
         $categoryId2 = Uuid::randomHex();
         $category1 = (new CategoryEntity())->assign(['id' => $categoryId1]);

@@ -60,7 +60,7 @@ class StoreLoginCommand extends Command
         $context = Context::createCLIContext();
 
         $host = $input->getOption('host');
-        if (!empty($host)) {
+        if ($host !== null && $host !== '') {
             $this->configService->set('core.store.licenseHost', $host, null, false);
         }
 

@@ -25,7 +25,7 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->with('core.test.key', null)->willReturn('old-value');
         $configService->expects($this->never())->method('set');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
@@ -44,7 +44,7 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->with('core.test.key', null)->willReturn('old-value');
         $configService->expects($this->once())->method('set')->with('core.test.key', 'new-value', null);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
@@ -61,7 +61,7 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->willReturn(false);
         $configService->expects($this->once())->method('set')->with('core.bool.key', true, null);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
@@ -77,7 +77,7 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->willReturn(null);
         $configService->expects($this->once())->method('set')->with('core.text.key', 'plain text value', null);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
@@ -94,7 +94,7 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->expects($this->never())->method('set');
         $configService->expects($this->never())->method('get');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigWriteTool($configService, $contextProvider);
@@ -133,7 +133,7 @@ class SystemConfigWriteToolTest extends TestCase
         $configService->method('get')->with('core.test.key', 'sc-1')->willReturn('old');
         $configService->expects($this->once())->method('set')->with('core.test.key', 'new', 'sc-1');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new SystemConfigWriteTool($configService, $contextProvider);

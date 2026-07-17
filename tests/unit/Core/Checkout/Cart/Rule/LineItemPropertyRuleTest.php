@@ -28,7 +28,7 @@ class LineItemPropertyRuleTest extends TestCase
     {
         $cart = $this->createCart(new LineItemCollection($case->lineItems));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
@@ -39,7 +39,7 @@ class LineItemPropertyRuleTest extends TestCase
         $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }

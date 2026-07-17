@@ -237,7 +237,7 @@ describe('scripts/extensionTooling/setup', () => {
         writeFile(path.join(projectRoot, 'tsconfig.json'), `// ${GENERATED_MARKER}\n{"files":[],"references":[]}\n`);
 
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
-        const rootWrite = result.writes.find((write) => write.file === path.join(projectRoot, 'tsconfig.json'));
+        const rootWrite = result.writes.find((write) => write.file === 'tsconfig.json');
 
         expect(rootWrite?.state).toBe('updated');
         expect(fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8')).toContain('admin-extension-tooling');

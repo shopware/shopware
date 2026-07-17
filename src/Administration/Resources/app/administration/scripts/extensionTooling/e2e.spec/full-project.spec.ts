@@ -48,13 +48,10 @@ describe('scripts/extensionTooling e2e', () => {
 
         // Test files are excluded from the type-check program by default —
         // this jest-flavored spec with a type error must never fail the check.
-        writeFile(
-            path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/src/broken.spec.ts'),
-            [
-                "describe('uses jest globals unknown to the admin runtime', () => {});",
-                "export const brokenSpecValue: number = 'broken';",
-            ],
-        );
+        writeFile(path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/src/broken.spec.ts'), [
+            "describe('uses jest globals unknown to the admin runtime', () => {});",
+            "export const brokenSpecValue: number = 'broken';",
+        ]);
 
         // Committed-config plugin: files extend the generated shim.
         const shimAdminFolder = path.join(projectRoot, 'custom/plugins/ShimConfig/src/Resources/app/administration');

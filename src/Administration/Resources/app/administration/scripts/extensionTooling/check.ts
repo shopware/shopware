@@ -20,7 +20,7 @@ import path from 'path';
 import { discoverProjects, setupExtensionTooling } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { relativePosix } from './shared';
+import { canonicalizePath, relativePosix } from './shared';
 import type { ExtensionToolingProject, ModeResolution } from './shared';
 import {
     PROCESS_TIMEOUT_MS,
@@ -244,6 +244,24 @@ function formatCommand(cwd: string, args: string[]): string {
     return `cd ${quote(cwd)} && ${quote(process.execPath)} ${args.map(quote).join(' ')}`;
 }
 
+/**
+ * ESLint prints absolute paths (vue-tsc already prints project-relative ones
+ * because of its cwd). Strip the project root — including its canonicalized
+ * form, macOS resolves /var to /private/var — so both tools read the same.
+ */
+export function relativizeToolOutput(output: string, projectRoot: string): string {
+    let relativized = output;
+
+    for (const root of new Set([
+        projectRoot,
+        canonicalizePath(projectRoot),
+    ])) {
+        relativized = relativized.split(`${root}${path.sep}`).join('');
+    }
+
+    return relativized;
+}
+
 /** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
 export function normalizeSelection(only: string | string[] | undefined): string[] {
     if (!only) {
@@ -384,7 +402,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         } else if (tsResolution.mode === 'unmanaged') {
             typescript = {
                 status: 'unmanaged',
-                output: tsResolution.probeOutput ?? '',
+                output: relativizeToolOutput(tsResolution.probeOutput ?? '', projectRoot),
                 durationMs: 0,
                 findings: 0,
             };
@@ -433,7 +451,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
         if (eslintResolution.mode === 'unmanaged') {
             eslint = {
                 status: 'unmanaged',
-                output: eslintResolution.probeOutput ?? '',
+                output: relativizeToolOutput(eslintResolution.probeOutput ?? '', projectRoot),
                 durationMs: 0,
                 findings: 0,
             };
@@ -462,26 +480,27 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 commands.eslint = formatCommand(projectRoot, eslintArguments);
 
                 const run = await runCommand(process.execPath, eslintArguments, projectRoot);
-                const findings = countEslintFindings(run.output);
+                const output = relativizeToolOutput(run.output, projectRoot);
+                const findings = countEslintFindings(output);
 
                 if (run.timedOut) {
                     eslint = {
                         status: 'tooling-error',
-                        output: `ESLint timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${run.output}`,
+                        output: `ESLint timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${output}`,
                         durationMs: run.durationMs,
                         findings,
                     };
                 } else if (run.status !== 0 && findings === 0) {
                     eslint = {
                         status: 'tooling-error',
-                        output: run.output || `ESLint exited with status ${run.status} and no output.`,
+                        output: output || `ESLint exited with status ${run.status} and no output.`,
                         durationMs: run.durationMs,
                         findings: 0,
                     };
                 } else {
                     eslint = {
                         status: run.status === 0 ? 'passed' : 'failed',
-                        output: applyFix ? run.output : appendFixHint(run.output, project.name),
+                        output: applyFix ? output : appendFixHint(output, project.name),
                         durationMs: run.durationMs,
                         findings,
                     };

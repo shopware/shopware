@@ -12,6 +12,7 @@ import {
     countEslintFindings,
     countTypeCheckableFiles,
     countTypeScriptFindings,
+    relativizeToolOutput,
     runCheckCli,
     runPool,
 } from './check';
@@ -116,6 +117,20 @@ describe('scripts/extensionTooling/check', () => {
         });
 
         expect(explicit.warnings.join('\n')).not.toContain('not yours to rewrite');
+    });
+
+    it('strips the project root from tool output, including its canonicalized form', () => {
+        const canonicalRoot = fs.realpathSync(projectRoot);
+        const output = [
+            `${projectRoot}/custom/plugins/X/src/main.ts  1:1  error  nope`,
+            `${canonicalRoot}/custom/plugins/X/src/other.ts  2:2  error  nope`,
+        ].join('\n');
+
+        const relativized = relativizeToolOutput(output, projectRoot);
+
+        expect(relativized).toContain('custom/plugins/X/src/main.ts');
+        expect(relativized).toContain('custom/plugins/X/src/other.ts');
+        expect(relativized).not.toContain(canonicalRoot);
     });
 
     it('counts findings from native tool output without altering it', () => {

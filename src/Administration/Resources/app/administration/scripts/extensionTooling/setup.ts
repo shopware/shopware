@@ -107,7 +107,11 @@ interface GeneratorContext {
 }
 
 function record(context: GeneratorContext, result: WriteResult): ManagedFileState {
-    context.writes.push(result);
+    // Reported project-root-relative so every consumer renders portable paths.
+    context.writes.push({
+        ...result,
+        file: path.isAbsolute(result.file) ? relativePosix(context.projectRoot, result.file) : result.file,
+    });
 
     return result.state;
 }
@@ -326,7 +330,7 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
     if (fs.existsSync(projectsDir)) {
         for (const existingFile of fs.readdirSync(projectsDir)) {
             if (existingFile.endsWith('.json') && !usedFileNames.has(existingFile)) {
-                context.staleFiles.push(path.join(projectsDir, existingFile));
+                context.staleFiles.push(relativePosix(context.projectRoot, path.join(projectsDir, existingFile)));
 
                 if (!context.dryRun) {
                     fs.rmSync(path.join(projectsDir, existingFile));
@@ -483,7 +487,7 @@ function createIdeBootstraps(context: GeneratorContext, adminRelative: string): 
     for (const bootstrap of bootstraps) {
         if (fs.existsSync(bootstrap.file) && !isGeneratedContent(fs.readFileSync(bootstrap.file, 'utf8'))) {
             states[bootstrap.key] = 'skipped';
-            context.writes.push({ file: bootstrap.file, state: 'skipped' });
+            record(context, { file: bootstrap.file, state: 'skipped' });
             context.instructions.push(
                 [
                     `${bootstrap.file} is user-owned and was not touched. For IDE support add:`,

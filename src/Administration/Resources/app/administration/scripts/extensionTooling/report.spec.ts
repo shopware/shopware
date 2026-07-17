@@ -161,7 +161,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         const output = report([extension(project('Mine'))], { exitCode: 0 });
 
         expect(output).toContain('✔');
-        expect(output).toContain('1 checked · 0 with findings · 0 skipped · exit 0');
+        expect(output).toContain('1 checked · 0 with findings · 0 extensions skipped · exit 0');
     });
 
     it('renders a red verdict and counts findings and skips', () => {
@@ -177,7 +177,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         );
 
         expect(output).toContain('✖');
-        expect(output).toContain('2 checked · 1 with findings · 1 skipped · exit 1');
+        expect(output).toContain('2 checked (2 tools skipped) · 1 with findings · 1 extension skipped · exit 1');
     });
 
     it('surfaces warnings and fatal diagnostics, cause before the extensions', () => {
@@ -466,5 +466,43 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         });
 
         expect(renderSetupReport(stale, { checkOnly: true })).toContain('would create: tsconfig.json');
+    });
+
+    it('lists changed files by path and defers large batches to --explain', () => {
+        const few = setupResult([managed], {
+            changed: true,
+            writes: [
+                { file: 'var/admin-extension-tooling/projects/mine.json', state: 'created' },
+                { file: 'tsconfig.json', state: 'updated' },
+            ],
+            staleFiles: ['var/admin-extension-tooling/projects/gone.json'],
+        });
+        const fewOutput = renderSetupReport(few);
+
+        expect(fewOutput).toContain('generated: var/admin-extension-tooling/projects/mine.json');
+        expect(fewOutput).toContain('updated: tsconfig.json');
+        expect(fewOutput).toContain('removed: var/admin-extension-tooling/projects/gone.json');
+
+        const many = setupResult([managed], {
+            changed: true,
+            writes: Array.from({ length: 12 }, (unused, index) => ({
+                file: `var/admin-extension-tooling/projects/p${index}.json`,
+                state: 'created' as const,
+            })),
+        });
+        const manyOutput = renderSetupReport(many);
+
+        expect(manyOutput).toContain('12 generated, 0 updated (list: --explain)');
+        expect(manyOutput).not.toContain('generated: var/admin-extension-tooling/projects/p3.json');
+        expect(renderSetupReport(many, { explain: true })).toContain(
+            'created: var/admin-extension-tooling/projects/p3.json',
+        );
+    });
+
+    it('drops the self-referential --explain hint inside --explain output', () => {
+        const result = setupResult([managed]);
+
+        expect(renderSetupReport(result)).toContain('IDE setup: run with --explain');
+        expect(renderSetupReport(result, { explain: true })).not.toContain('run with --explain');
     });
 });

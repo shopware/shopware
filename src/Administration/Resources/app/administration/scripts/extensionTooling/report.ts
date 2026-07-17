@@ -342,17 +342,29 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
     lines.push(...renderSummary(result.results));
 
     const withFindings = result.results.filter(hasFindings).length;
-    const skipped = result.results.filter(
+    // Two different "skipped" notions, named apart: whole extensions where
+    // both tools skipped vs. individual tool runs that did not happen.
+    const extensionsSkipped = result.results.filter(
         (extension) => extension.typescript.status === 'unmanaged' && extension.eslint.status === 'unmanaged',
     ).length;
+    const toolsSkipped = result.results.reduce(
+        (sum, extension) =>
+            sum +
+            [
+                extension.typescript.status,
+                extension.eslint.status,
+            ].filter((status) => status === 'unmanaged' || status === 'blocked').length,
+        0,
+    );
     const paint = result.exitCode === 0 ? colors.green : colors.red;
     const glyph = result.exitCode === 0 ? '✔' : '✖';
+    const toolsSkippedNote = toolsSkipped > 0 ? ` (${toolsSkipped} tool${toolsSkipped === 1 ? '' : 's'} skipped)` : '';
 
     lines.push(
         '',
         paint(
-            `${glyph} ${result.results.length} checked · ${withFindings} with findings · ${skipped} skipped · ` +
-                `exit ${result.exitCode}`,
+            `${glyph} ${result.results.length} checked${toolsSkippedNote} · ${withFindings} with findings · ` +
+                `${extensionsSkipped} extension${extensionsSkipped === 1 ? '' : 's'} skipped · exit ${result.exitCode}`,
         ),
     );
 
@@ -371,20 +383,41 @@ interface SetupRenderOptions {
     showFlagHint?: boolean;
 }
 
-function fileChangeLine(result: SetupExtensionToolingResult): string {
-    const created = result.writes.filter((write) => write.state === 'created').length;
-    const updated = result.writes.filter((write) => write.state === 'updated').length;
-    const removed = result.staleFiles.length;
+/**
+ * "3 generated, 1 updated" answers nothing — up to 8 changes are listed by
+ * path so "what did this do to my repo" is answerable from the output; larger
+ * batches keep the count and defer the list to --explain.
+ */
+function describeFileChanges(result: SetupExtensionToolingResult): string[] {
+    const changes = [
+        ...result.writes
+            .filter((write) => write.state === 'created')
+            .map((write) => ({ verb: 'generated', file: write.file })),
+        ...result.writes
+            .filter((write) => write.state === 'updated')
+            .map((write) => ({ verb: 'updated', file: write.file })),
+        ...result.staleFiles.map((file) => ({ verb: 'removed', file })),
+    ];
 
-    if (created === 0 && updated === 0 && removed === 0) {
-        return 'Configs up to date';
+    if (changes.length === 0) {
+        return ['Configs up to date'];
     }
 
-    return [
-        `${created} generated`,
-        `${updated} updated`,
-        ...(removed > 0 ? [`${removed} removed`] : []),
-    ].join(', ');
+    if (changes.length > 8) {
+        const created = result.writes.filter((write) => write.state === 'created').length;
+        const updated = result.writes.filter((write) => write.state === 'updated').length;
+        const removed = result.staleFiles.length;
+
+        return [
+            [
+                `${created} generated`,
+                `${updated} updated`,
+                ...(removed > 0 ? [`${removed} removed`] : []),
+            ].join(', ') + ' (list: --explain)',
+        ];
+    }
+
+    return changes.map(({ verb, file }) => `${verb}: ${file}`);
 }
 
 export function renderSetupReport(result: SetupExtensionToolingResult, options: SetupRenderOptions = {}): string {
@@ -513,7 +546,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         );
     }
 
-    lines.push('', `  ${colors.dim(fileChangeLine(result))}`);
+    lines.push('', ...describeFileChanges(result).map((line) => `  ${colors.dim(line)}`));
 
     if (result.manifest.rootConfigs.tsconfig === 'conflict') {
         lines.push(colors.yellow('  ⚠ root tsconfig.json is user-owned — run with --explain to integrate'));
@@ -558,7 +591,9 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         }
     }
 
-    lines.push('', colors.dim('  IDE setup: run with --explain for VS Code / Zed / PhpStorm config'));
+    if (!options.explain) {
+        lines.push('', colors.dim('  IDE setup: run with --explain for VS Code / Zed / PhpStorm config'));
+    }
 
     if (options.showFlagHint) {
         lines.push(
@@ -594,6 +629,10 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
             '    Own path aliases: declare them in tsconfig.aliases.json next to the plugin config,',
             '    e.g. { "MyPlugin/*": ["src/*"] } — the generated .shopware-admin/ bridge merges them',
             '    with the preset paths (tsconfig "paths" cannot be extended additively).',
+            '',
+            '    Managed files:',
+            ...result.writes.map((write) => `      ${write.state}: ${write.file}`),
+            ...result.staleFiles.map((file) => `      removed: ${file}`),
         );
 
         for (const instruction of result.instructions) {

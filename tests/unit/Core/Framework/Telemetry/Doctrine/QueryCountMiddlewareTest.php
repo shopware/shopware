@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountConnection;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountDriver;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
@@ -18,9 +17,6 @@ use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountStatement;
  * @internal
  */
 #[CoversClass(QueryCountMiddleware::class)]
-#[CoversClass(QueryCountDriver::class)]
-#[CoversClass(QueryCountConnection::class)]
-#[CoversClass(QueryCountStatement::class)]
 class QueryCountMiddlewareTest extends TestCase
 {
     public function testWrapReturnsADriverExposingTheSharedCounter(): void

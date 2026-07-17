@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Page;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use Mcp\Server;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -129,7 +129,7 @@ class McpToolListControllerTest extends TestCase
     {
         $toolsPage = new Page([self::makeTool('shopware-entity-search', 'Search')], null);
         $resourcesPage = new Page([
-            new Resource('shopware://entities', 'entities', 'All entities', null, null, null),
+            new ResourceDefinition('shopware://entities', 'entities', null, 'All entities', null, null, null),
         ], null);
         $promptsPage = new Page([
             new Prompt('shopware-context', null, 'Context prompt', []),

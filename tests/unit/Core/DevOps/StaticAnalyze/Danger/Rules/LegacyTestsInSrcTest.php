@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Rules;
 
 use Danger\Context;
-use Danger\Struct\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -40,25 +39,25 @@ class LegacyTestsInSrcTest extends TestCase
     {
         yield 'new TestCase under src fails' => [
             'src/Core/Framework/Test/MyFeatureTest.php',
-            File::STATUS_ADDED,
+            'added',
             "class MyFeatureTest extends TestCase\n{\n}",
             true,
         ];
         yield 'new unit test under tests/unit passes' => [
             'tests/unit/Core/Framework/MyFeatureTest.php',
-            File::STATUS_ADDED,
+            'added',
             "class MyFeatureTest extends TestCase\n{\n}",
             false,
         ];
         yield 'Test-suffixed helper under src that is no TestCase passes' => [
             'src/Core/Framework/Test/IdsCollectionTest.php',
-            File::STATUS_ADDED,
+            'added',
             "class IdsCollectionTest\n{\n}",
             false,
         ];
         yield 'modified legacy test under src passes, only additions are flagged' => [
             'src/Core/Framework/Test/MyFeatureTest.php',
-            File::STATUS_MODIFIED,
+            'modified',
             "class MyFeatureTest extends TestCase\n{\n}",
             false,
         ];

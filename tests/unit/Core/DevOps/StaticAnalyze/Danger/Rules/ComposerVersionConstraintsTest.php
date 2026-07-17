@@ -85,9 +85,9 @@ class ComposerVersionConstraintsTest extends TestCase
 
     public static function exemptFileProvider(): \Generator
     {
-        yield 'composer.json under tests/ is exempt' => ['tests/acceptance/composer.json', File::STATUS_MODIFIED];
-        yield 'composer.json in a Test fixture directory is exempt' => ['src/Core/Framework/Test/Plugin/_fixture/composer.json', File::STATUS_MODIFIED];
-        yield 'removed composer.json is exempt' => ['src/Core/composer.json', File::STATUS_REMOVED];
+        yield 'composer.json under tests/ is exempt' => ['tests/acceptance/composer.json', 'modified'];
+        yield 'composer.json in a Test fixture directory is exempt' => ['src/Core/Framework/Test/Plugin/_fixture/composer.json', 'modified'];
+        yield 'removed composer.json is exempt' => ['src/Core/composer.json', 'removed'];
     }
 
     #[TestDox('Bundle composer files are checked like the root file')]

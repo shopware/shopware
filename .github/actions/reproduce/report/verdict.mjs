@@ -15,8 +15,14 @@ const MATRIX = {
   'reproduced/not_reproduced': 'fixed_on_trunk',
   'not_reproduced/reproduced': 'regression',
   'not_reproduced/not_reproduced': 'not_reproducible',
+  // A missing reported leg + trunk reproduced is still a live bug: trunk went red and the comment
+  // surfaces that failing test for a human to inspect.
   'null/reproduced': 'live_bug',
-  'null/not_reproduced': 'not_reproducible',
+  // 'null/not_reproduced' is intentionally omitted. The agent only ever tunes the bundle against the
+  // reported version (repro try) and never sees trunk, so a red reported leg is the ONLY evidence the
+  // test actually bites. With the reported leg missing, a green trunk run can't distinguish
+  // "fixed/absent" from a no-op test that passes everywhere — so it must not yield the confident
+  // not_reproducible closure signal. It falls through to needs_human_review via the `|| ...` below.
 };
 
 /**

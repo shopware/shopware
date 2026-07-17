@@ -136,6 +136,18 @@ class DocumentRendererRegistryTest extends TestCase
         );
     }
 
+    public function testGetFileExtensionSupportsCustomFormats(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer('custom_format', [DocumentType::INVOICE->value], fileExtension: 'custom'),
+        ]);
+
+        static::assertSame(DocumentFormat::PDF->fileExtension(), $registry->getFileExtension(DocumentFormat::PDF->value));
+        static::assertSame('custom', $registry->getFileExtension('custom_format'));
+        static::assertNull($registry->getFileExtension('unknown_format'));
+    }
+
     private static function createRegistry(): DocumentRendererRegistry
     {
         return new DocumentRendererRegistry([

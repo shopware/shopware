@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -21,6 +22,7 @@ final class DocumentArchiveGenerator
     public function __construct(
         private readonly MediaService $mediaService,
         private readonly Filesystem $filesystem,
+        private readonly DocumentRendererRegistry $documentRendererRegistry,
     ) {
     }
 
@@ -84,11 +86,15 @@ final class DocumentArchiveGenerator
 
     private function createEntryName(DocumentFileEntity $documentFile, MediaEntity $media, string $documentId): string
     {
-        $format = $documentFile->getDocumentFormat();
-        $fileExtension = $media->getFileExtension() ?? $format;
+        $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($documentFile->getDocumentFormat());
+
+        if ($fileExtension === null) {
+            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $documentFile->getDocumentFormat());
+        }
+
         $fileName = $media->getFileName() ?? $documentId;
 
-        return \sprintf('%s-%s.%s', $fileName, $format, $fileExtension);
+        return \sprintf('%s.%s', $fileName, $fileExtension);
     }
 
     private function createArchiveName(DocumentEntity $document): string

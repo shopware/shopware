@@ -39,6 +39,11 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
         return self::FORMAT->value;
     }
 
+    public function getFileExtension(): string
+    {
+        return self::FORMAT->fileExtension();
+    }
+
     public function getDocumentTypes(): array
     {
         return [
@@ -67,7 +72,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             ],
         );
 
-        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber);
+        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber, self::FORMAT->value);
 
         return new RenderResult(
             self::FORMAT->value,

@@ -98,10 +98,7 @@ describe('documentV2Service', () => {
             documentDate: '2021-02-22T04:34:56.441Z',
             documentComment: '',
         });
-        expect(listener).toHaveBeenCalledWith({
-            action: DocumentEvents.DOCUMENT_FINISHED,
-            payload: undefined,
-        });
+        expect(listener).not.toHaveBeenCalled();
     });
 
     it('uploads a document from an existing media file', async () => {
@@ -142,7 +139,7 @@ describe('documentV2Service', () => {
 
     it('uploads a document from a binary file body', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
-        const file = new File(['test document'], 'invoice.pdf', {
+        const file = new File(['test document'], 'invoice.final.pdf', {
             type: 'application/pdf',
         });
 
@@ -179,7 +176,7 @@ describe('documentV2Service', () => {
             mediaId: null,
             referencedDocumentId: 'referenced-document-id',
             extension: 'pdf',
-            fileName: 'invoice',
+            fileName: 'invoice.final',
         });
     });
 
@@ -213,6 +210,41 @@ describe('documentV2Service', () => {
             documentNumber: '1000',
             documentDate: '2021-02-22T04:34:56.441Z',
             documentComment: '',
+        });
+    });
+
+    it('emits a document failed event when previewing fails', async () => {
+        const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
+        const listener = jest.fn();
+
+        documentV2ApiService.setListener(listener);
+
+        clientMock.onPost('/_action/order/document-v2/preview').reply(400, {
+            errors: [
+                {
+                    code: 'DOCUMENT__UNSUPPORTED_DOCUMENT_FORMAT',
+                    detail: 'Unsupported document format.',
+                },
+            ],
+        });
+
+        const response = await documentV2ApiService.previewDocument(
+            '4a4a687257644d52bf481b4c20e59213',
+            '4d03324edcd0490b9180df8161c9167f',
+            'invoice',
+            'html',
+            '1000',
+            '2021-02-22T04:34:56.441Z',
+            '',
+        );
+
+        expect(response).toBeUndefined();
+        expect(listener).toHaveBeenCalledWith({
+            action: DocumentEvents.DOCUMENT_FAILED,
+            payload: {
+                code: 'DOCUMENT__UNSUPPORTED_DOCUMENT_FORMAT',
+                detail: 'Unsupported document format.',
+            },
         });
     });
 

@@ -17,14 +17,21 @@ final readonly class DocumentRendererRegistry
     private array $renderersByDocumentType;
 
     /**
+     * @var array<string, string>
+     */
+    private array $fileExtensionsByFormat;
+
+    /**
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(iterable $documentRenderers)
     {
         $renderersByDocumentType = [];
+        $fileExtensionsByFormat = [];
 
         foreach ($documentRenderers as $renderer) {
             $format = $renderer->getFormat();
+            $fileExtensionsByFormat[$format] = $renderer->getFileExtension();
 
             foreach ($renderer->getDocumentTypes() as $documentType) {
                 if (isset($renderersByDocumentType[$documentType][$format])) {
@@ -36,6 +43,7 @@ final readonly class DocumentRendererRegistry
         }
 
         $this->renderersByDocumentType = $renderersByDocumentType;
+        $this->fileExtensionsByFormat = $fileExtensionsByFormat;
     }
 
     /**
@@ -75,5 +83,10 @@ final readonly class DocumentRendererRegistry
         return array_map(function ($renderers) {
             return array_keys($renderers);
         }, $this->renderersByDocumentType);
+    }
+
+    public function getFileExtension(string $format): ?string
+    {
+        return $this->fileExtensionsByFormat[$format] ?? null;
     }
 }

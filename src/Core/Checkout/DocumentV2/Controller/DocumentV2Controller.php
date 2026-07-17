@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Util\PathHelper;
@@ -59,6 +60,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly EntityRepository $documentFileRepository,
         private readonly EntityRepository $documentTypeRepository,
         private readonly MediaService $mediaService,
+        private readonly FileNameProvider $fileNameProvider,
     ) {
     }
 
@@ -150,9 +152,18 @@ final class DocumentV2Controller extends AbstractController
             $mediaId = $context->scope(
                 Context::SYSTEM_SCOPE,
                 function (Context $scopedContext) use ($request, $payload): string {
-                    return $this->mediaService->saveMediaFile(
-                        $this->mediaService->fetchFile($request),
+                    $mediaFile = $this->mediaService->fetchFile($request);
+
+                    $fileName = $this->fileNameProvider->provide(
                         $this->resolveUploadedFileName($payload),
+                        $mediaFile->getFileExtension(),
+                        null,
+                        $scopedContext,
+                    );
+
+                    return $this->mediaService->saveMediaFile(
+                        $mediaFile,
+                        $fileName,
                         $scopedContext,
                         DocumentPersister::MEDIA_FOLDER,
                     );
@@ -217,12 +228,17 @@ final class DocumentV2Controller extends AbstractController
             throw DocumentV2Exception::documentFormatUnavailable($documentId, $format);
         }
 
+        $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($format);
+
+        if ($fileExtension === null) {
+            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format);
+        }
+
         $content = $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),
         );
 
-        $fileExtension = $media->getFileExtension() ?? $format;
         $fileName = ($media->getFileName() ?? $documentId) . '.' . $fileExtension;
 
         return $this->createResponse(

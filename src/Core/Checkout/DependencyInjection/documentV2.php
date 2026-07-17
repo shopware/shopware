@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscribe
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
 use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -140,6 +141,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(MediaService::class),
             service(Filesystem::class),
+            service(DocumentRendererRegistry::class),
         ]);
 
     $services->set(DocumentPersister::class)
@@ -179,6 +181,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_file.repository'),
             service('document_type.repository'),
             service(MediaService::class),
+            service(FileNameProvider::class),
         ])
         ->call('setContainer', [
             service('service_container'),

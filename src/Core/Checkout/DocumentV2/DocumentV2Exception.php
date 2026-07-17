@@ -68,6 +68,8 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_FORMAT_UNAVAILABLE = 'DOCUMENT_V2__FORMAT_UNAVAILABLE';
 
+    public const DOCUMENT_FILE_EXTENSION_UNAVAILABLE = 'DOCUMENT_V2__FILE_EXTENSION_UNAVAILABLE';
+
     public const DOCUMENT_ARCHIVE_UNAVAILABLE = 'DOCUMENT_V2__ARCHIVE_UNAVAILABLE';
 
     public const DOCUMENT_ARCHIVE_FAILED = 'DOCUMENT_V2__ARCHIVE_FAILED';
@@ -188,6 +190,16 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_FORMAT_UNAVAILABLE,
             'Document with id "{{ documentId }}" has no generated document with format "{{ format }}".',
+            ['documentId' => $documentId, 'format' => $format],
+        );
+    }
+
+    public static function documentFileExtensionUnavailable(string $documentId, string $format): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_FILE_EXTENSION_UNAVAILABLE,
+            'Document with id "{{ documentId }}" has no file extension for format "{{ format }}".',
             ['documentId' => $documentId, 'format' => $format],
         );
     }

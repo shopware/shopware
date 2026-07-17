@@ -38,6 +38,11 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
         return self::FORMAT->value;
     }
 
+    public function getFileExtension(): string
+    {
+        return self::FORMAT->fileExtension();
+    }
+
     public function getDocumentTypes(): array
     {
         return [
@@ -76,7 +81,7 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
         return new RenderResult(
             format: self::FORMAT->value,
             content: $dompdf->output(),
-            fileName: $config->buildFileStem($renderData->documentNumber),
+            fileName: $config->buildFileStem($renderData->documentNumber, self::FORMAT->value),
             fileExtension: self::FORMAT->fileExtension(),
             mimeType: self::FORMAT->mimeType(),
         );

@@ -47,11 +47,6 @@ class DocumentV2ApiService extends ApiService {
                     headers,
                 },
             )
-            .then((response) => {
-                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-
-                return Promise.resolve(response);
-            })
             .catch((error) => {
                 if (error.response?.data?.errors) {
                     this.$listener(
@@ -92,11 +87,13 @@ class DocumentV2ApiService extends ApiService {
         if (typeof File !== 'undefined' && file instanceof File) {
             headers['Content-Type'] = file.type;
 
+            const extensionSeparatorIndex = file.name.lastIndexOf('.');
+
             request = this.httpClient.post('/_action/order/document-v2/upload', file, {
                 params: {
                     ...payload,
-                    extension: file.name.split('.').pop(),
-                    fileName: file.name.split('.').shift(),
+                    extension: extensionSeparatorIndex === -1 ? '' : file.name.slice(extensionSeparatorIndex + 1),
+                    fileName: extensionSeparatorIndex === -1 ? file.name : file.name.slice(0, extensionSeparatorIndex),
                 },
                 headers,
             });
@@ -106,19 +103,13 @@ class DocumentV2ApiService extends ApiService {
             });
         }
 
-        return request
-            .then((response) => {
-                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-
-                return Promise.resolve(response);
-            })
-            .catch((error) => {
-                if (error.response?.data?.errors) {
-                    this.$listener(
-                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
-                    );
-                }
-            });
+        return request.catch((error) => {
+            if (error.response?.data?.errors) {
+                this.$listener(
+                    this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                );
+            }
+        });
     }
 
     previewDocument(

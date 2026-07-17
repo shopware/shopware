@@ -19,12 +19,6 @@ const FILE_TYPE_PRIORITY = [
     'zugferd_xml',
 ];
 
-function getFileTypePriority(fileType) {
-    const priority = FILE_TYPE_PRIORITY.indexOf(fileType);
-
-    return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
-}
-
 /**
  * @private
  */
@@ -441,7 +435,7 @@ export default {
         getPreferredFileType(fileTypes = []) {
             return (
                 [...fileTypes].sort((left, right) => {
-                    return getFileTypePriority(left) - getFileTypePriority(right);
+                    return this.getFileTypePriority(left) - this.getFileTypePriority(right);
                 })[0] ?? 'pdf'
             );
         },
@@ -454,8 +448,14 @@ export default {
             }
 
             return [...formats].sort((left, right) => {
-                return getFileTypePriority(left) - getFileTypePriority(right);
+                return this.getFileTypePriority(left) - this.getFileTypePriority(right);
             });
+        },
+
+        getFileTypePriority(fileType) {
+            const priority = FILE_TYPE_PRIORITY.indexOf(fileType);
+
+            return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
         },
 
         hasMultipleDocumentActionFormats(document) {

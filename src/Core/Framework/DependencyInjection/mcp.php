@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
@@ -176,17 +177,24 @@ return static function (ContainerConfigurator $container): void {
             env('APP_URL'),
         ]);
 
+    $services->set(McpHttpTransportFactory::class)
+        ->args([
+            service('mcp.psr_http_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.http_foundation_factory')->nullOnInvalid(),
+            service(McpAllowedHostsProvider::class),
+            service('logger'),
+        ])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
             service('mcp.server')->nullOnInvalid(),
-            service('mcp.psr_http_factory')->nullOnInvalid(),
-            service('mcp.http_foundation_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
+            service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
-            service(McpAllowedHostsProvider::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),

@@ -34,13 +34,19 @@ import {
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import type {
-    ConfigMode,
     ExtensionToolingManifest,
     ExtensionToolingProject,
     ManagedFileState,
     ManifestFileState,
     WriteResult,
 } from './shared';
+import {
+    readProbeCache,
+    resolveModesFromCache,
+    resolveStaticEslintMode,
+    resolveStaticTsMode,
+    writeProbeCache,
+} from './probe';
 import { renderSetupReport } from './report';
 
 const ESLINT_CONFIG_NAMES = [
@@ -169,9 +175,7 @@ export function discoverProjects(
                 sourcePaths
                     .map((source) => findNearestConfig(source, group.extensionRoot, ESLINT_CONFIG_NAMES))
                     .find((configPath) => configPath !== null) ?? null;
-            // Bridged when a generated `.shopware-admin/` bridge sits next to the sources; the
-            // committed plugin config extends it. Lets the report flag plugins that still need one.
-            const bridged = sourcePaths.some((source) =>
+            const bridgePresent = sourcePaths.some((source) =>
                 fs.existsSync(path.join(path.dirname(source), SHIM_DIR_NAME, 'tsconfig.json')),
             );
 
@@ -181,11 +185,11 @@ export function discoverProjects(
                 basePath: relativePosix(projectRoot, group.extensionRoot),
                 sourcePaths: sourcePaths.map((source) => relativePosix(projectRoot, source)),
                 vendor: isWithin(group.extensionRoot, vendorRoot),
-                bridged,
+                bridgePresent,
                 tsconfig: tsconfig ? relativePosix(projectRoot, tsconfig) : null,
                 eslintConfig: eslintConfig ? relativePosix(projectRoot, eslintConfig) : null,
-                tsMode: (tsconfig ? 'custom' : 'managed') as ConfigMode,
-                eslintMode: (eslintConfig ? 'custom' : 'managed') as ConfigMode,
+                ts: resolveStaticTsMode(tsconfig),
+                eslint: resolveStaticEslintMode(eslintConfig),
                 checkTsconfig: '',
             };
         });
@@ -279,7 +283,7 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
 function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolingProject[]): ManagedFileState {
     const rootTsconfigPath = path.join(context.projectRoot, 'tsconfig.json');
     const references = projects
-        .filter((project) => project.tsMode === 'managed')
+        .filter((project) => project.ts.mode === 'managed')
         .map((project) => ({ path: `./${project.checkTsconfig}` }));
     const content = `// ${GENERATED_MARKER} — solution-style index routing each extension file to its leaf project.\n${JSON.stringify(
         {
@@ -663,6 +667,26 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
     }
 
+    // Adopt verified verdicts from earlier check runs where the config inputs
+    // are unchanged; prune cache entries of extensions that disappeared.
+    const probeCache = readProbeCache(projectRoot);
+
+    if (probeCache) {
+        discovered = discovered.map((project) => ({
+            ...project,
+            ...resolveModesFromCache(project, probeCache, projectRoot, administrationRoot),
+        }));
+
+        const knownNames = new Set(discovered.map((project) => project.name));
+        const prunedEntries = Object.fromEntries(
+            Object.entries(probeCache.entries).filter(([name]) => knownNames.has(name)),
+        );
+
+        if (!context.dryRun && Object.keys(prunedEntries).length !== Object.keys(probeCache.entries).length) {
+            writeProbeCache(projectRoot, { version: 1, entries: prunedEntries });
+        }
+    }
+
     const projects = createLeafConfigs(context, discovered);
     const rootTsconfigState = createRootTsconfig(context, projects);
     const rootEslintState = createRootEslintConfig(context, projects);
@@ -677,7 +701,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     }
 
     const manifest: ExtensionToolingManifest = {
-        version: 1,
+        version: 2,
         adminRoot: adminRelative,
         entitySchemaAvailable,
         hostModules,

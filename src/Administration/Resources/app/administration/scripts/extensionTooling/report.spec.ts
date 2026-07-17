@@ -8,7 +8,11 @@
 import { describeInclusionSteps, renderCheckReport, renderSetupReport } from './report';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import type { SetupExtensionToolingResult } from './setup';
-import type { ExtensionToolingProject } from './shared';
+import type { ExtensionToolingProject, ModeResolution } from './shared';
+
+function resolution(mode: ModeResolution['mode'], overrides: Partial<ModeResolution> = {}): ModeResolution {
+    return { mode, verified: true, ...overrides };
+}
 
 function project(name: string, overrides: Partial<ExtensionToolingProject> = {}): ExtensionToolingProject {
     return {
@@ -17,11 +21,11 @@ function project(name: string, overrides: Partial<ExtensionToolingProject> = {})
         basePath: `custom/plugins/${name}`,
         sourcePaths: [],
         vendor: false,
-        bridged: false,
+        bridgePresent: false,
         tsconfig: null,
         eslintConfig: null,
-        tsMode: 'managed',
-        eslintMode: 'managed',
+        ts: resolution('managed'),
+        eslint: resolution('managed'),
         checkTsconfig: '',
         ...overrides,
     };
@@ -34,8 +38,8 @@ function run(status: ToolRunResult['status'], overrides: Partial<ToolRunResult> 
 function extension(project_: ExtensionToolingProject, overrides: Partial<ExtensionCheckResult> = {}): ExtensionCheckResult {
     return {
         project: project_,
-        tsMode: overrides.tsMode ?? project_.tsMode,
-        eslintMode: overrides.eslintMode ?? project_.eslintMode,
+        tsResolution: overrides.tsResolution ?? project_.ts,
+        eslintResolution: overrides.eslintResolution ?? project_.eslint,
         typescript: overrides.typescript ?? run('passed'),
         eslint: overrides.eslint ?? run('passed'),
     };
@@ -49,8 +53,8 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
     it('summarizes many technical names to a count instead of dumping every bundle', () => {
         const commercial = project('SwagCommercial', {
             vendor: true,
-            tsMode: 'unmanaged',
-            eslintMode: 'unmanaged',
+            ts: resolution('unmanaged'),
+            eslint: resolution('unmanaged'),
             technicalNames: Array.from({ length: 36 }, (_, index) => `module-${index}`),
         });
         const output = report([
@@ -65,7 +69,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
 
     it('shows the one-command bridge for unmanaged custom/plugins extensions', () => {
         const output = report([
-            extension(project('Custom', { tsMode: 'unmanaged', eslintMode: 'unmanaged' }), {
+            extension(project('Custom', { ts: resolution('unmanaged'), eslint: resolution('unmanaged') }), {
                 typescript: run('unmanaged'),
                 eslint: run('unmanaged'),
             }),
@@ -111,7 +115,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         const output = report(
             [
                 extension(project('Broken'), { typescript: run('failed', { findings: 1, output: 'x' }) }),
-                extension(project('Skipped', { tsMode: 'unmanaged', eslintMode: 'unmanaged' }), {
+                extension(project('Skipped', { ts: resolution('unmanaged'), eslint: resolution('unmanaged') }), {
                     typescript: run('unmanaged'),
                     eslint: run('unmanaged'),
                 }),
@@ -137,7 +141,9 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
 
 describe('scripts/extensionTooling/report describeInclusionSteps', () => {
     it('gives the one-command bridge for a custom/plugins extension', () => {
-        const steps = describeInclusionSteps(project('SwagPayPal', { tsMode: 'custom', eslintMode: 'custom' })).join('\n');
+        const steps = describeInclusionSteps(
+            project('SwagPayPal', { ts: resolution('custom'), eslint: resolution('custom') }),
+        ).join('\n');
 
         expect(steps).toContain('composer admin:setup-extension-tooling -- --shim=SwagPayPal');
         expect(steps).not.toContain('README');
@@ -157,7 +163,7 @@ function setupResult(
 ): SetupExtensionToolingResult {
     return {
         manifest: {
-            version: 1,
+            version: 2,
             adminRoot: 'src/Administration/Resources/app/administration',
             entitySchemaAvailable: true,
             hostModules: {},
@@ -178,15 +184,15 @@ function setupResult(
 describe('scripts/extensionTooling/report renderSetupReport', () => {
     const managed = project('FroshTools');
     const customPlugin = project('SwagPayPal', {
-        tsMode: 'custom',
-        eslintMode: 'custom',
+        ts: resolution('unmanaged', { reason: 'not-extending', verified: false }),
+        eslint: resolution('unmanaged', { reason: 'factory-not-composed', verified: false }),
         tsconfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/tsconfig.json',
         eslintConfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/eslint.config.mjs',
     });
     const bridgedPlugin = project('Bridged', {
-        tsMode: 'custom',
-        eslintMode: 'custom',
-        bridged: true,
+        ts: resolution('custom'),
+        eslint: resolution('custom'),
+        bridgePresent: true,
         tsconfig: 'custom/plugins/Bridged/src/Resources/app/administration/tsconfig.json',
         eslintConfig: 'custom/plugins/Bridged/src/Resources/app/administration/eslint.config.mjs',
     });

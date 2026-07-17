@@ -6,6 +6,7 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { runSetupCli, setupExtensionTooling } from './setup';
+import { probeCacheKey, probeInputFiles, readProbeCache, writeProbeCache } from './probe';
 import { GENERATED_MARKER } from './shared';
 import {
     cleanupTempProject,
@@ -112,15 +113,17 @@ describe('scripts/extensionTooling/setup', () => {
                 'SuiteB',
             ],
             vendor: false,
-            tsMode: 'managed',
-            eslintMode: 'managed',
+            ts: { mode: 'managed', verified: true },
+            eslint: { mode: 'managed', verified: true },
         });
         expect(suite?.sourcePaths).toHaveLength(2);
-        expect(zeroConfig).toMatchObject({ vendor: false, tsMode: 'managed', eslintMode: 'managed' });
+        expect(zeroConfig).toMatchObject({ vendor: false, ts: { mode: 'managed' }, eslint: { mode: 'managed' } });
+        // The vendor fixture's own configs do not compose the preset — static
+        // analysis already classifies them, unverified until a check run.
         expect(vendorExtension).toMatchObject({
             vendor: true,
-            tsMode: 'custom',
-            eslintMode: 'custom',
+            ts: { mode: 'unmanaged', reason: 'not-extending', verified: false },
+            eslint: { mode: 'unmanaged', reason: 'factory-not-composed', verified: false },
             tsconfig: 'vendor/acme/custom-admin/src/Resources/app/administration/tsconfig.json',
         });
         expect(result.manifest.entitySchemaAvailable).toBe(true);
@@ -132,7 +135,7 @@ describe('scripts/extensionTooling/setup', () => {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "(.+)"/g)].map((match) => match[1]);
-        const managedProjects = result.manifest.projects.filter((project) => project.tsMode === 'managed');
+        const managedProjects = result.manifest.projects.filter((project) => project.ts.mode === 'managed');
 
         expect(rootTsconfig).toContain(GENERATED_MARKER);
         expect(references).toEqual(managedProjects.map((project) => `./${project.checkTsconfig}`));
@@ -317,7 +320,7 @@ describe('scripts/extensionTooling/setup', () => {
         const rerun = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
 
         expect(fs.readFileSync(path.join(adminFolder, 'eslint.config.mjs'), 'utf8')).toContain('// my custom rule');
-        expect(rerun.manifest.projects.find((project) => project.name === 'ZeroConfig')?.bridged).toBe(true);
+        expect(rerun.manifest.projects.find((project) => project.name === 'ZeroConfig')?.bridgePresent).toBe(true);
     });
 
     it('never overwrites an existing plugin config and warns how to add the extends', () => {
@@ -354,6 +357,68 @@ describe('scripts/extensionTooling/setup', () => {
 
         expect(parsed.compilerOptions.paths['ZeroConfig/*']).toEqual(['../src/*']);
         expect(parsed.compilerOptions.paths.vue[0]).toContain('node_modules/vue');
+    });
+
+    describe('probe cache integration', () => {
+        it('adopts cached verified verdicts while inputs match and prunes removed extensions', () => {
+            writeFile(path.join(projectRoot, 'custom/plugins/Probe/composer.json'), '{}\n');
+            writeFile(path.join(projectRoot, 'custom/plugins/Probe/src/Resources/app/administration/src/main.ts'), [
+                'export {};',
+            ]);
+            writeFile(path.join(projectRoot, 'custom/plugins/Probe/src/Resources/app/administration/tsconfig.json'), [
+                '{ "compilerOptions": { "strict": true } }',
+            ]);
+            writePluginsConfig(projectRoot, [
+                {
+                    technicalName: 'Probe',
+                    basePath: 'custom/plugins/Probe/src',
+                    administrationPath: 'Resources/app/administration/src',
+                },
+            ]);
+
+            const staticRun = setupExtensionTooling({ projectRoot, administrationRoot });
+
+            expect(staticRun.manifest.projects[0].ts).toEqual({
+                mode: 'unmanaged',
+                reason: 'not-extending',
+                verified: false,
+            });
+
+            const inputs = probeInputFiles(staticRun.manifest.projects[0], projectRoot, administrationRoot);
+
+            writeProbeCache(projectRoot, {
+                version: 1,
+                entries: {
+                    Probe: {
+                        ts: {
+                            key: probeCacheKey(inputs.ts),
+                            resolution: { mode: 'unmanaged', reason: 'surface-not-injected', verified: true },
+                        },
+                    },
+                    Ghost: {
+                        ts: { key: 'stale', resolution: { mode: 'custom', verified: true } },
+                    },
+                },
+            });
+
+            const cachedRun = setupExtensionTooling({ projectRoot, administrationRoot });
+
+            expect(cachedRun.manifest.projects[0].ts).toEqual({
+                mode: 'unmanaged',
+                reason: 'surface-not-injected',
+                verified: true,
+            });
+            expect(readProbeCache(projectRoot)?.entries.Ghost).toBeUndefined();
+
+            // A config edit invalidates the hash — back to the static verdict.
+            writeFile(path.join(projectRoot, 'custom/plugins/Probe/src/Resources/app/administration/tsconfig.json'), [
+                '{ "compilerOptions": { "strict": false } }',
+            ]);
+
+            const invalidatedRun = setupExtensionTooling({ projectRoot, administrationRoot });
+
+            expect(invalidatedRun.manifest.projects[0].ts.verified).toBe(false);
+        });
     });
 
     describe('runSetupCli', () => {

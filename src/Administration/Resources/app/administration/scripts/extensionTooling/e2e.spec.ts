@@ -148,8 +148,12 @@ describe('scripts/extensionTooling e2e', () => {
             'ZeroConfig',
             'vendor-admin',
         ]);
-        expect(byName.ZeroConfig).toMatchObject({ tsMode: 'managed', eslintMode: 'managed', vendor: false });
-        expect(byName.ShimConfig).toMatchObject({ tsMode: 'custom', eslintMode: 'custom' });
+        expect(byName.ZeroConfig).toMatchObject({
+            ts: { mode: 'managed' },
+            eslint: { mode: 'managed' },
+            vendor: false,
+        });
+        expect(byName.ShimConfig).toMatchObject({ ts: { mode: 'custom' }, eslint: { mode: 'custom' } });
         expect(byName.Suite.sourcePaths).toHaveLength(2);
         expect(byName['vendor-admin'].vendor).toBe(true);
 
@@ -166,7 +170,7 @@ describe('scripts/extensionTooling e2e', () => {
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "\.\/(.+)"/g)].map((match) => match[1]);
         const managedLeafs = setupResult.manifest.projects
-            .filter((project) => project.tsMode === 'managed')
+            .filter((project) => project.ts.mode === 'managed')
             .map((project) => project.checkTsconfig);
 
         expect(references.sort()).toEqual([...managedLeafs].sort());
@@ -190,8 +194,8 @@ describe('scripts/extensionTooling e2e', () => {
             expect(byName.ZeroConfig.typescript.status).toBe('passed');
             expect(byName.ZeroConfig.eslint.status).toBe('passed');
             expect(byName.ShimConfig.typescript.status).toBe('passed');
-            expect(byName.ShimConfig.tsMode).toBe('custom');
-            expect(byName.ShimConfig.eslintMode).toBe('custom');
+            expect(byName.ShimConfig.tsResolution.mode).toBe('custom');
+            expect(byName.ShimConfig.eslintResolution.mode).toBe('custom');
             expect(byName.Suite.typescript.status).toBe('passed');
 
             expect(byName['vendor-admin'].typescript.status).toBe('failed');

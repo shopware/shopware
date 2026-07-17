@@ -19,6 +19,31 @@ export const SHIM_DIR_NAME = '.shopware-admin';
 
 export type ConfigMode = 'managed' | 'custom' | 'unmanaged';
 
+/** Why a config-owning extension resolved to `unmanaged`. */
+export type ModeReason =
+    | 'config-error'
+    | 'files-override'
+    | 'paths-override'
+    | 'not-extending'
+    | 'surface-not-injected'
+    | 'factory-not-composed';
+
+/**
+ * Per-tool resolution of an extension's config mode. Static analysis produces
+ * unverified resolutions at setup time; live tool probes (check runs) produce
+ * verified ones, carried back into setup through the probe cache.
+ */
+export interface ModeResolution {
+    mode: ConfigMode;
+    reason?: ModeReason;
+    /** Human sentence explaining the reason (rendered under `why:`). */
+    detail?: string;
+    /** Raw probe output, shown with --verbose. */
+    probeOutput?: string;
+    /** True when a live tool probe confirmed the mode (vs static analysis). */
+    verified: boolean;
+}
+
 export type ManagedFileState = 'created' | 'updated' | 'unchanged' | 'conflict' | 'skipped';
 
 /** File states as persisted in the manifest — free of run-specific detail so setup stays idempotent. */
@@ -43,24 +68,21 @@ export interface ExtensionToolingProject {
     sourcePaths: string[];
     /** Whether the extension is installed below vendor/ (read-only, non-fatal findings). */
     vendor: boolean;
-    /** Whether a generated `.shopware-admin/` bridge sits next to the sources (the committed config extends it). */
-    bridged: boolean;
+    /** Whether a generated `.shopware-admin/` bridge sits next to the sources. */
+    bridgePresent: boolean;
     /** Path to an extension-owned tsconfig.json, if one exists. */
     tsconfig: string | null;
     /** Path to an extension-owned eslint config, if one exists. */
     eslintConfig: string | null;
-    /**
-     * Discovery-time mode per tool. "unmanaged" is only assigned at check
-     * time, when a custom config turns out not to compose the Shopware preset.
-     */
-    tsMode: ConfigMode;
-    eslintMode: ConfigMode;
+    /** Per-tool mode resolution (static at discovery, verified via probe cache / check runs). */
+    ts: ModeResolution;
+    eslint: ModeResolution;
     /** The tsconfig the check runner passes to vue-tsc (leaf or custom). */
     checkTsconfig: string;
 }
 
 export interface ExtensionToolingManifest {
-    version: 1;
+    version: 2;
     adminRoot: string;
     entitySchemaAvailable: boolean;
     hostModules: Record<string, string>;
@@ -70,6 +92,36 @@ export interface ExtensionToolingManifest {
     };
     ideBootstraps: Record<string, ManifestFileState>;
     projects: ExtensionToolingProject[];
+}
+
+/**
+ * Display state derived from the project's facts — never stored, so setup and
+ * check cannot disagree about it.
+ */
+export type DerivedExtensionState = 'ready' | 'needs-bridge' | 'bridge-unwired' | 'bridged' | 'platform' | 'vendor';
+
+export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
+    if (project.vendor) {
+        return 'vendor';
+    }
+
+    if (!project.basePath.startsWith('custom/plugins/')) {
+        return 'platform';
+    }
+
+    if (project.tsconfig === null && project.eslintConfig === null) {
+        return 'ready';
+    }
+
+    const composes =
+        (project.tsconfig === null || project.ts.mode === 'custom') &&
+        (project.eslintConfig === null || project.eslint.mode === 'custom');
+
+    if (composes) {
+        return 'bridged';
+    }
+
+    return project.bridgePresent ? 'bridge-unwired' : 'needs-bridge';
 }
 
 export function toPosix(filePath: string): string {

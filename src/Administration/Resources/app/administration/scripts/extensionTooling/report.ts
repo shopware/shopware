@@ -11,7 +11,7 @@
 import colors from 'picocolors';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check';
 import type { SetupExtensionToolingResult } from './setup';
-import type { ConfigMode, ExtensionToolingProject } from './shared';
+import type { ExtensionToolingProject, ModeResolution } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
@@ -49,9 +49,9 @@ function seconds(run: ToolRunResult): string {
     return `${(run.durationMs / 1000).toFixed(1)}s`;
 }
 
-function statusLine(tool: string, run: ToolRunResult, mode: ConfigMode): string {
+function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution): string {
     const label = tool.padEnd(11, ' ');
-    const meta = colors.dim(`${mode} · ${seconds(run)}`);
+    const meta = colors.dim(`${resolution.mode} · ${seconds(run)}`);
 
     switch (run.status) {
         case 'passed':
@@ -80,16 +80,16 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
     const moduleNote = moduleCount > 1 ? colors.dim(` (${moduleCount} modules)`) : '';
     const lines = [`\n  ${colors.bold(result.project.name)}${moduleNote}  ${colors.dim(location)}`];
 
-    const tools: Array<[string, ToolRunResult, ConfigMode]> = [
+    const tools: Array<[string, ToolRunResult, ModeResolution]> = [
         [
             'TypeScript',
             result.typescript,
-            result.tsMode,
+            result.tsResolution,
         ],
         [
             'ESLint',
             result.eslint,
-            result.eslintMode,
+            result.eslintResolution,
         ],
     ];
     let anyUnmanaged = false;
@@ -97,9 +97,9 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
     for (const [
         tool,
         run,
-        mode,
+        resolution,
     ] of tools) {
-        lines.push(`    ${statusLine(tool, run, mode)}`);
+        lines.push(`    ${statusLine(tool, run, resolution)}`);
         anyUnmanaged = anyUnmanaged || run.status === 'unmanaged';
 
         const showOutput =
@@ -238,7 +238,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     if (options.shim) {
         const shim = options.shim;
         const justBridged = projects.filter(
-            (project) => (project.name === shim || project.technicalNames.includes(shim)) && project.bridged,
+            (project) => (project.name === shim || project.technicalNames.includes(shim)) && project.bridgePresent,
         );
 
         for (const project of justBridged) {
@@ -251,11 +251,11 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     const ready = projects.filter(
-        (project) => !project.bridged && project.tsMode === 'managed' && project.eslintMode === 'managed',
+        (project) => !project.bridgePresent && project.tsconfig === null && project.eslintConfig === null,
     );
-    const bridged = projects.filter((project) => project.bridged);
+    const bridged = projects.filter((project) => project.bridgePresent);
     const custom = projects.filter(
-        (project) => !project.bridged && (project.tsMode === 'custom' || project.eslintMode === 'custom'),
+        (project) => !project.bridgePresent && (project.tsconfig !== null || project.eslintConfig !== null),
     );
 
     lines.push('');
@@ -342,7 +342,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
 
             lines.push(
                 `    - ${project.name} · ${moduleCount === 1 ? '1 module' : `${moduleCount} modules`} · ` +
-                    `ts:${project.tsMode} · eslint:${project.eslintMode}`,
+                    `ts:${project.ts.mode} · eslint:${project.eslint.mode}`,
             );
         }
 

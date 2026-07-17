@@ -14,23 +14,28 @@
  * "unmanaged" — never silently green.
  */
 
-import { execFile } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { promisify } from 'util';
 import { discoverProjects, setupExtensionTooling } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
 import { relativePosix } from './shared';
-import type { ConfigMode, ExtensionToolingProject } from './shared';
+import type { ExtensionToolingProject, ModeResolution } from './shared';
+import {
+    PROCESS_TIMEOUT_MS,
+    probeCacheKey,
+    probeEslintMode,
+    probeInputFiles,
+    probeTsMode,
+    readProbeCache,
+    runCommand,
+    toCacheableResolution,
+    writeProbeCache,
+} from './probe';
+import type { ProbeCacheFile } from './probe';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
-
-const execFileAsync = promisify(execFile);
-
-const PROCESS_TIMEOUT_MS = 10 * 60 * 1000;
-const MAX_BUFFER = 100 * 1024 * 1024;
 
 export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'tooling-error';
 
@@ -43,8 +48,8 @@ export interface ToolRunResult {
 
 export interface ExtensionCheckResult {
     project: ExtensionToolingProject;
-    tsMode: ConfigMode;
-    eslintMode: ConfigMode;
+    tsResolution: ModeResolution;
+    eslintResolution: ModeResolution;
     typescript: ToolRunResult;
     eslint: ToolRunResult;
 }
@@ -63,46 +68,6 @@ export interface CheckExtensionsResult {
     fatalDiagnostics: string[];
     warnings: string[];
     exitCode: number;
-}
-
-interface CommandResult {
-    status: number;
-    output: string;
-    durationMs: number;
-    timedOut: boolean;
-}
-
-async function runCommand(command: string, args: string[], cwd: string): Promise<CommandResult> {
-    const startedAt = Date.now();
-
-    try {
-        const { stdout, stderr } = await execFileAsync(command, args, {
-            cwd,
-            timeout: PROCESS_TIMEOUT_MS,
-            maxBuffer: MAX_BUFFER,
-        });
-
-        return {
-            status: 0,
-            output: `${stdout ?? ''}${stderr ? `\n${stderr}` : ''}`.trim(),
-            durationMs: Date.now() - startedAt,
-            timedOut: false,
-        };
-    } catch (error) {
-        const failure = error as NodeJS.ErrnoException & {
-            stdout?: string;
-            stderr?: string;
-            code?: number | string;
-            killed?: boolean;
-        };
-
-        return {
-            status: typeof failure.code === 'number' ? failure.code : 1,
-            output: `${failure.stdout ?? ''}${failure.stderr ? `\n${failure.stderr}` : ''}`.trim() || failure.message,
-            durationMs: Date.now() - startedAt,
-            timedOut: failure.killed === true,
-        };
-    }
 }
 
 /** Minimal bounded-parallelism pool: runs all jobs with at most `limit` in flight. */
@@ -160,83 +125,6 @@ function findFirstSourceFile(projectRoot: string, sourcePaths: string[]): string
     }
 
     return null;
-}
-
-/**
- * A custom tsconfig composes the Shopware preset when its resolved
- * configuration reaches the shipped type surface (directly or through the
- * generated shim). Probed via `tsc --showConfig`, which resolves the whole
- * extends chain.
- */
-async function resolveTsMode(
-    project: ExtensionToolingProject,
-    projectRoot: string,
-    administrationRoot: string,
-): Promise<{ mode: ConfigMode; probeOutput?: string }> {
-    if (project.tsMode !== 'custom' || !project.tsconfig) {
-        return { mode: project.tsMode };
-    }
-
-    const tscPath = path.join(administrationRoot, 'node_modules', 'typescript', 'bin', 'tsc');
-    const probe = await runCommand(
-        process.execPath,
-        [
-            tscPath,
-            '--showConfig',
-            '--project',
-            path.resolve(projectRoot, project.tsconfig),
-        ],
-        projectRoot,
-    );
-
-    if (probe.status !== 0) {
-        return { mode: 'unmanaged', probeOutput: probe.output };
-    }
-
-    const composes = probe.output.includes('extension-tooling/admin-types') || probe.output.includes('admin-types.d.ts');
-
-    return { mode: composes ? 'custom' : 'unmanaged' };
-}
-
-/**
- * A custom ESLint config composes the Shopware preset when the resolved
- * configuration for a sample source file carries the factory's runtime
- * contract rule. (`--print-config` emits the merged config without block
- * names, so the probe checks for the rule instead.)
- */
-async function resolveEslintMode(
-    project: ExtensionToolingProject,
-    projectRoot: string,
-    administrationRoot: string,
-    eslintBaseArguments: string[],
-): Promise<{ mode: ConfigMode; probeOutput?: string }> {
-    if (project.eslintMode !== 'custom' || !project.eslintConfig) {
-        return { mode: project.eslintMode };
-    }
-
-    const sampleFile = findFirstSourceFile(projectRoot, project.sourcePaths);
-
-    if (!sampleFile) {
-        return { mode: 'custom' };
-    }
-
-    const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
-    const probe = await runCommand(
-        process.execPath,
-        [
-            eslintPath,
-            ...eslintBaseArguments,
-            '--print-config',
-            sampleFile,
-        ],
-        projectRoot,
-    );
-
-    if (probe.status !== 0) {
-        return { mode: 'unmanaged', probeOutput: probe.output };
-    }
-
-    return { mode: probe.output.includes('plugin-rules/no-src-imports') ? 'custom' : 'unmanaged' };
 }
 
 function readEslintMajorVersion(administrationRoot: string): number {
@@ -347,13 +235,49 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             tsResolution,
             eslintResolution,
         ] = await Promise.all([
-            resolveTsMode(project, projectRoot, administrationRoot),
-            resolveEslintMode(project, projectRoot, administrationRoot, eslintBaseArguments),
+            probeTsMode(project, projectRoot, administrationRoot),
+            probeEslintMode(
+                project,
+                projectRoot,
+                administrationRoot,
+                eslintBaseArguments,
+                findFirstSourceFile(projectRoot, project.sourcePaths),
+            ),
         ]);
 
         return { project, tsResolution, eslintResolution };
     });
     const resolvedModes = await runPool(modeJobs, maxWorkers);
+
+    // Persist the verified verdicts so subsequent setup runs render the same
+    // state. Merge with existing entries (a --only run must not drop other
+    // extensions' verdicts); prune extensions that no longer exist.
+    const knownNames = new Set(setupResult.manifest.projects.map((project) => project.name));
+    const probeCache: ProbeCacheFile = {
+        version: 1,
+        entries: Object.fromEntries(
+            Object.entries(readProbeCache(projectRoot)?.entries ?? {}).filter(([name]) => knownNames.has(name)),
+        ),
+    };
+
+    for (const { project, tsResolution, eslintResolution } of resolvedModes) {
+        if (!project.tsconfig && !project.eslintConfig) {
+            continue;
+        }
+
+        const inputs = probeInputFiles(project, projectRoot, administrationRoot);
+
+        probeCache.entries[project.name] = {
+            ...(project.tsconfig
+                ? { ts: { key: probeCacheKey(inputs.ts), resolution: toCacheableResolution(tsResolution) } }
+                : {}),
+            ...(project.eslintConfig
+                ? { eslint: { key: probeCacheKey(inputs.eslint), resolution: toCacheableResolution(eslintResolution) } }
+                : {}),
+        };
+    }
+
+    writeProbeCache(projectRoot, probeCache);
 
     const checkJobs = resolvedModes.map(({ project, tsResolution, eslintResolution }) => async () => {
         let typescript: ToolRunResult;
@@ -461,8 +385,8 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
 
         return {
             project,
-            tsMode: tsResolution.mode,
-            eslintMode: eslintResolution.mode,
+            tsResolution,
+            eslintResolution,
             typescript,
             eslint,
         };

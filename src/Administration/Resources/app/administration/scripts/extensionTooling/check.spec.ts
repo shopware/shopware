@@ -5,6 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { checkExtensions, countEslintFindings, countTypeScriptFindings, runCheckCli, runPool } from './check';
+import { setupExtensionTooling } from './setup';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -235,10 +236,21 @@ describe('scripts/extensionTooling/check', () => {
         const probe = check.results[0];
 
         expect(check.results).toHaveLength(1);
-        expect(probe.tsMode).toBe('unmanaged');
-        expect(probe.eslintMode).toBe('unmanaged');
+        expect(probe.tsResolution.mode).toBe('unmanaged');
+        expect(probe.eslintResolution.mode).toBe('unmanaged');
+        expect(probe.tsResolution.verified).toBe(true);
         expect(probe.typescript.status).toBe('unmanaged');
         expect(probe.eslint.status).toBe('unmanaged');
         expect(check.exitCode).toBe(0);
+
+        // The verified verdicts are cached, and a subsequent setup run renders
+        // the same state instead of contradicting the check.
+        expect(fs.existsSync(path.join(projectRoot, 'var/admin-extension-tooling/probe-cache.json'))).toBe(true);
+
+        const followUpSetup = setupExtensionTooling({ projectRoot, administrationRoot });
+        const followUpProject = followUpSetup.manifest.projects[0];
+
+        expect(followUpProject.ts).toMatchObject({ mode: 'unmanaged', verified: true });
+        expect(followUpProject.eslint).toMatchObject({ mode: 'unmanaged', verified: true });
     }, 60000);
 });

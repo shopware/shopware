@@ -78,7 +78,7 @@ export function parseSelection(input: string, projects: ExtensionToolingProject[
 
 function describe(project: ExtensionToolingProject): string {
     const location = project.vendor ? 'vendor' : project.basePath;
-    const configMode = project.tsMode === 'custom' || project.eslintMode === 'custom' ? 'custom config' : 'zero-config';
+    const configMode = project.tsconfig !== null || project.eslintConfig !== null ? 'custom config' : 'zero-config';
     const moduleCount = project.technicalNames.length;
 
     return `${location} · ${configMode} · ${moduleCount === 1 ? '1 module' : `${moduleCount} modules`}`;

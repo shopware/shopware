@@ -74,6 +74,7 @@ async function createWrapper(props = {}) {
                 formats: [
                     'pdf',
                     'html',
+                    'zugferd_embedded_pdf',
                     'zugferd_xml',
                 ],
             },
@@ -193,6 +194,10 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             {
                 label: 'sw-order.components.createDocumentModal.fileFormats.html',
                 value: 'html',
+            },
+            {
+                label: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
+                value: 'zugferd_embedded_pdf',
             },
             {
                 label: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',

@@ -7,82 +7,17 @@
 */
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
-
 import { DOCUMENT_TYPES } from '../../order.types';
-import { getDocumentNumberRangeType, isDocumentTypeAvailable } from '../document-type-selection.utils';
+import {
+    FILE_FORMAT_MIME_TYPES,
+    FILE_FORMAT_PRIORITY,
+    getDocumentFamily,
+    getDocumentNumberRangeType,
+} from '../document-type-selection.utils';
 
 const { Component, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
-
-const FILE_FORMAT_PRIORITY = [
-    'pdf',
-    'html',
-    'zugferd_xml',
-    'zugferd_embedded_pdf',
-];
-
-const FILE_FORMAT_MIME_TYPES: Record<string, string> = {
-    html: 'text/html',
-    pdf: 'application/pdf',
-    zugferd_embedded_pdf: 'application/pdf',
-    zugferd_xml: 'application/xml,text/xml',
-};
-
-function getFileFormatPriority(fileFormat: string): number {
-    const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
-
-    return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
-}
-
-function getDocumentFamily(technicalName?: string | null): string | null {
-    if (!technicalName) {
-        return null;
-    }
-
-    if (
-        [
-            DOCUMENT_TYPES.INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
-        ].includes(technicalName as (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES])
-    ) {
-        return DOCUMENT_TYPES.INVOICE;
-    }
-
-    if (
-        [
-            DOCUMENT_TYPES.CREDIT_NOTE,
-            DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
-        ].includes(technicalName as (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES])
-    ) {
-        return DOCUMENT_TYPES.CREDIT_NOTE;
-    }
-
-    if (
-        [
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
-        ].includes(technicalName as (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES])
-    ) {
-        return DOCUMENT_TYPES.CANCELLATION_INVOICE;
-    }
-
-    return technicalName;
-}
-
-function createEmptyDocumentConfig() {
-    const now = new Date().toISOString();
-
-    return {
-        documentComment: '',
-        documentDate: now,
-        documentMediaFileId: null,
-        documentNumber: '',
-    };
-}
 
 /**
  * @private
@@ -126,7 +61,7 @@ export default Component.wrapComponentConfig({
 
     data() {
         return {
-            documentConfig: createEmptyDocumentConfig(),
+            documentConfig: this.createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeCollection: null,
             documentTypeId: this.value?.id ?? null,
@@ -135,7 +70,6 @@ export default Component.wrapComponentConfig({
             features: {
                 uploadFileSizeLimit: 52428800,
             },
-            invoiceExists: false,
             isLoading: false,
             selectedDocumentFile: null,
             selectedFileFormat: null,
@@ -145,16 +79,8 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        creditItems() {
-            return this.order.lineItems.filter((lineItem) => lineItem.type === 'credit');
-        },
-
         currentDocumentType() {
             return this.documentTypeCollection?.get(this.documentTypeId) ?? null;
-        },
-
-        documentRepository() {
-            return this.repositoryFactory.create('document');
         },
 
         documentTypeRepository() {
@@ -165,24 +91,9 @@ export default Component.wrapComponentConfig({
             return new Criteria(1, 100).addSorting(Criteria.sort('name', 'ASC'));
         },
 
-        documentCriteria() {
-            const criteria = new Criteria(1, 100);
-            criteria.addFilter(Criteria.equals('order.id', this.order.id));
-            criteria.addFilter(
-                Criteria.equalsAny('documentType.technicalName', [
-                    DOCUMENT_TYPES.INVOICE,
-                    DOCUMENT_TYPES.ZUGFERD_INVOICE,
-                    DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
-                ]),
-            );
-
-            return criteria;
-        },
-
         documentTypeOptions() {
             return this.documentTypes.map((documentType) => {
                 return {
-                    disabled: !this.documentTypeAvailable(documentType),
                     label: documentType.translated.name,
                     value: documentType.id,
                 };
@@ -244,10 +155,6 @@ export default Component.wrapComponentConfig({
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
-
-        typeSpecificColumns() {
-            return '1fr 1fr';
-        },
     },
 
     watch: {
@@ -275,22 +182,28 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        createEmptyDocumentConfig() {
+            return {
+                documentComment: '',
+                documentDate: new Date().toISOString(),
+                documentMediaFileId: null,
+                documentNumber: '',
+            };
+        },
+
         async createdComponent() {
             this.isLoading = true;
 
             try {
                 const [
-                    documentCollection,
                     response,
                     supportResponse,
                 ] = await Promise.all([
-                    this.documentRepository.searchIds(this.documentCriteria),
                     this.documentTypeRepository.search(this.documentTypeCriteria),
                     this.documentV2Service.getAvailableTypes(),
                 ]);
 
                 this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
-                this.invoiceExists = documentCollection.total > 0;
                 this.documentTypeCollection = response;
                 this.documentTypes = response.filter(
                     (documentType) => documentType.technicalName in this.supportedDocumentTypes,
@@ -312,15 +225,11 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        documentTypeAvailable(documentType) {
-            return isDocumentTypeAvailable(documentType.technicalName, this.invoiceExists, this.creditItems.length);
-        },
-
         getFileFormatOptions(technicalName) {
             const formats = this.supportedDocumentTypes[technicalName]?.formats ?? [];
 
             return [...formats]
-                .sort((left, right) => getFileFormatPriority(left) - getFileFormatPriority(right))
+                .sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))
                 .map((format) => {
                     return {
                         label: this.translateFileFormat(format),
@@ -329,11 +238,17 @@ export default Component.wrapComponentConfig({
                 });
         },
 
+        getFileFormatPriority(fileFormat) {
+            const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
+
+            return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
+        },
+
         translateFileFormat(format) {
             const translationKey = {
                 html: 'sw-order.components.createDocumentModal.fileFormats.html',
                 pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
+                zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
                 zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
             }[format];
 
@@ -345,7 +260,7 @@ export default Component.wrapComponentConfig({
             this.selectedDocumentFile = null;
 
             if (!documentType) {
-                this.documentConfig = createEmptyDocumentConfig();
+                this.documentConfig = this.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
 
                 return;
@@ -354,7 +269,7 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             try {
-                const nextDocumentConfig = createEmptyDocumentConfig();
+                const nextDocumentConfig = this.createEmptyDocumentConfig();
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
 
                 nextDocumentConfig.documentNumber = documentNumber;

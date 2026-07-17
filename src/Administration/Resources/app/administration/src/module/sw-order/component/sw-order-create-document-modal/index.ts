@@ -7,85 +7,16 @@
 */
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
-
 import { DOCUMENT_TYPES } from '../../order.types';
-import { getDocumentNumberRangeType, getInvoiceDocuments } from '../document-type-selection.utils';
+import {
+    FILE_FORMAT_PRIORITY,
+    getDocumentFamily,
+    getDocumentNumberRangeType,
+    INVOICE_DOCUMENT_TYPES,
+} from '../document-type-selection.utils';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-
-const FILE_FORMAT_PRIORITY = [
-    'pdf',
-    'html',
-    'zugferd_xml',
-    'zugferd_embedded_pdf',
-];
-
-function getFileFormatPriority(fileFormat: string): number {
-    const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
-
-    return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
-}
-
-function getDocumentFamily(technicalName?: string | null): string | null {
-    if (!technicalName) {
-        return null;
-    }
-
-    if (
-        [
-            DOCUMENT_TYPES.INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
-        ].includes(technicalName as (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES])
-    ) {
-        return DOCUMENT_TYPES.INVOICE;
-    }
-
-    if (
-        [
-            DOCUMENT_TYPES.CREDIT_NOTE,
-            DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
-        ].includes(technicalName as (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES])
-    ) {
-        return DOCUMENT_TYPES.CREDIT_NOTE;
-    }
-
-    if (
-        [
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
-        ].includes(technicalName as (typeof DOCUMENT_TYPES)[keyof typeof DOCUMENT_TYPES])
-    ) {
-        return DOCUMENT_TYPES.CANCELLATION_INVOICE;
-    }
-
-    return technicalName;
-}
-
-function createEmptyDocumentConfig(technicalName: string | null = null) {
-    const now = new Date().toISOString();
-    const documentFamily = getDocumentFamily(technicalName);
-
-    const custom: Record<string, string> = {};
-
-    if (documentFamily === DOCUMENT_TYPES.CREDIT_NOTE || documentFamily === DOCUMENT_TYPES.CANCELLATION_INVOICE) {
-        custom.invoiceNumber = '';
-    }
-
-    if (documentFamily === DOCUMENT_TYPES.DELIVERY_NOTE) {
-        custom.deliveryDate = now;
-    }
-
-    return {
-        custom,
-        documentComment: '',
-        documentDate: now,
-        documentNumber: '',
-    };
-}
 
 /**
  * @private
@@ -136,7 +67,7 @@ export default Component.wrapComponentConfig({
 
     data() {
         return {
-            documentConfig: createEmptyDocumentConfig(),
+            documentConfig: this.createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeLoading: false,
             documentTypeCollection: null,
@@ -224,7 +155,7 @@ export default Component.wrapComponentConfig({
         },
 
         invoiceDocuments() {
-            return getInvoiceDocuments(this.order.documents || []);
+            return this.getInvoiceDocuments(this.order.documents || []);
         },
 
         invoiceNumberOptions() {
@@ -259,12 +190,6 @@ export default Component.wrapComponentConfig({
                 })
                 .filter((option) => option !== null);
         },
-
-        typeSpecificColumns() {
-            return this.isCreditNoteDocument || this.isDeliveryNoteDocument || this.isStornoDocument
-                ? '1fr 1fr 1fr'
-                : '1fr 1fr';
-        },
     },
 
     watch: {
@@ -289,7 +214,25 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createEmptyDocumentConfig(technicalName = null) {
-            return createEmptyDocumentConfig(technicalName);
+            const now = new Date().toISOString();
+            const documentFamily = getDocumentFamily(technicalName);
+
+            const custom = {};
+
+            if (documentFamily === DOCUMENT_TYPES.CREDIT_NOTE || documentFamily === DOCUMENT_TYPES.CANCELLATION_INVOICE) {
+                custom.invoiceNumber = '';
+            }
+
+            if (documentFamily === DOCUMENT_TYPES.DELIVERY_NOTE) {
+                custom.deliveryDate = now;
+            }
+
+            return {
+                custom,
+                documentComment: '',
+                documentDate: now,
+                documentNumber: '',
+            };
         },
 
         async createdComponent() {
@@ -455,7 +398,7 @@ export default Component.wrapComponentConfig({
             const formats = this.supportedDocumentTypes[technicalName]?.formats ?? [];
 
             return [...formats]
-                .sort((left, right) => getFileFormatPriority(left) - getFileFormatPriority(right))
+                .sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))
                 .map((format) => {
                     return {
                         label: this.translateFileFormat(format),
@@ -465,14 +408,28 @@ export default Component.wrapComponentConfig({
         },
 
         getPreferredFileFormat(formats = this.selectedFileFormats) {
-            return [...formats].sort((left, right) => getFileFormatPriority(left) - getFileFormatPriority(right))[0] ?? null;
+            return [...formats].sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))[0] ?? null;
+        },
+
+        getFileFormatPriority(fileFormat) {
+            const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
+
+            return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
+        },
+
+        getInvoiceDocuments(documents) {
+            return documents.filter((document) => {
+                const technicalName = document.documentType?.technicalName;
+
+                return typeof technicalName === 'string' && INVOICE_DOCUMENT_TYPES.includes(technicalName);
+            });
         },
 
         translateFileFormat(format) {
             const translationKey = {
                 html: 'sw-order.components.createDocumentModal.fileFormats.html',
                 pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
+                zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
                 zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
             }[format];
 

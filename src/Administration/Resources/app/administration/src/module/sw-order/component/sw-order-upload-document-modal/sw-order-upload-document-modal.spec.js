@@ -16,13 +16,6 @@ const orderFixture = {
     versionId: 'order-version-id',
 };
 
-const documentFixture = {
-    id: 'invoice-document-id',
-    documentType: {
-        technicalName: 'invoice',
-    },
-};
-
 const documentTypeFixture = [
     {
         id: 'delivery-note',
@@ -121,12 +114,6 @@ async function createWrapper(props = {}) {
                             };
                         }
 
-                        if (entity === 'document') {
-                            return {
-                                searchIds: jest.fn().mockResolvedValue(getCollection('document', [documentFixture])),
-                            };
-                        }
-
                         if (entity === 'media') {
                             return {
                                 get: jest.fn(),
@@ -156,6 +143,7 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
                     formats: [
                         'html',
                         'pdf',
+                        'zugferd_embedded_pdf',
                     ],
                 },
             },
@@ -180,6 +168,10 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
             {
                 label: 'sw-order.components.createDocumentModal.fileFormats.html',
                 value: 'html',
+            },
+            {
+                label: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
+                value: 'zugferd_embedded_pdf',
             },
         ]);
         expect(wrapper.vm.fileAcceptTypes).toBe('application/pdf,text/html');

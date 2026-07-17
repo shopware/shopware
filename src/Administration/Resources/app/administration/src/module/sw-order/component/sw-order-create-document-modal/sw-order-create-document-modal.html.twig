@@ -50,10 +50,7 @@
             v-else-if="!isModalLoading"
             class="sw-order-create-document-modal__content"
         >
-            <div
-                class="sw-order-create-document-modal__type-specific-fields"
-                :style="{ gridTemplateColumns: typeSpecificColumns }"
-            >
+            <div class="sw-order-create-document-modal__type-specific-fields">
                 <mt-text-field
                     v-model="documentConfig.documentNumber"
                     class="sw-order-create-document-modal__document-number"

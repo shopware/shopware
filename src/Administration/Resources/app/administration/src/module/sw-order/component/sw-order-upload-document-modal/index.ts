@@ -1,10 +1,3 @@
-/* eslint-disable
-    @typescript-eslint/no-unsafe-argument,
-    @typescript-eslint/no-unsafe-assignment,
-    @typescript-eslint/no-unsafe-call,
-    @typescript-eslint/no-unsafe-member-access,
-    @typescript-eslint/no-unsafe-return
-*/
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../order.types';

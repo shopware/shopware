@@ -100,7 +100,8 @@ class CheapestPriceTest extends TestCase
                 $criteria = new Criteria($ids->getList($keys));
 
                 $products = static::getContainer()->get('sales_channel.product.repository')
-                    ->search($criteria, $context);
+                    ->search($criteria, $context)
+                    ->getEntities();
 
                 foreach ($assertions as $key => $assertion) {
                     $id = $ids->get($key);
@@ -182,7 +183,8 @@ class CheapestPriceTest extends TestCase
                 $criteria = new Criteria($ids->getList($keys));
 
                 $products = static::getContainer()->get('sales_channel.product.repository')
-                    ->search($criteria, $context);
+                    ->search($criteria, $context)
+                    ->getEntities();
 
                 foreach ($assertions as $key => $assertion) {
                     $id = $ids->get($key);

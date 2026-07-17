@@ -113,6 +113,38 @@ jobs:
           path: var/cache/phpstan
           key: "phpstan-result-cache-${{ github.run_id }}"
 
+  rector:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    name: "Rector"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          keep-composer-tools: "true"
+
+      - name: "Restore result cache"
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: var/cache/rector
+          key: "rector-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            rector-result-cache-
+
+      - name: Rector
+        run: composer rector
+
+      - name: "Save result cache"
+        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        if: always()
+        with:
+          path: var/cache/rector
+          key: "rector-result-cache-${{ github.run_id }}"
+
   bc-checker:
     needs:
       - markdown-only-changes
@@ -378,5 +410,5 @@ jobs:
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, openapi-lint, phpunit, license-check, composer-audit, bc-checker' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, license-check, composer-audit, bc-checker' || '' }}
           jobs: ${{ toJSON(needs) }}

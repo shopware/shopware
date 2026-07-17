@@ -261,6 +261,51 @@ onAttributeUpdate(mutationRecord) { ... }
 }
 ```
 
+### Expose CSS variables for component prop custom values
+
+When there is a component prop containing an "arbitrary" value that would result in an inline styling,
+a CSS custom property should be exposed instead. The CSS custom property can then be used in the actual SCSS file of the component.
+The CSS custom poperty must also follow the `--sw-{component-name}-{thing}` naming scheme.
+
+```twig
+{# ✅ correct - expose CSS variable and use it in the SCSS file #}
+{% props 
+    customHeight = 250,
+%}
+
+{% set attributeDefaults = {
+    style: '--sw-component-name-height: ' ~ customHeight ~ 'px;'
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+```
+
+```scss
+// ✅ Use @property with "inherits: false" to avoid accidental overwrites with nested Twig components
+@property --sw-component-name-height {
+    syntax: '*';
+    inherits: false;
+}
+
+// ✅ Apply styling using the custom property
+.sw-component-name {
+    height: var(--sw-component-name-height);
+}
+```
+
+```twig
+{# ❌ wrong - use custom value directly in inline CSS #}
+{% props 
+    customHeight = 250,
+%}
+
+{% set attributeDefaults = {
+    style: 'height: ' ~ customHeight ~ 'px;'
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+```
+
 **Rules:**
 - Root class: `sw-{component-name}`, children: `sw-{component-name}__{element}`
 - Prefer CSS custom properties over SCSS variables for runtime-customisable values
@@ -273,6 +318,7 @@ onAttributeUpdate(mutationRecord) { ... }
 - Use spacer variables insted of arbitrary values for paddings and margins.
 - Use color variables instead of hard-coded colors.
 - Prefer native CSS functions and variables over SCSS.
+- Expose CSS variables for component prop custom values instead of manual inline styling.
 
 ## Theme registration
 

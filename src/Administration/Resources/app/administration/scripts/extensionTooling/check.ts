@@ -139,6 +139,49 @@ function readEslintMajorVersion(administrationRoot: string): number {
     }
 }
 
+/**
+ * Counts the files vue-tsc would actually type-check (`checkJs` is off in the
+ * preset, so plain `.js` sources are parsed but never checked). Spec files are
+ * excluded to mirror the generated tsconfigs. Zero means a TypeScript "pass"
+ * would be vacuous — reported as `no-files` instead of a bare green.
+ */
+export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string[]): number {
+    const typeCheckableExtensions = [
+        '.ts',
+        '.tsx',
+        '.vue',
+    ];
+    let count = 0;
+
+    for (const sourcePath of sourcePaths) {
+        const queue = [path.resolve(projectRoot, sourcePath)];
+
+        while (queue.length > 0) {
+            const currentDir = queue.shift() as string;
+
+            if (!fs.existsSync(currentDir)) {
+                continue;
+            }
+
+            for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+                const entryPath = path.join(currentDir, entry.name);
+
+                if (entry.isDirectory() && entry.name !== 'node_modules') {
+                    queue.push(entryPath);
+                } else if (
+                    entry.isFile() &&
+                    typeCheckableExtensions.includes(path.extname(entry.name)) &&
+                    !/\.spec\.(ts|tsx|js)$/.test(entry.name)
+                ) {
+                    count += 1;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+
 export function countTypeScriptFindings(output: string): number {
     return output.split(/\r?\n/).filter((line) => /error TS\d+:/.test(line)).length;
 }
@@ -296,6 +339,10 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 durationMs: 0,
                 findings: 0,
             };
+        } else if (tsResolution.mode === 'managed' && countTypeCheckableFiles(projectRoot, project.sourcePaths) === 0) {
+            // A custom tsconfig may pull in files from elsewhere, so the
+            // shortcut only applies to managed (generated) configs.
+            typescript = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
         } else if (!fs.existsSync(vueTscPath)) {
             typescript = { status: 'tooling-error', output: 'vue-tsc is not installed.', durationMs: 0, findings: 0 };
         } else {

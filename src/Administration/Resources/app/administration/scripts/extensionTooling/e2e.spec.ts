@@ -95,6 +95,12 @@ describe('scripts/extensionTooling e2e', () => {
             "export const brokenVendorValue: number = 'broken';",
         ]);
 
+        // JavaScript-only plugin: a TypeScript "pass" would be vacuous.
+        writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/composer.json'), '{}\n');
+        writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/src/Resources/app/administration/src/main.js'), [
+            'export default {};',
+        ]);
+
         // Server-side Twig outside every extension root — the Twig-Vue
         // processor must never touch this.
         writeFile(path.join(projectRoot, 'src/RealServerTwig/template.html.twig'), [
@@ -129,6 +135,11 @@ describe('scripts/extensionTooling e2e', () => {
                 administrationPath: 'Resources/app/administration/src',
             },
             {
+                technicalName: 'JsOnly',
+                basePath: 'custom/plugins/JsOnly/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+            {
                 technicalName: 'administration',
                 basePath: 'vendor/shopware/administration',
                 administrationPath: 'Resources/app/administration/src',
@@ -151,6 +162,7 @@ describe('scripts/extensionTooling e2e', () => {
         );
 
         expect(Object.keys(byName).sort()).toEqual([
+            'JsOnly',
             'ShimConfig',
             'Suite',
             'ZeroConfig',
@@ -201,6 +213,8 @@ describe('scripts/extensionTooling e2e', () => {
 
             expect(byName.ZeroConfig.typescript.status).toBe('passed');
             expect(byName.ZeroConfig.eslint.status).toBe('passed');
+            expect(byName.JsOnly.typescript.status).toBe('no-files');
+            expect(byName.JsOnly.eslint.status).toBe('passed');
             expect(byName.ShimConfig.typescript.status).toBe('passed');
             expect(byName.ShimConfig.tsResolution.mode).toBe('custom');
             expect(byName.ShimConfig.eslintResolution.mode).toBe('custom');

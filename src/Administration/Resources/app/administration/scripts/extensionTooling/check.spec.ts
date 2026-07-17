@@ -4,7 +4,14 @@
 
 import fs from 'fs';
 import path from 'path';
-import { checkExtensions, countEslintFindings, countTypeScriptFindings, runCheckCli, runPool } from './check';
+import {
+    checkExtensions,
+    countEslintFindings,
+    countTypeCheckableFiles,
+    countTypeScriptFindings,
+    runCheckCli,
+    runPool,
+} from './check';
 import { setupExtensionTooling } from './setup';
 import {
     cleanupTempProject,
@@ -79,6 +86,39 @@ describe('scripts/extensionTooling/check', () => {
         expect(countTypeScriptFindings(typescriptOutput)).toBe(2);
         expect(countEslintFindings(eslintOutput)).toBe(3);
         expect(countEslintFindings('clean')).toBe(0);
+    });
+
+    it('counts only files vue-tsc would actually type-check', () => {
+        writeFile(path.join(projectRoot, 'plugin/src/main.js'), ['export default {};']);
+        writeFile(path.join(projectRoot, 'plugin/src/helper.spec.ts'), ['export {};']);
+
+        expect(countTypeCheckableFiles(projectRoot, ['plugin/src'])).toBe(0);
+
+        writeFile(path.join(projectRoot, 'plugin/src/component.vue'), ['<template><div /></template>']);
+        writeFile(path.join(projectRoot, 'plugin/src/typed.ts'), ['export {};']);
+
+        expect(countTypeCheckableFiles(projectRoot, ['plugin/src'])).toBe(2);
+        expect(countTypeCheckableFiles(projectRoot, ['does/not/exist'])).toBe(0);
+    });
+
+    it('reports a vacuous TypeScript pass as no-files without spawning vue-tsc', async () => {
+        writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/composer.json'), '{}\n');
+        writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/src/Resources/app/administration/src/main.js'), [
+            'export default {};',
+        ]);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'JsOnly',
+                basePath: 'custom/plugins/JsOnly/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const check = await checkExtensions({ projectRoot, administrationRoot });
+
+        // The skeleton admin has no vue-tsc — a spawn attempt would surface as
+        // tooling-error, so no-files proves the run was skipped.
+        expect(check.results[0].typescript).toMatchObject({ status: 'no-files', durationMs: 0 });
     });
 
     it('passes on an empty extension set', async () => {

@@ -173,7 +173,11 @@ function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution
         case 'blocked':
             return `${label}${colors.yellow('⊘ blocked')}     ${colors.dim('(entity schema missing)')}`;
         case 'no-files':
-            return `${label}${colors.dim('· no lintable files')}`;
+            // An honest empty pass: nothing was checked, say so instead of a
+            // bare green that reads as "my code type-checks".
+            return tool === 'TypeScript'
+                ? `${label}${colors.green('✔ passed')} ${colors.dim('(0 TypeScript files — .js is not type-checked)')}`
+                : `${label}${colors.dim('· no lintable files')}`;
         default:
             return `${label}${colors.red('✖ TOOLING ERROR')}  ${colors.dim(seconds(run))}`;
     }
@@ -251,7 +255,7 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
     return lines;
 }
 
-function summaryCell(run: ToolRunResult): string {
+function summaryCell(run: ToolRunResult, tool: string): string {
     switch (run.status) {
         case 'passed':
             return 'passed';
@@ -262,7 +266,7 @@ function summaryCell(run: ToolRunResult): string {
         case 'blocked':
             return 'blocked';
         case 'no-files':
-            return 'no files';
+            return tool === 'TypeScript' ? 'passed*' : 'no files';
         default:
             return 'tool error';
     }
@@ -280,19 +284,21 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
     ];
     const rows = results.map((result) => [
         result.project.name,
-        summaryCell(result.typescript),
-        summaryCell(result.eslint),
+        summaryCell(result.typescript, 'TypeScript'),
+        summaryCell(result.eslint, 'ESLint'),
     ]);
     const widths = headers.map((header, column) => Math.max(header.length, ...rows.map((row) => row[column].length)));
     const format = (cells: string[]): string =>
         `  ${cells.map((cell, column) => cell.padEnd(widths[column], ' ')).join('   ')}`;
     const separator = `  ${colors.dim('─'.repeat(widths.reduce((sum, width) => sum + width + 3, 0)))}`;
+    const hasVacuousPass = results.some((result) => result.typescript.status === 'no-files');
 
     return [
         '',
         separator,
         colors.dim(format(headers)),
         ...rows.map((row) => format(row)),
+        ...(hasVacuousPass ? [colors.dim('  * no TypeScript files — .js is not type-checked')] : []),
     ];
 }
 

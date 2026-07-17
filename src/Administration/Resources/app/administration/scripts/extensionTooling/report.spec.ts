@@ -191,6 +191,14 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output.indexOf('Error: vue-tsc is not installed')).toBeLessThan(output.indexOf('Mine'));
     });
 
+    it('qualifies a vacuous TypeScript pass instead of a bare green', () => {
+        const output = report([extension(project('JsOnly'), { typescript: run('no-files', { durationMs: 0 }) })]);
+
+        expect(output).toContain('✔ passed (0 TypeScript files — .js is not type-checked)');
+        expect(output).toContain('passed*');
+        expect(output).toContain('* no TypeScript files — .js is not type-checked');
+    });
+
     it('renders blocked TypeScript runs with their cause', () => {
         const output = report([extension(project('Mine'), { typescript: run('blocked', { durationMs: 0 }) })], {
             exitCode: 1,

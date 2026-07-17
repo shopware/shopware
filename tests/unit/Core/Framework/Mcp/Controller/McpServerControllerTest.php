@@ -8,8 +8,6 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -569,15 +567,18 @@ class McpServerControllerTest extends TestCase
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
 
         $psr17 = new Psr17Factory();
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $psr17,
+            $psr17,
+            $httpFoundationFactory,
+            static::createStub(McpAllowedHostsProvider::class),
+        );
         $controller = new McpServerController(
             Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory,
-            $psr17,
-            $psr17,
+            $transportFactory,
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             null,
             $logger,
             new McpAllowlistFilter(),
@@ -717,49 +718,52 @@ class McpServerControllerTest extends TestCase
         }
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function nullableConstructorArgProvider(): iterable
+    public function testHandleReturnsNotFoundWhenServerIsNull(): void
     {
-        yield 'server is null' => ['server'];
-        yield 'httpMessageFactory is null' => ['httpMessageFactory'];
-        yield 'httpFoundationFactory is null' => ['httpFoundationFactory'];
-        yield 'responseFactory is null' => ['responseFactory'];
-        yield 'streamFactory is null' => ['streamFactory'];
-    }
-
-    #[DataProvider('nullableConstructorArgProvider')]
-    public function testHandleReturnsNotFoundWhenAnyMcpBundleServiceIsNull(string $nullArg): void
-    {
-        $psr17 = new Psr17Factory();
-
         $controller = new McpServerController(
-            $nullArg === 'server' ? null : Server::builder()->build(),
-            $nullArg === 'httpMessageFactory' ? null : static::createStub(HttpMessageFactoryInterface::class),
-            $nullArg === 'httpFoundationFactory' ? null : static::createStub(HttpFoundationFactoryInterface::class),
-            $nullArg === 'responseFactory' ? null : $psr17,
-            $nullArg === 'streamFactory' ? null : $psr17,
+            null,
+            $this->transportFactory(),
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
         );
 
-        $response = $controller->handle(new Request());
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
 
-        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    public function testHandleReturnsNotFoundWhenTransportFactoryIsUnavailable(): void
+    {
+        // A transport factory built without the PhpMcp bundle factories reports itself unavailable.
+        $unavailable = new McpHttpTransportFactory(null, null, null, null, static::createStub(McpAllowedHostsProvider::class));
+
+        $controller = new McpServerController(
+            Server::builder()->build(),
+            $unavailable,
+            new McpRateLimiter(static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
+        );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
     }
 
     private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
     {
         return new McpServerController(
             Server::builder()->build(),
-            static::createStub(HttpMessageFactoryInterface::class),
-            static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(ResponseFactoryInterface::class),
-            static::createStub(StreamFactoryInterface::class),
+            $this->transportFactory(),
             new McpRateLimiter($rateLimiter),
             new McpSessionIdValidator(),
+        );
+    }
+
+    private function transportFactory(): McpHttpTransportFactory
+    {
+        $psr17 = new Psr17Factory();
+
+        return new McpHttpTransportFactory(
+            static::createStub(HttpMessageFactoryInterface::class),
+            $psr17,
+            $psr17,
+            static::createStub(HttpFoundationFactoryInterface::class),
             static::createStub(McpAllowedHostsProvider::class),
         );
     }

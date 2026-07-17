@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1784276129RepairPasswordChangedMailTranslations;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
@@ -80,6 +82,40 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
         static::assertSame('Ihr Passwort wurde geändert', $this->fetchGermanSubject($mailTemplateTypeId, $deLanguageId));
     }
 
+    public function testUpdateRepairsRegionalLanguageWithGermanTranslationCode(): void
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId();
+        $languageId = $this->createLanguage('de-CH', 'de-DE');
+
+        $this->connection->insert('mail_template_type_translation', [
+            'mail_template_type_id' => $mailTemplateTypeId,
+            'language_id' => $languageId,
+            'name' => 'Kunden-Password geändert',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $mailTemplateId = $this->connection->fetchOne(
+            'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :typeId',
+            ['typeId' => $mailTemplateTypeId],
+        );
+        static::assertIsString($mailTemplateId);
+
+        $this->connection->insert('mail_template_translation', [
+            'mail_template_id' => $mailTemplateId,
+            'language_id' => $languageId,
+            'subject' => 'Kunden-Password geändert',
+            'sender_name' => '{{ salesChannel.name }}',
+            'content_html' => '',
+            'content_plain' => '',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        (new Migration1784276129RepairPasswordChangedMailTranslations())->update($this->connection);
+
+        static::assertSame('Kunden-Passwort geändert', $this->fetchGermanTypeName($mailTemplateTypeId, $languageId));
+        static::assertSame('Kunden-Passwort geändert', $this->fetchGermanSubject($mailTemplateTypeId, $languageId));
+    }
+
     public function testUpdateWithoutPasswordChangedMailTemplateTypeDoesNothing(): void
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId();
@@ -99,6 +135,29 @@ class Migration1784276129RepairPasswordChangedMailTranslationsTest extends TestC
             'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
             ['technicalName' => CustomerPasswordChangedEvent::EVENT_NAME],
         ));
+    }
+
+    private function createLanguage(string $localeCode, string $translationCode): string
+    {
+        $languageId = Uuid::randomBytes();
+
+        $this->connection->insert('language', [
+            'id' => $languageId,
+            'name' => $localeCode,
+            'locale_id' => $this->fetchLocaleId($localeCode),
+            'translation_code_id' => $this->fetchLocaleId($translationCode),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $languageId;
+    }
+
+    private function fetchLocaleId(string $code): string
+    {
+        $localeId = $this->connection->fetchOne('SELECT `id` FROM `locale` WHERE `code` = :code LIMIT 1', ['code' => $code]);
+        static::assertIsString($localeId);
+
+        return $localeId;
     }
 
     private function getMailTemplateTypeId(): string

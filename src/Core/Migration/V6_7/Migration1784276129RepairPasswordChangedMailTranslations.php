@@ -17,6 +17,8 @@ class Migration1784276129RepairPasswordChangedMailTranslations extends Migration
 
     private const CORRECT_GERMAN_NAME = 'Kunden-Passwort geändert';
 
+    private const GERMAN_LANGUAGE_ISO = 'de-DE';
+
     public function getCreationTimestamp(): int
     {
         return 1784276129;
@@ -24,34 +26,38 @@ class Migration1784276129RepairPasswordChangedMailTranslations extends Migration
 
     public function update(Connection $connection): void
     {
-        $mailTemplateTypeId = $connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => CustomerPasswordChangedEvent::EVENT_NAME],
-        );
-
-        if (!\is_string($mailTemplateTypeId)) {
-            return;
-        }
-
+        // Migration1763377570 picked its German target language via the de-DE translation code,
+        // so the repair must match over the same relation instead of the language's own locale.
         $connection->executeStatement(
-            'UPDATE `mail_template_type_translation`
-             SET `name` = :correctName
-             WHERE `mail_template_type_id` = :mailTemplateTypeId AND `name` = :wrongName',
+            'UPDATE `mail_template_type_translation` AS `translation`
+             INNER JOIN `mail_template_type` AS `type` ON `type`.`id` = `translation`.`mail_template_type_id`
+             INNER JOIN `language` ON `language`.`id` = `translation`.`language_id`
+             INNER JOIN `locale` ON `locale`.`id` = `language`.`translation_code_id`
+             SET `translation`.`name` = :correctName
+             WHERE `type`.`technical_name` = :technicalName
+                 AND `locale`.`code` = :germanIso
+                 AND `translation`.`name` = :wrongName',
             [
-                'mailTemplateTypeId' => $mailTemplateTypeId,
+                'technicalName' => CustomerPasswordChangedEvent::EVENT_NAME,
+                'germanIso' => self::GERMAN_LANGUAGE_ISO,
                 'wrongName' => self::WRONG_GERMAN_NAME,
                 'correctName' => self::CORRECT_GERMAN_NAME,
             ],
         );
 
         $connection->executeStatement(
-            'UPDATE `mail_template_translation`
-             SET `subject` = :correctSubject
-             WHERE `subject` = :wrongSubject AND `mail_template_id` IN (
-                 SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId
-             )',
+            'UPDATE `mail_template_translation` AS `translation`
+             INNER JOIN `mail_template` AS `template` ON `template`.`id` = `translation`.`mail_template_id`
+             INNER JOIN `mail_template_type` AS `type` ON `type`.`id` = `template`.`mail_template_type_id`
+             INNER JOIN `language` ON `language`.`id` = `translation`.`language_id`
+             INNER JOIN `locale` ON `locale`.`id` = `language`.`translation_code_id`
+             SET `translation`.`subject` = :correctSubject
+             WHERE `type`.`technical_name` = :technicalName
+                 AND `locale`.`code` = :germanIso
+                 AND `translation`.`subject` = :wrongSubject',
             [
-                'mailTemplateTypeId' => $mailTemplateTypeId,
+                'technicalName' => CustomerPasswordChangedEvent::EVENT_NAME,
+                'germanIso' => self::GERMAN_LANGUAGE_ISO,
                 'wrongSubject' => self::WRONG_GERMAN_NAME,
                 'correctSubject' => self::CORRECT_GERMAN_NAME,
             ],

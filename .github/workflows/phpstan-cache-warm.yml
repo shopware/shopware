@@ -25,6 +25,10 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          keep-composer-tools: true
+
+      - name: Install Danger # keep the analysed paths identical to the php.yml PHPStan job, or its cache restore is useless
+        run: composer install -d vendor-bin/danger-php --no-interaction
 
       - name: Generate Schema
         run: composer run framework:schema:dump

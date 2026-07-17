@@ -69,6 +69,7 @@ export function setupResult(
             hostModules: {},
             rootConfigs: { tsconfig: 'managed', eslintConfig: 'managed' },
             ideBootstraps: {},
+            gitignore: { state: 'managed', optedOut: false },
             projects,
         },
         manifestPath: 'var/admin-extension-tooling/manifest.json',

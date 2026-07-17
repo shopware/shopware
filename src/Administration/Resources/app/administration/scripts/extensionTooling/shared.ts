@@ -91,7 +91,25 @@ export interface ExtensionToolingManifest {
         eslintConfig: ManifestFileState;
     };
     ideBootstraps: Record<string, ManifestFileState>;
+    /** The managed ignore block for generated root files in the project .gitignore. */
+    gitignore: {
+        state: ManifestFileState;
+        optedOut: boolean;
+    };
     projects: ExtensionToolingProject[];
+}
+
+/** Defensive disk read of the last run's manifest — null on absence, garbage, or a version mismatch. */
+export function readPreviousManifest(projectRoot: string): ExtensionToolingManifest | null {
+    try {
+        const parsed = JSON.parse(
+            fs.readFileSync(path.join(projectRoot, STATE_DIR, 'manifest.json'), 'utf8'),
+        ) as ExtensionToolingManifest;
+
+        return parsed && parsed.version === 2 ? parsed : null;
+    } catch {
+        return null;
+    }
 }
 
 /**
@@ -328,4 +346,60 @@ export function atomicWrite(filePath: string, content: string): void {
 
     fs.writeFileSync(temporaryPath, content);
     fs.renameSync(temporaryPath, filePath);
+}
+
+export const MANAGED_BLOCK_BEGIN = `# >>> ${GENERATED_MARKER}`;
+export const MANAGED_BLOCK_END = `# <<< ${GENERATED_MARKER}`;
+
+/**
+ * Owns a marker-fenced region inside a user-owned file (the one sanctioned
+ * write into a user file — ownership is scoped to the fence and the initial
+ * write is append-only). Everything outside the fence is preserved
+ * byte-identically; a begin marker without its end reports a conflict.
+ */
+export function writeManagedBlock(filePath: string, blockBody: string[], dryRun = false): WriteResult {
+    const block = [
+        MANAGED_BLOCK_BEGIN,
+        ...blockBody,
+        MANAGED_BLOCK_END,
+    ].join('\n');
+
+    if (!fs.existsSync(filePath)) {
+        if (!dryRun) {
+            atomicWrite(filePath, `${block}\n`);
+        }
+
+        return { file: filePath, state: 'created' };
+    }
+
+    const currentContent = fs.readFileSync(filePath, 'utf8');
+    const beginIndex = currentContent.indexOf(MANAGED_BLOCK_BEGIN);
+    const endIndex = currentContent.indexOf(MANAGED_BLOCK_END);
+
+    if (beginIndex === -1 && endIndex === -1) {
+        const separator = currentContent === '' || currentContent.endsWith('\n') ? '\n' : '\n\n';
+
+        if (!dryRun) {
+            atomicWrite(filePath, `${currentContent}${separator}${block}\n`);
+        }
+
+        return { file: filePath, state: 'updated' };
+    }
+
+    if (beginIndex === -1 || endIndex < beginIndex) {
+        return { file: filePath, state: 'conflict' };
+    }
+
+    const nextContent =
+        currentContent.slice(0, beginIndex) + block + currentContent.slice(endIndex + MANAGED_BLOCK_END.length);
+
+    if (nextContent === currentContent) {
+        return { file: filePath, state: 'unchanged' };
+    }
+
+    if (!dryRun) {
+        atomicWrite(filePath, nextContent);
+    }
+
+    return { file: filePath, state: 'updated' };
 }

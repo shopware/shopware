@@ -2,6 +2,7 @@
 
 namespace Shopware\Core;
 
+use Composer\Autoload\ClassLoader;
 use PHPUnit\TextUI\Configuration\SourceFilter;
 
 require __DIR__ . '/TestBootstrapper.php';
@@ -10,6 +11,20 @@ require __DIR__ . '/TestBootstrapper.php';
     ->setPlatformEmbedded(false)
     ->setEnableCommercial()
     ->bootstrap();
+
+/*
+ * The Danger rules (src/Core/DevOps/StaticAnalyze/Danger) type against the danger-php package
+ * from vendor-bin (run `composer install -d vendor-bin/danger-php` once to make their unit tests
+ * runnable). Only its own Danger\ namespace is registered — appended, never the package's full
+ * vendor autoloader, which would take priority over the root vendor for the symfony packages
+ * both ship.
+ */
+$dangerSrc = \dirname(__DIR__, 2) . '/vendor-bin/danger-php/vendor/shyim/danger-php/src';
+if (is_dir($dangerSrc)) {
+    $dangerClassLoader = new ClassLoader();
+    $dangerClassLoader->addPsr4('Danger\\', $dangerSrc);
+    $dangerClassLoader->register();
+}
 
 /*
  * Eagerly build PHPUnit's source map (full <source> tree traversal). It is otherwise built

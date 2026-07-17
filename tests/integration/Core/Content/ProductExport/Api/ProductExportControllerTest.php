@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -107,6 +108,9 @@ class ProductExportControllerTest extends TestCase
 
     public function testValidateReturnsStructuredProviderErrors(): void
     {
+        // the agentic-commerce providers (open-ai/google) move to SwagAgenticCommerce with 6.8
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->createProductStream();
 
         $content = json_encode([
@@ -196,6 +200,9 @@ TWIG,
 
     public function testPreview(): void
     {
+        // the agentic-commerce providers (open-ai/google) move to SwagAgenticCommerce with 6.8
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->createProductStream();
 
         $url = '/api/_action/product-export/preview';
@@ -237,6 +244,9 @@ TWIG,
 
     public function testPreviewProvidesConfiguredProviderInTransientExportEntity(): void
     {
+        // the agentic-commerce providers (open-ai/google) move to SwagAgenticCommerce with 6.8
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->createProductStream();
 
         $content = json_encode([

@@ -28,6 +28,7 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         isProductGridLoading: boolean;
         disabledAutoPromotion: boolean;
+        sendOrderConfirmationMail: boolean;
         promotionCodes: string[];
         productItems: LineItem[];
         context: ContextSwitchParameters;
@@ -39,6 +40,7 @@ export default Component.wrapComponentConfig({
             isLoading: false,
             isProductGridLoading: false,
             disabledAutoPromotion: false,
+            sendOrderConfirmationMail: true,
             shippingCosts: null,
             context: {
                 currencyId: '',
@@ -121,6 +123,7 @@ export default Component.wrapComponentConfig({
             const promises = [];
 
             this.isLoading = true;
+            Store.get('swOrder').setSendOrderConfirmationMail(this.sendOrderConfirmationMail);
 
             promises.push(this.updateOrderContext());
 
@@ -190,6 +193,10 @@ export default Component.wrapComponentConfig({
 
         updateAutoPromotionToggle(value: boolean): void {
             this.disabledAutoPromotion = value;
+        },
+
+        updateSendOrderConfirmationMail(value: boolean): void {
+            this.sendOrderConfirmationMail = value;
         },
 
         updateShippingCost(value: number): void {

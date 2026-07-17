@@ -90,6 +90,7 @@
       "placeholderCurrency": "Wähle Währung ...",
       "helpTextPaymentMethod": "Es werden nur Zahlungsarten angezeigt, die nach dem Bestellabschluss gewechselt werden können.",
       "labelToggleAutomaticPromotions": "Automatische hinzugefügte Rabattaktionen deaktivieren",
+      "labelSendOrderConfirmationMail": "Bestellbestätigung per E-Mail an Kunden senden",
       "labelPromotions": "Rabattaktionen",
       "generalTab": {
         "labelLineItemsCard": "Positionen"

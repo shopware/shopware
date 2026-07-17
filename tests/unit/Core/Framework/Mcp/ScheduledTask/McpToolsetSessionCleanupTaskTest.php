@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\ScheduledTask;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
  * @internal
@@ -16,7 +15,8 @@ class McpToolsetSessionCleanupTaskTest extends TestCase
     public function testTaskMetadata(): void
     {
         static::assertSame('mcp_toolset_session.cleanup', McpToolsetSessionCleanupTask::getTaskName());
-        static::assertSame(ScheduledTask::DAILY, McpToolsetSessionCleanupTask::getDefaultInterval());
+        // ScheduledTask::DAILY is protected; assert the resolved value (one day in seconds).
+        static::assertSame(86400, McpToolsetSessionCleanupTask::getDefaultInterval());
         static::assertTrue(McpToolsetSessionCleanupTask::shouldRescheduleOnFailure());
     }
 }

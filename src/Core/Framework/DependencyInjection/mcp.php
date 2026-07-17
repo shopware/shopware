@@ -279,13 +279,9 @@ return static function (ContainerConfigurator $container): void {
         ->public()
         ->args([
             service('mcp.store_api.server')->nullOnInvalid(),
-            service('mcp.psr_http_factory')->nullOnInvalid(),
-            service('mcp.http_foundation_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
-            service('mcp.psr17_factory')->nullOnInvalid(),
+            service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
-            service(McpAllowedHostsProvider::class),
             service('logger'),
             service('mcp.store_api.session_registry'),
             service('mcp.store_api.list_changed_notifier'),

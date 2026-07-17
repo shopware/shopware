@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
@@ -200,15 +201,19 @@ class StoreApiMcpServerControllerTest extends TestCase
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
 
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $this->psr17,
+            $this->psr17,
+            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(McpAllowedHostsProvider::class),
+        );
+
         return new StoreApiMcpServerController(
             $server ?? Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            $this->psr17,
-            $this->psr17,
+            $transportFactory,
             new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             sessionRegistry: $sessionRegistry,
         );
     }

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -336,6 +337,27 @@ class StorefrontSubscriberTest extends TestCase
         static::assertTrue($request->getSession()->has('sessionId'));
     }
 
+    public function testDoesNotStartSessionWithoutStorefrontSalesChannelMarker(): void
+    {
+        $request = new Request();
+        $factoryCalls = 0;
+        $request->setSessionFactory(static function () use (&$factoryCalls): Session {
+            ++$factoryCalls;
+
+            return new Session(new MockArraySessionStorage());
+        });
+
+        (new StorefrontSubscriber(
+            new RequestStack([$request]),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
+        ))->startSession();
+
+        static::assertSame(0, $factoryCalls);
+    }
+
     public function testSubRequestShouldGetSameContextTokenAsMainRequest(): void
     {
         $mainRequest = new Request(
@@ -397,7 +419,10 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSessionWithoutSession(): void
     {
-        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+        ]);
         $requestStack = new RequestStack([$request]);
 
         (new StorefrontSubscriber(
@@ -413,7 +438,10 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSession(): void
     {
-        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+        ]);
         $request->setSession(new Session(new MockArraySessionStorage()));
         $requestStack = new RequestStack([$request]);
 
@@ -427,6 +455,30 @@ class StorefrontSubscriberTest extends TestCase
 
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testDoesNotUpdateSessionForStoreApiRequest(): void
+    {
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        ]);
+        $factoryCalls = 0;
+        $request->setSessionFactory(static function () use (&$factoryCalls): Session {
+            ++$factoryCalls;
+
+            return new Session(new MockArraySessionStorage());
+        });
+
+        (new StorefrontSubscriber(
+            new RequestStack([$request]),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
+        ))->updateSession(self::TEST_CONTEXT_TOKEN);
+
+        static::assertSame(0, $factoryCalls);
     }
 
     public function testStartSessionWithBindingDisabledUsesDefaultTokenKey(): void
@@ -583,6 +635,7 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]
         );
@@ -616,6 +669,7 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]
         );

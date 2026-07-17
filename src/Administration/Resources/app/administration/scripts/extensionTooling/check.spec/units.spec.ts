@@ -11,6 +11,8 @@ import {
     countEslintFindings,
     countTypeCheckableFiles,
     countTypeScriptFindings,
+    parseEslintFindings,
+    parseTypeScriptFindings,
     relativizeToolOutput,
     runPool,
 } from '../check';
@@ -112,5 +114,61 @@ describe('scripts/extensionTooling/check units', () => {
 
         expect(countTypeCheckableFiles(projectRoot, ['plugin/src'])).toBe(2);
         expect(countTypeCheckableFiles(projectRoot, ['does/not/exist'])).toBe(0);
+    });
+
+    it('parses TypeScript findings into structured entries without line numbers', () => {
+        const output = [
+            "src/main.ts(4,7): error TS2322: Type 'string' is not assignable to type 'number'.",
+            'src/App.vue:8:3 - error TS2339: Property missing does not exist.',
+            "  src/main.ts(1,1): 'other' is declared here.",
+            'unrelated line',
+        ].join('\n');
+
+        const findings = parseTypeScriptFindings(output);
+
+        expect(findings).toEqual([
+            { file: 'src/main.ts', code: 'TS2322', message: "Type 'string' is not assignable to type 'number'." },
+            { file: 'src/App.vue', code: 'TS2339', message: 'Property missing does not exist.' },
+        ]);
+        // The related-information line is ignored, so the structured count
+        // matches the regex counter (the baseline exit-code safety net).
+        expect(findings).toHaveLength(countTypeScriptFindings(output));
+    });
+
+    it('parses ESLint findings and keeps both severities for the count invariant', () => {
+        const output = [
+            'custom/plugins/X/src/main.ts',
+            '  4:7   error    Unexpected console statement  no-console',
+            '  9:1   warning  Missing return type           @typescript-eslint/explicit-function-return-type',
+            'custom/plugins/X/src/other.ts',
+            '  1:1   error    Parsing error: Unexpected token',
+            '',
+            '✖ 3 problems (2 errors, 1 warning)',
+        ].join('\n');
+
+        const findings = parseEslintFindings(output);
+
+        expect(findings).toEqual([
+            {
+                file: 'custom/plugins/X/src/main.ts',
+                rule: 'no-console',
+                message: 'Unexpected console statement',
+                severity: 'error',
+            },
+            {
+                file: 'custom/plugins/X/src/main.ts',
+                rule: '@typescript-eslint/explicit-function-return-type',
+                message: 'Missing return type',
+                severity: 'warning',
+            },
+            {
+                file: 'custom/plugins/X/src/other.ts',
+                rule: '',
+                message: 'Parsing error: Unexpected token',
+                severity: 'error',
+            },
+        ]);
+        // Both severities are parsed so the total matches the summary counter.
+        expect(findings).toHaveLength(countEslintFindings(output));
     });
 });

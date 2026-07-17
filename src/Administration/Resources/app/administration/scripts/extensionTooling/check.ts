@@ -202,6 +202,88 @@ export function countEslintFindings(output: string): number {
     return 0;
 }
 
+export interface TypeScriptFinding {
+    /** Path as the tool printed it (project-root-relative). */
+    file: string;
+    /** Diagnostic code, e.g. "TS2322". */
+    code: string;
+    message: string;
+}
+
+export interface EslintFinding {
+    /** Path as the tool printed it (project-root-relative after relativizeToolOutput). */
+    file: string;
+    /** Rule id, or "" for a rule-less problem (e.g. a parsing error). */
+    rule: string;
+    message: string;
+    severity: 'error' | 'warning';
+}
+
+/**
+ * Structures the TypeScript findings the counter counts — one per
+ * `error TSxxxx:` line, in both the compact `file(l,c):` and the pretty
+ * `file:l:c -` location formats. Line and column are dropped on purpose: the
+ * baseline keys on file + code + message so a recorded finding survives line
+ * drift. Indented related-information lines carry no `error TSxxxx:` and are
+ * skipped, so the result length matches countTypeScriptFindings.
+ */
+export function parseTypeScriptFindings(output: string): TypeScriptFinding[] {
+    const findings: TypeScriptFinding[] = [];
+
+    for (const line of output.split(/\r?\n/)) {
+        const compact = line.match(/^(.+?)\(\d+,\d+\): error (TS\d+): (.*)$/);
+        const match = compact ?? line.match(/^(.+?):\d+:\d+ - error (TS\d+): (.*)$/);
+
+        if (match) {
+            findings.push({ file: match[1], code: match[2], message: match[3].trim() });
+        }
+    }
+
+    return findings;
+}
+
+/**
+ * Structures ESLint's stylish output — a bare file-header line followed by
+ * indented `line:col severity message rule` rows (rule id last, separated from
+ * the message by column padding). Line and column are dropped (the baseline
+ * keys on file + rule + message). Both severities are returned so the length
+ * matches countEslintFindings; callers baseline only error-severity findings,
+ * since warnings never fail the check.
+ */
+export function parseEslintFindings(output: string): EslintFinding[] {
+    const findings: EslintFinding[] = [];
+    let currentFile: string | null = null;
+
+    for (const line of output.split(/\r?\n/)) {
+        if (line.trim() === '') {
+            continue;
+        }
+
+        const row = line.match(/^\s+\d+:\d+\s+(error|warning)\s+(.+)$/);
+
+        if (row && currentFile) {
+            const ruleMatch = row[2].match(/^(.*?)\s{2,}(\S+)$/);
+
+            findings.push({
+                file: currentFile,
+                rule: ruleMatch ? ruleMatch[2] : '',
+                message: (ruleMatch ? ruleMatch[1] : row[2]).trim(),
+                severity: row[1] as 'error' | 'warning',
+            });
+
+            continue;
+        }
+
+        // A non-indented line that is neither a finding row nor the summary is
+        // the file header the rows below it belong to.
+        if (!/^\s/.test(line) && !line.startsWith('✖') && !/^\d+ problems?/.test(line)) {
+            currentFile = line.trim();
+        }
+    }
+
+    return findings;
+}
+
 export function buildVueTscArguments(vueTscPath: string, tsconfigPath: string): string[] {
     return [
         vueTscPath,

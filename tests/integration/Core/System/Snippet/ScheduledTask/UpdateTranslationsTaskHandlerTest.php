@@ -28,7 +28,11 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
     use IntegrationTestBehaviour;
     use TranslationClientBehaviour;
 
-    private const LOCALE = 'ach-UG';
+    /**
+     * Pseudo-locale: installing it auto-creates the locale, language and snippet set, so the test
+     * needs no pre-existing locale fixture.
+     */
+    private const PSEUDO_LOCALE = 'ach-UG';
 
     #[After]
     public function cleanupTranslationFilesystem(): void
@@ -58,7 +62,7 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
 
         $this->handler()->run();
 
-        static::assertSame(1, $this->countBaseSnippetSets(self::LOCALE));
+        static::assertSame(1, $this->countBaseSnippetSets(self::PSEUDO_LOCALE));
     }
 
     private function handler(): UpdateTranslationsTaskHandler
@@ -79,13 +83,13 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
         $updater = static::getContainer()->get(TranslationUpdater::class);
         static::assertInstanceOf(TranslationUpdater::class, $updater);
 
-        $updater->update($store->getUpdatedLocalMetadata([self::LOCALE]), Context::createCLIContext());
+        $updater->update($store->getUpdatedLocalMetadata([self::PSEUDO_LOCALE]), Context::createCLIContext());
     }
 
     private function metadataResponse(string $updatedAt = '2025-01-01T00:00:00+00:00'): Response
     {
         $body = json_encode([
-            ['locale' => self::LOCALE, 'updatedAt' => $updatedAt, 'progress' => 100],
+            ['locale' => self::PSEUDO_LOCALE, 'updatedAt' => $updatedAt, 'progress' => 100],
         ], \JSON_THROW_ON_ERROR);
 
         return new Response(200, [], $body);

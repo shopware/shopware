@@ -65,6 +65,7 @@ class NoRouteOverrideInDecoratorsRule implements Rule
         if ($native->getAttributes(Route::class) !== []) {
             return true;
         }
+        // @phpstan-ignore-next-line classConstant.deprecatedClass - This rule also checks the deprecated route attribute
         if ($native->getAttributes(RouteAnnotation::class) !== []) {
             return true;
         }
@@ -79,6 +80,7 @@ class NoRouteOverrideInDecoratorsRule implements Rule
             if ($method->getAttributes(Route::class) !== []) {
                 return true;
             }
+            // @phpstan-ignore-next-line classConstant.deprecatedClass - This rule also checks the deprecated route attribute
             if ($method->getAttributes(RouteAnnotation::class) !== []) {
                 return true;
             }

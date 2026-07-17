@@ -281,6 +281,10 @@ frame-ancestors 'none';
             <tag name="monolog.logger"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator">
+            <argument type="service" id="translator"/>
+        </service>
+
         <!-- Snippets -->
         <service id="Shopware\Core\System\Snippet\SnippetService" lazy="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

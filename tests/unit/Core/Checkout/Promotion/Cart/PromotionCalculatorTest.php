@@ -47,26 +47,7 @@ class PromotionCalculatorTest extends TestCase
 
     protected function setUp(): void
     {
-        // a packager without matching items yields a zero-value discount, exactly like a
-        // price-definition filter that matches no line items
-        $cartScopeDiscountPackager = static::createStub(DiscountPackager::class);
-        $cartScopeDiscountPackager->method('getMatchingItems')->willReturn(new DiscountPackageCollection([]));
-
-        $this->promotionCalculator = new PromotionCalculator(
-            static::createStub(AmountCalculator::class),
-            static::createStub(AbsolutePriceCalculator::class),
-            static::createStub(LineItemGroupBuilder::class),
-            static::createStub(DiscountCompositionBuilder::class),
-            static::createStub(PackageFilter::class),
-            static::createStub(AdvancedPackagePicker::class),
-            static::createStub(SetGroupScopeFilter::class),
-            static::createStub(LineItemQuantitySplitter::class),
-            static::createStub(PercentagePriceCalculator::class),
-            $cartScopeDiscountPackager,
-            static::createStub(DiscountPackager::class),
-            static::createStub(DiscountPackager::class),
-        );
-
+        $this->promotionCalculator = $this->createPromotionCalculator();
         $this->context = static::createStub(SalesChannelContext::class);
     }
 
@@ -87,6 +68,29 @@ class PromotionCalculatorTest extends TestCase
 
         // the discount is still dropped, the warning only makes the removal visible
         static::assertCount(0, $calculated->getLineItems());
+    }
+
+    public function testAlreadyPreservedPromotionIsNotRecalculated(): void
+    {
+        $discountItem = $this->createDiscountItem(null);
+        $discountItem->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_SET);
+
+        $calculated = new Cart('calculated');
+        $calculated->add($discountItem);
+
+        $setScopeDiscountPackager = $this->createMock(DiscountPackager::class);
+        $setScopeDiscountPackager->expects($this->never())->method('getMatchingItems');
+        $this->promotionCalculator = $this->createPromotionCalculator($setScopeDiscountPackager);
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            new Cart('original'),
+            $calculated,
+            $this->context,
+            new CartBehavior(),
+        );
+
+        static::assertSame($discountItem, $calculated->get($discountItem->getId()));
     }
 
     public function testZeroValueDiscountWithUnknownConditionNestedInContainerAddsWarning(): void
@@ -144,5 +148,28 @@ class PromotionCalculatorTest extends TestCase
         ]);
 
         return $discountItem;
+    }
+
+    private function createPromotionCalculator(?DiscountPackager $setScopeDiscountPackager = null): PromotionCalculator
+    {
+        // a packager without matching items yields a zero-value discount, exactly like a
+        // price-definition filter that matches no line items
+        $cartScopeDiscountPackager = static::createStub(DiscountPackager::class);
+        $cartScopeDiscountPackager->method('getMatchingItems')->willReturn(new DiscountPackageCollection([]));
+
+        return new PromotionCalculator(
+            static::createStub(AmountCalculator::class),
+            static::createStub(AbsolutePriceCalculator::class),
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
+            static::createStub(PackageFilter::class),
+            static::createStub(AdvancedPackagePicker::class),
+            static::createStub(SetGroupScopeFilter::class),
+            static::createStub(LineItemQuantitySplitter::class),
+            static::createStub(PercentagePriceCalculator::class),
+            $cartScopeDiscountPackager,
+            static::createStub(DiscountPackager::class),
+            $setScopeDiscountPackager ?? static::createStub(DiscountPackager::class),
+        );
     }
 }

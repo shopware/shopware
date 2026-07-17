@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -24,52 +23,70 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class SetGroupScopeDiscountPackagerTest extends TestCase
 {
-    public function testGroupDefinitionsBuiltFromPayload(): void
+    public function testFormatRuleCollection(): void
     {
-        $ruleCollection = new RuleCollection();
-
-        $ruleResolver = static::createStub(SetGroupRuleResolver::class);
-        $ruleResolver->method('resolve')->willReturn($ruleCollection);
-
         $builder = static::createStub(LineItemGroupBuilder::class);
         $builder
             ->method('findGroupPackages')
-            ->willReturnCallback(static function (array $groupDefinitions) use ($ruleCollection) {
-                static::assertCount(2, $groupDefinitions);
+            ->willReturnCallback(static function (array $groupDefinitions) {
+                static::assertCount(4, $groupDefinitions);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[0]);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[1]);
-                static::assertSame($ruleCollection, $groupDefinitions[0]->getRules());
-                static::assertSame('COUNT', $groupDefinitions[0]->getPackagerKey());
-                static::assertSame(5.0, $groupDefinitions[0]->getValue());
+                static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[2]);
+                static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[3]);
+
+                $array = $groupDefinitions[0]->getRules();
+                $collection = $groupDefinitions[1]->getRules();
+                $null = $groupDefinitions[2]->getRules();
+                $unset = $groupDefinitions[3]->getRules();
+
+                static::assertCount(1, $array);
+                static::assertSame('Rule Name', $array->first()?->getName());
+                static::assertCount(0, $collection);
+                static::assertCount(0, $null);
+                static::assertCount(0, $unset);
 
                 return new LineItemGroupBuilderResult();
             });
 
         $payload = [
-            'discountScope' => 'setgroup',
-            'discountType' => 'absolute',
+            'discountScope' => 'scope',
+            'discountType' => 'type',
             'setGroups' => [
                 [
                     'groupId' => Uuid::randomHex(),
-                    'packagerKey' => 'COUNT',
-                    'value' => 5,
-                    'sorterKey' => 'PRICE_ASC',
-                    'rules' => [['id' => Uuid::randomHex()]],
+                    'packagerKey' => 'key',
+                    'value' => 10,
+                    'sorterKey' => 'ASC',
+                    'rules' => [['id' => Uuid::randomHex(), 'name' => 'Rule Name']],
                 ],
                 [
                     'groupId' => Uuid::randomHex(),
-                    'packagerKey' => 'COUNT',
-                    'value' => 3,
-                    'sorterKey' => 'PRICE_ASC',
-                    'rules' => $ruleCollection,
+                    'packagerKey' => 'key',
+                    'value' => 10,
+                    'sorterKey' => 'ASC',
+                    'rules' => new RuleCollection(),
+                ],
+                [
+                    'groupId' => Uuid::randomHex(),
+                    'packagerKey' => 'key',
+                    'value' => 10,
+                    'sorterKey' => 'ASC',
+                    'rules' => null,
+                ],
+                [
+                    'groupId' => Uuid::randomHex(),
+                    'packagerKey' => 'key',
+                    'value' => 10,
+                    'sorterKey' => 'ASC',
                 ],
             ],
         ];
 
-        (new SetGroupScopeDiscountPackager($builder, $ruleResolver))->getMatchingItems(
+        (new SetGroupScopeDiscountPackager($builder))->getMatchingItems(
             new DiscountLineItem('label', new AbsolutePriceDefinition(10), $payload, null),
             new Cart('token'),
-            static::createStub(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class)
         );
     }
 }

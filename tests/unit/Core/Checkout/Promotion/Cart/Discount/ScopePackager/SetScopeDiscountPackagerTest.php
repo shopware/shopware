@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupRuleResolver;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -26,19 +25,18 @@ class SetScopeDiscountPackagerTest extends TestCase
 {
     public function testGroupDefinitionsBuiltFromPayload(): void
     {
+        $ruleId = Uuid::randomHex();
         $ruleCollection = new RuleCollection();
-
-        $ruleResolver = static::createStub(SetGroupRuleResolver::class);
-        $ruleResolver->method('resolve')->willReturn($ruleCollection);
 
         $builder = static::createStub(LineItemGroupBuilder::class);
         $builder
             ->method('findGroupPackages')
-            ->willReturnCallback(static function (array $groupDefinitions) use ($ruleCollection) {
+            ->willReturnCallback(static function (array $groupDefinitions) use ($ruleCollection, $ruleId) {
                 static::assertCount(2, $groupDefinitions);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[0]);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[1]);
-                static::assertSame($ruleCollection, $groupDefinitions[0]->getRules());
+                static::assertSame($ruleId, $groupDefinitions[0]->getRules()->first()?->getId());
+                static::assertSame($ruleCollection, $groupDefinitions[1]->getRules());
                 static::assertSame('COUNT', $groupDefinitions[0]->getPackagerKey());
                 static::assertSame(5.0, $groupDefinitions[0]->getValue());
 
@@ -54,7 +52,7 @@ class SetScopeDiscountPackagerTest extends TestCase
                     'packagerKey' => 'COUNT',
                     'value' => 5,
                     'sorterKey' => 'PRICE_ASC',
-                    'rules' => [['id' => Uuid::randomHex()]],
+                    'rules' => [['id' => $ruleId]],
                 ],
                 [
                     'groupId' => Uuid::randomHex(),
@@ -66,7 +64,7 @@ class SetScopeDiscountPackagerTest extends TestCase
             ],
         ];
 
-        (new SetScopeDiscountPackager($builder, $ruleResolver))->getMatchingItems(
+        (new SetScopeDiscountPackager($builder))->getMatchingItems(
             new DiscountLineItem('label', new AbsolutePriceDefinition(10), $payload, null),
             new Cart('token'),
             static::createStub(SalesChannelContext::class),

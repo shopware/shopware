@@ -82,9 +82,7 @@ class TranslationControllerTest extends TestCase
 
     public function testUpdate(): void
     {
-        // No locales are installed locally, so update only fetches the remote metadata and installs nothing.
-        $this->appendTranslationResponse($this->metadataResponse());
-
+        // No locales are installed locally, so update short-circuits and makes no remote request at all.
         $browser = $this->getBrowser();
         $browser->jsonRequest('POST', '/api/_action/translation/update');
 
@@ -93,6 +91,28 @@ class TranslationControllerTest extends TestCase
 
         $content = $this->decodeResponse($response->getContent());
         static::assertSame([], $content['updated']);
+        static::assertSame([], $content['skipped']);
+    }
+
+    public function testUpdateRefreshesInstalledLocale(): void
+    {
+        // Install the locale first, then queue a newer metadata entry plus its file downloads so update refreshes it.
+        $this->mockTranslationDownload();
+
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('POST', '/api/_action/translation/install', ['locales' => [self::LOCALE]]);
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $this->appendTranslationResponse($this->metadataResponse('2025-06-01T00:00:00+00:00'));
+        $this->appendTranslationFileResponses();
+
+        $browser->jsonRequest('POST', '/api/_action/translation/update');
+
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $content = $this->decodeResponse($response->getContent());
+        static::assertSame([self::LOCALE], $content['updated']);
         static::assertSame([], $content['skipped']);
     }
 
@@ -153,7 +173,7 @@ class TranslationControllerTest extends TestCase
 
     public function testUpdateAllowedWithUpdatePrivilege(): void
     {
-        $this->appendTranslationResponse(new Response(200, [], '[]'));
+        // Nothing is installed, so update short-circuits without a remote request; this only asserts ACL access.
         $browser = $this->getBrowser(true, [], ['system:translation:update']);
 
         $browser->jsonRequest('POST', '/api/_action/translation/update');
@@ -181,10 +201,10 @@ class TranslationControllerTest extends TestCase
         $this->appendTranslationFileResponses();
     }
 
-    private function metadataResponse(): Response
+    private function metadataResponse(string $updatedAt = '2025-01-01T00:00:00+00:00'): Response
     {
         $body = json_encode([
-            ['locale' => self::LOCALE, 'updatedAt' => '2025-01-01T00:00:00+00:00', 'progress' => 100],
+            ['locale' => self::LOCALE, 'updatedAt' => $updatedAt, 'progress' => 100],
         ], \JSON_THROW_ON_ERROR);
 
         return new Response(200, [], $body);

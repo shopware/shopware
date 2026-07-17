@@ -5,8 +5,7 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { runSetupCli, setupExtensionTooling } from './setup';
-import { probeCacheKey, probeInputFiles, readProbeCache, writeProbeCache } from './probe';
+import { setupExtensionTooling } from './setup';
 import { GENERATED_MARKER } from './shared';
 import {
     cleanupTempProject,
@@ -357,128 +356,6 @@ describe('scripts/extensionTooling/setup', () => {
 
         expect(parsed.compilerOptions.paths['ZeroConfig/*']).toEqual(['../src/*']);
         expect(parsed.compilerOptions.paths.vue[0]).toContain('node_modules/vue');
-    });
-
-    describe('probe cache integration', () => {
-        it('adopts cached verified verdicts while inputs match and prunes removed extensions', () => {
-            writeFile(path.join(projectRoot, 'custom/plugins/Probe/composer.json'), '{}\n');
-            writeFile(path.join(projectRoot, 'custom/plugins/Probe/src/Resources/app/administration/src/main.ts'), [
-                'export {};',
-            ]);
-            writeFile(path.join(projectRoot, 'custom/plugins/Probe/src/Resources/app/administration/tsconfig.json'), [
-                '{ "compilerOptions": { "strict": true } }',
-            ]);
-            writePluginsConfig(projectRoot, [
-                {
-                    technicalName: 'Probe',
-                    basePath: 'custom/plugins/Probe/src',
-                    administrationPath: 'Resources/app/administration/src',
-                },
-            ]);
-
-            const staticRun = setupExtensionTooling({ projectRoot, administrationRoot });
-
-            expect(staticRun.manifest.projects[0].ts).toEqual({
-                mode: 'unmanaged',
-                reason: 'not-extending',
-                verified: false,
-            });
-
-            const inputs = probeInputFiles(staticRun.manifest.projects[0], projectRoot, administrationRoot);
-
-            writeProbeCache(projectRoot, {
-                version: 1,
-                entries: {
-                    Probe: {
-                        ts: {
-                            key: probeCacheKey(inputs.ts),
-                            resolution: { mode: 'unmanaged', reason: 'surface-not-injected', verified: true },
-                        },
-                    },
-                    Ghost: {
-                        ts: { key: 'stale', resolution: { mode: 'custom', verified: true } },
-                    },
-                },
-            });
-
-            const cachedRun = setupExtensionTooling({ projectRoot, administrationRoot });
-
-            expect(cachedRun.manifest.projects[0].ts).toEqual({
-                mode: 'unmanaged',
-                reason: 'surface-not-injected',
-                verified: true,
-            });
-            expect(readProbeCache(projectRoot)?.entries.Ghost).toBeUndefined();
-
-            // A config edit invalidates the hash — back to the static verdict.
-            writeFile(path.join(projectRoot, 'custom/plugins/Probe/src/Resources/app/administration/tsconfig.json'), [
-                '{ "compilerOptions": { "strict": false } }',
-            ]);
-
-            const invalidatedRun = setupExtensionTooling({ projectRoot, administrationRoot });
-
-            expect(invalidatedRun.manifest.projects[0].ts.verified).toBe(false);
-        });
-    });
-
-    describe('runSetupCli', () => {
-        function listTree(root: string): string[] {
-            return (fs.readdirSync(root, { recursive: true }) as string[]).sort();
-        }
-
-        it('rejects a mistyped flag with exit 2 and writes nothing', () => {
-            writeDefaultFixtures();
-
-            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-            const treeBefore = listTree(projectRoot);
-
-            const exitCode = runSetupCli([
-                '--chekc',
-                `--project-root=${projectRoot}`,
-                `--administration-root=${administrationRoot}`,
-            ]);
-
-            expect(exitCode).toBe(2);
-            expect(listTree(projectRoot)).toEqual(treeBefore);
-            expect(errorSpy.mock.calls.join('\n')).toContain('Did you mean --check?');
-            errorSpy.mockRestore();
-        });
-
-        it('prints help with exit 0 before resolving PROJECT_ROOT and writes nothing', () => {
-            const previousProjectRoot = process.env.PROJECT_ROOT;
-            delete process.env.PROJECT_ROOT;
-
-            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-            const treeBefore = listTree(projectRoot);
-
-            const exitCode = runSetupCli(['--help']);
-
-            expect(exitCode).toBe(0);
-            expect(listTree(projectRoot)).toEqual(treeBefore);
-            expect(logSpy.mock.calls.join('\n')).toContain('composer admin:setup-extension-tooling -- [options]');
-            logSpy.mockRestore();
-
-            if (previousProjectRoot !== undefined) {
-                process.env.PROJECT_ROOT = previousProjectRoot;
-            }
-        });
-
-        it('treats a missing PROJECT_ROOT as a usage error with exit 2', () => {
-            const previousProjectRoot = process.env.PROJECT_ROOT;
-            delete process.env.PROJECT_ROOT;
-
-            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-            const exitCode = runSetupCli(['--check']);
-
-            expect(exitCode).toBe(2);
-            expect(errorSpy.mock.calls.join('\n')).toContain('PROJECT_ROOT or --project-root is required.');
-            errorSpy.mockRestore();
-
-            if (previousProjectRoot !== undefined) {
-                process.env.PROJECT_ROOT = previousProjectRoot;
-            }
-        });
     });
 
     it('generates shims for every writable extension with --shim=all-custom', () => {

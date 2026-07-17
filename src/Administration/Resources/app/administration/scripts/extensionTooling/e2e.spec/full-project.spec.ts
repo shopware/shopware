@@ -195,7 +195,10 @@ describe('scripts/extensionTooling e2e', () => {
         const references = [...rootTsconfig.matchAll(/"path": "\.\/(.+)"/g)].map((match) => match[1]);
         const managedLeafs = setupResult.manifest.projects
             .filter((project) => project.ts.mode === 'managed')
-            .flatMap((project) => [project.checkTsconfig, project.specTsconfig]);
+            .flatMap((project) => [
+                project.checkTsconfig,
+                project.specTsconfig,
+            ]);
 
         expect(references.sort()).toEqual([...managedLeafs].sort());
 

@@ -79,6 +79,8 @@ export interface ExtensionToolingProject {
     eslint: ModeResolution;
     /** The tsconfig the check runner passes to vue-tsc (leaf or custom). */
     checkTsconfig: string;
+    /** The generated leaf tsconfig for the spec type-check program (jest types + specs only). */
+    specTsconfig: string;
 }
 
 export interface ExtensionToolingManifest {

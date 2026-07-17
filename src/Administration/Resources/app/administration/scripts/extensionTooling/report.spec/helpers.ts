@@ -27,6 +27,7 @@ export function project(name: string, overrides: Partial<ExtensionToolingProject
         ts: resolution('managed'),
         eslint: resolution('managed'),
         checkTsconfig: '',
+        specTsconfig: '',
         ...overrides,
     };
 }

@@ -153,7 +153,13 @@ describe('scripts/extensionTooling/setup', () => {
 
         const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'));
 
-        expect(leafFiles).toHaveLength(result.manifest.projects.length);
+        // One runtime leaf plus one spec leaf per project.
+        expect(leafFiles).toHaveLength(result.manifest.projects.length * 2);
+
+        for (const project of result.manifest.projects) {
+            expect(project.specTsconfig).toMatch(/-specs\.json$/);
+            expect(fs.existsSync(path.join(projectRoot, project.specTsconfig))).toBe(true);
+        }
     });
 
     it('excludes test files from generated and scaffolded tsconfigs', () => {
@@ -298,10 +304,14 @@ describe('scripts/extensionTooling/setup', () => {
         ]);
 
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
-        const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'));
+        const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects')).sort();
 
         expect(result.staleFiles.length).toBeGreaterThan(0);
-        expect(leafFiles).toEqual(['zeroconfig.json']);
+        // Only the surviving extension's runtime and spec leaves remain.
+        expect(leafFiles).toEqual([
+            'zeroconfig-specs.json',
+            'zeroconfig.json',
+        ]);
     });
 
     it('generates self-ignoring shims only below custom/plugins', () => {

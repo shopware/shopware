@@ -184,9 +184,11 @@ export default [
             'scripts/**/*',
             '!scripts/extensionTooling/',
             '!scripts/extensionTooling/**/*',
-            // Declaration-only type surface; imports the gitignored generated
-            // entity schema, so it must stay outside the admin's typed-lint program.
+            // Declaration-only type surfaces; admin-types imports the gitignored
+            // generated entity schema and spec-types references jest, so both
+            // must stay outside the admin's own typed-lint program.
             'extension-tooling/admin-types.d.ts',
+            'extension-tooling/spec-types.d.ts',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             '**/*.fixtures.js',

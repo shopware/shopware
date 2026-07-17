@@ -210,6 +210,7 @@ export function discoverProjects(
                 ts: resolveStaticTsMode(tsconfig),
                 eslint: resolveStaticEslintMode(eslintConfig),
                 checkTsconfig: '',
+                specTsconfig: '',
             };
         });
 }
@@ -287,7 +288,14 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
     const projectsDir = path.join(context.projectRoot, STATE_DIR, 'projects');
     const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
     const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
+    const specTypes = path.join(context.administrationRoot, 'extension-tooling', 'spec-types.d.ts');
     const usedFileNames = new Set<string>();
+
+    const sourceGlobs = (configPath: string, sourcePath: string, extensions: string[]): string[] =>
+        extensions.map(
+            (extension) =>
+                `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${extension}`,
+        );
 
     const configured = projects.map((project) => {
         let fileName = `${safeFileName(project.name)}.json`;
@@ -298,26 +306,21 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
             suffix += 1;
         }
 
+        const specFileName = fileName.replace(/\.json$/, '-specs.json');
+
         usedFileNames.add(fileName);
+        usedFileNames.add(specFileName);
 
         const configPath = path.join(projectsDir, fileName);
         const content = `// ${GENERATED_MARKER}\n${JSON.stringify(
             {
                 extends: asRelativeSpecifier(configPath, basePreset),
                 files: [asRelativeSpecifier(configPath, adminTypes)],
-                include: project.sourcePaths.flatMap((sourcePath) =>
-                    SOURCE_EXTENSIONS.map(
-                        (extension) =>
-                            `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${extension}`,
-                    ),
-                ),
+                include: project.sourcePaths.flatMap((sourcePath) => sourceGlobs(configPath, sourcePath, SOURCE_EXTENSIONS)),
                 // Exclude patterns resolve relative to this config, so they
                 // carry the same source prefix as the includes.
                 exclude: project.sourcePaths.flatMap((sourcePath) =>
-                    SPEC_FILE_SUFFIXES.map(
-                        (specSuffix) =>
-                            `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${specSuffix}`,
-                    ),
+                    sourceGlobs(configPath, sourcePath, SPEC_FILE_SUFFIXES),
                 ),
             },
             null,
@@ -326,9 +329,32 @@ function createLeafConfigs(context: GeneratorContext, projects: ExtensionTooling
 
         record(context, writeStateFile(configPath, content, context.dryRun));
 
+        // Companion program for spec files: the same type surface plus jest
+        // types (spec-types.d.ts), including only the specs the runtime program
+        // excludes. Keeping the jest globals here keeps them out of the runtime
+        // program, so runtime code cannot accidentally use describe/expect.
+        const specConfigPath = path.join(projectsDir, specFileName);
+        const specContent = `// ${GENERATED_MARKER}\n${JSON.stringify(
+            {
+                extends: asRelativeSpecifier(specConfigPath, basePreset),
+                files: [
+                    asRelativeSpecifier(specConfigPath, adminTypes),
+                    asRelativeSpecifier(specConfigPath, specTypes),
+                ],
+                include: project.sourcePaths.flatMap((sourcePath) =>
+                    sourceGlobs(specConfigPath, sourcePath, SPEC_FILE_SUFFIXES),
+                ),
+            },
+            null,
+            4,
+        )}\n`;
+
+        record(context, writeStateFile(specConfigPath, specContent, context.dryRun));
+
         return {
             ...project,
             checkTsconfig: project.tsconfig ?? relativePosix(context.projectRoot, configPath),
+            specTsconfig: relativePosix(context.projectRoot, specConfigPath),
         };
     });
 

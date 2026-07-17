@@ -5,6 +5,9 @@
 import fs from 'fs';
 import path from 'path';
 import {
+    appendFixHint,
+    buildEslintArguments,
+    buildVueTscArguments,
     checkExtensions,
     countEslintFindings,
     countTypeCheckableFiles,
@@ -70,6 +73,49 @@ describe('scripts/extensionTooling/check', () => {
             8,
         ]);
         expect(maxRunning).toBeLessThanOrEqual(3);
+    });
+
+    it('threads --fix to ESLint only and appends the toolchain fix hint', () => {
+        expect(buildEslintArguments('/bin/eslint.js', [], ['custom/plugins/X/src'], true)).toContain('--fix');
+        expect(buildEslintArguments('/bin/eslint.js', [], ['custom/plugins/X/src'], false)).not.toContain('--fix');
+        expect(buildVueTscArguments('/bin/vue-tsc.js', '/tsconfig.json')).not.toContain('--fix');
+
+        const fixable =
+            '✖ 3 problems (3 errors, 0 warnings)\n  3 errors and 0 warnings potentially fixable with the `--fix` option.';
+
+        expect(appendFixHint(fixable, 'MyPlugin')).toContain(
+            'auto-fixable: composer admin:check-extensions -- --only=MyPlugin --fix',
+        );
+        expect(appendFixHint('✖ 1 problem (1 error, 0 warnings)', 'MyPlugin')).not.toContain('auto-fixable');
+    });
+
+    it('refuses to autofix vendor extensions unless they are named via --only', async () => {
+        writeFile(path.join(projectRoot, 'vendor/acme/vendor-fix/composer.json'), '{}\n');
+        writeFile(path.join(projectRoot, 'vendor/acme/vendor-fix/src/Resources/app/administration/src/main.js'), [
+            'export default {};',
+        ]);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'VendorFix',
+                basePath: 'vendor/acme/vendor-fix/src',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+
+        const check = await checkExtensions({ projectRoot, administrationRoot, fix: true });
+
+        expect(check.warnings.join('\n')).toContain('not yours to rewrite');
+        expect(check.warnings.join('\n')).toContain('--only=vendor-fix');
+
+        const explicit = await checkExtensions({
+            projectRoot,
+            administrationRoot,
+            only: 'vendor-fix',
+            fix: true,
+            explicitOnly: ['vendor-fix'],
+        });
+
+        expect(explicit.warnings.join('\n')).not.toContain('not yours to rewrite');
     });
 
     it('counts findings from native tool output without altering it', () => {
@@ -237,13 +283,13 @@ describe('scripts/extensionTooling/check', () => {
             const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
             const exitCode = await runCheckCli([
-                '--fix',
+                '--nope',
                 `--project-root=${projectRoot}`,
                 `--administration-root=${administrationRoot}`,
             ]);
 
             expect(exitCode).toBe(2);
-            expect(errorSpy.mock.calls.join('\n')).toContain('Unknown option --fix');
+            expect(errorSpy.mock.calls.join('\n')).toContain('Unknown option --nope');
             errorSpy.mockRestore();
         });
 

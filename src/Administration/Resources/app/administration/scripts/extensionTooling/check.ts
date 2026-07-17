@@ -52,6 +52,8 @@ export interface ExtensionCheckResult {
     eslintResolution: ModeResolution;
     typescript: ToolRunResult;
     eslint: ToolRunResult;
+    /** Reproduction commands for the tool runs that actually happened. */
+    commands: { typescript?: string; eslint?: string };
 }
 
 export interface CheckExtensionsOptions {
@@ -61,6 +63,10 @@ export interface CheckExtensionsOptions {
     only?: string | string[];
     strictVendor?: boolean;
     maxWorkers?: number;
+    /** Forward --fix to ESLint (never to vue-tsc). */
+    fix?: boolean;
+    /** Names passed literally via --only — vendor extensions are only fixed when named here. */
+    explicitOnly?: string[];
 }
 
 export interface CheckExtensionsResult {
@@ -196,6 +202,48 @@ export function countEslintFindings(output: string): number {
     return 0;
 }
 
+export function buildVueTscArguments(vueTscPath: string, tsconfigPath: string): string[] {
+    return [
+        vueTscPath,
+        '--noEmit',
+        '--project',
+        tsconfigPath,
+    ];
+}
+
+export function buildEslintArguments(
+    eslintPath: string,
+    baseArguments: string[],
+    sourcePaths: string[],
+    fix: boolean,
+): string[] {
+    return [
+        eslintPath,
+        ...baseArguments,
+        '--no-error-on-unmatched-pattern',
+        ...(fix ? ['--fix'] : []),
+        ...sourcePaths,
+    ];
+}
+
+/**
+ * ESLint's native "potentially fixable with the `--fix` option" hint is a
+ * dead-end inside this toolchain — append the actual command that applies it.
+ */
+export function appendFixHint(output: string, extensionName: string): string {
+    if (!output.includes('potentially fixable with the `--fix` option')) {
+        return output;
+    }
+
+    return `${output}\n  → auto-fixable: composer admin:check-extensions -- --only=${extensionName} --fix`;
+}
+
+function formatCommand(cwd: string, args: string[]): string {
+    const quote = (value: string): string => (/\s/.test(value) ? JSON.stringify(value) : value);
+
+    return `cd ${quote(cwd)} && ${quote(process.execPath)} ${args.map(quote).join(' ')}`;
+}
+
 /** Normalizes the selection (single value, comma list, or array) to trimmed, non-empty names. */
 export function normalizeSelection(only: string | string[] | undefined): string[] {
     if (!only) {
@@ -325,6 +373,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     const checkJobs = resolvedModes.map(({ project, tsResolution, eslintResolution }) => async () => {
         let typescript: ToolRunResult;
         let eslint: ToolRunResult;
+        const commands: ExtensionCheckResult['commands'] = {};
 
         if (!setupResult.manifest.entitySchemaAvailable) {
             // Running vue-tsc against the empty-schema stub would bury the one
@@ -350,16 +399,11 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 projectRoot,
                 tsResolution.mode === 'custom' && project.tsconfig ? project.tsconfig : project.checkTsconfig,
             );
-            const run = await runCommand(
-                process.execPath,
-                [
-                    vueTscPath,
-                    '--noEmit',
-                    '--project',
-                    tsconfigPath,
-                ],
-                projectRoot,
-            );
+            const vueTscArguments = buildVueTscArguments(vueTscPath, tsconfigPath);
+
+            commands.typescript = formatCommand(projectRoot, vueTscArguments);
+
+            const run = await runCommand(process.execPath, vueTscArguments, projectRoot);
             const findings = countTypeScriptFindings(run.output);
 
             if (run.timedOut) {
@@ -399,16 +443,25 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             if (!sampleFile) {
                 eslint = { status: 'no-files', output: '', durationMs: 0, findings: 0 };
             } else {
-                const run = await runCommand(
-                    process.execPath,
-                    [
-                        eslintPath,
-                        ...eslintBaseArguments,
-                        '--no-error-on-unmatched-pattern',
-                        ...project.sourcePaths,
-                    ],
-                    projectRoot,
-                );
+                // Vendor-installed extensions are not ours to rewrite: --fix
+                // only applies to them when named explicitly via --only.
+                const explicitlyNamed =
+                    (options.explicitOnly ?? []).includes(project.name) ||
+                    project.technicalNames.some((name) => (options.explicitOnly ?? []).includes(name));
+                const applyFix = options.fix === true && (!project.vendor || explicitlyNamed);
+
+                if (options.fix === true && !applyFix) {
+                    warnings.push(
+                        `${project.name} is vendor-installed — not yours to rewrite; --fix skipped ` +
+                            `(name it via --only=${project.name} to fix anyway).`,
+                    );
+                }
+
+                const eslintArguments = buildEslintArguments(eslintPath, eslintBaseArguments, project.sourcePaths, applyFix);
+
+                commands.eslint = formatCommand(projectRoot, eslintArguments);
+
+                const run = await runCommand(process.execPath, eslintArguments, projectRoot);
                 const findings = countEslintFindings(run.output);
 
                 if (run.timedOut) {
@@ -428,7 +481,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
                 } else {
                     eslint = {
                         status: run.status === 0 ? 'passed' : 'failed',
-                        output: run.output,
+                        output: applyFix ? run.output : appendFixHint(run.output, project.name),
                         durationMs: run.durationMs,
                         findings,
                     };
@@ -442,6 +495,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
             eslintResolution,
             typescript,
             eslint,
+            commands,
         };
     });
     const results = await runPool(checkJobs, maxWorkers);
@@ -480,6 +534,11 @@ const CHECK_COMMAND: CommandSpec = {
         },
         { name: '--all', description: 'Check every discovered extension (skips the interactive picker).' },
         { name: '--strict-vendor', description: 'Fail on findings in vendor-installed (read-only) extensions.' },
+        {
+            name: '--fix',
+            description: 'Apply ESLint autofixes (vendor extensions only when named via --only).',
+        },
+        { name: '--show-commands', description: 'Print the underlying vue-tsc/ESLint invocation per extension.' },
         { name: '--verbose', description: 'Also print tool output for passing and skipped extensions.' },
         {
             name: '--max-workers',
@@ -574,9 +633,16 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         only: selection,
         strictVendor: parsed.flags.has('--strict-vendor'),
         maxWorkers,
+        fix: parsed.flags.has('--fix'),
+        explicitOnly: only !== undefined ? normalizeSelection(only) : [],
     });
 
-    console.log(renderCheckReport(check, { verbose: parsed.flags.has('--verbose') }));
+    console.log(
+        renderCheckReport(check, {
+            verbose: parsed.flags.has('--verbose'),
+            showCommands: parsed.flags.has('--show-commands'),
+        }),
+    );
 
     return check.exitCode;
 }

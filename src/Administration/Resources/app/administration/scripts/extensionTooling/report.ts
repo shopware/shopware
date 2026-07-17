@@ -16,6 +16,8 @@ import type { ExtensionToolingProject, ModeResolution } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
+    /** Print the underlying tool invocation per extension (reproduction escape hatch). */
+    showCommands?: boolean;
 }
 
 export interface ToolGuidance {
@@ -190,7 +192,8 @@ function indent(text: string, prefix: string): string {
         .join('\n');
 }
 
-function renderExtension(result: ExtensionCheckResult, verbose: boolean): string[] {
+function renderExtension(result: ExtensionCheckResult, options: RenderOptions): string[] {
+    const verbose = options.verbose === true;
     const location = result.project.vendor ? 'vendor' : result.project.basePath;
     const moduleCount = result.project.technicalNames.length;
     const moduleNote = moduleCount > 1 ? colors.dim(` (${moduleCount} modules)`) : '';
@@ -249,6 +252,17 @@ function renderExtension(result: ExtensionCheckResult, verbose: boolean): string
             lines.push(...describeNextStep(result.project).map((step) => colors.dim(`      ${step}`)));
         } else if (state === 'platform') {
             lines.push(colors.dim('      platform bundle — its own config decides composition.'));
+        }
+    }
+
+    if (options.showCommands === true) {
+        for (const command of [
+            result.commands.typescript,
+            result.commands.eslint,
+        ]) {
+            if (command) {
+                lines.push(colors.dim(`      $ ${command}`));
+            }
         }
     }
 
@@ -318,7 +332,7 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
     }
 
     for (const extension of result.results) {
-        lines.push(...renderExtension(extension, options.verbose === true));
+        lines.push(...renderExtension(extension, options));
     }
 
     for (const warning of result.warnings) {

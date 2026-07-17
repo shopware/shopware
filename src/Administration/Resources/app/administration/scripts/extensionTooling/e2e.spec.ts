@@ -414,6 +414,41 @@ describe('scripts/extensionTooling e2e — scaffolded committable configs', () =
     );
 
     it(
+        'applies ESLint autofixes with --fix and names the command in the native hint',
+        async () => {
+            const fixablePath = path.join(projectRoot, freshAdmin, 'src/fixable.js');
+
+            // no-extra-boolean-cast: in eslint:recommended and auto-fixable.
+            writeFile(fixablePath, [
+                'const enabled = true;',
+                '',
+                'if (!!enabled) {',
+                '    document.title = String(enabled);',
+                '}',
+                '',
+                'export default enabled;',
+            ]);
+
+            try {
+                const before = await checkExtensions({ projectRoot, administrationRoot, only: 'FreshPlugin' });
+
+                expect(before.results[0].eslint.status).toBe('failed');
+                expect(before.results[0].eslint.output).toContain(
+                    'auto-fixable: composer admin:check-extensions -- --only=FreshPlugin --fix',
+                );
+
+                const fixed = await checkExtensions({ projectRoot, administrationRoot, only: 'FreshPlugin', fix: true });
+
+                expect(fs.readFileSync(fixablePath, 'utf8')).not.toContain('!!');
+                expect(fixed.results[0].eslint.status).toBe('passed');
+            } finally {
+                fs.rmSync(fixablePath, { force: true });
+            }
+        },
+        CHECK_TIMEOUT,
+    );
+
+    it(
         'diagnoses a files-override tsconfig and reaches bridged after the printed fix',
         async () => {
             // The pre-existing standard pattern: an own tsconfig that extends

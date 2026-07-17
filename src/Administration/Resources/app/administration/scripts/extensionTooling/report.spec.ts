@@ -42,6 +42,7 @@ function extension(project_: ExtensionToolingProject, overrides: Partial<Extensi
         eslintResolution: overrides.eslintResolution ?? project_.eslint,
         typescript: overrides.typescript ?? run('passed'),
         eslint: overrides.eslint ?? run('passed'),
+        commands: overrides.commands ?? {},
     };
 }
 
@@ -189,6 +190,22 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).toContain('Warning: entity schema stub in place');
         expect(output).toContain('Error: vue-tsc is not installed');
         expect(output.indexOf('Error: vue-tsc is not installed')).toBeLessThan(output.indexOf('Mine'));
+    });
+
+    it('prints reproduction commands only with --show-commands', () => {
+        const result = extension(project('Mine'), {
+            commands: { typescript: 'cd /srv && node vue-tsc.js', eslint: 'cd /srv && node eslint.js' },
+        });
+
+        expect(renderCheckReport({ results: [result], fatalDiagnostics: [], warnings: [], exitCode: 0 })).not.toContain(
+            '$ cd /srv',
+        );
+        expect(
+            renderCheckReport(
+                { results: [result], fatalDiagnostics: [], warnings: [], exitCode: 0 },
+                { showCommands: true },
+            ),
+        ).toContain('$ cd /srv && node vue-tsc.js');
     });
 
     it('qualifies a vacuous TypeScript pass instead of a bare green', () => {

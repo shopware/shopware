@@ -794,6 +794,51 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         dispatchEventSpy.mockRestore();
     });
 
+    it('should download the V2 archive after creating multiple formats', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+        wrapper = await createWrapper();
+
+        createDocumentV2Mock.mockResolvedValueOnce({
+            data: {
+                documentId: '1234',
+                deepLinkCode: '12341234',
+                formats: ['html', 'pdf'],
+            },
+        });
+
+        await wrapper.setData({
+            currentDocumentType: {
+                technicalName: 'invoice',
+            },
+        });
+
+        await wrapper.vm.onCreateDocument(
+            {
+                documentComment: '',
+                documentDate: '2026-07-06T00:00:00.000Z',
+                documentNumber: '1000',
+                requestedFormats: ['html', 'pdf'],
+            },
+            'download',
+        );
+
+        expect(createDocumentMock).not.toHaveBeenCalled();
+        expect(createDocumentV2Mock).toHaveBeenCalledWith(
+            '1234',
+            'order-version-id',
+            'invoice',
+            ['html', 'pdf'],
+            '1000',
+            '2026-07-06T00:00:00.000Z',
+            '',
+        );
+        expect(getDocumentV2Mock).not.toHaveBeenCalled();
+        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith('1234');
+        dispatchEventSpy.mockRestore();
+    });
+
     it('should open the send modal after creating a V2 document', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper = await createWrapper();

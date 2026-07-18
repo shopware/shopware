@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
@@ -14,6 +15,7 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityXmlSchemaValidator::class)]
 class CustomEntityXmlSchemaValidatorTest extends TestCase
 {

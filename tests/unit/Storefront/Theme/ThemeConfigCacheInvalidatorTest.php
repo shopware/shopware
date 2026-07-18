@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -15,6 +16,7 @@ use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ThemeConfigCacheInvalidator::class)]
 class ThemeConfigCacheInvalidatorTest extends TestCase
 {

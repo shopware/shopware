@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -20,6 +21,7 @@ use Shopware\Elasticsearch\Product\LanguageSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LanguageSubscriber::class)]
 class LanguageSubscriberTest extends TestCase
 {

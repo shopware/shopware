@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
 use Symfony\Component\Clock\NativeClock;
@@ -21,6 +22,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeleteThemeFilesTaskHandler::class)]
 class DeleteThemeFilesTaskHandlerTest extends TestCase
 {

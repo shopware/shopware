@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -22,6 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CaptchaRouteListener::class)]
 class CaptchaRouteListenerTest extends TestCase
 {

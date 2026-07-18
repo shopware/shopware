@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
@@ -18,6 +19,7 @@ use Shopware\Elasticsearch\Product\ProductCustomFieldsUsedUpdater;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductCustomFieldsUsedUpdater::class)]
 class ProductCustomFieldsUsedUpdaterTest extends TestCase
 {

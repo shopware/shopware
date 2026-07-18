@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationUpdateResult;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\TranslationUpdater;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(UpdateTranslationsTaskHandler::class)]
 class UpdateTranslationsTaskHandlerTest extends TestCase
 {

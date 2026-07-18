@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[\Shopware\Core\Framework\Log\Package('framework')]
 #[CoversClass(ThemeCompilerAssetCompilerPass::class)]
 class ThemeCompilerAssetCompilerPassTest extends TestCase
 {

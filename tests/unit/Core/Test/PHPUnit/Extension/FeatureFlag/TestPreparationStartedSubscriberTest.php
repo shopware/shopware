@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox as TestDoxAttribute;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\MetadataCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\SavedConfig;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestPreparationStartedSubscriber;
 use Shopware\Tests\Integration\Core\Test\PHPUnit\Extension\FeatureFlag\_fixtures\ClassLevelOffender;
@@ -26,6 +27,7 @@ use Shopware\Tests\Integration\Core\Test\PHPUnit\Extension\FeatureFlag\_fixtures
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TestPreparationStartedSubscriber::class)]
 class TestPreparationStartedSubscriberTest extends TestCase
 {

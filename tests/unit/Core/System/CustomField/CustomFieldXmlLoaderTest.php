@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomField;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomFieldXmlLoader::class)]
 class CustomFieldXmlLoaderTest extends TestCase
 {

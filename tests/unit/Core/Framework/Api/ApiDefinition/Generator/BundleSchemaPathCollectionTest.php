@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BundleSchemaPathCollection::class)]
 class BundleSchemaPathCollectionTest extends TestCase
 {

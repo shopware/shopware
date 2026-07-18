@@ -81,7 +81,7 @@ class ConvertGuestControllerTest extends TestCase
         $customerId = $this->createCustomer('test@test.com', guest: true);
 
         $customer = $this->customerRepository
-            ->search(new Criteria([$customerId]), $context)
+            ->search(new Criteria([$customerId]), $context)->getEntities()
             ->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
@@ -111,7 +111,7 @@ class ConvertGuestControllerTest extends TestCase
 
         $this->controller->convert($request, Context::createDefaultContext(), $customerId);
 
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertNull($caughtEvent);
         static::assertInstanceOf(CustomerEntity::class, $customer);
@@ -135,7 +135,7 @@ class ConvertGuestControllerTest extends TestCase
 
         $this->controller->convert($request, Context::createDefaultContext(), $customerId);
 
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, $caughtEvent);
         static::assertInstanceOf(CustomerEntity::class, $customer);

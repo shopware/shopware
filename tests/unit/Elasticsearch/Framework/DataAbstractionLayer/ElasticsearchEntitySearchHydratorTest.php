@@ -9,11 +9,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchEntitySearchHydrator::class)]
 class ElasticsearchEntitySearchHydratorTest extends TestCase
 {

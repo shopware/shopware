@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\SearchKeywordReplacement;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SearchKeywordReplacement::class)]
 class SearchKeywordReplacementTest extends TestCase
 {

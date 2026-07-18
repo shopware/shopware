@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Feature\Command;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
-use Shopware\Tests\Integration\Core\Framework\Feature\Command\FeatureDumpCommandTest;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @codeCoverageIgnore Unit-testing this command would require a real file write, as it dumps via file_put_contents directly - rewrite it with an injected (mockable) Filesystem, then replace this exemption with a unit test
  *
- * @see FeatureDumpCommandTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Feature\Command\FeatureDumpCommandTest
  */
 #[AsCommand(name: 'feature:dump', description: 'Dumps all features', aliases: ['administration:dump:features'])]
 #[Package('framework')]

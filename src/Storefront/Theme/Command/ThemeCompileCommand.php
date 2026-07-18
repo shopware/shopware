@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:compile',
     description: 'Compile the theme',
 )]
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompileCommand extends Command
 {
     private SymfonyStyle $io;

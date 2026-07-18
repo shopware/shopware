@@ -14,7 +14,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class IconTemplateLoader extends AbstractTemplateLoader
 {
     /**

@@ -13,7 +13,7 @@ use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('discovery')]
 class RequestTransformer implements RequestTransformerInterface
 {
     /**

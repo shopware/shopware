@@ -18,7 +18,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @see DeleteThemeFilesTaskHandler
  */
 #[AsMessageHandler]
-#[Package('framework')]
+#[Package('discovery')]
 final readonly class DeleteThemeFilesHandler
 {
     public function __construct(

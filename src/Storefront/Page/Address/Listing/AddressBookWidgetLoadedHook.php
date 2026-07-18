@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class AddressBookWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

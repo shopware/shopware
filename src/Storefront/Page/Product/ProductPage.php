@@ -12,7 +12,7 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ProductPage extends Page
 {
     protected SalesChannelProductEntity $product;

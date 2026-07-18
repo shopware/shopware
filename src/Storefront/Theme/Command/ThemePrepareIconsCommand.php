@@ -25,7 +25,7 @@ use function Symfony\Component\String\s;
     name: 'theme:prepare-icons',
     description: 'Prepare the theme icons',
 )]
-#[Package('framework')]
+#[Package('discovery')]
 class ThemePrepareIconsCommand extends Command
 {
     protected function configure(): void

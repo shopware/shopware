@@ -29,7 +29,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'theme:dump',
     description: 'Dump the theme configuration',
 )]
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeDumpCommand extends Command
 {
     private readonly Context $context;

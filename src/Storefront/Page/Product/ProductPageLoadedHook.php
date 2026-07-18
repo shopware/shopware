@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ProductPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

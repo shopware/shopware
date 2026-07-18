@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('framework')]
+#[Package('discovery')]
 final readonly class CompileThemeHandler
 {
     /**

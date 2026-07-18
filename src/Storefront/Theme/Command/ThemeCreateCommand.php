@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
     name: 'theme:create',
     description: 'Create a new theme',
 )]
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCreateCommand extends Command
 {
     /**

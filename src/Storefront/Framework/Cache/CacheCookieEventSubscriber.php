@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CacheCookieEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly SessionFactoryInterface $sessionFactory)

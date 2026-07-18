@@ -147,7 +147,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testRuleMatchWithoutItemsInCart(): void

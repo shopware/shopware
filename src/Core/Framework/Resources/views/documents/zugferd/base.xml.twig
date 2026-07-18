@@ -11,9 +11,9 @@
 
     {% block zugferd_exchanged_document %}
         {% include '@Framework/documents/zugferd/includes/exchanged_document.xml.twig' with {
-            documentNumber: renderData.documentNumber,
+            documentNumber: meta.documentNumber,
             typeCode: renderData.typeCode,
-            documentDate: renderData.documentDate,
+            documentDate: meta.documentDate,
         } only %}
     {% endblock %}
 
@@ -29,7 +29,7 @@
                 <ram:BuyerReference>{{ renderData.buyerReference }}</ram:BuyerReference>
 
                 {% block zugferd_seller_party %}
-                    {% include '@Framework/documents/zugferd/includes/seller_trade_party.xml.twig' with { seller: renderData.company } only %}
+                    {% include '@Framework/documents/zugferd/includes/seller_trade_party.xml.twig' with { seller: meta.company } only %}
                 {% endblock %}
 
                 {% block zugferd_buyer_party %}

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Mcp;
 
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
@@ -113,7 +113,7 @@ class McpCapabilityCatalog
         $resources = [];
 
         foreach ($this->registry->getResources()->references as $resource) {
-            \assert($resource instanceof Resource);
+            \assert($resource instanceof ResourceDefinition);
 
             if ($allowlist !== null && !\in_array($resource->uri, $allowlist, true)) {
                 continue;

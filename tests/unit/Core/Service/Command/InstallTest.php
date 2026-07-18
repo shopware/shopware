@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Command\Install;
 use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Install::class)]
 class InstallTest extends TestCase
 {

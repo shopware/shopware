@@ -9,11 +9,13 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PropertyGroupOptionCollection::class)]
 #[CoversClass(PropertyGroupCollection::class)]
 class PropertySortTest extends TestCase

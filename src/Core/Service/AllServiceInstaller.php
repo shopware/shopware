@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Event\NewServicesInstalledEvent;
 use Shopware\Core\Service\Message\InstallServicesMessage;
+use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -24,22 +26,45 @@ class AllServiceInstaller
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     /**
-     * Discovers services in the registry that are not yet installed and hands each one to
-     * ServiceLifecycle, which resolves the strategy and performs the resulting operation.
+     * Converges the shop toward the registry: discovers services that are not yet installed and hands
+     * each one to ServiceLifecycle, and schedules an update for every already-installed service still
+     * listed in the registry so it reaches the registry's latest revision.
      * It should only be called from a higher-level, 'state'-aware class: Shopware\Core\Service\LifecycleManager.
      *
      * @return array<string> The newly installed services
      */
-    public function install(Context $context): array
+    public function reconcile(Context $context): array
     {
         $existingServices = $this->serviceStorage->findAll($context);
+        $registryServices = $this->serviceRegistryClient->getAll();
 
+        $installedServices = $this->installNewServices($existingServices, $registryServices, $context);
+
+        $this->scheduleUpdates($existingServices, $registryServices);
+
+        return $installedServices;
+    }
+
+    public function scheduleInstall(): void
+    {
+        $this->messageBus->dispatch(new InstallServicesMessage());
+    }
+
+    /**
+     * @param list<Service> $existingServices
+     * @param array<ServiceEntry> $registryServices
+     *
+     * @return array<string>
+     */
+    private function installNewServices(array $existingServices, array $registryServices, Context $context): array
+    {
         $installedServices = [];
-        foreach ($this->getNewServices($existingServices) as $entry) {
+        foreach ($this->getNewServices($existingServices, $registryServices) as $entry) {
             if ($this->serviceLifecycle->install($entry, $context)) {
                 $installedServices[] = $entry->name;
             }
@@ -52,22 +77,48 @@ class AllServiceInstaller
         return $installedServices;
     }
 
-    public function scheduleInstall(): void
+    /**
+     * The update is idempotent (ServiceLifecycle::update no-ops when the installed revision already
+     * matches), so enqueuing for every in-registry service is safe.
+     *
+     * @param list<Service> $existingServices
+     * @param array<ServiceEntry> $registryServices
+     */
+    private function scheduleUpdates(array $existingServices, array $registryServices): void
     {
-        $this->messageBus->dispatch(new InstallServicesMessage());
+        $registryServiceNames = [];
+        foreach ($registryServices as $registryService) {
+            $registryServiceNames[$registryService->name] = true;
+        }
+
+        $scheduled = [];
+        foreach ($existingServices as $service) {
+            if (isset($registryServiceNames[$service->name])) {
+                $this->messageBus->dispatch(new UpdateServiceMessage($service->name));
+                $scheduled[] = $service->name;
+            }
+        }
+
+        if ($scheduled !== []) {
+            $this->logger->debug('Reconcile scheduled updates for installed services', [
+                'count' => \count($scheduled),
+                'services' => $scheduled,
+            ]);
+        }
     }
 
     /**
      * @param list<Service> $installedServices
+     * @param array<ServiceEntry> $registryServices
      *
      * @return array<ServiceEntry>
      */
-    private function getNewServices(array $installedServices): array
+    private function getNewServices(array $installedServices, array $registryServices): array
     {
         $names = array_map(static fn (Service $service) => $service->name, $installedServices);
 
         return array_filter(
-            $this->serviceRegistryClient->getAll(),
+            $registryServices,
             static fn (ServiceEntry $service) => !\in_array($service->name, $names, true)
         );
     }

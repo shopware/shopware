@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
  *
  * @phpstan-import-type ThemeRuntimeConfigArrayOverrides from ThemeRuntimeConfig
  */
+#[Package('framework')]
 class ThemeRuntimeConfigStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

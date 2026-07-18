@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\System\User;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 class UserCrudTest extends TestCase
 {
     use IntegrationTestBehaviour;

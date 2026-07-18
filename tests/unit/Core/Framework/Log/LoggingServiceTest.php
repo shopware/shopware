@@ -13,12 +13,14 @@ use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Log\LoggingService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Logging\Event\LogAwareTestFlowEvent;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LoggingService::class)]
 class LoggingServiceTest extends TestCase
 {

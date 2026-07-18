@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('slow')]
 class PluginManagementServiceTest extends TestCase
 {

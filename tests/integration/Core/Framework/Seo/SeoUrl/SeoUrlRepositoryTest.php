@@ -124,7 +124,7 @@ class SeoUrlRepositoryTest extends TestCase
         static::assertNotNull($event);
         static::assertSame([$id], $event->getIds());
 
-        $first = $this->seoUrlRepository->search(new Criteria([$id]), $context)->first();
+        $first = $this->seoUrlRepository->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNull($first);
     }
 

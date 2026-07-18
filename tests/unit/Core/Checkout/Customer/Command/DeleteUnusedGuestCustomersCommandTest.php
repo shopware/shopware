@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand;
 use Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(DeleteUnusedGuestCustomersCommand::class)]
 class DeleteUnusedGuestCustomersCommandTest extends TestCase
 {

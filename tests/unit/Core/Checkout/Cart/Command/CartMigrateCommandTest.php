@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Command\CartMigrateCommand;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Redis\RedisStub;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CartMigrateCommand::class)]
 class CartMigrateCommandTest extends TestCase
 {

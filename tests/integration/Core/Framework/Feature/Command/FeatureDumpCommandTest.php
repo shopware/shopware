@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Feature\Command;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\Command\FeatureDumpCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 class FeatureDumpCommandTest extends TestCase
 {
     use KernelTestBehaviour;

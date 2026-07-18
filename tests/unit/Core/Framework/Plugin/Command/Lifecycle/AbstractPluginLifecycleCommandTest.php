@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginDeactivateCommand;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -33,6 +34,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AbstractPluginLifecycleCommand::class)]
 class AbstractPluginLifecycleCommandTest extends TestCase
 {

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopwareStyle::class)]
 class ShopwareStyleTest extends TestCase
 {

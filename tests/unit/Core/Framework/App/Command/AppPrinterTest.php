@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -20,6 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppPrinter::class)]
 class AppPrinterTest extends TestCase
 {

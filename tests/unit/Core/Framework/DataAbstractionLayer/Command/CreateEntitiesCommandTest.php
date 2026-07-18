@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateEntitiesCommand::class)]
 class CreateEntitiesCommandTest extends TestCase
 {

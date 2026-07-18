@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminTestCommand;
 use Symfony\Component\Console\Command\Command;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchAdminTestCommand::class)]
 class ElasticsearchAdminTestCommandTest extends TestCase
 {

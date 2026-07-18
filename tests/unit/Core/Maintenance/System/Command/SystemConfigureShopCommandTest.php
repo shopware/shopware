@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemConfigureShopCommand;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Symfony\Component\Console\Command\Command;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigureShopCommand::class)]
 class SystemConfigureShopCommandTest extends TestCase
 {

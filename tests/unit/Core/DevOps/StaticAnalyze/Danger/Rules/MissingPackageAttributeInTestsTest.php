@@ -103,6 +103,25 @@ class MissingPackageAttributeInTestsTest extends TestCase
         static::assertStringContainsString('probably `#[Package(\'discovery\')]`', $context->getFailures()[0]);
     }
 
+    #[TestDox('The suggestion supports scoped package keys like fundamentals@after-sales')]
+    public function testSuggestsScopedPackageKey(): void
+    {
+        $content = <<<'PHP'
+            use PHPUnit\Framework\Attributes\CoversClass;
+            use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+
+            #[CoversClass(ImportExportProfileEntity::class)]
+            class ImportExportProfileEntityTest extends TestCase
+            {
+            }
+            PHP;
+
+        $context = $this->runRule([new StubFile('tests/unit/Core/Content/ImportExport/ImportExportProfileEntityTest.php', File::STATUS_ADDED, $content)]);
+
+        static::assertTrue($context->hasFailures());
+        static::assertStringContainsString('probably `#[Package(\'fundamentals@after-sales\')]`', $context->getFailures()[0]);
+    }
+
     #[TestDox('Without CoversClass the suggestion falls back to the mirrored src directory, walking up missing segments')]
     public function testSuggestsPackageOfMirroredSrcDirectory(): void
     {

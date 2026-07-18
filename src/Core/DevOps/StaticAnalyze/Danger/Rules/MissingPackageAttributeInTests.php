@@ -134,7 +134,7 @@ class MissingPackageAttributeInTests
 
     private function extractPackage(string $content): ?string
     {
-        if (preg_match('/#\[Package\(\'([\w-]+)\'\)\]/', $content, $package)) {
+        if (preg_match('/#\[Package\(\'([\w@-]+)\'\)\]/', $content, $package)) {
             return $package[1];
         }
 

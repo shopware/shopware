@@ -264,15 +264,25 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
 * Props are written in camelCase.
 * If possible, provide a fallback value for props in case a prop is not given.
 * If a component cannot work without a specific prop, the prop can also be required.
+* Document props in Twig UX format as `{# @prop <name> <type> <Description.> #}` before the `{% props %}` tag.
 
 ```twig
+{# @prop product Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity The product to display. #}
+{# @prop variant 'default'|'secondary'|'destructive'|'outline'|'ghost'|'link' The visual style variant. #}
+{# @prop size 'default'|'xs'|'sm'|'lg'|'icon'|'icon-xs'|'icon-sm'|'icon-lg' The component size. #}
+{# @prop mediaHeight int|null The media height in pixels. #}
+{# @prop defaultRoute string The fallback product link. #}
+{# @prop labels array<string> The labels to display. #}
 {% props
     product,            {# Required prop #}
+    variant = 'default',
+    size = 'default',
     mediaHeight = 240,  {# With fallback #}
     defaultRoute = '#', {# With fallback #}
+    labels = [],
 %}
 
-<twig:Sw:ProductCard :product="product" />
+<twig:Sw:ProductCard :product="product" variant="secondary" size="sm" />
 ```
 
 ### Blocks
@@ -281,9 +291,11 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
 * A block must always have a dedicated purpose. Avoid creating blocks speculatively without a defined use case.
 * Modifying markup like class attributes or ids should be done with [Attributes and CVA](#Attributes-and-CVA) and not with the block system.
 * It must never be necessary to use twig blocks in order to change simple attributes of a component.
+* Document blocks in Twig UX format as `{# @block <name> <Description.> #}` at the top of the component template, after any `@prop` comments.
 * A component that is used like a native element (e.g. a button component) must bring a default content block `{% block content %}`. The content block works similar to a default slot in other component frameworks. It is needed to pass the content into the component without the need to use a named block.
   ```twig
   {# Component #}
+  {# @block content The button label and content. #}
   <button class="sw-button">
      {% block content %}{% endblock %}
   </button>
@@ -296,6 +308,10 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
 
 ✅ Do:
 ```twig
+{# @block media The product media. #}
+{# @block title The product title. #}
+{# @block price The product price. #}
+{# @block actions The product actions. #}
 {# Blocks are declared in dedicated areas to allow overriding of logical sections. #}
 <div class="sw-product-card card">
     {% block media %}

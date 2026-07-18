@@ -12,12 +12,14 @@ use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Twig\Environment;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceReferenceGenerator::class)]
 class ServiceReferenceGeneratorTest extends TestCase
 {

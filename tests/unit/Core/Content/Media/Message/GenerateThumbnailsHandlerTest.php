@@ -11,12 +11,14 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(GenerateThumbnailsHandler::class)]
 class GenerateThumbnailsHandlerTest extends TestCase
 {

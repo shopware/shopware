@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,6 +34,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CategoryIndexerTest extends TestCase
 {
     use KernelTestBehaviour;

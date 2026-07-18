@@ -483,7 +483,7 @@ class ControllerRateLimiterTest extends TestCase
         $orderRepository = static::getContainer()->get('order.repository');
         $orderRepository->create($orderData, $this->context);
 
-        $order = $orderRepository->search(new Criteria([$orderId]), $this->context)->first();
+        $order = $orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
 
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -50,6 +51,8 @@ class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use PromotionTestFixtureBehaviour;
+
+    private const ADDITIONAL_ORDER_PLACED_MAIL_TYPE = 'additional_order_placed_mail';
 
     /**
      * @var EntityRepository<PromotionCollection>
@@ -1039,6 +1042,44 @@ class SalesChannelProxyControllerTest extends TestCase
         });
     }
 
+    public function testProxyCreateOrderOnlySuppressesCustomerOrderConfirmationMail(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $customerId = $this->createCustomer($salesChannelContext, Uuid::randomHex() . '@example.com');
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
+        $payload = array_merge($payload, [
+            'customerId' => $customerId,
+            'paymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
+        ]);
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
+
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $salesChannelContext);
+        $flowId = $this->createAdditionalOrderPlacedMailFlow();
+
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
+
+        try {
+            $this->mailListener(function (MailEventListener $listener) use ($browser, $salesChannelContext): void {
+                $browser->jsonRequest('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannelId()), [
+                    'sendMail' => false,
+                ]);
+
+                static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+                static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+                static::assertFalse($listener->sent('order_confirmation_mail'));
+                static::assertTrue($listener->sent(self::ADDITIONAL_ORDER_PLACED_MAIL_TYPE));
+            });
+        } finally {
+            static::getContainer()->get('flow.repository')->delete([[
+                'id' => $flowId,
+            ]], $this->context);
+        }
+    }
+
     public function testProxyCreateOrderPrivileges(): void
     {
         try {
@@ -1491,6 +1532,60 @@ class SalesChannelProxyControllerTest extends TestCase
             'sendMail' => false,
             'mailExpected' => false,
         ];
+    }
+
+    private function createAdditionalOrderPlacedMailFlow(): string
+    {
+        $mailTemplateTypeId = Uuid::randomHex();
+        $mailTemplateId = Uuid::randomHex();
+        $flowId = Uuid::randomHex();
+
+        static::getContainer()->get('mail_template_type.repository')->create([[
+            'id' => $mailTemplateTypeId,
+            'name' => 'Additional order placed mail',
+            'technicalName' => self::ADDITIONAL_ORDER_PLACED_MAIL_TYPE,
+            'availableEntities' => [
+                'order' => 'order',
+            ],
+        ]], $this->context);
+
+        static::getContainer()->get('mail_template.repository')->create([[
+            'id' => $mailTemplateId,
+            'mailTemplateTypeId' => $mailTemplateTypeId,
+            'systemDefault' => false,
+            'senderName' => 'Shopware',
+            'subject' => 'Additional order placed mail',
+            'contentHtml' => 'Additional order placed mail',
+            'contentPlain' => 'Additional order placed mail',
+        ]], $this->context);
+
+        static::getContainer()->get('flow.repository')->create([[
+            'id' => $flowId,
+            'name' => 'Additional order placed mail',
+            'eventName' => 'checkout.order.placed',
+            'priority' => 1,
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => null,
+                    'ruleId' => null,
+                    'actionName' => SendMailAction::ACTION_NAME,
+                    'config' => [
+                        'mailTemplateId' => $mailTemplateId,
+                        'recipient' => [
+                            'type' => 'custom',
+                            'data' => [
+                                'warehouse@example.com' => 'Warehouse',
+                            ],
+                        ],
+                    ],
+                    'position' => 1,
+                ],
+            ],
+        ]], $this->context);
+
+        return $flowId;
     }
 
     private function createCustomer(

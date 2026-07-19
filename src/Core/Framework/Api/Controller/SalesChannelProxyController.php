@@ -69,6 +69,8 @@ class SalesChannelProxyController extends AbstractController
 
     private const SEARCH_ROUTE = 'search';
 
+    private const CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION = 'customer-mail-template-types-to-skip';
+
     private const ADMIN_ORDER_PERMISSIONS = [
         CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
@@ -120,9 +122,15 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         if ($request->request->get('sendMail', true) === false) {
+            $mailConfig = new MailSendSubscriberConfig(false);
+            $mailConfig->addArrayExtension(
+                self::CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION,
+                [MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]
+            );
+
             $salesChannelContext->getContext()->addExtension(
                 SendMailAction::MAIL_CONFIG_EXTENSION,
-                new MailSendSubscriberConfig(false, [], [], [MailTemplateTypes::MAILTYPE_ORDER_CONFIRM])
+                $mailConfig
             );
         }
 

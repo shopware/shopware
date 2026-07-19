@@ -19,24 +19,16 @@ class MailSendSubscriberConfig extends Struct
     protected array $mediaIds = [];
 
     /**
-     * @var array<string>
-     */
-    protected array $customerMailTemplateTypesToSkip = [];
-
-    /**
      * @param array<string> $documentIds
      * @param array<string> $mediaIds
-     * @param array<string> $customerMailTemplateTypesToSkip
      */
     public function __construct(
         protected bool $skip,
         array $documentIds = [],
-        array $mediaIds = [],
-        array $customerMailTemplateTypesToSkip = []
+        array $mediaIds = []
     ) {
         $this->documentIds = $documentIds;
         $this->mediaIds = $mediaIds;
-        $this->customerMailTemplateTypesToSkip = $customerMailTemplateTypesToSkip;
     }
 
     public function skip(): bool
@@ -66,14 +58,6 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @return array<string>
-     */
-    public function getCustomerMailTemplateTypesToSkip(): array
-    {
-        return $this->customerMailTemplateTypesToSkip;
-    }
-
-    /**
      * @param array<string> $documentIds
      */
     public function setDocumentIds(array $documentIds): void
@@ -87,13 +71,5 @@ class MailSendSubscriberConfig extends Struct
     public function setMediaIds(array $mediaIds): void
     {
         $this->mediaIds = $mediaIds;
-    }
-
-    /**
-     * @param array<string> $customerMailTemplateTypesToSkip
-     */
-    public function setCustomerMailTemplateTypesToSkip(array $customerMailTemplateTypesToSkip): void
-    {
-        $this->customerMailTemplateTypesToSkip = $customerMailTemplateTypesToSkip;
     }
 }

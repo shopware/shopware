@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -47,6 +48,7 @@ class SendMailAction extends FlowAction implements DelayableAction
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
     private const RECIPIENT_CONFIG_DEFAULT = 'default';
     private const RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL = 'revocationRequestCustomerFormMail';
+    private const CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION = 'customer-mail-template-types-to-skip';
 
     /**
      * @internal
@@ -113,17 +115,22 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
+        $customerMailTemplateTypesToSkip = $this->getCustomerMailTemplateTypesToSkip($extension);
         $mailTemplate = $this->getMailTemplate(
             $eventConfig['mailTemplateId'],
             $flow->getContext(),
-            $extension->getCustomerMailTemplateTypesToSkip() !== []
+            $customerMailTemplateTypesToSkip !== []
         );
 
         if ($mailTemplate === null) {
             return;
         }
 
-        if ($this->shouldSkipCustomerMailTemplateType($mailTemplate, $extension, $eventConfig['recipient'])) {
+        if ($this->shouldSkipCustomerMailTemplateType(
+            $mailTemplate,
+            $customerMailTemplateTypesToSkip,
+            $eventConfig['recipient']
+        )) {
             return;
         }
 
@@ -287,11 +294,38 @@ class SendMailAction extends FlowAction implements DelayableAction
     }
 
     /**
+     * @return array<string>
+     */
+    private function getCustomerMailTemplateTypesToSkip(MailSendSubscriberConfig $extension): array
+    {
+        $customerMailTemplateTypesToSkip = $extension->getExtension(
+            self::CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION
+        );
+
+        if (!$customerMailTemplateTypesToSkip instanceof ArrayStruct) {
+            return [];
+        }
+
+        $technicalNames = [];
+
+        foreach ($customerMailTemplateTypesToSkip->all() as $technicalName) {
+            if (!\is_string($technicalName) || $technicalName === '') {
+                continue;
+            }
+
+            $technicalNames[] = $technicalName;
+        }
+
+        return $technicalNames;
+    }
+
+    /**
+     * @param array<string> $customerMailTemplateTypesToSkip
      * @param array<string, mixed> $recipients
      */
     private function shouldSkipCustomerMailTemplateType(
         MailTemplateEntity $mailTemplate,
-        MailSendSubscriberConfig $extension,
+        array $customerMailTemplateTypesToSkip,
         array $recipients
     ): bool {
         if (!\in_array(
@@ -308,7 +342,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return false;
         }
 
-        return \in_array($mailTemplateType->getTechnicalName(), $extension->getCustomerMailTemplateTypesToSkip(), true);
+        return \in_array($mailTemplateType->getTechnicalName(), $customerMailTemplateTypesToSkip, true);
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

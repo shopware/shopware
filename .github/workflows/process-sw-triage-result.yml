@@ -19,9 +19,9 @@ on:
     types: [completed]
 
 permissions:
-  actions: read       # list + download artifacts of the triggering run
-  contents: read      # checkout the validator script
-  issues: write       # post the validated triage result as an issue comment
+  actions: read # list + download artifacts of the triggering run
+  contents: read # checkout the validator script
+  issues: write # post the validated triage result as an issue comment
 
 concurrency:
   group: process-sw-triage-result-${{ github.event.workflow_run.id }}

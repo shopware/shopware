@@ -181,7 +181,7 @@ class ScriptApiRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'api-endpoint-cases'));
         /** @var AppEntity $app */
-        $app = static::getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->first();
+        $app = static::getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
         $browser->jsonRequest('POST', '/api/script/simple-script');

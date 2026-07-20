@@ -227,12 +227,15 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
+        $email = RequestParamHelper::get($request, 'email', false);
+        $zipcode = RequestParamHelper::get($request, 'zipcode', false);
+
         // Verify email and zip code with this order
-        if (RequestParamHelper::get($request, 'email', false) && RequestParamHelper::get($request, 'zipcode', false)) {
+        if ($email && $zipcode) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || strtolower(RequestParamHelper::get($request, 'email')) !== strtolower($orderCustomer->getEmail())
-                || strtoupper(RequestParamHelper::get($request, 'zipcode')) !== strtoupper($billingAddress->getZipcode() ?: '')) {
+                || strtolower($email) !== strtolower($orderCustomer->getEmail())
+                || strtoupper($zipcode) !== strtoupper($billingAddress->getZipcode() ?: '')) {
                 throw DocumentException::wrongGuestCredentials();
             }
         } else {

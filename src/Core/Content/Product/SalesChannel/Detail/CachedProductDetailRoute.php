@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -22,7 +21,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedProductDetailRoute extends AbstractProductDetailRoute
 {
@@ -47,7 +45,6 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/product/{productId}', name: 'store-api.product.detail', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         if (Feature::isActive('cache_rework')) {

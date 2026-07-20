@@ -38,9 +38,9 @@ class AppMcpCapabilityDetector
         }
 
         return new McpListChangedNotificationSet(
-            tools: $mcp->getTools() !== null && \count($mcp->getTools()->getTools()) > 0,
-            resources: $mcp->getResources() !== null && \count($mcp->getResources()->getResources()) > 0,
-            prompts: $mcp->getPrompts() !== null && \count($mcp->getPrompts()->getPrompts()) > 0,
+            tools: $mcp->getTools() !== null && $mcp->getTools()->getTools() !== [],
+            resources: $mcp->getResources() !== null && $mcp->getResources()->getResources() !== [],
+            prompts: $mcp->getPrompts() !== null && $mcp->getPrompts()->getPrompts() !== [],
         );
     }
 

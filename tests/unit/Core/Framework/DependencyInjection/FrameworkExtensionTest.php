@@ -70,4 +70,21 @@ class FrameworkExtensionTest extends TestCase
         static::assertFalse($container->getParameter('shopware.cache.cache_compression'));
         static::assertSame('deflate', $container->getParameter('shopware.cache.cache_compression_method'));
     }
+
+    public function testDeprecatedCacheCompressionConfigIsSetForBC(): void
+    {
+        $container = new ContainerBuilder();
+
+        (new FrameworkExtension())->load([
+            [
+                'cache' => [
+                    'compress' => true,
+                    'compression_method' => 'gzip',
+                ],
+            ],
+        ], $container);
+
+        static::assertTrue($container->getParameter('shopware.cache.cache_compression'));
+        static::assertSame('gzip', $container->getParameter('shopware.cache.cache_compression_method'));
+    }
 }

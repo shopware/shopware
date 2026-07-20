@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -83,17 +85,13 @@ class ConvertGuestRouteTest extends TestCase
                 static::equalTo('framework.validation.customer.guest.convert')
             );
 
-        $data = [
-            'id' => 'test-customer-id',
-            'email' => 'test@example.com',
-            'guest' => false,
-            'password' => 'new-password',
-        ];
-
         $validator = $this->createMock(DataValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with([
+                'email' => 'test@example.com',
+                'password' => 'new-password',
+            ], static::callback(function (DataValidationDefinition $definition) {
                 static::assertSame('customer.guest.convert', $definition->getName());
                 static::assertEquals([
                     'password' => [new NotBlank()],
@@ -106,7 +104,12 @@ class ConvertGuestRouteTest extends TestCase
         $route = $this->buildRoute($eventDispatcher, $validator, $passwordValidationFactory);
         $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
 
-        static::assertSame([[$data]], $this->customerRepository->updates);
+        static::assertSame([[[
+            'id' => 'test-customer-id',
+            'email' => 'test@example.com',
+            'guest' => false,
+            'password' => 'new-password',
+        ]]], $this->customerRepository->updates);
     }
 
     public function testConvertGuestFailsForRegisteredCustomer(): void
@@ -136,17 +139,13 @@ class ConvertGuestRouteTest extends TestCase
         $eventDispatcher->expects($this->once())
             ->method('dispatch');
 
-        $data = [
-            'id' => 'test-customer-id',
-            'guest' => false,
-            'password' => '',
-            'email' => 'test@example.com',
-        ];
-
         $validator = $this->createMock(DataValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with([
+                'email' => 'test@example.com',
+                'password' => '',
+            ], static::callback(function (DataValidationDefinition $definition) {
                 static::assertSame('customer.guest.convert', $definition->getName());
                 static::assertEquals([
                     'password' => [new NotBlank()],
@@ -155,7 +154,14 @@ class ConvertGuestRouteTest extends TestCase
 
                 return true;
             }))
-            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), $data));
+            ->willThrowException(new ConstraintViolationException(
+                new ConstraintViolationList(),
+                [
+                    'id' => 'test-customer-id',
+                    'guest' => false,
+                    'password' => '',
+                    'email' => 'test@example.com']
+            ));
 
         $route = $this->buildRoute($eventDispatcher, $validator, $passwordValidationFactory);
 
@@ -174,7 +180,9 @@ class ConvertGuestRouteTest extends TestCase
             $this->customerRepository,
             $eventDispatcher ?? $this->eventDispatcher,
             $validator ?? $this->validator,
-            $passwordValidationFactory ?? $this->passwordValidationFactory
+            $passwordValidationFactory ?? $this->passwordValidationFactory,
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class),
         );
     }
 }

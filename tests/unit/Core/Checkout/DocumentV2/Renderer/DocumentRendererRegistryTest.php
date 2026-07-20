@@ -25,7 +25,7 @@ class DocumentRendererRegistryTest extends TestCase
         $registry = self::createRegistry();
 
         if ($throw) {
-            static::expectExceptionObject(DocumentV2Exception::rendererNotFound($format->value, $type->value));
+            $this->expectExceptionObject(DocumentV2Exception::rendererNotFound($format->value, $type->value));
         }
 
         $renderer = $registry->getRenderer($format->value, $type->value);
@@ -85,7 +85,7 @@ class DocumentRendererRegistryTest extends TestCase
 
     public function testGetRendererThrowsOnDuplicateRendererRegistration(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
         );
 
@@ -97,7 +97,7 @@ class DocumentRendererRegistryTest extends TestCase
 
     public function testMapRenderersByFormatThrowsOnDuplicateRendererRegistration(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
         );
 

@@ -89,7 +89,7 @@ class PaymentHandlerRegistryTest extends TestCase
         $criteria->addAssociation('app');
 
         /** @var PaymentMethodEntity|null $method */
-        $method = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        $method = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->first();
 
         if (!$method) {
             $method = [
@@ -110,7 +110,7 @@ class PaymentHandlerRegistryTest extends TestCase
             $criteria->addAssociation('app');
 
             /** @var PaymentMethodEntity|null $method */
-            $method = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+            $method = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->first();
         }
 
         static::assertNotNull($method);

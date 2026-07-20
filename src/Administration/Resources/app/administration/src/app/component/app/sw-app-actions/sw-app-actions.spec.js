@@ -140,6 +140,26 @@ describe('sw-app-actions', () => {
         ]);
     });
 
+    it('does not reload actions when only listing query parameters change', async () => {
+        await router.push({ name: 'sw.order.detail' });
+        wrapper = await createWrapper(router);
+        await flushPromises();
+
+        const getActionButtonsPerView = wrapper.vm.appActionButtonService.getActionButtonsPerView;
+        getActionButtonsPerView.mockClear();
+
+        await router.push({
+            name: 'sw.order.detail',
+            query: {
+                page: '2',
+                limit: '50',
+            },
+        });
+        await flushPromises();
+
+        expect(getActionButtonsPerView).not.toHaveBeenCalled();
+    });
+
     it('reloads actions only when a newly registered SDK button matches the current view', async () => {
         await router.push({ name: 'sw.order.detail' });
         wrapper = await createWrapper(router);

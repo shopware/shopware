@@ -363,7 +363,7 @@ class DocumentMergerTest extends TestCase
 
         $order = static::getContainer()
             ->get('order.repository')
-            ->search(new Criteria([$this->orderId]), $this->context)->getEntities()
+            ->search(new Criteria([$this->orderId]), $this->context)
             ->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);

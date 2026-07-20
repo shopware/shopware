@@ -267,7 +267,7 @@ class InvoiceRendererTest extends TestCase
                 ]], Context::createDefaultContext());
 
                 $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
-                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->get($operation->getOrderId());
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($operation->getOrderId());
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 $context = clone Context::createDefaultContext();

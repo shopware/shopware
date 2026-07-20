@@ -53,7 +53,7 @@ class ProductReviewCountServiceTest extends TestCase
 
         $customerRepo = static::getContainer()->get('customer.repository');
         /** @var CustomerCollection $customers */
-        $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext())->getEntities();
+        $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext());
 
         $firstCustomer = $customers->get($this->ids->get('c1'));
         static::assertInstanceOf(CustomerEntity::class, $firstCustomer);

@@ -128,7 +128,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
@@ -179,7 +179,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
-        )->getEntities();
+        );
 
         static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());

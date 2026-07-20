@@ -189,7 +189,7 @@ class DoubleOptInServiceTest extends TestCase
     private function fetchCustomer(string $id): CustomerEntity
     {
         $customer = static::getContainer()->get('customer.repository')
-            ->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()
+            ->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);

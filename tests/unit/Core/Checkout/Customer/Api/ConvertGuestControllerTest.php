@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
-use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;
@@ -40,8 +39,8 @@ class ConvertGuestControllerTest extends TestCase
         $repository = static::createStub(EntityRepository::class);
 
         $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('getEntities')
-            ->willReturn(new CustomerCollection([$customer]));
+        $searchResult->method('first')
+            ->willReturn($customer);
 
         $repository->method('search')
             ->willReturn($searchResult);
@@ -106,7 +105,7 @@ class ConvertGuestControllerTest extends TestCase
         $repository = static::createStub(EntityRepository::class);
 
         $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('getEntities')->willReturn(new CustomerCollection());
+        $searchResult->method('first')->willReturn(null);
 
         $repository->method('search')->willReturn($searchResult);
 
@@ -134,7 +133,7 @@ class ConvertGuestControllerTest extends TestCase
         $repository = static::createStub(EntityRepository::class);
 
         $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('getEntities')->willReturn(new CustomerCollection([$customer]));
+        $searchResult->method('first')->willReturn($customer);
 
         $repository->method('search')->willReturn($searchResult);
 
@@ -198,7 +197,7 @@ class ConvertGuestControllerTest extends TestCase
         $repository = static::createStub(EntityRepository::class);
 
         $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('getEntities')->willReturn(new CustomerCollection([$customer]));
+        $searchResult->method('first')->willReturn($customer);
 
         $repository->method('search')->willReturn($searchResult);
 

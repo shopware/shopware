@@ -183,7 +183,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 
         $promotion = $this->promotionRepository
-            ->search(new Criteria([$promotionId]), Context::createDefaultContext())->getEntities()
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
 
         static::assertInstanceOf(PromotionEntity::class, $promotion);
@@ -200,7 +200,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 
         $promotion = $this->promotionRepository
-            ->search(new Criteria([$promotionId]), Context::createDefaultContext())->getEntities()
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
         static::assertNotNull($promotion);
 
@@ -223,7 +223,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->orderWithPromotion($code, [$productId1, $productId2], $context2);
 
         $promotion = $this->promotionRepository
-            ->search(new Criteria([$promotionId]), Context::createDefaultContext())->getEntities()
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
         static::assertNotNull($promotion);
 

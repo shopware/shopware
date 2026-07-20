@@ -125,8 +125,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(2, $wishlistProduct);
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertCount(2, $wishlistProduct->getEntities());
     }
 
     public function testMergeThreeProductShouldReturnSuccessNoWishlistExisted(): void
@@ -150,8 +150,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(2, $wishlistProduct);
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertCount(2, $wishlistProduct->getEntities());
     }
 
     public function testMergeProductShouldThrowCustomerNotLoggedInException(): void
@@ -175,8 +175,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame('Forbidden', $errors['title']);
         static::assertSame('Customer is not logged in.', $errors['detail']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertNull($wishlistProduct->first());
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertNull($wishlistProduct->getEntities()->first());
     }
 
     public function testMergeProductShouldThrowCustomerWishlistNotActivatedException(): void
@@ -200,8 +200,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame('Forbidden', $errors['title']);
         static::assertSame('Wishlist is not activated!', $errors['detail']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertNull($wishlistProduct->first());
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertNull($wishlistProduct->getEntities()->first());
     }
 
     public function testMergeProductShouldSuccessWithNoProductInsert(): void
@@ -220,8 +220,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertNull($wishlistProduct->first());
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertNull($wishlistProduct->getEntities()->first());
     }
 
     public function testMergeProductShouldReturnSuccessAlreadyWishlistExisted(): void
@@ -244,8 +244,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertSame($productData, $wishlistProduct->first()?->getProductId());
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertSame($productData, $wishlistProduct->getEntities()->first()?->getProductId());
     }
 
     public function testMergeProductShouldReturnSuccessAlreadyProductWishlistExisted(): void
@@ -268,8 +268,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(2, $wishlistProduct);
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertCount(2, $wishlistProduct->getEntities());
     }
 
     public function testMergeProductShouldReturnSuccessSameProductWishlistExisted(): void
@@ -291,9 +291,9 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(1, $wishlistProduct);
-        static::assertSame($alreadyProductData, $wishlistProduct->first()?->getProductId());
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertCount(1, $wishlistProduct->getEntities());
+        static::assertSame($alreadyProductData, $wishlistProduct->getEntities()->first()?->getProductId());
     }
 
     public function testMergeProductsWithEmptyWishlistAndEmptyMergeRequest(): void
@@ -313,8 +313,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(0, $wishlistProduct);
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertCount(0, $wishlistProduct->getEntities());
     }
 
     public function testMergeProductsWithNonEmptyWishlistAndEmptyMergeRequest(): void
@@ -335,8 +335,8 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(1, $wishlistProduct);
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertCount(1, $wishlistProduct->getEntities());
     }
 
     private function createProduct(Context $context): string

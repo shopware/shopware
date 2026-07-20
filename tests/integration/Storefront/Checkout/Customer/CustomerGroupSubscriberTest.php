@@ -134,7 +134,7 @@ class CustomerGroupSubscriberTest extends TestCase
     {
         $s1 = $this->createSalesChannel()['id'];
 
-        $languageIds = array_values(static::getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities()->getIds());
+        $languageIds = array_values(static::getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getIds());
 
         $upsertLanguages = [];
         foreach ($languageIds as $id) {

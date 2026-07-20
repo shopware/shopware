@@ -125,7 +125,7 @@ class ShippingMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->shippingMethodId]);
 
-        $resultSet = $this->shippingRepository->search($criteria, $defaultContext)->getEntities();
+        $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
 
         static::assertCount(0, $resultSet);
     }
@@ -152,7 +152,7 @@ class ShippingMethodRepositoryTest extends TestCase
     {
         $defaultContext = Context::createDefaultContext();
 
-        $result = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext)->getEntities();
+        $result = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext);
 
         static::assertEmpty($result);
     }

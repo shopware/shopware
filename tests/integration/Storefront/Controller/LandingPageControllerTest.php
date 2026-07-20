@@ -54,7 +54,7 @@ class LandingPageControllerTest extends TestCase
                     new EqualsFilter('domains.url', $_SERVER['APP_URL'])
                 ),
             Context::createDefaultContext()
-        )->getEntities()->first();
+        )->first();
 
         $data = [
             'id' => $this->ids->create('landing-page'),

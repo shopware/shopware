@@ -71,7 +71,7 @@ class ConvertGuestRouteTest extends TestCase
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', 'guest@example.com')),
             Context::createDefaultContext()
-        )->getEntities()->first();
+        )->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertFalse($customer->getGuest());

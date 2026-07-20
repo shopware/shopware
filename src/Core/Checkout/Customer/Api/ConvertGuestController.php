@@ -52,7 +52,7 @@ class ConvertGuestController
     )]
     public function convert(Request $request, Context $context, string $customerId): NoContentResponse
     {
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->first();
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->first();
 
         if (!$customer instanceof CustomerEntity) {
             throw CustomerException::customerNotFoundByIdException($customerId);

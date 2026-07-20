@@ -343,7 +343,7 @@ class CheckoutControllerTest extends TestCase
     {
         /** @var EntityRepository<ShippingMethodCollection> */
         $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $shippingMethods = $shippingMethodRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $shippingMethods = $shippingMethodRepository->search(new Criteria(), Context::createDefaultContext());
         $standardShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_standard')->first()?->getId();
         $expressShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_express')->first()?->getId();
         static::assertNotNull($standardShippingMethodId, 'Standard shipping method not found');
@@ -351,7 +351,7 @@ class CheckoutControllerTest extends TestCase
 
         /** @var EntityRepository<PaymentMethodCollection> */
         $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
-        $paymentMethods = $paymentMethodRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $paymentMethods = $paymentMethodRepository->search(new Criteria(), Context::createDefaultContext());
         $cashOnDeliveryPaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_cashpayment')->first()?->getId();
         $paidInAdvancePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_prepayment')->first()?->getId();
         $invoicePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_invoicepayment')->first()?->getId();

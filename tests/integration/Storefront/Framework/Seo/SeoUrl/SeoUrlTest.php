@@ -146,7 +146,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -174,7 +174,7 @@ class SeoUrlTest extends TestCase
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
@@ -425,7 +425,7 @@ class SeoUrlTest extends TestCase
         $criteria->getAssociation('seoUrls')->setLimit(10);
 
         /** @var ProductEntity $product */
-        $product = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        $product = $productRepo->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
     }
@@ -466,7 +466,7 @@ class SeoUrlTest extends TestCase
             ->setLimit(10)
             ->addFilter(new EqualsFilter('isCanonical', null));
 
-        $products = $productRepo->search($criteria, Context::createDefaultContext())->getEntities();
+        $products = $productRepo->search($criteria, Context::createDefaultContext());
         static::assertNotEmpty($products);
 
         /** @var ProductEntity $product */
@@ -581,7 +581,7 @@ class SeoUrlTest extends TestCase
             $criteria->addAssociation('seoUrls');
 
             /** @var CategoryEntity $category */
-            $category = $categoryRepository->search($criteria, $context)->getEntities()->first();
+            $category = $categoryRepository->search($criteria, $context)->first();
             static::assertSame($case['categoryId'], $category->getId());
 
             /** @var SeoUrlCollection $seoUrls */

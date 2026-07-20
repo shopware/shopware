@@ -324,7 +324,7 @@ class PromotionExtensionCodesTest extends TestCase
 
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')
-            ->search($criteria, $context->getContext())->getEntities()
+            ->search($criteria, $context->getContext())
             ->get($orderId);
         static::assertNotNull($order);
 

@@ -241,7 +241,7 @@ The `response` service allows you to create HTTP-Responses.
     * Fetch a product, add it to the page and return a rendered response.
 
         ```twig
-        {% set product = services.store.search('product', { 'ids': [productId]}).getEntities().first %}
+        {% set product = services.store.search('product', { 'ids': [productId]}).first %}
 		
 		{% do hook.page.addExtension('myProduct', product) %}
 		

@@ -119,7 +119,17 @@ export default {
         $route: {
             immediate: true,
             handler() {
+                const entity = this.entity;
+                const view = this.view;
+
                 this.matchedRoutes = this.$router.currentRoute.value.matched;
+
+                // Listing routes update query parameters for pagination, filters and sorting. Action buttons only
+                // depend on the entity and view, so those query-only route changes must not trigger another request.
+                if (entity === this.entity && view === this.view) {
+                    return;
+                }
+
                 this.loadActions();
             },
         },

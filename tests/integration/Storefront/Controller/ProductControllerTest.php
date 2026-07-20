@@ -652,7 +652,7 @@ class ProductControllerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

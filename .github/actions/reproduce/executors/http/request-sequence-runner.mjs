@@ -70,7 +70,7 @@ export class HttpRequestSequenceRunner {
     // the final (symptom) request — earlier requests are setup that just has to return 2xx. A single
     // request needs no label (it is obviously the asserted one).
     const label = total > 1
-      ? `${isLast ? '# symptom — the checks below run on this response' : '# setup — must return 2xx (not checked)'}\n`
+      ? `${isLast ? '# symptom — the checks below run on this response' : '# setup'}\n`
       : '';
 
     return `${label}curl -sS -X ${method} "$APP_URL${path}"${shownHeaders}${body ? ` --data '${body}'` : ''}\n`;

@@ -95,7 +95,7 @@ jobs:
               node ./.github/bin/js/package-discovery.ts matrix
             fi
           )
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   audit-packages:
     name: Audit - ${{ matrix.name }}

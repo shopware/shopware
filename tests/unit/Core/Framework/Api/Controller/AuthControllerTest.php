@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('fundamentals@framework')]
 #[CoversClass(AuthController::class)]
 class AuthControllerTest extends TestCase
 {

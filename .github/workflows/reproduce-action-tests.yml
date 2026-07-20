@@ -32,7 +32,9 @@ jobs:
           cache: npm
           cache-dependency-path: .github/actions/reproduce/package-lock.json
       - run: npm ci
-      - name: Syntax-check every .mjs (covers files ESLint ignores, e.g. Playwright boilerplate)
+      - name: Type-check (tsc --noEmit, strict)
+        run: npm run typecheck
+      - name: Syntax-check boilerplate .mjs (excluded from tsc + ESLint — Playwright/browser context)
         run: find . -path ./node_modules -prune -o -name '*.mjs' -print0 | xargs -0 -n1 node --check
       - name: ESLint
         run: npm run lint

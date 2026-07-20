@@ -50,27 +50,39 @@ passes when healthy (⇒ `not_reproduced`). The verdict combines the two legs:
 A blocked leg → `blocked`; low confidence, a `blocked_reason`, or an inconclusive leg →
 `needs_human_review`.
 
+## Language & runtime
+
+Sources are **TypeScript run with no build step** — Node's native type-stripping executes the `.ts`
+files directly (see the `repro` wrapper in `reproduce.md`, which runs `node --experimental-strip-types
+…/repro.ts`). Nothing is emitted, so the immutable copied source is exactly what runs. Two constraints
+this imposes:
+
+- **Node ≥ 22.18** (or ≥ 23.6) wherever the CLI runs. The `--experimental-strip-types` flag on the
+  wrapper is belt-and-suspenders for 22.6–22.17.
+- **Erasable syntax only** (no `enum`/`namespace`/parameter properties — enforced by
+  `erasableSyntaxOnly`) and **`import type` for every type-only import** (`verbatimModuleSyntax`) — a
+  type imported as a value isn't erased and throws at runtime.
+
+`typescript`/`@types/node` are **devDependencies only**; the runtime needs zero deps (stripping is
+built into Node). The Playwright `boilerplate/` stays plain `.mjs`/`.js`/`.ts` (browser/Playwright
+context) and is excluded from the Node `tsconfig`.
+
 ## Linting & tests
 
 This action has its own isolated Node toolchain (`package.json` here; `npm ci` installs it):
 
-- `npm run lint` — ESLint (flat config in `eslint.config.mjs`) over the `.mjs` sources.
-- `npm test` — `node:test` unit + integration suites (co-located `*.test.mjs`). Covers the pure
+- `npm run typecheck` — `tsc --noEmit` (strict). This is the type gate.
+- `npm run lint` — ESLint (flat config, `typescript-eslint`) over the `.ts`/`.mjs` sources.
+- `npm test` — `node:test` unit + integration suites (co-located `*.test.ts`). Covers the pure
   trust-critical logic (assertion/output classifiers, verdict matrix, bundle helpers,
-  placeholder/narration handling) and an HTTP-executor integration slice against a local server.
-  `npm run test:coverage` prints a coverage table.
+  placeholder/narration handling), the executor/CLI/report modules, and an HTTP-executor integration
+  slice against a local server. `npm run test:coverage` prints a coverage table.
 - `npm run test:bash` — plain-bash tests (`tests/bash/`, no `bats` dependency) for the offline logic
   in `steps/*.sh`, e.g. version extraction in `resolve-version.sh`.
 
-CI runs all three, path-filtered to this directory, via `.github/workflows/reproduce-action-tests.yml`.
-The docker/Playwright/live-shop executor paths are intentionally proven by the end-to-end sample runs
-rather than mocked here.
-
-**Scope / TODO:** ESLint currently lints only `.mjs`; the Playwright boilerplate (`.ts`, browser
-`.js`) is ignored. **TypeScript linting/checking is a planned follow-up** — wire up
-`typescript-eslint` and drop the `**/*.ts` ignore once that lands. Coverage is strongest on the
-decision logic; the network-heavy modules (`admin-api.mjs`, executor runners) and the remaining
-`steps/*.sh` are the next targets.
+CI runs all of these, path-filtered to this directory, via
+`.github/workflows/reproduce-action-tests.yml`. The docker/Playwright/live-shop executor paths are
+intentionally proven by the end-to-end sample runs rather than mocked here.
 
 ## Changing the workflow
 

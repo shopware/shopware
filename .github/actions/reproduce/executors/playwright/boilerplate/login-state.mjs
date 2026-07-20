@@ -11,7 +11,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
-import { adminPass, adminUser } from '../../../bundle.mjs';
+import { adminPass, adminUser } from '../../../bundle.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ADMIN_STATE = 'admin-state.json';

@@ -183,7 +183,7 @@ steps:
       cp -R .github/actions/reproduce /tmp/reproduce
       ln -s "$PWD/node_modules" /tmp/reproduce/node_modules
       chmod -R a-w /tmp/reproduce
-      printf '#!/usr/bin/env bash\nexec node /tmp/reproduce/cli/repro.mjs "$@"\n' | sudo tee /usr/local/bin/repro >/dev/null
+      printf '#!/usr/bin/env bash\nexec node --experimental-strip-types /tmp/reproduce/cli/repro.ts "$@"\n' | sudo tee /usr/local/bin/repro >/dev/null
       sudo chmod +x /usr/local/bin/repro
 
 pre-agent-steps:
@@ -304,8 +304,8 @@ post-steps:
       REPRO_RESOLVED_VERSION: ${{ steps.version.outputs.is_trunk == 'true' && 'trunk' || steps.version.outputs.target_version }}
     run: |
       set -euo pipefail
-      node /tmp/reproduce/cli/repro.mjs validate
-      node /tmp/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
+      node --experimental-strip-types /tmp/reproduce/cli/repro.ts validate
+      node --experimental-strip-types /tmp/reproduce/cli/repro.ts verify   # records video too when the plan sets record_video
 
   - name: Upload repro bundle
     if: always()
@@ -543,7 +543,7 @@ safe-outputs:
             SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
             REPRO_SANDBOX: ${{ (steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct' || steps.plan.outputs.executor == 'http') && '1' || '' }}
             # REPRO_SANDBOX_PW_IMAGE / REPRO_SANDBOX_PHP_IMAGE / REPRO_SANDBOX_JQ_IMAGE are exported by the matching "Arm … sandbox" step.
-          run: node .github/actions/reproduce/cli/repro.mjs verify   # records video too when the plan sets record_video
+          run: node --experimental-strip-types .github/actions/reproduce/cli/repro.ts verify   # records video too when the plan sets record_video
 
         # Assemble the trunk leg (result.json + evidence) as a data artifact. A missing result.json is
         # synthesized into a neutral blocked leg via the single-sourced bundle contract, so a failed
@@ -554,7 +554,7 @@ safe-outputs:
             set -euo pipefail
             mkdir -p artifacts/repro-trunk
             if [ -f result.json ]; then cp result.json artifacts/repro-trunk/; else
-              node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
+              node --experimental-strip-types .github/actions/reproduce/cli/repro.ts blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
               cp result.json artifacts/repro-trunk/
             fi
             cp -r test-results playwright-report artifacts/repro-trunk/ 2>/dev/null || true
@@ -637,7 +637,7 @@ safe-outputs:
           run: |
             set -euo pipefail
             mkdir -p artifacts/repro-trunk
-            node .github/actions/reproduce/cli/repro.mjs blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
+            node --experimental-strip-types .github/actions/reproduce/cli/repro.ts blocked-result trunk "trunk leg produced no result (provisioning or verification failed on trunk)" trunk
             cp result.json artifacts/repro-trunk/
 
         # ---- No bundle → deterministic "incomplete" comment. ----

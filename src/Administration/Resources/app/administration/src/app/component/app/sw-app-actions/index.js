@@ -25,6 +25,16 @@ const modalSizeMapping = {
 
 const IFRAME_KEY = 'app.action_button.iframe';
 
+function getAppSystemView(matchedRoutes) {
+    const matchedRoute = (Array.isArray(matchedRoutes) ? matchedRoutes : [])
+        .filter((match) => {
+            return !!match?.meta?.appSystem?.view;
+        })
+        .pop();
+
+    return matchedRoute?.meta?.appSystem?.view;
+}
+
 /**
  * @private
  */
@@ -68,13 +78,7 @@ export default {
         },
 
         view() {
-            const matchedRoute = this.matchedRoutes
-                .filter((match) => {
-                    return !!match?.meta?.appSystem?.view;
-                })
-                .pop();
-
-            return matchedRoute?.meta?.appSystem?.view;
+            return getAppSystemView(this.matchedRoutes);
         },
 
         areActionsAvailable() {
@@ -112,15 +116,17 @@ export default {
     watch: {
         $route: {
             immediate: true,
-            handler() {
-                const entity = this.entity;
-                const view = this.view;
+            handler(route, previousRoute) {
+                this.matchedRoutes = Array.isArray(route?.matched) ? route.matched : [];
 
-                this.matchedRoutes = this.$router.currentRoute.value.matched;
+                const entity = route?.meta?.$module?.entity;
+                const previousEntity = previousRoute?.meta?.$module?.entity;
+                const view = getAppSystemView(route?.matched);
+                const previousView = getAppSystemView(previousRoute?.matched);
 
                 // Listing routes update query parameters for pagination, filters and sorting. Action buttons only
                 // depend on the entity and view, so those query-only route changes must not trigger another request.
-                if (entity === this.entity && view === this.view) {
+                if (entity === previousEntity && view === previousView) {
                     return;
                 }
 

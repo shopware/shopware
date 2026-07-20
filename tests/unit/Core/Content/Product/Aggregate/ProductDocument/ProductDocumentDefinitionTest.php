@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -112,10 +111,6 @@ class ProductDocumentDefinitionTest extends TestCase
         static::assertSame('media_id', $mediaId->getStorageName());
         static::assertTrue($mediaId->is(ApiAware::class));
         static::assertTrue($mediaId->is(Required::class));
-
-        $title = $fields->get('title');
-        static::assertInstanceOf(StringField::class, $title);
-        static::assertTrue($title->is(ApiAware::class));
 
         $position = $fields->get('position');
         static::assertInstanceOf(IntField::class, $position);

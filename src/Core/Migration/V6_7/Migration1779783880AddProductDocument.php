@@ -34,7 +34,6 @@ class Migration1779783880AddProductDocument extends MigrationStep
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,
               `media_id` BINARY(16) NOT NULL,
-              `title` VARCHAR(255) NULL,
               `position` INT(11) NOT NULL DEFAULT 0,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,

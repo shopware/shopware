@@ -66,7 +66,6 @@ class ProductDocumentRepositoryTest extends TestCase
             'productDocuments' => [[
                 'id' => $documentId,
                 'mediaId' => $mediaId,
-                'title' => 'Safety manual',
                 'position' => 5,
             ]],
         ]);
@@ -86,7 +85,6 @@ class ProductDocumentRepositoryTest extends TestCase
         static::assertSame($productId, $productDocument->getProductId());
         static::assertSame(Defaults::LIVE_VERSION, $productDocument->getProductVersionId());
         static::assertSame($mediaId, $productDocument->getMediaId());
-        static::assertSame('Safety manual', $productDocument->getTitle());
         static::assertSame(5, $productDocument->getPosition());
         static::assertInstanceOf(MediaEntity::class, $productDocument->getMedia());
     }

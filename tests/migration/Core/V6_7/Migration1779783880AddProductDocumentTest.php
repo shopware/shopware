@@ -46,7 +46,7 @@ class Migration1779783880AddProductDocumentTest extends TestCase
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'product_document'));
 
-        foreach (['id', 'version_id', 'product_id', 'product_version_id', 'media_id', 'title', 'position', 'created_at', 'updated_at'] as $column) {
+        foreach (['id', 'version_id', 'product_id', 'product_version_id', 'media_id', 'position', 'created_at', 'updated_at'] as $column) {
             static::assertTrue(TableHelper::columnExists($this->connection, 'product_document', $column), \sprintf('Column %s is missing', $column));
         }
 
